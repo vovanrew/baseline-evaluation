@@ -1,0 +1,58 @@
+' Blob ID: 9859f0279f556237e0ab0836cf3851a71fb753d9
+' Original Path: /uml/udp_transfer.uml
+' Source: World of Code
+
+@startuml
+
+scale 2.0
+
+hide footbox
+skinparam backgroundColor white
+skinparam defaultFontName Droid Sans
+skinparam defaultFontSize 8
+skinparam monochrome true
+
+box "FAMPClient"
+	participant AudioBundleAssembler
+	participant UDPBundleReceiver
+end box
+
+box "FAMPServer"
+	participant UDPBundleSender
+	participant QUdpSocket
+end box
+
+activate AudioBundleAssembler 
+AudioBundleAssembler -> UDPBundleReceiver : rozpocznij watek\nodbierajacy
+activate UDPBundleReceiver
+AudioBundleAssembler -> UDPBundleSender : rozpocznij wysylanie\npaczek
+activate UDPBundleSender
+UDPBundleSender -> QUdpSocket : grupa 50 paczek
+
+deactivate UDPBundleSender
+
+loop dopoki nie pobrano wszystkich paczek
+	loop dopoki dostepne sa datagramy
+		AudioBundleAssembler -> UDPBundleReceiver: przekaz pobrane\ndotychczas datagramy
+		UDPBundleReceiver --> AudioBundleAssembler: dane
+		deactivate UDPBundleReceiver
+		AudioBundleAssembler -> AudioBundleAssembler: odczytaj id paczki i zapisz
+	end loop
+	alt nie wszystkie paczki wyslane
+		AudioBundleAssembler -> UDPBundleSender: wyslij nastepny zestaw paczek
+		activate UDPBundleSender
+		UDPBundleSender -> QUdpSocket: grupa 50 paczek
+		UDPBundleSender --> AudioBundleAssembler: czy to ostatni zestaw
+	else istnieja paczki do retransmisji
+		UDPBundleSender -> QUdpSocket: wyslij zestaw brakujacych paczek
+		deactivate UDPBundleSender
+	end
+end loop
+
+AudioBundleAssembler -> AudioBundleAssembler: posortuj paczki
+AudioBundleAssembler -> AudioBundleAssembler: zapisz paczki do pliku
+
+deactivate UDPBundleSender
+deactivate AudioBundleAssembler 
+
+@enduml

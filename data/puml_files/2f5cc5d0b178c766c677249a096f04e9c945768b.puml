@@ -1,0 +1,25 @@
+' Blob ID: 2f5cc5d0b178c766c677249a096f04e9c945768b
+' Original Path: /docs/anon_to_gatekeeper.puml
+' Source: World of Code
+
+@startuml
+actor client
+participant auth_service
+participant IDP
+participant Gatekeeper
+participant PASTA_service
+database LDAP
+
+title public request directly to Gatekeeper
+
+client->Gatekeeper: "request" as public
+Gatekeeper->Gatekeeper: generate internal (public) token
+Gatekeeper->PASTA_service: "request" internal (public) token
+PASTA_service->PASTA_service: authorize service
+PASTA_service->PASTA_service: authorize resource
+PASTA_service->PASTA_service: perform service
+Gatekeeper<--PASTA_service: "response"
+Gatekeeper->Gatekeeper: drop internal (public) token
+client<--Gatekeeper: "response"
+
+@enduml

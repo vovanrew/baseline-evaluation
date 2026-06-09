@@ -1,0 +1,57 @@
+' Blob ID: 433e124abde9c8c964f1ea865044a90366e7a222
+' Original Path: /java/resources/plantuml/behavioral/iterator-class.puml
+' Source: World of Code
+
+@startuml
+
+skinparam handwritten true
+skinparam titleBorderThickness 2
+skinparam titleBackgroundColor AliceBlue
+
+title
+    迭代器模式
+end title
+
+together {
+
+   interface Aggregate{
+        + Iterator iterator()
+   }
+
+   interface Iterator<T>{
+        + boolean hasNext()
+        + T next()
+   }
+
+}
+
+note top of Aggregate : 集合，用于创建Iterator迭代器接口
+
+Aggregate -right-> Iterator : Creates ▶
+
+together {
+
+    class BookShelf implements Aggregate{
+
+        + BookIterator iterator()
+
+    }
+
+    class BookIterator<Book> implements Iterator{
+        - BookShelf bookShelf
+        + boolean hasNext()
+        + Book next()
+    }
+
+}
+
+note bottom of BookShelf : 会创建出具体的Iterator角色
+
+BookShelf o-left- BookIterator
+
+note bottom of BookIterator
+    具体的迭代器，
+    包含了遍历集合所必须的信息（bookShelf）
+end note
+
+@enduml

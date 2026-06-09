@@ -1,0 +1,48 @@
+' Blob ID: f3617d7fffa1d21423102be246f080b7d08e3ee9
+' Original Path: /doc/uml/component-sikkerhet-tilgangskontroll-gui.puml
+' Source: World of Code
+
+@startuml
+
+box "Kjede"
+    actor Bruker
+    participant Kjedesystem
+    participant IDP as "Identity Provider"
+end box
+
+box "DIFA"
+    participant DifaGUI
+    participant Tilgangskontroll
+    database HPR as "HPR-DB"
+end box
+
+participant HDIR
+
+HDIR -> HPR: Oppdatert\nhelsepersonellregister
+...
+Bruker -> Kjedesystem: Velg DIFA operasjon fra meny
+Bruker <-- Kjedesystem: Redirect
+Bruker -> DifaGUI: Utfør operasjon
+Bruker <-- DifaGUI: Krever pålogging - redirect
+Bruker -> IDP: Logg på
+Bruker <-- IDP: Access token
+Bruker -> DifaGUI: Access token
+activate DifaGUI
+    DifaGUI -> Tilgangskontroll: Autoriser bruker
+    activate Tilgangskontroll
+        Tilgangskontroll -> IDP: Access token
+        Tilgangskontroll <-- IDP: JWT    
+        note left of DifaGUI: token er en signert JSON payload
+        Tilgangskontroll -> IDP: <<cached>> Hent kjedesertifikat
+        Tilgangskontroll -> Tilgangskontroll: Verifiser token signatur
+        Tilgangskontroll -> Tilgangskontroll: Hent HPR nr fra token (+ roller)
+        Tilgangskontroll -> HPR: HPR nummer
+        Tilgangskontroll <-- HPR: Autorisasjon (eks "farmasøyt")
+        Tilgangskontroll -> Tilgangskontroll: Avgjør tilgang
+        DifaGUI <-- Tilgangskontroll
+        deactivate Tilgangskontroll
+    DifaGUI -> DifaGUI: utfør operasjon
+    Bruker <-- DifaGUI
+    deactivate DifaGUI
+
+@enduml

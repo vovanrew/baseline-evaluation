@@ -1,0 +1,65 @@
+' Blob ID: c01100f0b2ae28fce85f57c5c9b2defb361feddd
+' Original Path: /doc/puml/device.puml
+' Source: World of Code
+
+@startuml
+autonumber
+actor Customer
+participant Device 
+Activate Customer
+participant DeviceProvisioningService #00FFFF
+participant ProductIoTHub #00FFFF
+participant FWProvider #FF00FF
+note over Device, ProductIoTHub
+    Device was registered for this product before
+end note
+== First start ==
+Customer -> Device: Switch On/Power Up
+... Booting up ...
+Device -> DeviceProvisioningService: registerDevice(callback)
+DeviceProvisioningService --> Device: callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)
+ProductIoTHub -> Device: setProperties
+Device -> ProductIoTHub: iamNewToYou(deviceId, firmwareversion)
+opt Firmware needs to be updated
+    ProductIoTHub -> Device: updateFWMandantory(URL)
+    Device -> FWProvider: URL.get(OLDFW)
+    FWProvider --> Device: FW, Checksum
+    ... Downloading ...
+    Device -> Device: CheckChecksum
+    Device -> Device: update
+    ... Installing ...
+    Device -> Device: restart
+    ... Booting up ...
+    Device -> ProductIoTHub: iamNewToYou(deviceId, firmwareversion)
+end opt
+ProductIoTHub -> Device: youMayStartSending()
+
+Device -> ProductIoTHub: sendData(Data)
+... Working ...
+== Claim/Remove ==
+ProductIoTHub -> Device: youMustRetire()
+Device -> Device: waits
+opt if Device was not reached
+    Device -> ProductIoTHub: sendData(Data)
+    ProductIoTHub --> Device: Not registered
+end opt
+Device -> DeviceProvisioningService: registerDevice(callback)
+DeviceProvisioningService --> Device: callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ERROR, null, null)
+Device -> Device: NobodyLovesMeMode()
+loop once a day
+    Device -> DeviceProvisioningService: registerDevice(callback)
+end loop
+== IoT Hub not available ==
+loop several times
+    Device -> ProductIoTHub: sendData(Data)
+    ProductIoTHub --> Device: NotAvailable/Network Error
+end loop
+Device -> DeviceProvisioningService: registerDevice(callback)
+DeviceProvisioningService --> Device: callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)
+Device -> Device: compare IoTHub and change if necessary
+note over Device, ProductIoTHub
+    if connection is now successfull, go on. If not and IoT Hub has not changed
+    repeat with low frequence. Also if DPS is not available.
+end note
+
+@enduml

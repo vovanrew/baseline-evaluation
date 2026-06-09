@@ -1,0 +1,19 @@
+' Blob ID: e40a2265b7947256230c04e8bc8ce164a0db79ac
+' Original Path: /Plant.puml
+' Source: World of Code
+
+@startuml
+actor Actor
+boundary Boundary as UserController
+entity Entity as User
+control Control as UserService
+control Control as TokenService
+
+Actor -> UserController : authorization Request
+UserController -> User : gson.fromJson(user, User.class);
+UserController -> UserService : userService.userValidation(user)
+UserService -> TokenService : tokenService.createToken(user.getName())
+TokenService --> UserService : Token
+UserService --> UserController : Token
+UserController --> Actor: authorization Response Token
+@enduml

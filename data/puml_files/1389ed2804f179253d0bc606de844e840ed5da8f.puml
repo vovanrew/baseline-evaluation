@@ -1,0 +1,81 @@
+' Blob ID: 1389ed2804f179253d0bc606de844e840ed5da8f
+' Original Path: /diagrams/searchForProduct.puml
+' Source: World of Code
+
+@startuml
+
+' use strict UML mode
+skinparam style strictuml
+
+'Creating a user actor
+actor "User" as user
+
+'creating the Administration class
+participant "Administration" as admin <<main>>
+admin++
+
+'Creating a main menu
+create "Main Menu" as mainmenu <<JFrame>>
+admin->mainmenu:construct
+user->mainmenu++ : click "view products" button
+
+'Creating the product editor screen dialog
+create "View Products" as prodview <<dialog>>
+mainmenu->prodview++ : construct
+
+'Creating DAO
+ create ProductManagerdao as dao <<DAO>>
+ prodview->dao++ : construct
+ 
+'get all of the products in the database
+prodview->dao++: getProducts()
+
+'database connection
+create DbConnection as connection <<DAO>>
+dao->connection++ : getConnection(uri);
+connection->dao : connection
+connection--
+
+'sql statements get products
+dao->dao: prepareStatement(sql)
+dao->dao: executeQuery()
+dao->dao: getters retrieve product details
+dao->dao: setters set product details
+dao->prodview: product
+dao--
+
+'update the list with the products
+prodview->prodview: setModel(displayProducts)
+prodview--
+
+'viewer can see the products
+prodview->user
+
+'user to enter a product to search for
+user->prodview++ : enter a product ID in search bar
+prodview--
+user->prodview++ : user clicks 'search' button
+
+'retrieve what the user entered
+prodview-> prodview: searchbyIDTxt.getText()
+prodview->dao: searchProduct(searchID)
+
+dao->connection++ : getConnection(uri);
+connection->dao : connection
+connection--
+
+dao->dao: perpareStatement(sql)
+dao->dao: setString(1, searchProdID)
+dao->dao: executeQuery()
+
+dao->dao: getters retrieve product details
+dao->dao: setters set product details
+dao->prodview: product searched for (p)
+dao--
+
+'update the list
+prodview->prodview : updateItems(returnedProduct)
+
+prodview->user: waiting for further user action
+
+@enduml

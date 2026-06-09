@@ -1,0 +1,40 @@
+' Blob ID: 877a13a52b563cc80c0b1f52a5c8f600520205fd
+' Original Path: /doc/cards.puml
+' Source: World of Code
+
+@startuml
+--> ElementModel : encode
+activate ElementModel
+ElementModel --> CardModel : encode each CardModel
+activate CardModel
+create StringCard
+CardModel --> StringCard : create
+StringCard --> CardModel
+CardModel --> ElementModel : return StringCardCollection
+deactivate CardModel
+deactivate ElementModel
+|||
+--> ElementModel : send
+activate ElementModel
+ElementModel --> Publish : send StringCardCollection
+deactivate ElementModel
+activate Publish
+Publish --> ElementView : send StringCardCollection
+deactivate Publish
+activate ElementView
+ElementView --> ElementView : Store StringCardCollection
+deactivate ElementView
+||100||
+--> ElementView : Show
+ElementView <--> DeckView
+activate DeckView
+DeckView --> IOTech : GetDeckView
+create DeckTechView
+activate IOTech
+IOTech --> DeckTechView : create
+DeckTechView -> IOTech
+IOTech -> DeckView : return
+deactivate IOTech
+DeckView --> DeckTechView : Show(StringCardCollection)
+deactivate DeckView
+@enduml

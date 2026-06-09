@@ -1,0 +1,82 @@
+' Blob ID: 98d8e084c5a295c627da960a1c328a4f4a980dc0
+' Original Path: /PB-158 - Partnerships & Offers Eligibility/sequences/PB-158_SQD_UC8_get_campaigns_customer_is_eligible_for.puml
+' Source: World of Code
+
+@startuml
+'diagram parameters'
+autonumber
+'skinparam dpi 300
+skinparam LegendBackgroundColor #white
+
+'diagram title'
+title PB-158 UC8 SQD: Get campaigns customer is eligible for
+
+'a list of the actors and participants'
+actor "Next Customer" as UI
+box "Next Platform"
+participant "P&O\n(Core Next)" as Next
+database "P&O DB" as DB
+end box
+participant "Core Bradesco" as BR
+
+'a brief description of the diagram'
+legend top
+-- \t**Abstract:**\t --
+This use cases describes the changes being made to an existing endpoint.
+The endpoint will be modified so that it can be called by the user and
+will return a list of campaigns that the customer is eligible for. A campaign
+logo version number will be returned, as well as a campaign logo
+image (if requested).
+end legend
+
+note right of UI #plum
+**Endpoint:**
+GET /campaigns
+
+**Current implementation:**
+Currently only called by system management, returns a list of all campaigns
+with the option to specify:
+* NAME
+* PARTNER_ID
+* OFFER_ID
+
+**Required implementation:**
+<i>Either through extension of existing API or new,</i> enable the user
+to call the endpoint. When a user calls the endpoint return a list of campaigns
+that that the user is eligible for. As part of the request, include an optional
+field for whether or not to return the offer logo.
+
+As part of the CAMPAIGN_RETRIEVAL response include:
+* Campaign logo version number
+* Campaign logo (optional)
+
+
+**ENSURE BACKWARDS COMPATIBILITY IS MAINTAINED**
+end note
+
+UI->Next: Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})
+activate Next
+
+group filter on {NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}
+  Next->DB: Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})
+  activate DB
+  note right of DB
+  **Note:**
+  Read P&O tables:
+  * ELLIGIBLE_USER
+  * CAMPAIGN
+  end note
+  DB->DB: Read campaigns user is eligible for
+  DB-->Next: Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)
+  deactivate DB
+end group
+
+group if user has been or is eligible for at least one campaign
+  Next-->UI: Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)
+end group
+
+group if user is not eligible for any active campaigns
+  Next-->UI: Return error (MESSAGE)
+end group
+
+@enduml

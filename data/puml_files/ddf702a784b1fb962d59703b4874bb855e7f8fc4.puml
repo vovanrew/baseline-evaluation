@@ -1,0 +1,38 @@
+' Blob ID: ddf702a784b1fb962d59703b4874bb855e7f8fc4
+' Original Path: /wxh-note/src/main/uml/record/考勤申诉班次可占用班次获取.puml
+' Source: World of Code
+
+
+@startuml
+
+ actor User
+ participant RosterOccupyController as controller
+ participant RosterOccupyBiz as biz
+
+
+    User -> controller : 根据申诉时间获取可占用班次
+    activate controller
+
+        controller -> biz : 获取占用班次
+        activate biz
+
+        biz -> biz : 获取临近三天的排班和失败班次
+
+        biz -> biz : 过滤出与申诉时间有交集的班次
+
+        biz -> biz : 过滤出已经结束的班次(当前班次已有考勤上、下班记录或已经在下班结束后的2小时之后)
+
+        biz -> biz : 计算班次的剩余工时
+
+
+        biz -> biz : 过滤出剩余工时 >0 的班次
+
+        biz --> controller : 返回
+
+        deactivate biz
+
+        controller --> User : 返回
+    deactivate controller
+
+
+@enduml

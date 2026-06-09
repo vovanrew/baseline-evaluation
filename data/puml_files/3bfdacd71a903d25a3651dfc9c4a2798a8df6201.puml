@@ -1,0 +1,226 @@
+' Blob ID: 3bfdacd71a903d25a3651dfc9c4a2798a8df6201
+' Original Path: /models/Diagramme_Classes/implementation/class_diagram.puml
+' Source: World of Code
+
+@startuml
+skinparam nodesep 75
+
+class Patient {
+    - lastname : String
+    - firstname : String
+    - dateOfBirth : Date
+    - birthCity : String
+    - insuranceNumber : String
+    - father : String
+    - mother : String
+}
+
+class Contact {
+    - address : String
+    - phone : String
+    - email : String
+}
+
+enum Gender {
+    MALE
+    FEMALE
+    OTHER
+}
+
+class Folder <<Prototype>> <<ConcretObserver>> {
+    + addVisit(v: Visit)
+    + addAntecedent(a: Antecedent)
+    + getVisits() : List<Visit>
+    + getAntecedents() : List<Antecedent>
+    + <<clone>> duplicate(): Folder
+    + update()
+}
+
+class Visit <<Product>> {
+    - date : Date
+    - summary : String
+    - notes : String
+}
+
+class Antecedent {
+    - beginning : Date
+    - end : Date
+}
+
+class Diagnostic <<ProductPart>> {
+    - designation : String
+}
+
+class Treatment <<ProductPart>>{
+    - designation : String
+}
+
+class Doctor {
+    - lastname : String
+    - firstname : String
+    - permit : String
+    - speciality : String
+}
+
+class Establishment {
+    - identification : String
+    - designation : String
+}
+
+class User {
+    - username : String 
+    - password : String
+    }
+
+interface Searchable {
+    + findbyId(id : String) : Folder
+    + findbyUsernameAndPassword (username : String, password: String) : User
+}
+
+interface Editable {
+    + update(f : Folder)
+}
+
+class DataSource {
+    + ^findbyId(id : String) : Folder
+    + ^findbyUsernameAndPassword (username : String, password: String) : User
+    + ^update(f : Folder) : boolean
+    - archiveModification(f : Folder) : boolean
+    - encryptPasswordToSHA1(pass: String) : String
+}
+
+class Session <<Director>>  {
+    + login (user: String, pass: String) : boolean
+    + downloadFolder() : boolean
+    + resetFolder() : boolean
+    + getCurrentFolder(): Folder
+    + getVisits(): Set<Visit>
+    + getAntecedents(): Set<Antecedent>
+    + getDoctor(): Doctor
+    + <<construct()>> createNewVisit(treatment: String, diagnostic: String , ...)
+}
+
+class VisitBuilder <<ConcreteBuilder>> {
+  + <<buildPart()>> setTreatment(designation : String)
+  + <<buildPart()>> setTreatment(designation : String)
+  + <<result()>> build(): Visit
+}
+
+interface Authenticable {
+    + login(user: String, pass: String) : boolean
+}
+
+class FolderView{
+
+}
+
+
+class FolderController <<ConcretSubject>> {
+    + addAntecedent()
+    + addVisit()
+    + restoreFolder()
+    + saveFolder()
+}
+
+class java.util.Observable <<Subject>>  {
+  + addObserver(Observer o)
+  + deleteObserver(Observer o)
+  + notifyObservers()
+  + notifyObservers(arg: Object)
+  + setChanged()
+}
+
+interface java.util.Observer {
+  + {abstract} update(obs : java.util.Observable, arg: Object)
+}
+
+class HomeView {
+}
+
+class HomeController {
+    + loadFolder()
+    + logout()
+}
+
+class ConnexionView {
+}
+
+
+class ConnexionController {
+    - username : TextField
+    - password : PasswordField
+    + login()
+}
+
+class App {
+    + {static} main (args : String[])
+    + ^start(stage : Stage)
+}
+
+abstract class javafx.Application {
+    + start(stage : Stage)
+}
+
+class Main {
+    + {static} main (args : String[])
+}
+
+Patient *--> "1\contact" Contact
+Patient #--> "1\ngender" Gender
+
+Folder *--> "*\nvisits" Visit
+Folder *--> "*\nantecedents" Antecedent
+Folder *---> "1\nowner" Patient
+
+Visit *--> "0..1\ndiagnostic" Diagnostic
+Visit *--> "0..1\ntreatement" Treatment
+Visit #--> "1\ndoctor" Doctor
+
+Antecedent #--> "1\nprescriber" Doctor
+Antecedent #--> "1\diagnostic" Diagnostic
+Antecedent #--> "1\ntreatement" Treatment
+
+Doctor #--> "1\nestablishment" Establishment
+
+Session *--> "0..1\noriginalFolder" Folder
+Session *--> "0..1currentFolder\n" Folder
+
+Session -> DataSource
+Session *--> "0..1\nnewVisit" Visit
+Session *--> "0..1\nuser" User
+Session .l.|> Authenticable
+
+User #--> "1\ndoctor" Doctor
+
+DataSource ...|> Searchable
+DataSource ..|> Editable
+
+ConnexionView -- ConnexionController
+HomeView -- HomeController
+FolderView --FolderController
+
+ConnexionController #--> Session
+HomeController #--> Session
+FolderController #--> Session
+
+ConnexionController . HomeController
+HomeController . FolderController
+
+Session -->  VisitBuilder
+VisitBuilder . Visit
+
+
+java.util.Observable <|-- FolderController
+java.util.Observer <|.. Folder
+java.util.Observable "1" --> "0..n" java.util.Observer
+
+
+Main .> App
+javafx.Application <|-- App
+App .> ConnexionController
+App ..> Session
+
+
+
+
+@enduml

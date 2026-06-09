@@ -1,0 +1,47 @@
+' Blob ID: d1ff7fbe457c930130d28046d7bac36170d8e4a1
+' Original Path: /diagrams/delete_contact.puml
+' Source: World of Code
+
+@startuml
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam maxmessagesize 150
+skinparam sequenceParticipant underline
+
+actor User
+participant WebSite
+participant Server
+database phonebook
+
+User -> WebSite: select contact
+User -> WebSite: click button "DeleteContact"
+activate WebSite
+
+WebSite -> Server: deleteContact()
+activate Server
+
+Server -> phonebook: Update()
+activate phonebook
+
+phonebook -> Server: ok
+deactivate phonebook
+
+Server -> WebSite: ok
+deactivate Server
+deactivate WebSite
+
+
+WebSite -> Server: getAllContacts()
+activate WebSite
+activate Server
+
+Server -> phonebook: findAll()
+activate phonebook
+
+phonebook -> Server: ContactsList
+deactivate phonebook
+
+Server -> WebSite: ContactsList
+deactivate Server
+deactivate WebSite
+@enduml

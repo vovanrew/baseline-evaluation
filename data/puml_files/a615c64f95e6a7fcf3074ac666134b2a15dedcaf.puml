@@ -1,0 +1,80 @@
+' Blob ID: a615c64f95e6a7fcf3074ac666134b2a15dedcaf
+' Original Path: /dias_for_structs/diagrams/src/robustness2.wsd
+' Source: World of Code
+
+@startuml
+
+' Из обсуждения:
+' - Узлы не должны иметь тип, делать через наследование.
+' - Узел-актор не нужно связывать с узлом-актором из UC.
+' - В будущем можно добавить поля дочерним классам.
+' - Все такие направление важно. См. примеры из книги.
+
+' -----------------------------------------------
+
+hide empty methods
+hide empty members
+
+' -----------------------------------------------
+
+class UC_node {
+}
+
+class Robustness_dia {
+  uc_node: UC_node
+  nodes: List<Rob_node>
+  edges: List<Rob_edge>
+
+  addNode()
+  addEdge()
+}
+note "Robustness - Rob\nUse Case - UC" as N1
+
+' -----------------------------------------------
+
+class Rob_node {
+  name: String
+  edges: List<Rob_edge>
+}
+
+class Rob_edge {
+  name: String
+  begin: Rob_node
+  end: Rob_node
+}
+
+class Rob_actor {
+}
+
+class Rob_boundary {
+  layout: Layout
+  is_error: bool
+}
+
+class Rob_control {
+}
+
+class Rob_entity {
+  format: Format
+}
+
+' -----------------------------------------------
+
+left to right direction
+
+Robustness_dia o-d- Rob_edge
+Robustness_dia o-d- Rob_node
+Robustness_dia o-l- UC_node
+Robustness_dia -l-o UC_node
+
+Rob_edge o-l- Rob_node
+Rob_edge -l-o Rob_node
+
+Rob_actor -r-|> Rob_node
+Rob_boundary -u-|> Rob_node
+Rob_control -u-|> Rob_node
+Rob_entity -u-|> Rob_node
+
+' -----------------------------------------------
+
+@enduml

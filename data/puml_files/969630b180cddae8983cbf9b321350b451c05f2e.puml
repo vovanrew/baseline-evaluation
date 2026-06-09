@@ -1,0 +1,40 @@
+' Blob ID: 969630b180cddae8983cbf9b321350b451c05f2e
+' Original Path: /Current/current_uml/Legacy Skava Integration/dataflow-orderreplacedcompleted.puml
+' Source: World of Code
+
+@startuml
+title 
+Skava Integration - Order Replaced Completed
+end title
+
+autoactivate on
+skinparam BoxPadding 10
+skinparam RoundCorner 10
+skinparam ParticipantPadding 10
+skinparam SequenceArrowThickness 2
+
+box "\nSkava AWS" #WhiteSmoke
+participant "Skava Event \nOrchestration" as skavaeventorch
+end box
+
+box "\nKafka" #DDF0F4  
+collections "Topics" as topics
+end box
+box "\nYL Services" #Lavender
+participant "Order Sync Service" as ylsyncservice
+end box
+database "Legacy DB" as psdb
+autonumber
+skavaeventorch->topics: Produce OrderReplacedCompleted Message
+==Async== 
+topics->ylsyncservice: Consume OrderReplacedCompleted Message
+deactivate topics
+ylsyncservice->psdb: Update order status in legacy db
+return Response/Order ID
+topics<-ylsyncservice: Produce OrderReplacedCompletedProcessed Message
+deactivate ylsyncservice
+==Async==
+skavaeventorch<-topics: Consume OrderReplacedCompletedProcessed Message
+@enduml
+
+

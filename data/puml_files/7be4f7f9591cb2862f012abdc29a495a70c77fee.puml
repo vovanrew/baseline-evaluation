@@ -1,0 +1,62 @@
+' Blob ID: 7be4f7f9591cb2862f012abdc29a495a70c77fee
+' Original Path: /docs/class/class.pu
+' Source: World of Code
+
+@startuml
+
+package presentation <<Rectangle>> {
+    package api <<Rectangle>> {
+        class router
+    }
+}
+
+package test <<Rectangle>> {
+    package usecase_test <<Rectangle>> {
+        class BrowseItemUseCaseTest
+    }
+    package mock_repository <<Rectangle>> {
+        class ItemRepositoryMock
+    }
+}
+
+package infrastructure <<Rectangle>> {
+    package db <<Rectangle>> {
+        class ItemRepositoryDbMysql
+    }
+}
+
+package application <<Rectangle>> {
+    package usecase <<Rectangle>> {
+        class BrowseItemUseCase
+    }
+    package dto <<Rectangle>> {
+        class BrowseItemDto
+    }
+}
+
+package domain <<Rectangle>> {
+    package repository <<Rectangle>> {
+        Interface ItemRepository
+    }
+
+    package model <<Rectangle>> {
+        class ItemEntity
+    }
+}
+
+api --> usecase
+db ---|> repository
+db ---> model
+usecase -> dto
+usecase --> repository
+usecase --> model
+dto --> model
+repository -> model
+
+usecase_test -> mock_repository
+usecase_test --> usecase
+usecase_test ---> model
+mock_repository ---|> repository
+mock_repository ---> model
+
+@enduml

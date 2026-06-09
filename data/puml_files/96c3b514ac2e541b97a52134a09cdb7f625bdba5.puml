@@ -1,0 +1,65 @@
+' Blob ID: 96c3b514ac2e541b97a52134a09cdb7f625bdba5
+' Original Path: /LAPR4/LAPR4_final_project/src/main/java/lapr4/green/s1/lang/n1150759/blockOfInstructions/LANG01.1 - Design.puml
+' Source: World of Code
+
+@startuml
+
+actor User
+
+User --> CellEditor: Inputs block of instructions
+activate CellEditor
+CellEditor -> Address: address = getAddress()
+CellEditor -> Controller: cell = getCell(address)
+CellEditor -> Cell: setContent(content)
+deactivate CellEditor
+
+activate Cell
+Cell -> CellImpl: setContent(content)
+
+activate CellImpl
+CellImpl -> CellImpl: storeContent(content)
+
+activate FormulaCompiler
+CellImpl -> FormulaCompiler: compile(cell, content)
+
+activate ExcelExpressionCompiler
+FormulaCompiler -> ExcelExpressionCompiler: compile(cell, content)
+
+activate ANTLRStringStream
+ExcelExpressionCompiler -> ANTLRStringStream: input = create(source)
+deactivate ANTLRStringStream
+
+activate FormulaLexer
+ExcelExpressionCompiler -> FormulaLexer: lexer = create(input)
+deactivate FormulaLexer
+
+activate CommonTokenStream
+ExcelExpressionCompiler -> CommonTokenStream: tokens = create(lexer)
+deactivate CommonTokenStream
+
+activate FormulaParser
+ExcelExpressionCompiler -> FormulaParser: parser = create(tokens)
+ExcelExpressionCompiler -> FormulaParser: tree = parser.expression()
+deactivate FormulaParser
+
+activate Expression
+ExcelExpressionCompiler -> Expression: create()
+deactivate Expression
+
+ExcelExpressionCompiler -> ExcelExpressionCompiler: expression = convert(cell, tree)
+ExcelExpressionCompiler -> FormulaCompiler: expression
+deactivate ExcelExpressionCompiler
+
+activate Formula
+FormulaCompiler -> Formula: formula = create(cell, expression)
+deactivate Formula
+
+FormulaCompiler -> CellImpl: formula
+deactivate FormulaCompiler
+
+CellImpl -> Cell: show()
+deactivate CellImpl
+Cell --> User: Result
+deactivate Cell
+
+@enduml

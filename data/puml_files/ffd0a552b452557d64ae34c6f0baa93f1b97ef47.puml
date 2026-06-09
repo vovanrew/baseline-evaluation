@@ -1,0 +1,26 @@
+' Blob ID: ffd0a552b452557d64ae34c6f0baa93f1b97ef47
+' Original Path: /uml/demo/design/scm/新流程/欧美区印度区-运单路由流程-新.puml
+' Source: World of Code
+
+@startuml
+actor Time
+control tradecenter as xman
+control wms
+boundary 合作商仓储系统 as TPL
+boundary Aftership
+
+autonumber 10 10 "<b>[000]"
+TPL --> wms: 回传发货信息imei运单号等
+wms --> wms: 生成运单信息
+Time --> wms: 定时推送运单
+wms --> Aftership: 推送运单至aftership
+Aftership --> wms: 推送路由轨迹信息
+wms --> wms: 轨迹处理和封装
+wms --> wms: 记录运单信息更新状态
+
+alt 路由最终状态
+    autonumber resume "<font color=red><b> [000]  "
+    wms --> xman: 通知订单发货单的路由状态
+else 非最终状态
+end
+@enduml

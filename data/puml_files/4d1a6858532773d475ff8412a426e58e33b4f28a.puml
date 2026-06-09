@@ -1,0 +1,91 @@
+' Blob ID: 4d1a6858532773d475ff8412a426e58e33b4f28a
+' Original Path: /plantuml/hotelbetrieb-cld.puml
+' Source: World of Code
+
+@startuml
+
+left to right direction
+
+class Hotelzimmer {
+    - nummer: int
+    - personen: int
+}
+
+class Kategorie {
+    - id: int
+    - bezeichnung: String
+}
+
+class HotelzimmerKategorie {
+    - hotelZimmer: Hotelzimmer
+    - kategorie: Kategorie
+}
+class Mitarbeiter {
+    - svnr: String
+    - name: String
+    - adresse: String
+}
+
+class HotelzimmerMitarbeiter {
+    - hotelZimmer: HotelzimmerMitarbeiter
+    - mitarbeiter: Mitarbeiter
+}
+
+class Betreuer {
+    - mitarbeiter: Mitarbeiter
+    - fach: String
+}
+
+class Gast {
+    - kundenNr: int
+    - name: String
+    - adresse: Adresse
+}
+
+class Buchung {
+    - hotelZimmer: Hotelzimmer
+    - gast: Gast
+    - anreiseDatum: LocalDate
+    - abreiseDatum: LocalDate
+}
+
+class Leistungspaket {
+    - bezeichnung: String
+    - preis: BigDecimal
+}
+
+class LeistungspaketBuchung {
+    - leistungspaket: Leistungspaket
+    - buchung: Buchung
+    - anzahl: int
+}
+
+class LeistungspaketBetreuer {
+    - leistungspaket: Leistungspaket
+    - beteuer: Betreuer
+}
+
+class Luxuspaketpaket{
+    - bezeichnung: String
+    - leistungspaket: Leistungspaket
+}
+
+class HotelzimmerMitarbeiter {
+    - hotelZimmer: Hotelzimmer
+    - mitarbeiter: Mitarbeiter
+    - datum: LocalDate
+}
+
+Buchung "*" --> "1" Gast
+Buchung "*" --> "1" Hotelzimmer
+
+
+(Hotelzimmer, Kategorie) .. HotelzimmerKategorie
+(Leistungspaket, Buchung) .. LeistungspaketBuchung
+(Leistungspaket, Mitarbeiter) .. LeistungspaketBetreuer
+(Hotelzimmer, Mitarbeiter) .. HotelzimmerMitarbeiter
+
+Leistungspaket "1" -- "*"Luxuspaketpaket
+note right: ein Luxuspaketpaket hat mehrere Einträge mit der gleichen Bezeichnung
+Mitarbeiter <|-- Betreuer
+@enduml

@@ -1,0 +1,24 @@
+' Blob ID: d946da4feccbd7ee10d1c30a7533a64645c0f3ba
+' Original Path: /uml/seq_42_d.pu
+' Source: World of Code
+
+@startuml
+title orderList表示
+actor 配達員
+配達員-[#green]>Courieridform.jsp:courierID入力
+Courieridform.jsp->OrderListServlet:リンク
+OrderListServlet->CourierDAO:findByCourierid()
+CourierDAO->Courier:生成
+CourierDAO-->OrderListServlet:Courier
+OrderListServlet->Session:Courier
+OrderListServlet->OrderDAO:findAll()
+OrderDAO->Order:生成
+OrderDAO->DetailDAO:findByOrderid()
+DetailDAO->Detail:リスト生成
+DetailDAO->OrderDAO:ArrayList<Detail>
+OrderDAO->Order:setDetail\n(ArrayList<Detail>)
+OrderDAO-->OrderListServlet:ArrayLisr<Order>
+OrderListServlet->Request:setAttribute(ArrayList<Order>)
+OrderListServlet->orderedlist.jsp:フォワード
+orderedlist.jsp->配達員:表示
+@enduml

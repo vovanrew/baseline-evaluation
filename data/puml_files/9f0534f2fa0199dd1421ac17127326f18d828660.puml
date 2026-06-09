@@ -1,0 +1,127 @@
+' Blob ID: 9f0534f2fa0199dd1421ac17127326f18d828660
+' Original Path: /docs/1200720/US2004/DM_US2004.puml
+' Source: World of Code
+
+@startuml
+
+hide methods
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor beige
+skinparam ArrowColor #222222
+
+
+package "<<aggregate>> AGV" {
+    entity AGV
+    class BriefDescription
+    class Model
+    class AGVStatus
+    entity AGVTask
+    class MaxWeightCapacity
+    class MaxVolumeCapacity
+    class AGVPosition
+    class AGVId
+    class Range
+}
+
+
+entity AGV <<entity>> <<root>> {
+    -state
+}
+
+
+entity AGV <<entity>> <<root>> {}
+
+class BriefDescription <<(V,#FF8B40) value object>> {
+-briefDescription
+}
+
+class Model <<(V,#FF8B40) value object>> {
+-model
+}
+
+class AGVPosition <<(V,#FF8B40) value object>> {
+-agvPosition
+}
+
+class AGVStatus<<(V,#FF8B40) value object>> {
+    -taskState
+}
+
+entity AGVTask <<entity>> {
+    -id
+    -agvTaskDescription
+}
+
+class AGVId <<(V,#FF8B40) value object>> {
+-id
+}
+
+class Range <<(V,#FF8B40) value object>> {
+-range
+}
+
+class MaxWeightCapacity <<(V,#FF8B40) value object>> {
+-maxWeightCapacity
+}
+
+class MaxVolumeCapacity <<(V,#FF8B40) value object>> {
+-volume
+}
+
+package "<<aggregate>> ProductOrder"{
+    entity ProductOrder
+    entity OrderItem
+    class TotalPriceWithoutVAT
+    class TotalPriceWithVAT
+    class Status
+    class TotalVolume
+    class TotalWeight
+    class DeliveryAddress
+    class BillingAddress
+}
+
+
+entity ProductOrder <<entity>> <<root>> {
+- numericIdentifier
+- dateOfOrder
+- shipmentMethod
+- paymentMethod
+
+}
+
+entity OrderItem <<entity>> {
+    -itemQuantity
+}
+
+class TotalPriceWithoutVAT <<(V,#FF8B40) value object>> {}
+class TotalPriceWithVAT <<(V,#FF8B40) value object>> {}
+class DeliveryAddress <<(V,#FF8B40) value object>> {}
+class BillingAddress <<(V,#FF8B40) value object>> {}
+class Status <<(V,#FF8B40) value object>> {}
+class TotalVolume <<(V,#FF8B40) value object>> {}
+class TotalWeight <<(V,#FF8B40) value object>> {}
+
+
+AGV --> "1" AGVId : has
+AGV --> "1" Range : respects
+AGV --> "1" AGVTask : associated
+AGV --> "1..*" AGVStatus : collects
+AGV --> "1" Model : has
+AGV --> "1" BriefDescription : characterized by
+AGV --> "1" MaxWeightCapacity : respects
+AGV --> "1" MaxVolumeCapacity : respects
+AGV --> "1" AGVPosition : located in
+
+ProductOrder -> "1" TotalPriceWithoutVAT : is marked
+ProductOrder --> "1" TotalPriceWithVAT : is marked
+ProductOrder --> "1" Status : is in
+ProductOrder --> "1" TotalVolume : associated with
+ProductOrder --> "1" TotalWeight : associated with
+ProductOrder --> "1" DeliveryAddress : associated with
+ProductOrder --> "1" BillingAddress : associated with
+ProductOrder --> "1..*" OrderItem : composed by
+
+AGVTask --> "1..*" ProductOrder : composed by
+
+@enduml

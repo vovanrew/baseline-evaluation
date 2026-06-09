@@ -1,0 +1,56 @@
+' Blob ID: de951dfb2eaf458b6a1fe9ea5d055490ad9d0ee1
+' Original Path: /Project/docs/Sprint1/US004/US004-SD.puml
+' Source: World of Code
+
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US004 - As Administrator, I want to search for users
+
+autonumber
+
+actor Administrator as actor
+participant ": SearchUsersByParamsRoute" as route
+participant "inDto : SearchUserDto" as dataDto
+participant ": UsersController" as ctrl
+participant ": SearchUsersByParamsService" as srv
+participant ": ISystemUserRepo" as userStore
+participant ": IUserProfileRepo" as profileStore
+participant "usersFound : List<SystemUser>" as users
+participant "usersFoundDto : List<UserDto>" as usersDto
+participant "user : SystemUser" as user
+participant ": SystemUserMapper" as map
+participant "userDto : OutputUserDto" as dto
+participant "usersJson : ResponseEntity" as listJson
+
+activate actor
+autoactivate on
+
+actor -> route : GET /users?name={name}&email={email}&profile{profile}&func={func}
+note over actor, route : The parameters (name, email, profile and function) will be in the query of the request. At least, one of than must be typed or chosen.
+route -> ctrl: searchUsersByTypedParams(inDto)
+ctrl -> srv: searchUsersByTypedParams(inDto)
+opt if the request has a profile
+srv -> profileStore: result : existByUserProfileId(profile)
+deactivate
+end
+alt depending on which params came from inputDto, the service class will invoke the respective method
+srv -> userStore: findAllBy...()
+userStore --> users**: create()
+userStore --> srv: usersFound
+end
+srv --> usersDto**: create()
+loop for which user found at the list
+srv -> map: model2Dto(user)
+map --> dto**: create()
+map --> srv: userDto
+srv -> usersDto: add(userDto)
+deactivate
+end
+srv --> ctrl: usersFoundDto
+ctrl --> listJson**: create(usersFoundDto)
+ctrl --> route: usersJson
+route --> actor: Show the list of user found by typed/chosen parameters
+
+
+@enduml

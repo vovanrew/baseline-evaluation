@@ -1,0 +1,39 @@
+' Blob ID: 8ff76367f1b5e8f112876c5677d2babebb109437
+' Original Path: /doc/diagrams/drivers.puml
+' Source: World of Code
+
+@startuml
+
+interface IMutationCommand
+class StudyAdapter <<(C, HotPink) Proxy>> {
+  start(command, ...args)
+  getInterviewItems(pageSet)
+  apply(interviewItems)
+}
+class PatientAdapter <<(C, HotPink) Proxy>> {
+  interviews
+}
+class UpdateItemCommand {
+  start(study, page, index)
+  getInterviewItems(pageSet)
+  apply(study, interviewItems)
+}
+class InterviewStudioDriver {
+  save(study, patient, interview)
+}
+
+left to right direction
+PatientStudioDriver -> PatientAdapter
+StudyStudioDriver -> StudyAdapter
+StudyAdapter::start ..> UpdateItemCommand::start : start(...)
+StudyAdapter::apply ..> UpdateItemCommand::apply : apply(...)
+PatientAdapter::interviews ..> StudyAdapter::getInterviewItems : getInterviewItems(pageSet)
+InterviewStudioDriver::save ..> StudyAdapter::apply : apply(interviewItems)
+UpdateItemCommand .u|> IMutationCommand
+
+hide members
+show UpdateItemCommand methods
+show StudyAdapter methods
+show PatientAdapter fields
+show InterviewStudioDriver methods
+@enduml

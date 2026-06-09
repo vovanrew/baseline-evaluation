@@ -1,0 +1,65 @@
+' Blob ID: 56b1f5812c0d3505a1a727d3af3cc5b8ddf53bef
+' Original Path: /modelViewPresenter/presentationModel/withFacade/docs/diagrams/src/paquetes.plantuml
+' Source: World of Code
+
+@startuml
+class Game as "usantatecla.tictactoe.models.\nGame" {}
+class Coordinate as "usantatecla.tictactoe.models.\nCoordinate" {}
+class Error as "usantatecla.tictactoe.types.\nError" {}
+class Token as "usantatecla.tictactoe.types.\nToken" {}
+
+class tictactoe.controllers.Controller {
+  ~ Controller(Game)
+  + getToken(Coordinate): Token
+}
+tictactoe.controllers.Controller *-down-> Game
+
+class tictactoe.controllers.Logic {
+  + Logic()
+  + getMaxPlayers(): int
+  + setUsers(int)
+  + getToken(): Token
+  + next()
+  + isBoardComplete(): boolean
+  + isTicTacToe(): boolean
+  + isUser(): boolean
+  + put(Coordinate): Error
+  + move(Coordinate, Coordinate): Error
+  + getToken(Coordinate): Token
+  + resume()
+}
+tictactoe.controllers.Logic *-down-> Game
+tictactoe.controllers.Logic *-down-> tictactoe.controllers.StartController
+tictactoe.controllers.Logic *-down-> tictactoe.controllers.PlayController
+tictactoe.controllers.Logic *-down-> tictactoe.controllers.ResumeController
+
+class  tictactoe.controllers.StartController{
+  + StartController(Game)
+  + setUsers(int)
+  + getMaxPlayers(): int
+}
+tictactoe.controllers.Controller <|-down- tictactoe.controllers.StartController
+tictactoe.controllers.StartController .down.> Game
+
+class tictactoe.controllers.PlayController {
+  + PlayController(Game)
+  + isBoardComplete(): boolean
+  + isTicTacToe(): boolean
+  + getToken(): Token
+  + isUser(): boolean
+  + put(Coordinate): Error
+  + move(Coordinate,Coordinate): Error
+}
+tictactoe.controllers.Controller <|-down- tictactoe.controllers.PlayController
+tictactoe.controllers.PlayController .down.> Coordinate
+tictactoe.controllers.PlayController .down.> Error
+tictactoe.controllers.PlayController .down.> Game
+tictactoe.controllers.PlayController .down.> Token
+
+class  tictactoe.controllers.ResumeController{
+  + ResumeController(Game)
+  + resume()
+}
+tictactoe.controllers.Controller <|-down- tictactoe.controllers.ResumeController
+tictactoe.controllers.ResumeController .down.> Game
+@enduml

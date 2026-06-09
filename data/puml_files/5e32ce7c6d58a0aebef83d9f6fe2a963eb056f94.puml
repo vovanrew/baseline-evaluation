@@ -1,0 +1,88 @@
+' Blob ID: 5e32ce7c6d58a0aebef83d9f6fe2a963eb056f94
+' Original Path: /Documents/1201021/Sprint3/US4002/SD_4002.puml
+' Source: World of Code
+
+@startuml
+'https://plantuml.com/sequence-diagram
+actor       "Project Manager" as man
+participant ":ProjectManagerUI" as UI
+participant "AGVServer" as avg
+
+man -> UI : Wants to assign ready to go Orders to an AGV
+activate man
+activate UI
+UI-> avg : message
+Activate avg
+avg -> avg: accept
+participant AGVServerThread
+activate AGVServerThread
+avg -\ AGVServerThread: start
+AGVServerThread -> CodingAndDecoding2:Decoding(r)
+activate CodingAndDecoding2
+CodingAndDecoding2->AGVServerThread: Message
+activate AGVServerThread
+participant "AVGManagerController" as con
+AGVServerThread->con:FifoAGV()
+activate con
+con->con: findavailableOrder()
+loop until orderList is empty
+activate con
+deactivate con
+con->con: findavailableAGV(weight,volume)
+activate con
+deactivate con
+con->con: createTaskandSave(description,order,agv)
+activate con
+deactivate con
+con->con: doTask()
+activate con
+participant "AGVDigitalTwinServer" as twin
+con->twin : message
+activate twin
+twin -> twin: accept
+
+participant AGVDigitalTwinThread
+activate AGVDigitalTwinThread
+avg -\ AGVDigitalTwinThread: start
+AGVDigitalTwinThread -> CodingAndDecoding2:Decoding(r)
+activate CodingAndDecoding2
+CodingAndDecoding2->AGVDigitalTwinThread: message
+participant AGVDigitalTwinController as contT
+AGVDigitalTwinThread-> contT:doTask(taskPerform)
+activate contT
+contT->AGVDigitalTwinThread: TaskReportMessage
+
+activate AGVDigitalTwinThread
+deactivate AGVDigitalTwinThread
+
+deactivate contT
+
+AGVDigitalTwinThread->twin:TaskReportMessage
+
+activate twin
+deactivate twin
+twin->con:TaskReportMessage
+deactivate con
+deactivate twin
+end
+con->AGVServerThread:ResponseMessage
+
+deactivate AGVServerThread
+deactivate con
+
+
+AGVServerThread --> avg: ResponseMessage
+Activate avg
+deactivate avg
+
+avg->UI : ResponseMessage
+activate UI
+deactivate avg
+UI->man: Informs operation success
+
+participant CodingAndDecoding2
+
+deactivate AGVServerThread
+
+
+@enduml

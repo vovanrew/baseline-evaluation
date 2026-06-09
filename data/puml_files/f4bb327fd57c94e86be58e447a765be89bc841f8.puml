@@ -1,0 +1,38 @@
+' Blob ID: f4bb327fd57c94e86be58e447a765be89bc841f8
+' Original Path: /struct/Struct.puml
+' Source: World of Code
+
+@startuml
+'https://plantuml.com/sequence-diagram
+database Database as ManageLog
+
+
+group rpc 上传日志
+ManageLogDemo -> ManageLogReceiveFacade: aspect 获取数据
+ManageLogReceiveFacade -> ManageLogReceiveProvider: rpc/http/kafka，数据为业务数据，configName
+ManageLogReceiveProvider -> ManageLogCommon: 使用工具类
+ManageLogReceiveProvider -> ManageLogReceiveProvider: 抓取配置
+ManageLogReceiveProvider -> ManageLog: 落地数据
+end
+
+group 自主使用 facade 上传日志
+AnotherJavaProject -> ManageLogReceiveFacade: 自己组装数据，使用 facade 提供的策略上传
+ManageLogUploadFacade -> ManageLogReceiveProvider: rpc/http/kafka，数据为业务数据，configName
+ManageLogReceiveProvider -> ManageLogCommon: 使用工具类
+ManageLogReceiveProvider -> ManageLogReceiveProvider: 抓取配置
+ManageLogReceiveProvider -> ManageLog: 落地数据
+end
+
+group 自主上传日志
+AnotherProject -> ManageLogReceiveProvider: http/kafka，数据为业务数据，configName
+ManageLogReceiveProvider -> ManageLogCommon: 使用工具类
+ManageLogReceiveProvider -> ManageLogReceiveProvider: 抓取配置
+ManageLogReceiveProvider -> ManageLog: 落地数据
+end
+
+group 日志查询
+ManageLog -> ManageLogQueryProvider: 获取数据
+ManageLogQueryProvider -> ManageLogQueryFacade: rpc 提供
+ManageLogQueryFacade -> AnotherProject: http 提供（默认）
+end
+@enduml

@@ -1,0 +1,119 @@
+' Blob ID: 741131f1105fdb311de9853b98315e6fc4ca8a2a
+' Original Path: /docs/Iteration 3/User Management/Refinement/US18_RegisterClient/US18_SD.puml
+' Source: World of Code
+
+@startuml
+autonumber
+hide footbox
+
+actor "Client" as U
+
+participant "RegisterClientUI" as UI
+participant "RegisterClientController" as CTRL
+participant "ApplicationPOT" as _APP
+participant "app\n:ApplicationPOT" as APP
+participant "clientService\n:ClientService" as CS
+participant "clientDB\n:ClientDB" as UREG
+
+participant "client\n:Client" as USER
+participant "user\n:User" as US
+participant "EncryptPassword" as EP
+participant Address as ADD
+participant CreditCard as CC
+
+participant "EmailSender" as ESENDER
+participant "DataHandler" as DH
+
+activate U
+
+U -> UI : Engages the register feature/button
+activate UI
+
+UI --> U : Asks for all the information required \nfor the register (i.e. name,nif,email,password,latitude,longitude,altitude,\nstreetName,doorNumber,postalCode,locality,country,creditCardNr,validityDate,\nCCV)
+
+
+deactivate UI
+U -> UI : Fills all the information required
+
+
+activate UI
+
+
+UI --> U : Presents the data and asks for a confirmation
+
+deactivate UI
+U -> UI : Confirms
+activate UI
+UI -> CTRL : registerNewClient(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+activate CTRL
+CTRL -> CS** : create()
+activate CS
+CS -> UREG** : create()
+deactivate CS
+CTRL -> CS : validateInput(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+activate CS
+deactivate CS
+alt if all the information given as input has a valid format
+
+
+
+
+CTRL -> CS : newClient(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+activate CS
+CS -> USER** : create(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+deactivate CS
+activate USER
+
+USER -> US** : create(email,password,nif,name)
+
+activate US
+US -> EP : encryptPasswordMD5(password)
+activate EP
+deactivate EP
+deactivate US
+
+USER -> ADD** : create(latitude,longitude,altitude,streetName,doorNumber,postalCode,locality,country)
+USER -> CC** : create(creditCardNr,validityDate,CCV)
+deactivate USER
+
+
+
+
+
+CTRL -> CS : registerNewClient(client)
+activate CS
+CS -> UREG : addClientToDB(client)
+ref over UREG
+SD_CONNECTIONS
+end ref
+activate UREG
+deactivate UREG
+
+CS -> ESENDER : sendEmail(email,subject,body)
+activate ESENDER
+deactivate ESENDER
+
+
+
+
+
+deactivate CS
+
+
+
+deactivate CTRL
+
+UI --> U : Validates and informs about the success of the operation
+deactivate UI
+
+else if any information does not have a valid format
+
+
+UI -> U : Informs the User that the operation\nwas not successful
+activate UI
+deactivate UI
+deactivate U
+
+end
+
+@enduml

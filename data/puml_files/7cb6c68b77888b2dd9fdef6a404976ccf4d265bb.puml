@@ -1,0 +1,67 @@
+' Blob ID: 7cb6c68b77888b2dd9fdef6a404976ccf4d265bb
+' Original Path: /UE4学习/Cook/CookFlow.wsd
+' Source: World of Code
+
+@startuml
+
+class FUObjectThreadContext
+{
+    - TArray<FObjectInitializer> InitializerStack
+    - TRefCountPtr<FUObjectSerializeContext> SerializeContext
+
+}
+
+class FObjectInitializer
+{
+}
+
+class FUObjectSerializeContext
+{
+    - TArray<UObject*> ObjectsLoad
+    - TArray<FLonkerLoad*> AttachedLinkers
+}
+note top: 这个结构体缓存多个UObject序列化信息
+
+FUObjectThreadContext <-- FObjectInitializer : 1:*
+FUObjectThreadContext <-- FUObjectSerializeContext : 1:1
+
+class FEDLCookChecker
+{
+    TMultiMap<FEDLNodeID, FName> ImportToImportingPackage
+    TSet<FEDLNodeID> Exports
+    TMultiMap<FEDLNodeID, FEDLNodeID> NodePrereqs
+    ----
+    + AddImport()
+    + AddExport()
+    + AddArc()
+}
+
+class FEDLNodeID
+{
+    TArray<FName> ObjectPath
+    + <b><font color=red>GetTypeHash()</b>
+}
+note right
+    ObjectPath 示例:
+
+    Hash算法:
+        基于FName的Hash, 注意Hash的末位是序列化标记 
+        <b><font color=red>bDepIsSerialize</b>
+end note
+
+FEDLCookChecker <-- FEDLNodeID
+
+package CookUtils #GreenYellow/LightGoldenRodYellow {
+class FPackageTracker
+{
+
+}
+
+class CookRequests
+{
+
+}
+
+FPackageTracker <-- CookRequests
+}
+@enduml

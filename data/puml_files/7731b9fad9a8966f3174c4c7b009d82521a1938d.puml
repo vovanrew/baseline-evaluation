@@ -1,0 +1,51 @@
+' Blob ID: 7731b9fad9a8966f3174c4c7b009d82521a1938d
+' Original Path: /wp4/assets/use-cases/uml/simulation+insitu+postproc/sequence.pu
+' Source: World of Code
+
+@startuml
+actor User
+control JobManager
+participant Nodes
+participant ESDM
+participant "Post Processing Library" as libpost
+database Storage
+
+
+User -> JobManager: submit job(IN, OUT)
+JobManager -> Nodes
+
+== Initialization ==
+
+Nodes -> Storage: read IN=x
+Storage -> Nodes: return
+
+== Loop ==
+
+Nodes -> Nodes: compute
+activate Nodes
+
+Nodes -> ESDM: write async OUT=y
+activate ESDM
+ESDM -> Storage: write snapshot (async)
+ESDM -> libpost: trigger post processing if region effected
+
+
+== In Situ Post Processing ==
+libpost -> libpost: perform post processing
+libpost -> Storage: (could write result directly)
+ESDM <- libpost: return
+ESDM -> Storage: write post processing result
+ESDM -> Nodes: return
+
+deactivate ESDM
+
+Storage -> User: OUT files become visible
+
+...multiple iterations...
+
+== Finalize ==
+
+Storage -> User: All OUT files become visible to subsequent users.
+
+
+@enduml

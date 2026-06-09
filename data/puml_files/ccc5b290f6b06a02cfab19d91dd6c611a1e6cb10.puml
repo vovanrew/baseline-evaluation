@@ -1,0 +1,207 @@
+' Blob ID: ccc5b290f6b06a02cfab19d91dd6c611a1e6cb10
+' Original Path: /SprintD/US017/US017_SD.puml
+' Source: World of Code
+
+
+
+@startuml
+
+autonumber
+actor "CenterCoordinator" as CC
+participant ":DataFromLegacySystemUI" as UI
+participant ":DataFromLegacySystemController" as CTRL
+participant ":ReadLegacyDataFile" as RDLF
+participant ":Company" as Comp
+participant ":SNSUserStore" as SNSStore
+participant ":App" as App
+participant ":VaccinationCenter" as VC
+participant ":Arrival" as AR
+participant ":Departure" as DR
+participant ":vaccinationCentersStore" as VCS
+
+activate CC
+CC -> UI : Asks to load a CSV file with legacy data
+activate UI
+UI -> CTRL** : DataFromLegacySystemController()
+activate CTRL
+CTRL -> Comp : getVaccinationCentersStore()
+activate Comp
+Comp --> CTRL : returns the store
+deactivate Comp
+CTRL -> VCS : getVaccinationCenterAssociatedToCoordinator(id)
+activate VCS
+VCS --> CTRL : returns the vaccination center
+deactivate VCS
+CTRL --> RDLF **: ReadLegacyDataFile(center)
+deactivate CTRL
+
+
+
+UI --> CC : request path of the CSV file
+deactivate UI
+
+CC -> UI : types path
+activate UI
+
+
+UI -> CTRL: readFile(path)
+
+activate CTRL
+CTRL -> RDLF : readFile(Sring path)
+
+
+activate RDLF
+
+
+loop#Red while csv has new lines
+RDLF -> RDLF : validateFileLegacy(SNSUserNumber,\nfirstDate,secondDate,thirdDate,fourthDate)
+
+RDLF -> RDLF : Saves data into an ArrayList<String> called\n legacyDataList
+
+end loop
+
+
+RDLF -> Comp : getSNSUserList()
+activate Comp
+Comp -> SNSStore : getSNSUserList()
+activate SNSStore
+SNSStore -> Comp : returns list
+deactivate SNSStore
+Comp -> RDLF : returns list
+RDLF -> Comp : getVaccineList()
+Comp -> RDLF : returns list
+deactivate Comp
+loop#Red while legacyDataList has new lines
+
+RDLF -> RDLF : findPosOfSNSUser(snsUsersList,\n values,positionInSnsUserList)
+
+
+
+deactivate Comp
+RDLF -> RDLF : findPosOfVax(vaccineList,values,positionInVaccinesList)
+
+RDLF -> RDLF : checksDuplicates(updatedList,snsUsersList,vaccineList,positionInSnsUserList,positionInVaccinesList,lineOfTheData)
+
+RDLF -> RDLF : Saves data into an ArrayList<String> called updatedList
+
+RDLF -> VC : createArrival()
+activate VC
+VC -> AR**: createArrival()
+activate AR
+AR -> VC : returns Arrival
+deactivate AR
+
+activate VC
+VC -> VC : Saves arrival into List<Arrival> called arrivalsList
+
+VC -> VC : genericsArrivals.binaryFileWrite(Constants.FILE_PATH_ARRIVALS, arrivalsList)
+
+RDLF -> VC : createDeparture()
+deactivate VC
+VC -> DR** : createDeparture()
+activate DR
+DR -> VC : returns departure
+deactivate DR
+
+activate VC
+VC -> VC : Saves departure into List<Departure> called departuresList
+
+VC -> VC: genericsDeparture.binaryFileWrite(Constants.FILE_PATH_DEPARTURES, departuresList)
+
+
+end loop
+deactivate VC
+deactivate VC
+RDLF -> CTRL : returns updatedList
+deactivate RDLF
+CTRL -> UI : returns updatedList
+deactivate CTRL
+
+
+
+
+UI -> CC : requests the option to sort
+deactivate UI
+
+deactivate UI
+CC -> UI : selects option
+activate UI
+
+UI -> CTRL : chooseCriteriaToSort(option)
+activate CTRL
+CTRL -> RDLF : setList(Option)
+deactivate CTRL
+activate RDLF
+loop#Red while updatedList has new lines
+RDLF -> RDLF : Saves dates to a \n a List<LocalDateTime> \n called listToSort
+end loop
+deactivate RDLF
+UI -> CC: requests the order of the sort
+deactivate UI
+alt#Gold algorithmToBeUsed = "InsertionSort", option = "0 - Ascending"
+CC -> UI: selects order
+activate UI
+
+UI -> CTRL : getAlgorithm()
+activate CTRL
+CTRL -> App : getSortingAlgorithm()
+
+activate App
+App -> CTRL : returns algorithm
+deactivate App
+CTRL->UI : returns algorithm
+
+
+deactivate CTRL
+
+
+UI -> CTRL: sortListWithAlgo(algorithmToBeUsed,option)
+note right: algorithmToBeUsed can be InsertionSort or HeapSort, both have methods that\n can sort in ascending/descending order, here we are just representing \n the InsertionSort algorithm because HeapSort functions in a similar way.
+activate CTRL
+
+CTRL -> RDLF : insertionSortAscending()
+activate RDLF
+
+
+
+RDLF -> CTRL : returns sortedList
+deactivate RDLF
+CTRL -> UI : returns sortedList
+
+deactivate CTRL
+
+UI -> CC : prints sortedList
+deactivate UI
+else algorithmToBeUsed = "InsertionSort", option = "1 - Descending"
+CC -> UI: selects order
+activate UI
+
+
+UI -> CTRL : getAlgorithm()
+activate CTRL
+CTRL -> App : getSortingAlgorithm()
+
+activate App
+App->CTRL : returns algorithm
+deactivate App
+CTRL->UI : returns algorithm
+
+deactivate CTRL
+
+
+UI -> CTRL: sortListWithAlgo(algorithmToBeUsed,option)
+activate CTRL
+
+CTRL -> RDLF : insertionSortDescending()
+activate RDLF
+
+RDLF -> CTRL : returns sortedList
+deactivate RDLF
+CTRL -> UI : returns sortedList
+
+deactivate CTRL
+UI -> CC : prints sortedList
+deactivate UI
+end alt
+
+@enduml

@@ -1,0 +1,41 @@
+' Blob ID: 203d4c04005b1eae83942531402f3edcf8c0409e
+' Original Path: /spec/Standing Order System Diagrams.wsd
+' Source: World of Code
+
+@startuml
+
+skinparam defaultFontName "Helvetica Neue"
+skinparam sequenceTitleFontSize 24
+title Request Order Change\n\n
+
+actor Buyer
+actor Grower
+actor Manager
+control System
+database db
+
+Buyer -> System: Make <b>Order Change Request</b>
+System -> db: Insert <b>Order</b>\n<b>Change Request</b>
+System -> Manager: Email <b>Order</b>\n<b>Change Request</b>
+group Confirmation process
+Manager -> Buyer: Confirm details of <b>Order</b>\n<b>Change Request</b> over email
+Manager -> Grower: Confirm details of <b>Order</b>\n<b>Change Request</b> over email
+else All agreed?
+Manager -> System: Edit <b>Order</b>
+System -> db: Update <b>Order</b>
+System -> db: Update <b>Order</b>\n<b>Change Request</b>
+System -> Grower: Email details <b>Order Change</b>
+System -> Buyer: Email details <b>Order Change</b>
+else Not agreed to?
+note over System, db
+Nothing to do here unless we add a
+<b>Change Request</b> editing function
+end note
+end
+
+legend right
+    1. <i>Email</i> could also mean text message,
+       phone call or face to face
+end legend
+
+@enduml

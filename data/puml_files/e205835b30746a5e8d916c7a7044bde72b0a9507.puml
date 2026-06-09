@@ -1,0 +1,49 @@
+' Blob ID: e205835b30746a5e8d916c7a7044bde72b0a9507
+' Original Path: /Laboratório-Projeto 4/src/csheets/userstories/ipc03_01/comments/i130487/ipc03_01Design_diagram_Send.puml
+' Source: World of Code
+
+@startuml
+
+actor User
+ participant "SearchWindowUI" as SearchWindowUI
+ participant "SearchOnAnotherInstanceController" as SearchOnAnotherInstanceController
+ participant "NetworkFactory" as NetworkFactory
+ participant "UDP_ClientImpl" as UDP_ClientImpl
+ participant "Thread" as Thread
+participant "TCP_ClientImpl" as TCP_ClientImpl
+participant "SpreadCheet" as SpreadCheet
+
+User -> SearchWindowUI : start searching instances
+
+SearchWindowUI -> SearchOnAnotherInstanceController : create(address)
+
+SearchOnAnotherInstanceController -> NetworkFactory : Obj = getUDPClientImpl(availableInstances)
+
+NetworkFactory -> UDP_ClientImpl_03 : create()
+
+
+UDP_ClientImpl -> Thread : create(obj)
+
+UDP_ClientImpl -> Thread : start()
+
+UDP_ClientImpl -> Thread : join()
+
+SearchWindowUI -> SearchOnAnotherInstanceController : checkIfIsAvailable()
+
+SearchOnAnotherInstanceController -> NetworkFactory : getInfo(destination)
+
+NetworkFactory -> TCP_ClientImpl_03 : create()
+
+
+SearchOnAnotherInstanceController -> Thread : create(Object)
+
+SearchOnAnotherInstanceController -> Thread : start()
+
+SearchOnAnotherInstanceController -> TCP_ClientImpl_03 : getInfo()
+
+TCP_ClientImpl_03 -> SpreadCheet : getInfo()
+
+SearchWindowController -> Thread : join()
+
+
+@enduml

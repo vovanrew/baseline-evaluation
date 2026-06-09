@@ -1,0 +1,76 @@
+' Blob ID: 09bde3e2f993e72fe98411f8d968d9e2b33b4b73
+' Original Path: /graphviz/SIT_v1.puml
+' Source: World of Code
+
+@startuml
+autonumber
+skinparam backgroundColor #EEEBDC
+skinparam handwritten true
+
+skinparam sequence {
+	ArrowColor DeepSkyBlue
+	ActorBorderColor DeepSkyBlue
+	LifeLineBorderColor blue
+	LifeLineBackgroundColor #A9DCDF
+
+	ParticipantBorderColor DeepSkyBlue
+	ParticipantBackgroundColor DodgerBlue
+	ParticipantFontName Impact
+	ParticipantFontSize 17
+	ParticipantFontColor #A9DCDF
+
+	ActorBackgroundColor aqua
+	ActorFontColor DeepSkyBlue
+	ActorFontSize 17
+	ActorFontName Aapex
+}
+
+actor developer
+participant "DEV" as KP
+participant "TEST" as MAST
+participant "MASTER" as MIN
+'participant "sydic master" as SY
+participant "HOTFIX" as SY
+'participant "hosts(待装salt机器)" as H
+
+'KP -> MAST: 基于HOTFIX分支checkout
+KP -> MAST: 增量换包到TEST
+'KP -> MAST: 测试通过后，基于TEST打tag，并check release分支
+'KP -> MAST: 将release分支合并到MASTER
+
+activate MAST
+MAST -> MIN: 测试通过后，基于TEST打tag
+MAST -> MIN: check release分支
+'MAST -> MIN: merge到test分支
+MAST -> MIN: 将release分支合并到MASTER
+activate MIN
+
+MIN -> SY: ，线上紧急问题，基于MASTER check HOTFIX分支
+MIN -> SY: ，开发基于HOTFIX分支check本地分支修复问题
+MIN -> SY: 修复完成后合回HOTFIX分支
+'MIN -> SY: 【PROD环境】测试通过后，merge到HOTFIX分支，并打tag
+
+activate SY
+SY -> MIN: 用CMP工具基于HOTFIX打包换到测试环境进行验证
+SY -> MIN: 测试通过后，HOTFIX合回MASTER
+SY -> MAST: 测试通过后，HOTFIX合回TEST
+SY -> KP: 测试通过后，HOTFIX合回DEV
+'SY -> MIN: 说明（）
+'SY -> H: begin_test_ping
+'SY -> H: begin_deploy
+'
+'activate H
+'H-->SY:WorkDone
+'deactivate H
+
+
+'SY --> MIN: WorkDone
+deactivate SY
+
+'MIN --> MAST: merge到TEST分支
+deactivate MIN
+
+'MAST --> KP: WorkDone
+deactivate MAST
+
+@enduml

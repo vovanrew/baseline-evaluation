@@ -1,0 +1,50 @@
+' Blob ID: 32e297812885b315c9ec8f772b7a81897cfbaed0
+' Original Path: /web/doc/sequence-diagram/15.ネットワーク情報変更通知.puml
+' Source: World of Code
+
+@startuml
+
+actor Webブラウザ as client
+participant "CCM GUI\n(Web)" as web
+participant "CCM GUI\n(WebSocket)" as ws
+participant "CCM SDK\n(IPC)" as ccm
+
+' 各サーバーはすべて起動状態から開始
+activate client
+activate web
+activate ws
+activate ccm
+
+ccm -> ccm : ネットワーク情報変更通知 受信\n(RegistRecieveNetworkInfoHandler)
+
+ws <<-- ccm : ネットワーク情報変更通知 [notify]
+note left
+    {
+        "command": "NetworkInfo",
+        "type": "notify",
+        "data": {
+            "ID": "xxx",
+            "CellularInfo": [{
+                "SignalStrength": "...",
+                "SignalStrengthUnit": "...",
+                "Operator": "...",
+                "PLMN": "...",
+                "Band": "...",
+                "CellID": "...",
+                "AirInterface": "...",
+                "Manufacture": "...",
+                "ModelName": "...",
+                "IMEI": "..."
+            }],
+            "QosInterfaceType": {
+                "key1": "val1",
+                ...
+            }
+        }
+    }
+end note
+client <<-- ws
+
+client -> client : 1秒間隔で保持データを画面に表示
+
+@enduml

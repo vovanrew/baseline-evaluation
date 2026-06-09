@@ -1,0 +1,50 @@
+' Blob ID: 33b19f9009f6230b82710066808b6968c5583fe4
+' Original Path: /metrics/web/docs/features/feature_config/diagrams/feature_config_domain_layer_class_diagram.puml
+' Source: World of Code
+
+@startuml
+
+package base.domain.usecases {
+    interface UseCase<Type, Params> {
+        call: Type
+    }
+}
+
+package common.domain {
+    package repository {
+        interface FeatureConfigRepository {
+            + Future<FeatureConfig> fetch()
+        }
+    }
+
+    package entities {
+        class FeatureConfig {
+            + isPasswordSignInOptionEnabled : bool
+            + isDebugMenuEnabled : bool
+        }
+    }
+
+    package usecases {
+        class FetchFeatureConfigUseCase {
+            + Future<FeatureConfig> call(FeatureConfigParam params)
+        }
+
+        package parameters {
+            class FeatureConfigParam {
+                + isPasswordSignInOptionEnabled : bool
+                + isDebugMenuEnabled : bool
+            }
+        }
+
+    }
+}
+
+FetchFeatureConfigUseCase ..|> UseCase
+
+FetchFeatureConfigUseCase -up-> FeatureConfigRepository : uses
+
+FeatureConfigRepository --> FeatureConfig: uses
+
+FetchFeatureConfigUseCase --> FeatureConfigParam : uses
+
+@enduml

@@ -1,0 +1,78 @@
+' Blob ID: ff9b98a1338c7fe9ff2a8c4f5d548fd2cc7d7b28
+' Original Path: /docs/SprintD/US/US1/US1_CD.puml
+' Source: World of Code
+
+@startuml
+
+class CheckTestUI{
+
+}
+
+class CheckTestController{
+-TestStore testStore
+-ClientStore clientStore
+-AuthFacade authFacade
+-List<Test> clientTestList
+-Client client
+--
++getClientTests()
++getTestReport(String idTest)
+}
+
+
+class TestStore{
+List<Test> testList
+--
++getTestList()
+}
+
+class ClientStore{
+-List<Client> clientList
+--
++getClientFromEmail(String email)
+}
+
+class Company{
+-TestStore testStore
+-ClientStore clientStore
+--
++getTestStore()
++getClientStore()
+}
+
+class TestMapper{
++toDto(testList, client)
+}
+
+class TestDTO{
++toDto(testList, client)
+}
+
+class Test{
+-String idTest
+-TestReport testReport
+--
++getTestReport()
+}
+
+class Client{
+-String tin
+--
++getTin()
+}
+
+CheckTestUI ..> CheckTestController
+CheckTestController ..> TestStore
+CheckTestController ..> ClientStore
+CheckTestController ..> Company
+CheckTestController ..> TestMapper
+TestMapper ..> TestDTO
+CheckTestController ..> TestDTO
+CheckTestUI ..> TestDTO
+Company "1" --> "*" TestStore : uses
+Company "1" --> "*" ClientStore : uses
+TestStore "1" --> "*" Test : knows
+CheckTestController ..> Test
+ClientStore "1" --> "*" Client : knows
+
+@enduml

@@ -1,0 +1,179 @@
+' Blob ID: 7b304edd43574ce0671a402e1bb4c248595eafe1
+' Original Path: /documents/diagram/FAQ/FAQClass.puml
+' Source: World of Code
+
+@startuml
+
+package dao {
+
+
+    abstract QuestionDao{
+        # OfferDao()
+        + {static} getInstance() : QuestionDao
+        - {static} LazyHolder()
+        getQuestionsByOfferId(offerId : int) : ArrayList<Question>
+        questionExists(id : int) : boolean
+        hasAnAnswer(id : int) : boolean
+    }
+
+    abstract AnswerDao{
+        # OfferDao()
+        + {static} getInstance() : QuestionDao
+        - {static} LazyHolder()
+        getAnswersByOfferId(offerId : int) : ArrayList<Answer>
+        answerExists(id : int) : boolean
+    }
+
+    class QuestionDaoMySQL
+    QuestionDaoMySQL -up-|> QuestionDao
+
+    class AnswerDaoMySQL
+    FactoryDaoMySQL -up-|> AbstractFactoryDao
+    AnswerDaoMySQL -up-|> AnswerDao
+
+    interface DAO<T>{
+        find(id : int) : T
+        create(T obj) : T
+        update(T obj) : T
+        delete(T obj) : boolean
+    }
+
+    abstract AbstractFactoryDao{
+        - {static} final connectionDB : ConnectionDB
+        + {static} getFactory(type : TypeDB) : AbstractFactoryDao
+        + getAnswerDao() : AnswerDao
+        + getQuestionDao() : QuestionDao
+    }
+
+    class FactoryDaoMySQL{
+    }
+
+    DAO <|.. AnswerDao
+    DAO <|.. QuestionDao
+    QuestionDao-->AbstractFactoryDao
+    AnswerDao-->AbstractFactoryDao
+}
+package db{
+    class ConnectionDBMySQL{
+        - connection : Connection
+        - ConnectionDBMySQL()
+        + {static} getInstance() : ConnectionDBMySQL
+        + getDb() : Connection
+    }
+
+    class LazyHolderDB{
+        + {static} final INSTANCE : ConnectionDBMySQL
+    }
+    interface ConnectionDB
+    ConnectionDBMySQL -Left-> LazyHolderDB
+    ConnectionDBMySQL .up.|> ConnectionDB
+
+}
+package business{
+    class SessionFacade{
+        + SessionFacade()
+        + getUser() : User
+    }
+
+    class Question{
+        -questionId : int
+        -content : String
+        -score : int
+        -answerId : int
+        -userId : int
+        -offerId : int
+        + Question()
+        + getQuestionId() : int
+        + getContent() : String
+        + getScore() : int
+        + getAnswer() : Answer
+        + getUserId() : int
+        + getOfferId() : int
+        + setId(id:int) : void
+        + setContent(content:String) : void
+        + setAnswer(answer:Answer) : void
+        + setScore(score:int) : void
+        + setUserId(userId:int) : void
+        + setOfferId(categoryId:int) : void
+    }
+
+    class Answer{
+        -answerId : int
+        -content : String
+        -score : int
+        -userId : int
+        + Answer()
+        + getAnswerId() : int
+        + getContent() : String
+        + getScore() : int
+        + getUserId() : int
+        + setId(id:int) : void
+        + setContent(content:String) : void
+        + setScore(score:int) : void
+        + setUserId(userId:int) : void
+    }
+
+    class FAQFacade{
+        + getQuestionById(id : int) : Question
+        + getAnswerById(id : int) : Answer
+        + createQuestion(id : int, userid : int, offerid : int, answerid : int, question : String, score : int) : Question
+        + createAnswer(id : int, userid : int, answer : String, score : int) : Answer
+        + getQuestionsByOfferId(offerid : int) : ArrayList<Question>
+        + getAnswersByOfferId(offerid : int) : ArrayList<Answer>
+        + updateQuestionScore(id : int, userid : int, offerid : int, answerid : int, question : String, score : int) : Question
+        + updateAnswerScore(id : int, userid : int, answer : String, score : int) : Answer
+        + deleteQuestion(id : int) : boolean
+        + deleteAnswer(id : int) : boolean
+    }
+
+}
+
+package gui{
+
+    class LoadView{
+        + {static} load(nameFxml : Parent) : Parent
+        + {static} changeScreen(actionEvent : ActionEvent, view : String) : void
+    }
+
+    package controller{
+
+        class OfferController {
+            - FAQ : ListView
+            - answerQuestion : JButtonBar
+            - update : JButtonBar
+            - updat : JButtonBar
+            - newQuestion : JButtonBar
+            - rateArea : JButtonBar
+            + handleNewQuestion(actionEvent : ActionEvent) : void
+            + handleNewAnswer(actionEvent : ActionEvent) : void
+            + handleUpdateQuestion(actionEvent : ActionEvent) : void
+            + handleUpdateAnswer(actionEvent : ActionEvent) : void
+            + handleDeleteQuestion(actionEvent : ActionEvent) : void
+            + handleDeleteAnswer(actionEvent : ActionEvent) : void
+            + handleUpdateScoreQuestion(actionEvent : ActionEvent) : void
+            + handleUpdateScoreAnswer(actionEvent : ActionEvent) : void
+        }
+
+        class NewQuestionController {
+            - questionArea : JTextArea
+            - postQuestion : JButtonBar
+            - cancel : JButtonBar
+            + handleNewQuestion(actionEvent : ActionEvent) : void
+            + cancel(actionEvent : ActionEvent) : void
+        }
+
+        class NewAnswerController {
+            - answerArea : JTextArea
+            - postAnswer : JButtonBar
+            - cancel : JButtonBar
+            + handleNewAnswer(actionEvent : ActionEvent) : void
+            + cancel(actionEvent : ActionEvent) : void
+        }
+    }
+}
+FAQFacade <--Up- controller
+SessionFacade <--Up- FAQFacade
+
+
+
+@enduml

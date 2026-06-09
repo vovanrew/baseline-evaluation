@@ -1,0 +1,56 @@
+' Blob ID: 59404e47a65233f07362705e3d83b50158ef8e5b
+' Original Path: /docs/diagrams/dkd-core-parsing.puml
+' Source: World of Code
+
+@startuml
+
+package parsing {
+    class ANTLRErrorListener <<org.antlr.v4.runtime>>
+    abstract class DP1CircuitBaseVisitor <<generated>>
+
+    class ANTLRCircuitParser implements ICircuitParser {
+        +parse(cleantedTxtCircuit): CircuitDefinition
+        -convertParseTreeToCircuitDefinition(parseTree: ParseTree): CircuitDefinition
+    }
+
+    class XMLCircuitParser implements ICircuitParser {
+        -nodes: Map<String, String>
+        -edges: Map<String, List<String>>
+
+        +parse(cleanedTxtCircuit): CircuitDefinition
+        -parseNodes(document: Document)
+        -parseEdges(document: Document)
+    }
+
+    class ANTLRParserErrorListener implements ANTLRErrorListener {
+        -syntaxErrorsCount: int
+
+        +hasSyntaxErrors(): boolean
+        +syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e)
+    }
+
+    class ANTLRVisitor extends DP1CircuitBaseVisitor {
+        -nodes: Map<String, String>
+        -edges: Map<String, List<String>>
+
+        +ANTLRVisitor()
+        +visit(tree: ParseTree)
+        +visitNodeDefinition(ctx: DP1CircuitParser.NodeDefinitionContext): CircuitDefinition
+        +visitEdgeDefinition(ctx: DP1CircuitParser.EdgeDefinitionContext): CircuitDefinition
+    }
+    ANTLRVisitor --> "1" CircuitDefinition : -circuitDefinition
+
+    class CircuitParserFactory {
+        +circuitParserNames: Set<String>
+
+        +CircuitParserFactory()
+        +getCircuitParser(name: String): ICircuitParser
+    }
+    CircuitParserFactory --> "0..*" ICircuitParser : -circuitParsers
+
+    interface ICircuitParser {
+        +parse(cleanedTxtCircuit: String): CircuitDefinition
+    }
+}
+
+@enduml

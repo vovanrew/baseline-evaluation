@@ -1,0 +1,165 @@
+' Blob ID: aa416d26b5e8ab9e0af098522a5e026c5a67fe35
+' Original Path: /docs/SPRINT_005/DDD_Aggregates_v4_MacroVision.puml
+' Source: World of Code
+
+@startuml
+'https://plantuml.com/class-diagram
+
+'SWitCH G4 THEME
+'
+'COLORS
+'Blue #application
+'Pink #pink
+'Red #salmon
+'Yellow #khaki
+'Green #technology
+'
+'DEFAULTS
+
+hide members
+hide circle
+skinparam linetype ortho
+
+skinparam minClassWidth 200
+skinparam nodesep 20
+skinparam ranksep 20
+skinparam padding 0
+skinparam roundCorner 8
+
+
+
+
+skinparam package {
+    backgroundColor white
+    borderColor grey
+    shadowing false
+    fontStyle normal
+    fontSize 16
+    borderThickness 0.5
+    fontColor #aaa
+    stereotypeFontSize 10
+    stereotypeFontColor lightGrey
+}
+
+skinparam class {
+    stereotypeFontSize 10
+    fontSize 16
+    fontName Helvetica
+    arrowColor black
+    arrowThickness 1
+    attributeIconSize 0
+    borderThickness 0.5
+}
+
+skinparam class<<AGGREGATE ROOT>> {
+    borderColor black
+    backgroundColor #eee
+}
+
+skinparam class<<ENTITY>> {
+    borderColor yellow
+    backgroundColor #khaki
+}
+
+skinparam class<<VALUE OBJECT>> {
+    borderColor green
+    backgroundColor #technology
+}
+
+
+
+skinparam note {
+    fontSize 14
+    fontName Helvetica
+    borderColor black
+    borderThickness 0.5
+    backgroundColor AliceBlue
+}
+
+
+'TITLE ON TOP
+'title The new Big Picture
+
+'HEADER FOOTER DESCRIPTIONS
+'center header DDD - Domain Driven Design
+'center footer DDD - Domain Driven Design
+
+
+
+'class Resource <<VALUE OBJECT>> #technology ##green{}
+
+
+
+package Resource <<AGGREGATE>>  {
+    entity Resource <<AGGREGATE ROOT>><<ENTITY>>
+}
+
+package Project <<AGGREGATE>> {
+    entity Project <<AGGREGATE ROOT>><<ENTITY>>
+    'entity ProductBacklog <<ENTITY>>
+    entity Resource <<AGGREGATE ROOT>><<ENTITY>>
+}
+
+package Sprint <<AGGREGATE>>   {
+
+    'class SprintID <<VALUE OBJECT>>
+    entity Sprint <<AGGREGATE ROOT>><<ENTITY>>
+    'entity SprintBacklogItem <<VALUE OBJECT>>
+}
+
+package UserStory <<AGGREGATE>>{
+    'entity TaskInUS
+    'class UserStoryID <<VALUE OBJECT>>
+    entity UserStory <<AGGREGATE ROOT>><<ENTITY>>
+
+
+}
+
+package User <<AGGREGATE>>{
+    entity User <<AGGREGATE ROOT>><<ENTITY>>
+    'class UserID <<VALUE OBJECT>>
+}
+
+
+package Profile <<AGGREGATE>>{
+    entity Profile <<AGGREGATE ROOT>><<ENTITY>>
+    'class ProfileName <<VALUE OBJECT>>
+}
+
+package Typology <<AGGREGATE>>{
+    entity Typology <<AGGREGATE ROOT>><<ENTITY>>
+    'class TypologyName <<VALUE OBJECT>>
+}
+
+package ProfileRequest <<AGGREGATE>>{
+      entity ProfileRequest <<AGGREGATE ROOT>><<ENTITY>>
+}
+
+package Task <<AGGREGATE>>{
+      entity Task <<AGGREGATE ROOT>><<ENTITY>>
+}
+
+'ProjectDeprecated -right- ProductBacklog
+Resource ---> User
+Project -left-> Typology
+Project <-- Resource
+
+
+Sprint ---> Project
+'Sprint -right- SprintBacklogItem
+'SprintBacklogItem -down-> UserStory
+UserStory -> Sprint
+Project <-left- UserStory
+Resource <-left- Task
+
+Task --> Sprint
+Task --> UserStory
+
+Profile ---> User
+ProfileRequest -right-> Profile
+ProfileRequest --> User
+
+'note  "This note is connected\nto several objects." as N2
+'Profile .. N2
+
+@enduml

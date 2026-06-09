@@ -1,0 +1,25 @@
+' Blob ID: e99fda9abbdee4e0acb98ec78ece52cfec4db184
+' Original Path: /src/main/java/com/puml/qingqing/live_5.1.5/备课上传图片/资料图片编辑.puml
+' Source: World of Code
+
+@startuml
+title 资料图片编辑
+participant 授课端
+participant "cos/oss" AS oss
+participant imgsvc
+participant livesvc
+授课端 -> livesvc: （wiki:206898375 课程备课详情）\n/{h5|}pt/v1/live_order_course/preparing_info
+授课端 -> liveteachingsvc: （预览/编辑 资料图片 wiki:288817172 PT 根据不同类型获取课程绑定资料的信息）\n<color #green>/{h5|}pt/v1/live_order_course/material_info
+note right 授课端: 旋转/裁剪/删除 前端行为，等点击<b>确认</b>时再汇报后端
+授课端 -> livesvc: （PT V3 wiki:185074611 多地址文件上传前获取签名）\n/{h5|}pt/v3/image/object_upload_auth<color #red>（PT）</color>
+create oss
+授课端 -> oss: 上传图片
+授课端 -> imgsvc: /pb/v1/media/add/image（wiki:11574780）
+'额外调一次替换接口，可能存在替换成功，覆盖失败情况
+'授课端 -> liveteachingsvc: <color #green>（wiki: 288325995 PT 学习资料图片批量替换）\n<color #green>/{h5|}pt/v1/study_material/batch_replace_images</color>（入参：旋转/裁剪的图片列表）
+'liveteachingsvc -[#blue]> liveteachingsvc: delete t_general_file（原general_file）\ninsert t_general_file（替换的general_file）
+授课端 -> liveteachingsvc: <color #green>（wiki:288327306 PT 覆盖已绑定课程学习资料图片）\n（入参：需要解绑的general_file_id列表、需要替换的image列表（包含被替换的general_file_id））\n<color #green>/{h5|}pt/v1/study_material/course_images_cover</color>
+liveteachingsvc -[#blue]> liveteachingsvc: delete t_general_file（原general_file）\ninsert t_general_file（替换的general_file）
+liveteachingsvc -[#blue]> liveteachingsvc: delete t_live_order_course_general_file（解绑+被替换的general_file）\ninsert t_live_order_course_general_file（替换的general_file）
+'liveteachingsvc --> 授课端: mqtt sendSignal subCmdType:20（老师上传图片完成）
+@enduml

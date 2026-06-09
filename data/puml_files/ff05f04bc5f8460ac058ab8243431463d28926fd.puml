@@ -1,0 +1,14 @@
+' Blob ID: ff05f04bc5f8460ac058ab8243431463d28926fd
+' Original Path: /documentation/images/plantuml/beerocks_cli/clear_credentials.puml
+' Source: World of Code
+
+@startuml
+ -> beerocks_cli: beerocks_cli -c \n"bml_clear_wifi_credentials <al-mac>"
+beerocks_cli -> beerocks_cli: cli_bml::clear_wifi_credentials_caller(args)
+beerocks_cli -> beerocks_cli: cli_bml::clear_wifi_credentials(\n args.stringArgs[0])
+beerocks_cli -> beerocks_cli: bml_clear_wifi_credentials(\n ctx,\n al-mac.c_str())
+beerocks_cli -> bml_internal: clear_wifi_credentials(\n const sMacAddr &al_mac)
+bml_internal -> controller: message_com::send_cmdu(\n m_sockMaster,\n ACTION_BML_WIFI_CREDENTIALS_CLEAR_REQUEST)
+controller -> controller_db: clear_bss_info_configuration(\n const sMacAddr &al_mac)
+controller -> bml_internal: message_com::send_cmdu(\n m_sockMaster,\n ACTION_BML_WIFI_CREDENTIALS_CLEAR_RESPONSE)
+@enduml

@@ -1,0 +1,40 @@
+' Blob ID: dd19cc59418487423a8b11e3004bdc7660d47e20
+' Original Path: /Ionic FE/Diagrams/TrackingDiag/sequence/TrackingAPI.puml
+' Source: World of Code
+
+@startuml
+hide footbox
+
+participant UI
+participant sessionRoute as Session
+control passport as pass
+entity SessionController
+database innoDB as db
+
+UI -> Session: GET() "/session" \nAuth: Bearer token\n{userID, DASS21_SCORES, sessionDetails}
+Session -> pass: "/save", authenticate("jwt")
+activate pass
+alt Success: Authenticated
+  Session <- pass: done(null, user)
+  Session -> SessionController: Request Products
+  activate SessionController
+  SessionController -> SessionController: Validate info
+  alt Success: Required info provided
+    SessionController -> db: saveSession()
+    activate db
+    SessionController <- db: session
+    deactivate db
+    Session <- SessionController: httpResponse(200) \nsession
+    UI <- Session: httpResponse(200) \nallProducts
+  else Failure: missing information
+    Session <<-- SessionController:{"msg":"missing required\n information"}(400)
+    deactivate SessionController
+    UI <<-- Session: http Response(400)\n {"msg":"missing required information"}
+  end
+else Failure: Unauthorized
+  Session <<-- pass:done(null,false)
+  deactivate pass
+  UI <<-- Session: http Response(401)\n Unauthorized
+end
+
+@enduml

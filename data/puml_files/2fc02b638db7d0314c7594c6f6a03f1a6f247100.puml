@@ -1,0 +1,49 @@
+' Blob ID: 2fc02b638db7d0314c7594c6f6a03f1a6f247100
+' Original Path: /09_bridge/bridge.pu
+' Source: World of Code
+
+@startuml
+
+title ブリッジパターン
+
+package main {
+    object main {
+    }
+}
+
+package Bridge {
+    'abstract Display {
+    class Display {
+        impl
+        open(arg): void
+        print(arg): void
+        close(arg): void
+        display(arg): void
+    }
+
+    class CountDisplay {
+        multi_display(arg): void
+    }
+
+    abstract DisplayImpl {
+        {abstract} raw_open(arg): void
+        {abstract} raw_print(arg): void
+        {abstract} raw_close(arg): void
+    }
+    'displayのメソッド使わない？
+
+    class StringDisplayImpl {
+        raw_open(arg): void
+        raw_print(arg): void
+        raw_close(arg): void
+    } 
+}
+    main --> Display : Uses
+    main -right-> CountDisplay : Uses
+    main --> StringDisplayImpl : Create
+    CountDisplay -up-|> Display
+    Display o-right-> DisplayImpl
+    StringDisplayImpl -up-|> DisplayImpl
+    
+
+@enduml

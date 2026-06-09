@@ -1,0 +1,66 @@
+' Blob ID: 11ec8c27ffd82ca13ef5ccecd065c16cd91fe251
+' Original Path: /src/contents/uml/authentication-using-cookie/authentication-sequence.pu
+' Source: World of Code
+
+@startuml
+
+title 認証のシーケンス
+
+participant ブラウザ as browser
+
+box "フロントエンド(React)" #LightBlue
+participant ContextProvider as context
+participant _app as app
+participant Login as login
+end box
+
+participant バックエンド as backend
+database DB as db
+
+browser -> login : ログイン要求(email, password)
+
+login -> app : (フレームワークの振る舞い)
+
+app -> context : コンポーネントとして呼び出し
+note over context
+※ログイン時はとくに
+なにもしてない。
+end note
+
+app <-- context
+
+login <-- app
+
+login -> backend : ログイン要求(email, password)
+
+backend -> db : select(email, password)
+
+backend <-- db : ユーザー情報
+
+note over backend
+ユーザー ID をもとに
+JWT を生成。
+response の cookie に
+{token: JWT} を載せる。
+end note
+
+login <-- backend : ログイン結果(結果, cookie, ユーザー情報)
+
+login -> context : dispatch
+note over context
+(必要あれば)
+取得したユーザー情報を
+state に保持。
+end note
+
+login <-- context
+
+browser <-- login : ログイン結果(結果, cookie)
+note over browser
+ブラウザの cookie に
+{token: JWT} が保存される。
+今後のリクエストには
+この情報が付与される。
+end note
+
+@enduml

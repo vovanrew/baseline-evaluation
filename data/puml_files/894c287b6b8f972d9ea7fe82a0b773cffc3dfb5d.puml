@@ -1,0 +1,42 @@
+' Blob ID: 894c287b6b8f972d9ea7fe82a0b773cffc3dfb5d
+' Original Path: /app/doc/uml/mvc_seq_dia.plantuml
+' Source: World of Code
+
+@startuml
+
+actor "Web User" as WU
+boundary "index" as i
+boundary "Main.view" as Mv
+boundary "Image.View" as IV
+control "ImageController" as IC
+entity DB
+entity DBE
+entity ImageModel
+database images
+collections Images
+WU -> i: 1:Need to see some Pictures
+
+i --> IC: 1:1 new ImageController( new DB ( DBE ) ) 
+
+IC --> DB : new DB ( BDE::MySQL)
+
+DBE <--> DB: getDNS(); getUser(); getPass()
+
+IC -> images: ImageController->fetchAll() : $stmt = $this->pdo->prepare(SELECT id,filename,title,description FROM images)
+
+images <-->Images:
+
+images <-> IC: ImageController->fetchAll() :  $stmt ->execute() 
+
+IC <--> ImageModel : $results = $stmt->fetchAll(PDO::FETCH_CLASS, ImageModel::class)
+
+IC -> i : 1:0|1|* $images array
+
+i -> IV: render ()
+
+IV -> Mv: + layout
+
+Mv -> i
+
+i -> WU: he/she dont know how many work it was ;-)
+@enduml

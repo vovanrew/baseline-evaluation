@@ -1,0 +1,28 @@
+' Blob ID: bec9b6e0cd05a21e2c28a157001b3c273c9b1510
+' Original Path: /app/src/main/java/uml/display_setting_diagram.puml
+' Source: World of Code
+
+@startuml
+box "host" #fff
+participant MultiDisplayService
+end box
+box "rcv" #fff
+participant IMultipleDisplaysUiController
+participant IMultipleDisplaysDelegate
+end box
+box "controller" #fff
+participant DisplaysSwapViewController
+participant DisplaysSwapPresenter
+end box
+
+MultiDisplayService -> MultiDisplayService: onDisplayAdded
+MultiDisplayService -> IMultipleDisplaysUiController: updateDisplayInfos
+MultiDisplayService -> MultiDisplayService: onDisplayRemoved
+MultiDisplayService -> IMultipleDisplaysUiController: updateDisplayInfos
+DisplaysSwapViewController -> DisplaysSwapPresenter: swap()
+DisplaysSwapPresenter -> IMultipleDisplaysUiController: swap()
+IMultipleDisplaysDelegate -> DisplaysSwapPresenter: onUpdateDisplayInfo(IMultipleDisplaysUiController var1, EMultipleDisplaysAction var2)
+DisplaysSwapPresenter -> DisplaysSwapPresenter: loadMonitorsIndicator()
+IMultipleDisplaysDelegate -> MultiDisplayService: onUpdateDisplayInfo(IMultipleDisplaysUiController var1, EMultipleDisplaysAction var2)
+MultiDisplayService -> MultiDisplayService: notifyMultiDisplayChanged(type: MultiDisplayChangeType,displayId: Int)
+@enduml

@@ -1,0 +1,107 @@
+' Blob ID: 52b35cdfb95f42f4a362974089447325b36019ee
+' Original Path: /test-firmware/CameraLIOV5640_UT/doc/LIOV5640_AF_Tests.pu
+' Source: World of Code
+
+@startuml
+autonumber
+hide footbox
+actor "Program" as P
+participant "V4L2" as V
+participant "Bridge CX3" as B
+participant "Camera OV5640" as C
+activate P
+
+== Initialization ==
+
+P -> V: OpenDevice(/dev/video0)
+activate V
+V -> B
+activate B
+B -> C
+activate C
+C --> B
+B --> V
+V --> P
+
+P -> V: InitDevice()
+V -> B
+B -> C
+C --> B
+B --> V
+V --> P
+
+== Test ==
+
+P -> V: SetParameter(valueA)
+V -> B: valueA
+B -> C: valueA
+C --> B
+B --> V
+V --> P
+
+P -> V: GetParameter()
+V -> B
+B -> C
+C --> B: value
+B --> V: value
+V --> P: value
+note left: value must be equal to ValueA
+
+P -> V: StartStream()
+V -> B
+B -> C
+C --> B
+B --> V
+V --> P
+
+P -> V: GetParameter()
+V -> B
+B -> C
+C --> B: value
+B --> V: value
+V --> P: value
+note left: value must be equal to ValueA
+
+P -> V: SetParameter(valueB)
+V -> B: valueB
+B -> C: valueB
+C --> B
+B --> V
+V --> P
+
+P -> V: GetParameter()
+V -> B
+B -> C
+C --> B: value
+B --> V: value
+V --> P: value
+note left: value must be equal to ValueB
+
+P -> V: StopStream()
+V -> B
+B -> C
+C --> B
+B --> V
+V --> P
+
+P -> V: GetParameter()
+V -> B
+B -> C
+C --> B: value
+B --> V: value
+V --> P: value
+note left: value must be equal to ValueB
+
+== Destruction ==
+
+P -> V: CloseDevice()
+V -> B
+B -> C
+C --> B
+destroy C
+B --> V
+destroy B
+V --> P
+destroy V
+destroy P
+@enduml

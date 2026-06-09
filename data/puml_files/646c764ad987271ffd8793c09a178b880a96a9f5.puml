@@ -1,0 +1,36 @@
+' Blob ID: 646c764ad987271ffd8793c09a178b880a96a9f5
+' Original Path: /docs/search.plantuml
+' Source: World of Code
+
+@startuml
+actor User
+entity Server
+entity SuperHeroApi
+
+box "Backend Environment"
+participant Server
+participant SuperHeroApi
+end box
+
+alt user search
+  User -> Server: GET /search?q=<queryValue>
+  Server -> Server: getFromCache (queryValue) ?
+  note over Server : binarySearch (query)
+end
+
+
+/' verify if exist in cache '/
+alt has in cache
+  Server -> User: 200: queryValue
+end
+
+/' request value to SuperHeroApi '/
+alt not has in cache: request to API
+  Server -> SuperHeroApi: GET queryValue
+  SuperHeroApi -> Server: 200: queryValue
+  Server -> Server: updateCache (queryValue)
+end
+
+Server-> User: 200: queryValue
+
+@enduml

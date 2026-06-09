@@ -1,0 +1,35 @@
+' Blob ID: c23a30d93b1254d601253baa1d95ce8dfe883ca7
+' Original Path: /SE/Practice SE/SE báo cáo/sequenceGames.puml
+' Source: World of Code
+
+@startuml
+
+actor Admin as A
+actor Customer as C
+participant "Games Interface" as GI
+participant "Games Input Interface" as GII
+control "Games Controller" as GC
+database "Database" as D
+
+A -> GI: CRUD games
+GI -> GII: Input games info
+GII -> GC: Send CRUD request to server
+GC -> D: Query request to DB
+D --> GC: Response
+
+alt success case
+    GC --> GI: CRUD successfully
+else fail case
+    GC --> GI: CRUD fail
+end
+
+GI -> A: Show notification
+
+C -> GI: View Game
+GI -> GC: FETCH game from server 
+GC -> D: Query games
+D --> GC: Games data
+GC --> GI: Games data
+GI -> C: Show all games
+
+@enduml

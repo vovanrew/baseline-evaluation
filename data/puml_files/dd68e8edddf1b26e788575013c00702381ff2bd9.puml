@@ -1,0 +1,25 @@
+' Blob ID: dd68e8edddf1b26e788575013c00702381ff2bd9
+' Original Path: /src/subject-issuer-flow.plantuml
+' Source: World of Code
+
+@startuml
+
+' Subject requests credential from Issuer
+activate subject
+subject -> blockchain ++ : look up issuer DID
+return issuer public key
+subject -> subject : encrypt request with issuer public key
+subject -> subject : sign request with subject private key
+subject -> issuer ++ : request credential
+issuer -> blockchain ++ : look up subject DID
+return subject public key
+issuer -> issuer : validate request signature
+issuer -> issuer : decrypt request with issuer private key
+issuer -> issuer : validate facts of requested credential
+issuer -> issuer : create Verified Credential (VC)
+issuer -> issuer : sign VC with issuer private key
+return verified credential
+subject -> subject : store credential
+deactivate subject
+
+@enduml

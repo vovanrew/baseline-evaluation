@@ -1,0 +1,67 @@
+' Blob ID: ad3ea3fc0b0cc499daaa2ac59fa4ce9765cd9fa1
+' Original Path: /Documentation/v100.puml
+' Source: World of Code
+
+@startuml
+
+class Board
+{
+    +{static} Color : char[,] [0..*] = {'x', 'o'}
+    
+    -tokens : char[,] [0..*]
+        
+    +Board()
+    
+    +IsTicTacToe() : bool
+    -IsTicTacToe(token : char) : bool
+    +IsComplete() : bool
+    -IsTileEmpty(row : int, column: int) : bool
+    -IsTileFull(row : int, column: int) : bool
+    
+    +ToString() : string
+}
+Board ..> IO
+
+class IO <<static>>
+{
+    +ReadString(title : string) : string {static}
+    +ReadInt(title : string) : int {static}
+    
+    +Write(title : string) {static}
+    +WriteLn() {static}
+    +WriteError(format : string) {static}
+}
+
+class Player
+{
+    ~color : char
+    
+    +Player(i: int)
+    +Put(board : Board)
+    +Move(board : Board)
+    +Win()
+}
+Player ..> IO
+
+class Turn
+{
+    ~value : int = 0
+    +Turn()
+    +Current() << "Take" >>
+    +Next() << "NotTake">>
+    +Change()
+}
+
+class TicTacToe
+{
+    -turn : Turn
+    -board : Board 
+    -players : Player[] [0..*]
+    
+    +TicTacToe()
+    +Play()
+}
+TicTacToe --> Board
+TicTacToe --> Player
+TicTacToe --> Turn
+@enduml

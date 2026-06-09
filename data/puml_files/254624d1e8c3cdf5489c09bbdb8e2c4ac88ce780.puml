@@ -1,0 +1,43 @@
+' Blob ID: 254624d1e8c3cdf5489c09bbdb8e2c4ac88ce780
+' Original Path: /src/csheets/userstories/crm02_01/address_edition/i130371/crm_02_01_design_sequence.puml
+' Source: World of Code
+
+@startuml
+    participant "AddressPanel : JPanel" as cp
+    participant "ContactsController" as ctrl
+    participant "addressFrame: JFrame" as jframe
+    participant "Persistence" as pers
+    participant "RepositoryFactory" as repFactory
+    participant "ContactsRepository" as contactsRep
+	participant "BufferedReader" as buffer
+    participant "FileReader" as file
+
+
+
+    note right of cp
+        double clicks on
+        the contact to open a window
+    end note
+
+    create jframe
+    cp -> jframe : new (contact)
+
+	jframe -> ctrl : tmp = validatePostalCode(postalCode)
+	ctrl -> buffer : create()
+	buffer -> file : create(file_name)
+
+	loop while there are lines to read
+	ctrl -> buffer: readLine()
+	end loop
+
+	alt tmp == true
+    jframe -> ctrl : updateAddress(contact, main_address, secundary_address)
+
+    ctrl -> pers : getRepositoryFactory()
+    pers -> repFactory : newInstance()
+    ctrl -> repFactory : getContactsRepository()
+
+    ctrl -> contactsRep : update(contact)
+	end
+
+@enduml

@@ -1,0 +1,80 @@
+' Blob ID: 7ed92346bfc7c595eb9e01c68d06aa92e9cbd657
+' Original Path: /Design/UI/FieldSelecter/Sequence/フィールド選択シーケンス.pu
+' Source: World of Code
+
+@startuml
+
+title フィールド選択シーケンス図
+
+actor ユーザ
+
+ユーザ -> Manager
+activate ユーザ
+activate Manager
+
+create FieldModel
+Manager -> FieldModel : (Child Component)
+activate FieldModel
+
+create FieldSelectPresenter
+Manager -> FieldSelectPresenter : Instantiate()
+activate FieldSelectPresenter
+
+
+create FieldSelectView
+FieldSelectPresenter -> FieldSelectView : (Child Component)
+activate FieldSelectView
+
+Manager -> FieldSelectPresenter : Initialized()
+activate FieldSelectPresenter
+
+FieldModel <- FieldSelectPresenter : Fields
+activate FieldModel
+FieldModel --> FieldSelectPresenter
+deactivate FieldModel
+
+FieldSelectPresenter -> FieldSelectView : Initialized()
+activate FieldSelectView
+FieldSelectPresenter <-- FieldSelectView
+deactivate FieldSelectView
+
+Manager <-- FieldSelectPresenter
+deactivate FieldSelectPresenter
+
+opt フィールド選択時
+
+ユーザ -> FieldSelectView : フィールド選択
+activate FieldSelectView
+
+FieldSelectPresenter <- FieldSelectView : OnSelectedField()
+activate FieldSelectPresenter
+FieldSelectPresenter --> FieldSelectView
+deactivate FieldSelectPresenter
+
+deactivate FieldSelectView
+
+end
+
+opt ランダムボタン押下時
+
+ユーザ -> FieldSelectView : ランダムボタン押下
+activate FieldSelectView
+
+FieldSelectPresenter <- FieldSelectView : OnSelectedRundom()
+activate FieldSelectPresenter
+
+FieldSelectPresenter -> FieldSelectPresenter
+activate FieldSelectPresenter
+deactivate FieldSelectPresenter
+
+FieldSelectPresenter --> FieldSelectView
+deactivate FieldSelectPresenter
+
+deactivate FieldSelectView
+
+end
+
+deactivate FieldSelectView
+deactivate FieldSelectPresenter
+
+@enduml

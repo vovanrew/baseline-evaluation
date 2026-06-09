@@ -1,0 +1,78 @@
+' Blob ID: e58bfa131bf9dc789eb22dffbd70913017332b0a
+' Original Path: /docs/Iteration 2/User Management/Refinement/US68_Logout/US68_CD.puml
+' Source: World of Code
+
+@startuml
+skinparam classAttributeIconSize 0
+
+
+package "Controller" #DDDDDD {
+class ApplicationPOT
+{
+  +static getInstance()
+  +clearCurrentSession()
+}
+}
+
+
+package "UI" #DDDDDD {
+class LoginUI{
+
+}
+}
+
+
+package "Controller" #DDDDDD {
+class LoginController{
++login(email,password)
+}
+}
+
+
+package "Model" #DDDDDD {
+
+}
+
+
+
+
+package "Model" #DDDDDD {
+abstract class User{
+-Integer id
+-String email
+-String password
+-Integer nif
+-String name
++User(email,password,nif,name)
+}
+
+package "Service" {
+
+class UserService{
++UserService()
++newUserSession()
+}
+
+}
+
+class UserSession{
+-String email
++UserSession()
+}
+
+}
+
+
+
+
+
+
+LoginUI ..> LoginController
+LoginController ..> ApplicationPOT
+LoginController ..> UserService
+UserService "1" --> "*" UserSession : creates
+ApplicationPOT "1" --> "1" UserSession : has
+UserSession "1" --> "1" User : allocates
+
+
+@enduml

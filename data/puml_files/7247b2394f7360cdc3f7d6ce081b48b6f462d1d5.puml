@@ -1,0 +1,75 @@
+' Blob ID: 7247b2394f7360cdc3f7d6ce081b48b6f462d1d5
+' Original Path: /Diagrams/Paige Traviata Andersen/Sequence_diagram_Login_system.puml
+' Source: World of Code
+
+@startuml
+title Logg inn system
+skinparam SequenceArrowThickness 2
+skinparam RoundCorner 20
+skinparam SequenceMessageAlignment center
+skinparam actor {
+ BackgroundColor skyblue
+ BorderColor black
+ FontSize 20
+}
+skinparam participant {
+ BackgroundColor lightgrey
+ Padding 30
+}
+actor Bruker
+Bruker -> System: Trykker logg inn knapp
+activate System
+
+System --> Bruker: Send til skjema for innlogging
+
+Bruker -> System: Send inn e-mail og passord
+
+||5||
+
+System -> Database: Validere brukerdetaljer
+activate Database
+deactivate System
+...
+alt#SkyBlue #PaleGreen Logg inn godkjent
+
+ Database --> System: Brukerdetaljer godkjent
+ deactivate Database
+ activate System
+ System --> Bruker: Send til innlogget side
+ deactivate System
+
+
+else #Pink Feil Passord
+ activate Database
+ ||5||
+ Database --> System: Feil passord
+ deactivate Database
+ activate System
+ System --> Bruker: "Du har oppgitt feil passord. Glemt passordet?"
+
+ Bruker -> System: Glemt passord
+ System --> Bruker: Send til skjema for glemt passord
+ Bruker -> System: Send inn e-mail adresse
+
+ System -> Database: Verifiser e-mail adresse
+ activate Database
+ ...
+ Database --> System: E-mail adresse verifisert
+ deactivate Database
+ System --> Bruker: Send e-mail for å gjenopprette passord
+ System --> Bruker: "Vi har sendt en mail til denne adressen..."
+ deactivate System
+ |||
+
+ else #Pink Brukeren eksisterer ikke
+  activate Database
+  Database --> System: Finner ikke bruker
+  deactivate Database
+  activate System
+  System --> Bruker: "Vi finner ingen bruker registrert med denne e-mailadressen"
+
+  deactivate System
+  |||
+
+end
+@enduml

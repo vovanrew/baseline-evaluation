@@ -1,0 +1,202 @@
+' Blob ID: 45d18b21343a19f3e362cc2bfe16b2b072dda3ce
+' Original Path: /spring/tiny-spring-source/puml/step9-1.puml
+' Source: World of Code
+
+@startuml
+
+
+'-----------------------------------------------------------------------
+class JdkDanamicAopProxy{
+AdvisedSupport advised;
+public Object getProxy()
+public Object invoke(final Object proxy, final Method method, final Object[] args)
+}
+
+note left
+   @Override
+	public Object getProxy() {
+		return Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] { advised.getTargetSource()
+				.getTargetClass() }, this);
+	}
+
+	@Override
+	public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+		MethodInterceptor methodInterceptor = advised.getMethodInterceptor();
+		if (advised.getMethodMatcher() != null
+				&& advised.getMethodMatcher().matches(method, advised.getTargetSource().getTarget().getClass())) {
+			return methodInterceptor.invoke(new ReflectiveMethodInvocation(advised.getTargetSource().getTarget(),
+					method, args));
+		} else {
+			return method.invoke(advised.getTargetSource().getTarget(), args);
+		}
+	}
+end note
+
+AopProxy <|.. JdkDanamicAopProxy
+InvocationHandler <|.. JdkDanamicAopProxy
+JdkDanamicAopProxy *-->AdvisedSupport
+JdkDanamicAopProxy --> ReflectiveMethodInvocation
+
+
+'-----------------------------------------------------------------------
+class AdvisedSupport{
+MethodInterceptor methodIntecepter;
+TargetSource targetSource;
+private MethodMatcher methodMatcher;
+}
+AdvisedSupport *-->MethodInterceptor
+AdvisedSupport *-->MethodMatcher
+
+
+'-----------------------------------------------------------------------
+class TargetSource {
+Class targetClass;
+Object target;
+}
+AdvisedSupport *-->TargetSource
+
+
+
+'-----------------------------------------------------------------------
+class AspectJExpressionPointcut{
+    private PointcutParser pointcutParser;
+	private String expression;
+	private PointcutExpression pointcutExpression;
+	public boolean matches(Class targetClass)
+	public boolean matches(Method method, Class targetClass)
+}
+
+
+Pointcut <|.. AspectJExpressionPointcut
+ClassFilter <|.. AspectJExpressionPointcut
+MethodMatcher <|.. AspectJExpressionPointcut
+
+'-----------------------------------------------------------------------
+class AspectJExpressionPointcutAdvisor{
+    private AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+    private Advice advice;
+}
+
+PointcutAdvisor <|.. AspectJExpressionPointcutAdvisor
+AspectJExpressionPointcutAdvisor *-->AspectJExpressionPointcut
+AspectJExpressionPointcutAdvisor *-->Advice
+
+
+
+'-----------------------------------------------------------------------
+class AspectJAwareAdvisorAutoProxyCreator{
+AbstractBeanFactory beanFactory;
+}
+note top
+	@Override
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
+		if (bean instanceof AspectJExpressionPointcutAdvisor) {
+			return bean;
+		}
+        if (bean instanceof MethodInterceptor) {
+            return bean;
+        }
+		List<AspectJExpressionPointcutAdvisor> advisors = beanFactory
+				.getBeansForType(AspectJExpressionPointcutAdvisor.class);
+		for (AspectJExpressionPointcutAdvisor advisor : advisors) {
+			if (advisor.getPointcut().getClassFilter().matches(bean.getClass())) {
+				AdvisedSupport advisedSupport = new AdvisedSupport();
+				advisedSupport.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());
+				advisedSupport.setMethodMatcher(advisor.getPointcut().getMethodMatcher());
+
+				TargetSource targetSource = new TargetSource(bean, bean.getClass().getInterfaces());
+				advisedSupport.setTargetSource(targetSource);
+
+				return new JdkDynamicAopProxy(advisedSupport).getProxy();
+			}
+		}
+		return bean;
+	}
+end note
+
+AspectJAwareAdvisorAutoProxyCreator --> AspectJExpressionPointcutAdvisor
+AspectJAwareAdvisorAutoProxyCreator *--> AbstractBeanFactory
+AspectJAwareAdvisorAutoProxyCreator -->JdkDanamicAopProxy
+AspectJAwareAdvisorAutoProxyCreator -->AdvisedSupport
+AspectJAwareAdvisorAutoProxyCreator -->TargetSource
+
+
+'-----------------------------------------------------------------------
+Abstract class AbstractBeanFactory{
+	public List getBeansForType(Class type) throws Exception {
+}
+note right
+特别注意下面的：
+			beanDefinition.setBean(bean);
+
+
+	@Override
+	public Object getBean(String name) throws Exception {
+		BeanDefinition beanDefinition = beanDefinitionMap.get(name);
+		if (beanDefinition == null) {
+			throw new IllegalArgumentException("No bean named " + name + " is defined");
+		}
+		Object bean = beanDefinition.getBean();
+		if (bean == null) {
+			bean = doCreateBean(beanDefinition);
+            bean = initializeBean(bean, name);
+			beanDefinition.setBean(bean);
+		}
+		return bean;
+	}
+
+end note
+'-----------------------------------------------------------------------
+interface BeanPostProcessor{
+	Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception;
+	Object postProcessAfterInitialization(Object bean, String beanName) throws Exception;
+}
+BeanPostProcessor <|..AspectJAwareAdvisorAutoProxyCreator
+
+'-----------------------------------------------------------------------
+interface BeanFactoryAware {
+    void setBeanFactory(BeanFactory beanFactory) throws Exception;
+}
+BeanFactoryAware <|..AspectJAwareAdvisorAutoProxyCreator
+
+
+'-----------------------------------------------------------------------
+class ApplicationContextTest{
+
+}
+note top
+
+    @Test
+    public void test() throws Exception {
+        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("tinyioc.xml");
+        HelloWorldService helloWorldService = (HelloWorldService) applicationContext.getBean("helloWorldService");
+        helloWorldService.helloWorld();
+    }
+
+tinyioc.xml配置
+
+    <bean id="outputService" class="us.codecraft.tinyioc.OutputServiceImpl">
+    </bean>
+
+    <bean id="helloWorldService" class="us.codecraft.tinyioc.HelloWorldServiceImpl">
+        <property name="text" value="Hello World!"></property>
+        <property name="outputService" ref="outputService"></property>
+    </bean>
+
+    <bean id="timeInterceptor" class="us.codecraft.tinyioc.aop.TimerInterceptor"></bean>
+
+    <bean id="autoProxyCreator" class="us.codecraft.tinyioc.aop.AspectJAwareAdvisorAutoProxyCreator"></bean>
+
+    <bean id="aspectjAspect" class="us.codecraft.tinyioc.aop.AspectJExpressionPointcutAdvisor">
+        <property name="advice" ref="timeInterceptor"></property>
+        <property name="expression" value="execution(* us.codecraft.tinyioc.*.*(..))"></property>
+    </bean>
+
+end note
+
+
+'-----------------------------------------------------------------------
+/'
+注释
+'/
+@enduml

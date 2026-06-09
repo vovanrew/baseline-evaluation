@@ -1,0 +1,102 @@
+' Blob ID: 8db937ff1aa2482e25096ce400100023484400be
+' Original Path: /PB-428 - Goals 2.0/Sequence/PB-428 UC12 - View fund details.puml
+' Source: World of Code
+
+@startuml
+'diagram parameters'
+autonumber
+'skinparam dpi 300
+skinparam LegendBackgroundColor #white
+
+'diagram title'
+title PB-428 UC12 View fund details
+
+'a list of the actors and participants'
+actor "Next Customer" as UI
+box "Next Platform"
+participant "Core Next" as Next
+database "Next Database" as DB
+end box
+participant "Core Bradesco" as BR
+
+'a brief description of the diagram'
+legend top
+-- \t**Abstract:**\t --
+This use case will return fund details for a single fund. This is an existing endpoint and we
+will add additional response fields to this endpoint. They include:
+1. FundCategory (new)
+2. RequireFundTC (new)
+3. RiskScore (existing field in table, but needs to be added in response)
+4. IncomeValue (new)
+5. IncomeDescription (new)
+6. isNextSimples (new)
+end legend
+
+UI -> Next: **HTTP**\nGET /investments/funds/completeDetails
+note right of UI
+  The App will make a call
+  to Core Next to get all the
+  details for a fund. It will
+  pass required input:
+  - Fund ID
+end note
+note right of UI #orange
+  **Note to Dev**
+  Please check if the input
+  parameter Fund ID is the
+  Product ID or the External_
+  Core_Product_ID. From what
+  I can see, there are two
+  product records with the
+  same External_Core_Product_ID
+  (Next Simples) and this may
+  create issues.
+end note
+
+
+activate Next
+
+ref over Next
+  Use existing methodology to get
+  complete details for a fund.
+end ref
+
+
+Next -> DB: GET additional fields from Product table
+activate DB
+  DB --> Next: Response
+  note right of Next
+    Core Next will retrieve additional
+    data from the PRODUCT table and return
+    them to the App:
+    1. FundCategory (new)
+    2. RequireFundTC (new)
+    3. RiskScore (existing field in table,
+        but needs to be added in response)
+    4. IncomeValue (new)
+    5. IncomeDescription (new)
+    6. isNextSimples (new)
+  end note
+deactivate DB
+Next --> UI: Response
+note right of UI
+  Core Next will return all
+  existing fields in the response
+  + the following new response
+  fields:
+  1. FundCategory (new)
+  2. RequireFundTC (new)
+  3. RiskScore (existing field in table,
+      but needs to be added in response)
+  4. IncomeValue (new)
+  5. IncomeDescription (new)
+  6. isNextSimples (new)
+
+  All of these fields will come
+  from the PRODUCT table.
+end note
+
+deactivate Next
+
+
+@enduml

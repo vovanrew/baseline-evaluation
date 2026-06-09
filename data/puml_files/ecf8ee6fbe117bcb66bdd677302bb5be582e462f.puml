@@ -1,0 +1,88 @@
+' Blob ID: ecf8ee6fbe117bcb66bdd677302bb5be582e462f
+' Original Path: /doc/uml/声明式事务流程.puml
+' Source: World of Code
+
+@startuml
+title 解析处理@EnableTransactionManagement注解
+-> ConfigurationClassPostProcessor : postProcessBeanDefinitionRegistry
+ConfigurationClassPostProcessor -> ConfigurationClassParser : parse(AnnotationMetadata metadata, String beanName)
+activate ConfigurationClassParser
+    ConfigurationClassParser -> ConfigurationClassParser : processConfigurationClass(ConfigurationClass configClass)
+    activate ConfigurationClassParser
+        ConfigurationClassParser -> ConfigurationClassParser : doProcessConfigurationClass(ConfigurationClass configClass, SourceClass sourceClass)
+        alt 当前被解析的Class被@ComponentScan标注，进行扫描
+            group @ComponentScan扫描
+                ConfigurationClassParser -> ComponentScanAnnotationParser : parse(AnnotationAttributes componentScan, final String declaringClass)
+            end
+            ConfigurationClassParser -> ConfigurationClassParser : parse(String className, String beanName)
+            activate ConfigurationClassParser
+                ConfigurationClassParser -> ConfigurationClassParser : processConfigurationClass(ConfigurationClass configClass)递归解析扫描到的类
+            deactivate
+        else 不进行扫描,处理带@EnableTransactionManagementimportbean配置类
+            ConfigurationClassParser -> ConfigurationClassParser : processImports(configClass, sourceClass, getImports(sourceClass), true)
+            activate ConfigurationClassParser
+                group 获取到AutoProxyRegistrar、ProxyTransactionManagementConfiguration
+                    ConfigurationClassParser -> AdviceModeImportSelector : selectImports(AnnotationMetadata)
+                    activate AdviceModeImportSelector
+                        AdviceModeImportSelector -> TransactionManagementConfigurationSelector : selectImports(AdviceMode)
+                    deactivate
+                end
+                group 递归处理AutoProxyRegistrar、ProxyTransactionManagementConfiguration
+                    ConfigurationClassParser -> ConfigurationClass : addImportBeanDefinitionRegistrar
+                    note left
+                        添加AutoProxyRegistrar、AspectJAutoProxyRegistrar到关联配置类
+                        （即标记@EnableTransactionManagement的类）
+                        的importBeanDefinitionRegistrars属性中
+                    end note
+                    ConfigurationClassParser -> ConfigurationClassParser : processConfigurationClass
+                    note left
+                        按照普通配置类处理ProxyTransactionManagementConfiguration
+                    end note
+
+                end
+            deactivate
+
+        end
+    deactivate
+deactivate
+ConfigurationClassParser -> ConfigurationClassPostProcessor : 解析完配置类
+group 加载配置类的配置信息
+    activate ConfigurationClassParser
+        ConfigurationClassPostProcessor -> ConfigurationClassBeanDefinitionReader : loadBeanDefinitions
+        activate ConfigurationClassBeanDefinitionReader
+            ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader : loadBeanDefinitionsForConfigurationClass
+            activate ConfigurationClassBeanDefinitionReader
+                ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader : registerBeanDefinitionForImportedConfigurationClass
+                note left
+                    如果是由配置类导入的，直接注册到beanfactory
+                end note
+                group 处理ProxyTransactionManagementConfiguration，导入了切面BeanFactoryTransactionAttributeSourceAdvisor
+                    ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader : loadBeanDefinitionsForBeanMethod
+                    note left
+                        加载@Bean标记的注册方法
+                    end note
+                end
+                ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader : loadBeanDefinitionsFromImportedResources
+                note left
+                    处理@ImportResource
+                end note
+                group 处理AutoProxyRegistrar，注册了InfrastructureAdvisorAutoProxyCreator
+                    ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader : loadBeanDefinitionsFromRegistrars
+                    note left
+                        处理@Import，导入的ImportBeanDefinitionRegistrar类
+                    end note
+                    activate ConfigurationClassBeanDefinitionReader
+                        ConfigurationClassBeanDefinitionReader -> AutoProxyRegistrar : registerBeanDefinitions
+                        activate AutoProxyRegistrar
+                            group 注册InfrastructureAdvisorAutoProxyCreator
+                                AutoProxyRegistrar -> AopConfigUtils : registerAutoProxyCreatorIfNecessary
+                            end
+                        deactivate
+                    deactivate
+                end
+
+            deactivate
+        deactivate
+    deactivate
+end
+@enduml

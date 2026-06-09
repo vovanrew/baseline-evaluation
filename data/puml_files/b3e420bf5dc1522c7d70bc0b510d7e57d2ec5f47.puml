@@ -1,0 +1,65 @@
+' Blob ID: b3e420bf5dc1522c7d70bc0b510d7e57d2ec5f47
+' Original Path: /a5-analysis-GraydonHall42/DataAnalysis.puml
+' Source: World of Code
+
+@startuml
+class DataSeries [[java:DataSeries]] {
+	-label: String
+	-data: double[]
+	-count: int
+	+DataSeries(label: String)
+	+size(): int
+	+add(val: double): void
+	+getMin(): double
+	+getMax(): double
+	+getSum(): double
+	+getMean(): double
+	+toString(): String
+}
+
+
+interface IBasicStats [[java:IBasicStats]] {
+	getMin(): double
+	getMax(): double
+	getSum(): double
+	getMean(): double
+}
+
+class DataAnalysisCLI [[java:DataAnalysisCLI]] {
+    -data: DataFrame
+    -reader: KeyboardReader
+	+DataAnalysisCLI()
+	+run(): void
+	+{static} main(args: String[]): void
+}
+class DataFrame [[java:DataFrame]] {
+	-fileName: String
+	-headerNames: String[]
+	-numOfRows: int
+	-numOfCols: int
+	-csvData: double[][]
+	+DataFrame(fileName: String)
+	+toString(): String
+	+getColumnByIndex(index: int): DataSeries
+	+getHeaderNames(): String[]
+	+getNumOfRows(): int
+	+getNumOfCols(): int
+}
+class KeyboardReader [[java:KeyboardReader]] {
+	-reader: BufferedReader
+	+KeyboardReader()
+	+getKeyboardInput(): String
+	+getKeyboardInteger(): int
+	+getKeyboardDouble(): double
+	+prompt(s: String): void
+	+display(s: String): void
+	-readKeyboard(): String
+}
+
+DataAnalysisCLI *-- "1" KeyboardReader
+DataAnalysisCLI *-- "1" DataFrame
+IBasicStats <|.. DataSeries
+DataAnalysisCLI *-- "1" DataSeries
+DataFrame *-- "1" DataSeries
+
+@enduml

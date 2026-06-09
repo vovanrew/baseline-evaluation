@@ -1,0 +1,33 @@
+' Blob ID: 387a37f1e2f4278d9b6f5d5354d9028ec03911d1
+' Original Path: /Pattern/uml/proxy.puml
+' Source: World of Code
+
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor Nutzer
+
+== Initialisierung ==
+
+Nutzer -> ServiceFactory:getPersonenService()
+ServiceFactory -> PruefHandler : create
+PruefHandler -> PersonenServiceImpl : create
+PruefHandler <-- PersonenServiceImpl : ziel
+ServiceFactory <-- PruefHandler : instanz
+ServiceFactory -> Proxy : create
+ServiceFactory <-- Proxy : PersonenService
+Nutzer <-- ServiceFactory: service
+
+== service.neu ==
+
+Nutzer -> Proxy : neu
+Proxy -> PruefHandler : invoke
+PruefHandler -> PersonenServiceImpl : neu
+PruefHandler <-- PersonenServiceImpl : Person
+Proxy <-- PruefHandler : Person
+Nutzer <-- Proxy : Person
+
+
+@enduml

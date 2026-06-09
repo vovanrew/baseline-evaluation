@@ -1,0 +1,44 @@
+' Blob ID: b1bfedf152eefbba6b408c7ffbc16e5cd01cd904
+' Original Path: /weservices-resident.puml
+' Source: World of Code
+
+@startuml
+'Application Design for smart Locker
+participant Resident as P
+participant WeResident as W
+participant WeID as ID
+participant WeService as S
+
+=== Provider Login Into Provider App ===
+P -> W: Send username:password /login
+alt Provider already exist
+W --> ID: Get Token by username:password\n/oauth/authorize
+ID --> W: Return Token to WeResident
+W -> P: Return {"token": "jwt-token"}
+end
+=== Provider Query/Search Service ===
+P -> S: Query services including token\n /weservices/services\nHeader\n Authorization: Bear <b>{jwt-token}</b>
+note right P: Query Service schema \n {"query":"string","status":12}
+alt above token is valid
+    S --> ID: verify token
+    ID --> S: 200
+    S -> P: Response services data
+note right P: Service Data Array schema \n {[{"id":"string","company":"string","name":"string","rate":4.2,"image":"image.png"},{}],\n"total":10,"currentPage":1,"perPage":5}
+else Token is expired/invalid
+    S --> ID: verify token
+    ID --> S: 400
+    S -> P: Response 401 status
+end
+
+=== Create Order(Request) ===
+P -> S: Create Service\nPOST: /weservices/service/{serviceID}/order
+note right P: Order Request schema \n {"resident":"$userID",\n"service":"$serviceID",\n"pricingModel":{},\n"noteDetail":"string",\n"address":"string",\n"schedule":Time}
+S --> ID: verify token
+ID --> S: 200
+S -> P: Response Service Data(JSON)
+P -> S: Comment(chat) in Order\n POST: /weservices/order/{orderID}/comment
+note right P: Comment Data \n {"content":"string"}
+S --> ID: verify token
+ID --> S: 200
+S -> P: 200
+@enduml

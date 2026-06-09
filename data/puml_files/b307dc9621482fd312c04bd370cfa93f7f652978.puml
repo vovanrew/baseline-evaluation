@@ -1,0 +1,85 @@
+' Blob ID: b307dc9621482fd312c04bd370cfa93f7f652978
+' Original Path: /UP/Requisiti/UC Gestire Eventi/SSD/Estensioni-Eccezioni Op8.puml
+' Source: World of Code
+
+@startuml
+skinparam Style strictuml
+skinparam SequenceMessageAlign center
+
+skinparam sequence {
+    ActorBorderColor Black
+    ActorBackgroundColor White
+    ParticipantBorderColor Black
+    ParticipantBackgroundColor White
+}
+
+actor "Organizzatore" as org
+participant Sistema
+
+title Gestire Eventi - Operazione 8
+
+org -> Sistema: **1**. creaEvento(dataInizio, cliente, nome)
+return nuovo evento
+
+loop #e0e0e0
+    opt #e0e0e0
+        org -> Sistema: **2**. aggiungiNote(note)
+        return ok
+        ||10||
+    end
+
+    opt #e0e0e0
+        org -> Sistema: **3**. visualizzaStatoCucina()
+        return stato cucina
+        ||10||
+    end
+
+    opt #e0e0e0
+        org -> Sistema: **4**. modificaDettagliEvento(dataInizio?, cliente?)
+        return ok
+        ||10||
+    end
+
+    opt #e0e0e0
+        org -> Sistema: **5**. aggiungiServizio(nome, offsetInizio, rangeOrario, numeroCommensali, luogo, dettagli, strategia)
+        return ok
+        ||10||
+    end
+
+    opt #e0e0e0
+        org -> Sistema: **6**. assegnaChef(chef, strategia)
+        return ok
+        ||10||
+    end
+
+    opt #e0e0e0
+        org -> Sistema: **7**. confermaMenuServizio(servizio)
+        return ok
+        ||10||
+    end
+
+    opt #b6efb6
+        alt #f3d0ff
+            org -> Sistema: **8**. assegnaPersonale(dipendente, turnoServizio, ruolo?)
+            alt #f3a7c9
+                return ok
+            else
+                org <- Sistema: **8a.1**. servizio annullato o terminato
+                destroy Sistema
+                ||10||
+            end
+            ||10||
+        else
+            org -> Sistema: **8a.1**. rimuoviPersonale(dipendente, turnoDiServizio)
+            alt #f3a7c9
+                return ok
+            else
+                org <- Sistema: **8a.1a.1**. servizio annullato o terminato
+                destroy Sistema
+                ||10||
+            end
+            ||10||
+        end
+    end
+end
+@enduml

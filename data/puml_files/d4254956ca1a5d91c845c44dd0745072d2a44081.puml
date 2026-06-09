@@ -1,0 +1,73 @@
+' Blob ID: d4254956ca1a5d91c845c44dd0745072d2a44081
+' Original Path: /PedroMarques88-esoft-2019-2020-1dm-1191038-1191606-1181743-1171589-6106d7b262ed/docs/Iteracao2/UC4/UC4_CD.puml
+' Source: World of Code
+
+@startuml
+skinparam classAttributeIconSize 0
+
+class RegistoCompetenciaTecnica {
+    +CompetenciaTecnica(String cod, String dsBreve, String dsDet, AreaAtividade areaAtividade, GrauProficiencia gp)
+    +novaCompetenciaTecnica(String cod, String dsBreve, String dsDet, areaAtividade)
+    +validaCompetenciaTecnica(competencia)
+    +registaCompetenciaTecnica(competencia)
+    - addCompetenciaTecnica(CompetenciaTecnica competencia)
+}
+
+class RegistoAreaAtividade {
+    +getAreasAtividade()
+    +getAreaAtividadeById(areaAtividadeId)
+}
+
+class AreaAtividade {
+    -String codigo
+    -String descBreve
+    -String descDetalhada
+}
+
+class CompetenciaTecnica {
+    -String codigo
+    -String descBreve
+    -String descDetalhada
+    -AreaAtividade areaAtividade
+    +CompetenciaTecnica(String cod, String dsBreve, String dsDet, AreaAtividade areaAtividade, GrauProficiencia gp)
+    +CompetenciaTecnica(String cod, String dsBreve, AreaAtividade areaAtividade)
+    -addGP(valor, designacao)
+    -validaGP(gp)
+    -addGP(gp)
+}
+
+class GrauProficiencia {
+    -String designacao
+    -Int valor
+    +GrauProficiencia(valor,designacao)
+}
+
+class Plataforma {
+    -String designacao
+    +getRegistoCompetenciaTecnica()
+    +getRegistoAreaAtividade()
+}
+
+class EspecificarCompetenciaTecnicaController { 
+    +getAreasAtividade()
+    +getAreaAtividadeById(areaAtividadeId)
+    +addGP(valor, designacao)
+    +registaCompetenciaTecnica()
+}
+
+class EspecificarCompetenciaTecnicaUI {
+}
+
+EspecificarCompetenciaTecnicaUI ..> EspecificarCompetenciaTecnicaController
+EspecificarCompetenciaTecnicaController ..> Plataforma
+EspecificarCompetenciaTecnicaController ..> CompetenciaTecnica
+EspecificarCompetenciaTecnicaController ..> AreaAtividade
+EspecificarCompetenciaTecnicaController ..> RegistoCompetenciaTecnica
+EspecificarCompetenciaTecnicaController ..> RegistoAreaAtividade
+CompetenciaTecnica "*" -> "1" AreaAtividade : referente
+CompetenciaTecnica "1" -> "0..*" GrauProficiencia : possui
+Plataforma "1" --> "1" RegistoCompetenciaTecnica : possui
+Plataforma "1" --> "1" RegistoAreaAtividade : possui
+RegistoCompetenciaTecnica "1" --> "*" CompetenciaTecnica : possui
+RegistoAreaAtividade "1" --> "*" AreaAtividade : possui
+@enduml

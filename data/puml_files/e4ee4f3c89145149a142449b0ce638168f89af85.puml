@@ -1,0 +1,38 @@
+' Blob ID: e4ee4f3c89145149a142449b0ce638168f89af85
+' Original Path: /webhooks-with-websocket/SEQUENCE.puml
+' Source: World of Code
+
+@startuml
+
+autonumber
+
+
+== Register webhook ==
+
+participant Admin
+participant "Webhook\nServer" as WS
+participant "Consumer" as Consumer
+
+Admin -> WS: Register webhook\nconsumer
+WS -> Admin: OK
+
+
+== Event received ==
+
+-> WS: Event
+WS -> WS: Store event\nin DB
+
+
+== Consumer connected ==
+
+Consumer -> WS: Connect over WS
+
+loop
+    WS -> WS: Load webhooks\nfrom DB
+    WS -> Consumer: Forward forwarding events
+end
+loop
+    Consumer --> WS: Ack messages\nby webhook ID
+end
+
+@enduml

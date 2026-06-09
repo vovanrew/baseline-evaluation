@@ -1,0 +1,91 @@
+' Blob ID: 1bca4778a2b1752ff82d4954b38bd9f6f92cdcda
+' Original Path: /docs/diagrams/src/Ski Championship Management.wsd
+' Source: World of Code
+
+@startuml
+hide empty members
+caption Ski Championships Management\nClass Diagram
+footer Bertrand C
+header Last updated 15/10/2020
+title Ski Championships\nManagement
+
+namespace Scm {
+    'note "This is a floating note\n<b>in case I need it</b>" as N1
+
+    class Event
+    {
+        -id: int
+        -location: string
+        -startDate: Date
+        -endDate: Date
+        +create(): Event
+        +update()
+        +delete(): bool
+        +{static}list(): Event[]
+        +export(): bool
+        +import(): bool
+    }
+
+    class Competitor
+    {
+        -id: int
+        -lastName: string
+        -firstName: string
+        -birthDate: Date
+        -bibNumber: int
+        -email: string
+        -photo: resource
+        +create(): Competitor
+        +update()
+        +delete(): bool
+        +{static}list(): Competitor[]
+    }
+
+    class Run
+    {
+        -number: int
+        -time: Time
+        --
+        ..Getters and setters..
+        +getId()
+        ..Other methods..
+        +create(): Run
+        +delete(): bool
+    }
+
+    class Result
+    {
+        -time: Time
+        +create(): Result
+        +delete(): bool
+        +{static}list(): Result[]
+    }
+
+    abstract Metadata
+    {
+        #id: int
+        #name: string
+        #description: string
+        #create()
+        #update()
+        #delete(): bool
+        #list(): Metadata
+    }
+
+    class Category
+    {
+    }
+
+    class Profile
+    {
+    }
+
+    (Event, Competitor) "1" *.. "1" Result : obtains
+    Event "1" *-- "0..n" Competitor : < takes part
+    (Event, Competitor) "1" *.. "0..2" Run : runs
+    Metadata <|-l- Category
+    Metadata <|-r- Profile
+    Competitor "0..n" o-- "1" Category : belongs to >
+    Competitor "0..n" o-- "1" Profile : has >
+}
+@enduml

@@ -1,0 +1,120 @@
+' Blob ID: 361789cfe3f098fe6372d50179e4937e17e18c5f
+' Original Path: /docs/Iteration 2/Pharmacy Management/Refinement/US40_RegisterPhamacy/US40_CD.puml
+' Source: World of Code
+
+@startuml
+skinparam classAttributeIconSize 0
+
+package "UI" #DDDDDD {
+class RegisterPharmacyUI{
+
+}
+}
+
+
+package "Controller" #DDDDDD {
+class RegisterPharmacyController{
++newPharmacy(managerName,email,password, nif, name,latitude,longitude,\nstreetName,doorNumber,postalCode,locality,country)
++registerPhamacy()
+}
+}
+
+database Database{
+}
+
+
+package "Model" #DDDDDD {
+package "Service" #DDDDDD {
+
+   class PharmacyService{
+          +PharmacyService()
+          +addPharmacy(name, pharmacyManager,latitude,longitude,\nstreetName,doorNumber,postalCode,locality,country)
+          +registerPharmacy()
+      }
+ }
+}
+
+package "Model" #DDDDDD {
+
+class Pharmacy{
+-   int id
+-   String name
+-   String email
+}
+
+class Address{
+-   String streetName
+-   String doorNumber
+-   String postalCode
+-   String locality
+-   String country
+-   float longitude
+-   float latitude
+}
+
+class ScooterPark{
+-   int maxSlotsNumber
+}
+
+class ScooterChargingSlot{
+-   int id
+-   float outputPower
+}
+
+class ScooterParkingSlot{
+-   int id
+}
+
+class DronePark{
+-   int maxSlotsNumber
+}
+
+class DroneChargingSlot{
+-   int id
+-   float outputPower
+}
+
+class DroneParkingSlot{
+-   int id
+}
+
+}
+
+
+package "Data" #DDDDDD {
+class DataHandler{
+    +openConnection()
+    +closeAll()
+}
+
+class PharmacyDB{
+          +PharmacyDB()
+          +registerPharmacy()
+      }
+}
+
+class PharmacyDB extends DataHandler
+
+RegisterPharmacyUI ..> RegisterPharmacyController
+RegisterPharmacyController ..> PharmacyService
+
+Database "1" -- "*" Pharmacy : has registered >
+Database "1" -- "*" Address : has registered >
+Database "1" -- "*" DronePark : has registered >
+Database "1" -- "*" DroneChargingSlot : has registered >
+Database "1" -- "*" DroneParkingSlot : has registered >
+Database "1" -- "*" ScooterPark : has registered >
+Database "1" -- "*" ScooterChargingSlot : has registered >
+Database "1" -- "*" ScooterParkingSlot : has registered >
+PharmacyDB -- Database : manages >
+PharmacyService "1" --> "*" Pharmacy : manages services of
+PharmacyService "1" --> "1" PharmacyDB : uses
+Pharmacy "1" -- "1" Address : has >
+Pharmacy "1" -- "1" DronePark : has >
+DronePark "1" -- "1" DroneChargingSlot : has >
+DronePark "1" -- "1" DroneParkingSlot : has >
+Pharmacy "1" -- "1" ScooterPark : has >
+ScooterPark "1" -- "1" ScooterChargingSlot : has >
+ScooterPark "1" -- "1" ScooterParkingSlot : has >
+
+@enduml

@@ -1,0 +1,91 @@
+' Blob ID: 6cdefde41b2100a001188a55802317779382e5dc
+' Original Path: /src/main/uml/DS_play.puml
+' Source: World of Code
+
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+participant AntFacadeController
+participant Soldat
+participant Ouvriere
+participant Fourmi
+participant Noeud
+participant Fourmilière
+participant Grille
+participant Random
+
+-> AntFacadeController: play
+activate AntFacadeController
+    loop Fourmilière f in listeFourmilières
+        loop Fourmi f in listeFourmis
+        alt Fourmi instanceof Soldat
+            AntFacadeController -> Soldat: deplacer(Random)
+
+            activate Soldat
+                Soldat -> Grille: noeudsLibres
+                activate Grille
+                    Soldat <-- Grille: ArrayList<Noeud>
+                deactivate
+                Soldat -> Random: nextInt()
+                activate Random
+                    Soldat <-- Random: int
+                deactivate
+                Soldat -> Fourmi: setPosition:Noeud
+                activate Fourmi
+                    Soldat <-- Fourmi: void
+                deactivate
+                AntFacadeController <-- Soldat: void
+            deactivate
+
+        else Fourmi instanceof Ouvriere
+            AntFacadeController -> Ouvriere: deplacer(Random)
+            activate Ouvriere
+                Ouvriere -> Grille: noeudsLibres
+                activate Grille
+                    Ouvriere <-- Grille: ArrayList<Noeud>
+                deactivate
+                Ouvriere -> Noeud: getNourriture()
+                activate Noeud
+                    Ouvriere <-- Noeud: nourriture
+                deactivate
+                Ouvriere -> Noeud: getPheromones()
+                activate Noeud
+                    Ouvriere <-- Noeud: pheromones
+                deactivate
+                Ouvriere -> Random: nextInt()
+                activate Random
+                    Ouvriere <-- Random: int
+                deactivate
+                Ouvriere -> Fourmi: setPosition:Noeud
+                activate Fourmi
+                    Ouvriere <-- Fourmi: void
+                deactivate
+                Ouvriere -> Noeud: getNourriture
+                    activate Noeud
+                        Ouvriere <-- Noeud: nourriture
+                    deactivate
+                    Ouvriere -> Noeud: setNourriture(int)
+                    activate Noeud
+                        Ouvriere <-- Noeud: void
+                    deactivate
+                else transporte nourriture
+                    Ouvriere -> Noeud: ajouterPheromones(int)
+                    activate Noeud
+                        Ouvriere <-- Noeud:void
+                    deactivate
+                end
+                AntFacadeController <-- Ouvriere: void
+            deactivate
+        end
+        loop Noeud n in Grille
+            AntFacadeController -> Noeud: evaporer(int)
+            activate Noeud
+                AntFacadeController <-- Noeud: void
+            deactivate
+        end
+    end
+<-- AntFacadeController: void
+deactivate AntFacadeController
+
+@enduml

@@ -1,0 +1,71 @@
+' Blob ID: bc9a55b0badf61c017d65660effa4589b72f25a1
+' Original Path: /hadoop/src/mr2/secure-mapreduce2-13-shfl-tkn.puml
+' Source: World of Code
+
+@startuml
+title Secure Map Reduce 2 - Shuffle Service Token Flow
+autonumber
+'hide footbox
+
+participant "Client\n(c)" as C
+participant "Resource\nManager\n(rm)" as RM
+'participant "History\nServer\n(hs)" as HS
+participant "Node\nManager\n(nm)" as NM
+participant "Shuffle\nHandler\n(ss)" as SS
+participant "Application\nMaster\n(am)" as AM
+'participant "Client\nService\n(cs)" as CS
+participant "Application\nContainer\n(ac)" as AC #red
+participant "Task\n(t)" as T #orange
+participant "File\nSystem\n(fs)" as FS
+'participant "Name\nNode\n(nn)" as NN
+'participant "Data\nNode\n(dn)" as DN
+'participant "Kerberos\nKDC" as KDC
+
+'note over C,DN #green: QUESTION ?
+
+== Bootstrap ==
+
+== Job Definition ==
+
+C->RM: <b>createJob</b> [...] ()\n : job-id
+
+C->C: <b>createShuffleToken\n ( shfl-tkn-mk ) \n : shfl-tkn
+
+C->C: <b>serializeTokens\n( shfl-tkn, ... )\n : c-tokens{shfl-tkn,...}
+
+== Job Submission ==
+
+C->RM: <b>submitApplication\n [...]\n ( job-id, c-tokens{shfl-tkn}, ... )\n : app-rpt{clnt-tkn}
+
+== Job Initiation ==
+
+RM->NM: <b>startContainer\n [...]\n ( c-tokens{shfl-tkn},svc-tokens{shfl-tkn}, ... )
+
+NM->SS: initApp\n ( job-id, shfl-tkn )
+
+  create AM
+NM->AM: exec
+
+AM->NM: <b>startContainer\n [...]\n ( svc-tokens{shfl-tkn}, ... )
+
+  create AC
+NM->AC: exec
+
+  create T
+AC->T: exec
+
+== Map Task Execution ==
+
+T->FS: <b>writeShuffleData</b>[]():
+
+== Reduce Task Execution ==
+
+T->SS: <b>readShuffleData</b> [SDT:shfl-tkn] (...): shfl-data
+  activate SS
+SS->FS: readShuffleData
+T<--SS: shfl-data
+  deactivate SS
+
+== Job Completion ==
+
+@enduml

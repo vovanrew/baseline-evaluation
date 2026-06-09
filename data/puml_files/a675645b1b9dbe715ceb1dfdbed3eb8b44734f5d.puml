@@ -1,0 +1,78 @@
+' Blob ID: a675645b1b9dbe715ceb1dfdbed3eb8b44734f5d
+' Original Path: /oauth/login.puml
+' Source: World of Code
+
+@startuml
+' https://www.ory.sh/hydra/docs/concepts/login
+hide footbox
+participant "Client" as client
+participant "Oauth" as oauth
+participant "Login Endpoint" as login
+participant "Consent Endpoint" as consent
+
+' Open page
+== Open page ==
+client -> oauth : Initiate authorize code or implicit flow
+oauth -> oauth : No user session (not authenticated)
+oauth -> login : Redirect to login endpoint with <login_challenge>
+note right
+GET https://<LOGIN_ENDPOINT>/login?login_challenge=7bb518c4eec2454dbb289f5fdb4c0ee2
+end note
+
+
+== Login ==
+' Login
+client -> login : Input user/password
+login -> login : Verify user/password
+login <--> oauth : Fetch login request info with <login_challenge>
+note right
+GET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login?login_challenge=<challenge>
+end note
+login -> oauth : Accept login
+note right
+PUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login/accept?login_challenge=<challenge>
+{
+    "acr": "string",
+    "context": {},
+    "force_subject_identifier": "string",
+    "remember": true,
+    "remember_for": 3600,
+    "subject": "string"
+}
+end note
+oauth --> login : Return redirect url
+login -> oauth : Redirect
+
+
+== Consent ==
+' Consent
+oauth -> oauth : First time that client asks user for permission
+oauth -> consent : Redirect with <consent_challenge>
+consent -> consent : Asking users permission to grant application access
+consent <--> oauth : Fetch consent info
+note right
+GET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent?consent_challenge=<challenge>
+end note
+consent -> oauth : Accept
+note right
+PUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent/accept?consent_challenge=<challenge>
+{
+    "grant_scope": ["openid", "offline_access"],
+    "handled_at": "2019-08-24T14:15:22Z",
+    "session": {
+        "access_token": {
+            "foo": "This field will be available when introspecting the Access Token"
+        },
+        "id_token": {
+            "bar": "This field will be available as a claim in the ID Token"
+        }
+    }
+}
+end note
+oauth --> consent : Return redirect url
+consent --> oauth : Redirect page
+
+@enduml
+
+
+

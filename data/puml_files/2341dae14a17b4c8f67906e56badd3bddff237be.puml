@@ -1,0 +1,43 @@
+' Blob ID: 2341dae14a17b4c8f67906e56badd3bddff237be
+' Original Path: /Carendar.pu
+' Source: World of Code
+
+@startuml
+
+title カレンダー表示機能
+
+actor ユーザー
+
+activate カレンダー表示機能
+database 画像DB
+
+
+ref Over ユーザー, カレンダー表示機能, 画像DB
+    画像取得 from Locix
+end ref
+
+ユーザー -> カレンダー表示機能: カレンダー表示
+
+== 画像取得 ==
+
+カレンダー表示機能 -> 画像DB: 日付単位で画像取得
+activate 画像DB
+カレンダー表示機能 <-- 画像DB: レスポンス
+deactivate 画像DB
+
+== カレンダー表示 ==
+
+alt 画像取得中
+    ユーザー <-- カレンダー表示機能: ローディングインジケーター表示 
+else 画像取得完了
+    ユーザー <-- カレンダー表示機能: カレンダーを表示
+end
+
+== 一覧表示 ==
+
+ユーザー -> カレンダー表示機能: 撮影日付選択
+ユーザー <-- カレンダー表示機能: 画像一覧を撮影時間の降順で表示
+
+deactivate カレンダー表示機能
+
+@enduml

@@ -1,0 +1,157 @@
+' Blob ID: 31284b498be33722b0af1911df145d5b124c9b7e
+' Original Path: /01.byd-DataFactory/4.DeploymentDossier/seq_sso.puml
+' Source: World of Code
+
+@startuml
+title 
+Gestion de la cinématique de connexion et de navigation entre les applications
+
+end title
+
+participant "User" as U
+participant "Portal" as P
+participant "IAM Cognito" as  IAM
+participant "SSO" as SSO
+participant "Manager Backend" as M
+participant "Reality Backend" as RB
+participant "Reality Frontend" as RF
+
+note right SSO
+  **Question**:
+  Validation de l'utilisateur dans la plateforme Cognito créé par l'administrateur ?
+  **Réponse**:
+  Désactivé dans Cognito, la validation de l'utilisateur par l'administrateur
+end note
+
+group "S'inscrire"
+  P -> SSO: S'enregistrer sur la plateforme
+  group "Création de l'utilisateur"
+    SSO -> SSO: Remplir le formulaire
+    note right SSO
+      email
+      nom, prénom
+    end note
+    SSO -> M: Créer l'utilisateur
+    M -> M: Enregistre l'utilisateur \ndans la base de données
+    M -> M: Enregistre l'utilisateur \nCognito avec un mot \nde passe temporaire
+    alt success
+      M -> SSO: Retour de l'id de l'utilisateur
+      note right SSO
+        **Suggestion**:
+        Email de confirmation ?
+        Changer le mot de passe lors de sa première connexion
+      end note
+    else failure
+      M -> SSO: Retour de l'erreur \n - utilisateur existe déjà \n - formulaire non valide
+    end
+  end
+end
+
+group "Login cognito"
+  U -> P: Se connecte
+  P --> U: est redirigé vers le SSO
+  U -> SSO: Redirection
+  SSO --> U: est redirigé via Passport
+  U -> IAM: Redirection
+  IAM --> U: Page d'authentification
+  U -> IAM: Saisi ses identifiants
+  alt success
+    IAM -> SSO: Utilisateur authentifié \navec le token Cognito
+    SSO -> IAM: Demande de décoder
+    IAM -> SSO: Decode le token Cognito (Passport.js) \n pour récupérer l'email et l'identifiant
+    SSO -> M: Vérification de l'utilisateur grace \nà son email et son/ses identifiant(s) (identities)
+    alt success
+      M -> SSO: Utilisateur est authorisé
+    
+      SSO -> SSO: Création du token plateforme
+      note right SSO
+        email
+        firstname
+        lastname
+        application ?
+      end note
+      note right SSO
+        Utiliser un token SSO au lieu du JWT
+      end note
+      SSO -> SSO: Stocke le token plateforme en session \ndu navigateur
+      SSO -> SSO: Stocke le token plateforme en BDD (PG)
+
+      SSO --> U: Redirige vers l'application \net transmet le token plateforme au frontend
+
+      U -> U: Stocke le token sur sa session
+      U -> P: Accède à l'application \navec son token plateforme
+      note right U
+        **Question**:
+        Doit-on aussi envoyer le token Cognito ?
+      end note
+      P -> M: Appel Manager pour récupérer les droits \nhauts pour l'utilisateur
+
+      alt success
+        M -> P: Renvoie les droits hauts (applications disponibles)
+        P -> U: Renvoie la page à l'utilisateur
+      else failure
+        note right U
+          **Question**:
+          Peut-on avoir un utilisateur sans droits hauts ?
+        end note
+        M --> U: Retour vers la page de login du SSO
+      end
+
+      note right P
+        Rien n'est encore affiché
+      end note
+
+      note right P
+        **Question**:
+        Gestion des droits haut niveau de manière automatique ?
+      end note
+
+      P -> P: Met à disposition les applications \nauxquelles l'utilisateur à accès
+      P --> U: L'utilisateur peut naviguer \nentre les applications
+    else failure
+      M -> SSO: Utilisateur non authorisé
+      SSO --> U: Redirige vers la page d'acceuil du portail avec un message (non authorisé, pas de droits suffisant)
+      note right U
+        **Question**:
+        Doit-on créer son compte sur la plateforme ?
+      end note
+    end
+    
+  else failure
+    IAM -> IAM: Utilisateur non authentifié
+    IAM --> U: Erreur de connexion sur la page Cognito
+  end
+  
+end 
+
+group "Naviguer entre les applications"
+  P -> RF: Aller vers l'application
+  RF -> RB: **Redirection** route d'authentification
+  RB -> SSO: **Redirection** vers le SSO
+  SSO -> SSO: Check du token en session (navigateur)
+
+  alt success
+    SSO -> RB: **Redirection** avec le token en query (pour le récupérer avec l'URL)
+    RB -> RF: **Redirection** sur le callback de login avec \nle token en query
+    RF -> RF: Stocke le token plateforme en local storage
+    RF -> RB: Demande de récupération des droits fins \nde l'utilisateur (appel simple)
+    RB -> RB: Récupération des droits fins \ndans sa propre BDD
+    RB -> RF: Retour des droits utilisateur
+    RF -> RF: Stockage des droits utilisateur \n en session
+    RF -> RF: Redirection vers la page \nprincipale de l'application
+  else failure
+    note right SSO
+      **Question**:
+      La durée du token Cognito de l'utilsiateur ?
+      30 min pour le token
+
+      Comment faire la gestion du refresh du token ?
+      - Tous les x temps ?
+    end note
+    SSO -> RB: Pas connecté (token expiré ?) ou pas autorisé
+    RB -> RF: Eject de la connexion
+    RF -> P: Redirection vers la page de connexion du portail
+  end
+end
+
+@enduml

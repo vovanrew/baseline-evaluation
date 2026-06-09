@@ -1,0 +1,51 @@
+' Blob ID: b0c3219bf04178c0c88e4e2cd1afcc3d9d6064b8
+' Original Path: /uml/sequence/component-wide/follow-request.puml
+' Source: World of Code
+
+@startuml
+actor "Crapchat user" as user
+actor "Another Crapchat user" as user2
+participant "Crapchat REST API" as backend
+participant "Crapchat identity provider" as auth0
+database "Crapchat storage" as database
+
+group Search user
+    activate user
+    user --> backend : HTTP POST request with search query
+    activate backend
+        backend --> auth0 : HTTP request with search query
+        activate auth0
+            auth0 --> backend : HTTP response with list of users
+        deactivate auth0
+        backend --> user: HTTP response with array of users
+    deactivate backend
+end
+
+group Send follow request
+    user -> user : Clicks follow button
+    user --> backend : HTTP request with ID of the user to follow
+        activate backend
+            backend -> database : SQL insert query
+            activate database
+                database -> backend : Success response
+            deactivate database
+            backend -> user2 : Notify with follow request
+            backend -> user : HTTP OK response
+        deactivate backend
+    deactivate user
+end
+
+group Accept follow request
+    activate user2
+        user2 --> backend: HTTP request to accept
+        activate backend
+            backend -> database: SQL update query
+            activate database
+                database -> backend: Success response
+            deactivate database
+            backend --> user2: HTTP OK response
+        deactivate backend
+    deactivate user2
+
+end
+@enduml

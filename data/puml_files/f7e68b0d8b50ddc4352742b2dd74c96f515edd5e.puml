@@ -1,0 +1,77 @@
+' Blob ID: f7e68b0d8b50ddc4352742b2dd74c96f515edd5e
+' Original Path: /doc/classes/core.wsd
+' Source: World of Code
+
+@startuml
+
+interface DataBase{
+
+}
+note top: интерфейс баз данных
+
+interface RepositoryManager{
+	createProject(project name)
+	deleteProject(project name)
+	getProject(project name) ProjectManager
+}
+
+class Repository{
+	Repository(DataBase, ProjectFabric)
+}
+note top: Класс для работы с\nпроектами в базе данных
+
+class RepositoryCache{
+	RepositoryCache( ProjectManager )
+}
+note top: Обёртка над репозиторием для\nкэширования данных
+
+class ProjectFabric{
+	createProjectObject(map[versionName]code, projectGUID, name) Project
+}
+note top: фабрика для создания \n объекта project
+
+class Project{
+	map[apiVersion]ProjectVersion
+	map[entityName][]uniqueField
+	DataBase
+}
+note top of Project
+У всех версий в итоге
+работает общая схема
+уникальных и неуникальных
+полей: если среди версий
+находится указание на
+уникальность поля, то оно
+становится уникальным для
+всех 
+end note
+
+
+interface ProjectManager{
+	CreateVersion(versionName, code) ok
+	GetVersion(versionName) ProjectVersion
+	UpdateVersion(versionName, code) ok
+	DeleteVersion(versionName) ok
+	SetUniqFields(map[entityName][]uniqueField)
+	GetUniqFields() map[entityName][]uniqueField
+}
+
+class ProjectVersion{
+	Code
+	map[name]Entity
+	map[path]map[method]ast
+	DataBase Ref
+}
+
+interface ProjectVersionManager{
+	GetUniqueFields() map[entityName][]uniqueField
+	ExecRequest(path, method, params, accessToken)
+}
+
+RepositoryCache --|> RepositoryManager
+Repository --|> RepositoryManager
+Project --|> ProjectManager
+ProjectVersion --|> ProjectVersionManager
+
+
+@enduml

@@ -1,0 +1,63 @@
+' Blob ID: ba6af636247ce25b318687231c9cd7a4e06ddf56
+' Original Path: /docs/sequence_diagram.plantuml
+' Source: World of Code
+
+@startuml
+participant User as U
+participant "Web Client" as C
+participant "DutchPay Server" as S
+database "Group" as DB
+
+U -> C: GET /
+activate C
+C -> S: static asset 요청(HTML/CSS 등)
+activate S
+S --> C: HTML/CSS 등 응답
+deactivate S
+C -> C: 그룹 입력 페이지로 redirection
+C --> U: 그룹 입력 페이지
+
+U -> C: 1. 그룹 이름 입력 & 저장
+C -> S: POST groups/
+activate S
+S -> S: GUID 생성
+S -> DB: Item 생성(groupName, guid)
+activate DB
+DB --> S: created
+deactivate DB
+S --> C: guid
+deactivate S
+C -> C: store에 그룹 이름, guid 저장
+C -> C: 그룹 멤버 추가 페이지로 redirection
+C --> U: 그룹 멤버 추가 페이지
+
+U -> C: 2. 그룹 멤버 이름 입력 & 저장
+C -> S: PUT groups/{guid}/members
+activate S
+S -> DB: Item 업데이트(members)
+activate DB
+DB --> S: updated
+deactivate DB
+S --> C: success
+deactivate S
+C -> C: store에 그룹 멤버 이름 저장
+C -> C: 비용 관리 페이지로 redirection
+C --> U: 비용 관리 페이지
+
+loop
+    U -> C: 3. 비용 정보 입력 & 추가
+    C -> S: PUT groups/{guid}/expenses
+    activate S
+    S -> DB: Item 업데이트(expense)
+    activate DB
+    DB --> S: updated
+    deactivate DB
+    S --> C: success
+    deactivate S
+    C -> C: store에 비용 정보 저장
+    C -> C: 정산 결과 계산
+    C --> U: 정산 결과 노출
+end
+deactivate C
+
+@enduml

@@ -1,0 +1,55 @@
+' Blob ID: 185e3f2aaf1dfe9185415bba995ea8ae2c7e084c
+' Original Path: /tp/secuencia_de_sistema/compra/comprar/secuencia-flujo-ok.plantuml
+' Source: World of Code
+
+
+
+@startuml
+
+
+title c12 Comprar Libro - Flujo normal
+
+actor Cliente as c
+participant Sistema as s
+
+c -> s : libros = iniciar_compra(cliente)
+activate c
+    activate s
+            c -> s : seleccionar_libro(libro)
+            activate s
+                s -> s : ok = calcular_costo(libro)
+                activate s
+                deactivate s
+
+            deactivate s
+
+            c <- s : obtener_informacion_pago()
+            activate c
+                c -> s : pago(info)
+            deactivate c
+
+            activate s
+                s -> s : ok = actualizar_stock(libro)
+                activate s
+                deactivate s            
+
+                s -> s : ok = descontar_costo(libro)
+                activate s
+                deactivate s
+
+                s -> s : ok = cambiar_categoria_cliente(cliente)
+                activate s
+                deactivate s
+
+                s -> s : ok = guardar_datos_compra(cliente, libro)
+                activate s
+                deactivate s
+
+                c <-- s : datos_compra
+            deactivate s
+
+    deactivate s
+
+deactivate c
+
+@enduml

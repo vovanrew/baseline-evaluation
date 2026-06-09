@@ -1,0 +1,41 @@
+' Blob ID: 35e8e363ed05da0aad8b232535181ba78bf8e58c
+' Original Path: /diagrams/ViewModels/UserViewModel.puml
+' Source: World of Code
+
+@startuml
+class UserViewModel {
+    - _selectedOwnedCommand : ICommand?
+    - _selectedFollowingCommand : ICommand?
+    - _offerCommand : ICommand?
+    - _selectedPlant : IPlant?
+    - _selectedFollow : IOfferFollow?
+    - _filterText : string = ""
+    - _isOwnedDetails : bool
+    + User : IUser? <<get>>
+    + FilterText : string <<get>> <<set>>
+    + SelectedPlant : IPlant? <<get>> <<set>>
+    + SelectedFollow : IOfferFollow? <<get>> <<set>>
+    + UserViewModel(eventAggregator:IEventAggregator, plantStore:IPlantStore, regionManager:IRegionManager, authService:IAuthService, dialogService:IDialogService)
+    - <<async>> LoadPlants() : void
+    - FilterPlants() : void
+    - <<async>> AddFollow(offerId:int) : Task
+    - NavigateDetails(args:SelectionChangedEventArgs, isOwned:bool) : void
+    # <<override>> OnPropertyChanged(args:PropertyChangedEventArgs) : void
+    - <<async>> OpenOffer(arg:object) : void
+}
+class "ObservableCollection`1"<T> {
+}
+BindableBase <|-- UserViewModel
+UserViewModel --> "_plantStore" IPlantStore
+UserViewModel --> "_regionManager" IRegionManager
+UserViewModel --> "_authService" IAuthService
+UserViewModel --> "_dialogService" IDialogService
+UserViewModel o-> "_plants<IPlant>" "ObservableCollection`1"
+UserViewModel o-> "_offerFollows<IOfferFollow>" "ObservableCollection`1"
+UserViewModel o-> "_filteredPlants" ICollectionView
+UserViewModel --> "OfferFollows<IOfferFollow>" "ObservableCollection`1"
+UserViewModel --> "FilteredPlants" ICollectionView
+UserViewModel --> "SelectedOwnedCommand" ICommand
+UserViewModel --> "SelectedFollowingCommand" ICommand
+UserViewModel --> "OfferCommand" ICommand
+@enduml

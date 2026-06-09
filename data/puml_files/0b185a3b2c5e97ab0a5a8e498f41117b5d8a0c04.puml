@@ -1,0 +1,99 @@
+' Blob ID: 0b185a3b2c5e97ab0a5a8e498f41117b5d8a0c04
+' Original Path: /src/main/resource/learn.mq.rocketmq/启动流程.puml
+' Source: World of Code
+
+@startuml
+'https://plantuml.com/sequence-diagram
+
+'隐藏脚注
+hide footbox
+autoActivate on
+
+'使用 toy 主题
+!theme toy
+
+'编号
+autonumber 1
+
+'隐藏孤立的参与者
+hide unlinked
+
+'文字对齐，向左对齐
+skinparam sequenceMessageAlign left
+
+'箭头粗度
+skinparam sequenceArrowThickness 2.5
+
+' 皮肤
+skinparam sequence {
+    LifeLineBackgroundColor #6FC8F2
+    ParticipantBackgroundColor #6FC8F2
+    ParticipantFontColor black
+    ActorBackgroundColor #6FC8F2
+    ActorFontColor black
+}
+
+participant producer as producer
+participant consumer as consumer
+participant broker as broker
+participant NameServer as ns
+
+== NameServer 启动流程 ==
+
+-> ns : 启动 NameServer 服务器
+ns -> ns : 启动监听
+note right of ns
+    监听 broker 链接
+    监听 producer 链接
+    监听 consumer 链接
+end note
+return
+return
+
+== broker 启动流程 ==
+
+-> broker : 启动 broker 服务器
+broker -> ns : 每个 broker 与 每个 NameServer 建立长链接
+return
+return
+
+broker <--> ns : 每 30 秒发送心跳
+
+== producer 启动/发消息流程 ==
+
+-> producer : 启动
+producer -> ns : 先与一台 NameServer 建立长链接
+return
+producer -> ns : 获取路由信息，获取 topic 与 broker queue 的对应关系
+return
+return
+
+producer <--> NameServer : 每 30 秒更新一次路由信息
+
+-> producer : 发送消息
+producer -> broker : 随机选择一个 queue，并发送消息
+return
+return
+
+== consumer 启动/pull消息流程 ==
+-> consumer : 启动
+consumer -> NameServer : 与一台 NameServer 建立长链接
+return
+
+consumer -> NameServer : 获取 topic 的路由信息
+return
+consumer -> broker : 建立长链接并获取 queue
+return
+return
+
+consumer <--> broker : 每 30 秒发送心跳，确保 broker 存活
+consumer <--> NameServer : 每 30 秒更新路由信息
+
+-> consumer : 消息消费
+consumer -> broker : 拉取消息消费
+return
+return
+
+
+
+@enduml

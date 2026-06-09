@@ -1,0 +1,36 @@
+' Blob ID: 1619bfd00a86595ad55813847c50c55e1bb17751
+' Original Path: /documentation/images/plantuml/beerocks_common.iuml
+' Source: World of Code
+
+@startuml
+
+class thread_base
+class socket_thread
+class LocalBusInterface
+class Poller
+
+class transport_socket_thread {
+    +transport_socket_thread()
+    +~transport_socket_thread()
+    +init() override
+    +work() override
+    #add_socket() override
+    #remove_socket() override
+    #read_ready() override
+    #configure_ieee1905_transport_interfaces()
+    #broker_subscribe()
+    #broker_connect()
+    #send_cmdu_to_broker()
+    -broker_init()
+    -broker_send()
+    -handle_cmdu_message_broker()
+    -bus : LocalBusInterface 
+    -poller : Poller
+}
+
+thread_base --|> socket_thread
+socket_thread --|> transport_socket_thread
+transport_socket_thread --* Poller
+transport_socket_thread --* LocalBusInterface
+
+@enduml

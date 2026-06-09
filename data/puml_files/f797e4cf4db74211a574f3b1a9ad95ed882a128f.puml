@@ -1,0 +1,96 @@
+' Blob ID: f797e4cf4db74211a574f3b1a9ad95ed882a128f
+' Original Path: /PB-749 - Notifications to encourage a deposit in Goals or Investments/sequences/PB-749 UC4 - Update a Banner on System Management.puml
+' Source: World of Code
+
+@startuml
+'diagram parameters'
+autonumber
+'skinparam dpi 300
+skinparam LegendBackgroundColor #white
+
+'diagram title'
+title PB-749 UC4 - Update a Banner on System Management
+
+'a list of the actors and participants'
+actor "System Management" as UI
+box "Next Platform"
+participant "Core Next" as Next
+database "Next Database" as DB
+end box
+participant "Core Bradesco" as BR
+
+'a brief description of the diagram'
+legend top
+-- \t**Abstract:**\t --
+This use case will be responsible to update an existing banner on Next.
+This endpoint is not responsible for deleting a record. To do this, it
+must use the use case 5 - Delete a Banner on System Management.
+However, in this use case, SM may enable or disable Banner.
+end legend
+
+UI->Next: PUT /v1/notification/banner/{bannerID}
+activate Next
+note right UI
+System Management will call this new endpoint
+passing all the fields necessary to update an
+existing Banner. The fields are:
+# BANNER_ID
+# BUSINESS_EVENT_TYPE_ID
+# TEMPLATE_HEADER
+# TEMPLATE_BODY
+# ENABLE_IND
+end note
+
+Next->DB: check if this Banner exists on BANNER table
+note right Next
+Core Next will check if this Banner exists on BANNER table
+end note
+activate DB
+DB->Next: response
+deactivate DB
+
+alt if the Banner exists
+  Next->DB: check if exists an enabled Banner associated with that BUSINESS_EVENT_TYPE received on requisition on BANNER table
+  note right Next #orange
+  **Note to developers**
+  Core Next will check if exists any Banner linked to a BUSINESS_EVENT_TYPE on BANNER
+  table. We can only have one enabled Banner linked to a BUSINESS_EVENT_TYPE. For this
+  rule, we should disregard the records that are with DELETE_FLG enabled and the Card itself.
+  end note
+  activate DB
+  DB->Next: response
+  deactivate DB
+    alt if exists an enabled Banner associated with that BUSINESS_EVENT_TYPE
+      note right Next
+      If exists any Banner linked to a BUSINESS_EVENT_TYPE passed by App,
+      we will throw back an error to App side.
+      end note
+      Next->UI: error
+      note right UI #pink
+      **HTTP code:** 422
+      end note
+    else if don't exists an enabled Banner associated with that BUSINESS_EVENT_TYPE
+      note right Next
+      If the defensive checks pass, then we will update the register on BANNER table.
+      end note
+      Next->DB: update the register on BANNER table
+      activate DB
+      DB->Next: success
+      deactivate DB
+      Next->UI: success
+      note right UI #lightblue
+      **HTTP code:** 200
+      end note
+    end alt
+  else if the Banner don't exists
+    Next->UI: error
+    note right UI #pink
+    If the Banner don't exists on
+    BANNER table, then we will
+    throw back an error to SM.
+    **HTTP code:** 404
+    end note
+end alt
+
+deactivate Next
+@enduml

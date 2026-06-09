@@ -1,0 +1,23 @@
+' Blob ID: ae6873b5bca0613bb74894f77a2ccdf505b9e329
+' Original Path: /mero-halon/doc/diagrams/sns-operation-abort.uml
+' Source: World of Code
+
+@startuml
+participant halon
+participant ios1
+participant ios2
+participant client
+
+activate ios1
+activate ios2
+... SNS operation ...
+halon -> ios2: m0_spiel_repair_abort
+destroy ios1
+destroy ios2
+loop until all IOS are in [IDLE,FAILED]
+  halon -> ios2: repair status request
+  ios2  -> halon: repair status reply
+end
+halon -> client: notify [(pool, PREVIOUS_STATE), (disk, PREVIOUS_STATE)]
+
+@enduml

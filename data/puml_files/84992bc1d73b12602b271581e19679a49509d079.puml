@@ -1,0 +1,64 @@
+' Blob ID: 84992bc1d73b12602b271581e19679a49509d079
+' Original Path: /Projet de UML Reverse/documents/diagrammes_architecture/Diagrammes New Version/view/old/UMLDiagramsEditor/Class Diagrams/enCours/Vue.puml
+' Source: World of Code
+
+@startuml
+
+class UmlReverseApp{	
+}
+class TreeFileManagerView {
+}
+
+package javafx  {
+    class TabPane
+	class Stage {
+	}
+	class Scene {
+	} 
+    class BorderPane {
+    }
+	class MenuBar {
+	}
+
+	class MenuItem {
+	}
+}
+Interface IDiagramEditor{
+}
+
+Interface IDiagramMenu {
+}
+
+ package diagram.visitor {
+'--------------------------------- umlreverse.model.diagram.visitor
+
+    interface IDiagramVisitor {
+        + visit(ClassDiagram visitor) : void
+        + visit(SequenceDiagram visitor) : void
+        + visit(UseCaseDiagram visitor) : void
+        + visit(DiagramManager visitor) : void
+    }
+
+    class ToViewVisitor implements IDiagramVisitor {
+            +getDiagramMenu() : IDiagramMenu
+            +getDiagramEditor() : IDiagramEditor
+    }
+'------------------------------fin umlreverse.model.diagram.visitor
+}
+
+class MainController
+
+UmlReverseApp "1" o--> "1" Stage : stage
+UmlReverseApp "1" o--> "1" MainController : controller
+MainController .> IDiagramVisitor
+TabPane "1" o--> "0..*" IDiagramEditor : editors
+BorderPane "1" o--> "1" TreeFileManagerView : fileManagerView
+Scene "1" o--> "1" BorderPane : borderpane
+BorderPane "1" o--> "1" TabPane : center
+Stage "1" o--> "1" Scene : scene
+BorderPane "1" o--> "1" IDiagramMenu : est
+BorderPane "1" o--> "1" MenuBar : north
+MenuBar "1..n" o--> "0..n" MenuItem : items
+
+@enduml
+

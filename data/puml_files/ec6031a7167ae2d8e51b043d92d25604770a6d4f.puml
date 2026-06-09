@@ -1,0 +1,38 @@
+' Blob ID: ec6031a7167ae2d8e51b043d92d25604770a6d4f
+' Original Path: /src/PUML/Sequence/LoginSeq.puml
+' Source: World of Code
+
+@startuml
+actor User
+participant Frontend
+participant Backend
+database Database
+
+group Login
+    User -> Frontend: Presses the "Login"-button
+    Frontend -> Backend: Request to open new window
+    Backend --> Frontend: Opens new window
+    User -> Frontend: Enters login information
+    User -> Frontend: Presses "Confirm"-button
+    Frontend -> Backend: Request to validate input
+    Backend -> Database: Validates login input
+
+    alt Successful case
+        Database -> Backend: Validation successful
+        Backend -> Frontend: Allows user to proceed
+        Frontend --> User: Proceeds to next window
+
+    else Validation failed
+        Database ->x Backend: Validation failed
+        Backend -> Frontend: Displays alert of type ERROR
+        Frontend -> User: Lists up fields with errors
+    end
+end
+
+group Cancel
+    User -> Frontend: Presses the "Cancel"-button
+    Frontend -> Backend: Request to close process
+    Backend -> Frontend: Closes window
+
+end
+@enduml

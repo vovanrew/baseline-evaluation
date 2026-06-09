@@ -1,0 +1,69 @@
+' Blob ID: 8e75aea4e76c759fa4e0ca315c80d1d6c20035ea
+' Original Path: /src/main/resource/有赞/导购/导购任务重构/新流程图/导购Crm回访任务下发.puml
+' Source: World of Code
+
+@startuml
+'https://plantuml.com/sequence-diagram
+hide footbox
+skinparam backgroundColor #EEEBDC
+autoActivate on
+autonumber
+
+skinparam sequence {
+ArrowColor black
+ActorBorderColor black
+LifeLineBorderColor black
+LifeLineBackgroundColor #8CCEF1
+
+ParticipantBorderColor black
+ParticipantBackgroundColor #8CCEF1
+'ParticipantFontName Impact
+ParticipantFontSize 15
+ParticipantFontColor black
+
+ActorBackgroundColor #8CCEF1
+ActorFontColor black
+ActorFontSize 15
+ActorFontName Aapex
+}
+
+
+actor "nsq" as admin
+'Participant NsqClient as nsqClient
+Participant GuideTaskCrmVisitAssignListener as guideTaskCrmVisitAssignListener
+Participant guideTaskCrmVisitAssignProcessor as guideTaskCrmVisitAssignProcessor
+Participant GuideTaskAssignDomainService as guideTaskAssignDomainService
+Participant ShoppingGuideReadApi as shoppingGuideReadApi
+Participant GuideTaskDepartmentAssignStrategy as guideTaskDepartmentAssignStrategy
+Participant GuideTaskAssignFactory as guideTaskAssignFactory
+Participant GuideTaskAssignRepository as guideTaskAssignRepository
+Participant GuideTaskRepository as guideTaskRepository
+Participant NsqProducer as nsqProducer
+
+admin -> guideTaskCrmVisitAssignListener : 下发任务
+
+guideTaskCrmVisitAssignListener -> guideTaskCrmVisitAssignProcessor : 开始处理
+
+guideTaskCrmVisitAssignProcessor -> guideTaskAssignDomainService : 任务分配
+
+guideTaskAssignDomainService -> shoppingGuideReadApi : 查询下发对象 department
+note left
+    下发给所有部门
+end note
+
+guideTaskAssignDomainService -> guideTaskDepartmentAssignStrategy : 分配任务
+
+guideTaskDepartmentAssignStrategy -> guideTaskAssignFactory : 创建分配的任务实体
+note left
+    只有任务下发给导购的时候
+    才创建导购的任务明细
+end note
+
+group Transaction
+    guideTaskAssignDomainService -> guideTaskAssignRepository : 保存分配状态 status flow 任务流转至 分配完成
+    guideTaskAssignDomainService -> guideTaskRepository : 保存分配状态 status flow 任务流转至 待启动
+end group
+
+guideTaskAssignDomainService -> nsqProducer : 发送下发完成消息，准备启动任务
+
+@enduml

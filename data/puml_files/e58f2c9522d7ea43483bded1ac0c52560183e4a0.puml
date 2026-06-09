@@ -1,0 +1,40 @@
+' Blob ID: e58f2c9522d7ea43483bded1ac0c52560183e4a0
+' Original Path: /daily/2021/20211005_uml_0.puml
+' Source: World of Code
+
+@startuml
+
+interface Session{}
+
+interface ExpiringSession extends Session{}
+
+interface SessionRepository<S extends Session>{
++{abstract} S createSession();
++{abstract} void save(S session);
++{abstract} S getSession(String id);
++{abstract} void delete(String id);
+
+}
+
+class MapSessionRepository implements SessionRepository{}
+
+interface FindByIndexNameSessionRepository extends SessionRepository{
++{abstract} Map<String, S> findByIndexNameAndIndexValue(String indexName, String indexValue);
+}
+
+class RedisSession implements ExpiringSession{}
+
+class JdbcOperationsSessionRepository implements FindByIndexNameSessionRepository{}
+
+class RedisOperationsSessionRepository<RedisSession> implements FindByIndexNameSessionRepository{}
+
+class MongoOperationsSessionRepository implements FindByIndexNameSessionRepository{}
+
+SessionRepository --> Session
+
+RedisSession --> RedisOperationsSessionRepository
+
+'ExpiringSession <- MapSessionRepository
+
+
+@enduml

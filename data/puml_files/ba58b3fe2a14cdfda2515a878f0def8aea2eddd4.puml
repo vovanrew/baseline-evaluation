@@ -1,0 +1,22 @@
+' Blob ID: ba58b3fe2a14cdfda2515a878f0def8aea2eddd4
+' Original Path: /SequenceDiagram/chenHaoXu.puml
+' Source: World of Code
+
+@startuml
+客户端->>AMS:registerUserSwitchObserver \n (IUserSwitchObserver)
+Note right of 客户端: 注册回调接口
+AMS->>UserControl:registerUserSwitchObserver\n (IUserSwitchObserver)
+客户端->>AMS:switchUser()
+AMS-->>UserControl:startUser()
+Note right of AMS:执行切换用户动作，发送REPORT_USER_SWITCH_MSG
+UserControl->>UserControl:dispatchUserSwitch
+UserControl->>客户端:IUserSwitchObserver.\n onUserSwitching(newUserId, callback)
+Note left of UserControl:通知客户端处理完用户切换后回调传递的callback来通知AMS
+客户端-->>UserControl:IRemoteCallback.sendResult()
+Note left of UserControl:等待所有客户端处理完成之后继续进行切换用户的工作
+UserControl->>UserControl:continueUserSwitch()
+Note left of UserControl:结束冻屏，并停止在后台的访客用户
+UserControl->>UserControl:dispatchUserSwitchComplete()
+Note left of UserControl:通过回调方法通知客户端进行用户切换的收尾工作
+UserControl->>客户端:IUserSwitchObserver.\n onUserSwitchComplete(userId)
+@enduml

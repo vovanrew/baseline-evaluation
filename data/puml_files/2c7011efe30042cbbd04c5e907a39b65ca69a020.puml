@@ -1,0 +1,80 @@
+' Blob ID: 2c7011efe30042cbbd04c5e907a39b65ca69a020
+' Original Path: /TP1/Documentacion/diagramas/Diagrama_Clases/draft/Diagrama_ClaseV1/Diagrama_ClaseV2.wsd
+' Source: World of Code
+
+@startuml
+    hide circle
+    skinparam classAttributeIconSize 0
+
+    class AlgoFix{
+
+    + {method} manoDeObraMasMateriales(manoObra: int, materiales: int): int
+    + {method} presupuestoMasBaratoParaPintarM2ConPintura(metros: int, pintura: Pintura): Pintor 
+    + {method} registrarPintorDePincel(nombre:String, valorHora: int): void
+    + {method} registrarPintorDeRodillo(nombre:String, ValorHora: int): void
+    + {method} crearPintura(nombre:Str, precioLitro: int, manosPincel: int ,manosRodillo: int): Pintura
+   
+
+    }
+
+    class Pintor{
+        + {field} nombre: str
+        + {field} valorHora: int
+        + {field} costoProyecto: int
+
+        + {method} calcularCostoM2ConPintura(metros: int, pintura: Pintura): int
+        + {method} responsable(): str
+        + {method} valor(): int
+
+        + {static}{method} registrarPintorDePincel(nombre:String, valorHora: int): Pintor
+        + {static}{method} registrarPintorDeRodillo(nombre:String, ValorHora: int): Pintor
+
+    }
+
+     abstract class Herramienta{
+        + {field} consumoPorM2: int
+        + {field} horasTrabajoM2: int
+        + {field} descuentoMas40M2: int
+
+        # {abstract}{method} initialize
+        + {abstract}{method} numeroMano(pintura: Pintura) : int
+    }
+
+    class Pincel{
+        - {method} initialize
+        + {method} numeroMano(pintura: Pintura) : int
+    }
+
+    class Rodillo{
+        - {method} initialize
+        + {method} numeroMano(pintura:Pintura) : int
+    }
+
+    class Pintura{
+    + {field} precioLitro: int
+    + {field} numManosPincel: int
+    + {field} numManosRodillo: int
+
+    + {method} manosPincel(): int
+    + {method} manosRodillo(): int
+    + {method} presupuestoLitros(numLitros:int):int
+
+    +{static}{method} crearPintura(nombre:Str, precioLitro: int, manosPincel: int ,manosRodillo: int):Pintura
+    }
+
+
+    'Asociaciones
+
+    AlgoFix "1  " o--> "1...*" Pintor
+    AlgoFix "1"..>"1...2 " Pintura
+    
+    Pintor *-- Herramienta: "           "
+    
+
+    Herramienta <|-- Rodillo
+    Herramienta <|-- Pincel
+
+    Rodillo ..> Pintura
+    Pincel ..> Pintura
+
+@enduml

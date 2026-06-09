@@ -1,0 +1,43 @@
+' Blob ID: c7c1bfb1f0a6734b4d8115fca4ac741b22f4971a
+' Original Path: /eventi/DSD/2_assignData.uml
+' Source: World of Code
+
+@startuml
+title 2 assignData
+actor Actor
+participant "CatERingAppManager.eventManager:EventManager" as em
+participant "eventManager.currentEvent:Event" as e
+participant "r:EventReceiver" as r
+
+Actor -> em ++: assignData(name,date,location,numberOfParticipants,serviceType,tipologyNote)
+
+alt currentEvent == null
+	em -->> Actor: Throw UseCaseLogicException
+else
+
+	em -> e ++: setName(name) 
+    deactivate e
+    
+	em -> e ++: setDate(date) 
+    deactivate e
+    
+	em -> e ++: setLocation(location) 
+    deactivate e
+    
+	em -> e ++: setNumberOfParticipants(numberOfParticipants) 
+    deactivate e
+    
+	em -> e ++: setServiceType(serviceType) 
+    deactivate e
+    
+	em -> e ++: setTipologyNote(tipologyNote) 
+    deactivate e
+    
+    group for each r in receivers
+    	em -> r++:notifyDataAssigned(currentEvent)
+        deactivate r
+    end 
+    
+    Actor <-- em--
+end
+@enduml

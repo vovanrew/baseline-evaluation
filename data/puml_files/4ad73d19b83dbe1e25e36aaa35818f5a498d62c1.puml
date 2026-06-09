@@ -1,0 +1,36 @@
+' Blob ID: 4ad73d19b83dbe1e25e36aaa35818f5a498d62c1
+' Original Path: /Удаление объекта недвижимости/УдалениеОбъектаНедвижимости.pu
+' Source: World of Code
+
+@startuml
+title "Удаление объекта недвижимости"
+actor user
+boundary "MobileApp" as mobapp
+entity "DB MobileApp" as dbmob
+control "BACK" as back
+entity "DB BACK" as db
+
+user -> mobapp : Инициация удаления объекта(ов) недвижимости
+activate mobapp
+    mobapp -> back : request: deleteAddress (userId, [addressId])
+    activate back
+
+loop для каждого элемента [addressId]
+
+        back -> db : request: deleteAddress (userId, addressId)
+        activate db
+            db --> back : response: deleteAddress (success)
+        deactivate db
+end
+        back -> db : request: getAllUserData (userId)
+        activate db
+            db --> back : response: getAllUserData (userId, userData)
+        deactivate db
+        back --> mobapp : response: getAllUserData (userData)
+    deactivate back
+    mobapp ->> dbmob : [обновление временных данных userData]
+    mobapp -> mobapp : обновление представления клиента
+    mobapp --> user : Обновлённый экран
+deactivate mobapp
+
+@enduml

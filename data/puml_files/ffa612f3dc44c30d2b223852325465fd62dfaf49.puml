@@ -1,0 +1,66 @@
+' Blob ID: ffa612f3dc44c30d2b223852325465fd62dfaf49
+' Original Path: /Tennis/src/main/kotlin/pt/isel/tds/tennis/oo/ScoreOO.puml
+' Source: World of Code
+
+@startuml
+'https://plantuml.com/class-diagram
+
+hide empty members
+
+enum Player {
+    + {static} A
+    + {static} B
+}
+
+-enum Points {
+    value: Int
+    {static} LOVE
+    {static} FIFTEEN
+    {static} THIRTY
+ '   {static} FORTY
+    next(): Points
+}
+
++abstract class Score <<sealed>>{
+    placard: String
+    isGame: Boolean = false
+    {abstract} next(): Score
+}
+
+-class ByPoints {
+    placard = "$A - $B"
+    next(): Score
+}
+Score <|-- ByPoints
+Points --* ByPoints : pointsA
+Points --* ByPoints : pointsB
+
+-class Advantage {
+    placard = "Advantage $W"
+    next(): Score
+}
+Score <|-- Advantage
+Player --o Advantage : player
+
+-class Game {
+    placard = "Game $W"
+    next() = throw
+    isGame = true
+}
+Score <|--- Game
+Player --o Game : winner
+
+-class Deuce <<(O,orange)>> {
+    placard = "Deuce"
+    next(): Score
+}
+Score <|- Deuce :"                    "
+
+-class Forty {
+    placard = "$A - 40" | "40 - $B"
+    next(): Score
+}
+Score <|--- Forty
+Player --o Forty : player
+Points --* Forty : pointsOther
+@enduml

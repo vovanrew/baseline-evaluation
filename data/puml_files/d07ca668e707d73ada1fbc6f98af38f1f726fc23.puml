@@ -1,0 +1,94 @@
+' Blob ID: d07ca668e707d73ada1fbc6f98af38f1f726fc23
+' Original Path: /docs/AddMemberToGroup_BeforeController_SR7.puml
+' Source: World of Code
+
+@startuml
+skinparam shadowing false
+skinparam classBorderThickness .5
+skinparam monochrome true
+skinparam defaultFontName "Verdana"
+skinparam defaultFontSize 14
+skinparam sequence {
+   ParticipantBackgroundColor transparent
+   ParticipantFontSize 16
+   ActorFontSize 16
+}
+
+autonumber
+
+Participant "IntegrationTest" #WHITE
+Participant "Spring \nApplication"
+Participant "De /nSerializer"
+Participant "info:AddMember \nRequestInfoDTO"
+Participant "ctrl:AddMember \nToGroupController"
+Participant "srv:AddMember \nToGroupService"
+Participant "AddMember \nRequestAssembler"
+Participant "requestDTO: \nAddMemberRequestDTO"
+Participant "AddMemberResponse \nDTOAssembler"
+Participant "groupRespDTO: \nGroupResponseDTO"
+Participant "srv:AddMember \nToGroupService"
+
+note over "srv:AddMember \nToGroupService" #white
+   Continues through
+    next Diagram
+end note
+
+
+activate IntegrationTest #white
+autonumber 1
+"IntegrationTest" -> "Spring \nApplication": POST\n /groups/"Family"/\nmembers/"ana@gmail.com"
+activate "Spring \nApplication" #white
+
+autonumber 1.1
+"Spring \nApplication" -> "De /nSerializer" : deserialize("groupDesc":"Family", \n"personEmail":"ana@gmail.com")
+activate "De /nSerializer" #white
+
+autonumber 1.1.1
+create "info:AddMember \nRequestInfoDTO"
+"De /nSerializer" -> "info:AddMember \nRequestInfoDTO" : create (groupDesc,\nPersonEmail)
+deactivate "De /nSerializer"
+
+autonumber 1.2
+"Spring \nApplication" -> "ctrl:AddMember \nToGroupController" : addMember(info)
+activate "ctrl:AddMember \nToGroupController" #white
+
+autonumber 1.2.1
+"ctrl:AddMember \nToGroupController" -> "AddMember \nRequestAssembler" : addMemberMapToDTO \n(info.getGroupDescription(),\ninfo.getPersonEmail())
+activate "AddMember \nRequestAssembler" #white
+
+autonumber 1.2.1.1
+create "requestDTO: \nAddMemberRequestDTO"
+"AddMember \nRequestAssembler" -> "requestDTO: \nAddMemberRequestDTO" : create
+deactivate "AddMember \nRequestAssembler"
+
+autonumber 1.2.2
+"ctrl:AddMember \nToGroupController" -> "srv:AddMember \nToGroupService" : addMemeber(requestDTO)
+"srv:AddMember \nToGroupService" --> "ctrl:AddMember \nToGroupController" : groupDTO
+deactivate "srv:AddMember \nToGroupService"
+
+"ctrl:AddMember \nToGroupController" -> "AddMemberResponse \nDTOAssembler" : mapToGroupResponseDTO(GroupDTO)
+activate "AddMemberResponse \nDTOAssembler" #white
+
+autonumber 1.2.4.1
+create "groupRespDTO: \nGroupResponseDTO"
+"AddMemberResponse \nDTOAssembler" -> "groupRespDTO: \nGroupResponseDTO" : create
+
+autonumber 1.2.5
+"AddMemberResponse \nDTOAssembler" --> "ctrl:AddMember \nToGroupController" : groupRespDTO
+deactivate "AddMemberResponse \nDTOAssembler"
+
+"ctrl:AddMember \nToGroupController" --> "Spring \nApplication" : ResponseEntity(groupRespDTO, \nHttpStatus.OK)
+deactivate "ctrl:AddMember \nToGroupController"
+
+autonumber 1.3
+"Spring \nApplication" -> "De /nSerializer" : serialize(ResponseEntity(groupRespDTO, \nHttpStatus.OK))
+activate "De /nSerializer" #white
+
+"De /nSerializer" --> "Spring \nApplication" : HttpResponse
+deactivate "De /nSerializer"
+
+"Spring \nApplication" --> "IntegrationTest" : HttpResponse
+deactivate "Spring \nApplication"
+deactivate "IntegrationTest" #white
+
+@enduml

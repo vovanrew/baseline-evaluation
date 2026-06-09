@@ -1,0 +1,46 @@
+' Blob ID: 18a145261879ea7d3dcb19eeaa0efb33e36d678c
+' Original Path: /src/main/java/pt/ipp/isep/dei/project1/io/ui/uml/sequenceDiagram/UserStory020v2_XML_UML.puml
+' Source: World of Code
+
+@startuml
+
+actor "Administrator" as P #DAE8FC
+participant ":Main UI" as M #DAE8FC
+participant ":ImportReadingsFromFileUI" as U #DAE8FC
+participant ":ImportReadingsFromFileController" as C #DAE8FC
+participant ":ListOfGeographicArea" as LG #DAE8FC
+participant "reader:XmlReader" as COX #DAE8FC
+
+skinparam actor {
+	BorderColor 6C8EBF
+}
+
+skinparam participant {
+	BorderColor 6C8EBF
+}
+
+skinparam shadowing false
+
+skinparam sequence {
+	ArrowColor BLACK
+	ActorBorderColor DeepSkyBlue
+	LifeLineBorderColor BLACK
+}
+U -> P: Request file path
+P-->U: file path
+U->C:addReadingsToSensors(reader,path)
+activate C
+C->COX:importReadingsOfSensor(path)
+activate COX
+COX-->C:listOfReadingsDto
+deactivate COX
+C -> LG: getAllSensors( )
+activate LG
+LG --> C: listOfAreaSensors
+deactivate LG
+C -> C: setReadingsBySensorIDescription( )
+C --> U: number of lines added
+deactivate C
+U --> P: number of lines added
+
+@enduml

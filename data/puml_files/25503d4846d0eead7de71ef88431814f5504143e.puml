@@ -1,0 +1,27 @@
+' Blob ID: 25503d4846d0eead7de71ef88431814f5504143e
+' Original Path: /Laboratório-Projeto 4/src/csheets/userstories/ipc05_01/sendmessage/i130728/ipc05_01_DesignDiagramSend.puml
+' Source: World of Code
+
+@startuml
+
+ participant "SendMessageController" as SMcont
+ participant "SendMessageEngine" as SMeng
+ participant "SendMessageSender" as SMsender
+ participant "ObjectOutputStream" as OOStream
+ participant "Socket" as socket
+
+SMcont -> SMeng : sendMessage(message)
+create SMsender
+SMeng -> SMsender : create(message, port)
+create socket
+SMsender -> socket : create(message.getInetAddress(), port))
+SMeng -> SMsender : sendMessage()
+create OOStream
+SMsender -> OOStream : create(socket.getOutputStream())
+SMsender -> OOStream : writeObject(message.getSheetTalkMessage())
+
+SMsender -> OOStream : flush()
+SMsender -> OOStream : close()
+SMsender -> socket : close()
+
+@enduml

@@ -1,0 +1,44 @@
+' Blob ID: 89def1e0af84fe4771e9c3c068197ee8be3d1b32
+' Original Path: /Capture/3_1_GroupVsSingleUserEvent.puml
+' Source: World of Code
+
+@startuml
+title Scheduled Events
+actor "Recording Staff" as user
+actor "Coach" as coach
+collections "IP/Mobile Cams" as cam
+collections "Consumer Apps" as ch
+ch -> "Security Gateway" as security: authenticate(ID)
+security --> ch: return(token)
+control "Control Domain\n(win10/linux)" as ctrl
+create "Streaming Service\n(encoder)" as strm
+ctrl -> strm: host(sources{endpoints})
+cam -> ctrl: register(endpoint)
+ch -> ctrl: register(token, priority)
+user -> ctrl: createEvent(configuration{description, sources, consumers{priorities}})
+ctrl --> ctrl: create(newEvent)
+activate ctrl
+user -> ctrl: start(newEvent)
+ctrl -> strm: encode()
+ctrl --> ch: notify(recording)
+user -> ctrl: stop(newEvent)
+deactivate ctrl
+ctrl -> strm: saveAs(mediaID)
+create entity "Media\n(mediaID)" as media
+strm -> media: save(mediaID)
+create "Transfer Service" as transfer
+ctrl -> transfer: host(mediaID, consumers{token, priority})
+ctrl --> ch: notify(newMediaAvailable, mediaID, transferServiceEndpoint)
+alt auto-download enabled
+    ch -> transfer: fetchMedia(token, mediaID)
+    transfer --> ch: returnByPriority(mediaStream)
+else manual-download enabled 
+    coach -> ch: showMedia(token)
+    ch -> transfer: fetchMedia(token, mediaID)
+    transfer --> ch: returnByPriority(mediaStream)
+end
+
+
+
+
+@enduml

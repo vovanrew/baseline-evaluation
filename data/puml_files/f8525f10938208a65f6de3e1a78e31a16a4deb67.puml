@@ -1,0 +1,52 @@
+' Blob ID: f8525f10938208a65f6de3e1a78e31a16a4deb67
+' Original Path: /Project/docs/Sprint3/US029/US029-SD-Reengenharia-v2.puml
+' Source: World of Code
+
+@startuml
+
+title US029 - As Project Manager, I want to start a sprint.
+
+autoactivate on
+'autonumber
+
+actor "Project Manager" as projectManager
+participant ": StartSprintRoute" as UI
+participant ": StartSprintController" as Ctrl
+participant ": StartSprintService" as startSprintService
+participant "dto : SprintDTO" as sprintDTO
+participant " : Project" as project
+participant " : SprintDomainService" as sprintDomainService
+participant " : SprintStore" as sprintStore
+participant " : ResourceStore" as resourceStore
+
+
+activate projectManager
+
+
+projectManager -> UI: Asks to start a Sprint
+UI --> Ctrl: startSprint(sprintDTO)
+Ctrl -> startSprintService: startSprint(sprintDTO)
+startSprintService -> project: getProjectTeam()
+project --> startSprintService: projectTeam
+startSprintService -> project: getSprintDuration()
+project --> startSprintService: sprintDuration
+startSprintService -> sprintStore: startSprint(dto.projectID, dto.sprintID, dto.startDate, \n projectTeam, sprintDuration)
+sprintStore -> sprintStore: findAllSprintByProjectID (projectID)
+deactivate
+sprintStore -> sprintStore: findSprintByID (sprintID)
+deactivate
+sprintStore -> sprintDomainService: validateStartDate(startDate)
+sprintDomainService --> sprintStore: true
+resourceStore -> sprintDomainService: validateProjectTeam(startDate, sprintDuration)
+sprintDomainService -> sprintDomainService: getProductOwnerByStartDate(startDate, sprintDuration)
+deactivate
+sprintDomainService -> sprintDomainService: getScrumMasterByStartDate(startDate, sprintDuration)
+deactivate
+sprintDomainService --> sprintStore: true
+sprintStore -> sprintStore: setStartDate(startDate)
+deactivate
+sprintStore --> startSprintService: true
+startSprintService --> Ctrl: true
+Ctrl --> UI: true
+UI --> projectManager: Informs Operation Success
+@enduml

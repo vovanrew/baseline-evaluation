@@ -1,0 +1,112 @@
+' Blob ID: f11dcc34c5a76f3b78c42854e41ece9cdc35b3e4
+' Original Path: /diagram/class.pu
+' Source: World of Code
+
+@startuml
+
+hide empty members
+skinparam shadowing false
+skinparam packageStyle rectangle
+left to right direction
+
+title Zhinahan Classes
+
+package "Zhinahan" as package_zhinahan {
+    package "Core" as package_zhinahan_core {
+        class "Character"     as character {
+            -radical : Radical
+            -char : string
+            --
+            +is?(character : string) : bool
+        }
+        class "Dictionary"    as dictionary {
+            -characters : Array<Character>
+            --
+            +find(character : string) : Character?
+        }
+        class "Radical"      as radical
+        class "Pronunciation" as pronunciation
+        class "Description"   as description
+        class "Explanation"   as explanation
+
+
+        dictionary  "1" o-- "*"    character
+        character   "1" *-- "1"    radical
+        character   "1" *-- "1..*" description
+        description "1" *-- "0..1" pronunciation
+        description "1" *-- "0..*" explanation
+    }
+
+    package "Parser" as package_zhinahan_parser {
+        class "Parser" as parser {
+            -matchers : Array<AbstractLineMatcher>
+            -appendix_detector : AppendixDetector
+            -context : Context
+            --
+            +parse(file : string) : Dictionary
+            --
+            -per_line(line : string, index : int)
+            -parse_line(line : string, index : int)
+        }
+
+        class "LineParser" as line_parser {
+            +parse(context : Context)
+        }
+
+        class "Context" as context {
+            -while_appendix : bool
+            -line  : string?
+            -index : int?
+            --
+            +within_appendix?() : bool
+            +enter_appendix() : void
+            +leave_appendix() : void
+            --
+            +update_position(line : string, index : int) : void
+        }
+
+        class "AppendixDetector" as appendix_detector {
+            +starts_appendix_section?(line : string) : bool
+            +has_leaved_appendix_section?(line : string) : bool
+        }
+
+        package "LineMatchers" as package_zhinahan_parser_line_matchers {
+            abstract class "AbstractLineMatcher" as abstract_line_matcher {
+                +match(context : Context) : MatchResult?
+                +pattern(context : Context) : RexExp
+                +type() : Symbol
+            }
+            class "RadicalLineMatcher"       as radical_line_matcher
+            class "CharacterLineMatcher"     as character_line_matcher
+            class "PronunciationLineMatcher" as pronunciation_line_matcher
+            class "ExplanationLineMatcher"   as explanation_line_matcher
+            class "MatchResult"              as match_result {
+                -matched : MatchData
+                --
+                +type : String
+                +matched() : Hash<String, String>
+            }
+        }
+
+
+        parser *-- context
+        parser *-- appendix_detector
+        parser *-- line_parser
+
+        line_parser *-- abstract_line_matcher
+        line_parser --> context
+        line_parser --> match_result
+
+        abstract_line_matcher --> context
+        abstract_line_matcher --> match_result
+
+        abstract_line_matcher <|-- radical_line_matcher
+        abstract_line_matcher <|-- character_line_matcher
+        abstract_line_matcher <|-- pronunciation_line_matcher
+        abstract_line_matcher <|-- explanation_line_matcher
+    }
+
+    parser -right-> dictionary
+}
+
+@enduml

@@ -1,0 +1,24 @@
+' Blob ID: 7a531aa4cf779afef497f2887b32a70344491c47
+' Original Path: /NanoRepSequence.puml
+' Source: World of Code
+
+@startuml
+participant HostApp
+participant NanoRep
+participant NSURLConnection
+participant NSUserDefaults
+
+HostApp -> NanoRep:(any request)
+alt Check if the session id is stored
+NanoRep -> NSUserDefaults: fetch the session id
+else Send request for session id
+NanoRep -> NSURLConnection
+NSURLConnection --> NanoRep: session id from server
+NanoRep -> NSUserDefaults: store session id
+NanoRep -> NSURLConnection: keep alive request
+NSURLConnection --> NanoRep: keep alive response
+end
+
+NanoRep -> NSURLConnection: (any request)
+NSURLConnection --> HostApp: response for the (any request)
+@enduml

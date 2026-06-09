@@ -1,0 +1,59 @@
+' Blob ID: 6744cc18cdc7f40d2f76aa68fa888cfef630622e
+' Original Path: /solution_design/sequence-settlement-tb-enabled-update-by-id.puml
+' Source: World of Code
+
+@startuml
+
+participant "Mojaloop Adapter" as dfsp #B0D5FF
+note over dfsp
+    Hub operator or
+    DFSP interactions
+end note
+
+box Central-Settlement #FFFFF9
+    participant "**API**" as cl_api
+    participant "__api__ / Handler" as cs_handler
+    participant "Application Layer\n(domain / service / facade)" as cs_domain
+
+note over cl_api
+        NodeJS interface
+        invokes REST API
+    end note
+
+    note over cs_handler
+        JSON request decoded &
+        processed via handler
+    end note
+
+    note over cs_domain
+        Expose service functions &
+        handle database interactions
+    end note
+
+end box
+
+box Storage #F9FFF9
+	participant "TigerBeetle Client" as tb_client #D5E8D4
+	collections "TigerBeetle Cluster" as tb_nodes #D5E8D4
+	database "MySQL" as cl_db #DAE8FC
+end box
+
+autonumber
+group Update Settlement
+    dfsp -> cl_api : //JSON// \n**(settlement data)**
+    cl_api -> cs_handler : Invoke handler
+    cs_handler -> cs_domain : Invoke application layer
+    cs_domain <--> cl_db : Retrieve settlement data \n(excluding accounts)
+    cs_domain <--> tb_client : Retrieve accounts for all //Transfers// \nfor a settlement window
+    cs_domain -> cl_db : Update settlement data \n(excluding accounts)
+    cs_domain -> cs_domain : Settlement state \nprocessing
+    cs_domain -> tb_client : Invoke account creation based on \nsettlement state of each //Transfer//
+    tb_client <--> tb_nodes : Create settlement accounts \n& return result
+    tb_client --> cs_domain : Return settlement result
+    cs_domain <--> cl_db : Update final settlement state \n& return result
+    cs_domain --> cs_handler : Return result
+    cs_handler --> cl_api : Return result
+    cl_api --> dfsp : Return result with \n//**settlementData**//
+end
+
+@enduml

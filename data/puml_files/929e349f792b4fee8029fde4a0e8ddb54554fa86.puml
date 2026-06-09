@@ -1,0 +1,61 @@
+' Blob ID: 929e349f792b4fee8029fde4a0e8ddb54554fa86
+' Original Path: /src/main/resource/有赞/导购/帐号合并/new/导购帐号合并任务创建入口新流程.puml
+' Source: World of Code
+
+@startuml
+'https://plantuml.com/sequence-diagram
+
+hide footbox
+skinparam backgroundColor #EEEBDC
+
+skinparam sequence {
+    LifeLineBackgroundColor grey
+}
+
+autonumber
+autoActivate on
+
+participant "ebiz-salesman" as ebiz
+participant "guide-event" as event
+participant "retail-sales" as sales
+participant "tsp" as tsp
+
+
+ebiz -> ebiz : 监听账号合并消息，执行合并
+return 返回
+ebiz -> ebiz : 定时器扫表[扫描过滤出还未执行完成的明细任务], 并调用相应 processor 执行
+
+alt <font size = 16 color = blue> 未完成 <b>
+    loop <font size = 16 color = blue> tsp 回调执行 <b>
+        ebiz -> ebiz : 返回，等待其他 processor 任务执行
+        return
+    end
+else <font size = 16 color = blue> 完成 <b>
+    ebiz ->o event : 发送账号合并完成消息[一个导购可能在 N 多家店有身份，那么将发送出 N 条消息]
+    return ebiz-salesman 所有流程结束
+
+    event -> event : 开始消息处理流程
+
+    event -> event : 检查 apollo 是否开启帐号合并开关
+    return
+
+    event -> event : 检查 shopping_guide_event_task 表是否已经存在此任务
+    note left
+        以 task_id 作为幂等键, task_id = SG:AM-rootKdtId-fromUId-toUId
+    end note
+    return
+
+    event -> event : 创建帐号合并任务，将任务写入表
+    note left
+        1.shopping_guide_event_task
+        2.shopping_guide_event_detail_task
+        3.shopping_guide_event_exec_task
+    end note
+
+    return
+
+    event -> tsp : 创建 30 分钟延时任务，30分钟后检查并执行该任务
+    return
+    return 结束
+end
+@enduml

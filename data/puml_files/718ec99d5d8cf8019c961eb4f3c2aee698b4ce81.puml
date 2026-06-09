@@ -1,0 +1,102 @@
+' Blob ID: 718ec99d5d8cf8019c961eb4f3c2aee698b4ce81
+' Original Path: /docs/ex43ClassDiagram.puml
+' Source: World of Code
+
+@startuml
+
+package oop.exercises.ex43 #DDD{
+
+    class Application{
+        - websiteGenerator : WebsiteGenerator
+
+        + {static} main(String[] args) : void
+    }
+
+    class WebsiteGenerator {
+        - {static} reader : DataReader
+        - {static} loader : FileLoader
+        - siteName : String
+        - authorName : String
+        - jsFile : boolean
+        - cssFile : boolean
+        __Constructors__
+        + WebsiteGenerator() : WebsiteGenerator
+        + WebsiteGenerator(String siteName, String authorName, boolean jsFile, boolean cssFile) : WebsiteGenerator
+        __Accessors/Mutators__
+        + getSiteName() : String
+        + setSiteName(String siteName) : void
+        + getAuthorName() : String
+        + setAuthorName(String authorName) : void
+        + getJsSetting() : boolean
+        + setJsSetting(boolean jsFile) : void
+        + getCssSetting() : boolean
+        + setCssSetting(boolean cssFile) : void
+        + setSettingsThroughConsole() : void
+        __Data Input__
+        - promptSiteName() : String
+        - promptAuthor() : String
+        - promptJsFolder() : boolean
+        - promptCssFolder() : boolean
+        __Methods__
+        + generate() : String
+        - makeWebsiteDirectory() : void
+        - makeSiteNameDirectory() : String
+        - makeHtmlFile() : String
+        - makeJsFile() : String
+        - makeCssFile() : String
+        - buildHtmlString() : String
+    }
+
+    Application *- WebsiteGenerator
+}
+
+package oop.exercises.util #CCC {
+
+    class ConsoleDataReader {
+        - in : Scanner
+        __Methods__
+        + readString(String prompt) : String
+        + readInt(String prompt) : int
+        + readIntValidated(String prompt) : int
+        + readIntValidated(String prompt, String errorMessage) : int
+        + readDouble(String prompt) : double
+        + readDoubleValidated(String prompt): double
+        + readDoubleValidated(String prompt, String errorMessage) : double
+        + readNDoubles(String prompt, int n) : double[]
+        + readNDoublesValidated(String prompt, int n) : double[]
+        + readNDoublesValidated(String prompt, String errorMessage, int n) : double[]
+        + readIntValidatedWithCondition(String prompt, String errorMessage, IntPredicate condition) : int
+    }
+
+    class FileLoader {
+        - searchDir : File
+        __Constructors__
+        + FileLoader() : FileLoader
+        + FileLoader(String dir) : FileLoader
+        + FileLoader(File dir) : FileLoader
+        __Accessors/Mutators__
+        + getSearchDir() : File
+        __Methods__
+        + getFile(String fileName) : File
+        + getFile(File file) : File
+        + getPath(String fileName) : Path
+        + getPath(File file) : Path
+        + getBufferedReader(String fileName) : BufferedReader
+        + getBufferedReader(File file) : BufferedReader
+        + getBufferedWriter(String fileName) : BufferedWriter
+        + getBufferedWriter(File file) : BufferedWriter
+        + getBufferedWriter(String fileName, boolean append) : BufferedWriter
+        + getBufferedWriter(File file, boolean append) : BufferedWriter
+        + getLines(String fileName) : Stream<String>
+        + getLines(File file) : Stream<String>
+        + toString() : String
+    }
+
+    note "No-args constructor uses\nSystem.getProperty(''user.dir'')" as emptyConstructorNote
+    FileLoader .. emptyConstructorNote
+
+    WebsiteGenerator *-- ConsoleDataReader
+    WebsiteGenerator *-- FileLoader
+}
+
+@enduml

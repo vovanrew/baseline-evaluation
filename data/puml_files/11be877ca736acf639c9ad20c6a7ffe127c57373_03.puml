@@ -1,0 +1,32 @@
+' Blob ID: 11be877ca736acf639c9ad20c6a7ffe127c57373
+' Original Path: /Documentation/kratos.pu
+' Source: World of Code
+
+@startuml
+
+title Kubectl Request
+
+actor kubectl
+participant "K8s Auth Proxy" as k8auth
+participant "K8s API Server" as k8api
+
+note over kubectl
+Set the correct cluster with
+server pointing to the k8auth
+in the kubectl config
+end note
+kubectl -> k8auth: GET: https://k8s.dolittle.cloud/api/pods\nHeader: { Authentication: Bearer <token> }
+k8auth -> Hydra: GET: http://hydra.system-auth.svc.cluster.local/userinfo
+
+alt If good token
+    Hydra -> k8auth: Status 200 { claims... }
+    k8auth -> k8api: Impersonate: Hydra-User-Info\nGET: https://<local-cluster-url>/api/pods 
+    k8api -> k8auth: Status 200 (results)
+    k8auth -> kubectl: Status 200 (results)
+
+else If bad/no token
+    Hydra -> k8auth: Status 401
+    k8auth -> kubectl: Status 401
+end
+
+@enduml

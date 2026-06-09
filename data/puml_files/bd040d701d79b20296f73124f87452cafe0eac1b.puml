@@ -1,0 +1,43 @@
+' Blob ID: bd040d701d79b20296f73124f87452cafe0eac1b
+' Original Path: /app-diagrams/sequence/user/signup.wsd
+' Source: World of Code
+
+@startuml
+
+actor User
+participant "Index" as Index
+participant "User\nController" as UserController
+database Database
+
+activate User
+
+        
+    User -> Index: GET: /users/signup
+    activate Index
+        activate UserController
+    Index -> UserController: renderSignup()
+    UserController -> UserController: render(index)
+    Index <- UserController: display signup
+    deactivate UserController
+    Index -> Index:  POST: /users/signup
+    Index -> UserController: async signup()
+    activate UserController
+    UserController -> Database: User.findOne(email)
+    alt user not found
+    activate Database 
+    UserController <- Database: return false
+    deactivate Database
+    alt accept
+    UserController <- UserController: User.create()
+    Index <- UserController: display home
+    deactivate UserController
+    else refuse
+    Index <- UserController: display home
+    activate UserController
+    end
+    else user already exist 
+    Index <- UserController: show error
+    deactivate UserController
+    end
+
+@enduml

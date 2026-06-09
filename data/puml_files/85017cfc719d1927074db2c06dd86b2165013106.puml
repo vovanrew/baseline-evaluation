@@ -1,0 +1,114 @@
+' Blob ID: 85017cfc719d1927074db2c06dd86b2165013106
+' Original Path: /src/doc/modelado.puml
+' Source: World of Code
+
+@startuml
+
+class Comercio {
+	
+	- Productos[] productos;
+	- Historial [] operaciones;
+	
+	+ public crearInsumo();
+	+ public crearServicioDeArmado();
+	+ public crearServicioDeReparacion();
+	+ public buscarProductoPorNombre();
+	+ public modificarPrecioListaProducto ();	
+	+ public addOperacion();
+	+ public mostrarHistorialDeOperaciones();
+	+ public mostrarProductoDisponibleParaVenta();
+	
+ 
+}
+
+
+abstract class Productos{
+
+	# String nombre;
+	# double precioLista;
+	
+	{abstract} clonar()
+	{abstract} precioDeVenta()
+	{abstract} devolverMontoFacturacion()
+
+}
+
+class Operaciones{
+ 	
+ 	- String nombre;
+ 	- String fechaVenta;
+ 	- double precioLista;
+ 	
+}
+
+
+class Insumos implements Matematica{
+
+	- String tipo;
+	- Double procentajeGanancia;
+	
+	+ devolverMontoFacturacion();
+
+}
+
+abstract class Servicios{
+	
+	# Double horasOcupaServicio;
+	
+	{abstract} devolverMontoFacturacion();
+
+
+}
+
+class ServicioArmado{
+
+}
+
+class ServicioReparacion{
+	
+	- Dificultad dificultad;
+	
+}
+
+enum Dificultad{
+
+	SIMPLE
+	NORMAL
+	COMPLEJO
+	AVANZADO
+	EXPERTO
+	
+	- String descripcion;
+	- int nivel;
+}
+
+enum Tipo{
+
+	PERIFERICO
+	HARDWARE
+	LIMPIEZA
+	
+	- String descripcionTipo;
+	- int nivelTipo;
+}
+
+ServicioReparacion ..left Dificultad
+Insumos ..down Tipo
+
+interface Matematica{
+	
+	+ Double resultado;
+	+ Double delta;
+
+	public default sumarPorcentaje();
+}
+
+Comercio "1" -- "1..*" Productos
+Comercio "1" -- "1..*" Operaciones
+
+Productos <|-- Insumos
+Productos <|-- Servicios
+Servicios <|-- ServicioArmado
+Servicios <|-- ServicioReparacion
+
+@enduml

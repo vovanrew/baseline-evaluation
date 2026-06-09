@@ -1,0 +1,36 @@
+' Blob ID: 93d6d0057a687cb6d47f69db68badb643308ad7e
+' Original Path: /plantuml/healthcloud/rwj-healthcloud-oauth2-saml.plantuml
+' Source: World of Code
+
+@startuml
+
+    title 
+        OAuth2 Authorization Code Grant Workflow
+        //with SAML2 Post Binding for user provisioning//
+    end title
+
+    participant "HealthCloud" #29A745
+    participant "Embedded Browser" #29A745
+    box "HealthSphere" #LightBlue
+    participant "Apigee Edge" #FFC107
+    participant "Orion Health Platform" as OHP #FFC107
+    end box
+
+    "HealthCloud" -> "Embedded Browser"
+    "Embedded Browser" -> "Apigee Edge" ++ : GET ""/authorize?response_type=code""
+    return //302// ""https://**<redirect_url>** (**SAML** OR **token**)""
+    
+    group SAML Authentication
+    "Embedded Browser" -> "Apigee Edge" ++ : POST ""/oauth2/saml""
+        "Apigee Edge" -> "OHP" ++ : POST ""/login-auth/saml?path=/actor/current""
+        "OHP" -> "OHP" : Verify SAMLResponse
+        return
+        "Apigee Edge" -> "Apigee Edge" : Generate authorization code
+    return //302// ""https://**<redirect_url>**?code=<code>""
+    end
+
+
+    "HealthCloud" -> "Apigee Edge" ++ : POST ""/token?code=<code>""
+    return 200 access_token + refresh_token
+
+@enduml

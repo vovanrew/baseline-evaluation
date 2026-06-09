@@ -1,0 +1,91 @@
+' Blob ID: b9874da413c8914252693b1c746b480ab2b06a3a
+' Original Path: /diagrams/diagrams_src/czsq0005.puml
+' Source: World of Code
+
+@startuml
+actor User
+participant "executor:AnalysisExecutor" as Executor
+collections ":Analysis" as Analysis
+participant ":CountryCaseAPIGetter" as CountryCaseAPIGetter
+participant ":CountryDeathAPIGetter" as CountryDeathAPIGetter
+participant ":CountryPopulationAPIGetter" as CountryPopulationAPIGetter
+participant ":APIInformationGetter" as APIInformationGetter
+actor "Covid API" as API
+activate API
+autoactivate on
+User -> Executor: runAnalysis()
+opt At least one country selected for analysis
+    Executor -> Analysis: analyze()
+        alt CasesPerCapitaAnalysis
+            group par
+                Analysis -> CountryCaseAPIGetter: getCases()
+                    CountryCaseAPIGetter -> CountryCaseAPIGetter: getDataURL()
+                    return API Endpoint URL
+                    CountryCaseAPIGetter -> API: API Call
+                    return API Information
+                return Cases in target Countries
+                Analysis -> CountryPopulationAPIGetter: getPopulation()
+                    CountryPopulationAPIGetter -> CountryPopulationAPIGetter: getDataURL()
+                    return API Endpoint URL
+                    CountryPopulationAPIGetter -> API: API Call
+                    return API Information
+                return Population of target Countries
+            end
+        else TotalCaseAnalysis
+            Analysis -> CountryCaseAPIGetter: getCases()
+                CountryCaseAPIGetter -> CountryCaseAPIGetter: getDataURL()
+                return API Endpoint URL
+                CountryCaseAPIGetter -> API: API Call
+                return API Information
+            return Cases in target Countries
+        else MajorityCaseSexPerCapitaAnalysis
+            group par
+                Analysis -> CountryCaseAPIGetter: getMaleCases()
+                    CountryCaseAPIGetter -> CountryCaseAPIGetter: getDataURL()
+                    return API Endpoint URL
+                    CountryCaseAPIGetter -> API: API Call
+                    autoactivate off
+                    return API Information
+
+                CountryCaseAPIGetter --> Analysis: Male cases in target Countries
+
+                Analysis -> CountryCaseAPIGetter: getFemaleCases()
+                        note right of CountryCaseAPIGetter: A call to the endpoint has\nalready been made so\nanother is not necessary
+                return Female cases in target Countries
+                autoactivate on
+                Analysis -> CountryPopulationAPIGetter: getMalePopulation()
+                    CountryPopulationAPIGetter -> CountryPopulationAPIGetter: getDataURL()
+                    return API Endpoint URL
+                    CountryPopulationAPIGetter -> API: API Call
+                    autoactivate off
+                    return API Information
+                    autoactivate on
+                autoactivate off
+                CountryPopulationAPIGetter --> Analysis: Male population in target Countries
+                Analysis -> CountryPopulationAPIGetter: getFemalePopulation()
+                    note right of CountryPopulationAPIGetter: A call to the endpoint has\nalready been made so\nanother is not necessary
+                autoactivate on
+                return Female population in target Countries
+            end
+        else DeathsPerCapitaAnalysis
+            group par
+                Analysis -> CountryDeathAPIGetter: getDeaths()
+                    CountryDeathAPIGetter -> CountryDeathAPIGetter: getDataURL()
+                    return API Endpoint URL
+                    CountryDeathAPIGetter -> API: API Call
+                    return API Information
+                return Deaths in target Countries
+                Analysis -> CountryPopulationAPIGetter: getPopulation()
+                    CountryPopulationAPIGetter -> CountryPopulationAPIGetter: getDataURL()
+                    return API Endpoint URL
+                    CountryPopulationAPIGetter -> API: API Call
+                    return API Information
+                return Population of target Countries
+            end
+        end
+    return Analysis Result
+end
+autoactivate off
+Executor --> User: Finish (void)
+note over Executor: Per country analysis results\nare stored for later rendering
+@enduml

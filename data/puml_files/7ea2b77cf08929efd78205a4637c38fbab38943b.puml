@@ -1,0 +1,56 @@
+' Blob ID: 7ea2b77cf08929efd78205a4637c38fbab38943b
+' Original Path: /app/src/sequence/vod/PackageVodDetail.puml
+' Source: World of Code
+
+@startuml
+
+title Package Vod Detail\n
+
+box "STB\n"
+participant PackageVodDetail
+participant VodProductManager
+end box
+
+activate PackageVodDetail
+PackageVodDetail->MBS: get package vod detail infos
+activate MBS
+MBS-->PackageVodDetail: package vod detail infos
+deactivate MBS
+PackageVodDetail->VodProductManager: getProductButtons(productList)
+activate VodProductManager
+VodProductManager-->PackageVodDetail : product buttons
+deactivate VodProductManager
+
+opt getting Push for vod purchased
+    MBS -> PackageVodDetail : purchasePush(offerId)
+    activate MBS
+    deactivate MBS
+    PackageVodDetail->MBS: get user discount intofs
+    activate MBS
+    MBS-->PackageVodDetail: discount/cash coupon, membership point
+    deactivate MBS
+
+    opt vod product contains offerId
+        PackageVodDetail -> MBS : get package vod detail infos
+        activate MBS
+        MBS --> PackageVodDetail: package vod detail infos
+        deactivate MBS
+        PackageVodDetail->VodProductManager: getProductButtons(productList)
+        activate VodProductManager
+        VodProductManager-->PackageVodDetail : product buttons
+        deactivate VodProductManager
+    end
+end
+
+skinparam legendBackgroundColor #00000000
+legend  left
+When entering the single package detail
+|= <#EEEEEE> Function |=<#EEEEEE> Interface |
+| get package vod detail infos | get package vod detail (GET /service/packagedetail) | row |
+| get user discounts | get discount infos (GET /service/retrieveowncouponhomeinfo) | row |
+
+When vod is purchased. Getting push message from MBS
+|= <#EEEEEE> Function |=<#EEEEEE> value |
+| purchasePush | offer id | row |
+endlegend
+@enduml

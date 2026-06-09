@@ -1,0 +1,55 @@
+' Blob ID: 3652f66c34b5ef230aa7748e43db21ec766599eb
+' Original Path: /wp4/assets/use-cases/uml/pipeline/sequence.pu
+' Source: World of Code
+
+@startuml
+
+
+actor User
+
+control JobManager
+participant "Process/Application" as Nodes
+participant ESDM
+control "Post Processing" as post
+
+database "Storage System" as storage
+actor Observer
+
+== Observer ==
+
+Observer -> Observer: collects observations
+Observer -> storage: (may write directly)
+Observer -> ESDM: write observation t
+ESDM -> ESDM: (transform for efficiency)
+ESDM -> storage: write container for observation t
+
+
+== Simulation Runs ==
+JobManager -> JobManager: periodically submit job(IN=t, OUT)
+JobManager -> Nodes: allocates resources and calls
+
+Nodes -> ESDM: read IN=x
+ESDM -> storage: read 
+ESDM <- storage: return 
+Nodes <- ESDM: return
+
+Nodes -> Nodes: compute
+activate Nodes
+
+Nodes -> ESDM: write async OUT=y
+
+== Value-added products ==
+
+ESDM -> post: make available
+post -> post: perform analysis
+post -> storage: (may write directly)
+post -> ESDM: return result
+ESDM -> Nodes: return
+
+...multiple iterations...
+
+== Finalise == 
+
+storage -> User: OUT files become visible
+
+@enduml

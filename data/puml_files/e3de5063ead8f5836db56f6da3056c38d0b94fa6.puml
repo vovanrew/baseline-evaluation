@@ -1,0 +1,54 @@
+' Blob ID: e3de5063ead8f5836db56f6da3056c38d0b94fa6
+' Original Path: /SELAIN SISTEM/UML/SEQUENCE/administrator/editsubmenu.puml
+' Source: World of Code
+
+@startuml
+
+autonumber
+hide footbox
+title Mengubah SubMenu
+
+Actor Administrator
+boundary Dashboard_V
+boundary Submenu_V
+boundary EditSubmenu_V
+control Admin_C
+control Menu_C
+Entity Submenu_E
+
+Admin_C --> Dashboard_V: load->view()
+Dashboard_V --> Administrator: Halaman Dashboard
+Administrator --> Dashboard_V: klik menu Submenu management
+Dashboard_V --> Menu_C: Submenu()
+Menu_C --> Submenu_E:
+    
+    Submenu_E --> Menu_C:
+    Menu_C --> Submenu_V: load->view()
+    Submenu_V --> Administrator: Halaman Submenu management
+
+Administrator --> Submenu_V: klik tombol EditSubmenu
+Submenu_V --> Menu_C: EditSubmenu()
+Menu_C --> EditSubmenu_V: load->view()
+EditSubmenu_V --> Administrator: Halaman EditSubmenu
+
+Administrator --> EditSubmenu_V: Mengisi Inputan dan klik tombol edit
+    note right of Administrator
+        Inputan Submenu
+            end note
+EditSubmenu_V --> Menu_C: EditSubmenu()
+Menu_C --> Submenu_E:
+
+alt isValid() case
+    
+    Submenu_E --> Menu_C: isValid()
+    Menu_C --> Submenu_V: load->view()
+    Submenu_V --> Administrator: Halaman Submenu
+
+else isInvalid() case
+    
+    Submenu_E --> Menu_C: isInValid()
+    Menu_C --> EditSubmenu_V: load->view()
+    EditSubmenu_V --> Administrator: Halaman Edit Submenu
+
+end
+@enduml

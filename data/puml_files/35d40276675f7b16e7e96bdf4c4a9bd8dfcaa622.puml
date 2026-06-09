@@ -1,0 +1,86 @@
+' Blob ID: 35d40276675f7b16e7e96bdf4c4a9bd8dfcaa622
+' Original Path: /62-DataLake/Administration/Documentation/uml/UpdateRelationshipEventHandler.puml
+' Source: World of Code
+
+@startuml
+skinparam BoxPadding 10
+skinparam SequenceTitleFontSize 25
+skinparam SequenceGroupHeaderFontSize 15
+skinparam SequenceGroupFontSize 15
+skinparam SequenceGroupBodyBackgroundColor transparent
+skinparam Padding 4
+
+
+title: Update Relationship Event Handler UML
+
+box "SNS" #palevioletred
+    participant "Event Dispatcher Topic" as EventDispatcherTopic
+end box
+box "Lambda" #darkorange
+	participant "Update Relationship Event Handler" as EventHandler
+end box
+box "DynamoDB" #royalblue
+    participant "Relationship Owner Table" as RelationshipOwnerTable
+	participant "Relationship Commitment Table" as RelationshipCommitmentTable
+end box
+
+EventDispatcherTopic ++
+
+EventDispatcherTopic -> EventHandler ++: filter on \n Relationship::Update Event
+    EventDispatcherTopic --
+
+    EventHandler -> EventHandler ++: [SessionDecorator.puml]
+        EventHandler --
+    EventHandler -> EventHandler ++: [TrackEventHandlerWrapper.puml]
+        EventHandler --
+
+    EventHandler -> EventHandler ++: extract Message from Event
+        EventHandler --
+    EventHandler -> EventHandler ++: validate Message
+        EventHandler -> EventHandler ++: validate event-name
+            EventHandler --
+        EventHandler -> EventHandler ++: validate event-version
+            EventHandler --
+        EventHandler -> EventHandler ++: validate stage
+            EventHandler --
+    EventHandler --
+    EventHandler -> RelationshipOwnerTable ++: Get Existing Relationship
+        EventHandler <<-- RelationshipOwnerTable
+    RelationshipOwnerTable --
+    EventHandler -> EventHandler ++: Generate Relationship Dict
+        EventHandler -> EventHandler ++: Combine Existing Relationship \n Attributes With New Changes
+            EventHandler --
+        opt if missing required schema key
+            EventHandler -> EventHandler: <color:red>**Error Handling**</color>
+        end
+    EventHandler --
+    EventHandler -> EventHandler ++: Get AdditionalAttributes
+    EventHandler --
+    alt if Relationship contains description and AdditionalAttributes \n doesn't contain completed signal
+        EventHandler -> RelationshipOwnerTable ++: update Relationship
+            EventHandler <<-- RelationshipOwnerTable
+        RelationshipOwnerTable --
+    else
+        EventHandler -> EventHandler: <color:red>**Error Handling**</color>
+    end
+
+    EventHandler -> EventHandler ++: Generate commitments to add or delete
+    EventHandler --
+    alt if Commitment Operations Exist
+        EventHandler -> EventHandler ++: Generate starting indexes based on AdditionalAttributes
+            EventHandler --
+        EventHandler -> RelationshipCommitmentTable ++: Batch_Write() RelationshipCommitments
+            EventHandler <<-- RelationshipCommitmentTable
+        RelationshipCommitmentTable --
+    else
+        EventHandler -> EventHandler: <color:red>**Error Handling**</color>
+    end
+
+    EventHandler -> EventHandler ++: Track Event Handler Wrapper
+        EventHandler --
+
+    EventHandler -> EventHandler ++: Error Handler Wrapper
+        EventHandler --
+
+EventHandler --
+@enduml

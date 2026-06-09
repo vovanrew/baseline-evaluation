@@ -1,0 +1,112 @@
+' Blob ID: 0e599e9c6cb2065031486bec13f4c265321bbdcd
+' Original Path: /class.uml
+' Source: World of Code
+
+@startuml
+
+class MainWindow {
+	-QTimer updater;
+	-QTimer ticker;
+	-QElapsedTimer timer;
+	-SceneManager scene;
+	--
+	+void paintEvent(QPaintEvent event);
+	--slots--
+	+void tick();
+	+void nextFrame();
+}
+
+class SceneBuilder {
+	+void setTable(Table);
+	+void addBall(Ball);
+	+void resetBalls();
+	+SceneManager build();
+}
+
+abstract class Creator <<abstract>> {
+	+SceneManager makeScene(QJsonObject spec)
+	#{abstract} Table makeTable(QJsonObject spec);
+	#{abstract} Ball makeBall(QJsonObject spec);
+}
+
+class SimpleCreator {
+	#Table makeTable(QJsonObject spec);
+	#Ball makeBall(QJsonObject spec);
+}
+
+together {
+	interface Graphic <<interface>> {
+		+{abstract} void draw(QPainter painter);
+	}
+
+	class SceneManager {
+		-Table table;
+		-vector<Ball> balls;
+		-QPoint offset;
+
+		QSize viewPort();
+		void tick(float dtime);
+		void draw(QPainter painter);
+	}
+}
+
+abstract class Table <<abstract>> {
+	+QSize dimension;
+	+float surface_friction;
+}
+
+abstract class Ball <<abstract>> {
+	+float mass;
+	+QVector2D position;
+	+QVector2D velocity;
+	+float radius;
+}
+
+class SimpleTable {
+	-QColor color;
+	+void draw(QPainter painter);
+}
+
+class SimpleBall {
+	-QColor color;
+	+void draw(QPainter painter);
+}
+
+class Key #ffee77 {
+	+public
+	#protected
+	-private
+	+publiic method()
+	#protected method()
+	-private method()
+}
+
+skinparam Class {
+	BackgroundColor<<abstract>> PaleGreen
+	BackgroundColor<<interface>> PowderBlue
+}
+
+hide stereotype
+hide circle
+hide empty members
+
+MainWindow			*---		SceneManager 	 
+
+Creator				--->		SceneBuilder
+Creator				<|..		SimpleCreator
+SimpleCreator		...>		SimpleTable
+SimpleCreator		...>		SimpleBall
+
+SceneBuilder		...>		SceneManager
+
+Graphic				<|.left.	SceneManager
+SceneManager		*---		Table
+SceneManager		*---		Ball
+
+Table				<|--		SimpleTable 
+Ball				<|--		SimpleBall 
+
+Graphic				<|..		Table 
+Graphic				<|..		Ball 
+
+@enduml

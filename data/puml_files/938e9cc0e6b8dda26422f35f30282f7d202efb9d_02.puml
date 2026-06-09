@@ -1,0 +1,74 @@
+' Blob ID: 938e9cc0e6b8dda26422f35f30282f7d202efb9d
+' Original Path: /puml/uml-seq.plantuml
+' Source: World of Code
+
+@startuml
+actor Operator as op
+participant "<U+00ab>Boundary<U+00bb> MakerUI" as b
+participant "<U+00ab>Control<U+00bb> Maker" as c
+participant "<U+00ab>Entity<U+00bb> Request" as er
+participant "<U+00ab>Entity<U+00bb> Passport" as ep
+
+
+op -> b : 1: Login
+activate b
+b -> b: 1.1: Render
+activate b
+b -> c : 1.2: Pass Credentials
+activate c
+c -> c: 1.2.1: Evaluate
+
+alt user exists
+activate c
+c -> er: 1.2.2.1: getRequest()
+activate er
+er --> c: 1.2.2.2: Got requests
+deactivate er
+deactivate c
+c --> b: 1.3: Return requests
+b --> op: 2: Render requests
+
+else login invalid
+c --> b: 1.3: Login invalid
+deactivate b
+deactivate c
+b --> op: 2: Print "Invalid login"
+deactivate b
+destroy op
+
+end alt
+
+loop n times
+
+alt do Print Passport
+
+op -> b: 3: Print passport
+activate b
+
+b -> c: 3.1: Print passport
+
+ref over c, er, ep
+  Print passsport
+end ref
+
+c --> b: Printer State
+b --> op: Printed
+deactivate b
+
+else do Edit Passport
+op -> b: 3: Edit Passport
+activate b
+b -> c: 3.1: Get passport data
+activate c
+c -> ep: 3.1.1: getPassport()
+activate ep
+ep --> c: 3.1.2: Passport
+deactivate ep
+c --> b: 3.2: Edit Passport
+deactivate c
+b --> op: 4: Password edited
+deactivate b
+end
+
+end
+@enduml

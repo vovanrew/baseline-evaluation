@@ -1,0 +1,104 @@
+' Blob ID: 812c72e212c80ea02061a6864f5fd4c6fa26f517
+' Original Path: /docs/SprintB/US/US8/US8_CD_v2.puml
+' Source: World of Code
+
+@startuml
+
+
+class Administrator
+{
+  --
+  +createClinical(idLaboratory, name, address, phoneNumber, tin, testTypes)
+  +saveClinical(clinical)
+  -validate(clinical)
+}
+
+class Clinical
+{
+  -String idLaboratory
+  -String name
+  -String address
+  -String phoneNumber
+  -String tin
+  -String[] testTypes
+  --
+  +Client(idLaboratory, name, address, phoneNumber, tin, testTypes)
+}
+
+class Employee{
+  -String idEmployee
+  -String name
+  -String function
+  -String phoneNumber
+  -String email
+  -String address
+  -String soc
+}
+
+class TestType {
+  -String type
+  -String collectingMethods
+  --
+  +getTestType()
+}
+
+class CreateClinicalAnalysisLaboratoryUI {
+}
+
+class CreateClinicalController {
+  --
+  +createClinical(idLaboratory, name, address, phoneNumber, tin, testTypes)
+  +saveClinical()
+}
+
+class Platform {
+  --
+  +getClinicals()
+  +addClinical(clinical)
+}
+
+class ClinicalStore {
+  +getClinicals()
+  +addClinicals()
+}
+
+
+class TestTypeMapper {
+ +List<TestTypeDTO>toDTO(List<TestType>list)
+ +TestTypeDTO toDTO(TestType obj)
+}
+
+class TestTypeDTO {
+ -type
+ -collectingMethods
+ --
+ +TestTypeDTO(type, collectingMethods)
+}
+
+class TestTypeStore{
+ +createTestType(type, collectingMethods)
+ +validateTestType(tt)
+ +saveTestType(tt)
+ +addTestType(tt)
+ +getTestType(tt)
+}
+
+
+CreateClinicalAnalysisLaboratoryUI ..> CreateClinicalController
+CreateClinicalController ..> Administrator
+Administrator "1" --> "*" TestType : create
+Administrator "1" --> "*" Clinical : create
+Administrator "1" --|> "*" Employee : is
+Clinical "1" --> "1" TestType : conducts
+Employee --> Platform : uses
+CreateClinicalController ..> Platform
+Platform ..> ClinicalStore
+CreateClinicalAnalysisLaboratoryUI ..> TestTypeDTO
+CreateClinicalController ..> TestTypeMapper
+TestTypeMapper ..> TestTypeDTO
+CreateClinicalController ..> TestTypeDTO
+TestTypeMapper ..> TestTypeStore
+CreateClinicalController ..> TestTypeStore
+
+
+@enduml

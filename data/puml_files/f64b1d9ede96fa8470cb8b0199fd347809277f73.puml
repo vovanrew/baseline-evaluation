@@ -1,0 +1,47 @@
+' Blob ID: f64b1d9ede96fa8470cb8b0199fd347809277f73
+' Original Path: /pojoker-cassandra/docs/store_sequence.puml
+' Source: World of Code
+
+@startuml
+Actor Client
+participant Service1
+note right of Service1
+SessionFactory
+one per node
+endnote
+
+participant Service2
+note right of Service2
+Session
+one per requestl
+endnote
+
+group model check
+    Client -> Service1 : register(Class<Pojo>)
+    Service1 -> Service1 : checkModel
+    activate Service1
+    Service1 -> Service1 : createModelForPojo
+    alt mode="create"
+        alt model exists
+            Service1 --> Service1 : throw exception
+        else
+            Service1 -> Service1 : createModelInDB
+        end
+    else mode="drop-create"
+        Service1 -> Service1: dropModelInDB
+        Service1 -> Service1 : createModelInDB
+    else mode="update"
+        Service1 -> Service1: getModelDeltaInDB
+        Service1 -> Service1 : updateModelInDB
+    else mode="none"
+        Service1 -> Service1 : checkModelInDB
+        alt model differs
+            Service1 --> Service1 : throw exception
+        end
+    end
+end
+
+Client -> Service2 : store(pojo)
+Service2 -> Service2 : getDelta(pojo)
+
+@enduml

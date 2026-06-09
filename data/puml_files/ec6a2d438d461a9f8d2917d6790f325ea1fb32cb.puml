@@ -1,0 +1,62 @@
+' Blob ID: ec6a2d438d461a9f8d2917d6790f325ea1fb32cb
+' Original Path: /src/main/resource/有赞/导购/导购任务重构/导购任务启动.puml
+' Source: World of Code
+
+@startuml
+'https://plantuml.com/sequence-diagram
+hide footbox
+skinparam backgroundColor #EEEBDC
+autoActivate on
+autonumber
+
+skinparam sequence {
+ArrowColor black
+ActorBorderColor black
+LifeLineBorderColor black
+LifeLineBackgroundColor #8CCEF1
+
+ParticipantBorderColor black
+ParticipantBackgroundColor #8CCEF1
+'ParticipantFontName Impact
+ParticipantFontSize 15
+ParticipantFontColor black
+
+ActorBackgroundColor #8CCEF1
+ActorFontColor black
+ActorFontSize 15
+ActorFontName Aapex
+}
+
+
+actor "任务开始 nsq 消息" as nsq
+'Participant NsqClient as nsqClient
+Participant GuideTaskStartListener as guideTaskStartListener
+Participant GuideTaskStartProcessor as guideTaskStartProcessor
+Participant GuideTaskStartDomainService as guideTaskStartDomainService
+Participant GuideTaskStartStrategy as guideTaskStartStrategy
+Participant ShoppingGuideReadApi as shoppingGuideReadApi
+Participant GuideTaskRepository as guideTaskRepository
+Participant GuideTaskDataRepository as guideTaskDataRepository
+
+
+nsq -> guideTaskStartListener : 监听任务开始消息
+
+guideTaskStartListener -> guideTaskStartProcessor : 开始处理
+
+guideTaskStartProcessor -> guideTaskRepository : 查询任务
+
+guideTaskStartProcessor -> guideTaskStartDomainService : 开始任务
+
+guideTaskStartDomainService -> guideTaskStartStrategy : 构建任务
+
+guideTaskStartStrategy -> shoppingGuideReadApi : 根据部门查询导购
+
+guideTaskStartStrategy -> guideTaskStartStrategy : 根据导购进行任务分配
+
+group Transaction
+    guideTaskStartDomainService -> guideTaskDataRepository : 保存分配给导购的任务
+    guideTaskStartDomainService -> guideTaskRepository : status flow 任务状态流转至 已启动
+    guideTaskStartDomainService -> guideTaskDataRepository : 任务流转为执行中
+end group
+
+@enduml

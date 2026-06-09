@@ -1,0 +1,43 @@
+' Blob ID: b170e1cd17bb0a6107eba69c4f95170b27418fe2
+' Original Path: /doc/bufr_uml/CreateQuerySet.puml
+' Source: World of Code
+
+@startuml
+hide footbox
+skinparam dpi 300
+skinparam SequenceActorBorderThickness 2
+skinparam SequenceActorBorderColor #firebrick
+skinparam ActorBackgroundColor #lightyellow
+skinparam ParticipantBackgroundColor #lightyellow
+skinparam ParticipantBorderThickness 2
+skinparam ParticipantBorderColor #firebrick
+
+autonumber
+
+actor User
+participant QuerySet
+participant QueryParser
+participant Tokenizer
+
+create QuerySet
+User -> QuerySet : QuerySet()
+User -> QuerySet : add("longitude", "*/CLON")
+QuerySet -> QueryParser : parse(queryString)
+activate QueryParser
+    QueryParser -> Tokenizer : tokenize(queryString)
+    Tokenizer --> QueryParser : tokens
+
+    loop all sub-queries
+        create Query
+        QueryParser -> Query : Query()
+
+        loop all components
+            create QueryComponent
+            QueryParser -> QueryComponent : QueryComponent()
+            QueryParser -> Query : push_back(component)
+        end
+    end
+
+    QueryParser --> QuerySet : queries
+deactivate QueryParser
+@enduml

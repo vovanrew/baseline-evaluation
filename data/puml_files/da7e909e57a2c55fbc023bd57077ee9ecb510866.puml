@@ -1,0 +1,56 @@
+' Blob ID: da7e909e57a2c55fbc023bd57077ee9ecb510866
+' Original Path: /docs/sprint_003/US031/US031-SD.puml
+' Source: World of Code
+
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+autoactivate on
+
+Actor "Team Member" as ACTOR
+activate ACTOR
+Participant ":CreateTaskUI" as UI
+Participant ":CreateTaskController" as CreateTaskController
+Participant ":DataManagement" as DataManagement
+Participant "projectStore : ProjectStore" as ProjectStore
+Participant "project : Project" as Project
+'Participant "sprint : Sprint" as Sprint
+'Participant "sprintBacklog : SprintBacklog" as SprintBacklog
+'Participant "userStory : UserStory" as UserStory
+'Participant "task : Task" as Task
+
+skinparam sequenceMessageAlign center
+autonumber
+ACTOR -> UI: Starts the Task creation in User Story
+|||
+UI --> ACTOR : request the project code
+ACTOR -> UI: Inserts the project code
+|||
+UI --> ACTOR : request sprint id
+ACTOR -> UI: Inserts the sprint id
+|||
+UI --> ACTOR : request user story id
+ACTOR -> UI: Inserts the user story id
+|||
+UI --> ACTOR : request the task information: name, description, type,  startDate, endDate
+ACTOR -> UI : Inserts request the task information: name, description, type, startDate, endDate
+
+UI --> CreateTaskController : createTaskInUserStory(code, sprintID, userStoryID, name, description, type, startDate, endDate)
+activate CreateTaskController
+CreateTaskController -> DataManagement : projectStore = getProjectStore()
+DataManagement --> CreateTaskController : projectStore
+
+CreateTaskController -> ProjectStore : project = getProjectByCode(code)
+ProjectStore --> CreateTaskController : project
+
+CreateTaskController -> Project : getSprintByID(sprintID)
+ref over Project
+TaskCreationInUserStory
+end ref
+
+Project --> CreateTaskController : true
+activate UI
+CreateTaskController --> UI : true
+UI -> ACTOR : Task created successfully
+@enduml

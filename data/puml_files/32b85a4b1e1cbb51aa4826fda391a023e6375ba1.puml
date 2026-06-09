@@ -1,0 +1,58 @@
+' Blob ID: 32b85a4b1e1cbb51aa4826fda391a023e6375ba1
+' Original Path: /ddd3/docs/diagrams/sequence.puml
+' Source: World of Code
+
+@startuml
+
+actor User
+box Application Layer
+participant SubscriptionController << (C,#ADD1B2) @Controller >>
+end box
+box Domain Model Layer
+participant SubscriptionServiceImpl << (C,#ADD1B2) @Bean >>
+end box
+box Infrastructure Layer
+participant JpaSubscriptionRepository << (C,#ADD1B2) @Bean >>
+participant SubscriptionPersistenceJpaRepository << (C,#ADD1B2) @Repository >>
+end box
+database Datastore
+
+activate User
+
+User --> SubscriptionController
+activate SubscriptionController
+
+note over SubscriptionServiceImpl: via SubscriptionService
+
+SubscriptionController --> SubscriptionServiceImpl
+activate SubscriptionServiceImpl
+
+note over JpaSubscriptionRepository: via SubscriptionRepository
+
+SubscriptionServiceImpl --> JpaSubscriptionRepository
+activate JpaSubscriptionRepository
+
+note over SubscriptionPersistenceJpaRepository: via Spring data repository
+
+JpaSubscriptionRepository --> SubscriptionPersistenceJpaRepository
+activate SubscriptionPersistenceJpaRepository
+
+SubscriptionPersistenceJpaRepository --> Datastore
+activate Datastore
+
+Datastore --> SubscriptionPersistenceJpaRepository
+deactivate Datastore
+
+SubscriptionPersistenceJpaRepository --> JpaSubscriptionRepository
+deactivate SubscriptionPersistenceJpaRepository
+
+JpaSubscriptionRepository --> SubscriptionServiceImpl
+deactivate JpaSubscriptionRepository
+
+SubscriptionServiceImpl --> SubscriptionController
+deactivate SubscriptionServiceImpl
+
+SubscriptionController --> User
+deactivate SubscriptionController
+
+@enduml

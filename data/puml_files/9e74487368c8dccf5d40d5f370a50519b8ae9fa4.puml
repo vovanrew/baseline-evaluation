@@ -1,0 +1,79 @@
+' Blob ID: 9e74487368c8dccf5d40d5f370a50519b8ae9fa4
+' Original Path: /docs/SprintC/US/US15/US15_SD_v2.puml
+' Source: World of Code
+
+@startuml
+autonumber
+'hide footbox
+actor "laboratory coordinator" as ADM
+
+participant ":LabCoordinatorUI" as UI
+participant ":ValidateTestReportController" as CTRL
+participant ":Company" as _APP
+participant "rp : TestStore" as TS
+participant "rp : Test" as T
+participant "rp : TestReportStore" as TRS
+participant "rp : TestReport" as TR
+participant ":TestDiagnosis" as TD
+
+
+activate ADM
+ADM -> UI : asks to validate report and diagnosis
+activate UI
+|||
+UI -> CTRL : createTestList()
+activate CTRL
+CTRL -> _APP : get = testReportsToValidate()
+
+activate _APP
+
+_APP -> TS : get = testReportsToValidate()
+activate TS
+TS -> T : get = getTestList()
+deactivate TS
+_APP -> TRS : get = testReportsToValidate()
+activate TRS
+TRS -> TR : get = getTestReportList()
+activate TR
+TR -> TD : get = getTestDiagnosis()
+deactivate TR
+deactivate TRS
+deactivate _APP
+|||
+ref over UI,CTRL : US15_SD_testReportsDTO.puml
+CTRL -> UI
+|||
+deactivate TRS
+deactivate CTRL
+UI --> ADM : shows the available test reports and diagnosis and requests selection
+deactivate UI
+ADM -> UI : chooses all tests
+activate UI
+deactivate CTRL
+UI --> ADM : asks for confirmation
+deactivate UI
+ADM -> UI : confirms selection
+activate UI
+UI -> CTRL : validateAllTestReport();
+activate CTRL
+loop
+    CTRL -> TS : validateTestReport(testId);
+    activate TS
+    TS -> T : setState(VALIDATED);
+    deactivate TS
+    CTRL -> TS : registerValidationDate(date);
+    activate TS
+    TS -> T : setValidationDate(date);
+    deactivate TS
+|||
+end loop
+|||
+deactivate CTRL
+UI --> ADM : informs operation success
+deactivate UI
+
+deactivate ADM
+
+
+
+@enduml

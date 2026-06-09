@@ -1,0 +1,26 @@
+' Blob ID: 31f6604abc23cc163b6b0b4839da90fea4566ce6
+' Original Path: /completed_code/hooho/src/app/docs/vet/petOwner_seq/viewPetOwnerDetail.puml
+' Source: World of Code
+
+@startuml
+title Edit pet owner details
+hide footbox
+
+skinparam  defaultFontName Courier
+skinparam shadowing false
+
+actor Vet_Central as user
+collections petOwner_dialog as dialog
+database Database as db
+autonumber
+
+dialog -> dialog : extract person Id from routes
+dialog ->> db : **fetchUserDetail(personId)**
+db ->> dialog : (personDetails)
+dialog ->> dialog : setState(personDetails and disable editable form field)
+opt if person detail has address
+    dialog ->> GoogleMapAPI : **geoCodeByPlaceId(place id from db)**
+    GoogleMapAPI ->> dialog : (formatted_address)
+end
+dialog -> user : render()
+@enduml

@@ -1,0 +1,58 @@
+' Blob ID: 4a72ca2b5b92d37dcb648df24cbbd7d0bf7bec7b
+' Original Path: /Documentação/1201384/US1005/US1005_SD.puml
+' Source: World of Code
+
+@startuml
+actor SalesClerk as adm
+participant "//<<presentation>>//\nDefineNewCategoryUI" as ui
+participant "//<<application>>//\nDefineNewCategoryController" as cc
+participant "//<<builder>>//\nCategoryBuilder" as build
+participant "//<<domain>>//\ncategory:Category" as user
+database "//<<repository>>//\nCategoryRepository" as db
+
+autonumber
+
+adm-->ui: Define new category
+
+activate ui
+
+ui-->cc: create
+
+ui-->adm: asks user information
+
+adm-->ui: Code, Description
+
+ui-->cc: addCategory(categoryCode, categoryDescription)
+
+activate cc
+
+cc-->build: create
+
+cc-->build: withCode(code)
+
+cc-->build: withDescription(description)
+
+activate build
+
+build-->user: create(categoryCode, categoryDescription)
+
+user-->build: category
+
+build-->cc: category
+
+deactivate build
+
+cc-->db: category()
+
+db-->cc: categoryRepository
+
+cc-->db: save(category)
+
+cc-->ui: category
+
+deactivate cc
+
+ui-->adm: displayCategoryInfo
+
+deactivate ui
+@enduml

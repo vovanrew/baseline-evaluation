@@ -1,0 +1,40 @@
+' Blob ID: 4550cf6fe6bc159fdc7a4a6e8d4351d5bdc2caad
+' Original Path: /Task 4/design/ClassISP.plantuml
+' Source: World of Code
+
+@startuml
+
+title Index (ISP refactor)
+
+package edu.tec.ic6821.fulltextsearch {
+
+    package index {
+
+        interface Index {
+            + index(String term, File):void
+            + search(String term):Set<File>
+            + isPersistent():boolean
+        }
+
+        interface PersistentIndex {
+            + persist():void
+            + restore():boolean
+        }
+
+        class InMemoryMapIndex {
+            - index:Map<String, Set<File>>
+        }
+
+        class MapIndex {
+            - indexFile:File
+            + MapIndex(:File, :Index)
+        }
+
+        Index <|.. InMemoryMapIndex
+        Index <|-- PersistentIndex
+        PersistentIndex <|.. MapIndex
+        InMemoryMapIndex <-- MapIndex :<<delegate>>\nindex
+    }
+}
+
+@enduml

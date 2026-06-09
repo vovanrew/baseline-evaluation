@@ -1,0 +1,41 @@
+' Blob ID: 60a722852250f7770ba344356915d9dea211674b
+' Original Path: /sequence - analysis/rollcall/updateRollCall.plantuml
+' Source: World of Code
+
+@startuml
+
+actor ": Teacher"
+boundary ": UpdateRollCallForm"
+control ": StudentController"
+entity ": RollCall"
+entity ": ClassroomMember"
+
+activate ": Teacher"
+
+": Teacher" -> ": UpdateRollCallForm": 1 // request update roll call
+activate ": UpdateRollCallForm"
+": UpdateRollCallForm" -> ": StudentController": 2 // request update roll call
+activate ": StudentController"
+": StudentController" -> ": ClassroomMember": 3 // checking information is valid
+activate ": ClassroomMember"
+alt information is valid
+    ": ClassroomMember" -->> ": StudentController": 5 // Information is valid
+    ": StudentController" ->> ": RollCall": 6 // Request make roll call
+    activate ": RollCall"
+    ": StudentController" -->> ": UpdateRollCallForm": 8 // Roll call update done
+    deactivate ": RollCall"
+    ": UpdateRollCallForm" -->> ": Teacher": 9 // Roll call done
+else information is not valid
+    ": ClassroomMember" -->> ": StudentController": 5.1 // Information is not valid
+    deactivate ": ClassroomMember"
+    ": StudentController" -->> ": UpdateRollCallForm": 5.2 // Roll call update failed
+    deactivate ": StudentController"
+    ": UpdateRollCallForm" -->> ": Teacher": 5.3 // Roll call failed,\n check information again
+end
+
+deactivate ": UpdateRollCallForm"
+deactivate ": Teacher"
+
+
+
+@enduml

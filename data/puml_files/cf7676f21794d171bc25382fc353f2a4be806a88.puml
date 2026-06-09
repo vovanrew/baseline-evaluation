@@ -1,0 +1,43 @@
+' Blob ID: cf7676f21794d171bc25382fc353f2a4be806a88
+' Original Path: /Documentação/Sprint 2/UC01_Registar_Organizacao/UC01_Registar_Organizacao_SD_Pt2.puml
+' Source: World of Code
+
+@startuml
+
+note over "alg:AlgoritmoGeradorPasswords"
+É uma instância de qualquer classe
+que implemente esta interface.
+endnote
+participant "ro:RepositorioOrganizacao" as RepositorioOrganizacao
+participant "colab:Colaborador" as Colaborador
+participant ":Plataforma" as Plataforma
+participant "alg:AlgoritmoGeradorPasswords" as AlgoritmoGeradorPasswords
+participant "aut:AutorizacaoFacade" as AutorizacaoFacade
+
+RepositorioOrganizacao -> RepositorioOrganizacao : 1 registaGestorComoUtilizador(colab)
+activate RepositorioOrganizacao
+RepositorioOrganizacao -> Colaborador : 2 nomeG = getNome()
+activate Colaborador
+deactivate Colaborador
+RepositorioOrganizacao -> Colaborador : 3 emailG = getEmail()
+activate Colaborador
+deactivate Colaborador
+RepositorioOrganizacao -> Plataforma : 4 alg=getAlgoritmoGeradorPwd()
+activate Plataforma
+deactivate Plataforma
+participant AlgoritmoGeradorPasswords <<interface>>
+RepositorioOrganizacao -> AlgoritmoGeradorPasswords : 5 pwd = geraPassword(nomeG, emailG)
+activate AlgoritmoGeradorPasswords
+deactivate AlgoritmoGeradorPasswords
+RepositorioOrganizacao -> Plataforma : 6 aut=getAutorizacaoFacade()
+activate Plataforma
+deactivate Plataforma
+RepositorioOrganizacao -> AutorizacaoFacade : 7 registaUtilizadorComPapeis(nomeG, emailG, pwd, ["GESTOR","COLABORADOR"])
+activate AutorizacaoFacade
+deactivate AutorizacaoFacade
+RepositorioOrganizacao -> RepositorioOrganizacao : 8 enviaPwd(emailG,pwd)
+activate RepositorioOrganizacao
+deactivate RepositorioOrganizacao
+deactivate RepositorioOrganizacao
+
+@enduml

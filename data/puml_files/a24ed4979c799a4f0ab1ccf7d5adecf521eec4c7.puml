@@ -1,0 +1,30 @@
+' Blob ID: a24ed4979c799a4f0ab1ccf7d5adecf521eec4c7
+' Original Path: /时序图/校园地图-数据更新.wsd
+' Source: World of Code
+
+@startuml
+actor "User" as user
+participant "Andorid APP" as app
+participant "Server" as server
+==主动更新==
+user->app:进入设置页\n点击“ 更新地图数据 ”
+app->server:请求POI数据\nGET /poi.json
+app<-server:返回数据
+app->app:比较Server版本号和本地版本号
+alt Server版本号>本地版本号
+    app->app:更新本地数据
+end
+user<--app
+==被动更新==
+user->app:启动APP
+app->app:检查上次更新时间\n与当前时间进行比较
+alt 间隔大于一周，执行自动更新
+    app->server:请求POI数据\nGET /poi.json
+    app<-server:返回数据
+    app->app:比较Server版本号和本地版本号
+    alt Server版本号>本地版本号
+        app->app:更新本地数据
+    end
+end
+user<--app
+@enduml

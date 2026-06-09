@@ -1,0 +1,32 @@
+' Blob ID: 2a01161039e144b9bff6115f506b55715a697235
+' Original Path: /img/sequence.puml
+' Source: World of Code
+
+@startuml
+
+title PCWS Sequences
+
+actor Customer
+participant PCWS
+database PostgreSQL
+queue Disk
+control transfer_logs.sh
+participant "Account Service" as AccountService
+participant "Datalog Service" as DatalogService
+
+Customer -> PCWS: request image
+
+PCWS -> AccountService: check account permission
+PCWS -> PCWS: generate image
+PCWS -> Disk: write data log
+
+Customer <- PCWS: image
+
+... some time later ...
+
+loop for each log
+  transfer_logs.sh -> Disk: read data log
+  transfer_logs.sh -> DatalogService: send data log
+  transfer_logs.sh <- DatalogService
+end log
+@enduml

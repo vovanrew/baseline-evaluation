@@ -1,0 +1,67 @@
+' Blob ID: ce8836bb7057bd7de7d28ca4661950d7b9b38387
+' Original Path: /tp1/entrega/diagramas/clases/completo.uml
+' Source: World of Code
+
+@startuml
+
+skinparam classAttributeIconSize 0
+hide empty members
+
+class TeleAlgo {
+  - abonoMensual : float
+  - llamadas : Llamada
+  - tarifaInternacional : float
+
+  {static} + conAbonoMensual(abono : float)
+  - abonoMensual(unAbono : Float)
+  - aplicarTarifaPorMinutoALlamadaInternacional(tarifa : float)
+  - calcularGastoFinal() : float
+  - consultarPorLlamadaEfectuadaMasCostosa() : str
+  - registrarLlamadaNacional(duracion : int, horario : int)
+  - registrarLlamadaInternacional(duracion : int, horario : int, destino : str)
+}
+
+TeleAlgo "1" *-- "*" Llamada
+
+abstract Llamada {
+  # duracion: int
+  # horario: int
+  # tarifa : Tarifa
+
+  + costoTotal() : float
+  {abstract} + descripcion() : str
+  # duracion(unaDuracion : int)
+  # esDeLargaDuracion() : bool
+  # horario(horario : int)
+  # montoDescuento(montoBruto : float) : float
+  # tarifa(tarifa : float)
+}
+
+Llamada --|> LlamadaNacional
+Llamada --|> LlamadaInternacional
+
+class LlamadaNacional {
+  {static} + conDuracionYHorario(duracion : int, horario : int)
+  + descripcion() : str
+}
+
+class LlamadaInternacional {
+  - destino : str
+
+  {static} + conDuracionHorarioTarifaYDestino(\n\tduracion : int, \n\thorario : int, \n\ttarifa : float, \n\tdestino: str\n)
+  + descripcion() : str
+  - destino(destino : str)
+}
+
+Llamada "1" *-ri- "1" Tarifa
+
+class Tarifa {
+  - monto : float
+
+  {static} + conMontoEnBaseAHorario(horario : int)
+  {static} + conMontoFijo(monto : int)
+  - monto() : float
+  - monto(monto : float)
+}
+
+@enduml

@@ -1,0 +1,87 @@
+' Blob ID: 34c6b4898142222fd4dc63b415b4412333d0d0fe
+' Original Path: /UML/.puml files/Demo Mode Sequence Diagram.puml
+' Source: World of Code
+
+@startuml
+ title AU2048 Demo Mode Button Sequence Diagram
+ 
+  actor User
+  entity MainActivity as MA
+  control Controller as C
+  entity MainActivityFragment as MAF
+  participant BoardView as BV
+  database Model as M
+ 
+  create MA
+  User -> MA : Starts App
+  create C
+  activate MA
+  MA -> C : onCreate()
+  activate C
+  create MAF
+  MA -> MAF : onCreate()
+  activate MAF
+  create BV
+  MAF -> BV : onCreateView()
+  activate BV
+ 
+  loop watntstoContinue == true
+  User ->MA: Press Demo Mode
+  MA-> C: ResetClick(View)
+  C->C: reset()
+  C -> M : setArr()
+  C -> M : setScore()
+  M --> C : doesWantToContinue()
+  MA -> MAF : setupArrView()
+  MA -> MAF : setArrView()
+  MAF -> BV : onCreateView()
+  BV --> MAF : BoardView
+ 
+  alt demo == true
+   alt button_direction == up
+  MA -> MA : UpClick(View)
+  else button_direction == left
+  MA -> MA : LeftClick(View)
+  else button_direction == down
+  MA -> MA : DownClick(View)
+  else button_direction == right
+  MA -> MA : RightClick(View)
+  end alt
+  alt button_direction == up
+  C -> C : shiftUp()
+  else button_direction == left
+  C -> C : shiftLeft()
+  else button_direction == down
+  C -> C : shiftDown()
+  else button_direction == right
+  C -> C : shiftRight()
+  end alt
+  C -> M : setArr()
+  C -> M : setScore()
+  M --> C : doesWantToContinue()
+  MA -> MAF : setupArrView()
+  MA -> MAF : setArrView()
+  MAF -> BV : onCreateView()
+  BV --> MAF : BoardView
+  alt noMovesPossible == false
+  C --> MA : checkWin()
+  C --> MA : win()
+  C-->MA : reset()
+  else noMovesPossible == true
+  C --> MA : noMovesPossible()
+  C --> MA : gameover()
+  MA -> C : Action.DOWN
+  C --> MA : reset()
+  end alt
+  end alt
+  deactivate BV
+  deactivate MAF
+  deactivate C
+  end play
+  BV <- MAF : onDestroy()
+  destroy BV
+  MA -> MAF : onDestroy()
+  destroy MAF
+  deactivate MA
+  destroy MA
+@enduml

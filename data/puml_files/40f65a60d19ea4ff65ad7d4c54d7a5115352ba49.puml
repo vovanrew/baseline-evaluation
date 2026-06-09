@@ -1,0 +1,146 @@
+' Blob ID: 40f65a60d19ea4ff65ad7d4c54d7a5115352ba49
+' Original Path: /doc/assignment4/details.puml
+' Source: World of Code
+
+@startuml
+
+hide footbox
+
+actor Actor
+activate Actor
+
+boundary Dashboard
+boundary Table
+boundary Details
+
+control DashboardController
+control IssuesDetailController
+control IssuesService
+control IssuesEntityService
+control EntityService
+control IssuesRepository
+entity Issues
+control IssueRepository
+entity Issue
+
+Actor -> Dashboard: /issues
+activate Dashboard
+
+Dashboard -> DashboardController : createIssues()
+activate DashboardController
+destroy Dashboard
+
+create Table
+DashboardController -> Table: new / redirect
+activate Table
+deactivate DashboardController
+
+par
+
+    Actor <-- Table
+
+else 
+
+    Table -> IssuesDetailController : getIssues()
+    activate IssuesDetailController
+    IssuesDetailController -> IssuesService : createIssuesStatistics()
+    activate IssuesService
+    
+    IssuesService -> IssuesEntityService : findAll()
+    activate IssuesEntityService
+    
+    IssuesEntityService -> EntityService : selectAllIssues()
+    activate EntityService
+    
+    EntityService -> IssuesRepository : findAll()
+    activate IssuesRepository
+    
+    loop
+        create Issues
+        IssuesRepository -> Issues : new
+        
+        loop
+            IssuesRepository -> IssueRepository : findById(id)
+            activate IssueRepository
+            create Issue
+            IssueRepository -> Issue : new
+            IssuesRepository <-- IssueRepository : Issue
+            deactivate IssueRepository
+        end
+    
+    end
+    EntityService <-- IssuesRepository : Set<Issues>
+    deactivate IssuesRepository
+    
+    IssuesEntityService <-- EntityService : Set<Issues>
+    deactivate EntityService
+    
+    IssuesService <-- IssuesEntityService : Set<Issues>
+    deactivate IssuesEntityService
+    
+    IssuesDetailController <-- IssuesService : IssuesStatistics
+    deactivate IssuesService
+    Table <-- IssuesDetailController : IssuesStatistics
+    deactivate IssuesDetailController
+end
+
+Actor -> Table: select report
+
+Table -> DashboardController : details
+activate DashboardController
+destroy Table
+
+create Details
+DashboardController -> Details: new / redirect
+activate Details
+deactivate DashboardController
+
+par
+
+    Actor <-- Details
+
+else 
+
+    Details -> IssuesDetailController : getCategories(origin, reference)
+    activate IssuesDetailController
+    
+    IssuesDetailController -> IssuesService : createDistributionByCategory(origin, reference)
+    activate IssuesService
+    
+    IssuesService -> IssuesEntityService : findByPrimaryKey(origin, reference)
+    activate IssuesEntityService
+    
+    IssuesEntityService -> EntityService : select(origin, reference)
+    activate EntityService
+    
+    EntityService -> IssuesRepository : findById(origin, reference)
+    activate IssuesRepository
+    
+    create Issues
+    IssuesRepository -> Issues : new
+        loop
+            IssuesRepository -> IssueRepository : findById(id)
+            activate IssueRepository
+            create Issue
+            IssueRepository -> Issue : new
+            IssuesRepository <-- IssueRepository : Issue
+            deactivate IssueRepository
+        end
+    EntityService <-- IssuesRepository : Issues
+    
+    deactivate IssuesRepository
+    
+    IssuesEntityService <-- EntityService : Issues
+    deactivate EntityService
+    
+    IssuesService <-- IssuesEntityService : Issues
+    deactivate IssuesEntityService
+    
+    IssuesDetailController <-- IssuesService : IssuePropertyDistribution
+    deactivate IssuesService
+    Details <-- IssuesDetailController : IssuePropertyDistribution
+    deactivate IssuesDetailController
+end
+
+
+@enduml

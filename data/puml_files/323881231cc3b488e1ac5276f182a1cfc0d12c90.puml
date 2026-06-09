@@ -1,0 +1,85 @@
+' Blob ID: 323881231cc3b488e1ac5276f182a1cfc0d12c90
+' Original Path: /search-ID.puml
+' Source: World of Code
+
+@startuml
+
+' style tweaks to make the diagram a little more readable
+skinparam {
+	Style strictuml
+	RoundCorner 8
+
+	Sequence {
+		' make activations yellow too
+		LifeLineBackgroundColor #FDFDCD
+
+		' make stereotypes less ugly
+		Stereotype {
+			Font {
+				Size 11
+				Style plain
+			}
+		}
+	}
+
+	DatabaseBorderColor #A80036
+
+}
+
+title Search Product by ID 
+
+actor User as user
+participant "Main" as main << main >>
+participant "MainMenu" as menu << frame >>
+participant "ProductReportDialog" as report << dialog >>
+participant "ProductDatabaseDAO" as dao << DAO >>
+database "Database" as db
+participant "SimpleListModel\n:model" as model
+participant "Product\n:product" as product << domain >>
+
+create menu
+main -> menu : « create »
+
+user -> menu : clicks 'View Products'
+activate menu
+
+create report
+menu -> report : « create »
+
+activate report
+create dao
+report -> dao: « create »
+
+
+note over report: as shown in\n'View Products'\ndiagram
+user <-- report-- : list of products\ndisplayed
+
+user -> report++ : user types productID\ninto field; clicks "Search"
+
+report -> dao++ : findProd(productID)
+
+dao -> db++ : search product by ID
+return resultSet 
+
+dao -> dao : extract product details\nfrom ResultSet into variables
+
+create product
+dao -> product : « construct »
+
+dao -> product++ : set products fields\nfrom variables
+product--
+
+create model
+report -> model : « construct »
+
+report -> model++ : updateItems(products)
+model--
+
+report -> report : jList.setModel(model)
+
+user <-- report : product displayed 
+
+@enduml
+
+
+

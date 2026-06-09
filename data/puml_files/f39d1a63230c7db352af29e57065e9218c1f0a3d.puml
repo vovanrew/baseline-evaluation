@@ -1,0 +1,46 @@
+' Blob ID: f39d1a63230c7db352af29e57065e9218c1f0a3d
+' Original Path: /soap-service-prototype/src/main/resources/archetype-resources/src/main/devop/UMLExceptions.puml
+' Source: World of Code
+
+@startuml
+
+class SoapFaultMappingExceptionResolver
+class WsdlConfig{
+  +exceptionResolver()
+}
+
+enum ApiExceptionCodes {
+code
+description
+SERVICE_NETWORK_EXCEPTION
+SERVER_VALIDATE_EXCEPTION
+INTERNAL_SERVER_ERROR
+}
+class DetailSoapFaultDefinitionExceptionResolver
+class InternalServerException
+class ServerValidateException
+class ServiceFault{
+code
+description
+}
+class ServiceFaultException{
+ServiceFault getServiceFault()
+}
+class ServiceFaultFactory
+class RuntimeException
+
+ServiceFaultException o-- DetailSoapFaultDefinitionExceptionResolver
+ServiceFault o-- ServiceFaultFactory
+ServiceFaultFactory o-- ServiceFaultException
+
+RuntimeException <|-- ServiceFaultException
+ServiceFaultException <|--  InternalServerException
+ServiceFaultException <|--  ServerValidateException
+InternalServerException --o ApiExceptionCodes
+ServerValidateException --o ApiExceptionCodes
+
+SoapFaultMappingExceptionResolver <|-- DetailSoapFaultDefinitionExceptionResolver
+WsdlConfig --* DetailSoapFaultDefinitionExceptionResolver
+
+
+@enduml

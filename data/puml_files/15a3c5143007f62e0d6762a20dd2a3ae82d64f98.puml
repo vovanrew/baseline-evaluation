@@ -1,0 +1,26 @@
+' Blob ID: 15a3c5143007f62e0d6762a20dd2a3ae82d64f98
+' Original Path: /design/sequence-diagrams/agile-tariff-update-sequence.puml
+' Source: World of Code
+
+@startuml
+participant AgileTariff <<Tariff>>
+
+[->> AgileTariff: poll()
+activate AgileTariff
+
+alt AgileTariff periods updated
+    AgileTariff -> Scheduler: getNextCheck
+    activate Scheduler
+    AgileTariff <-- Scheduler: getNextCheck
+    deactivate Scheduler
+
+    alt earliest new AgileTariff period is before nextCheck
+        AgileTariff -> Scheduler: setNextCheck(now)
+        activate Scheduler
+        AgileTariff <-- Scheduler
+        deactivate Scheduler
+    end
+end
+
+deactivate AgileTariff
+@enduml

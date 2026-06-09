@@ -1,0 +1,64 @@
+' Blob ID: bc5d8adf0f76950c65189a4fe9d08c956c22e8a6
+' Original Path: /src/csheets/userstories/ipc02_03/realtimeSearch/i130395/find_workbooks_design_sequence_diagram.puml
+' Source: World of Code
+
+@startuml
+actor user 
+participant "FindWorkbookUI" as ui
+participant "UIController" as uiController
+participant "FindWorkbooksController" as controller
+participant "StartWorkbooksSearch" as startWorkbooksSearch
+participant "fw : FindWorkbooks" as findWorkbooks
+participant "Paths" as paths
+participant "Files" as files
+participant "Cleansheets" as cleansheets
+
+user  -> ui : startWorkbooksSearch()
+activate ui
+activate files
+activate paths
+activate uiController
+activate cleansheets
+ui -> controller : create()
+activate controller
+alt adicionar
+loop todas as adicoes
+ui -> controller : add(path)
+end
+else remover
+loop todas as remocoes
+ui-> controller : remover(path)
+end
+end
+ui -> controller : startWorkbooksSearch()
+loop todas as paths
+controller -> startWorkbooksSearch : create(path, WorkbooksFoundList)
+activate startWorkbooksSearch
+controller -> startWorkbooksSearch : startWorkbooksSearch()
+startWorkbooksSearch -> startWorkbooksSearch : create()
+note right of startWorkbooksSearch
+this create() call represents 
+the creation of a new thread
+of this same class
+end note
+startWorkbooksSearch -> startWorkbooksSearch : start()
+startWorkbooksSearch -> startWorkbooksSearch : run()
+startWorkbooksSearch -> findWorkbooks : create()
+activate findWorkbooks
+deactivate findWorkbooks
+startWorkbooksSearch -> paths : p : get()
+startWorkbooksSearch -> files : walkFileTree(p, fw)
+end
+user -> ui : openFoundWorkbook()
+ui -> uiController : app : getApp()
+note right of ui
+f represents a file that is created when
+the user selects a workbook to open from
+the list of found workbooks
+end note
+ui -> cleansheets : w : getWorkbook(f)
+ui -> uiController : setActiveWorkbook(w)
+
+deactivate controller
+deactivate ui
+@enduml

@@ -1,0 +1,48 @@
+' Blob ID: 2fa4f6c29d4bda59f4c8b651e47a49d608de29a7
+' Original Path: /doc/diagrams/class-structure.puml
+' Source: World of Code
+
+@startuml
+skinparam shadowing false
+skinparam linetype ortho
+skinparam Padding 3
+skinparam ArrowColor #0b486b
+skinparam ClassBorderColor #7abe9b
+skinparam ClassBackgroundColor #FCFBE3
+skinparam ClassFontColor #0b486b
+skinparam NoteBorderColor #0b486b
+
+hide circle
+
+package OpenAI-Baseline {
+	class RLImplementation
+}
+
+package atc-reinforcement-learning {
+	class AtcGym
+    class Airplane
+    class Airspace
+    class MinimumVectoringAltitude
+    class Runway
+    class Corridor
+    class SimParameters
+}
+
+package OpenAI-Gym {
+  class Env
+  note left: Generic interface between RL\nalgorithms and simulation\nenvironments
+}
+
+Env <|-- AtcGym
+RLImplementation --> Env
+
+Airspace "1" *-- "many" MinimumVectoringAltitude
+Airspace  *- Runway
+Runway *-- Corridor
+
+AtcGym "1" *-- "many" Airplane
+AtcGym *-- Airspace
+AtcGym *-- SimParameters
+Airplane --> SimParameters
+
+@enduml

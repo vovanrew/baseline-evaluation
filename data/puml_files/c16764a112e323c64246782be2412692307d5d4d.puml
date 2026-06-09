@@ -1,0 +1,97 @@
+' Blob ID: c16764a112e323c64246782be2412692307d5d4d
+' Original Path: /docs/SprintC/US/US14/US14_SD.puml
+' Source: World of Code
+
+@startuml
+autonumber
+'hide footbox
+actor "Specialist Doctor" as ADM
+
+participant ":CreateReportUI" as UI
+participant ":CreateReportController" as CTRL
+participant ":Company" as _APP
+participant ":TestDiagnosis" as TD
+participant "obj : diagnosis" as DG
+participant "rp : TestReportStore" as TRS
+participant "rp : TestReport" as TR
+
+
+activate ADM
+ADM -> UI : asks to create a new diagnosis
+activate UI
+
+|||
+ref over UI,CTRL : US4_SD_testsDTO.puml
+|||
+
+UI --> ADM : requests to choose a given test
+deactivate UI
+
+ADM -> UI : chooses a given test
+activate UI
+|||
+UI -> CTRL : createTestDiagnosis(idTest)
+activate CTRL
+CTRL -> TD : createTestDiagnosis(test)
+activate TD
+create DG
+TD -> DG : createTestDiagnosis(testParameterList)
+|||
+TD --> CTRL : getDiagnosis()
+deactivate TD
+CTRL --> UI : getDiagnosis()
+deactivate CTRL
+UI --> ADM : shows the diagnosis done automatically and requests the data for the report
+deactivate UI
+
+
+ADM -> UI : types the requested data
+activate UI
+|||
+UI -> CTRL : createReport(idTest, diagnosis, report)
+activate CTRL
+CTRL -> _APP : store = getTestReportStore()
+activate _APP
+deactivate _APP
+|||
+CTRL -> TRS : createReport(idTest, diagnosis, report)
+activate TRS
+create TR
+TRS -> TR : create(idTest, diagnosis, report)
+deactivate TRS
+|||
+CTRL -> TRS : validateReport()
+activate TRS
+deactivate TRS
+deactivate CTRL
+UI --> ADM : shows the typed data and asks for confirmation
+deactivate UI
+
+
+ADM -> UI : confirms the data
+activate UI
+UI -> CTRL : saveReport(report)
+activate CTRL
+CTRL -> _APP : saveReport(report)
+activate _APP
+_APP -> TRS : saveReport(report)
+activate TRS
+TRS -> TRS : validateReport(report)
+activate TRS
+deactivate TRS
+|||
+TRS -> TRS : addReport(report)
+activate TRS
+deactivate TRS
+deactivate TRS
+deactivate _APP
+deactivate CTRL
+
+UI --> ADM : informs operation success
+deactivate UI
+
+deactivate ADM
+
+
+
+@enduml

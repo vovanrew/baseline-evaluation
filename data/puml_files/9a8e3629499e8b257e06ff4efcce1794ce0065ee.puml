@@ -1,0 +1,42 @@
+' Blob ID: 9a8e3629499e8b257e06ff4efcce1794ce0065ee
+' Original Path: /sequentie_administratie.puml
+' Source: World of Code
+
+@startuml
+
+actor havenarbeider
+actor "douane en voedselinspectie" as douane
+actor scheepsagent
+
+group per schip
+scheepsagent -> "Api gateway": registerVessel
+"Api gateway" -> kapiteinsdienst: registerVessel
+administratie <- kapiteinsdienst: requestOffer
+administratie -> kapiteinsdienst: offerCreated
+administratie -> "containerbeheer en -transport": newContainerList
+' activate administratie
+opt deleteOffer
+scheepsagent -> "Api gateway": offerConfirmation(isConfirmed == false) 
+"Api gateway" -> kapiteinsdienst: offerConfirmation(isConfirmed == false) 
+kapiteinsdienst -> administratie: deleteOffer
+' destroy kapiteinsdienst
+end
+douane -> "Api gateway": getDocuments
+administratie <- "Api gateway": getDocuments
+administratie --> "Api gateway"
+douane <-- "Api gateway"
+
+end 
+
+
+
+group per havenarbeider
+havenarbeider -> "Api gateway": timeBadging
+"Api gateway" -> administratie: timeBadging
+havenarbeider -> "Api gateway": getPayCheck
+"Api gateway" -> administratie: getPayCheck
+"Api gateway" <-- administratie
+havenarbeider <-- "Api gateway"
+end
+
+@enduml

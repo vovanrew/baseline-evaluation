@@ -1,0 +1,234 @@
+' Blob ID: d5a95153e512686cefeb70c0d22293c97aff774f
+' Original Path: /Project/docs/Sprint3/US031/old/US031-SD.puml
+' Source: World of Code
+
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US031 - As Team Member, I want to create a task in a user story
+
+autonumber
+
+actor TeamMember as actor
+participant ": CreateUSTaskUI" as UI
+participant ": CreateUSTaskController" as Ctrl
+participant ": Company" as co
+
+participant "taskTypeStore \n: TaskTypeStore" as tTStore
+participant "taskTypeList \n: List<TaskType>" as listTaskType
+participant "taskType \n: TaskType" as tType
+participant "taskTypesNames \n: List<String>" as listTypes
+participant "pStore \n: ProjectStore" as pStore
+participant "proj : Project" as proj
+participant "sList \n: SprintList" as sList
+participant "sprint : Sprint" as sprint
+participant "sprintBacklog" as sprintBacklog
+participant "UserStoryList" as usList
+participant "Us" as us
+participant "UsTaskList \n: TaskList" as tList
+participant "taskList \n: List<Task>" as listTask
+participant "task : Task" as task
+participant "tasksNames \n: List<String>" as listTasks
+participant "projectTeam \n: ProjectTeam" as cPTeam
+participant "projectTeam \n: List<Resource>" as listResources
+participant "resource : Resource" as res
+participant "currentResName \n: List<String>" as listRes
+participant ": TaskMapper" as tMapper
+participant "createTaskDTO \n: CreateTaskDTO" as cTDTO
+participant "newUsTask : Task" as newTask
+
+
+actor -> UI: Ask to create a task of a user story
+activate UI
+
+
+autoactivate on
+UI -> Ctrl: getTaskTypes()
+
+Ctrl -> co: getTaskTypeStore()
+
+co --> Ctrl: taskTypeStore
+
+Ctrl -> tTStore: getTaskTypesNames()
+tTStore --> listTypes**: create()
+
+loop for each know task type
+
+tTStore -> listTaskType: get(i)
+
+listTaskType --> tTStore: taskType
+
+tTStore -> tType: getName()
+
+tType --> tTStore: typeName
+
+tTStore -> listTypes: add(typeName)
+
+listTypes --> tTStore: true
+
+end
+
+tTStore --> Ctrl: taskTypesNames
+
+Ctrl --> UI: taskTypesNames
+
+UI --> actor: Show a list of task types
+
+
+
+
+actor -> UI: Selects task type
+
+
+UI -> Ctrl: getUsTasks(projCode, sprintID, usId)
+
+Ctrl -> co: getProjectStore()
+
+co --> Ctrl: pStore
+
+Ctrl -> pStore: getProjectByCode(projCode)
+
+pStore --> Ctrl: proj
+
+Ctrl -> proj: getSprints()
+
+proj --> Ctrl: sList
+
+Ctrl -> sList: getSprint(sprintID)
+
+sList --> Ctrl: sprint
+
+Ctrl -> sprint: getBacklog
+
+sprint --> Ctrl: sprintBacklog
+
+Ctrl -> sprintBacklog: getUsList
+
+sprintBacklog --> Ctrl: usList
+
+Ctrl -> usList: getUs(usId)
+
+usList --> Ctrl: us
+
+
+
+
+Ctrl -> us: getUsTaskList()
+
+us --> Ctrl: usTaskList
+
+Ctrl -> tList: getTasksNames()
+
+tList --> listTasks**: create()
+
+loop for each know task
+
+tList -> listTask: get(i)
+
+listTask --> tList: task
+
+tList -> task: getName()
+
+task --> tList: taskName
+
+tList -> listTasks: add(taskName)
+
+listTasks --> tList: true
+
+end
+
+tList --> Ctrl: tasksNames
+
+Ctrl --> UI: tasksNames
+
+UI --> actor: Show a list of current tasks \n (to choose a precedence, if want)
+
+actor -> UI: Selects precedence (optional)
+
+UI -> Ctrl: getCurrentProjectTeam()
+
+Ctrl -> proj: getProjectTeam()
+
+proj --> Ctrl: projectTeam
+
+Ctrl -> cPTeam: getCurrentResourcesNames()
+
+cPTeam --> listRes**: create()
+
+loop for each know resource
+
+cPTeam -> listResources: get(i)
+
+listResources --> cPTeam: resource
+
+cPTeam -> res: isCurrent()
+
+res --> cPTeam: result
+
+alt result = true
+
+cPTeam -> res: getName()
+
+res --> cPTeam: resourceName
+
+cPTeam -> listRes: add(resourceName)
+
+listRes --> cPTeam: true
+
+end
+
+end
+
+cPTeam --> Ctrl: currentResourcesNames
+
+Ctrl --> UI: currentResourcesNames
+autoactivate off
+
+autoactivate on
+UI --> actor: Shows resource list and request data\n (name, description, effortEstimate, \n taskType, responsible)
+
+
+
+actor -> UI: Choose and typed requested data
+
+UI -> Ctrl: createUsTask(createUsTaskDTO)
+
+Ctrl -> tList: createUsTask(createUsTaskDTO)
+
+tList -> tMapper: toModel(createUsTaskDTO)
+
+tMapper -> cTDTO: name = getName()
+deactivate cTDTO
+
+tMapper -> cTDTO: description = getDescription()
+deactivate cTDTO
+
+tMapper -> cTDTO: effortEstimate = getEffortEstimate()
+deactivate cTDTO
+
+tMapper -> cTDTO: taskType = getTaskType()
+deactivate cTDTO
+
+tMapper -> cTDTO: responsible = getResponsible()
+deactivate cTDTO
+
+tMapper -> newTask**: createTask(name, description, \n effortEstimate, taskType, responsible)
+
+tMapper --> tList: newUsTask
+
+tList -> tList: saveTask(newUsTask)
+
+tList -> tList: validate(newUsTask)
+deactivate tList
+
+tList -> tList: add(newUsTask)
+deactivate tList
+deactivate tList
+
+tList --> Ctrl: true
+
+Ctrl --> UI: created and saved successfully
+
+UI --> actor: created and saved successfully
+
+@enduml

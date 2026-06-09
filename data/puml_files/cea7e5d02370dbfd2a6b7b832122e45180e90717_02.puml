@@ -1,0 +1,28 @@
+' Blob ID: cea7e5d02370dbfd2a6b7b832122e45180e90717
+' Original Path: /src/os/uml.pu
+' Source: World of Code
+
+@startuml
+participant main
+participant OsScheduler
+participant Semaphore
+participant TaskA
+participant TaskB
+participant System
+
+main        -> OsScheduler : startOS
+OsScheduler -> TaskA       : launch
+TaskA       -> Semaphore   : waitSemaphore
+Semaphore   -> System      : callSystem
+System      -> System      : setJump(buf)
+System      -> OsScheduler : reportSystemCall
+OsScheduler -> OsScheduler : saveTaskContext
+OsScheduler -> TaskB       : launch
+TaskB       -> Semaphore   : waitSemaphore
+Semaphore   -> System      : callSystem
+System      -> OsScheduler : reportSystemCall
+OsScheduler -> OsScheduler : saveTaskContext
+OsScheduler -> TaskA       : launch
+
+
+@enduml

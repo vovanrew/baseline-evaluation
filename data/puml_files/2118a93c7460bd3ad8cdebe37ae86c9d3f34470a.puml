@@ -1,0 +1,147 @@
+' Blob ID: 2118a93c7460bd3ad8cdebe37ae86c9d3f34470a
+' Original Path: /test3/classView.pu
+' Source: World of Code
+
+@startuml
+' 由于继承关系,未覆盖的属性或方法不再列出
+' 由于篇幅关系,省略类的set/get方法
+package Bean #ccf{
+    class user{
+        -String ID
+        -String pwd
+        -Date createTime
+        -byte status
+    }
+    class borrower{
+        -String firstName
+        -String lastName
+        -String IDCardNo
+        -String email
+        -String m_phoneNumber
+        -String creditRating
+    }
+    class admin{
+        -String firstName
+        -String lastName
+        -String email
+        -Boolean root
+    }
+    class root{
+
+    }
+    borrower -up-|> user:继承
+    admin -up-|> user:继承
+    root -up-|> user:继承
+
+    ' class bookinfo{
+    '     -String ISBN
+    '     -String name
+    '     -String Label
+    '     -String publisher
+    '     -String author
+    ' }
+    ' note right: 图书的简单信息,\n用来形成图书目录
+
+    ' class bookMenu{
+    '     -ArrayList<bookinfo> bookMenu
+    ' }
+    ' note right: 图书目录,由图书的简\n单信息构成的集合组成
+    ' bookMenu --* bookinfo
+    class book{
+        -String ISBN
+        -String name
+        -String Label
+        -String logo
+        -String info
+        -float price
+        -String publisher
+        -String author
+        -Date publishDate
+        -short stock
+        -short Number
+    }
+    class bookDetList{
+        -String ID
+        -Date borrowDate
+        -short deadline
+        -byte status
+    }
+    class bookDetListInfo{
+        -byte number
+    }
+    class borrowHis{
+        -Date returnDate
+        -Boolean flag
+    }
+    class ticket{
+        -String title
+        -String info
+        -String adminID
+    }
+    class lable{
+        -int ID
+        -String info
+    }
+    note right: 图书分类,用来控制添加或修改图书时\n控制器选项范围,不与book建立直接联系
+    bookDetListInfo "1" -- "1" book:记录
+    bookDetList "N" -left- "1" user:拥有或管理
+    ticket "N" -- "1" admin:管理
+    borrowHis --|> bookDetList:继承
+    bookDetList --* bookDetListInfo:拥有
+    borrowHis --o ticket:包含
+}
+' 不需要用例中的方法,故去掉.
+' package serivce #cfc{
+'     class userSerivce{
+'         {abstract}+void register(User user)
+'         {abstract}+User login(User user)
+'         +void logout(User user)
+'         {abstract}+byte getEffectiveDate(User user)
+'         +List queryBooks(Book book)
+'     }
+'     class borrowerSerivce{
+'         +List getBookDetLists(Borrower borrower)
+'         +List getBorrowHies(Borrower borrower)
+'         +List getTickets(Borrower borrower)
+'         +List updateInfo(Borrower borrower)
+'     }
+'     class adminSerivce{
+'         +Borrower queryBorrower(Borrower borrower)
+'         +void addBookDetList(BookDetList bookDetList)
+'         +void transToBorrowHis(BookDetList bookDetList\n ,Boolean tic,Ticket ticket)
+'         +void Renew(BookDetList bookDetList)
+'         +void weiteTicket(Ticket ticket)
+'         +void updateCreditRating(Borrower borrower)
+'         +boolean getRoot(String rpwd)
+'         ..↓需要获取root权限↓..
+'         +void updateBookDetList(BookDetList bookDetList)
+'         +void deleteBookDetList(BookDetList bookDetList)
+'         +void updateBorrowHis(BorrowHis borrowHis)
+'         +void deleteBorrowHis(BorrowHis borrowHis)
+'         +void updateTicket(Ticket ticket)
+'         +void deleteTicket(Ticket ticket)
+'     }
+'     class bookSerivce{
+'         +List getbookList()
+'         +List getbooksByLabel(String Lable)
+'         +book getBookByISBN(String ISBN)
+'         +List getBookmenu()
+'         +void addBook(Book book)
+'         ..↓需要获取root权限↓..
+'         +void updateBookmenu(List book)
+'         +void deleteBook(Book book)
+'         +void updateBook(Book book)
+'     }
+'     class rootService{
+'         +管理读者()
+'         +管理图书管理员()
+'         +void updateUserstatus(User user)
+'     }
+'     borrowerSerivce -up-|>userSerivce:继承
+'     adminSerivce -up-|>userSerivce:继承
+' }
+' admin -> bookSerivce:使用?
+' admin -> adminSerivce:使用?
+' borrower -> borrowerSerivce:使用?
+' root -> serivce:都能用?
+@enduml

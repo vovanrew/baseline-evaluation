@@ -1,0 +1,31 @@
+' Blob ID: bf06621a8e34632711df9d1cd4ae8e211223b0bb
+' Original Path: /Diagrammer/Robo_Sumo_Battle/Communication/Sekvensdiagrammer/TCP/TCPClient/TCPClient_connectToServer.plantuml
+' Source: World of Code
+
+@startuml
+participant UC1
+participant TCPClient
+
+title TCPClient::connectToServer(string ipAddress, int port)
+
+UC1 -> TCPClient : connectToServer(ipAddress, port)
+note over TCPClient : create a socket
+TCPClient -> TCPClient : socket_ = socket(AF_INET, SOCK_STREAM, 0);
+opt socket_ == -1
+    UC1 <-- TCPClient : return -1 (socket create faild)
+end
+note over clientStructure : objeckt of\n sockaddr_in
+TCPClient -> clientStructure ** : clientStructure()
+TCPClient -> TCPClient : clientStructure.sin_family = AF_INET;
+TCPClient -> TCPClient : clientStructure.sin_port = htons(port);
+note over TCPClient : linking ipAddress to clientstructure\nusing AF_INET standart
+TCPClient -> TCPClient : inet_pton(AF_INET, ipAddress.c_str(),\n &clientStructure.sin_addr);
+TCPClient -> TCPClient : connectRes = connect(socket_, (sockaddr*)&clientStructure,\n sizeof(clientStructure));
+opt connectRes == -1
+    UC1 <-- TCPClient : return -1 (faild to connect)
+end
+    TCPClient -> clientStructure !! :
+    UC1 <-- TCPClient : return 0 (connected)
+
+
+@enduml

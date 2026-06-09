@@ -1,0 +1,34 @@
+' Blob ID: 69166c59d2faf71fc0f0b7b27b9752db78992575
+' Original Path: /Sequence/Release02/CreateRoomTransaction.wsd
+' Source: World of Code
+
+@startuml
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant ":RoomTransactionService" as RoomTransactionService
+participant ":RoomTransactionCommand" as RoomTransactionCommand
+participant ":Nats Streaming" as NatsStreaming
+
+Caller->RoomTransactionService: Create(context, payload)
+RoomTransactionService->RoomTransactionService: Validate()
+
+alt "Data Not Valid"
+    RoomTransactionService-->Caller: UnprocessableEntity
+else
+    loop "For each shift"
+        RoomTransactionService->RoomTransactionService: rt := RoomTransactionModel()
+        RoomTransactionService->RoomTransactionCommand: Create(context, rt)
+        RoomTransactionCommand-->RoomTransactionService: uuid
+    end
+
+    RoomTransactionService->NatsStreaming: publishTransactionCreated(context, []uuid)
+    NatsStreaming-->RoomTransactionService: published
+    RoomTransactionService-->Caller: created
+end
+
+@enduml

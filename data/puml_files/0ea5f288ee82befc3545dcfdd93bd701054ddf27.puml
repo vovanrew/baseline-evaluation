@@ -1,0 +1,25 @@
+' Blob ID: 0ea5f288ee82befc3545dcfdd93bd701054ddf27
+' Original Path: /specs/workload_expiration.plantuml
+' Source: World of Code
+
+@startuml
+
+title Deploy workload
+
+actor User as user
+database tfexplorer
+boundary node
+
+autonumber
+user -> tfexplorer: send workloads definition
+tfexplorer -> tfexplorer: ensure enough capacity is available in the pool.
+tfexplorer -> tfexplorer: decrease remaining pool capacity
+tfexplorer -> node: sends workloads definition
+alt workload deployed sucesfully
+node --> tfexplorer: result success
+user -> node: user access its workload
+else failed to deploy workload or provision timeout reached
+tfexplorer -> node: cancel full reservation
+tfexplorer -> tfexplorer: increase remaining pool capacity
+end
+@enduml

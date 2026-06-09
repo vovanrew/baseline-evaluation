@@ -1,0 +1,64 @@
+' Blob ID: 667ecb2d67aed3f251093e8707cf311be956e7cf
+' Original Path: /program.puml
+' Source: World of Code
+
+@startuml
+'https://plantuml.com/class-diagram
+
+Log --* Task
+DayLog --* Log
+Task -|> TaskType
+
+DayLog -|> IInsertToDatabase
+Log -|> IInsertToDatabase
+Task -|> IInsertToDatabase
+
+enum TaskType {
+    RESEARCH
+    CODING
+    DESIGN
+}
+
+class Task {
+    - Integer id
+    - String name
+    - String description
+    - LocalDateTime dateTime
+    - TaskType type
+
+    + Task(String name, String description, TaskType type)
+
+    + String toString()
+
+    .. Getters ..
+    + void getName()
+    + void getDescription()
+    + void getType()
+
+}
+
+class Log {
+    - Integer id
+    - LocalDateTime dateTime
+    - ArrayList<Task> tasks
+
+    + Log(ArrayList<Task> tasks)
+
+    + void addTask(Task task)
+    + void removeTask(Integer int)
+}
+
+class DayLog {
+    - Integer id
+    - LocalDateTime dateTime
+    - ArrayList<Log> logs
+
+    + DayLog(ArrayList<Log> logs)
+
+    + void outputToStdout()
+}
+
+interface IInsertToDatabase {
+    + void insertToDatabase
+}
+@enduml

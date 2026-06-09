@@ -1,0 +1,97 @@
+' Blob ID: 5ee073313e2bf85a36bfe4959972d5ee24afcc45
+' Original Path: /system-analysis/sequence/_4_2_sequence-create-order.puml
+' Source: World of Code
+
+@startuml
+'example
+title create order sequence diagram
+
+actor Customer as actorCustomer
+
+
+actor Cashier as actorCashier
+participant ":Inventory System" as InventorySystem
+participant ":Order" as classOrder
+participant ":Product" as classProduct
+participant ":Stock" as classStock
+participant ":Invoice" as classInvoice
+participant ":Transaction" as classTransaction
+
+activate actorCashier
+activate actorCustomer
+
+actorCustomer -> actorCashier : 1. Request order product
+
+actorCashier --> actorCustomer : 2. Receive order
+deactivate actorCustomer
+
+actorCashier -> InventorySystem: 3. requestCreateOrder()
+activate InventorySystem
+
+InventorySystem -> classProduct: 3.1 selectProduct()
+activate classProduct
+
+classProduct -> classStock: 3.2 checkStock()
+activate classStock
+
+classStock -> classProduct: 3.3 return stock
+deactivate classStock
+
+classProduct -> InventorySystem: 3.4 return product
+deactivate classProduct
+
+
+
+alt IF (stock.qty > order.qty)
+
+'InventorySystem -> classTransaction : getTransaction
+'activate classTransaction
+'classTransaction --> InventorySystem : return transaction
+'deactivate classTransaction
+'
+'alt IF pending transaction not exist
+'InventorySystem -> classTransaction : createTransaction()
+'  activate classTransaction
+'classTransaction --> InventorySystem : return transaction
+' deactivate classTransaction
+'end
+
+
+InventorySystem -> classOrder: 3.5 createOrder(order)
+activate classOrder
+
+
+
+classOrder -> classStock: 3.6 updateStock()
+activate classStock
+
+classStock --> InventorySystem : 3.7 return update stock
+deactivate classStock
+
+
+classOrder -> classInvoice : 3.8 systemCreateInvoice()
+activate classInvoice
+classInvoice -> classInvoice : 3.9 printInvoice()
+classInvoice --> InventorySystem: 3.10 return invoice
+
+
+
+
+deactivate classInvoice
+classOrder --> InventorySystem: 3.11 return order
+
+else ELSE
+classStock --> InventorySystem : 3.12 can't create order
+'deactivate InventorySystem
+deactivate classOrder
+
+end
+
+
+InventorySystem -> actorCashier: 4. response create order status
+
+deactivate InventorySystem
+activate actorCustomer
+actorCashier --> actorCustomer : 5. Invoice
+
+@enduml

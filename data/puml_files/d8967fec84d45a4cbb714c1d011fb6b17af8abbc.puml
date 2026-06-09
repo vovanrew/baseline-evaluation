@@ -1,0 +1,103 @@
+' Blob ID: d8967fec84d45a4cbb714c1d011fb6b17af8abbc
+' Original Path: /docs/Sprint_2/US016/Class_Diagrams/US016_CD_CompleteVersion.puml
+' Source: World of Code
+
+@startuml
+
+title US016 - As Director/PM/PO/SM, I want to view status of activities in a project
+
+class "TaskUI" as A {
+}
+
+Package Controller {
+class "TaskController" as B {
++getStatusOfActivitiesInProject(String projectID)
+}
+}
+
+Package Service {
+class "TaskService" as C {
++getStatusOfActivities(String projectID)
+-getCurrentSprintID(projectID)
+-getSbiIDs(projectID, sprintID)
+-getTasks(sbiIDs)
+}
+}
+
+Package Mapper {
+class "TaskMapper" as Z {
++statusListToDTO(List<Task> tasks)
+-statusToDTO(Task task)
+}
+}
+
+Package Repository {
+class "SprintRepository" as W {
++findCurrentSprintInProject(String projectID)
+}
+
+class "SprintBacklogItemRepository" as D {
++findSprintBacklogItemsInSprint(String projID, String sprintID)
+}
+class "TaskRepository" as E {
++findAllByContainerID(SprintBacklogItemID sbiID)
+}
+}
+
+Package DTO {
+class "TaskDTO" as G {
+- taskID : String
+- taskContainerID : String
+- status : String
+- percentageOfExecution : int
++ setTaskID()
++ setTaskContainerID()
++ setStatus()
++ setPercentageOfExecution()
+}
+}
+
+Package Domain {
+class "Task" as I {
+- taskID : TaskID
+- taskContainerID : TaskContainerID
+- status: TaskStatus
+- percentageOfExecution : Percentage
+- taskDescription : TaskDescription
++getTaskID()
++getTaskContID()
++getStatus()
++getPercentageOfExecution()
+}
+
+interface "TaskContainerID" as J {
+- taskContainerID : UUID
++getID()
+}
+
+class "SprintBacklogItemID" as L {
+- sbiID : UUID
++getID()
+}
+
+}
+
+A ..right> B
+B ..> C
+B ..> G
+C ..> W
+C ..> G
+C ..> D
+C ..> E
+C ..> I
+C ..> Z
+Z ..> G
+E ..>  I
+I ..> "uses" J
+L ..|> J
+Z ..> I
+
+
+
+
+@enduml

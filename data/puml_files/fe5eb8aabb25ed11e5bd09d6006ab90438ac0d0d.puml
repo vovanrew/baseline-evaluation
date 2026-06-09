@@ -1,0 +1,68 @@
+' Blob ID: fe5eb8aabb25ed11e5bd09d6006ab90438ac0d0d
+' Original Path: /docs/diagrams/recertification-new-v2.puml
+' Source: World of Code
+
+@startuml
+
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+
+participant "Line of Business" as lob
+participant ESB as esb
+participant "Scoring" as scoring
+participant "Recertification" as recert
+
+box "Compliance IT" #LightGreen
+	participant scoring
+	participant recert
+end box
+
+
+hide footbox
+
+group Customer On-Boarding: Open a New Account
+lob -> esb: UpdatePartyKYC \nincludeScore=true
+alt Recertification completed
+lob -> esb: UpdatePartyKYC \nincludeScore=true \nrecertificationStatus=completed\nactor=<userid>\nreason=<one of client-initiated trigger codes>
+end
+end
+
+autonumber
+esb -> scoring: score
+scoring -> recert: recertify
+note left
+	Schedule a new recertification and calculate its due date
+	OR retrieve due date of an existing recertification if
+	one has been previously scheduled and not yet 
+	completed or cancelled
+end note 
+activate recert
+recert -> recert: evaluate rules
+group Recertification
+alt Recertification is Needed
+group Establish a Recertification
+recert -> recert: schedule a new recertification
+alt Existing Recertification
+recert -> recert: retrieve a previously\nscheduled recertification\n that hasn't been completed or cancelled
+end
+end
+alt Complete a Recertification
+recert -> recert: complete an established recertification
+end
+note left
+	Immediately complete the 
+	recertification if the LOB 
+	told us it was already done
+end note
+recert --> scoring: recertification details
+note left: Due date, status, recert id
+deactivate recert
+esb --> lob: score + recertification
+end
+alt Recertification is Not Needed
+recert --> scoring: no recertification
+esb --> lob: score
+end
+end
+
+@enduml

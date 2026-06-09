@@ -1,0 +1,66 @@
+' Blob ID: dff7fe2ce5a37e54e39a0d8942aa454872b76705
+' Original Path: /fca_global_api-master/diagrams/req_resp_from_sdp.puml
+' Source: World of Code
+
+@startuml
+title <b>SDP Initiated Request/Response\nPattern with Correlation ID
+
+skinparam backgroundColor #EEEBDC
+
+skinparam sequence {
+rectangleBorderThickness 0.5
+	 titleBorderRoundCorner 15
+ titleBorderThickness 2
+ titleBorderColor red
+ titleFontSize 19
+	ParticipantBackgroundColor Orange
+	ParticipantBorderColor Orange
+	ParticipantFontName Arial
+	ParticipantFontSize 17
+	ParticipantFontColor black
+	LifeLineBorderColor green
+	LifeLineBackgroundColor #b5b5d0
+	BoxFontSize 17
+	ArrowColor black
+	
+}
+
+box "\tSDP\t\t" 
+participant "SERVER\nNODE 1"
+participant "SERVER\nNODE 2"
+participant "STATE\nCACHE"
+participant "BROKER\n"
+ 
+end box
+
+box "\tTBM/HU\t"
+participant "APP\n"
+end box 
+|||
+
+"SERVER\nNODE 1" -> "SERVER\nNODE 1": new request/response\ninteraction
+activate "SERVER\nNODE 1" #DodgerBlue
+"SERVER\nNODE 1" -> "SERVER\nNODE 1": create interaction\n context
+"SERVER\nNODE 1" -> "STATE\nCACHE": newMessageID =\nnextMessageID()
+"SERVER\nNODE 1" -> "STATE\nCACHE": put(newMessageID,\n interaction context)
+"SERVER\nNODE 1" -> "SERVER\nNODE 1": create message
+"SERVER\nNODE 1" -> "SERVER\nNODE 1": message.messageID =\nnewMessageID
+"SERVER\nNODE 1" -> "BROKER\n": publish message
+deactivate  "SERVER\nNODE 1"
+"BROKER\n" -> "APP\n": read message
+activate "APP\n"
+"APP\n" -> "APP\n": create response
+"APP\n" -> "APP\n": response.correlationID =\nmessage.messageID
+"APP\n" -> "BROKER\n": publish response
+
+"SERVER\nNODE 2" <- "BROKER\n": read response
+activate "SERVER\nNODE 2" #DodgerBlue
+"SERVER\nNODE 2" -> "STATE\nCACHE": interaction context = \nget(response.correlationID)
+"SERVER\nNODE 2" -> "SERVER\nNODE 2": process response
+"SERVER\nNODE 2" -> "STATE\nCACHE": delete(response.correlationID)
+deactivate "SERVER\nNODE 2"
+
+|||
+
+
+@enduml

@@ -1,0 +1,174 @@
+' Blob ID: b98c5fc6649e2bb3ceff143dbc060d141396ff62
+' Original Path: /src/main/java/com/leetcode/按本点播.puml
+' Source: World of Code
+
+
+@startuml
+用户 -> "ms-trade": wapPurchase 点播图书
+"ms-trade" -> "subscribe-service": purchaseObj 点播图书
+
+"subscribe-service" -> ctu: purchaseObj 点播图书
+alt 连续阅读
+    ctu -> "payment-service": queryContinuousTokensMemCache 查询连续订购token
+    "payment-service" -> ctu: queryContinuousTokensMemCache 返回查询连续订购token的响应
+ alt token不存在或者已失效
+        ctu -> "payment-service": updateContinuousTokensMemCache 保存连续订购token
+        "payment-service" -> ctu: updateContinuousTokensMemCache 返回保存连续订购token的响应
+ end
+end
+ctu -> cgw : paymentServices.getPaymentAccountInfo 查询支付号
+cgw -> payment : paymentService.getPaymentAccountInfo 查询支付号
+payment --> cgw: paymentService.getPaymentAccountInfo 返回查询支付号的响应
+cgw --> ctu: paymentServices.getPaymentAccountInfo 返回查询支付号的响应
+alt 支付账号不存在
+    ctu -> upm : iUserService.getAccountInfo 查询账号的手机号
+    upm --> ctu: iUserService.getAccountInfo 返回查询账号的手机号的响应
+    ctu -> "public-service": matchNumberSegment 查询手机号运营商
+    "public-service" -> ctu: matchNumberSegment 返回查询手机号运营商的响应
+    ctu -> cgw : paymentServices.paymentAccountManagement 注册支付号
+    cgw -> payment : paymentService.getPaymentAccountInfo 查询支付号
+    payment --> cgw: paymentService.getPaymentAccountInfo 返回查询支付号的响应
+    cgw -> payment : paymentService.createPaymentAccount 创建支付号
+    payment --> cgw: paymentService.createPaymentAccount 返回创建支付号的响应
+    cgw --> ctu: paymentServices.paymentAccountManagement 返回注册支付号的响应
+end
+ctu -> "public-service": isUserWhiteList 查询用户是否是白名单用户
+"public-service" -> ctu: isUserWhiteList 返回查询用户是否是白名单用户的响应
+alt 用户是白名单用户
+    ctu -->"subscribe-service":  purchaseObj 点播图书返回null
+end
+ctu -> "public-service": matchNumberSegment 查询手机号省份id和城市id
+"public-service" -> ctu: matchNumberSegment 返回查询手机号省份id和城市id的响应
+ctu -> product: ereadItemQueryService.fetchItemInfo 查询产品信息
+product -->ctu: ereadItemQueryService.fetchItemInfo 返回查询产品信息的响应
+alt 图书来源是喜马拉雅且在有效期且折扣价是0元
+    ctu -->"subscribe-service":  purchaseObj 点播图书返回24900
+end
+alt 多种点播方式
+ alt 按本订购
+ alt 赠送
+            ctu -> subscribe: itemService.fetchItemSubscription 查询已有订购信息
+            subscribe -->ctu: itemService.fetchItemSubscription 返回已有订购信息
+ alt 上一个借阅有效期内续借
+                ctu -> subscribe: itemService.subscribe 更新已有订购信息结束时间
+                subscribe -->ctu: 返回响应
+                ctu -->"subscribe-service":  purchaseObj 点播图书返回null
+            end
+            ctu -> subscribe: itemservice.authenticate 内容鉴权(按本鉴权)
+            subscribe -->ctu: itemservice.authenticate 返回鉴权信息
+ alt 按本鉴权通过
+                ctu -->"subscribe-service":  purchaseObj 点播图书返回24900
+            end
+            ctu -> charging: eventCalculatorService.calculatePrice 取图书进行批价
+            charging -->ctu: eventCalculatorService.calculatePrice 返回批价结果
+ alt 图书来源是喜马拉雅
+                ctu -> ctu: 最终价格取喜马拉雅折扣价格
+                ctu -> cgw : paymentServices.autoAdaptedPayChannels 适配支付方式
+                cgw --> ctu: paymentServices.autoAdaptedPayChannels 返回适配支付方式的响应
+ end
+ alt 图书来源不是喜马拉雅
+                ctu -> cgw : paymentServices.autoAdaptedPayChannels 适配支付方式
+                cgw --> ctu: paymentServices.autoAdaptedPayChannels 返回适配支付方式的响应
+                ctu -> ctu: 根据系统配置项与支付方式是支付宝,微信,咪咕币客户端,咪咕币wap时折扣, \r 在原最终价格上再计算一次折扣
+ end
+            ctu -> order: orderManagementService.createOrder 创建订单
+ order -->ctu: orderManagementService.createOrder 返回创建订单的响应
+ end
+ alt 非赠送
+            ctu -> subscribe: itemservice.authenticate 内容鉴权(按本鉴权)
+            subscribe -->ctu: itemservice.authenticate 返回鉴权信息
+ alt 按本鉴权通过
+                ctu -->"subscribe-service":  purchaseObj 点播图书返回24900
+            end
+            ctu -> charging: eventCalculatorService.calculatePrice 取图书进行批价
+            charging -->ctu: eventCalculatorService.calculatePrice 返回批价结果
+ alt 图书来源是喜马拉雅
+                    ctu -> ctu: 最终价格取喜马拉雅折扣价格
+                    ctu -> cgw : paymentServices.autoAdaptedPayChannels 适配支付方式
+                    cgw --> ctu: paymentServices.autoAdaptedPayChannels 返回适配支付方式的响应
+ end
+ alt 图书来源不是喜马拉雅
+                    ctu -> cgw : paymentServices.autoAdaptedPayChannels 适配支付方式
+                    cgw --> ctu: paymentServices.autoAdaptedPayChannels 返回适配支付方式的响应
+                    ctu -> ctu: 根据系统配置项与支付方式是支付宝,微信,咪咕币客户端,咪咕币wap时折扣, \r 在原最终价格上再计算一次折扣
+ end
+            ctu -> order: orderManagementService.createOrder 创建订单
+ order -->ctu: orderManagementService.createOrder 返回创建订单的响应
+ end
+ end
+ctu -> order: orderManagementService.submitOrder 提交订单
+order -->ctu: orderManagementService.submitOrder 返回提交订单的响应
+alt payOrder流程
+    ctu -> order: orderPaymentService.payOrder 支付订单
+ alt 支付方式是同步支付
+ order -> subscribe: itemService.batchSubscribe 批量订购
+        subscribe -->order: itemService.batchSubscribe 返回批量订购的响应
+ order -> cgw: paymentServices.directPayment 扣费
+        cgw -->order: paymentServices.directPayment 返回扣费的响应
+ alt 支付成功
+ alt 图书来源是喜马拉雅
+ order -> proxy: ximalaya/distribute 同步喜马拉雅订购关系(多章节加任务队列异步处理)
+                proxy -->order: ximalaya/distribute 返回同步喜马拉雅订购关系响应
+ end
+ order -> order: 发送mq,topic=ItemPurch,tags=Main
+            alt rdo订购
+ order -> order: 发送mq,topic=SubRdo,tags=Main
+            end
+ order -> order: 监听mq,topic=ItemPurch,tags=Main,删除商品购买订单表：ord_t_itempurchase_order中的订单,保存订单信息到历史订单商品仓库表：ord_t_item_repository
+ end
+ end
+ alt 异步支付
+ order -> cgw: paymentServices.directPayment 扣费
+        cgw -->order: paymentServices.directPayment 返回扣费的响应
+ order -> order: 支付等待回调
+ end
+ order -->ctu: orderPaymentService.payOrder 返回支付订单的响应
+end
+alt 异步支付轮询等待支付回调,支付完成后再返回结果: 非2.0支付协议的支付宝支付,微信支付
+ alt 异步支付
+        cgw -> order: payNotify.notifyStatus 支付成功异步回调结果
+ alt 图书来源是喜马拉雅
+ order -> proxy: ximalaya/distribute 同步喜马拉雅订购关系(多章节加任务队列异步处理)
+                proxy -->order: ximalaya/distribute 返回同步喜马拉雅订购关系响应
+ end
+ order -> subscribe: itemService.batchSubscribe 批量订购
+            subscribe -->order: itemService.batchSubscribe 返回批量订购的响应
+ order -> order: 发送mq,topic=ItemPurch,tags=Main
+            alt rdo订购
+ order -> order: 发送mq,topic=SubRdo,tags=Main
+            end
+ order -> order: 监听mq,topic=ItemPurch,tags=Main,删除商品购买订单表：ord_t_itempurchase_order中的订单,保存订单信息到历史订单商品仓库表：ord_t_item_repository
+ order -->cgw: payNotify.notifyStatus 返回支付完成回调结果的响应
+ end
+    ctu -> order: historyOrderManagementService.batchFetchHistoryOrders 查询历史订单
+ order -->ctu: historyOrderManagementService.batchFetchHistoryOrders 返回查询历史订单的响应
+ alt 微信支付轮询达到次数上限没有查到历史订单
+        ctu -->"subscribe-service":  purchaseObj 点播图书返回24908
+    end
+end
+alt 订单支付已完成
+ alt 权益支付
+        ctu -> ctu: 记录包月预结算话单
+ alt 包月栏目首次访问
+            ctu -> ctu: 记录包月首次访问话单
+ end
+ end
+ alt 享受会员折扣
+        ctu -> ctu: 记录包月首次访问话单：享受会员折扣
+ end
+end
+alt 抽奖奖品为特价图书后，按本订购特价图书
+    ctu -> campaign: lotteryCampaignService.setLotteryInfo 更新中奖信息为已完成
+    campaign -->ctu: lotteryCampaignService.setLotteryInfo 返回更新中奖信息为已完成的响应
+end
+alt 连续计费
+ alt 支付方式是咪咕话费网页SDK支付(210),咪咕绑定话费网页SDK支付(214),小程序阳光计划sdk支付(228)
+        ctu -> proxy: continuousBilling/sunContinuousCharging 快捷支付
+        proxy -->ctu: continuousBilling/sunContinuousCharging 返回快捷支付的响应
+ end
+end
+ctu -->"subscribe-service":  purchaseObj 点播图书返回
+
+"subscribe-service" -->"ms-trade": purchaseObj 返回点播图书的响应
+"ms-trade" -->用户: wapPurchase 返回点播图书的响应
+@enduml

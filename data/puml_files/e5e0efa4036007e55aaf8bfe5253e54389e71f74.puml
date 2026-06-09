@@ -1,0 +1,26 @@
+' Blob ID: e5e0efa4036007e55aaf8bfe5253e54389e71f74
+' Original Path: /doc/src/puml/account.puml
+' Source: World of Code
+
+@startuml
+'https://plantuml.com/sequence-diagram
+title  系统用户登录时序图
+skinparam backgroundColor #EEEBDC
+skinparam handwritten true
+autonumber
+actor Client as client
+participant API as server
+participant MsgServer as netty
+== login ==
+client ->  server : login
+server -> server : account verify
+alt verify success:
+    server --> client :generate jwt and return
+    client -> netty: connect MsgServer and build tcp connect
+    note left: connect MsgServer with jwt
+    netty -> netty: parse jwt  and  attr the accountInfo to Channel
+    netty --> client : connect success
+else verify fail:
+    server --> client: login failed;
+end alt
+@enduml

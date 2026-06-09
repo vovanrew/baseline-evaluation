@@ -1,0 +1,25 @@
+' Blob ID: 568fd76df4b49045a4075f660e3304a245ac5635
+' Original Path: /callServerInterceptor.puml
+' Source: World of Code
+
+@startuml
+
+ConnectInterceptor -> StreamAllocation:newStream
+StreamAllocation -> RealConnection:connect
+RealConnection -> Http2Connection:start()
+CallServerInterceptor -> Http2Codec:writeRequestHeaders
+Http2Codec -> Http2Connection:newStream
+Http2Connection -> Http2Writer:synStream
+Http2Writer -> Sink:write
+Sink -> Socket
+CallServerInterceptor -> Sink:write
+Http2Connection -> ReaderRunnable:execute()
+ReaderRunnable -> Http2Read:nextFrame()
+Http2Read -> Http2Connection:handle
+Http2Connection -> Http2Stream:receiveXXX()
+Http2Stream -> Source:read()
+Source -> Socket
+
+
+
+@enduml

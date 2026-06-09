@@ -1,0 +1,97 @@
+' Blob ID: 2b81c26799a6f7c76f023689f2fec36e30d18c05
+' Original Path: /docs/SprintB/US/US13/US013_SD.puml
+' Source: World of Code
+
+@startuml
+autonumber
+'hide footbox
+actor "Administrator" as Administrator
+
+participant ":SpecifyNewVaccineUI" as NewVaccineUI
+participant ":SpecifyNewVaccineController" as NewVaccineController
+participant ":Company" as Company
+participant ":VaccineStore" as VaccineStore
+participant "vc:Vaccine" as Vaccine
+participant "admPro:AdministrationProcess" as AdministrationProcess
+participant ":VaccineTypeStore" as VaccineTypeStore
+participant ":VaccineType" as VaccineType
+
+
+activate Administrator
+
+Administrator -> NewVaccineUI : starts specifying a new vaccine and its administration process
+activate NewVaccineUI
+
+NewVaccineUI -> NewVaccineController : createVaccine()
+activate NewVaccineController
+
+NewVaccineController -> Company : typeList = getVaccineTypeList()
+activate Company
+
+Company -> VaccineTypeStore : getVaccineTypeList()
+activate VaccineTypeStore
+
+loop for all known vaccineTypes
+VaccineTypeStore -> VaccineType : VaccineType(code,name)
+activate VaccineType
+deactivate VaccineTypeStore
+deactivate VaccineType
+end
+
+NewVaccineUI --> Administrator : request data (name, manufacturer, type, age groups,doses,elapsing interval, dosage) and show vaccineType list
+deactivate NewVaccineUI
+deactivate NewVaccineController
+deactivate Company
+deactivate VaccineTypeStore
+
+
+Administrator -> NewVaccineUI : types requested data
+activate NewVaccineUI
+
+NewVaccineUI -> NewVaccineController : createVaccine(id,name,manufacturer,type,administrationProcess)
+activate NewVaccineController
+
+NewVaccineController -> Company : createVaccine(id,name,manufacturer,type,administrationProcess)
+activate Company
+
+Company -> VaccineStore : createVaccine(id,name,manufacturer,type,administrationProcess)
+activate VaccineStore
+deactivate Company
+
+create Vaccine
+VaccineStore -> Vaccine** : vc = createVaccine(id,name,manufacturer,type,administrationProcess)
+activate Vaccine
+
+loop for all age groups
+Vaccine -> AdministrationProcess** : administrationProcess(minAge,maxAge,numberOfDoses,dosage,timeElapsed)
+activate AdministrationProcess
+end
+deactivate AdministrationProcess
+
+Vaccine -> Vaccine : validateVaccine()
+
+VaccineStore -> VaccineStore : validateVaccine(vc)
+deactivate Vaccine
+
+NewVaccineUI --> Administrator : shows data and request confirmation
+deactivate VaccineStore
+
+Administrator -> NewVaccineUI : confirms data
+
+NewVaccineUI -> NewVaccineController : saveVaccine()
+
+NewVaccineController -> Company : saveVaccine()
+activate Company
+
+Company -> VaccineStore : saveVaccine()
+activate VaccineStore
+
+VaccineStore -> VaccineStore : addVacine(vc)
+
+NewVaccineUI --> Administrator : informs operation (in)success
+deactivate VaccineStore
+deactivate Company
+deactivate NewVaccineController
+deactivate NewVaccineUI
+
+@enduml

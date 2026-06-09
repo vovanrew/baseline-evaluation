@@ -1,0 +1,45 @@
+' Blob ID: 472d1ec28fb7a4ebea8d700d2acace536733c278
+' Original Path: /uml/a/a1.puml
+' Source: World of Code
+
+@startuml
+hide footbox
+title login by token
+actor "学术袁" as Y #red
+
+Y->"App客户端" as A :启动
+activate A
+A->A : 检测本地登录信息
+
+alt 有本地记录
+    alt token有效
+           deactivate A
+           A-> "后台服务器" as H :token自动登陆
+    else token无效
+           A-> Y : 提示登录
+           Y-> A : 输入手机号+密码
+           A-> H : 手机号+密码登录
+           H-> A : 返回新的token
+           A-> A : token保存
+    end
+else 无本地记录
+ A-> Y : 提示输入手机号
+ A-> H : 请求发送验证码
+ H->A : 返回验证码
+ Y->A : 输入验证码
+ A->H : 请求后台验证
+    alt 已注册
+        A-> Y : 提示登录
+        Y-> A : 输入手机号+密码
+        A-> H : 手机号+密码登录
+        H-> A : 返回新的token
+        A-> A : token保存
+    else 未注册
+        A-> Y : 提示注册
+        Y-> A : 输入两次密码
+        A-> H : 请求注册
+        H-> A : 返回新的token
+        A-> A : token保存
+    end
+end
+@enduml

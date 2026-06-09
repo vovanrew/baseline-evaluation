@@ -1,0 +1,125 @@
+' Blob ID: 145fbd18e198eee56d4b12fedb058ad3ecf5a1c7
+' Original Path: /.history/surfManeirão_20201015164659.wsd
+' Source: World of Code
+
+@startuml
+
+package Util {
+  class Request {
+    #request: {}
+    +get(url)
+  }
+}
+
+package Client {
+  
+  interface IInfoPraiaFonte {
+    [key: String]: number
+  }
+
+  interface IInfoPonto {
+    tempo: String
+    alturaOnda: IInfoPraiaFonte
+    direçãoOnda: IInfoPraiaFonte
+    alturaOndulação: IInfoPraiaFonte
+    direçãoOndulação: IInfoPraiaFonte
+    períodoOndulação: IInfoPraiaFonte
+    velocidadeVento: IInfoPraiaFonte
+    direçãoVento: IInfoPraiaFonte
+  }
+
+  interface IInfoPontoPrevisãoResponse {
+    hours: IInfoPonto[]
+  }
+
+  interface IPrevisãoPonto {
+    tempo: String
+    alturaOnda: Number
+    direçãoOnda: Number
+    alturaOndulação: Number
+    direçãoOndulação: Number
+    períodoOndulação: Number
+    velocidadeVento: Number
+    direçãoVento: Number
+  }
+  
+  class ApiInfoPraia {
+    -parameters: []
+    #request: Class Request
+    +buscarPonto(lat, lng): <IPrevisãoPonto[]>
+    +normalizarResponse(points: IInfoPontoPrevisãoResponse): IPrevisãoPonto[]
+    +PontoÉVálido(point: <IInfoPonto>): Boolean
+  }
+  note top: parameters: [alturaOnda, direçãoOnda, alturaOndulação,\n direçãoOndulação, períodoOndulação,\n velocidadeVento, direçãoVento]
+
+  ApiInfoPraia -> Request
+  ApiInfoPraia *- IPrevisãoPonto
+  IInfoPonto -* ApiInfoPraia
+}
+package Models {
+
+  interface IUser {
+    id: String
+    name: String
+    email: String
+    password: String
+  }
+
+  interface ModelUser extends IUser {
+    
+  }
+
+  enum Position {
+    N
+    S
+    L
+    O
+  }
+
+  interface IPraia {
+    -id: Integer
+    -name: String
+    -position[1]: Position
+    -lat: Integer
+    -lng: Integer
+    -user: String
+  }
+
+  IPraia -> Position
+
+  interface PraiaModel extends IPraia
+
+  class Praia implements PraiaModel
+}
+
+package Controllers {
+  class PraiasController {
+    -praia: Praia
+    -resultado: mensagem
+    -create(req, res)
+    -nova Praia(req.body)
+    -praia.save()
+  }
+
+  PraiasController *- Praia
+}
+package Middlewares {}
+
+package Services {
+  interface IPrevisãoPraia extends IPraia, IPrevisãoPonto {
+    avaliação: Number
+  }
+
+  interface ITempoPrevisão {
+    tempo: String
+    previsão: IPrevisãoPraia[]
+  }
+
+  class Previsão {
+    #apiInfoPraia: novo ApiInfoPraia
+    #serviçoAvaliação: Avaliação
+    +processandoPrevisãoPorPraia(praia): <ITempoPrevisão[]>
+  }
+}
+
+@enduml

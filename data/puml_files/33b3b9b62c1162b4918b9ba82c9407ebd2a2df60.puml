@@ -1,0 +1,34 @@
+' Blob ID: 33b3b9b62c1162b4918b9ba82c9407ebd2a2df60
+' Original Path: /uml/deduction.puml
+' Source: World of Code
+
+@startuml
+actor browser
+== deduction authorization and charge ==
+browser -> G_Shield: insure
+alt authorization
+G_Shield -> grabPay: deduction authorization
+grabPay --> browser: authorization page
+browser -> grabPay: confirm authorization
+grabPay --> browser: authorization result
+end
+
+grabPay --> G_Shield: authorization result
+
+loop charge
+G_Shield -> grabPay: silently charge
+grabPay -> G_Shield: charge result
+G_Shield --> grabPay: confirm receive
+G_Shield --> G_Shield: underwriting
+end
+
+== refund ==
+browser -> G_Shield: withdrawal
+G_Shield -> G_Shield: withdrawal
+G_Shield -> grabPay: cancel authorization
+grabPay --> G_Shield: authorization result
+G_Shield -> grabPay: refund
+grabPay --> G_Shield: refund result
+G_Shield --> browser: withdrawal result
+
+@enduml

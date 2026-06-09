@@ -1,0 +1,24 @@
+' Blob ID: cb69791894608101a8632bc1b39f78df8133f478
+' Original Path: /uml/认证时序图.puml
+' Source: World of Code
+
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+actor       客户端
+客户端 -> 认证中心: 认证请求
+'认证中心 -> 缓存: 存放(key=token+ip,value=token)token
+客户端 <- 认证中心 : JWT
+
+客户端 -> 网关: 服务请求 (带JWT)
+网关 -> 认证中心 : 请求公钥
+认证中心 -> 网关 : JWK
+网关 -> 网关: 验证签名
+网关 -> 缓存: 请求用户权限
+网关 <- 缓存: 返回用户权限列表
+网关 -> 网关: 鉴权
+网关 -> 业务服务: 服务请求
+业务服务 -> 客户端: 服务响应
+
+@enduml

@@ -1,0 +1,30 @@
+' Blob ID: 35521f600e0fe37b5c0d2bb56972d991404eb53d
+' Original Path: /docs/sequences/admin/sign-up.sequence.puml
+' Source: World of Code
+
+@startuml
+
+actor User
+control server
+database user
+autonumber
+
+User -> server: POST /sign-up with body: email and password
+activate server
+server -> user: Check email existence
+activate user
+alt Email existed
+    user --> server: Error code
+    server --> User: Error message
+else Email is new
+    user --> server: Email is available
+    server -> server: Hash password
+    server -> user: Store email and hashed password
+    user --> server: Store complete
+    deactivate user
+    server --> User: Success message
+    deactivate server
+end
+
+
+@enduml

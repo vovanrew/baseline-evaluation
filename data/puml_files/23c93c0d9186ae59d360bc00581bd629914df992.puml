@@ -1,0 +1,72 @@
+' Blob ID: 23c93c0d9186ae59d360bc00581bd629914df992
+' Original Path: /docs/SprintD/US/US7/US007_SD.puml
+' Source: World of Code
+
+@startuml
+autonumber
+actor "Nurse" as nur
+
+participant ": RecordAdverseReactionUI" as UI
+participant ": RecordAdverseReactionController" as ctrl
+participant ": Company" as comp
+participant ": AdverseReactionStore" as store
+participant ": AdverseReactionDTO" as dto
+participant ": AdverseReactionMapper" as mapper
+participant ": WaitingRoomStore" as wstore
+participant ": AdverseReaction" as adverse
+
+
+activate nur
+nur -> UI : Starts recording adverse reaction
+activate UI
+UI --> nur : asks for data(SNS Number, Adverse Reaction Text)
+deactivate UI
+nur -> UI : types requested data
+activate UI
+UI -> ctrl : createAdverseReaction(SNSNumber, advReact)
+
+activate ctrl
+ctrl -> comp : wstore = getWaitingRoomStore()
+ctrl -> comp : store = getRecordAdverseReactionStore()
+ctrl -> wstore : snsu = getSNSUserInTheWaitingRoomByItsSNSNumber(snsuserNumber)
+ctrl -> wstore : vc = getVaccinationCenterBySNSNumber(snsuserNumber)
+ctrl -> store : ar = createAdverseReaction(snsu, advReact, vc)
+activate store
+store --> adverse** : create(snsu,advReact,vc)
+deactivate store
+ctrl -> store : validateAdverseReaction(ar)
+activate store
+deactivate store
+ctrl -> mapper : toDTO(ar)
+activate mapper
+ref over mapper
+SD_AdverseReactionMapper_toDTO
+endref
+mapper --> ctrl : arDTO
+deactivate mapper
+ctrl --> UI : arDTO
+deactivate ctrl
+UI --> nur : shows SNS User correspondent to the SNS Number \n and adverse reaction waiting for approval
+deactivate UI
+nur -> UI : confirms action
+activate UI
+UI -> ctrl : saveAdverseReaction()
+activate ctrl
+ctrl -> store : saveAdverseReaction(ar)
+activate store
+store -> store : validateAdverseReaction(ar)
+activate store
+deactivate store
+store -> store : addAdverseReaction(ar)
+activate store
+deactivate store
+
+deactivate store
+UI --> nur : informs oppertion success
+deactivate UI
+
+
+deactivate nur
+
+
+@enduml
