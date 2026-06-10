@@ -7,11 +7,13 @@ the same (source, target, relation) edge. The canonical orientations follow
 evaluation-framework.md §2.2/§4: inheritance child->parent, composition and
 aggregation whole->part, dependency dependent->dependency (arrow tail->head).
 """
+import os
+
 import pytest
 
 from element_f1_runner import EXTRACTOR_JAR, extract_graphs
 
-FIXTURE_DIR = "data/relationship_f1/direction_fixtures"
+FIXTURE_DIR = os.path.join(os.path.dirname(__file__), "fixtures", "direction_fixtures")
 
 # Each pair renders one identical relationship written in opposite token order;
 # both stems must emit this single canonical (source, target, relation) edge.

@@ -14,8 +14,8 @@ The PlantUML block is isolated symmetrically on both sides with
 csr_runner.extract_puml, so a WoC header before @startuml is dropped the same way
 for GT and predictions.
 
-Usage:
-  python element_f1_runner.py --pred-dir data/csr/<run>/extracted \
+Usage (invoke from project root):
+  python evaluation/element_f1_runner.py --pred-dir data/csr/<run>/extracted \
       --test-set data/test_set.json --csr data/csr/<run>/csr_results.json \
       --out data/element_f1/<run>
 """

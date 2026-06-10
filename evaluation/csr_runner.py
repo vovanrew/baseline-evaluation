@@ -12,9 +12,9 @@ missing prediction (e.g. an inference timeout) correctly counts as a failure.
 Outputs <out>/csr_results.json (summary + per-diagram) plus the extracted .puml
 and rendered PNGs for inspection / downstream metrics.
 
-Usage:
-  python csr_runner.py --pred-dir data/smoke_runs/<run> --out data/csr/<run>
-  python csr_runner.py --pred-dir <dir> --test-set data/test_set.json --out <dir>
+Usage (invoke from project root):
+  python evaluation/csr_runner.py --pred-dir data/smoke_runs/<run> --out data/csr/<run>
+  python evaluation/csr_runner.py --pred-dir <dir> --test-set data/test_set.json --out <dir>
 """
 from __future__ import annotations
 

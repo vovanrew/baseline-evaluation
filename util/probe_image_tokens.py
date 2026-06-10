@@ -10,8 +10,8 @@ For Qwen3.5 the expected relation is tokens ~= round32(W)*round32(H) / (32*32).
 A LINEAR curve through 1568^2 means no compression at/below the standard; a
 PLATEAU reveals the provider's max_pixels cap (the knee = its applied budget).
 
-Usage:
-  FEATHERLESS_API_KEY=... python probe_image_tokens.py
+Usage (invoke from project root):
+  FEATHERLESS_API_KEY=... python util/probe_image_tokens.py
   (override --base-url / --model for other OpenAI-compatible providers)
 """
 from __future__ import annotations

@@ -63,6 +63,11 @@ vocabulary:
 | association | any other plain line (solid, with or without a plain arrow) |
 | message | any sequence-diagram message |
 
+The orientation of a directional edge is fixed by the link decoration — the
+triangle, diamond, or arrow head — rather than the order in which its two
+entities are written, so a relation drawn in either token order yields a single
+canonical edge.
+
 Realization is folded into inheritance. Every sequence message is typed
 `message`; a message whose counterpart lies outside the diagram is recorded with
 an empty external endpoint on the side the external participant occupies: the
@@ -111,8 +116,10 @@ equal, where the match key is the triple of source endpoint, target endpoint, an
 canonical relation type. Endpoints are display names compared after lowercasing
 and trimming, the same normalization applied to nodes. Matching is multiset, so an
 edge occurring k times — including parallel edges between the same pair — is
-credited at most k times. The edge label is excluded from the key, as it is
-free text recovered from the image and not part of the relation's structure.
+credited at most k times. The edge label is excluded from the key: it is
+transcribed surface text rather than structure, so a relation is identified by
+its endpoints and canonical type alone, and the fidelity of message wording is
+assessed separately by the surface metric (chrF++).
 
 Edge direction enters the match key by relation type. Inheritance, composition,
 aggregation, dependency, and message are directional: their endpoints carry an
@@ -145,3 +152,40 @@ messages in sequence diagrams.
 Relationship F1 is reported under the same two diagram populations as Element F1,
 the compiled-only and zeros-for-failed populations, and both sides of every
 comparison have their PlantUML block isolated identically before extraction.
+
+## 5. chrF++
+
+chrF++ measures surface text fidelity between the predicted and ground-truth
+PlantUML code as a single character-and-word n-gram F-score. It covers the
+descriptive dimensions the structural metrics deliberately exclude — message
+wording, member signatures, multiplicities, role labels — and so complements
+Element F1 and Relationship F1 with a graded partial-credit signal on near-miss
+text.
+
+The score is sacrebleu's chrF with character n-grams up to order 6 and word
+n-grams up to order 2 (the `++` extension), weighted equally and combined with
+β = 2 (recall weighted twice precision), implemented via sacrebleu 2.6.0
+(`char_order=6, word_order=2, beta=2`). Per-diagram scores are computed with
+`sentence_chrf`; values lie on sacrebleu's native 0–100 range and are stored
+unrescaled. Both sides of every comparison have their PlantUML block isolated
+identically — the span from the first `@startuml` to the last `@enduml`, the
+same procedure applied for the structural metrics — so any repository header,
+markdown fence, or surrounding prose is removed symmetrically before scoring.
+
+Scores are aggregated over the set in two ways. The macro average is the
+unweighted mean of the per-diagram sentence scores, weighting each diagram
+equally. The micro average is the corpus chrF++ computed over all
+(hypothesis, reference) pairs jointly, pooling n-gram counts across the set and
+therefore weighting each diagram by its n-gram volume — long, low-scoring
+predictions move the corpus number more than short ones.
+
+chrF++ is reported under two diagram populations defined to be comparable with
+Element F1 and Relationship F1. The compiled-only population restricts scoring
+to predictions that pass Compilation Success Rate. The zeros-for-failed
+population spans every test-set key, with any missing or non-compiling
+prediction forced to score zero and contributing an empty hypothesis to the
+corpus-level pool. The compile gate is supplied explicitly from the CSR result
+file: unlike the structural metrics, where a non-parsing prediction yields an
+empty graph and therefore F1 zero by construction, chrF++ is parse-independent
+and a syntactically broken prediction can still have a non-zero surface
+similarity to the ground truth.

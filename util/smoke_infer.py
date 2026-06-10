@@ -7,8 +7,8 @@ ingested (prompt_tokens > text-only baseline), and stores every raw response
 untouched. Confirms the path returns code at acceptable cost/latency before
 scaling.
 
-Usage:
-  FEATHERLESS_API_KEY=$(cat API-KEY.txt) python smoke_infer.py
+Usage (invoke from project root):
+  FEATHERLESS_API_KEY=$(cat API-KEY.txt) python util/smoke_infer.py
   (override --model / --n / --base-url for other OpenAI-compatible providers)
 """
 from __future__ import annotations

@@ -10,8 +10,8 @@ files that are no longer in the set so data/ matches the artifact exactly.
 
 The 1568 px model inputs are produced separately by standardize_images.py.
 
-Usage:
-  python populate_test_set.py --test-set data/test_set.json --prune
+Usage (invoke from project root):
+  python util/populate_test_set.py --test-set data/test_set.json --prune
 """
 from __future__ import annotations
 

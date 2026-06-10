@@ -8,11 +8,13 @@ internal sender->receiver normalization (evaluation-framework.md §2.2). Inbound
 an outbound external message collapse to the same edge, so a prediction that
 reverses one would spuriously match.
 """
+import os
+
 import pytest
 
 from element_f1_runner import EXTRACTOR_JAR, extract_graphs
 
-FIXTURE_DIR = "data/relationship_f1/exo_fixtures"
+FIXTURE_DIR = os.path.join(os.path.dirname(__file__), "fixtures", "exo_fixtures")
 
 EXPECTED = {
     "exo_in": ("", "A", "message"),    # [-> A : external sender -> A
