@@ -96,7 +96,11 @@ def main():
     ap.add_argument("--n", type=int, default=5)
     ap.add_argument("--keys", default="", help="comma-separated blob_id prefixes to target instead of the spread; repeats each --repeat times")
     ap.add_argument("--repeat", type=int, default=1, help="send each selected diagram this many times (cold-start/stall test)")
-    ap.add_argument("--max-tokens", type=int, default=2048)
+    # Sized ~1.5x the longest test-set GT (3546 Qwen3.5-2B tokens, see
+    # data/gt_token_stats.json), rounded up to the nearest 256: large enough that
+    # a legitimate long diagram is never silently truncated, small enough that a
+    # no-EOS repetition loop is cut off and cascades to CSR=0 (methodology §1).
+    ap.add_argument("--max-tokens", type=int, default=5376)
     ap.add_argument("--timeout", type=int, default=10, help="per-call seconds (smoke default; raise for the real run, see note below)")
     ap.add_argument("--out", default="data/smoke_runs")
     args = ap.parse_args()

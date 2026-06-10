@@ -11,9 +11,16 @@ span from the first `@startuml` to the last `@enduml` — and submitted to the
 official PlantUML renderer. A prediction succeeds when the renderer produces a
 non-empty diagram image and fails otherwise; syntactic acceptance alone is
 insufficient, so a prediction that parses but renders nothing counts as a
-failure. CSR is computed over the full set of test-set keys, so a prediction that
-is absent — for example an inference timeout that produced no output — counts as
-a failure rather than being excluded.
+failure. A prediction whose generation runs into the API's `max_tokens` ceiling
+is returned truncated, lacking the closing `@enduml`; block isolation then fails
+on the incomplete output and the renderer produces no image, so a runaway
+no-EOS generation counts as a failure rather than masking as a successful
+compile. The ceiling is set to 5376 tokens, approximately 1.5 × the longest
+test-set ground-truth length (3546 tokens, measured with the Qwen3.5-2B
+tokenizer via `transformers` 5.10.2), so a legitimate complex diagram is not
+curtailed. CSR is computed over the full set of test-set keys, so a prediction
+that is absent — for example an inference timeout that produced no output —
+counts as a failure rather than being excluded.
 
 ## 2. Structural extraction (typed graph)
 
