@@ -27,6 +27,17 @@ def test_edge_key_ignores_label():
         rf.edge_key(e("A", "B", "association", label="cancels"))
 
 
+def test_edge_key_collapses_stereotype_source_and_rendered_endpoints():
+    # PlantUML renders <<X>> as «X»; a model that transcribes the rendered
+    # chevron must produce the same edge key as a GT written in source syntax
+    # (audit-50 finding on 838542d0).
+    src = e("<<analysis>> EditVariablesUI", "<<analysis>> Variable", "message",
+            label="setValue(newValue)")
+    rendered = e("«analysis» EditVariablesUI", "«analysis» Variable", "message",
+                 label="setValue(newValue)")
+    assert rf.edge_key(src) == rf.edge_key(rendered)
+
+
 # --- edge_key: direction semantics ---
 
 def test_edge_key_inheritance_is_directional():

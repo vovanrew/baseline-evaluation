@@ -37,7 +37,9 @@ A node is a first-class diagram entity: a class-like leaf (class, interface,
 enum, abstract, ...) for class diagrams, or a participant (participant, actor,
 boundary, ...) for sequence diagrams. Each node carries its entity type and a
 name. A grouping container that holds at least one child entity (a package or
-namespace wrapping classes) is not a node; its children are the nodes.
+namespace wrapping classes) is not a node; its children are the nodes. A note
+attached to a node, an edge, or a sequence message is a visual annotation
+rather than a first-class entity and is not a node.
 
 A childless grouping container — a box written with empty braces, such as
 `rectangle "Application" {}`, an empty `package`, or a `database X {}` — is a
@@ -52,7 +54,10 @@ Node identity is the entity's **visible display name** — the label rendered in
 the image — rather than any source-level alias or code identifier. Because the
 task is image-to-code, a model can reproduce only what is visible; an entity
 declared `class "ApplicationTemplate" as Model` is identified as
-`ApplicationTemplate`. Names are compared after lowercasing and trimming.
+`ApplicationTemplate`. Names are compared after lowercasing and trimming, with
+the stereotype source syntax `<<X>>` canonicalized to the rendered chevron
+form `«X»` so that a name written in either form matches the same name
+transcribed from its rendered image.
 
 ### 2.2 Edges
 
@@ -80,7 +85,8 @@ Realization is folded into inheritance. Every sequence message is typed
 an empty external endpoint on the side the external participant occupies: the
 source is empty for an inbound message, whose external participant is the sender,
 and the target is empty for an outbound message, whose external participant is
-the receiver.
+the receiver. Sequence control-flow constructs — `alt`, `else`, `opt`, `par`,
+`loop`, `group` — are not edges; the messages they contain are emitted unchanged.
 
 ### 2.3 Accounting for unparseable predictions
 
@@ -113,6 +119,31 @@ non-compiling prediction contributing an empty graph and therefore F1 zero. Both
 sides of every comparison have their PlantUML block isolated identically (the
 span from the first `@startuml` to the last `@enduml`), so any repository header
 preceding the diagram is removed symmetrically before extraction.
+
+Entity-type recovery is reported by a companion metric, **type accuracy**,
+computed over the name-matched node pairs; the Element F1 match key itself is
+the display name alone. The type-correct count is the multiset intersection of
+(name, type) pairs between the two sides, where the type is the extractor's
+entity type string; this count is at most the name-matched count, so the metric
+is well-defined under duplicate names without per-pair assignment. The
+denominator is the name-matched count minus the excluded pairs, and the
+excluded count is reported alongside the score. A pair is excluded when its
+ground-truth node type lies outside the scored vocabulary: the class-like types
+`class`, `abstract_class`, `interface`, `enum`, `entity`, `object`,
+`annotation`, `protocol`, `struct`, `exception`, `metaclass`, `dataclass`,
+`record`, `map`, `json`, and the participant types `participant`, `actor`,
+`boundary`, `control`, `entity`, `queue`, `database`, `collections`. Types
+outside this vocabulary do not denote a recoverable entity type: `package` is
+the extractor's emission for every childless braced container (§2.1)
+irrespective of the rendered shape, and the remaining ground-truth occurrences
+(`note`, `tips`, `point_for_association`, `description`, `lollipop_full`) are
+renderer-internal artifacts. Type accuracy is aggregated as the pooled ratio of
+type-correct pairs to the denominator over the diagram set, together with a
+per-ground-truth-type table reporting support and accuracy for each scored
+type, analogous to the per-relation stratification of Relationship F1. The
+metric is conditional on name matches, so a missing or non-compiling prediction
+contributes no pairs; it is reported for the compiled-only population, under
+which the pooled counts equal those of the zeros-for-failed population.
 
 ## 4. Relationship F1
 
@@ -165,9 +196,14 @@ comparison have their PlantUML block isolated identically before extraction.
 chrF++ measures surface text fidelity between the predicted and ground-truth
 PlantUML code as a single character-and-word n-gram F-score. It covers the
 descriptive dimensions the structural metrics deliberately exclude — message
-wording, member signatures, multiplicities, role labels — and so complements
-Element F1 and Relationship F1 with a graded partial-credit signal on near-miss
-text.
+wording, member signatures, multiplicities, role labels, stereotype tags,
+sequence control-flow framing (`alt` / `else` / `opt` / `par` / `loop` /
+`group` brackets), and notes — and so complements Element F1 and Relationship
+F1 with a graded partial-credit signal on near-miss text. The score is a single
+aggregate over all surface text and does not by itself isolate any one of these
+dimensions: a given chrF++ value reflects the joint fidelity of every surface
+layer, so the metric reports overall surface similarity rather than per-layer
+accuracy.
 
 The score is sacrebleu's chrF with character n-grams up to order 6 and word
 n-grams up to order 2 (the `++` extension), weighted equally and combined with

@@ -18,6 +18,31 @@ def test_normalize_collapses_case_only_difference():
     assert ef.normalize("ApplicationTemplate") == ef.normalize("applicationtemplate")
 
 
+# --- stereotype normalization (PlantUML renders <<X>> as «X»; a model that
+# transcribes the rendered chevron must match a GT written in source syntax,
+# audit-50 finding on 838542d0). ---
+
+def test_normalize_collapses_stereotype_source_and_rendered_form():
+    assert ef.normalize("<<analysis>> EditVariablesUI") == \
+           ef.normalize("«analysis» EditVariablesUI")
+
+
+def test_normalize_stereotype_chevrons_idempotent():
+    assert ef.normalize("«analysis» X") == "«analysis» x"
+
+
+def test_normalize_stereotype_multiple():
+    assert ef.normalize("<<A>><<B>> Node") == ef.normalize("«A»«B» Node")
+
+
+def test_prf_matches_source_vs_rendered_stereotype():
+    gt = ["<<analysis>> EditVariablesUI", "<<analysis>> Variable"]
+    pred = ["«analysis» EditVariablesUI", "«analysis» Variable"]
+    r = ef.prf([ef.normalize(x) for x in gt], [ef.normalize(x) for x in pred])
+    assert r["tp"] == 2 and r["fp"] == 0 and r["fn"] == 0
+    assert approx(r["f1"], 1.0)
+
+
 # --- prf: exact / partial ---
 
 def test_prf_perfect_match():
@@ -136,3 +161,111 @@ def test_compute_normalizes_case_across_sides():
     pred = {"k": {"nodes": [{"name": "order"}]}}
     rows = ef.compute(gt, pred, ["k"])
     assert approx(rows[0]["f1"], 1.0)
+
+
+# --- type accuracy (companion metric over name-matched pairs) ---
+
+def test_typed_pairs_from_record_normalizes_names_and_keeps_type():
+    rec = {"nodes": [{"name": " Order ", "type": "class"},
+                     {"name": "Bob", "type": "actor"}]}
+    assert ef.typed_pairs_from_record(rec) == [("order", "class"), ("bob", "actor")]
+
+
+def test_typed_pairs_from_record_empty_on_missing_nodes():
+    assert ef.typed_pairs_from_record({"error": "parse_error"}) == []
+
+
+def test_type_counts_all_types_correct():
+    gt = [("a", "class"), ("b", "interface")]
+    pred = [("a", "class"), ("b", "interface")]
+    r = ef.type_counts(gt, pred)
+    assert r["matched"] == 2 and r["correct"] == 2 and r["excluded"] == 0
+
+
+def test_type_counts_wrong_type_in_denominator_not_correct():
+    gt = [("a", "actor"), ("b", "participant")]
+    pred = [("a", "participant"), ("b", "participant")]
+    r = ef.type_counts(gt, pred)
+    assert r["matched"] == 2 and r["correct"] == 1 and r["excluded"] == 0
+
+
+def test_type_counts_unmatched_names_contribute_nothing():
+    gt = [("a", "class"), ("b", "class")]
+    pred = [("a", "class"), ("x", "class")]
+    r = ef.type_counts(gt, pred)
+    assert r["matched"] == 1 and r["correct"] == 1 and r["excluded"] == 0
+
+
+def test_type_counts_duplicate_names_mixed_types_multiset():
+    # gt: a as class + a as interface; pred: a twice as class.
+    # name-matched = 2; (name,type) intersection = 1 correct.
+    gt = [("a", "class"), ("a", "interface")]
+    pred = [("a", "class"), ("a", "class")]
+    r = ef.type_counts(gt, pred)
+    assert r["matched"] == 2 and r["correct"] == 1 and r["excluded"] == 0
+
+
+def test_type_counts_package_gt_excluded_and_reported():
+    gt = [("p", "package"), ("b", "class")]
+    pred = [("p", "package"), ("b", "class")]
+    r = ef.type_counts(gt, pred)
+    assert r["matched"] == 2
+    assert r["excluded"] == 1          # the package pair, even though types agree
+    assert r["correct"] == 1           # only the scored class pair counts
+
+
+def test_type_counts_note_gt_excluded_regardless_of_pred_type():
+    gt = [("n", "note")]
+    pred = [("n", "class")]
+    r = ef.type_counts(gt, pred)
+    assert r["matched"] == 1 and r["excluded"] == 1 and r["correct"] == 0
+
+
+def test_type_counts_unscored_pred_type_against_scored_gt_is_wrong():
+    # exclusion keys on the GT type only; an off-vocabulary pred type is just wrong
+    gt = [("a", "actor")]
+    pred = [("a", "package")]
+    r = ef.type_counts(gt, pred)
+    assert r["matched"] == 1 and r["excluded"] == 0 and r["correct"] == 0
+
+
+def test_type_counts_duplicate_name_scored_and_unscored_gt_prefers_scored():
+    # gt: x as class + x as note; pred: one x as class. The single matched slot
+    # is attributed to the scored (and type-correct) GT instance, not excluded.
+    gt = [("x", "class"), ("x", "note")]
+    pred = [("x", "class")]
+    r = ef.type_counts(gt, pred)
+    assert r["matched"] == 1 and r["correct"] == 1 and r["excluded"] == 0
+
+
+def test_type_counts_per_type_breakdown():
+    gt = [("a", "actor"), ("b", "actor"), ("c", "class")]
+    pred = [("a", "participant"), ("b", "actor"), ("c", "class")]
+    r = ef.type_counts(gt, pred)
+    assert r["per_type"]["actor"] == {"support": 2, "correct": 1}
+    assert r["per_type"]["class"] == {"support": 1, "correct": 1}
+
+
+def test_type_counts_empty_prediction():
+    r = ef.type_counts([("a", "class")], [])
+    assert r == {"matched": 0, "correct": 0, "excluded": 0, "per_type": {}}
+
+
+def test_aggregate_type_accuracy_pools_counts():
+    rows = [
+        ef.type_counts([("a", "actor")], [("a", "participant")]),   # wrong
+        ef.type_counts([("b", "class"), ("p", "package")],
+                       [("b", "class"), ("p", "package")]),         # 1 correct + 1 excluded
+    ]
+    agg = ef.aggregate_type_accuracy(rows)
+    assert agg["matched"] == 3 and agg["excluded"] == 1
+    assert agg["denominator"] == 2 and agg["correct"] == 1
+    assert approx(agg["accuracy"], 0.5)
+    assert agg["per_type"]["actor"] == {"support": 1, "correct": 0, "accuracy": 0.0}
+    assert agg["per_type"]["class"] == {"support": 1, "correct": 1, "accuracy": 1.0}
+
+
+def test_aggregate_type_accuracy_zero_denominator():
+    agg = ef.aggregate_type_accuracy([])
+    assert agg["matched"] == 0 and agg["denominator"] == 0
+    assert agg["accuracy"] is None

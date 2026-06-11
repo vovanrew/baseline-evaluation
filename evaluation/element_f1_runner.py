@@ -10,6 +10,10 @@ Two reporting modes (CLAUDE.md "Structural metrics reported two ways"):
     prediction yields an empty graph -> F1 0.
   - compiled_only:   only keys whose prediction compiled (per csr_results.json).
 
+Also reports type accuracy (companion metric, methodology §3): over the
+name-matched pairs, the share whose extractor `type` agrees, with
+container/internal GT types excluded from the denominator.
+
 The PlantUML block is isolated symmetrically on both sides with
 csr_runner.extract_puml, so a WoC header before @startuml is dropped the same way
 for GT and predictions.
@@ -123,6 +127,17 @@ def main():
                          if d.get("compiled") and d["key"] in by_key]
         summary["compiled_only"] = ef.aggregate([by_key[k] for k in compiled_keys])
 
+    # Type accuracy (companion metric): conditional on name matches, reported
+    # for the compiled population when CSR is available (pooled counts are
+    # identical under zeros_for_failed — failed predictions contribute no pairs).
+    ta_rows = ef.compute_type_accuracy(gt_by_key, pred_by_key, keys)
+    ta_by_key = {r["key"]: r for r in ta_rows}
+    ta_population = compiled_keys if compiled_keys is not None else keys
+    summary["type_accuracy"] = ef.aggregate_type_accuracy(
+        [ta_by_key[k] for k in ta_population])
+    summary["type_accuracy"]["population"] = (
+        "compiled_only" if compiled_keys is not None else "all")
+
     compiled_set = set(compiled_keys) if compiled_keys is not None else None
     diagrams = []
     for r in rows:
@@ -130,6 +145,8 @@ def main():
         d["has_pred"] = r["key"] in have_pred
         if compiled_set is not None:
             d["compiled"] = r["key"] in compiled_set
+        ta = ta_by_key[r["key"]]
+        d["type_accuracy"] = {k: ta[k] for k in ("matched", "correct", "excluded")}
         diagrams.append(d)
 
     out_path = os.path.join(args.out, "element_f1_results.json")
@@ -146,6 +163,10 @@ def main():
     show("zeros_for_failed", summary["zeros_for_failed"])
     if "compiled_only" in summary:
         show("compiled_only", summary["compiled_only"])
+    ta = summary["type_accuracy"]
+    acc = "n/a" if ta["accuracy"] is None else f"{ta['accuracy']:.3f}"
+    print(f"type_accuracy    {ta['correct']}/{ta['denominator']} = {acc} "
+          f"(excluded={ta['excluded']}, population={ta['population']})")
     print(f"results -> {out_path}")
 
 
