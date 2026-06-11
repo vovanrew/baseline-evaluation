@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
-"""End-to-end inference smoke test (PLAN Phase 0).
+"""Inference runner (evaluation_plan.md step 1.1).
 
-Sends a handful of real, standardized test-set diagrams to one hosted model with
-the zero-shot image->PlantUML prompt, validates that the image was actually
+Sends standardized test-set diagram images to one hosted model with the frozen
+zero-shot prompt (prompts/zero_shot.txt), validates that the image was actually
 ingested (prompt_tokens > text-only baseline), and stores every raw response
-untouched. Confirms the path returns code at acceptable cost/latency before
-scaling.
+untouched under the run directory.
+
+The CLI defaults (--n 5, --timeout 10) are smoke-test values: any new model or
+setting must pass on a handful of samples first (smoke-test rule). For a real
+1k run set --n 1000 --max-tokens 5376 --timeout 90.
 
 Usage (invoke from project root):
-  FEATHERLESS_API_KEY=$(cat API-KEY.txt) python util/smoke_infer.py
+  FEATHERLESS_API_KEY=$(cat API-KEY.txt) python evaluation/infer_runner.py
   (override --model / --n / --base-url for other OpenAI-compatible providers)
 """
 from __future__ import annotations
@@ -30,12 +33,13 @@ try:
 except ImportError:
     _SSL_CTX = ssl.create_default_context()
 
-PROMPT = (
-    "This image is a UML diagram. Reproduce it as valid PlantUML code that, when "
-    "rendered, matches the diagram as closely as possible: capture every element, "
-    "its members, and every relationship. Output only the PlantUML code starting "
-    "with @startuml and ending with @enduml, with no explanation."
-)
+# The frozen zero-shot prompt (one shared template for every model and diagram
+# type; methodology/benchmark-protocol.md §1). Resolved relative to this file
+# so the script works from any CWD.
+_PROMPT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "..", "prompts", "zero_shot.txt")
+with open(_PROMPT_PATH, encoding="utf-8") as _f:
+    PROMPT = _f.read().strip()
 
 
 def image_data_url(path):
