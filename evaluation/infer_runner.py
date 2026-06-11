@@ -2,13 +2,24 @@
 """Inference runner (evaluation_plan.md step 1.1).
 
 Sends standardized test-set diagram images to one hosted model with the frozen
-zero-shot prompt (prompts/zero_shot.txt), validates that the image was actually
-ingested (prompt_tokens > text-only baseline), and stores every raw response
-untouched under the run directory.
+zero-shot prompt (prompts/zero_shot.txt) and stores every raw response
+untouched under the run directory. Hardened for unattended batches:
 
-The CLI defaults (--n 5, --timeout 10) are smoke-test values: any new model or
-setting must pass on a handful of samples first (smoke-test rule). For a real
-1k run set --n 1000 --max-tokens 5376 --timeout 90.
+  - warmup: image-bearing throwaway calls until the endpoint ingests the image
+    (Featherless drops it on cold start); aborts if it never warms.
+  - per-call ingestion validation (prompt_tokens > text-only baseline) with
+    bounded retry; a persistent drop is recorded, never scored.
+  - transient HTTP (408/429/5xx) and network errors retried with backoff; one
+    bad call never kills the batch.
+  - every cell ends in a stored record: the raw response on success, else a
+    failure record {"error": timeout|image_dropped|http_error|network_error}.
+    No .puml is written on failure, so CSR scores the cell 0 downstream.
+  - resumable: --run-dir <existing dir> skips stored successes (never
+    overwritten) and re-attempts failures.
+  - run_meta.json pins model, prompt, and decoding params per run.
+
+--n defaults to 5 (smoke-test rule: pass on a handful first); a real 1k run is
+--n 1000, other defaults are run-ready.
 
 Usage (invoke from project root):
   FEATHERLESS_API_KEY=$(cat API-KEY.txt) python evaluation/infer_runner.py
@@ -48,13 +59,41 @@ def image_data_url(path):
     return f"data:image/png;base64,{b64}"
 
 
-def call(base_url, key, model, content, max_tokens, timeout):
-    body = json.dumps({
+class ApiHttpError(Exception):
+    """Non-2xx API response, with the body kept for the failure record."""
+
+    def __init__(self, code, detail):
+        self.code = code
+        self.detail = detail
+        super().__init__(f"HTTP {code}")
+
+
+def build_body(model, content, max_tokens, extra_body=None):
+    """Chat-completions request body. `extra_body` carries the per-model
+    reasoning config (methodology/benchmark-protocol.md §3), e.g.
+    {"chat_template_kwargs": {"enable_thinking": false}} for Qwen3.5 or
+    {"reasoning_effort": "none"} for GPT-5.x, and wins over defaults."""
+    body = {
         "model": model,
         "messages": [{"role": "user", "content": content}],
         "max_tokens": max_tokens,
         "temperature": 0,
-    }).encode()
+    }
+    if extra_body:
+        body.update(extra_body)
+    return body
+
+
+def reasoning_leak(text):
+    """True iff the completion carries an inline reasoning block. A leaked
+    <think> block before @startuml would be silently stripped by block
+    isolation, so thinking mode would corrupt the run invisibly downstream —
+    it must be caught here."""
+    return "<think" in text.lower()
+
+
+def call(base_url, key, model, content, max_tokens, timeout, extra_body=None):
+    body = json.dumps(build_body(model, content, max_tokens, extra_body)).encode()
     req = urllib.request.Request(
         base_url.rstrip("/") + "/chat/completions",
         data=body,
@@ -78,11 +117,90 @@ def call(base_url, key, model, content, max_tokens, timeout):
         with urllib.request.urlopen(req, timeout=timeout, context=_SSL_CTX) as resp:
             return json.loads(resp.read()), time.time() - t0
     except urllib.error.HTTPError as e:
-        detail = e.read().decode("utf-8", "replace")
-        raise SystemExit(f"HTTP {e.code} {e.reason}\nresponse body:\n{detail}")
+        raise ApiHttpError(e.code, e.read().decode("utf-8", "replace")) from e
     finally:
         signal.alarm(0)
         signal.signal(signal.SIGALRM, old)
+
+
+RETRIABLE_HTTP = {408, 429, 500, 502, 503, 504}
+
+
+def call_with_retry(call_fn, retries=3, base_delay=5.0, sleep=time.sleep, log=print):
+    """Run a no-arg call thunk, retrying transient failures with backoff.
+
+    Retriable: HTTP {408, 429, 5xx} and network-level URLError. NOT retriable:
+    other HTTP codes (a 400/401 will not heal) and TimeoutError — a timeout is
+    a per-cell verdict (no-EOS spirals reproduce deterministically; retrying
+    burns the full deadline again for the same outcome).
+    """
+    for attempt in range(retries + 1):
+        try:
+            return call_fn()
+        except ApiHttpError as e:
+            if e.code not in RETRIABLE_HTTP or attempt == retries:
+                raise
+            reason = f"HTTP {e.code}"
+        except urllib.error.URLError as e:
+            if attempt == retries:
+                raise
+            reason = f"network: {e.reason}"
+        delay = base_delay * (2 ** attempt)
+        log(f"   transient ({reason}), retry {attempt + 1}/{retries} in {delay:.0f}s")
+        sleep(delay)
+
+
+def ingested(response, baseline):
+    """True iff the image reached the model: prompt_tokens above the text-only
+    baseline. A response without usage cannot be verified -> treated as a drop."""
+    return response.get("usage", {}).get("prompt_tokens", 0) > baseline
+
+
+def infer_cell(call_fn, baseline, drop_retries=2, log=print):
+    """One benchmark cell -> outcome record {status, attempts, ...}.
+
+    status "ok": image-validated response in "response". "image_dropped": every
+    attempt returned a text-only prompt_token count (the last blind completion
+    is kept in "response" for the record, never scored). "timeout" /
+    "http_error" / "network_error": the exception detail in "detail".
+    """
+    attempts = 0
+    last = None
+    while attempts <= drop_retries:
+        attempts += 1
+        try:
+            response, secs = call_fn()
+        except TimeoutError as e:
+            return {"status": "timeout", "attempts": attempts, "detail": str(e)}
+        except ApiHttpError as e:
+            return {"status": "http_error", "attempts": attempts,
+                    "detail": f"HTTP {e.code}: {e.detail[:2000]}"}
+        except urllib.error.URLError as e:
+            return {"status": "network_error", "attempts": attempts,
+                    "detail": str(e)}
+        if ingested(response, baseline):
+            return {"status": "ok", "attempts": attempts,
+                    "response": response, "secs": secs}
+        last = response
+        log(f"   image DROPPED (attempt {attempts}/{drop_retries + 1})")
+    return {"status": "image_dropped", "attempts": attempts, "response": last}
+
+
+def warmup(call_fn, baseline, max_tries=5, log=print):
+    """Throwaway image-bearing calls until the endpoint ingests the image
+    (Featherless drops it on cold start). Returns the number of calls used;
+    aborts the run if the endpoint never warms — launching the batch would
+    silently score blind completions."""
+    for i in range(1, max_tries + 1):
+        try:
+            response, _ = call_fn()
+        except (TimeoutError, ApiHttpError, urllib.error.URLError) as e:
+            log(f"   warmup call {i}/{max_tries} failed: {e}")
+            continue
+        if ingested(response, baseline):
+            return i
+        log(f"   warmup call {i}/{max_tries}: image still dropped")
+    raise SystemExit(f"endpoint did not ingest the image in {max_tries} warmup calls")
 
 
 def pick(diagrams, n):
@@ -105,9 +223,21 @@ def main():
     # a legitimate long diagram is never silently truncated, small enough that a
     # no-EOS repetition loop is cut off and cascades to CSR=0 (methodology §1).
     ap.add_argument("--max-tokens", type=int, default=5376)
-    ap.add_argument("--timeout", type=int, default=10, help="per-call seconds (smoke default; raise for the real run, see note below)")
+    # Sized to the worst LEGITIMATE generation (~max_tokens / observed 40-52
+    # tok/s + prefill margin, PLAN Phase 2). A timeout is recorded as a failure
+    # (no .puml -> CSR 0); do NOT set it tight: that kills slow-but-valid long
+    # outputs and biases against complex tiers.
+    ap.add_argument("--timeout", type=int, default=90, help="per-call hard deadline, seconds")
     ap.add_argument("--out", default="data/smoke_runs")
+    ap.add_argument("--run-dir", default="",
+                    help="resume into this existing run dir: cells with a stored "
+                         "successful response are skipped, failed cells re-attempted")
+    ap.add_argument("--extra-body", default="",
+                    help="JSON merged into every request body — the per-model "
+                         "reasoning config (methodology §3), e.g. "
+                         '\'{"chat_template_kwargs": {"enable_thinking": false}}\'')
     args = ap.parse_args()
+    extra_body = json.loads(args.extra_body) if args.extra_body else None
 
     key = os.environ.get("FEATHERLESS_API_KEY")
     if not key:
@@ -123,50 +253,111 @@ def main():
     diagrams = [r for r in selected for _ in range(args.repeat)]
 
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    run_dir = os.path.join(args.out, f"{args.model.replace('/', '_')}_{stamp}")
+    if args.run_dir:
+        run_dir = args.run_dir
+        if not os.path.isdir(run_dir):
+            raise SystemExit(f"--run-dir {run_dir} does not exist")
+    else:
+        run_dir = os.path.join(args.out, f"{args.model.replace('/', '_')}_{stamp}")
     os.makedirs(run_dir, exist_ok=True)
 
+    def api_call(content, max_tokens):
+        return call_with_retry(lambda: call(args.base_url, key, args.model,
+                                            content, max_tokens, args.timeout,
+                                            extra_body))
+
     # Text-only baseline: prompt_tokens for an image-bearing call must exceed this.
-    base_resp, _ = call(args.base_url, key, args.model,
-                        [{"type": "text", "text": PROMPT}], max_tokens=1,
-                        timeout=args.timeout)
+    base_resp, _ = api_call([{"type": "text", "text": PROMPT}], max_tokens=1)
     baseline = base_resp["usage"]["prompt_tokens"]
     print(f"model={args.model}")
     print(f"text-only baseline prompt_tokens = {baseline}")
     print(f"run dir = {run_dir}", flush=True)
 
+    # Warm the endpoint until it ingests an image (cold-start drop defense);
+    # throwaway calls on the first diagram's image, never scored.
+    first_img = image_data_url(
+        os.path.join(args.images, diagrams[0]["key"][:-5] + ".png"))
+    warm_content = [{"type": "text", "text": PROMPT},
+                    {"type": "image_url", "image_url": {"url": first_img}}]
+    warm_calls = warmup(lambda: api_call(warm_content, max_tokens=1), baseline)
+    print(f"endpoint warm after {warm_calls} call(s)", flush=True)
+
+    with open(os.path.join(run_dir, "run_meta.json"), "w") as f:
+        json.dump({"model": args.model, "base_url": args.base_url,
+                   "prompt": PROMPT, "max_tokens": args.max_tokens,
+                   "timeout": args.timeout, "temperature": 0,
+                   "extra_body": extra_body,
+                   "test_set": args.test_set, "images": args.images,
+                   "n_cells": len(diagrams), "baseline_prompt_tokens": baseline,
+                   "warmup_calls": warm_calls, "started": stamp}, f, indent=2)
+
+    tally = {}
     for attempt, r in enumerate(diagrams):
         base = r["key"][:-5]
         stem = f"{base}_a{attempt}" if args.repeat > 1 else base
+        json_path = os.path.join(run_dir, stem + ".json")
+
+        # Resume: a stored successful response is final (never overwritten);
+        # a stored failure record is re-attempted.
+        if os.path.exists(json_path):
+            with open(json_path) as f:
+                prev = json.load(f)
+            if "error" not in prev:
+                tally["skipped"] = tally.get("skipped", 0) + 1
+                print(f"-> {base[:18]} already done, skipping", flush=True)
+                continue
+
         print(f"\n-> {base[:18]} ({r['primary_type']} T{r['tier']}, "
               f"{r['image_width']}x{r['image_height']}) sending...", flush=True)
         img = image_data_url(os.path.join(args.images, base + ".png"))
-        try:
-            resp, secs = call(args.base_url, key, args.model,
-                              [{"type": "text", "text": PROMPT},
-                               {"type": "image_url", "image_url": {"url": img}}],
-                              max_tokens=args.max_tokens, timeout=args.timeout)
-        except (urllib.error.URLError, TimeoutError) as e:
-            print(f"   FAIL after ~{args.timeout}s: {e}", flush=True)
-            continue
-        # Persist the raw response verbatim before touching it.
-        with open(os.path.join(run_dir, stem + ".json"), "w") as f:
-            json.dump(resp, f, indent=2)
+        content = [{"type": "text", "text": PROMPT},
+                   {"type": "image_url", "image_url": {"url": img}}]
+        out = infer_cell(lambda: api_call(content, args.max_tokens), baseline)
+        tally[out["status"]] = tally.get(out["status"], 0) + 1
 
+        if out["status"] != "ok":
+            # Failure record instead of a poisoned/absent cell; no .puml, so
+            # downstream CSR scores the cell 0 while the cause stays on disk.
+            record = {"error": out["status"], "key": base,
+                      "attempts": out["attempts"]}
+            if "detail" in out:
+                record["detail"] = out["detail"]
+            if "response" in out:  # the blind completion of an image_dropped cell
+                record["response"] = out["response"]
+            with open(json_path, "w") as f:
+                json.dump(record, f, indent=2)
+            print(f"   FAIL {out['status']} (attempts={out['attempts']})", flush=True)
+            continue
+
+        # Persist the raw response verbatim before touching it.
+        resp = out["response"]
+        with open(json_path, "w") as f:
+            json.dump(resp, f, indent=2)
         usage = resp.get("usage", {})
-        ptok = usage.get("prompt_tokens", 0)
-        ctok = usage.get("completion_tokens", 0)
         code = resp["choices"][0]["message"]["content"] or ""
         with open(os.path.join(run_dir, stem + ".puml"), "w") as f:
             f.write(code)
-
-        ingested = "OK" if ptok > baseline else "DROP!"
-        print(f"   ptok={ptok} ingest={ingested} ctok={ctok} {secs:.1f}s "
-              f"@startuml={'@startuml' in code} @enduml={'@enduml' in code}",
+        leak = reasoning_leak(code)
+        if leak:
+            tally["reasoning_leak"] = tally.get("reasoning_leak", 0) + 1
+        print(f"   ptok={usage.get('prompt_tokens', 0)} "
+              f"ctok={usage.get('completion_tokens', 0)} {out['secs']:.1f}s "
+              f"attempts={out['attempts']} "
+              f"@startuml={'@startuml' in code} @enduml={'@enduml' in code}"
+              f"{'  REASONING LEAK!' if leak else ''}",
               flush=True)
 
     print(f"\nraw responses + extracted .puml in {run_dir}")
-    print("ingest must read OK for every row (DROP! = image not encoded; retry/warm up).")
+    print("outcome tally:", json.dumps(tally))
+    if tally.get("reasoning_leak"):
+        print(f"WARNING: {tally['reasoning_leak']} completion(s) contain a "
+              f"<think> block — thinking mode is ON for this model/config; "
+              f"fix --extra-body before scoring (methodology §3).")
+    failed = sum(v for k, v in tally.items()
+                 if k not in ("ok", "skipped", "reasoning_leak"))
+    if failed:
+        print(f"{failed} cell(s) failed — re-run with --run-dir {run_dir} "
+              f"to retry just those.")
 
 
 if __name__ == "__main__":

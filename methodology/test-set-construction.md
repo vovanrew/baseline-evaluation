@@ -13,8 +13,8 @@ of Code). The set must (i) support stable per-stratum comparison of multimodal
 models, (ii) enable a complexity-degradation analysis, and (iii) reserve all
 selected repositories from future fine-tuning training data.
 
-Target size: 1,000 diagrams (2 types x 4 complexity tiers x 125). Fallback under
-time constraint: 500.
+Size: 1,000 diagrams (2 types x 4 complexity tiers x 125). The full set is the
+benchmark population for every model run.
 
 ## 2. Unit of analysis and identifier
 

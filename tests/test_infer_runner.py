@@ -1,0 +1,178 @@
+"""Tests for the inference-harness hardening logic (infer_runner.py).
+
+Covers the pure decision layer — transient-HTTP retry, per-cell outcome
+classification (ok / image_dropped / timeout / http_error / network_error),
+and endpoint warmup — with injected fake call thunks; no network involved.
+"""
+import urllib.error
+
+import pytest
+
+import infer_runner as ir
+
+
+def ok_response(prompt_tokens=500):
+    return ({"usage": {"prompt_tokens": prompt_tokens, "completion_tokens": 7},
+             "choices": [{"message": {"content": "@startuml\nA -> B\n@enduml"}}]},
+            1.0)
+
+
+def seq(*outcomes):
+    """A no-arg call thunk that replays outcomes; exceptions are raised."""
+    it = iter(outcomes)
+    calls = []
+
+    def thunk():
+        calls.append(1)
+        out = next(it)
+        if isinstance(out, BaseException):
+            raise out
+        return out
+    thunk.calls = calls
+    return thunk
+
+
+# --- call_with_retry: transient HTTP/network errors ---
+
+def test_retry_recovers_from_429():
+    thunk = seq(ir.ApiHttpError(429, "rate limited"), ok_response())
+    naps = []
+    resp, _ = ir.call_with_retry(thunk, sleep=naps.append, log=lambda *_: None)
+    assert resp["usage"]["prompt_tokens"] == 500
+    assert len(thunk.calls) == 2 and len(naps) == 1
+
+
+def test_retry_gives_up_after_exhausting_attempts():
+    thunk = seq(*[ir.ApiHttpError(503, "down")] * 4)
+    with pytest.raises(ir.ApiHttpError):
+        ir.call_with_retry(thunk, retries=3, sleep=lambda _: None, log=lambda *_: None)
+    assert len(thunk.calls) == 4  # initial + 3 retries
+
+
+def test_retry_does_not_retry_client_errors():
+    thunk = seq(ir.ApiHttpError(400, "bad request"), ok_response())
+    with pytest.raises(ir.ApiHttpError):
+        ir.call_with_retry(thunk, sleep=lambda _: None, log=lambda *_: None)
+    assert len(thunk.calls) == 1
+
+
+def test_retry_recovers_from_network_error():
+    thunk = seq(urllib.error.URLError("connection reset"), ok_response())
+    resp, _ = ir.call_with_retry(thunk, sleep=lambda _: None, log=lambda *_: None)
+    assert resp["usage"]["prompt_tokens"] == 500
+    assert len(thunk.calls) == 2
+
+
+def test_retry_does_not_retry_timeouts():
+    # a timeout is a per-cell verdict (deterministic no-EOS spirals), not transient
+    thunk = seq(TimeoutError("hard deadline 90s"), ok_response())
+    with pytest.raises(TimeoutError):
+        ir.call_with_retry(thunk, sleep=lambda _: None, log=lambda *_: None)
+    assert len(thunk.calls) == 1
+
+
+# --- infer_cell: per-diagram outcome classification ---
+
+def test_cell_ok_first_attempt():
+    out = ir.infer_cell(seq(ok_response()), baseline=100, log=lambda *_: None)
+    assert out["status"] == "ok" and out["attempts"] == 1
+    assert out["response"]["usage"]["prompt_tokens"] == 500
+
+
+def test_cell_image_drop_then_ok_is_ok():
+    # cold-start drop: prompt_tokens at the text-only baseline -> retry recovers
+    thunk = seq(ok_response(prompt_tokens=100), ok_response(prompt_tokens=500))
+    out = ir.infer_cell(thunk, baseline=100, log=lambda *_: None)
+    assert out["status"] == "ok" and out["attempts"] == 2
+
+
+def test_cell_persistent_drop_is_image_dropped():
+    thunk = seq(*[ok_response(prompt_tokens=100)] * 3)
+    out = ir.infer_cell(thunk, baseline=100, drop_retries=2, log=lambda *_: None)
+    assert out["status"] == "image_dropped" and out["attempts"] == 3
+    assert "response" in out  # the blind completion is kept for the record
+
+
+def test_cell_missing_usage_counts_as_drop():
+    resp = ({"choices": [{"message": {"content": "x"}}]}, 1.0)
+    out = ir.infer_cell(seq(resp, resp, resp), baseline=100, drop_retries=2,
+                        log=lambda *_: None)
+    assert out["status"] == "image_dropped"
+
+
+def test_cell_timeout_recorded_not_retried():
+    thunk = seq(TimeoutError("hard deadline 90s"), ok_response())
+    out = ir.infer_cell(thunk, baseline=100, log=lambda *_: None)
+    assert out["status"] == "timeout" and out["attempts"] == 1
+    assert len(thunk.calls) == 1
+
+
+def test_cell_http_error_recorded():
+    out = ir.infer_cell(seq(ir.ApiHttpError(401, "bad key")), baseline=100,
+                        log=lambda *_: None)
+    assert out["status"] == "http_error"
+    assert "401" in out["detail"]
+
+
+def test_cell_network_error_recorded():
+    out = ir.infer_cell(seq(urllib.error.URLError("dns")), baseline=100,
+                        log=lambda *_: None)
+    assert out["status"] == "network_error"
+
+
+# --- warmup ---
+
+def test_warmup_returns_tries_once_ingesting():
+    thunk = seq(ok_response(prompt_tokens=100), ok_response(prompt_tokens=500))
+    assert ir.warmup(thunk, baseline=100, log=lambda *_: None) == 2
+
+
+def test_warmup_tolerates_errors_between_tries():
+    thunk = seq(ir.ApiHttpError(503, "cold"), ok_response(prompt_tokens=500))
+    assert ir.warmup(thunk, baseline=100, log=lambda *_: None) == 2
+
+
+def test_warmup_aborts_when_endpoint_never_ingests():
+    thunk = seq(*[ok_response(prompt_tokens=100)] * 5)
+    with pytest.raises(SystemExit):
+        ir.warmup(thunk, baseline=100, max_tries=5, log=lambda *_: None)
+
+
+# --- build_body: per-model reasoning config passthrough ---
+
+def test_build_body_core_fields():
+    body = ir.build_body("m", [{"type": "text", "text": "hi"}], 5376)
+    assert body["model"] == "m" and body["max_tokens"] == 5376
+    assert body["temperature"] == 0
+    assert body["messages"][0]["role"] == "user"
+
+
+def test_build_body_merges_extra_body():
+    extra = {"chat_template_kwargs": {"enable_thinking": False}}
+    body = ir.build_body("Qwen/Qwen3.5-9B", [], 5376, extra_body=extra)
+    assert body["chat_template_kwargs"] == {"enable_thinking": False}
+    assert body["temperature"] == 0  # defaults untouched
+
+
+def test_build_body_extra_body_overrides_defaults():
+    # explicit per-run config wins over harness defaults
+    body = ir.build_body("m", [], 5376, extra_body={"temperature": 1})
+    assert body["temperature"] == 1
+
+
+def test_build_body_none_extra_body():
+    assert "chat_template_kwargs" not in ir.build_body("m", [], 64)
+
+
+# --- reasoning_leak: thinking content must never reach scoring silently ---
+
+def test_reasoning_leak_detects_think_block():
+    assert ir.reasoning_leak("<think>\nLet me look at the image\n</think>\n@startuml\n@enduml")
+
+
+def test_reasoning_leak_case_insensitive():
+    assert ir.reasoning_leak("<THINK>x</THINK>")
+
+
+def test_reasoning_leak_false_on_clean_output():
+    assert not ir.reasoning_leak("@startuml\nclass Thinker\nA -> B: rethink()\n@enduml")
