@@ -23,7 +23,9 @@ untouched under the run directory. Hardened for unattended batches:
 
 Usage (invoke from project root):
   FEATHERLESS_API_KEY=$(cat API-KEY.txt) python evaluation/infer_runner.py
-  (override --model / --n / --base-url for other OpenAI-compatible providers)
+  (per-model flags — --base-url / --key-env / --provider / --extra-body —
+  are tabulated in evaluation_plan.md §3; --provider gemini speaks the native
+  generateContent API, everything else OpenAI chat-completions)
 """
 from __future__ import annotations
 
@@ -84,6 +86,71 @@ def build_body(model, content, max_tokens, extra_body=None):
     return body
 
 
+def build_gemini_body(content, max_tokens, extra_body=None):
+    """Native Gemini `generateContent` body from the OpenAI-style content list.
+
+    Gemini 3.1 Pro is run through the native REST API (not the OpenAI-compat
+    layer) because methodology §3 reports per-call `thoughtsTokenCount`, which
+    only the native response's `usageMetadata` carries. `extra_body` merges
+    into `generationConfig` (e.g. {"thinkingConfig": {"thinkingLevel": "low"}}).
+    Field names per https://ai.google.dev/api/generate-content (verified
+    2026-06-12): `inline_data`/`mime_type`, `generationConfig.maxOutputTokens`.
+    """
+    parts = []
+    for item in content:
+        if item["type"] == "text":
+            parts.append({"text": item["text"]})
+        elif item["type"] == "image_url":
+            header, b64 = item["image_url"]["url"].split(",", 1)
+            mime = header.split(":", 1)[1].split(";", 1)[0]
+            parts.append({"inline_data": {"mime_type": mime, "data": b64}})
+    config = {"temperature": 0, "maxOutputTokens": max_tokens}
+    if extra_body:
+        config.update(extra_body)
+    return {"contents": [{"parts": parts}], "generationConfig": config}
+
+
+def prompt_tokens(response):
+    """Prompt-token count from either response shape: OpenAI chat-completions
+    `usage.prompt_tokens` or native Gemini `usageMetadata.promptTokenCount`."""
+    if "usageMetadata" in response:
+        return response["usageMetadata"].get("promptTokenCount", 0)
+    return response.get("usage", {}).get("prompt_tokens", 0)
+
+
+def completion_tokens(response):
+    if "usageMetadata" in response:
+        return response["usageMetadata"].get("candidatesTokenCount", 0)
+    return response.get("usage", {}).get("completion_tokens", 0)
+
+
+def thoughts_tokens(response):
+    """Gemini-only thinking-token count (reported per methodology §3 because
+    thinking cannot be disabled on the Pro tier); None for chat-completions."""
+    if "usageMetadata" in response:
+        return response["usageMetadata"].get("thoughtsTokenCount", 0)
+    return None
+
+
+def completion_text(response):
+    """The model's text from either response shape. Gemini: thought parts
+    (present only with includeThoughts) are skipped; a candidate that spent
+    its whole maxOutputTokens on thinking has no parts -> empty string."""
+    if "candidates" in response:
+        parts = response["candidates"][0].get("content", {}).get("parts", [])
+        return "".join(p.get("text", "") for p in parts if not p.get("thought"))
+    return response["choices"][0]["message"]["content"] or ""
+
+
+def resolve_api_key(env_name, environ=os.environ):
+    """API key from the env var named by --key-env (provider-agnostic:
+    FEATHERLESS_API_KEY / OPENAI_API_KEY / ANTHROPIC_API_KEY / GEMINI_API_KEY)."""
+    key = environ.get(env_name, "")
+    if not key:
+        raise SystemExit(f"set {env_name} (e.g. {env_name}=$(cat <key-file>))")
+    return key
+
+
 def reasoning_leak(text):
     """True iff the completion carries an inline reasoning block. A leaked
     <think> block before @startuml would be silently stripped by block
@@ -92,13 +159,24 @@ def reasoning_leak(text):
     return "<think" in text.lower()
 
 
-def call(base_url, key, model, content, max_tokens, timeout, extra_body=None):
-    body = json.dumps(build_body(model, content, max_tokens, extra_body)).encode()
+def call(base_url, key, model, content, max_tokens, timeout, extra_body=None,
+         provider="openai"):
+    """One API call. provider="openai": chat-completions (OpenAI, Featherless,
+    Anthropic's OpenAI-compat layer). provider="gemini": native generateContent
+    (URL pattern + x-goog-api-key header per ai.google.dev REST docs)."""
+    if provider == "gemini":
+        url = base_url.rstrip("/") + f"/models/{model}:generateContent"
+        body = json.dumps(build_gemini_body(content, max_tokens, extra_body)).encode()
+        auth = {"x-goog-api-key": key}
+    else:
+        url = base_url.rstrip("/") + "/chat/completions"
+        body = json.dumps(build_body(model, content, max_tokens, extra_body)).encode()
+        auth = {"Authorization": f"Bearer {key}"}
     req = urllib.request.Request(
-        base_url.rstrip("/") + "/chat/completions",
+        url,
         data=body,
         headers={
-            "Authorization": f"Bearer {key}",
+            **auth,
             "Content-Type": "application/json",
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                           "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -153,7 +231,7 @@ def call_with_retry(call_fn, retries=3, base_delay=5.0, sleep=time.sleep, log=pr
 def ingested(response, baseline):
     """True iff the image reached the model: prompt_tokens above the text-only
     baseline. A response without usage cannot be verified -> treated as a drop."""
-    return response.get("usage", {}).get("prompt_tokens", 0) > baseline
+    return prompt_tokens(response) > baseline
 
 
 def infer_cell(call_fn, baseline, drop_retries=2, log=print):
@@ -232,6 +310,14 @@ def main():
     ap.add_argument("--run-dir", default="",
                     help="resume into this existing run dir: cells with a stored "
                          "successful response are skipped, failed cells re-attempted")
+    ap.add_argument("--provider", default="openai", choices=["openai", "gemini"],
+                    help="API shape: openai = chat-completions (OpenAI, "
+                         "Featherless, Anthropic OpenAI-compat); gemini = "
+                         "native generateContent (preserves thoughtsTokenCount; "
+                         "--extra-body merges into generationConfig)")
+    ap.add_argument("--key-env", default="FEATHERLESS_API_KEY",
+                    help="env var holding the API key for --base-url "
+                         "(e.g. OPENAI_API_KEY, ANTHROPIC_API_KEY, GEMINI_API_KEY)")
     ap.add_argument("--extra-body", default="",
                     help="JSON merged into every request body — the per-model "
                          "reasoning config (methodology §3), e.g. "
@@ -239,9 +325,7 @@ def main():
     args = ap.parse_args()
     extra_body = json.loads(args.extra_body) if args.extra_body else None
 
-    key = os.environ.get("FEATHERLESS_API_KEY")
-    if not key:
-        raise SystemExit("set FEATHERLESS_API_KEY (e.g. FEATHERLESS_API_KEY=$(cat API-KEY.txt))")
+    key = resolve_api_key(args.key_env)
 
     all_diagrams = json.load(open(args.test_set))["diagrams"]
     if args.keys:
@@ -264,11 +348,11 @@ def main():
     def api_call(content, max_tokens):
         return call_with_retry(lambda: call(args.base_url, key, args.model,
                                             content, max_tokens, args.timeout,
-                                            extra_body))
+                                            extra_body, provider=args.provider))
 
     # Text-only baseline: prompt_tokens for an image-bearing call must exceed this.
     base_resp, _ = api_call([{"type": "text", "text": PROMPT}], max_tokens=1)
-    baseline = base_resp["usage"]["prompt_tokens"]
+    baseline = prompt_tokens(base_resp)
     print(f"model={args.model}")
     print(f"text-only baseline prompt_tokens = {baseline}")
     print(f"run dir = {run_dir}", flush=True)
@@ -284,6 +368,7 @@ def main():
 
     with open(os.path.join(run_dir, "run_meta.json"), "w") as f:
         json.dump({"model": args.model, "base_url": args.base_url,
+                   "provider": args.provider,
                    "prompt": PROMPT, "max_tokens": args.max_tokens,
                    "timeout": args.timeout, "temperature": 0,
                    "extra_body": extra_body,
@@ -333,15 +418,17 @@ def main():
         resp = out["response"]
         with open(json_path, "w") as f:
             json.dump(resp, f, indent=2)
-        usage = resp.get("usage", {})
-        code = resp["choices"][0]["message"]["content"] or ""
+        code = completion_text(resp)
         with open(os.path.join(run_dir, stem + ".puml"), "w") as f:
             f.write(code)
         leak = reasoning_leak(code)
         if leak:
             tally["reasoning_leak"] = tally.get("reasoning_leak", 0) + 1
-        print(f"   ptok={usage.get('prompt_tokens', 0)} "
-              f"ctok={usage.get('completion_tokens', 0)} {out['secs']:.1f}s "
+        thoughts = thoughts_tokens(resp)
+        print(f"   ptok={prompt_tokens(resp)} "
+              f"ctok={completion_tokens(resp)} "
+              f"{f'ttok={thoughts} ' if thoughts is not None else ''}"
+              f"{out['secs']:.1f}s "
               f"attempts={out['attempts']} "
               f"@startuml={'@startuml' in code} @enduml={'@enduml' in code}"
               f"{'  REASONING LEAK!' if leak else ''}",

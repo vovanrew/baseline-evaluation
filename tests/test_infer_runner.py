@@ -164,6 +164,96 @@ def test_build_body_none_extra_body():
     assert "chat_template_kwargs" not in ir.build_body("m", [], 64)
 
 
+# --- Gemini native adapter: generateContent body + response accessors ---
+
+def test_build_gemini_body_text_and_image():
+    content = [{"type": "text", "text": "prompt"},
+               {"type": "image_url", "image_url": {"url": "data:image/png;base64,QUJD"}}]
+    body = ir.build_gemini_body(content, 5376,
+                                extra_body={"thinkingConfig": {"thinkingLevel": "low"}})
+    parts = body["contents"][0]["parts"]
+    assert parts[0] == {"text": "prompt"}
+    assert parts[1] == {"inline_data": {"mime_type": "image/png", "data": "QUJD"}}
+    cfg = body["generationConfig"]
+    assert cfg["temperature"] == 0 and cfg["maxOutputTokens"] == 5376
+    assert cfg["thinkingConfig"] == {"thinkingLevel": "low"}
+
+
+def test_build_gemini_body_without_extra_body():
+    body = ir.build_gemini_body([{"type": "text", "text": "hi"}], 64)
+    assert body["generationConfig"] == {"temperature": 0, "maxOutputTokens": 64}
+
+
+def test_prompt_tokens_openai_shape():
+    assert ir.prompt_tokens({"usage": {"prompt_tokens": 432}}) == 432
+
+
+def test_prompt_tokens_gemini_shape():
+    assert ir.prompt_tokens({"usageMetadata": {"promptTokenCount": 1900}}) == 1900
+
+
+def test_prompt_tokens_missing_usage_is_zero():
+    assert ir.prompt_tokens({"choices": []}) == 0
+
+
+def test_completion_text_openai_shape():
+    resp = {"choices": [{"message": {"content": "@startuml\n@enduml"}}]}
+    assert ir.completion_text(resp) == "@startuml\n@enduml"
+
+
+def test_completion_text_openai_null_content():
+    assert ir.completion_text({"choices": [{"message": {"content": None}}]}) == ""
+
+
+def test_completion_text_gemini_shape():
+    resp = {"candidates": [{"content": {"parts": [{"text": "@startuml\n"},
+                                                  {"text": "@enduml"}]}}]}
+    assert ir.completion_text(resp) == "@startuml\n@enduml"
+
+
+def test_completion_text_gemini_skips_thought_parts():
+    resp = {"candidates": [{"content": {"parts": [
+        {"text": "internal plan", "thought": True}, {"text": "@startuml"}]}}]}
+    assert ir.completion_text(resp) == "@startuml"
+
+
+def test_completion_text_gemini_empty_candidate():
+    # thinking can consume the whole maxOutputTokens -> candidate without parts
+    assert ir.completion_text({"candidates": [{"finishReason": "MAX_TOKENS"}]}) == ""
+
+
+def test_thoughts_tokens_gemini():
+    resp = {"usageMetadata": {"promptTokenCount": 5, "thoughtsTokenCount": 712}}
+    assert ir.thoughts_tokens(resp) == 712
+
+
+def test_thoughts_tokens_none_for_chat_completions():
+    assert ir.thoughts_tokens({"usage": {"prompt_tokens": 5}}) is None
+
+
+def test_ingested_works_on_gemini_shape():
+    assert ir.ingested({"usageMetadata": {"promptTokenCount": 1900}}, baseline=93)
+    assert not ir.ingested({"usageMetadata": {"promptTokenCount": 93}}, baseline=93)
+
+
+# --- resolve_api_key: provider-agnostic key lookup (--key-env) ---
+
+def test_resolve_api_key_reads_named_env_var():
+    assert ir.resolve_api_key("OPENAI_API_KEY",
+                              {"OPENAI_API_KEY": "sk-test"}) == "sk-test"
+
+
+def test_resolve_api_key_missing_aborts_with_var_name():
+    with pytest.raises(SystemExit) as exc:
+        ir.resolve_api_key("ANTHROPIC_API_KEY", {})
+    assert "ANTHROPIC_API_KEY" in str(exc.value)
+
+
+def test_resolve_api_key_empty_value_aborts():
+    with pytest.raises(SystemExit):
+        ir.resolve_api_key("GEMINI_API_KEY", {"GEMINI_API_KEY": ""})
+
+
 # --- reasoning_leak: thinking content must never reach scoring silently ---
 
 def test_reasoning_leak_detects_think_block():

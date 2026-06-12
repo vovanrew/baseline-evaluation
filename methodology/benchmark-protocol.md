@@ -41,6 +41,39 @@ legitimate generation at observed throughput). Each run stores one record per
 test-set cell and a `run_meta.json` pinning the model identifier, endpoint,
 prompt text, and decoding parameters.
 
+Each provider is reached through the endpoint that carries its frozen
+reasoning configuration (§3) and the usage fields the harness validates
+(endpoint documentation verified against provider primary sources
+2026-06-12):
+
+- **OpenAI (`gpt-5.2-2025-12-11`) and Featherless (Qwen3.5)** — the native
+  OpenAI chat-completions shape (`https://api.openai.com/v1`,
+  `https://api.featherless.ai/v1`). Featherless serves Qwen3.5-2B in FP16
+  and Qwen3.5-9B/27B in FP8 (provider listings, 2026-06-11); all three
+  sizes ingest the 1,568 px image standard without downscaling
+  (`util/probe_image_tokens.py`; test-set-construction.md §7).
+- **Anthropic (`claude-sonnet-4-6`)** — Anthropic's OpenAI-compatible
+  endpoint (`https://api.anthropic.com/v1/chat/completions`), which
+  documents passthrough of the native `thinking` request parameter and
+  returns `usage.prompt_tokens`/`completion_tokens` and `image_url` content
+  (the fields the ingestion check and the shared request shape require).
+- **Google (`gemini-3.1-pro-preview`)** — the native REST endpoint
+  (`https://generativelanguage.googleapis.com/v1beta/models/<id>:generateContent`,
+  key in the `x-goog-api-key` header), selected over Google's
+  OpenAI-compatibility layer because the per-call `thoughtsTokenCount`
+  reported per §3 is carried only in the native `usageMetadata`. The harness
+  (`--provider gemini`) maps the shared prompt + image content into native
+  `contents`/`parts` (`inline_data` with the identical standardized PNG),
+  maps temperature 0 and the token cap to `generationConfig.temperature` /
+  `maxOutputTokens`, and merges the reasoning configuration into
+  `generationConfig` as `{"thinkingConfig": {"thinkingLevel": "low"}}`.
+  Ingestion validation reads `usageMetadata.promptTokenCount`; prediction
+  text is the concatenation of non-thought candidate parts (thought
+  summaries are absent without `includeThoughts`). On this endpoint
+  `maxOutputTokens` covers thinking and answer tokens jointly, so the
+  Gemini run's token cap is sized from the pilot's observed
+  thinking-token volume on top of the 5376-token answer budget.
+
 Image ingestion is validated on every call: the response's `prompt_tokens`
 must exceed a text-only baseline measured at run start, since a hosted
 endpoint can accept an image-bearing request yet silently drop the image and

@@ -165,8 +165,13 @@ model can receive identically under the controlled-comparison constraint. The
 future fine-tuned Qwen will be run at this same resolution to preserve
 baseline-to-fine-tuned comparability.
 
-The hosted Qwen path (Featherless, Qwen3.5-2B and 9B) encodes this standard
-without downscaling.
+The hosted Qwen path (Featherless, all three sizes Qwen3.5-2B/9B/27B) encodes
+this standard without downscaling: black-box probes via
+`util/probe_image_tokens.py` (2B/9B 2026-06-11; 27B 2026-06-12) show the
+returned image-token count growing linearly with pixel count and matching the
+Qwen3.5 expectation `round32(W)·round32(H)/32²` through the 1,568 px standard
+(27B: 2,404 observed vs 2,401 expected at 1,568²) and beyond (full-size
+encoding observed at 4,000², ~16 MP).
 
 Legibility is reported, not filtered: a per-tier crowding descriptor (e.g.
 `content_lines` per megapixel after resize to the 1,568 px standard) quantifies
@@ -217,7 +222,7 @@ seed and the per-type quartile thresholds recorded for reproducibility.
 ## 11. Open items
 
 - Normalized-code deduplication: implemented in `build_test_set.py` (see Section 8).
-- Image standard pixel budget on Qwen3.5-27B: confirm its applied budget on
-  Featherless (2B and 9B confirmed; see §7).
-- Qwen hosting availability and Gemini GA snapshot: to be resolved before the
-  inference run (tracked in `CLAUDE.md`).
+- Image standard pixel budget on Qwen3.5-27B: confirmed 2026-06-12 (see §7).
+- Qwen hosting availability: confirmed (all three sizes live on Featherless).
+  Gemini GA snapshot: none exists as of 2026-06-11; the preview id and run
+  date are recorded together (benchmark-protocol.md §3).
