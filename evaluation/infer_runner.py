@@ -70,15 +70,18 @@ class ApiHttpError(Exception):
         super().__init__(f"HTTP {code}")
 
 
-def build_body(model, content, max_tokens, extra_body=None):
+def build_body(model, content, max_tokens, extra_body=None,
+               token_field="max_tokens"):
     """Chat-completions request body. `extra_body` carries the per-model
     reasoning config (methodology/benchmark-protocol.md §3), e.g.
     {"chat_template_kwargs": {"enable_thinking": false}} for Qwen3.5 or
-    {"reasoning_effort": "none"} for GPT-5.x, and wins over defaults."""
+    {"reasoning_effort": "none"} for GPT-5.x, and wins over defaults.
+    `token_field` names the output-cap parameter: GPT-5.x rejects
+    `max_tokens` and requires `max_completion_tokens`."""
     body = {
         "model": model,
         "messages": [{"role": "user", "content": content}],
-        "max_tokens": max_tokens,
+        token_field: max_tokens,
         "temperature": 0,
     }
     if extra_body:
@@ -160,7 +163,7 @@ def reasoning_leak(text):
 
 
 def call(base_url, key, model, content, max_tokens, timeout, extra_body=None,
-         provider="openai"):
+         provider="openai", token_field="max_tokens"):
     """One API call. provider="openai": chat-completions (OpenAI, Featherless,
     Anthropic's OpenAI-compat layer). provider="gemini": native generateContent
     (URL pattern + x-goog-api-key header per ai.google.dev REST docs)."""
@@ -170,7 +173,8 @@ def call(base_url, key, model, content, max_tokens, timeout, extra_body=None,
         auth = {"x-goog-api-key": key}
     else:
         url = base_url.rstrip("/") + "/chat/completions"
-        body = json.dumps(build_body(model, content, max_tokens, extra_body)).encode()
+        body = json.dumps(build_body(model, content, max_tokens, extra_body,
+                                     token_field)).encode()
         auth = {"Authorization": f"Bearer {key}"}
     req = urllib.request.Request(
         url,
@@ -310,6 +314,10 @@ def main():
     ap.add_argument("--run-dir", default="",
                     help="resume into this existing run dir: cells with a stored "
                          "successful response are skipped, failed cells re-attempted")
+    ap.add_argument("--token-field", default="max_tokens",
+                    choices=["max_tokens", "max_completion_tokens"],
+                    help="output-cap parameter name; GPT-5.x requires "
+                         "max_completion_tokens")
     ap.add_argument("--provider", default="openai", choices=["openai", "gemini"],
                     help="API shape: openai = chat-completions (OpenAI, "
                          "Featherless, Anthropic OpenAI-compat); gemini = "
@@ -348,10 +356,13 @@ def main():
     def api_call(content, max_tokens):
         return call_with_retry(lambda: call(args.base_url, key, args.model,
                                             content, max_tokens, args.timeout,
-                                            extra_body, provider=args.provider))
+                                            extra_body, provider=args.provider,
+                                            token_field=args.token_field))
 
-    # Text-only baseline: prompt_tokens for an image-bearing call must exceed this.
-    base_resp, _ = api_call([{"type": "text", "text": PROMPT}], max_tokens=1)
+    # Text-only baseline: prompt_tokens for an image-bearing call must exceed
+    # this. Cap 16, not 1: GPT-5.2 returns HTTP 400 (not a truncated 200) when
+    # generation hits the output cap, so a 1-token throwaway call always fails.
+    base_resp, _ = api_call([{"type": "text", "text": PROMPT}], max_tokens=16)
     baseline = prompt_tokens(base_resp)
     print(f"model={args.model}")
     print(f"text-only baseline prompt_tokens = {baseline}")
@@ -363,12 +374,12 @@ def main():
         os.path.join(args.images, diagrams[0]["key"][:-5] + ".png"))
     warm_content = [{"type": "text", "text": PROMPT},
                     {"type": "image_url", "image_url": {"url": first_img}}]
-    warm_calls = warmup(lambda: api_call(warm_content, max_tokens=1), baseline)
+    warm_calls = warmup(lambda: api_call(warm_content, max_tokens=16), baseline)
     print(f"endpoint warm after {warm_calls} call(s)", flush=True)
 
     with open(os.path.join(run_dir, "run_meta.json"), "w") as f:
         json.dump({"model": args.model, "base_url": args.base_url,
-                   "provider": args.provider,
+                   "provider": args.provider, "token_field": args.token_field,
                    "prompt": PROMPT, "max_tokens": args.max_tokens,
                    "timeout": args.timeout, "temperature": 0,
                    "extra_body": extra_body,

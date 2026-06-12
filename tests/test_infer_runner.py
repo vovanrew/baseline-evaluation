@@ -164,6 +164,14 @@ def test_build_body_none_extra_body():
     assert "chat_template_kwargs" not in ir.build_body("m", [], 64)
 
 
+def test_build_body_max_completion_tokens_field():
+    # GPT-5.x rejects max_tokens ("use 'max_completion_tokens' instead")
+    body = ir.build_body("gpt-5.2-2025-12-11", [], 5376,
+                         token_field="max_completion_tokens")
+    assert body["max_completion_tokens"] == 5376
+    assert "max_tokens" not in body
+
+
 # --- Gemini native adapter: generateContent body + response accessors ---
 
 def test_build_gemini_body_text_and_image():

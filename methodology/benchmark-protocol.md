@@ -48,7 +48,11 @@ reasoning configuration (§3) and the usage fields the harness validates
 
 - **OpenAI (`gpt-5.2-2025-12-11`) and Featherless (Qwen3.5)** — the native
   OpenAI chat-completions shape (`https://api.openai.com/v1`,
-  `https://api.featherless.ai/v1`). Featherless serves Qwen3.5-2B in FP16
+  `https://api.featherless.ai/v1`). GPT-5.2 takes the output cap as
+  `max_completion_tokens` (`max_tokens` is rejected for this model;
+  `--token-field`, recorded in `run_meta.json`) and returns HTTP 400 rather
+  than a truncated completion when generation reaches the cap, so a
+  cap-exhausting generation is stored as an `http_error` failure record. Featherless serves Qwen3.5-2B in FP16
   and Qwen3.5-9B/27B in FP8 (provider listings, 2026-06-11); all three
   sizes ingest the 1,568 px image standard without downscaling
   (`util/probe_image_tokens.py`; test-set-construction.md §7).
@@ -121,7 +125,11 @@ The Gemini setting is an asymmetry of the comparison rather than a silent
 confound: thinking tokens generated at `thinking_level: "low"` are billed and
 reported by the API in the per-response `thoughtsTokenCount` field, which is
 preserved in the stored raw responses; the benchmark reports the measured
-residual thinking-token volume alongside the results. As of 2026-06-11
+residual thinking-token volume alongside the results. The API omits the
+field when the count is zero (`usageMetadata` totals confirm
+`promptTokenCount + candidatesTokenCount = totalTokenCount` in such
+responses), so an absent field is read as zero; the 10-sample pilot
+(2026-06-12) observed zero thinking tokens on all ten calls. As of 2026-06-11
 Gemini 3.1 Pro exists only as the preview id `gemini-3.1-pro-preview` with no
 dated snapshot, so the literal id and the run date are recorded together.
 
