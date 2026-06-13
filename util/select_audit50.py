@@ -22,7 +22,7 @@ import random
 from collections import defaultdict
 
 # Audit-10 keys (PLAN Phase 0 smoke + Phase 1 first pass). Sourced from
-# data/csr/audit10/csr_results.json and locked here so the file is the
+# smoke_tests/csr/audit10/csr_results.json and locked here so the file is the
 # self-contained selection record.
 AUDIT10_KEYS = [
     "000133b38e70cfb70834681221553363e9f37714.puml",
@@ -45,7 +45,7 @@ def main():
                     help="keys to draw from each of the 8 (type, tier) cells")
     ap.add_argument("--seed", type=int, default=50,
                     help="random.Random seed; recorded with the selection")
-    ap.add_argument("--out", default="data/audit50/keys.json")
+    ap.add_argument("--out", default="smoke_tests/audit50/keys.json")
     ap.add_argument("--dry-run", action="store_true",
                     help="print the selection but do not write the artifact")
     args = ap.parse_args()

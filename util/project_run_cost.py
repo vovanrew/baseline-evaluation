@@ -8,7 +8,7 @@ covers both types and all four tiers, so the per-cell average is taken as
 representative of the full set.
 
 Usage:
-  python3 util/project_run_cost.py data/smoke_runs/<run_dir> \
+  python3 util/project_run_cost.py smoke_tests/smoke_runs/<run_dir> \
       --in-price 1.75 --out-price 14.00 [--n 1000]
 """
 from __future__ import annotations

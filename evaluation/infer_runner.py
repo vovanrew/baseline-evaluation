@@ -310,7 +310,7 @@ def main():
     # (no .puml -> CSR 0); do NOT set it tight: that kills slow-but-valid long
     # outputs and biases against complex tiers.
     ap.add_argument("--timeout", type=int, default=90, help="per-call hard deadline, seconds")
-    ap.add_argument("--out", default="data/smoke_runs")
+    ap.add_argument("--out", default="smoke_tests/smoke_runs")
     ap.add_argument("--run-dir", default="",
                     help="resume into this existing run dir: cells with a stored "
                          "successful response are skipped, failed cells re-attempted")

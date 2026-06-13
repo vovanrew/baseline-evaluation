@@ -2,8 +2,9 @@
 
 Operates on the structural graph emitted by the DiagramStatsExtractor fork:
 nodes are class-like leaves (class diagrams) or participants (sequence). An
-element is matched iff its node name matches after lowercasing and trimming;
-matching is multiset (a name repeated k times must appear k times on both sides).
+element is matched iff its node name matches after lowercasing, trimming, and
+stereotype-token stripping; matching is multiset (a name repeated k times must
+appear k times on both sides).
 
 Empty/empty -> perfect (F1 1.0); a non-parsing prediction (empty graph) against
 a non-empty ground truth scores F1 0.0, which realizes the zeros-for-failed mode.
@@ -13,15 +14,24 @@ from __future__ import annotations
 import re
 from collections import Counter
 
-# PlantUML renders the stereotype source syntax `<<X>>` as the chevron form
-# `«X»`. A model that transcribes the rendered chevron must compare equal to a
-# ground truth written in source syntax, so the comparison maps both forms to
-# the rendered chevron (audit-50 finding on 838542d0).
-_STEREOTYPE_SOURCE = re.compile(r"<<([^<>]+)>>")
+# Stereotype tokens are not part of the display-name match key: the extractor
+# folds a declaration's stereotype into the node name, and whether a model
+# emits a stereotype at all is house style (pilot-10 finding on Sonnet
+# 837bf9cc). Both the source syntax `<<X>>` and the rendered chevron form `«X»`
+# are removed wherever they occur in the name; `>>+` absorbs the extra closer
+# left by creole markup nested inside the chevrons (`<<<back:pink>X</back>>>`,
+# GT 0b04c29e). Single angle brackets (generics like `List<Variable>`) are
+# untouched. The whitespace seam left by a removal is collapsed; names without
+# stereotype tokens keep their internal whitespace verbatim.
+_STEREOTYPE_TOKEN = re.compile(r"<<.*?>>+|«[^«»]*»", re.S)
+_WHITESPACE_RUN = re.compile(r"\s+")
 
 
 def normalize(name):
-    return _STEREOTYPE_SOURCE.sub(r"«\1»", name).strip().lower()
+    stripped = _STEREOTYPE_TOKEN.sub(" ", name)
+    if stripped != name:
+        stripped = _WHITESPACE_RUN.sub(" ", stripped)
+    return stripped.strip().lower()
 
 
 def prf(gt_names, pred_names):

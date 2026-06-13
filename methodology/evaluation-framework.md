@@ -54,10 +54,23 @@ Node identity is the entity's **visible display name** — the label rendered in
 the image — rather than any source-level alias or code identifier. Because the
 task is image-to-code, a model can reproduce only what is visible; an entity
 declared `class "ApplicationTemplate" as Model` is identified as
-`ApplicationTemplate`. Names are compared after lowercasing and trimming, with
-the stereotype source syntax `<<X>>` canonicalized to the rendered chevron
-form `«X»` so that a name written in either form matches the same name
-transcribed from its rendered image.
+`ApplicationTemplate`. Names are compared after lowercasing and trimming.
+
+Stereotype tokens are not part of the display-name match key on any node, in
+either diagram type, on both the ground-truth and prediction sides. The
+extractor folds a declaration's stereotype into the emitted node name
+(`participant "tuple" <<database>>` yields the name `<<database>> tuple`), and
+whether a stereotype is written at all varies by model house style; keying the
+name on the stereotype would score a stylistic difference as a structural
+mismatch. Name comparison therefore removes every stereotype token — the source
+syntax `<<X>>`, the rendered chevron form `«X»`, and the source form with
+creole markup nested inside the chevrons (`<<<back:pink>X</back>>>`) — wherever
+it occurs in the name, and collapses the whitespace seam the removal leaves.
+Single angle brackets remain part of the name (`List<Variable>` is a generic,
+not a stereotype): `<<database>> tuple`, `tuple <<database>>`, `«database»
+tuple`, and `tuple` all key as `tuple`. Stereotype-driven entity-kind
+distinctions are scored by the type-accuracy companion metric (§3); stereotype
+tags as surface text are assessed by chrF++ (§5).
 
 ### 2.2 Edges
 

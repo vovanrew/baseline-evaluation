@@ -18,28 +18,69 @@ def test_normalize_collapses_case_only_difference():
     assert ef.normalize("ApplicationTemplate") == ef.normalize("applicationtemplate")
 
 
-# --- stereotype normalization (PlantUML renders <<X>> as «X»; a model that
-# transcribes the rendered chevron must match a GT written in source syntax,
-# audit-50 finding on 838542d0). ---
+# --- stereotype stripping (stereotype tokens are not part of the display-name
+# match key: the extractor folds a declaration's stereotype into the node name,
+# and whether a stereotype is emitted at all is model house style — pilot-10
+# finding on Sonnet 837bf9cc; both source <<X>> and rendered «X» forms). ---
 
-def test_normalize_collapses_stereotype_source_and_rendered_form():
-    assert ef.normalize("<<analysis>> EditVariablesUI") == \
-           ef.normalize("«analysis» EditVariablesUI")
-
-
-def test_normalize_stereotype_chevrons_idempotent():
-    assert ef.normalize("«analysis» X") == "«analysis» x"
+def test_normalize_strips_stereotype_prefix():
+    assert ef.normalize("<<database>> tuple") == "tuple"
 
 
-def test_normalize_stereotype_multiple():
-    assert ef.normalize("<<A>><<B>> Node") == ef.normalize("«A»«B» Node")
+def test_normalize_strips_stereotype_suffix():
+    assert ef.normalize("tuple <<database>>") == "tuple"
+
+
+def test_normalize_strips_rendered_chevron_form():
+    assert ef.normalize("«analysis» X") == "x"
+
+
+def test_normalize_strips_stereotype_mid_name_repairs_seam():
+    assert ef.normalize("w: <<analysis>> Workbook") == "w: workbook"
+
+
+def test_normalize_strips_spaced_stereotype():
+    # real GT shape: `<< main >> Main` (323881231c)
+    assert ef.normalize("<< main >> Main") == "main"
+
+
+def test_normalize_strips_multiple_stereotypes():
+    assert ef.normalize("<<A>><<B>> Node") == "node"
+    assert ef.normalize("«A»«B» Node") == "node"
+
+
+def test_normalize_strips_stereotype_with_nested_markup():
+    # real GT shape (0b04c29e): creole markup nested inside the chevrons
+    assert ef.normalize(
+        "<<CardResource>> <<<back:pink>PluginObserverSpi</back>>> **final** CardResourceAdapter"
+    ) == "**final** cardresourceadapter"
+
+
+def test_normalize_plain_name_with_single_angle_brackets_untouched():
+    # generics are part of the display name, not a stereotype
+    assert ef.normalize("list: List<Variable>") == "list: list<variable>"
+
+
+def test_normalize_plain_name_internal_whitespace_untouched():
+    # whitespace fidelity is still part of the key for stereotype-free names
+    assert ef.normalize("Upper  layer") == "upper  layer"
 
 
 def test_prf_matches_source_vs_rendered_stereotype():
+    # both-sides symmetric: same stereotype in source vs rendered form
     gt = ["<<analysis>> EditVariablesUI", "<<analysis>> Variable"]
     pred = ["«analysis» EditVariablesUI", "«analysis» Variable"]
     r = ef.prf([ef.normalize(x) for x in gt], [ef.normalize(x) for x in pred])
     assert r["tp"] == 2 and r["fp"] == 0 and r["fn"] == 0
+    assert approx(r["f1"], 1.0)
+
+
+def test_prf_matches_one_sided_stereotype():
+    # the 837bf9cc artifact: GT plain names, pred adds <<database>> house-style
+    gt = ["tuple", "IPv4 layer", "Routing table"]
+    pred = ["<<database>> tuple", "<<database>> IPv4 layer", "<<database>> Routing table"]
+    r = ef.prf([ef.normalize(x) for x in gt], [ef.normalize(x) for x in pred])
+    assert r["tp"] == 3 and r["fp"] == 0 and r["fn"] == 0
     assert approx(r["f1"], 1.0)
 
 

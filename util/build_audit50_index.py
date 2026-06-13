@@ -2,7 +2,7 @@
 """Assemble a per-key review index for the audit-50 manual validation pass.
 
 Joins CSR, Element F1, Relationship F1 and chrF++ results against the audit-50
-test set, then writes a JSON record and a Markdown table to data/audit50/.
+test set, then writes a JSON record and a Markdown table to smoke_tests/audit50/.
 Triage flags surface the cases that are most worth inspecting:
 
   ANOMALY_LOW_F1_COMPILED       — compiled but element or relationship F1 < 0.5
@@ -25,14 +25,14 @@ def load_results(path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--audit-test-set", default="data/audit50/test_set.json")
-    ap.add_argument("--csr",   default="data/csr/audit50/csr_results.json")
-    ap.add_argument("--elem",  default="data/element_f1/audit50/element_f1_results.json")
-    ap.add_argument("--rel",   default="data/relationship_f1/audit50/relationship_f1_results.json")
-    ap.add_argument("--chrf",  default="data/chrf/audit50/chrf_results.json")
+    ap.add_argument("--audit-test-set", default="smoke_tests/audit50/test_set.json")
+    ap.add_argument("--csr",   default="smoke_tests/csr/audit50/csr_results.json")
+    ap.add_argument("--elem",  default="smoke_tests/element_f1/audit50/element_f1_results.json")
+    ap.add_argument("--rel",   default="smoke_tests/relationship_f1/audit50/relationship_f1_results.json")
+    ap.add_argument("--chrf",  default="smoke_tests/chrf/audit50/chrf_results.json")
     ap.add_argument("--pred-dir", required=True,
-                    help="raw prediction dir, e.g. data/smoke_runs/Qwen_Qwen3.5-2B_<stamp>")
-    ap.add_argument("--out-dir", default="data/audit50")
+                    help="raw prediction dir, e.g. smoke_tests/smoke_runs/Qwen_Qwen3.5-2B_<stamp>")
+    ap.add_argument("--out-dir", default="smoke_tests/audit50")
     args = ap.parse_args()
 
     ts = json.load(open(args.audit_test_set))
@@ -96,8 +96,8 @@ def main():
                 "image":     f"data/puml_images_1568/{stem}.png",
                 "gt":        f"data/puml_files/{stem}.puml",
                 "pred_raw":  os.path.join(args.pred_dir, stem + ".puml"),
-                "pred_iso":  f"data/csr/audit50/extracted/{stem}.puml",
-                "pred_png":  f"data/csr/audit50/png/{stem}.png",
+                "pred_iso":  f"smoke_tests/csr/audit50/extracted/{stem}.puml",
+                "pred_png":  f"smoke_tests/csr/audit50/png/{stem}.png",
             },
         })
 

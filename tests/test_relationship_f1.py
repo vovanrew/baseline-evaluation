@@ -38,6 +38,16 @@ def test_edge_key_collapses_stereotype_source_and_rendered_endpoints():
     assert rf.edge_key(src) == rf.edge_key(rendered)
 
 
+def test_edge_key_strips_stereotypes_from_endpoints():
+    # edge_key inherits stereotype stripping via element_f1.normalize: an edge
+    # whose endpoints carry a one-sided stereotype (pilot-10 finding on Sonnet
+    # 837bf9cc) keys identically to the plain-name edge.
+    stereotyped = e("<<database>> tuple", "<<database>> ARP", "message",
+                    label="lookup")
+    plain = e("tuple", "ARP", "message", label="lookup")
+    assert rf.edge_key(stereotyped) == rf.edge_key(plain)
+
+
 # --- edge_key: direction semantics ---
 
 def test_edge_key_inheritance_is_directional():
