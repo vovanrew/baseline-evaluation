@@ -1,0 +1,261 @@
+@startuml
+skinparam sequenceStyle arrowStyle blockStyle
+skinparam actorStyle rectangle
+
+actor Node
+actor RF
+actor Link
+actor Hub
+actor testdomain.com
+
+sequenceDiagram
+    participant Node
+    participant RF
+    participant Link
+    participant Hub
+    participant testdomain.com
+
+    Note over RF, Link: BROADCAST: 256LW,R,F,KI7EST-0
+    Note over RF: Repeated every 5 minutes while link is idle
+
+    Note over RF: ...
+
+    Note over Node, RF: CONTROL: Request Link KI7EST-1,KI7EST-0
+    Note over RF: ...
+
+    Note over Node, RF: CONTROL: Grant Link KI7EST-0,KI7EST-1
+
+    Note over Node, RF: First frame has Start Flag set
+
+    Note over Node, RF: Repeat until all data frames are sent.
+    Note over Node, RF: Note that last frame has end flag set
+    Note over Node, RF: If Link as response for command/packet then
+    Note over Node, RF: Response Flag will be set and second data transfer happens in reverse.
+
+    Note over Node, RF: DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, _R, 0C, <FEC>
+
+    Note over Node, RF: DATA: 0x0020 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: DATA: 0x0020 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, R, 0C, <FEC>
+
+    Note over Node, RF: Final packet, assembled sequence
+    Note over RF: <sig> 0001 REST KI7EST@rfnethub.net
+    Note over RF: POST testdomain.com/ping
+    Note over RF: /user/KI7EST/keys
+    Note over RF: "MTIzNDU2NzgxEjM0NTY3ODEyMzQ1Njc4MTIzNDU2Nzg="
+    Note over RF: Verify signature
+    Note over RF: /ping
+    Note over testdomain.com: 200
+
+    Note over Node, RF: ACK: 0x0001 0x0000, _N, R, 0C, <FEC>
+    Note over RF: DATA: 0x0001 256B,4F,S,_E
+    Note over RF: KI7EST@rfnethub.net 0001 REST 200
+    Note over Node, RF: ACK: 0x0001 0x0000, _N, R,0C <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, R,0C <FEC>
+    Note over Node, RF: CONTROL: Close Link KI7EST-1,KI7EST-0
+    Note over RF: CONTROL: Close Link KI7EST-1,KI7EST-0
+    Note over Node, RF: CONTROL: Closed Link KI7EST-0,KI7EST-1
+
+    Note over Node, RF: BROADCAST: 256LW,R,F,KI7EST-0
+    Note over RF: Repeated every 5 minutes while link is idle
+    Note over RF: ...
+    Note over Node, RF: CONTROL: Request Link KI7EST-1,KI7EST-0
+    Note over RF: ...
+    Note over Node, RF: CONTROL: Grant Link KI7EST-0,KI7EST-1
+    Note over Node, RF: First frame has Start Flag set
+    Note over Node, RF: Repeat until all data frames are sent.
+    Note over Node, RF: Note that last frame has end flag set
+    Note over Node, RF: If Link as response for command/packet then
+    Note over Node, RF: Response Flag will be set and second data transfer happens in reverse.
+    Note over Node, RF: DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, _R, 0C, <FEC>
+    Note over Node, RF: DATA: 0x0020 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: DATA: 0x0020 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, R, 0C, <FEC>
+    Note over Node, RF: Final packet, assembled sequence
+    Note over RF: <sig> 0001 REST KI7EST@rfnethub.net
+    Note over RF: POST testdomain.com/ping
+    Note over RF: /user/KI7EST/keys
+    Note over RF: "MTIzNDU2NzgxEjM0NTY3ODEyMzQ1Njc4MTIzNDU2Nzg="
+    Note over RF: Verify signature
+    Note over RF: /ping
+    Note over testdomain.com: 200
+    Note over Node, RF: ACK: 0x0001 0x0000, _N, R, 0C, <FEC>
+    Note over RF: DATA: 0x0001 256B,4F,S,_E
+    Note over RF: KI7EST@rfnethub.net 0001 REST 200
+    Note over Node, RF: ACK: 0x0001 0x0000, _N, R,0C <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, R,0C <FEC>
+    Note over Node, RF: CONTROL: Close Link KI7EST-1,KI7EST-0
+    Note over RF: CONTROL: Close Link KI7EST-1,KI7EST-0
+    Note over Node, RF: CONTROL: Closed Link KI7EST-0,KI7EST-1
+
+    Note over Node, RF: BROADCAST: 256LW,R,F,KI7EST-0
+    Note over RF: Repeated every 5 minutes while link is idle
+    Note over RF: ...
+    Note over Node, RF: CONTROL: Request Link KI7EST-1,KI7EST-0
+    Note over RF: ...
+    Note over Node, RF: CONTROL: Grant Link KI7EST-0,KI7EST-1
+    Note over Node, RF: First frame has Start Flag set
+    Note over Node, RF: Repeat until all data frames are sent.
+    Note over Node, RF: Note that last frame has end flag set
+    Note over Node, RF: If Link as response for command/packet then
+    Note over Node, RF: Response Flag will be set and second data transfer happens in reverse.
+    Note over Node, RF: DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, _R, 0C, <FEC>
+    Note over Node, RF: DATA: 0x0020 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: DATA: 0x0020 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, R, 0C, <FEC>
+    Note over Node, RF: Final packet, assembled sequence
+    Note over RF: <sig> 0001 REST KI7EST@rfnethub.net
+    Note over RF: POST testdomain.com/ping
+    Note over RF: /user/KI7EST/keys
+    Note over RF: "MTIzNDU2NzgxEjM0NTY3ODEyMzQ1Njc4MTIzNDU2Nzg="
+    Note over RF: Verify signature
+    Note over RF: /ping
+    Note over testdomain.com: 200
+    Note over Node, RF: ACK: 0x0001 0x0000, _N, R, 0C, <FEC>
+    Note over RF: DATA: 0x0001 256B,4F,S,_E
+    Note over RF: KI7EST@rfnethub.net 0001 REST 200
+    Note over Node, RF: ACK: 0x0001 0x0000, _N, R,0C <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, R,0C <FEC>
+    Note over Node, RF: CONTROL: Close Link KI7EST-1,KI7EST-0
+    Note over RF: CONTROL: Close Link KI7EST-1,KI7EST-0
+    Note over Node, RF: CONTROL: Closed Link KI7EST-0,KI7EST-1
+
+    Note over Node, RF: BROADCAST: 256LW,R,F,KI7EST-0
+    Note over RF: Repeated every 5 minutes while link is idle
+    Note over RF: ...
+    Note over Node, RF: CONTROL: Request Link KI7EST-1,KI7EST-0
+    Note over RF: ...
+    Note over Node, RF: CONTROL: Grant Link KI7EST-0,KI7EST-1
+    Note over Node, RF: First frame has Start Flag set
+    Note over Node, RF: Repeat until all data frames are sent.
+    Note over Node, RF: Note that last frame has end flag set
+    Note over Node, RF: If Link as response for command/packet then
+    Note over Node, RF: Response Flag will be set and second data transfer happens in reverse.
+    Note over Node, RF: DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, _R, 0C, <FEC>
+    Note over Node, RF: DATA: 0x0020 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: DATA: 0x0020 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, R, 0C, <FEC>
+    Note over Node, RF: Final packet, assembled sequence
+    Note over RF: <sig> 0001 REST KI7EST@rfnethub.net
+    Note over RF: POST testdomain.com/ping
+    Note over RF: /user/KI7EST/keys
+    Note over RF: "MTIzNDU2NzgxEjM0NTY3ODEyMzQ1Njc4MTIzNDU2Nzg="
+    Note over RF: Verify signature
+    Note over RF: /ping
+    Note over testdomain.com: 200
+    Note over Node, RF: ACK: 0x0001 0x0000, _N, R, 0C, <FEC>
+    Note over RF: DATA: 0x0001 256B,4F,S,_E
+    Note over RF: KI7EST@rfnethub.net 0001 REST 200
+    Note over Node, RF: ACK: 0x0001 0x0000, _N, R,0C <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, R,0C <FEC>
+    Note over Node, RF: CONTROL: Close Link KI7EST-1,KI7EST-0
+    Note over RF: CONTROL: Close Link KI7EST-1,KI7EST-0
+    Note over Node, RF: CONTROL: Closed Link KI7EST-0,KI7EST-1
+
+    Note over Node, RF: BROADCAST: 256LW,R,F,KI7EST-0
+    Note over RF: Repeated every 5 minutes while link is idle
+    Note over RF: ...
+    Note over Node, RF: CONTROL: Request Link KI7EST-1,KI7EST-0
+    Note over RF: ...
+    Note over Node, RF: CONTROL: Grant Link KI7EST-0,KI7EST-1
+    Note over Node, RF: First frame has Start Flag set
+    Note over Node, RF: Repeat until all data frames are sent.
+    Note over Node, RF: Note that last frame has end flag set
+    Note over Node, RF: If Link as response for command/packet then
+    Note over Node, RF: Response Flag will be set and second data transfer happens in reverse.
+    Note over Node, RF: DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, _R, 0C, <FEC>
+    Note over Node, RF: DATA: 0x0020 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: DATA: 0x0020 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, R, 0C, <FEC>
+    Note over Node, RF: Final packet, assembled sequence
+    Note over RF: <sig> 0001 REST KI7EST@rfnethub.net
+    Note over RF: POST testdomain.com/ping
+    Note over RF: /user/KI7EST/keys
+    Note over RF: "MTIzNDU2NzgxEjM0NTY3ODEyMzQ1Njc4MTIzNDU2Nzg="
+    Note over RF: Verify signature
+    Note over RF: /ping
+    Note over testdomain.com: 200
+    Note over Node, RF: ACK: 0x0001 0x0000, _N, R, 0C, <FEC>
+    Note over RF: DATA: 0x0001 256B,4F,S,_E
+    Note over RF: KI7EST@rfnethub.net 0001 REST 200
+    Note over Node, RF: ACK: 0x0001 0x0000, _N, R,0C <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, R,0C <FEC>
+    Note over Node, RF: CONTROL: Close Link KI7EST-1,KI7EST-0
+    Note over RF: CONTROL: Close Link KI7EST-1,KI7EST-0
+    Note over Node, RF: CONTROL: Closed Link KI7EST-0,KI7EST-1
+
+    Note over Node, RF: BROADCAST: 256LW,R,F,KI7EST-0
+    Note over RF: Repeated every 5 minutes while link is idle
+    Note over RF: ...
+    Note over Node, RF: CONTROL: Request Link KI7EST-1,KI7EST-0
+    Note over RF: ...
+    Note over Node, RF: CONTROL: Grant Link KI7EST-0,KI7EST-1
+    Note over Node, RF: First frame has Start Flag set
+    Note over Node, RF: Repeat until all data frames are sent.
+    Note over Node, RF: Note that last frame has end flag set
+    Note over Node, RF: If Link as response for command/packet then
+    Note over Node, RF: Response Flag will be set and second data transfer happens in reverse.
+    Note over Node, RF: DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, _R, 0C, <FEC>
+    Note over Node, RF: DATA: 0x0020 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: DATA: 0x0020 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, R, 0C, <FEC>
+    Note over Node, RF: Final packet, assembled sequence
+    Note over RF: <sig> 0001 REST KI7EST@rfnethub.net
+    Note over RF: POST testdomain.com/ping
+    Note over RF: /user/KI7EST/keys
+    Note over RF: "MTIzNDU2NzgxEjM0NTY3ODEyMzQ1Njc4MTIzNDU2Nzg="
+    Note over RF: Verify signature
+    Note over RF: /ping
+    Note over testdomain.com: 200
+    Note over Node, RF: ACK: 0x0001 0x0000, _N, R, 0C, <FEC>
+    Note over RF: DATA: 0x0001 256B,4F,S,_E
+    Note over RF: KI7EST@rfnethub.net 0001 REST 200
+    Note over Node, RF: ACK: 0x0001 0x0000, _N, R,0C <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, R,0C <FEC>
+    Note over Node, RF: CONTROL: Close Link KI7EST-1,KI7EST-0
+    Note over RF: CONTROL: Close Link KI7EST-1,KI7EST-0
+    Note over Node, RF: CONTROL: Closed Link KI7EST-0,KI7EST-1
+
+    Note over Node, RF: BROADCAST: 256LW,R,F,KI7EST-0
+    Note over RF: Repeated every 5 minutes while link is idle
+    Note over RF: ...
+    Note over Node, RF: CONTROL: Request Link KI7EST-1,KI7EST-0
+    Note over RF: ...
+    Note over Node, RF: CONTROL: Grant Link KI7EST-0,KI7EST-1
+    Note over Node, RF: First frame has Start Flag set
+    Note over Node, RF: Repeat until all data frames are sent.
+    Note over Node, RF: Note that last frame has end flag set
+    Note over Node, RF: If Link as response for command/packet then
+    Note over Node, RF: Response Flag will be set and second data transfer happens in reverse.
+    Note over Node, RF: DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, _R, 0C, <FEC>
+    Note over Node, RF: DATA: 0x0020 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: DATA: 0x0020 256B,4F,S,_E <FEC> <payload> <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, R, 0C, <FEC>
+    Note over Node, RF: Final packet, assembled sequence
+    Note over RF: <sig> 0001 REST KI7EST@rfnethub.net
+    Note over RF: POST testdomain.com/ping
+    Note over RF: /user/KI7EST/keys
+    Note over RF: "MTIzNDU2NzgxEjM0NTY3ODEyMzQ1Njc4MTIzNDU2Nzg="
+    Note over RF: Verify signature
+    Note over RF: /ping
+    Note over testdomain.com: 200
+    Note over Node, RF: ACK: 0x0001 0x0000, _N, R, 0C, <FEC>
+    Note over RF: DATA: 0x0001 256B,4F,S,_E
+    Note over RF: KI7EST@rfnethub.net 0001 REST 200
+    Note over Node, RF: ACK: 0x0001 0x0000, _N, R,0C <FEC>
+    Note over RF: ACK: 0x0001 0x0000, _N, R,0C <FEC>
+    Note over Node, RF: CONTROL: Close Link KI7

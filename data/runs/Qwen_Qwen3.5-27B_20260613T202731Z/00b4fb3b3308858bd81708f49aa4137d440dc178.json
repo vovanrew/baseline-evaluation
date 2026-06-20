@@ -1,0 +1,22 @@
+{
+  "id": "761efa2a-27fc-4178-b9c4-d400165fb877",
+  "object": "chat.completion",
+  "created": 1781440649,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Install Package Flow\n\nparticipant \"InstallInstalling\" as II\nparticipant \"PackageInstaller\" as PI\nparticipant \"PackageInstallerService\" as PIS\nparticipant \"InstallingAsyncTask\" as IAT\nparticipant \"PackageInstallerSession\" as PISession\nparticipant \"Handler\" as Handler\nparticipant \"mHandlerCallback\" as Callback\nparticipant \"PkMS\" as PkMS\nparticipant \"PkMS.PackageHandler\" as PkMS_PH\nparticipant \"PkMS.HandlerParams\" as PkMS_HP\nparticipant \"PkMS.InstallParams\" as PkMS_IP\n\n== Initialization ==\nII -> II: onCreate()\nactivate II\nII -> PI: createSession()\nactivate PI\nPI -> PIS: createSession()\nactivate PIS\nPIS --> PI: sessionId\ndeactivate PIS\nPI --> II: sessionId\ndeactivate PI\nII -> II: onResume()\nactivate II\nII -> IAT: execute()\nactivate IAT\n\n== Background Execution ==\nIAT -> IAT: doInBackground()\nactivate IAT\nIAT -> PI: openSession(sessionId)\nactivate PI\nPI --> IAT: Session\ndeactivate PI\nIAT -> PISession: openWrite()\nactivate PISession\nPISession -> PISession: doPostExecute()\nactivate PISession\nPISession -> PISession: commit()\nactivate PISession\nPISession -> Handler: sendToTarget(MSG_COMMIT)\nactivate Handler\nHandler -> Callback: handleMessage(MSG_COMMIT)\nactivate Callback\nCallback --> PISession: handleCommit()\ndeactivate Callback\nPISession -> PISession: commitNonStagedLocked()\nactivate PISession\nPISession -> PISession: installStage()\nactivate PISession\nPISession -> PkMS: sendMessage(INIT_COPY)\nactivate PkMS\nPkMS -> PkMS_PH: startCopy()\nactivate PkMS_PH\nPkMS_PH -> PkMS_HP: handleStartCopy()\nactivate PkMS_HP\nPkMS_HP -> PkMS_IP: handleReturnCode()\nactivate PkMS_IP\nPkMS_IP --> PkMS_PH: \ndeactivate PkMS_IP\nPkMS_PH --> PkMS: processPendingInstall()\ndeactivate PkMS_PH\nPkMS -> PkMS: processInstallRequestsAsync()\nactivate PkMS\nPkMS -> PkMS: installPackagesTracedLI()\nactivate PkMS\nPkMS -> PkMS: installPackagesLI()\nactivate PkMS\nPkMS -> PkMS: preparePackageLI()\nactivate PkMS\nPkMS -> PkMS: scanPackageTracedLI()\nactivate PkMS\nPkMS -> PkMS: commitPackagesLocked()\nactivate PkMS\nPkMS -> PkMS: commitReconciledScanResultLocked()\nactivate PkMS\nPkMS -> PkMS: commitPackageSettings()\nactivate PkMS\ndeactivate PkMS\ndeactivate PkMS\ndeactivate PkMS\ndeactivate PkMS\ndeactivate PkMS\ndeactivate PkMS\ndeactivate PkMS\ndeactivate PkMS\ndeactivate PkMS\ndeactivate PISession\ndeactivate PISession\ndeactivate PISession\ndeactivate IAT\ndeactivate II\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1615,
+    "completion_tokens": 724,
+    "total_tokens": 2339
+  }
+}

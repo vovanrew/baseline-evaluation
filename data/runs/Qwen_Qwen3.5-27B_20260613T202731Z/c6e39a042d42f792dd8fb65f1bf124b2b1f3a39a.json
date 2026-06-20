@@ -1,0 +1,22 @@
+{
+  "id": "0829cf40-7cec-4e4f-becc-e56886ce2572",
+  "object": "chat.completion",
+  "created": 1781502726,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\nactor Requester\nparticipant \"PageLocsMgr\" as PLM\ncircle MgrQueue\nparticipant \"StateTask\" as ST\ncircle StateQueue\ncircle RetrieveQueue\nparticipant \"RetrieverTask\" as RT\n\n== Initialization ==\nPLM -> RT : Startup\nPLM -> ST : Startup\nPLM -> StateQueue : start(doc, first_item, item_count)\n\nnote right of MgrQueue: The document retrieval\\noptimizes the order of\\nthe items considering\\nhow the user interacts.\n\nStateQueue -> ST : start_document(...)\n\n== Document Retrieval Loop ==\ngroup loop [All Items]\n    ST -> RetrieveQueue : retrieve(item)\n    RetrieveQueue -> RT : retrieve(item)\n    activate RT\n    RT -> RT : do item\n    deactivate RT\n    RT -> StateQueue : item_retrieved(item)\n    StateQueue -> ST : item_retrieved(item)\nend\n\n== Item already known ==\nRequester -> PLM : get_page_loc(item, offset)\nactivate PLM\nPLM --> Requester : got_it(start_offset, size)\ndeactivate PLM\n\n== Item needs to be retrieved (no yet in the list) ==\nRequester -> PLM : get_page_loc(item, offset)\nactivate PLM\nPLM -> StateQueue : retrieve_asap(item)\nStateQueue -> ST : retrieve_asap(item)\nST -> RetrieveQueue : retrieve(item)\nRetrieveQueue -> RT : retrieve(item)\nactivate RT\nRT -> RT : do item\ndeactivate RT\nRT -> StateQueue : item_retrieved(item)\nStateQueue -> ST : item_retrieved(item)\nST -> MgrQueue : got_asap(item)\nMgrQueue -> PLM : got_asap(item)\nPLM --> Requester : got_it(start_offset, size)\ndeactivate PLM\n\nST -> MgrQueue : end_document()\nMgrQueue -> PLM : end_document()\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2350,
+    "completion_tokens": 431,
+    "total_tokens": 2781
+  }
+}

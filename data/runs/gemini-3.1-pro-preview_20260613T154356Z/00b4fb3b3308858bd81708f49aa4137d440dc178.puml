@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+participant InstallInstalling
+participant PackageInstaller
+participant PackageInstallerService
+participant InstallingAsyncTask
+participant PackageInstallerSession
+participant Handler
+participant mHandlerCallback
+participant PkMS
+participant PkMS.PackageHandler
+participant PkMS.HandlerParams
+participant PkMS.InstallParams
+
+InstallInstalling -> InstallInstalling : onCreate()
+InstallInstalling -> PackageInstaller : createSession()
+PackageInstaller -> PackageInstallerService : createSession()
+PackageInstallerService --> PackageInstaller : sessionId
+PackageInstaller --> InstallInstalling : sessionId
+InstallInstalling -> InstallInstalling : onResume()
+InstallInstalling -> InstallingAsyncTask : execute()
+InstallingAsyncTask -> InstallingAsyncTask : doInBackground()
+InstallingAsyncTask -> PackageInstaller : openSession(sessionId)
+PackageInstaller --> InstallingAsyncTask : Session
+InstallingAsyncTask -> PackageInstallerSession : openWrite()
+InstallingAsyncTask -> InstallingAsyncTask : doPostExecute()
+InstallingAsyncTask -> PackageInstallerSession : commit()
+PackageInstallerSession -> Handler : sendToTarget(MSG_COMMIT)
+Handler -> mHandlerCallback : handleMessage(MSG_COMMIT)
+mHandlerCallback -> PackageInstallerSession : handleCommit()
+PackageInstallerSession -> PackageInstallerSession : commitNonStagedLocked()
+PackageInstallerSession -> PkMS : installStage()
+PkMS -> PkMS.PackageHandler : sendMessage(INIT_COPY)
+PkMS.PackageHandler -> PkMS.HandlerParams : startCopy()
+PkMS.HandlerParams -> PkMS.InstallParams : handleStartCopy()
+PkMS.HandlerParams -> PkMS.InstallParams : handleReturnCode()
+PkMS.InstallParams -> PkMS : processPendingInstall()
+PkMS -> PkMS : processInstallRequestsAsync()
+PkMS -> PkMS : installPackagesTracedLI()
+PkMS -> PkMS : installPackagesLI()
+PkMS -> PkMS : preparePackageLI()
+PkMS -> PkMS : scanPackageTracedLI()
+PkMS -> PkMS : commitPackagesLocked()
+PkMS -> PkMS : commitReconciledScanResultLocked()
+PkMS -> PkMS : commitPackageSettings()
+@enduml
+```

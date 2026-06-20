@@ -1,0 +1,196 @@
+@startuml
+
+class TicTacToe {
+  ~ String answer
+  - TicTacToe()
+  - void play()
+  - void playGame()
+  - boolean isResumedGame()
+  - void read(String)
+  - boolean isAffirmative()
+  - boolean isNegative()
+  + {static} void main(String[])
+}
+
+class Turn {
+  ~ {static} int NUMBER_PLAYERS = 2
+  ~ int activePlayer
+  - Turn(Board)
+  - void reset()
+  - void play()
+  - void writeWinner()
+  - Color getActiveColor()
+}
+
+class Player {
+  - Player(Color, Board)
+  - void play()
+  - void putToken()
+  - Coordinate getCoordinate(Message)
+  - Error getPutTokenError(Coordinate)
+  - void moveToken()
+  - Error getOriginMoveTokenError(Coordinate)
+  - Error getTargetMoveTokenError(Coordinate, Coordinate)
+  - void writeWinner()
+  - Color getColor()
+}
+
+class Board {
+  - Board()
+  - void reset()
+  - boolean isComplete(Color)
+  - Square[] getSquares(Color)
+  - void putToken(Coordinate, Color)
+  - void moveToken(Coordinate, Coordinate)
+  - Color getColor(Coordinate)
+  - boolean isOccupied(Coordinate, Color)
+  - boolean isEmpty(Coordinate)
+  - boolean isTicTacToe(Color)
+  - Direction[] getDirections(Color)
+  - void write()
+  - boolean isComplete(Color)
+}
+
+class Square {
+  ~ Coordinate coordinate;
+  ~ Color color;
+}
+
+class Coordinate {
+  ~ {static} int DIMENSION = 3
+  ~ int row
+  ~ int column
+  ~ {static} int getDimension()
+  - Coordinate()
+  - Coordinate(int, int)
+  - Direction getDirection(Coordinate)
+  - boolean inHorizontal(Coordinate)
+  - boolean inVertical(Coordinate)
+  - boolean inMainDiagonal()
+  - boolean inInverseDiagonal()
+  - void read(String)
+  - String getErrorMessage()
+  - int getRow()
+  - int getColumn()
+  - boolean equals(Coordinate)
+}
+
+enum Color {
+  X,
+  O,
+  NULL
+  ~ Color get(int)
+  ~ void write()
+  ~ boolean isNull()
+}
+
+enum Direction {
+  VERTICAL,
+  HORIZONTAL,
+  MAIN_DIAGONAL,
+  INVERSE_DIAGONAL,
+  ~ boolean isNull()
+}
+
+enum Error {
+  NOT_EMPTY
+  NOT_OWNER
+  SAME_COORDINATES
+  WRONG_COORDINATES
+  NULL
+  ~ String message
+  - Error()
+  - Error(String)
+  - void writeln()
+  - boolean isNull()
+}
+
+enum Message {
+  TITLE
+  HORIZONTAL_LINE
+  VERTICAL_LINE
+  NULL_COLOR
+  TURN
+  ENTER_COORDINATE_TO_PUT
+  COORDINATE_TO_PUT
+  COORDINATE_TO_REMOVE
+  COORDINATE_TO_MOVE
+  ROW
+  COLUMN
+  BOUNDED_INT_ERROR
+  LIMITS
+  CLOSED_INTERVAL
+  PLAYER_WIN
+  RESUME
+  YES_NO_SUFFIX
+  YES_NO_ERROR
+  ~ char AFFIRMATIVE
+  ~ char NEGATIVE
+  ~ String $COLOR
+  ~ String $PLAYER
+  ~ String $CLOSED_INTERVAL
+  ~ String $MIN
+  ~ String $MAX
+  ~ String message
+  - Message(String)
+  - void write()
+  - void writeln()
+  - void writeln(String)
+  - String toString()
+}
+
+class BoundedIntDialog {
+  ~ ClosedInterval LIMITS
+  - BoundedIntDialog(int, int)
+  - int read(String)
+  - String getLimits()
+}
+
+class ClosedInterval {
+  ~ int min;
+  ~ int max;
+  - ClosedInterval(int, int)
+  - boolean isIncluded(int)
+  - String toString()
+  - boolean equals(ClosedInterval)
+}
+
+class YesNoDialog {
+}
+
+class Console {
+  ~ BufferedReader bufferedReader
+  - {static} Console instance = new Console()
+  - {static} Console getInstance()
+  - String readString(String)
+  - String readString()
+  - int readInt(String)
+  - char readChar(String)
+  - void write(String)
+  - void write(int)
+  - void write(char)
+  - void writeln()
+  - void writeln(String)
+  - void writeln(int)
+  - void writeError(String)
+}
+
+TicTacToe --> Turn : turn
+Turn --> Player : players
+Player --> Board : board
+TicTacToe --> Board : board
+Board --> Board : board
+Board --> Square : 3x3
+Square --> Coordinate
+Square --> Color
+Board --> Error : color
+Board --> Color
+Player --> Coordinate
+Player --> Error
+Player --> Message
+Coordinate --> Direction
+BoundedIntDialog --> Console
+YesNoDialog --> Console
+Coordinate --> Console
+
+@enduml

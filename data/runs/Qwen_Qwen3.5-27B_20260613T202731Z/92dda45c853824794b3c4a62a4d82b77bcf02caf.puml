@@ -1,0 +1,44 @@
+```plantuml
+@startuml
+skinparam sequence {
+  ArrowColor DarkSlateGray
+  ActorBorderColor Black
+  ActorBackgroundColor WhiteSmoke
+  ParticipantBorderColor Black
+  ParticipantBackgroundColor WhiteSmoke
+}
+
+actor "User Agent" as UserAgent
+participant "Content Upload API" as ContentUploadAPI
+database "Content database" as ContentDatabase
+participant "CAFF Parser" as CAFFParser
+
+UserAgent -> ContentUploadAPI: Upload request (HTTP POST),\ncontains a single CAFF file in its body.
+
+note right of ContentUploadAPI: MUST also include a CSRF token to prevent users of other,\npotentially XSS vulnerable sites to take part in a massive distributed spam or DoS operation.
+
+activate ContentUploadAPI
+ContentUploadAPI -> CAFFParser: Validate upload request
+activate CAFFParser
+CAFFParser --> ContentUploadAPI: Return result
+deactivate CAFFParser
+
+alt [Failed to validate uploaded content]
+    note right of CAFFParser: Uploads should be validated by at LEAST:\n* Content-Size header against max file size.\n* All size fields against their respective supported bounds.\n* Structure of all fields match expectations from the spec.\n* Number of bytes from the upload matches number of bytes expected from in-file metadata.
+    ContentUploadAPI -->> UserAgent: Return an HTTP status code that signals validation failure.\nExact value depends on how the validation failed.
+else [Request is deemed valid]
+    ContentUploadAPI -> ContentDatabase: Store content in database
+    activate ContentDatabase
+    ContentDatabase --> ContentUploadAPI: Return result of request
+    deactivate ContentDatabase
+    
+    alt [Upload succeeded]
+        ContentUploadAPI -->> UserAgent: Return HTTP 201 Created
+    else
+        ContentUploadAPI -->> UserAgent: Return HTTP status code signaling the reason for failure.
+    end
+end
+deactivate ContentUploadAPI
+
+@enduml
+```

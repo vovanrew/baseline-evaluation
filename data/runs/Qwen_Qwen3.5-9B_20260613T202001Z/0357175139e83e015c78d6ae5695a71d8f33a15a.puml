@@ -1,0 +1,59 @@
+@startuml
+!theme plain
+
+package "rugged" as rugged {
+  package "raster" as raster {
+    interface Tile {
+      + interpolateElevation(φ, λ)
+      + pixelIntersection(NormalizedGeodeticPoint, los, φ index, λ index)
+    }
+  }
+
+  package "intersection" as intersection {
+    interface IntersectionAlgorithm {
+      + intersection(ellipsoid, position, los)
+      + refineIntersection(ellipsoid, position, los, closeGuess)
+    }
+  }
+
+  package "utils" as utils {
+    class ExtendedEllipsoid {
+      + pointAtLatitude(position, los, φ, closereference)
+      + pointAtLongitude(position, los, λ)
+      + pointAtAltitude(position, los, h)
+      + pointOnGround(position, los)
+    }
+
+    class SpacecraftToObservedBody {
+    }
+  }
+
+  package "api" as api {
+    class Rugged {
+      + directLocation(sensorName, line)
+    }
+  }
+
+  package "linesensor" as linesensor {
+    class LineSensor {
+    }
+  }
+}
+
+package "mission" as mission {
+  package "specific" as specific {
+    class UserMain {
+    }
+  }
+}
+
+rugged -> raster : evaluate DEM
+rugged -> intersection : compute grid points crossings
+rugged -> utils : convert geodetic points
+rugged -> utils : convert positions/directions
+rugged -> linesensor : getLOS(date, pixel)
+rugged -> linesensor : getDate(line)
+rugged -> intersection : delegate DEM intersection
+UserMain -> Rugged : directLocation(sensorName, line)
+
+@enduml

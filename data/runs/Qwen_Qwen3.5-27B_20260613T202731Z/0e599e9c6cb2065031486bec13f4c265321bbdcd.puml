@@ -1,0 +1,115 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+class Creator {
+    <<interface>>
+    + SceneManager makeScene(QJsonObject spec)
+    # Table makeTable(QJsonObject spec)
+    # Ball makeBall(QJsonObject spec)
+}
+
+class SimpleCreator {
+    # Table makeTable(QJsonObject spec)
+    # Ball makeBall(QJsonObject spec)
+}
+
+class SceneBuilder {
+    + void setTable(Table)
+    + void addBall(Ball)
+    + void resetBalls()
+    + SceneManager build()
+}
+
+class MainWindow {
+    - QTimer updater
+    - QTimer ticker
+    - QElapsedTimer timer
+    - SceneManager scene
+    + void paintEvent(QPaintEvent event)
+    ---
+    slots
+    + void tick()
+    + void nextFrame()
+}
+
+class SceneManager {
+    - Table table
+    - vector<Ball> balls
+    - QPoint offset
+    ---
+    QSize viewPort()
+    void tick(float dtime)
+    void draw(QPainter painter)
+}
+
+class Graphic {
+    <<interface>>
+    + void draw(QPainter painter)
+}
+
+class Table {
+    + QSize dimension
+    + float surface_friction
+}
+
+class SimpleTable {
+    - QColor color
+    + void draw(QPainter painter)
+}
+
+class Ball {
+    + float mass
+    + QVector2D position
+    + QVector2D velocity
+    + float radius
+}
+
+class SimpleBall {
+    - QColor color
+    + void draw(QPainter painter)
+}
+
+' Relationships
+Creator <|-- SimpleCreator
+Creator --> SceneBuilder
+SceneBuilder ..> SceneManager
+MainWindow *-- SceneManager
+SceneManager *-- Table
+SceneManager *-- Ball
+Graphic <|.. Table
+Graphic <|.. Ball
+Table <|-- SimpleTable
+Ball <|-- SimpleBall
+SimpleCreator ..> SimpleTable
+SimpleCreator ..> SimpleBall
+
+' Styling
+hide circle
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam class {
+    BackgroundColor White
+    BorderColor Black
+}
+skinparam interface {
+    BackgroundColor White
+    BorderColor Black
+}
+skinparam legend {
+    BackgroundColor Yellow
+    BorderColor DarkGoldenrod
+}
+
+legend right
+    o public
+    \u25C7 protected
+    \u25A1 private
+    --
+    o publiic method()
+    \u25C7 protected method()
+    \u25A1 private method()
+endlegend
+
+@enduml
+```

@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLj2ybyN2eq5ES2hkBxYsKovg44N",
+  "object": "chat.completion",
+  "created": 1781368940,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam sequenceMessageAlign left\nskinparam ParticipantPadding 25\nskinparam BoxPadding 10\n\nactor Nurse\n\nparticipant \": RecordAdverseReactionUI\" as UI\nparticipant \": RecordAdverseReactionController\" as C\nparticipant \": Company\" as Company\nparticipant \": AdverseReactionStore\" as ARS\nparticipant \": AdverseReactionDTO\" as DTO\nparticipant \": AdverseReactionMapper\" as Mapper\nparticipant \": WaitingRoomStore\" as WRS\nparticipant \": AdverseReaction\" as AR\n\nNurse -> UI : 1 Starts recording adverse reaction\nUI --> Nurse : 2 asks for data(SNS Number, Adverse Reaction Text)\nNurse -> UI : 3 types requested data\n\nUI -> C : 4 createAdverseReaction(SNSNumber, advReact)\nactivate C\n\nC -> Company : 5 store = getWaitingRoomStore()\nC -> Company : 6 store = getRecordAdverseReactionStore()\nC -> WRS : 7 snsu = getSNSUserInTheWaitingRoomBySNSNumber(snsuserNumber)\nC -> WRS : 8 vc = getVaccinationCenterBySNSNumber(snsuserNumber)\nC -> Company : 9 ar = createAdverseReaction(snsu, advReact,'vc)\nactivate Company\nCompany -> AR : 10 create(snsu,advReact,vc)\nCompany -> Company : 11 validateAdverseReaction(ar)\ndeactivate Company\n\nC -> Mapper : 12 toDTO(ar)\nactivate Mapper\nref over Mapper\n  SD_AdverseReactionMapper_toDTO\nend ref\nMapper --> C : 13 arDTO\ndeactivate Mapper\n\nC --> UI : 14 arDTO\ndeactivate C\n\nUI --> Nurse : 15 shows SNS User correspondent to the SNS Number\\nand adverse reaction waiting for approval\nNurse -> UI : 16 confirms action\n\nUI -> C : 17 saveAdverseReaction()\nactivate C\nC -> ARS : 18 saveAdverseReaction(ar)\nactivate ARS\nARS -> ARS : 19 validateAdverseReaction(ar)\nARS -> ARS : 20 addAdverseReaction(ar)\ndeactivate ARS\ndeactivate C\n\nUI --> Nurse : 21 informs oppertiton success\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1555,
+    "completion_tokens": 473,
+    "total_tokens": 2028,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

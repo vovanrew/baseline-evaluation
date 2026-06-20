@@ -1,0 +1,23 @@
+@startuml
+left to right direction
+actor "user" as user
+participant "LicenseAcceptor" as LicenseAcceptor
+participant "FileAcceptance" as FileAcceptance
+participant "ArgAcceptance" as ArgAcceptance
+participant "LicensePrompt" as LicensePrompt
+participant "HelpTextMixin" as HelpTextMixin
+
+user -> LicenseAcceptor: /bin/chef
+LicenseAcceptor -> FileAcceptance: ::check
+FileAcceptance --> LicenseAcceptor: false
+LicenseAcceptor -> ArgAcceptance: ::check
+ArgAcceptance --> LicenseAcceptor: false
+LicenseAcceptor -> LicensePrompt: ::request_acceptance
+LicensePrompt -> LicensePrompt: ::check_for_tty
+LicensePrompt --> user: accept license?
+user --> LicensePrompt: yes
+LicensePrompt -> FileAcceptance: ::persist
+FileAcceptance --> LicensePrompt: path
+LicensePrompt --> LicenseAcceptor: true
+
+@enduml

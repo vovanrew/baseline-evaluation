@@ -1,0 +1,48 @@
+@startuml
+
+participant "arm_io_storage" as arm
+participant "io_storage" as ios
+participant "io_fip" as fip
+participant "io_memmap" as mem
+
+arm -> arm : arm_io_setup()
+
+group io dev registration
+    arm -> fip : register_io_dev_fip(&fip_dev_con)
+    fip -> ios : io_register_device(&dev_info_pool[])
+    hnote over ios #LightYellow
+        devices[dev_count] = (fip_)dev_info_pool
+        dev_count++
+    end hnote
+
+    arm -> mem : register_io_dev_memmap(&memmap_dev_con)
+    mem -> ios : io_register_device(&memmap_dev_info)
+    hnote over ios #LightYellow
+        devices[dev_count] = memmap_dev_info
+        dev_count++
+    end hnote
+end
+
+arm -> ios : io_dev_open(fip_dev_con, NULL, fip_dev_handle)
+ios -> ios : dev_open(dev_con, dev_spec, handle)
+
+opt dev_open() on fip device
+    ios -> fip : fip_dev_open(dev_spec, dev_info)
+    hnote over fip #LightYellow
+        dev_info = one of the
+        "fip_dev_info" from
+        dev_info_pool[]
+    end hnote
+end
+
+arm -> ios : io_dev_open(memmap_dev_con, NULL, memmap_dev_handle)
+ios -> ios : dev_open(dev_con, dev_spec, handle)
+
+opt dev_open() on memmap device
+    ios -> mem : memmap_dev_open(dev_spec, dev_info)
+    hnote over mem #LightYellow
+        dev_info = memmap_dev_info
+    end hnote
+end
+
+@enduml

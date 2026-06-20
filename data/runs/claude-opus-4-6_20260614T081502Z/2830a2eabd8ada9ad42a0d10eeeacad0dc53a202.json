@@ -1,0 +1,21 @@
+{
+  "id": "msg_01PVENuG1tudPpoHwf8iwtwa",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nbox \"Upstream\" #LightBlue\nparticipant \"Producer\" as UP <<C>>\nparticipant \"Adapter\" as UA <<C>>\nend box\n\nparticipant \"Tansport\" as UT <<S>>\n\nbox \"Gateway\\nJobExecution\" #LightBlue\nparticipant \"Adapter\" as GA <<C>>\nparticipant \"Consumer\" as GC <<C>>\nparticipant \"GatewayJobHandler\" as GJH <<C>>\nparticipant \"Gateway\" as GW <<C>>\nend box\n\nbox \"\" #LightBlue\nparticipant \"Producer\" as GP <<C>>\nparticipant \"Adapter\" as GA2 <<C>>\nend box\n\nparticipant \"Tansport\" as DT <<S>>\n\nbox \"Downstream\" #LightBlue\nparticipant \"Adapter\" as DA <<C>>\nparticipant \"Consumer\" as DC <<C>>\nend box\n\nbox \"JobExecution\" #LightBlue\nparticipant \"DownstreamJobHandler\" as DJH <<C>>\nend box\n\nparticipant \"Lower Layer\" as LL <<S>>\n\nUP -> UP : publish(command)\nUP -> UA : publish(command)\nUA -> UT : execute(command)\nUA <-- UT : resolves()\nUP <-- UA : resolves()\nUP -> UP : subscribe(handler)\nUA -> UA : subscribe(\"response\")\nUT -> GA : handler(command, done)\nGA -> GJH : subscribe(\"done\")\nGA -> GJH : emit(\"command\",\\nGatewayJobHandler)\nGJH -> GW : publish(command)\nGW -> GA2 : publish(command)\nGA2 -> DT : execute(command)\nDT -> DC : handler(command, done)\nDC -> DJH : subscribe(\"done\")\nDC -> DJH : emit(\"command\",\\nGatewayJobHandler)\nDJH -> LL : done()\nDJH --> DC : emit(\"done\")\nDC -> DT : done(response)\nDT --> GA2 : resolves()\nGW <-- GA2 : resolves()\nGW -> GW : subscribe(handler)\nGA2 -> GA2 : subscribe(\"response\")\nGA2 <-- DT : getDelay(command)\nGA2 <-- DT : done(response)\nGA2 -> GA2 : emit(\"response\", response)\nGA2 -> GA2 : handler(\"response\")\nGA2 -> GA2 : onTimeOut(getDelay())\nGA2 -> GA2 : unsubscribe()\nGW -> GW : resolve(responses)\nGJH -> GJH : done()\nGJH --> GC : emit(\"done\")\nGC -> GA : done(response)\nGA -> UT : done(response)\nUT --> UA : emit(\"response\", response)\nUA --> UA : handler(\"response\")\nUT --> UA : emit(\"response\", response)\nUA --> UA : handler(\"response\")\nUA -> UA : onTimeOut(getDelay())\nUA -> UA : unsubscribe()\nUT --> UA : getDelay(command)\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781431300,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 739,
+    "prompt_tokens": 1328,
+    "total_tokens": 2067
+  }
+}

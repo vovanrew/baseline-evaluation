@@ -1,0 +1,96 @@
+```plantuml
+@startuml
+title Simulation de Fourmis
+
+participant "AntFacadeController" as Controller
+participant "Soldat" as Soldat
+participant "Ouvriere" as Ouvriere
+participant "Fourmi" as Fourmi
+participant "Noeud" as Noeud
+participant "Fourmilière" as Fourmilie
+participant "Grille" as Grille
+participant "Random" as Random
+
+activate Controller
+
+box "1 play" #LightBlue
+  activate Controller
+  box "loop [Fourmilière f in listeFourmilières]" #LightGreen
+    activate Controller
+    box "loop [Fourmi f in listeFourmis]" #LightYellow
+      activate Controller
+      alt "Fourmi instanceof Soldat"
+        activate Soldat
+        Soldat->Grille: 3 noeudsLibres
+        activate Grille
+        Grille-->>Soldat: 4 ArrayList<Noeud>
+        deactivate Grille
+        Soldat->Random: 5 nextInt()
+        activate Random
+        Random-->>Soldat: 6 int
+        deactivate Random
+        Soldat->Noeud: 7 setPosition:Noeud
+        activate Noeud
+        Noeud-->>Soldat: 8 void
+        deactivate Noeud
+        Soldat-->>Controller: 9 void
+        deactivate Soldat
+      else "Fourmi instanceof Ouvriere"
+        activate Ouvriere
+        Ouvriere->Grille: 11 noeudsLibres
+        activate Grille
+        Grille-->>Ouvriere: 12 ArrayList<Noeud>
+        deactivate Grille
+        Ouvriere->Noeud: 13 getNourriture()
+        activate Noeud
+        Noeud-->>Ouvriere: 14 nourriture
+        deactivate Noeud
+        Ouvriere->Noeud: 15 getPheromones()
+        activate Noeud
+        Noeud-->>Ouvriere: 16 pheromones
+        deactivate Noeud
+        Ouvriere->Random: 17 nextInt()
+        activate Random
+        Random-->>Ouvriere: 18 int
+        deactivate Random
+        Ouvriere->Noeud: 19 setPosition:Noeud
+        activate Noeud
+        Noeud-->>Ouvriere: 20 void
+        deactivate Noeud
+        Ouvriere->Noeud: 21 getNourriture
+        activate Noeud
+        Noeud-->>Ouvriere: 22 nourriture
+        deactivate Noeud
+        Ouvriere->Noeud: 23 setNourriture(int)
+        activate Noeud
+        Noeud-->>Ouvriere: 24 void
+        deactivate Noeud
+        alt "transporte nourriture"
+          Ouvriere->Noeud: 25 ajouterPheromones(int)
+          activate Noeud
+          Noeud-->>Ouvriere: 26 void
+          deactivate Noeud
+        end
+        Ouvriere-->>Controller: 27 void
+        deactivate Ouvriere
+      end
+      deactivate Controller
+    end
+    deactivate Controller
+  end
+  deactivate Controller
+end
+
+box "loop [Noeud n in Grille]" #LightCyan
+  activate Controller
+  Controller->Noeud: 28 evaporer(int)
+  activate Noeud
+  Noeud-->>Controller: 29 void
+  deactivate Noeud
+  deactivate Controller
+end
+
+Controller--x: 30 void
+
+@enduml
+```

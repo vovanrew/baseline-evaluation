@@ -1,0 +1,40 @@
+```plantuml
+@startuml
+skinparam participantStyle rectangle
+
+participant "Admin" as Admin
+participant "Webhook Server" as WebhookServer
+participant "Consumer" as Consumer
+
+== Register webhook ==
+
+Admin -> WebhookServer: 1 Register webhook consumer
+activate WebhookServer
+WebhookServer --> Admin: 2 OK
+deactivate WebhookServer
+
+== Event received ==
+
+Admin -> WebhookServer: 3 Event
+activate WebhookServer
+WebhookServer -> WebhookServer: 4 Store event in DB
+deactivate WebhookServer
+
+== Consumer connected ==
+
+Consumer -> WebhookServer: 5 Connect over WS
+activate WebhookServer
+
+loop
+    WebhookServer -> WebhookServer: 6 Load webhooks from DB
+    WebhookServer -> Consumer: 7 Forward forwarding events
+end
+
+loop
+    Consumer --x WebhookServer: 8 Ack messages by webhook ID
+end
+
+deactivate WebhookServer
+
+@enduml
+```

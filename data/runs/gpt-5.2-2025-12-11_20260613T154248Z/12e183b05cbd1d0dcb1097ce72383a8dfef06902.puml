@@ -1,0 +1,22 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+interface "IBaseRepository" as IBaseRepository << (C,#b7d7b7) >>
+class "BaseRepository" as BaseRepository << (C,#b7d7b7) >> {
+  + BaseRepository()
+  + BaseRepository(context:ApplicationContext)
+  + {virtual} {async} Create(obj:T) : Task<T>
+  + {virtual} {async} Update(obj:T) : Task<T>
+  + {virtual} {async} Update(id:long, obj:T) : Task<T>
+  + {virtual} {async} Delete(id:long) : Task<bool>
+  + {virtual} {async} Get(id:long?) : Task<T>
+  + {virtual} {async} Get() : Task<List<T>>
+  - EntryExists(id:long) : bool
+  + {virtual} {async} IsUniqueValue(obj:T, propertyName:string, value:object) : Task<bool>
+  - CompareByReflection(objetoASerComparado:object, objetoComparador:object, propertyName:string, value:object) : bool
+}
+class "ApplicationContext" as ApplicationContext << (C,#b7d7b7) >>
+
+BaseRepository -|> IBaseRepository : <T>
+BaseRepository --> ApplicationContext : _context
+@enduml

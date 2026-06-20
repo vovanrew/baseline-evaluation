@@ -1,0 +1,36 @@
+```plantuml
+@startuml
+!option handwritten true
+
+skinparam backgroundColor #F0EDE4
+skinparam sequenceArrowColor #00BFFF
+skinparam sequenceLifeLineBorderColor #00BFFF
+skinparam sequenceLifeLineBackgroundColor #00BFFF
+skinparam sequenceParticipantBackgroundColor #00AAFF
+skinparam sequenceParticipantFontColor white
+skinparam sequenceParticipantBorderColor #00AAFF
+skinparam actorBorderColor #00BFFF
+skinparam actorFontColor #00BFFF
+skinparam sequenceMessageAlign left
+
+actor developer
+
+participant DEV
+participant TEST
+participant MASTER
+participant HOTFIX
+
+developer -> TEST : **1** 增量换包到TEST
+TEST -> MASTER : **2** 测试通过后，基于TEST打tag
+TEST -> MASTER : **3** check release分支
+TEST -> MASTER : **4** 将release分支合并到MASTER
+MASTER -> HOTFIX : **5** ，线上紧急问题，基于MASTER check HOTFIX分支
+MASTER -> HOTFIX : **6** ，开发基于HOTFIX分支check本地分支修复问题
+MASTER -> HOTFIX : **7** 修复完成后合回HOTFIX分支
+MASTER -> HOTFIX : **8** 用CMP工具基于HOTFIX打包换到测试环境进行验证
+HOTFIX -> MASTER : **9** 测试通过后，HOTFIX合回MASTER
+HOTFIX -> TEST : **10** 测试通过后，HOTFIX合回TEST
+HOTFIX -> developer : **11** 测试通过后，HOTFIX合回DEV
+
+@enduml
+```

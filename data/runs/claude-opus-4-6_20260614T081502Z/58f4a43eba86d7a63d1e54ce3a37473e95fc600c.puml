@@ -1,0 +1,105 @@
+```plantuml
+@startuml
+
+class TodoListApplication {
+  + start()
+  + main()
+}
+
+class ToDoListGUIController {
+  <Item> todoList
+  ToDoListManager tdm
+  - TextField fileLocationAndName
+  # TableView<Item> tableView
+  - TableColumn<Item, String> completionColumn
+  - TableColumn<Item, String> nameColumn
+  - TableColumn<Item, String> descriptionColumn
+  - TableColumn<Item, String> dueDateColumn
+  - RadioButton showAllItems
+  - RadioButton showIncompletedItems
+  - RadioButton showCompletedItems
+  + changeItemViewOnRadioToggle()
+  + toggleCompletionOnButtonPress()
+  + removeItemFromTable()
+  + clearAllItemsFromTable()
+  + saveListToTextFile()
+  + popupAddItemSceneOnButtonPress()
+  + popupEditItemSceneOnButtonPress()
+  + changeToLoadFileSceneOnButtonPress()
+  + closeWindowOnExitButtonPress(MouseEvent event)
+  + initialize(URL location, ResourceBundle resources)
+  + loadTable(ToDoListManager tdm)
+}
+
+class ToDoListManager {
+  String fileLocation
+  ToDoList tdl = new ToDoList()
+  File file = new File(getFileLocation()+ "/" + getFileName())
+  + writeToFile(String file, ToDoListManager manager)
+  + ToDoListManager loadToDoList(String location)
+  + String getFileLocation()
+  + String getFileName()
+  + String createList(String title)
+}
+
+class ToDoList {
+  String title
+  List<Item> itemList = new ArrayList<>()
+  + List<Item> clearList()
+  + addItem(Item newItem)
+  + displayCompletedItems(List<Item> displayList)
+  + displayIncompleteItems(List<Item> displayList)
+}
+
+class Item {
+  String completion
+  String name
+  String description
+  String dueDate
+  + Item()
+  + Item(String name, String description, String dueDate, String completion)
+  + **String getName()**
+  + String getDescription()
+  + String getDueDate()
+  + String getCompletion()
+  + changeCompletion()
+}
+
+class AddItemController {
+  - Label errorLabel
+  - TextField itemName
+  - TextField itemDescription
+  - DatePicker itemDueDate
+  ToDoListManager tdm = new ToDoListManager()
+  Item newItem = new Item()
+  + getItemInfo(MouseEvent event)
+}
+
+class EditItemController {
+  - Label errorLabel;
+  - TextField itemName;
+  - TextField itemDescription;
+  - DatePicker itemDueDate;
+  Item newItem = new Item();
+  ToDoListManager tdm = new ToDoListManager();
+  + editItemInfo(MouseEvent event)
+  + showItemInfo(Item selectedItem)
+}
+
+class LoadFileController {
+  - TextField filePath;
+  - Label label;
+  ToDoListManager tdm = new ToDoListManager();
+  + getFilePath(MouseEvent event)=
+}
+
+TodoListApplication --o ToDoListGUIController
+ToDoListGUIController --o AddItemController
+ToDoListGUIController --o EditItemController
+ToDoListGUIController --o LoadFileController
+ToDoListGUIController --o ToDoListManager
+ToDoListManager o-- ToDoList
+ToDoList o-- Item
+
+@enduml
+```

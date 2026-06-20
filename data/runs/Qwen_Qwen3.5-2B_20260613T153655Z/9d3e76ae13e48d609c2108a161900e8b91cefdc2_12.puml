@@ -1,0 +1,33 @@
+@startuml
+skinparam sequenceDiagram
+    participant App
+    participant Game
+    participant Player
+    participant View
+    participant TableView
+    participant PlayersListView
+
+    App -> Game : startRound()
+    Game -> Player : startTurn()
+    Game -> View : render(playersList, table)
+    View -> TableView : render(table)
+    View -> PlayersListView : render(playersList)
+    Game -> PlayersListView : cleanupPlayersList()
+    Game -> Player : [playersList.inPlayを回す]
+    Game -> View : render(playersList)
+    View -> TableView : render(table)
+    View -> PlayersListView : render(playersList)
+    Game -> App : isEnd()
+    App -> Game : boolean
+    Game -> App : startRound()
+    alt [true]
+        Game -> App : endGame()
+    else [false]
+        Game -> App : startRound()
+    end
+
+    Note over Game, View: ターン進行
+    Note over Game, View: ターン終了
+
+    Note over Game, View: 七並ベシーケンス図（一周）ver.3
+@enduml

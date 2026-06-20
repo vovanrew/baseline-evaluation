@@ -1,0 +1,53 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "User" as User
+rectangle "Frontend" as Frontend {
+}
+participant "API Gateway" as APIGateway
+rectangle "Matching Service" as MatchingService {
+    participant "Controller" as Controller
+    participant "Service" as Service
+}
+rectangle "Matching Database" as MatchingDatabase {
+    database "Questions" as Questions
+    database "MatchRequests" as MatchRequests
+}
+
+User -> Frontend : PUT /api/find/match\npayload: {requestId}
+activate Frontend
+Frontend -> APIGateway : PUT /api/find/match\npayload: {requestId}
+activate APIGateway
+APIGateway -> Controller : checkForMatch(requestId)
+activate Controller
+Controller -> Service : find user's MatchRequest with requestId
+activate Service
+Service -> MatchRequests : find user's MatchRequest with requestId
+activate MatchRequests
+MatchRequests --> Service : user's MatchRequest
+deactivate MatchRequests
+Service -> MatchRequests : find another MatchRequest
+activate MatchRequests
+MatchRequests --> Service : another MatchRequest
+deactivate MatchRequests
+Service -> Questions : get a random question
+activate Questions
+Questions --> Service : Question
+deactivate Questions
+Service -> Service : create sessionInfo and attach to each MatchRequest
+Service -> MatchRequests : update the 2 MatchRequests
+activate MatchRequests
+MatchRequests --> Service
+deactivate MatchRequests
+deactivate Service
+Service --> Controller : user's MatchRequest
+deactivate Controller
+Controller --> APIGateway : 200 OK\npayload: {user's MatchRequest}
+deactivate APIGateway
+APIGateway --> Frontend : 200 OK\npayload: {user's MatchRequest}
+deactivate Frontend
+Frontend -> Frontend : switch to session page
+
+@enduml
+```

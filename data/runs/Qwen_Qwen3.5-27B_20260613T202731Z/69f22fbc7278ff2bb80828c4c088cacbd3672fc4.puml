@@ -1,0 +1,64 @@
+```plantuml
+@startuml
+title Sequence Diagram for Email Loading Process
+
+participant "NavBar" as NavBar
+participant "ReduxStore" as ReduxStore
+participant "UserActions" as UserActions
+participant "UserReducer" as UserReducer
+participant "ProfileMiddleware" as ProfileMiddleware
+participant "Solid.js" as SolidJS
+database "POD" as POD
+
+NavBar -> ReduxStore: loadEmailRequest()
+activate ReduxStore
+ReduxStore -> UserActions: dispatch(loadEmailRequest())
+activate UserActions
+UserActions -> ProfileMiddleware: loadEmailRequest()
+deactivate UserActions
+activate ProfileMiddleware
+ProfileMiddleware -> SolidJS: getEmail()
+activate SolidJS
+SolidJS -> POD: getEmail()
+activate POD
+POD --> SolidJS: email
+deactivate POD
+SolidJS --> ProfileMiddleware: email
+deactivate SolidJS
+ProfileMiddleware -> UserReducer: loadEmailRequest()
+activate UserReducer
+UserReducer --> ReduxStore: state
+deactivate UserReducer
+deactivate ProfileMiddleware
+deactivate ReduxStore
+
+alt email successfully loaded
+    SolidJS --> ProfileMiddleware: email
+    deactivate SolidJS
+    ReduxStore -> UserActions: dispatch(loadEmailSuccess(email))
+    activate UserActions
+    UserActions -> UserReducer: loadEmailSuccess(email)
+    deactivate UserActions
+    activate UserReducer
+    UserReducer -> UserReducer: updateState(email)
+    UserReducer --> ReduxStore: updated state with email
+    deactivate UserReducer
+else error at loading email
+    SolidJS --> ProfileMiddleware: error
+    deactivate SolidJS
+    ReduxStore -> UserActions: dispatch(loadEmailError(error))
+    activate UserActions
+    UserActions -> UserReducer: loadEmailError(error)
+    deactivate UserActions
+    activate UserReducer
+    UserReducer -> UserReducer: updateState(error)
+    UserReducer --> ReduxStore: updated state
+    deactivate UserReducer
+end
+
+ReduxStore --> NavBar: state
+
+note right of POD: line = method\n dash line = data
+
+@enduml
+```

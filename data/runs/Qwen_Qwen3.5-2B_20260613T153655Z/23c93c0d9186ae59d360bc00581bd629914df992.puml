@@ -1,0 +1,55 @@
+@startuml
+participant "Nurse" as Nurse
+participant "RecordAdverseReactionUI" as RecordAdverseReactionUI
+participant "RecordAdverseReactionController" as RecordAdverseReactionController
+participant "Company" as Company
+participant "AdverseReactionStore" as AdverseReactionStore
+participant "AdverseReactionDTO" as AdverseReactionDTO
+participant "AdverseReactionMapper" as AdverseReactionMapper
+participant "WaitingRoomStore" as WaitingRoomStore
+participant "AdverseReaction" as AdverseReaction
+
+participant "Nurse" as Actor
+
+Actor "Nurse" as NurseActor
+
+RecordAdverseReactionUI ..> AdverseReactionStore : 5 wstore = getWaitingRoomStore()
+RecordAdverseReactionUI ..> AdverseReactionStore : 6 store = getRecordAdverseReactionStore()
+RecordAdverseReactionUI ..> WaitingRoomStore : 7 snsu = getSNSUserInTheWaitingRoomByItsSNSNumber(snsuserNumber)
+RecordAdverseReactionUI ..> WaitingRoomStore : 8 vc = getVaccinationCenterBySNSNumber(snsuserNumber)
+RecordAdverseReactionController ..> AdverseReactionStore : 9 ar = createAdverseReaction(snsu, advReact, vc)
+RecordAdverseReactionController ..> AdverseReaction : 10 create(snsu, advReact, vc)
+RecordAdverseReactionController ..> AdverseReaction : 11 validateAdverseReaction(ar)
+RecordAdverseReactionController ..> AdverseReactionMapper : 12 toDTO(ar)
+RecordAdverseReactionController ..> AdverseReactionMapper : 13 arDTO
+RecordAdverseReactionController ..> RecordAdverseReactionUI : 14 arDTO
+RecordAdverseReactionUI ..> NurseActor : 15 shows SNS User correspondent to the SNS Number and adverse reaction waiting for approval
+RecordAdverseReactionUI ..> NurseActor : 16 confirms action
+RecordAdverseReactionController ..> AdverseReactionStore : 17 saveAdverseReaction()
+RecordAdverseReactionController ..> AdverseReactionStore : 18 saveAdverseReaction(ar)
+AdverseReactionStore ..> AdverseReactionStore : 19 validateAdverseReaction(ar)
+AdverseReactionStore ..> AdverseReactionStore : 20 addAdverseReaction(ar)
+
+RecordAdverseReactionUI ..> RecordAdverseReactionController : 1
+RecordAdverseReactionUI ..> RecordAdverseReactionController : 2
+RecordAdverseReactionUI ..> RecordAdverseReactionController : 3
+RecordAdverseReactionController ..> NurseActor : 4
+RecordAdverseReactionController ..> NurseActor : 5
+RecordAdverseReactionController ..> NurseActor : 6
+RecordAdverseReactionController ..> NurseActor : 7
+RecordAdverseReactionController ..> NurseActor : 8
+RecordAdverseReactionController ..> NurseActor : 9
+RecordAdverseReactionController ..> NurseActor : 10
+RecordAdverseReactionController ..> NurseActor : 11
+RecordAdverseReactionController ..> NurseActor : 12
+RecordAdverseReactionController ..> NurseActor : 13
+RecordAdverseReactionController ..> NurseActor : 14
+RecordAdverseReactionController ..> NurseActor : 15
+RecordAdverseReactionController ..> NurseActor : 16
+RecordAdverseReactionController ..> NurseActor : 17
+RecordAdverseReactionController ..> NurseActor : 18
+RecordAdverseReactionController ..> NurseActor : 19
+RecordAdverseReactionController ..> NurseActor : 20
+RecordAdverseReactionController ..> NurseActor : 21
+
+@enduml

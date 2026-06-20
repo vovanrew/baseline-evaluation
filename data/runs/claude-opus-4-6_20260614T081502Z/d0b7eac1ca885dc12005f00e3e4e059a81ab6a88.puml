@@ -1,0 +1,45 @@
+```plantuml
+@startuml
+
+actor Admin
+
+participant ":RemoveScooterUI" as UI
+participant ":RemoveScooterScooterController" as Controller
+participant "pharmServ\n:PharmacyService" as PharmServ
+participant "pharmDB\n:PharmacyDB" as PharmDB
+participant "scootServ\n:ScooterService" as ScootServ
+participant "scootDB\n:ScooterDB" as ScootDB
+
+Admin -> UI : 1 Sends a request regarding the update of an electric scooter's data
+UI -> Controller : 2 showPharmacies()
+Controller -> PharmServ ** : 3 create()
+PharmServ -> PharmDB ** : 4 create()
+Controller -> PharmServ : 5 lstPharmacies = getPharmacies()
+PharmServ -> PharmDB : 6 lstPharmacies = getPharmacies()
+
+ref over PharmDB : SD_CONNECTIONS
+
+UI <-- Controller : 7 Shows the list of pharmacies and asks to choose one
+Admin -> UI : 8 Chooses the pharmacy
+UI -> Controller : 9 showScooterList(pharmacyId)
+Controller -> ScootServ ** : 10 create()
+ScootServ -> ScootDB ** : 11 create()
+Controller -> ScootServ : 12 lstScooters = getScootersList(pharmacyId)
+ScootServ -> ScootDB : 13 lstScooters = getScootersList(pharmacyId)
+
+ref over ScootDB : SD_CONNECTIONS
+
+UI <-- Controller : 14 Shows the list of eletric scooters and asks to choose one
+Admin -> UI : 15 Chooses the eletric scooter
+UI <-- Controller : 16 Shows the information about the scooter, asking to update
+Admin -> UI : 17 Updates the information
+UI -> Controller : 18 updateScooter(batteryPerc, chargingStatus,\npotency, weight, batteryCapacity, maxPayload, pharmacyId)
+Controller -> ScootServ : 19 updateScooter(batteryPerc, chargingStatus,\npotency, weight, batteryCapacity, maxPayload, pharmacyId)
+ScootServ -> ScootDB : 20 updateScooterFromDB(batteryPerc, chargingStatus,\npotency, weight, batteryCapacity, maxPayload, pharmacyId)
+
+ref over ScootDB : SD_Connections
+
+UI <-- Controller : 21 Validates all the information, informing of the success of the operation
+
+@enduml
+```

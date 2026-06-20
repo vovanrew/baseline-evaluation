@@ -1,0 +1,107 @@
+```plantuml
+@startuml
+title Shared memory receiver behaviour
+
+participant "Shared memory receiver" as Receiver
+package "Coordination struct" {
+    participant "Reader count var" as ReaderCount
+    participant "locks_active" as LocksActive
+    participant "locks_leaving" as LocksLeaving
+    participant "Semaphore copy" as SemCopy
+}
+participant "Copy buff" as CopyBuff
+
+rectangle create {
+    alt "Coordination semaphore doesn't exist"
+        Receiver -> SemCopy: Create semaphore
+    end
+    
+    Receiver -> Receiver: wait
+    note right of Receiver: Writer sets up sharedmemory
+    Receiver <- CopyBuff: Writer is ready
+    note right of CopyBuff: Writer inits it with the required number
+    
+    Receiver -> Receiver: ok
+    Receiver -> ReaderCount: reincrease
+    note right of ReaderCount: this way all readers access the memory,\nthey will fail on the copy sem
+    
+    Receiver -> Receiver: MMap coordination struct
+    Receiver -> SemCopy: Trylock copy semaphore
+    
+    alt
+        :Fail;
+        note right of Receiver: Can't lock
+    else
+        :Success;
+        Receiver -> Receiver: MMap copy buffer
+        Receiver -> Receiver: read_flag to true
+        Receiver -> LocksLeaving: Lock leaving[1]
+        Receiver -> ReaderCount: Signal reader ready
+    end
+    
+    Receiver -> Receiver: Close coordination semaphore file
+    Receiver -> Receiver: Success
+}
+
+rectangle ready {
+    Receiver -> Receiver: ready?
+    
+    alt [finished flag set]
+        :False;
+        note left of Receiver: [has read current chunk]
+        Receiver -> LocksActive: lock next chunk (reading)
+        note right of LocksActive: Blocks until next\nchunk is written
+        Receiver -> Receiver: Release previous leaving
+        Receiver -> Receiver: Change active
+        Receiver -> Receiver: reset read flag
+        Receiver -> Receiver: get chunk size
+        Receiver -> CopyBuff: c_size
+        Receiver -> Receiver: c_size > 0
+        note left of Receiver: [Yet to read current and no finished flag]
+        :True;
+        
+        alt [finished]
+            note left of Receiver: This is done before\nactually returning
+            Receiver -> Receiver: Set finished flag
+            Receiver -> Receiver: Release lock
+        end
+    end
+    
+    rectangle buff_size {
+        Receiver -> ReaderCount: get buff_size from coord
+        Receiver -> Receiver: buff_size
+    }
+}
+
+rectangle receive {
+    note right of Receiver: This is called after ready so I am already on the correct\nchunk and it has data to read
+    
+    alt [read_flag_set or finished flag set]
+        :Fail;
+        Receiver -> CopyBuff: Read data in current chunk
+        Receiver -> Receiver: vector
+        Receiver -> Receiver: set read flag
+        Receiver -> LocksLeaving: lock leaving
+        Receiver -> LocksActive: release active
+        Receiver -> Receiver: vector
+    end
+}
+
+rectangle destructor {
+    Receiver -> Receiver: Destroy
+    
+    alt [not finished]
+        alt [read_flag set]
+            Receiver -> LocksActive: unlock
+        else [read_flag false]
+            Receiver -> LocksLeaving: unlock
+        end
+        
+        Receiver -> ReaderCount: Notify left
+        Receiver -> Receiver: Unmap memory
+        Receiver -> Receiver: Close files
+    end
+}
+
+@enduml
+```

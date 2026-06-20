@@ -1,0 +1,24 @@
+@startuml
+actor user
+participant runtime #lightgrey
+participant ibex #lightgrey
+participant "ibex.sklearn" as sklearn_pkg #lightgrey
+participant loader #lightgrey
+participant "sklearn.linear_model" as linear_model #lightgrey
+
+== Import Sequence ==
+user ->> runtime : 1 import ibex.sklearn.linear_model\n(underlined)
+runtime ->> ibex : 2 import ibex
+activate ibex
+deactivate ibex
+runtime ->> sklearn_pkg : 3 import ibex.sklearn
+activate sklearn_pkg
+note right of sklearn_pkg: register sys.metapath
+return 
+deactivate sklearn_pkg
+runtime ->> loader : 5 import ibex.sklearn.linear_model
+loader ->> linear_model : 6 dir
+linear_model --> loader : 7 members
+loader -> loader : 8 inspect
+loader -> loader : 9 wrap
+@enduml

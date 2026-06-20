@@ -1,0 +1,87 @@
+@startuml
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultTextAlignment center
+skinparam wrapWidth 200
+skinparam PackageBorderColor #999999
+skinparam PackageFontColor #999999
+skinparam PackageFontSize 22
+skinparam PackageBackgroundColor white
+skinparam ClassBackgroundColor #F2F2F2
+skinparam ClassBorderColor #333333
+skinparam ClassFontColor #000000
+skinparam ClassFontSize 22
+skinparam ArrowColor #000000
+skinparam ArrowThickness 2
+
+hide empty members
+
+package "Task" <<AGGREGATE>> as P_Task {
+  class "Task" as Task <<AGGREGATE ROOT>> <<ENTITY>>
+}
+
+package "Sprint" <<AGGREGATE>> as P_Sprint {
+  class "Sprint" as Sprint <<AGGREGATE ROOT>> <<ENTITY>>
+}
+
+package "UserStory" <<AGGREGATE>> as P_UserStory {
+  class "UserStory" as UserStory <<AGGREGATE ROOT>> <<ENTITY>>
+}
+
+package "Project" <<AGGREGATE>> as P_Project {
+  class "Project" as Project <<AGGREGATE ROOT>> <<ENTITY>>
+  class "Resource" as ProjectResource <<AGGREGATE ROOT>> <<ENTITY>>
+}
+
+package "Typology" <<AGGREGATE>> as P_Typology {
+  class "Typology" as Typology <<AGGREGATE ROOT>> <<ENTITY>>
+}
+
+package "ProfileRequest" <<AGGREGATE>> as P_ProfileRequest {
+  class "ProfileRequest" as ProfileRequest <<AGGREGATE ROOT>> <<ENTITY>>
+}
+
+package "Profile" <<AGGREGATE>> as P_Profile {
+  class "Profile" as Profile <<AGGREGATE ROOT>> <<ENTITY>>
+}
+
+package "Resource" <<AGGREGATE>> as P_Resource {
+  class "Resource" as Resource <<AGGREGATE ROOT>> <<ENTITY>>
+}
+
+package "User" <<AGGREGATE>> as P_User {
+  class "User" as User <<AGGREGATE ROOT>> <<ENTITY>>
+}
+
+' Layout hints (approximate)
+P_Task -down- P_Sprint
+P_UserStory -right- P_Sprint
+P_Typology -right- P_Project
+P_ProfileRequest -right- P_Profile
+P_Profile -right- P_Resource
+P_Profile -down- P_User
+
+' Relationships (as shown by arrows)
+Sprint --> UserStory
+Profile --> Typology
+Profile --> User
+ProjectResource --> Resource
+Resource --> User
+
+' Right-side vertical bus with multiple incoming arrows (approximated with a hidden node)
+rectangle " " as Bus #white
+Bus -[hidden]right- P_Project
+Bus -[hidden]right- P_Sprint
+Bus -[hidden]right- P_Task
+Bus -[hidden]right- P_Resource
+Bus -[hidden]right- P_User
+
+Task --> Bus
+Sprint --> Bus
+UserStory --> Bus
+Project --> Bus
+Bus --> ProjectResource
+Bus --> Resource
+Bus --> User
+
+@enduml

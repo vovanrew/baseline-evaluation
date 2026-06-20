@@ -1,0 +1,80 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #000000
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6F2
+  ActorBorderColor #000000
+  ActorBackgroundColor #FFFFFF
+  NoteBackgroundColor #FFF9C4
+  NoteBorderColor #666666
+}
+
+actor Activity as A
+participant BaseMediaActivity as B
+participant MediaActivity as M
+
+A -> B : onCreate
+activate B
+
+B -> B : set theme
+B -> B : setup navigation drawer
+
+alt [new activity]
+  B -> M : getActionBarTitle()
+  activate M
+  M --> B
+  deactivate M
+
+  note right of B
+    set home icon to hamburger icon
+  end note
+
+  else [restore action bar]
+    note right of B
+      get home icon and action bar title\nfrom saved instance
+    end note
+end
+
+B -> B : updateActionBar
+
+alt [no fragment in layout (new activity)]
+  B -> M : createFragment()
+  activate M
+  M --> B
+  deactivate M
+
+  B -> B : add fragment
+end
+
+deactivate B
+B --> A
+
+A -> B : onCreateOptionsMenu
+activate B
+note right of B
+  inflate generic menu items
+end note
+deactivate B
+B --> A
+
+note right of M
+  user selects media item
+end note
+
+M -> B : showFragment()
+activate B
+note left of B
+  sets up the shared element transition\nand updates the dataholder
+end note
+
+B -> B : replace current fragment\nwith new fragment
+B --> M
+deactivate B
+
+@enduml
+```

@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle Search for Products by ID (using DB dao)\n\nactor User\nparticipant \"<<main>>\\nAdministration\" as Admin\nparticipant \"<<frame>>\\nMainMenu\" as MainMenu\nparticipant \"<<dialog>>\\nProductReportDialog\" as ProductReportDialog\nparticipant \"<<ProductDAO>>\\nProductDatabaseDAO\" as ProductDatabaseDAO\nparticipant \"SimpleListModel\\n:model\" as SimpleListModel\ndatabase Database\n\nactivate Admin\nAdmin -> MainMenu : <<construct>>\nactivate MainMenu\n\nUser -> MainMenu : clicks 'View Products'\nMainMenu -> ProductReportDialog : <<construct>>\nactivate ProductReportDialog\n\nProductReportDialog -> ProductDatabaseDAO : <<construct>>\nProductReportDialog -> ProductDatabaseDAO : getProducts()\nactivate ProductDatabaseDAO\n\nProductDatabaseDAO -> Database : select * from product\nactivate Database\nDatabase -->> ProductDatabaseDAO : ResultSet\ndeactivate Database\n\nProductDatabaseDAO -> ProductDatabaseDAO : reconstruct products\\nfrom ResultSet\nProductDatabaseDAO -->> ProductReportDialog : products\ndeactivate ProductDatabaseDAO\n\nProductReportDialog -> SimpleListModel : <<construct>>\nProductReportDialog -> SimpleListModel : updateItems(products)\nactivate SimpleListModel\ndeactivate SimpleListModel\n\nProductReportDialog -> ProductReportDialog : lstProducts.setModel(model)\nnote left: products now\\nvisible to user\n\nUser -> ProductReportDialog : enters product id into search bar\nProductReportDialog -> ProductReportDialog : txtId.getText : id\n\nUser -> ProductReportDialog : clicks \"Search\"\nProductReportDialog -> ProductDatabaseDAO : search(id)\nactivate ProductDatabaseDAO\n\nProductDatabaseDAO -> Database : select * from product where product_id = id\nactivate Database\nDatabase -->> ProductDatabaseDAO : product\ndeactivate Database\n\nProductDatabaseDAO -->> ProductReportDialog : product\ndeactivate ProductDatabaseDAO\n\nProductReportDialog -> SimpleListModel : updateItems(product)\nactivate SimpleListModel\ndeactivate SimpleListModel\n\nProductReportDialog -> ProductReportDialog : lstProducts.getModel(model)\nnote left: only searched product\\nnow visible to user\n\ndeactivate ProductReportDialog\ndeactivate MainMenu\ndeactivate Admin\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbH6CG6QurUH8C1t+XgwiH0uXtzam1qHp1XgMhPeqUOvQYXg49BbSuZ5XWmB5sX"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1168,
+    "candidatesTokenCount": 470,
+    "totalTokenCount": 1638,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1088
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "x18xas7BGLb7xN8Pyt2FoAk"
+}

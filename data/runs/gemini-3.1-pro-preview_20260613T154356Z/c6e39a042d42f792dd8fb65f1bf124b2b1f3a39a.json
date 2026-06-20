@@ -1,0 +1,45 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nparticipant Requester\nparticipant PageLocsMgr\ncontrol MgrQueue\nparticipant StateTask\ncontrol StateQueue\ncontrol RetrieveQueue\nparticipant RetrieverTask\n\nPageLocsMgr -> RetrieverTask : Startup\nPageLocsMgr -> StateTask : Startup\nPageLocsMgr -> StateQueue : start(doc, first_item, item_count)\n\nnote over PageLocsMgr, StateTask\n  The document retrieval\n  optimizes the order of\n  the items considering\n  how the user interacts.\nend note\n\nStateQueue -> StateTask : start_document(...)\nactivate StateTask\n\nloop All Items\n  StateTask -> RetrieveQueue : retrieve(item)\n  RetrieveQueue -> RetrieverTask : retrieve(item)\n  activate RetrieverTask\n  RetrieverTask -> RetrieverTask : do item\n  RetrieverTask -> StateQueue : item_retrieved(item)\n  deactivate RetrieverTask\n  StateQueue -> StateTask : item_retrieved(item)\nend\n\n== Item already known ==\n\nRequester -> PageLocsMgr : get_page_loc(item, offset)\nactivate PageLocsMgr\nPageLocsMgr -> Requester : got_it(start_offset, size)\ndeactivate PageLocsMgr\n\n== Item needs to be retrieved (no yet in the list) ==\n\nRequester -> PageLocsMgr : get_page_loc(item, offset)\nactivate PageLocsMgr\nPageLocsMgr -> StateQueue : retrieve_asap(item)\nStateQueue -> StateTask : retrieve_asap(item)\nStateTask -> RetrieveQueue : retrieve(item)\nRetrieveQueue -> RetrieverTask : retrieve(item)\nactivate RetrieverTask\nRetrieverTask -> RetrieverTask : do item\nRetrieverTask -> StateQueue : item_retrieved(item)\ndeactivate RetrieverTask\nStateQueue -> StateTask : item_retrieved(item)\nStateTask -> MgrQueue : got_asap(item)\nMgrQueue -> PageLocsMgr : got_asap(item)\nPageLocsMgr -> Requester : got_it(start_offset, size)\nStateTask -> MgrQueue : end_document()\ndeactivate StateTask\nMgrQueue -> PageLocsMgr : end_document()\ndeactivate PageLocsMgr\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHlM17J/IJjR5OwMPt0haLfdQ8VwXBWWkdDLZswQLan/HpwjnW0XCs5bNjzxeH"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "citationMetadata": {
+        "citationSources": [
+          {
+            "startIndex": 963,
+            "endIndex": 1383,
+            "uri": "https://github.com/turgu1/EPub-InkPlate",
+            "license": ""
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1168,
+    "candidatesTokenCount": 501,
+    "totalTokenCount": 1669,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1088
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "XGExapaDGIS0xN8PspuWyQ4"
+}

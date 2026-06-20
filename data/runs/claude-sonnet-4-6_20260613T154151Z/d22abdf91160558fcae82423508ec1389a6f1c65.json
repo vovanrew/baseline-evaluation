@@ -1,0 +1,21 @@
+{
+  "id": "msg_01TbojbXJpaPtHSCBpQKKpa5",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle HashedTimelockERC20 contract: normal flow \u2013 receiver withdraws with preimage before the timelock expires\n\nbox \"Ethereum Network\" #LightBlue\nparticipant \"\u00abAccount\u00bb\\nSender\" as Sender\nparticipant \"\u00abAccount\u00bb\\nReceiver\" as Receiver\nparticipant \"\u00abSmart Contract\u00bb\\nHashedTimelockERC20\" as HTLC\nparticipant \"\u00abSmart Contract\u00bb\\nERC20Contract\" as ERC20\nparticipant \"Events\" as Events\nend box\n\nnote over HTLC #LightYellow\n  State stored for each HTLC:\n  address sender;\n  address receiver;\n  address tokenContract;\n  uint amount;\n  bytes32 hashlock;\n  uint timelock; // UNIX ts\n  bool withdrawn;\n  bool refunded;\n  bytes32 preimage;\nend note\n\nSender -> ERC20 : approve(htlc address, amount)\nERC20 --> Sender\n\nSender -> HTLC : newContract(\\n        receiver,\\n        hashlock,\\n        timelock,\\n        tokenContract,\\n        amount\\n)\nactivate HTLC\nHTLC -> ERC20 : transferFrom(sender, htlc address, amount)\nERC20 --> HTLC\nHTLC -> Events : LogHTLCERC20New(contractId, locks, values, etc.)\ndeactivate HTLC\n\nHTLC --> Sender : contractId\nSender -> Receiver : reveals contractId\n\nnote over Receiver\n  knows/obtains secret preimage\n  [sha256(secret preimage) == hashlock]\nend note\n\nReceiver --> Receiver\n\nReceiver -> HTLC : withdraw(contractId, secret preimage)\nactivate HTLC\nHTLC -> ERC20 : transfer(receiver, amount)\nERC20 --> HTLC\nHTLC -> Events : LogHTLCERC20Withdraw(contractId)\ndeactivate HTLC\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781372031,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 492,
+    "prompt_tokens": 1650,
+    "total_tokens": 2142
+  }
+}

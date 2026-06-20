@@ -1,0 +1,21 @@
+{
+  "id": "msg_014GRUsWSx6jf8Zz5MXcdobA",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Update Relationship Event Handler UML\n\nparticipant \"Event Dispatcher Topic\" as EDT #pink\nbox \"Lambda\" #orange\nparticipant \"Update Relationship Event Handler\" as UREH\nend box\nbox \"DynamoDB\" #royalblue\nparticipant \"Relationship Owner Table\" as ROT\nparticipant \"Relationship Commitment Table\" as RCT\nend box\n\nEDT -> UREH : filter on\\nRelationship::Update Event\n\nUREH -> UREH : [SessionDecorator.puml]\nUREH -> UREH : [TrackEventHandlerWrapper.puml]\nUREH -> UREH : extract Message from Event\nUREH -> UREH : validate Message\nUREH -> UREH : validate event-name\nUREH -> UREH : validate event-version\nUREH -> UREH : validate stage\n\nUREH -> ROT : Get Existing Relationship\nROT --> UREH :\n\nUREH -> UREH : Generate Relationship Dict\nUREH -> UREH : Combine Existing Relationship\\nAttributes With New Changes\n\nopt [if missing required schema key]\n  UREH -> UREH : <color:red>Error Handling</color>\nend\n\nUREH -> UREH : Get AdditionalAttributes\n\nalt [if Relationship contains description and AdditionalAttributes\\ndoesn't contain completed signal]\n  UREH -> ROT : update Relationship\n  ROT --> UREH :\n  UREH -> UREH : <color:red>Error Handling</color>\nend\n\nUREH -> UREH : Generate commitments to add or delete\n\nalt [if Commitment Operations Exist]\n  UREH -> UREH : Generate starting indexes based on AdditionalAttributes\n  UREH -> RCT : Batch_Write() RelationshipCommitments\n  RCT --> UREH :\n  UREH -> UREH : <color:red>Error Handling</color>\nend\n\nUREH -> UREH : Track Event Handler Wrapper\nUREH -> UREH : Error Handler Wrapper\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371005,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 505,
+    "prompt_tokens": 1646,
+    "total_tokens": 2151
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLmYSf8vQ4Ltf71WBUJR63GdrheA",
+  "object": "chat.completion",
+  "created": 1781369158,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  ParticipantPadding 30\n  BoxPadding 10\n  LifeLineBorderColor #888888\n  LifeLineBackgroundColor #FFFFFF\n  ActorBorderColor #000000\n  ActorBackgroundColor #00B7EB\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #E6E6F2\n  DatabaseBorderColor #000000\n  DatabaseBackgroundColor #00B7EB\n}\n\nactor \"sdx_downstream\" as sdx\nactor \"downstream_quarantine\" as dq\n\nparticipant \"Downstream\" as Downstream\nparticipant \"Store\" as Store\nparticipant \"TransformCS\" as TransformCS\nparticipant \"Sequence\" as Sequence\ndatabase \"Postgres\" as Postgres\nrectangle \"FTP\" as FTP #99FF00\n\nsdx -[#000000,dashed]> Downstream : Consume tx_id\n\nDownstream -> Store : GET /responses/{tx_id}\nactivate Store\nStore -[#000000,dashed]> Postgres\nStore --> Downstream : return response json\ndeactivate Store\n\nbreak [error]\n  Downstream -[#000000,dashed]> dq\nend\n\nDownstream -> Sequence : GET /sequence\nactivate Sequence\nSequence -[#000000,dashed]> Postgres\nSequence --> Downstream : return number\ndeactivate Sequence\n\nbreak [error]\n  Downstream -[#000000,dashed]> dq\nend\n\nalt [common-software]\n  Downstream -[#000000,dashed]> TransformCS : POST /common-software/{sequence_no}\n  activate TransformCS\nelse [cora]\n  Downstream -[#000000,dashed]> TransformCS : POST /cora/{sequence_no}\n  activate TransformCS\nelse [cord]\n  Downstream -> TransformCS : POST /cord/{sequence_no}\n  activate TransformCS\nend\n\nTransformCS -> Sequence : GET /image-sequence?n\nactivate Sequence\nSequence -[#000000,dashed]> Postgres\nSequence --> TransformCS : return list\ndeactivate Sequence\n\nTransformCS --> Downstream : Return Zip\ndeactivate TransformCS\n\nbreak [error]\n  Downstream -[#000000,dashed]> dq\nend\n\nDownstream -> Downstream : Unzip\nDownstream -> Downstream : Send files\nDownstream -[#000000,dashed]> FTP\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2289,
+    "completion_tokens": 502,
+    "total_tokens": 2791,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

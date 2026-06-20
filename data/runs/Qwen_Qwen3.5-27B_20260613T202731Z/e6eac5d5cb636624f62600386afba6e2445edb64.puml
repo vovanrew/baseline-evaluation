@@ -1,0 +1,69 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+class HomeViewController {
+    + emailTextField: UITextField!
+    + passwordTextField: UITextField!
+    + displayNameTextField: UITextField!
+    - onSubmitButtonTapped(_: )
+    - attemptRegister()
+    - attemptLogin()
+}
+
+extension HomeViewController {
+    + displayError(_: )
+    + displayMessage(_: )
+    + loginDidSucceed()
+    + registerDidSucceed()
+}
+
+class FirebaseAuthProvider {
+    + fbUser: User?
+    # user: DTUser?
+    + init()
+    + signUp(email:password:displayName:)
+    + login(email:password:)
+    - setUserDisplayName(_: )
+}
+
+class DTAuth {
+    # user: DTUser?
+    + signUp(email:password:displayName:)
+    + login(email:password:)
+}
+
+protocol DTAuthDelegate {
+    + displayError(_: )
+    + displayMessage(_: )
+    + loginDidSucceed()
+    + registerDidSucceed()
+}
+
+extension User {
+    + toDTUser()
+}
+
+protocol DTAbstractAuthProvider {
+    # user: DTUser?
+    + signUp(email:password:displayName:)
+    + login(email:password:)
+}
+
+struct DTUser {
+    ~ uid: String
+    ~ displayName: String
+    ~ email: String
+}
+
+HomeViewController --|> DTAuthDelegate
+FirebaseAuthProvider --|> DTAuthDelegate
+FirebaseAuthProvider ..|> DTAbstractAuthProvider
+FirebaseAuthProvider --> User : converts to DTUser using
+FirebaseAuthProvider --* DTAuthDelegate : sends events
+DTAuth --|> DTAbstractAuthProvider
+DTAuth "1" *-- "1" DTUser
+HomeViewController --> DTAuth : sends auth events to
+
+@enduml
+```

@@ -1,0 +1,100 @@
+@startuml
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+
+package "Client" as Client {
+  interface "IInfoPraiaData" as IInfoPraiaData {
+    [key: String]: number
+  }
+
+  interface "IInfoPonto" as IInfoPonto {
+    alturaOnda: IInfoPraiaData
+    direçãoOnda: IInfoPraiaData
+    alturaOndulação: IInfoPraiaData
+    direçãoOndulação: IInfoPraiaData
+    períodoOndulação: IInfoPraiaData
+    velocidadeVento: IInfoPraiaData
+    direçãoVento: IInfoPraiaData
+  }
+
+  class "ApiInfoPraia" as ApiInfoPraia << (C,#b6e3b6) >> {
+    - parameters: []
+    - request: Class Request
+    + buscarPonto(lat, lng): <IPrevisãoPonto>
+  }
+
+  interface "IPrevisãoPonto" as IPrevisaoPonto {
+    alturaOnda: Number
+    direçãoOnda: Number
+    alturaOndulação: Number
+    direçãoOndulação: Number
+    períodoOndulação: Number
+    velocidadeVento: Number
+    direçãoVento: Number
+  }
+
+  note right of ApiInfoPraia
+    parameters: [alturaOnda, direçãoOnda, alturaOndulação,
+    direçãoOndulação, períodoOndulação,
+    velocidadeVento, direçãoVento]
+  end note
+
+  package "Util" as Util {
+    class "Request" as Request << (C,#b6e3b6) >> {
+      - request: {}
+      + get(url)
+    }
+  }
+
+  ApiInfoPraia *-- IPrevisaoPonto
+  ApiInfoPraia ..> Request
+}
+
+package "Models" as Models {
+  interface "IPraia" as IPraia {
+    id: Integer
+    name: String
+    position[1]: Position
+    lat: Integer
+    lng: Integer
+    user: String
+  }
+
+  enum "Position" as Position << (E,#f4b183) >> {
+    N
+    S
+    L
+    O
+  }
+
+  interface "IUser" as IUser {
+    id: String
+    name: String
+    email: String
+    password: String
+  }
+
+  interface "PraiaModel" as PraiaModel
+  class "Praia" as Praia << (C,#b6e3b6) >>
+
+  interface "ModelUser" as ModelUser
+
+  PraiaModel -up-|> IPraia
+  Praia ..|> PraiaModel
+
+  ModelUser -up-|> IUser
+}
+
+package "Controllers" as Controllers {
+  class " " as ControllersDummy
+}
+
+package "Middlewares" as Middlewares {
+  class " " as MiddlewaresDummy
+}
+
+package "Services" as Services {
+  class " " as ServicesDummy
+}
+@enduml

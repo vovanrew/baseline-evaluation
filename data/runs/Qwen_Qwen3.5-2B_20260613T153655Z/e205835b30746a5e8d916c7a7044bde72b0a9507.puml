@@ -1,0 +1,30 @@
+@startuml
+actor User as U1
+participant SearchWindowUI as SWUI
+participant SearchOnAnotherInstanceController as SOAIC
+participant NetworkFactory as NF
+participant UDP_ClientImpl as UDP_CImpl
+participant Thread as Thread
+participant TCP_ClientImpl as TCP_CImpl
+participant SpreadCheet as SC
+participant UDP_ClientImpl_03 as UDP_CImpl_03
+participant TCP_ClientImpl_03 as TCP_CImpl_03
+participant SearchWindowController as SWC
+
+U1 --> SWUI : start searching instances
+SWUI --> SOAIC : create(address)
+SOAIC --> NF : Obj = getUDPClientImpl(availableInstances)
+NF --> UDP_CImpl_03 : create()
+UDP_CImpl --> Thread : create(obj)
+Thread --> UDP_CImpl_03 : start()
+Thread --> Thread : join()
+SOAIC --> NF : checkIfIsAvailable()
+NF --> UDP_CImpl_03 : getInfo(destination)
+SOAIC --> Thread : create(Object)
+SOAIC --> Thread : start()
+SOAIC --> Thread : getInfo()
+Thread --> UDP_CImpl_03 : getInfo()
+UDP_CImpl_03 --> SC : getInfo()
+Thread --> Thread : join()
+
+@enduml

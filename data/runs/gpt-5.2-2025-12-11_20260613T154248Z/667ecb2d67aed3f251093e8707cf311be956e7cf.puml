@@ -1,0 +1,63 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 10
+
+class DayLog {
+  - Integer id
+  - LocalDateTime dateTime
+  - ArrayList<Log> logs
+  --
+  + DayLog(ArrayList<Log> logs)
+  --
+  + void outputToStdout()
+}
+
+class Log {
+  - Integer id
+  - LocalDateTime dateTime
+  - ArrayList<Task> tasks
+  --
+  + Log(ArrayList<Task> tasks)
+  --
+  + void addTask(Task task)
+  + void removeTask(Integer int)
+}
+
+class Task {
+  - Integer id
+  - String name
+  - String description
+  - LocalDateTime dateTime
+  - TaskType type
+  --
+  + Task(String name, String description, TaskType type)
+  --
+  + String toString()
+  ..
+  Getters
+  ..
+  + void getName()
+  + void getDescription()
+  + void getType()
+}
+
+interface IInsertToDatabase {
+  + void insertToDatabase
+}
+
+enum TaskType {
+  RESEARCH
+  CODING
+  DESIGN
+}
+
+DayLog *-- Log
+Log *-- Task
+
+DayLog ..|> IInsertToDatabase
+Log ..|> IInsertToDatabase
+Task ..|> IInsertToDatabase
+
+Task --> TaskType
+@enduml

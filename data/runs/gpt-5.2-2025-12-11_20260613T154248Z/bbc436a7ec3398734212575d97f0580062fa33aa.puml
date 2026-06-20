@@ -1,0 +1,67 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+package "java" {
+  package "time" {
+    class LocalDate
+  }
+  package "util" {
+    interface List
+    class URL
+  }
+}
+
+package "org" {
+  package "springframework" {
+    package "hateoas" {
+      class RepresentationModel
+    }
+  }
+}
+
+package "com" {
+  package "acme" {
+    package "filiale" {
+
+      package "rest" {
+        class KundeModel <<entity>> {
+          name : String
+          email : String
+          kategorie: Int
+          hasNewsletter: Boolean
+          geburtsdatum: LocalDate
+          homepage: URL
+          geschlecht: GeschlechtType
+          familienstand: FamilienstandType
+          interessen: List<InteresseType>
+        }
+      }
+
+      package "entity" {
+        class Kunde
+        class Umsatz
+        class Adresse
+        enum GeschlechtType
+        enum FamilienstandType
+        enum InteresseType
+      }
+    }
+  }
+}
+
+KundeModel ..> LocalDate
+KundeModel ..> URL
+KundeModel ..> List
+
+KundeModel --|> RepresentationModel
+
+KundeModel ..> Kunde
+KundeModel ..> GeschlechtType
+KundeModel ..> FamilienstandType
+KundeModel ..> InteresseType
+
+KundeModel "0..1" *-- Umsatz : umsatz
+KundeModel "1" *-- Adresse : adresse
+@enduml

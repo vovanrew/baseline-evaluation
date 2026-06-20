@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLfFeUspmDFW06JrDcPMOks3AWFQ",
+  "object": "chat.completion",
+  "created": 1781368705,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Secure Map Reduce 2 - Shuffle Service Token Flow\n\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  LifeLineBorderColor #888888\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #E6E6F2\n  BoxBorderColor #000000\n  BoxBackgroundColor #FFFFFF\n  GroupBorderColor #000000\n  GroupBackgroundColor #FFFFFF\n  ArrowColor #000000\n  ArrowThickness 1\n  MessageAlign left\n}\nskinparam participantPadding 40\nskinparam boxPadding 10\n\nparticipant \"Client\\n(c)\" as c #E6E6F2\nparticipant \"Resource\\nManager\\n(rm)\" as rm #E6E6F2\nparticipant \"Node\\nManager\\n(nm)\" as nm #E6E6F2\nparticipant \"Shuffle\\nHandler\\n(ss)\" as ss #E6E6F2\nparticipant \"File\\nSystem\\n(fs)\" as fs #E6E6F2\n\n== Bootstrap ==\n== Job Definition ==\n\nc -> rm : 1 createJob [ ... ] ()\\n: job-id\n\nc -> c : 2 createShuffleToken\\n( shfl-tkn-mk )\\n: shfl-tkn\nc -> c : 3 serializeTokens\\n( shfl-tkn, ... )\\n: c-tokens{shfl-tkn,...}\n\n== Job Submission ==\n\nc -> rm : 4 submitApplication\\n[ ... ]\\n( job-id, c-tokens{shfl-tkn}, ... )\\n: app-rpt{clnt-tkn}\n\n== Job Initiation ==\n\nrm -> nm : 5 startContainer\\n[ ... ]\\n( c-tokens{shfl-tkn},svc-tokens{shfl-tkn}, ... )\n\nnm -> ss : 6 initApp\\n( job-id, shfl-tkn )\n\nparticipant \"Application\\nMaster\\n(am)\" as am #E6E6F2\nnm -> am : 7 exec\n\nam -> nm : 8 startContainer\\n[ ... ]\\n( svc-tokens{shfl-tkn}, ... )\n\nparticipant \"Application\\nContainer\\n(ac)\" as ac #FF0000\nnm -> ac : 9 exec\n\nparticipant \"Task\\n(t)\" as t #F5A623\nac -> t : 10 exec\n\n== Map Task Execution ==\n\nt -> fs : 11 writeShuffleData[][() :\n\n== Reduce Task Execution ==\n\nactivate ss\nss -> ss : 12 readShuffleData [SDT:shfl-tkn] (...): shfl-data\nss -> fs : 13 readShuffleData\nss --> t : 14 shfl-data\ndeactivate ss\n\n== Job Completion ==\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2692,
+    "completion_tokens": 595,
+    "total_tokens": 3287,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

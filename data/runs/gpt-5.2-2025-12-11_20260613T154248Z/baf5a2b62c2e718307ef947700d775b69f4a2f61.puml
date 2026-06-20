@@ -1,0 +1,148 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "com" {
+  package "mercedesbenz" {
+    package "sechub" {
+      package "domain" {
+        package "scan" {
+          package "project" {
+
+            class FalsePositiveJobDataService <<C>> {
+              .. dependencies ..
+              ScanReportRepository : scanReportRepository
+              ScanProjectConfigService : configService
+              FalsePositiveJobDataListValidation : falsePositiveJobDataListValidation
+              FalsePositiveJobDataConfigMerger : merger
+            }
+
+            class ScanProjectConfigService <<C>> {
+              ScanProjectConfigRepository : repository
+            }
+
+            class ScanProjectConfig <<C>>
+            class ScanProjectConfigRepository <<C>>
+
+            class FalsePositiveJobDataConfigMerger <<C>>
+            class FalsePositiveJobDataListValidation <<C>>
+
+            class FalsePositiveProjectConfiguration <<C>> {
+              List<FalsePositiveEntry> : falsePositives
+            }
+
+            class FalsePositiveEntry <<C>> {
+              FalsePositiveJobData : jobData
+              String : author
+              FalsePositiveMetaData : metaData
+              Date : created
+            }
+
+            class FalsePositiveJobDataList <<C>> {
+              String : apiVersion
+              String : type
+              FalsePositiveJobData : jobData
+            }
+
+            class FalsePositiveJobData <<C>> {
+              UUID : jobUUID
+              String : comment
+            }
+
+            class FalsePositiveMetaData <<C>> {
+              ScanType : scanType
+              String : name
+              Severity : severity
+              FalsePositiveCodeMetaData : code
+              FalsePositiveWebMetaData : web
+              Integer : cweId
+              String : cveId
+              String : owasp
+            }
+
+            class FalsePositiveCodeMetaData <<C>> {
+              FalsePositiveCodePartMetaData : start
+              FalsePositiveCodePartMetaData : end
+            }
+
+            class FalsePositiveCodePartMetaData <<C>> {
+              String : location
+              String : relevantPart
+              String : sourceCode
+            }
+
+            class FalsePositiveWebMetaData <<C>> {
+              FalsePositiveWebRequestMetaData : request
+              FalsePositiveWebResponseMetaData : response
+            }
+
+            class FalsePositiveWebRequestMetaData <<C>> {
+              String : method
+              String : target
+              String : protocol
+              String : version
+              String : attackVector
+            }
+
+            class FalsePositiveWebResponseMetaData <<C>> {
+              String : evidence
+              int : statuscode
+            }
+
+            package "report" {
+              class ScanSecHubReport <<C>>
+              class ScanReportRepository <<C>>
+            }
+
+          }
+        }
+
+        package "commons" {
+          package "model" {
+            class Severity <<C>>
+            class ScanType <<C>>
+            class SecHubCodeCallStack <<C>>
+            class SecHubFinding <<C>>
+          }
+        }
+      }
+    }
+  }
+}
+
+' --- relationships (approximate to diagram) ---
+FalsePositiveJobDataService *-- ScanReportRepository
+FalsePositiveJobDataService *-- ScanProjectConfigService
+FalsePositiveJobDataService *-- FalsePositiveJobDataListValidation
+FalsePositiveJobDataService *-- FalsePositiveJobDataConfigMerger
+
+ScanProjectConfigService *-- ScanProjectConfigRepository
+ScanProjectConfigRepository ..> ScanProjectConfig
+
+FalsePositiveJobDataConfigMerger ..> FalsePositiveProjectConfiguration
+FalsePositiveJobDataListValidation ..> FalsePositiveJobDataList
+
+FalsePositiveProjectConfiguration o-- "0..*" FalsePositiveEntry : falsePositives
+FalsePositiveEntry *-- FalsePositiveJobData : jobData
+FalsePositiveEntry *-- FalsePositiveMetaData : metaData
+
+FalsePositiveJobDataList ..> FalsePositiveJobData : jobData
+
+FalsePositiveMetaData *-- FalsePositiveCodeMetaData : code
+FalsePositiveMetaData *-- FalsePositiveWebMetaData : web
+FalsePositiveMetaData ..> ScanType
+FalsePositiveMetaData ..> Severity
+
+FalsePositiveCodeMetaData *-- FalsePositiveCodePartMetaData : start
+FalsePositiveCodeMetaData *-- FalsePositiveCodePartMetaData : end
+
+FalsePositiveWebMetaData *-- FalsePositiveWebRequestMetaData : request
+FalsePositiveWebMetaData *-- FalsePositiveWebResponseMetaData : response
+
+ScanSecHubReport ..> ScanReportRepository
+
+@enduml
+```

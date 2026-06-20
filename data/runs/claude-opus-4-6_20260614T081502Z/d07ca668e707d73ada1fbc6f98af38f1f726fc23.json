@@ -1,0 +1,21 @@
+{
+  "id": "msg_01DbuXUDmJKMZFSvqaaZSsAD",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nparticipant \"IntegrationTest\" as IT\nparticipant \"Spring\\nApplication\" as SA\nparticipant \"De /nSerializer\" as DS\nparticipant \"info:AddMember\\nRequestInfoDTO\" as info\nparticipant \"ctrl:AddMember\\nToGroupController\" as ctrl\nparticipant \"AddMember\\nRequestAssembler\" as assembler\nparticipant \"requestDTO:\\nAddMemberRequestDTO\" as requestDTO\nparticipant \"AddMemberResponse\\nDTOAssembler\" as respAssembler\nparticipant \"groupRespDTO:\\nGroupResponseDTO\" as groupRespDTO\nparticipant \"srv:AddMember\\nToGroupService\" as srv\n\nnote over srv\nContinues through\nnext Diagram\nend note\n\nIT -> SA : **1** POST\\n/groups/\"Family\"/\\nmembers/\"ana@gmail.com\"\n\nSA -> DS : **1.1** deserialize(\"groupDesc\":\"Family\",\\n\"personEmail\":\"ana@gmail.com\")\n\nDS -> info ** : **1.1.1** create (groupDesc,\\nPersonEmail)\n\nSA -> ctrl : **1.2** addMember(info)\n\nctrl -> assembler : **1.2.1** addMemberMapToDTO\\n(info.getGroupDescription(),\\ninfo.getPersonEmail())\n\nassembler -> requestDTO ** : **1.2.1.1** create\n\nctrl -> srv : **1.2.2** addMemeber(requestDTO)\n\nsrv --> ctrl : **1.2.3** groupDTO\n\nctrl -> respAssembler : **1.2.4** mapToGroupResponseDTO(GroupDTO)\n\nrespAssembler -> groupRespDTO ** : **1.2.4.1** create\n\nrespAssembler --> ctrl : **1.2.5** groupRespDTO\n\nctrl --> SA : **1.2.6** ResponseEntity(groupRespDTO,\\nHttpStatus.OK)\n\nSA -> DS : **1.3** serialize(ResponseEntity(groupRespDTO,\\nHttpStatus.OK))\n\nDS --> SA : **1.4** HttpResponse\n\nSA --> IT : **1.5** HttpResponse\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432472,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 509,
+    "prompt_tokens": 1328,
+    "total_tokens": 1837
+  }
+}

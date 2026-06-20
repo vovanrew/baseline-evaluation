@@ -1,0 +1,68 @@
+@startuml
+
+class KynamicController <<C>> {
+  KynamicService kynamicService
+  --
+  String list(Model model)
+  String showCurrentNodeList(Model model, Kynamic kynamic)
+  List<Kynamic> showKynamicTree()
+  String saveUI(Model model, String currentPath, Integer pid)
+  String addOrUpdateFolder(Model model,Kynamic kynamic)
+  String addUI(Model model, String currentPath, Integer pid)
+  String uploadFile(Model model, Kynamic kynamic, MultipartFile resource)
+  String addUI(Model model, String currentPath, Kynamic kynamic)
+  String fileAttribution(Model model, String currentPath, Kynamic kynamic)
+  String updateFileDesc(Kynamic kynamic)
+  String renameFileUI(Model model, Kynamic kynamic)
+  String renameFolderUI(Model model, Kynamic kynamic)
+  String renameKynamic(Model model, Kynamic kynamic, String oldName)
+  String deleteNode(Model model, Kynamic kynamic)
+  ResponseEntity<byte[]> deleteNode(Kynamic kynamic)
+}
+
+interface KynamicService <<I>> {
+  List<Kynamic> getAllKynamic()
+  Integer saveKynamic(Kynamic kynamic)
+  boolean deleteKynamicById(Integer id)
+  void updateKynamic(Integer id, String name)
+  List<KynamicDTO> getRootKynamicList()
+  List<KynamicDTO> getCurrentNodeList(Integer pid)
+  String getCurrentPathById(Integer id)
+  Kynamic getKynamicById(Integer id)
+  Kynamic getRootKynamic()
+  void addOrUpdateKynamic(Kynamic kynamic)
+  void updateFileKynamic(Kynamic kynamic)
+  boolean updateKynamicName(Kynamic kynamic)
+}
+
+class KynamicServiceImpl <<C>> {
+  KynamicMapper kynamicMapper
+  --
+  List<Kynamic> getAllKynamic()
+  Integer saveKynamic(Kynamic kynamic)
+  boolean deleteKynamicById(Integer id)
+  void updateKynamic(Integer id, String name)
+  List<KynamicDTO> getRootKynamicList()
+  List<KynamicDTO> getCurrentNodeList(Integer pid)
+  String getCurrentPathById(Integer id)
+  Kynamic getKynamicById(Integer id)
+  Kynamic getRootKynamic()
+  void addOrUpdateKynamic(Kynamic kynamic)
+  void updateFileKynamic(Kynamic kynamic)
+  boolean updateKynamicName(Kynamic kynamic)
+  private List<KynamicDTO> getKynamicDTOList(List<Kynamic> kynamicList)
+}
+
+interface KynamicMapper <<I>> {
+  Kynamic getRoot()
+  List<Kynamic> getKynamicListByPid(Integer pid)
+  List<Kynamic> getKynamicFolderListByPid(Integer pid)
+  List<Kynamic> getKynamicFileListByPid(Integer pid)
+  Kynamic getKynamicByMap(Map<String, Object> map)
+}
+
+KynamicController .down.|> KynamicService
+KynamicServiceImpl .up.|> KynamicService
+KynamicServiceImpl .down.|> KynamicMapper
+
+@enduml

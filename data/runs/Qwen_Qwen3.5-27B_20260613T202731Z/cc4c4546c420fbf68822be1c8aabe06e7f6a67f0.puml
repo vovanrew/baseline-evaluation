@@ -1,0 +1,34 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "Admin" as Admin
+rectangle "Employees Module" as EmployeesModule
+database "Search Index" as SearchIndex
+database "Database" as Database
+
+Admin -> EmployeesModule : trigger task
+activate EmployeesModule
+
+EmployeesModule -> SearchIndex : reset index (delete + create)
+activate SearchIndex
+SearchIndex --> EmployeesModule
+deactivate SearchIndex
+
+EmployeesModule -> Database : stream all employees
+activate Database
+
+group loop
+    EmployeesModule -> SearchIndex : index employee
+    activate SearchIndex
+    deactivate SearchIndex
+end
+
+Database --> EmployeesModule
+deactivate Database
+deactivate EmployeesModule
+
+Admin <-- EmployeesModule
+
+@enduml
+```

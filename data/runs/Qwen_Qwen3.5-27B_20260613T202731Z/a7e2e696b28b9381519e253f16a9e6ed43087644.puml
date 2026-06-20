@@ -1,0 +1,74 @@
+```plantuml
+@startuml
+title Sequence Diagram
+
+participant "CommandLine" as CommandLine
+participant "AppSolver" as AppSolver
+participant "DataReader" as DataReader
+participant "PreVerification" as PreVerification
+participant "Model" as Model
+participant "Solver" as Solver
+participant "PostVerification" as PostVerification
+participant "Solution" as Solution
+participant "Exception" as Exception
+participant "Terminate" as Terminate
+
+== Normal Flow ==
+CommandLine -> AppSolver: Launch App
+activate AppSolver
+AppSolver --> CommandLine: Arguments valid
+deactivate AppSolver
+
+AppSolver -> DataReader: Read data
+activate DataReader
+DataReader --> AppSolver: Read successfully
+deactivate DataReader
+
+AppSolver -> PreVerification: Verify the data
+activate PreVerification
+PreVerification -> Model: Generate the model
+activate Model
+Model --> PreVerification: Construct successfully
+deactivate Model
+PreVerification --> AppSolver: Data is ok
+deactivate PreVerification
+
+AppSolver -> Solver: Solve the problem
+activate Solver
+Solver --> AppSolver: Solve successfully
+deactivate Solver
+
+AppSolver -> PostVerification: Verify the solution
+activate PostVerification
+PostVerification --> AppSolver: Solution is accepted
+deactivate PostVerification
+
+AppSolver -> Solution: Export
+activate Solution
+Solution --> AppSolver: Export successfully
+deactivate Solution
+
+AppSolver -> Terminate: Finish, exit normally
+activate Terminate
+deactivate Terminate
+
+== Error Handling ==
+note right of AppSolver: Invalid Arguments, then display Usage
+note right of DataReader: Read failed, show the fatal error
+note right of PreVerification: Data isn't valid
+note right of Model: Construct failed, show the fatal error
+note right of Solver: Solve failed, show the reason
+note right of PostVerification: Solution is rejected
+note right of Solution: Export failed, show the fatal error
+
+AppSolver -[dotted]-> Exception: Invalid Arguments, then display Usage
+DataReader -[dotted]-> Exception: Read failed, show the fatal error
+PreVerification -[dotted]-> Exception: Data isn't valid
+Model -[dotted]-> Exception: Construct failed, show the fatal error
+Solver -[dotted]-> Exception: Solve failed, show the reason
+PostVerification -[dotted]-> Exception: Solution is rejected
+Solution -[dotted]-> Exception: Export failed, show the fatal error
+
+Exception -> Terminate: Exit with error
+@enduml
+```

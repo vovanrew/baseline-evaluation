@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+title OAuth2 Authorization Code Grant Workflow\nwith SAML2 Post Binding for user provisioning
+
+skinparam componentStyle rectangle
+skinparam participant {
+  BackgroundColor<<HealthCloud>> #008000
+  BackgroundColor<<Embedded Browser>> #008000
+  BackgroundColor<<Apigee Edge>> #FFD700
+  BackgroundColor<<Orion Health Platform>> #FFD700
+}
+
+participant "HealthCloud" as HC <<HealthCloud>>
+participant "Embedded Browser" as EB <<Embedded Browser>>
+rectangle "HealthSphere" {
+  participant "Apigee Edge" as AE <<Apigee Edge>>
+  participant "Orion Health Platform" as OHP <<Orion Health Platform>>
+}
+
+== Initial Authorization Request ==
+EB -> AE: GET /authorize?response_type=code
+activate AE
+AE --> EB: 302 https://<redirect_url> (SAML OR token)
+deactivate AE
+
+== SAML Authentication Flow ==
+rectangle "SAML Authentication" {
+  EB -> AE: POST /oauth2/saml
+  activate AE
+  AE -> OHP: POST /login-auth/saml?path=/actor/current
+  activate OHP
+  OHP -> OHP: Verify SAMLResponse
+  OHP --> AE: 
+  deactivate OHP
+  AE -> AE: Generate authorization code
+  AE --> EB: 302 https://<redirect_url>?code=<code>
+  deactivate AE
+}
+
+== Token Exchange ==
+HC -> AE: POST /token?code=<code>
+activate AE
+AE --> HC: 200 access_token + refresh_token
+deactivate AE
+
+@enduml
+```

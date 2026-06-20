@@ -1,0 +1,21 @@
+{
+  "id": "msg_01UgccfiLebpispz3MZUr2GR",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle PB-428 UC12 View fund details\n\nnote across\n**Abstract:**\nThis use case will return fund details for a single fund. This is an existing endpoint and we\nwill add additional response fields to this endpoint. They include:\n1. FundCategory (new)\n2. RequireFundTC (new)\n3. RiskScore (existing field in table, but needs to be added in response)\n4. IncomeValue (new)\n5. IncomeDescription (new)\n6. isNextSimples (new)\nend note\n\nactor \"Next Customer\" as customer\n\nbox \"Next Platform\" #LightGray\nparticipant \"Core Next\" as coreNext\ndatabase \"Next Database\" as nextDB\nend box\n\nparticipant \"Core Bradesco\" as coreBradesco\n\ncustomer -> coreNext : **1 HTTP**\\nGET /investments/funds/completeDetails\n\nnote left of coreNext\nThe App will make a call\nto Core Next to get all the\ndetails for a fund. It will\npass required input:\n- Fund ID\nend note\n\nnote left of customer #Orange\n**Note to Dev**\nPlease check if the input\nparameter Fund ID is the\nProduct ID or the External_\nCore_Product_ID. From what\nI can see, there are two\nproduct records with the\nsame External_Core_Product_ID\n(Next Simples) and this may\ncreate issues.\nend note\n\nref over coreNext, nextDB\nUse existing methodology to get\ncomplete details for a fund.\nend ref\n\ncoreNext -> nextDB : 2 GET additional fields from Product table\nnextDB --> coreNext : 3 Response\n\nnote right of nextDB\nCore Next will retrieve additional\ndata from the PRODUCT table and return\nthem to the App:\n1. FundCategory (new)\n2. RequireFundTC (new)\n3. RiskScore (existing field in table,\n   but needs to be added in response)\n4. IncomeValue (new)\n5. IncomeDescription (new)\n6. isNextSimples (new)\nend note\n\ncoreNext --> customer : 4 Response\n\nnote left of coreNext #LightYellow\nCore Next will return all\nexisting fields in the response\n+ the following new response\nfields:\n1. FundCategory (new)\n2. RequireFundTC (new)\n3. RiskScore (existing field in table,\n   but needs to be added in response)\n4. IncomeValue (new)\n5. IncomeDescription (new)\n6. isNextSimples (new)\n\nAll of these fields will come\nfrom the PRODUCT table.\nend note\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371473,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 627,
+    "prompt_tokens": 1664,
+    "total_tokens": 2291
+  }
+}

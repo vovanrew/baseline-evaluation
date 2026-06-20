@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLlMM9aidTJ5IvTDhN07TuYKvDiC",
+  "object": "chat.completion",
+  "created": 1781369084,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle create order sequence diagram\n\nactor Customer\nactor Cashier\n\nparticipant \":Inventory System\" as IS\nparticipant \":Order\" as O\nparticipant \":Product\" as P\nparticipant \":Stock\" as S\nparticipant \":Invoice\" as I\nparticipant \":Transaction\" as T\n\nCustomer -> Cashier : 1. Request order product\nCashier --> Customer : 2. Receive order\n\nCashier -> IS : 3. requestCreateOrder()\nactivate IS\n\nIS -> P : 3.1 selectProduct()\nactivate P\nP -> S : 3.2 checkStock()\nactivate S\nS --> P : 3.3 return stock\ndeactivate S\nP --> IS : 3.4 return product\ndeactivate P\n\nalt [IF (stock.qty > order.qty)]\n  IS -> O : 3.5 createOrder(order)\n  activate O\n  O -> S : 3.6 updateStock()\n  activate S\n  S --> IS : 3.7 return update stock\n  deactivate S\n\n  O -> I : 3.8 systemCreateInvoice()\n  activate I\n  I -> I : 3.9 printInvoice()\n  I --> IS : 3.10 return invoice\n  deactivate I\n\n  O --> IS : 3.11 return order\n  deactivate O\nelse [ELSE]\n  O --> IS : 3.12 can't create order\nend\n\nIS --> Cashier : 4. response create order status\ndeactivate IS\n\nCashier --> Customer : 5. Invoice\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2095,
+    "completion_tokens": 329,
+    "total_tokens": 2424,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

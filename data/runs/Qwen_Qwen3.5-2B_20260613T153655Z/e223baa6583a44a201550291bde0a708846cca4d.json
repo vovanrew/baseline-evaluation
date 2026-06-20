@@ -1,0 +1,22 @@
+{
+  "id": "49f6e4aa-4962-41b3-8868-2a633b567e22",
+  "object": "chat.completion",
+  "created": 1781403887,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n\nparticipant Client as \"Client\"\nparticipant Shop as \"Shop\"\nparticipant PAYONE as \"PAYONE\"\n\nClient ->> Shop: POST prepare.php\nShop <- Client: 302 capture.php\n\nalt [No Pseudo Card PAN present]\n    Shop -> Client: GET capture.php\n    Client -> Shop: 200 Credit Card Form\n    Shop -> PAYONE: POST Card PAN\n    PAYONE -> Shop: 200 Pseudo Card PAN\n    Shop -> Client: POST capture.php\n    Shop -> PAYONE: POST request=authorization\nend\n\nalt [With 3-D Secure]\n    Shop -> Client: 302 3-D Secure Form\n    Client -> Shop: 302 3-D Secure Form\n    Shop -> PAYONE: POST 3-D Secure Password\n    PAYONE -> Shop: POST notify.php txaction=appointed\n    Shop -> PAYONE: Set Payment Status to \"captured\"\n    Shop -> PAYONE: 200 TSOK\n    Shop -> Client: 302 done.php\n    alt [No 3-D Secure]\n        Shop -> PAYONE: 200 status=APPROVED\n        Shop -> PAYONE: Set Payment Status to \"pending\"\n        Shop -> Client: 302 done.php\n        Client -> Shop: GET done.php\n        Shop -> Client: 200 Thanks\n    end\n\n    alt [No 3-D Secure]\n        some time later\n        Shop -> PAYONE: POST notify.php txaction=appointed transaction_status=completed\n        Shop -> PAYONE: Set Payment Status to \"captured\"\n        Shop -> PAYONE: 200 TSOK\n        some time later\n        Shop -> PAYONE: POST notify.php txaction=paid\n        Shop -> PAYONE: 200 TSOK\n    end\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1664,
+    "completion_tokens": 411,
+    "total_tokens": 2075
+  }
+}

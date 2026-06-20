@@ -1,0 +1,30 @@
+@startuml
+participant A as "A"
+participant CircuitBreaker as "CircuitBreaker"
+participant B as "B"
+
+participant A
+participant CircuitBreaker
+participant B
+
+alt [no errors]
+    A -> CircuitBreaker: call()
+    CircuitBreaker -> B: call()
+    B -> CircuitBreaker: response
+    CircuitBreaker -> A: response
+end
+
+alt [errors]
+    A -> CircuitBreaker: call()
+    loop [while err_count < max_errors]
+        CircuitBreaker -> A: call()
+        A -> CircuitBreaker: error
+        CircuitBreaker -> CircuitBreaker: err_count++
+        CircuitBreaker -> CircuitBreaker: sleep(timeout)
+        CircuitBreaker -> A: call()
+        A -> CircuitBreaker: error
+        CircuitBreaker -> CircuitBreaker: sleep(timeout*2)
+    end
+end
+
+@enduml

@@ -1,0 +1,42 @@
+```plantuml
+@startuml
+actor Customer
+participant Frontend
+participant Backend
+database Database
+
+group Make Event
+    Customer -> Frontend : Presses the "Make new Event"-button
+    Frontend -> Backend : Request to open new window
+    Backend -> Backend : Generates empty event-object
+    Backend --> Frontend : Opens new window
+    Customer -> Frontend : Enters event information
+    Customer -> Frontend : Presses "Create"-button
+    Frontend -> Backend : Request to validate input
+    
+    alt Successful case
+        Backend -> Backend : Validation successful
+        Backend -> Database : Adds event to database
+        Database --> Backend : Adds event to list
+        Backend -> Frontend : Closes window
+        Frontend -> Frontend : Selects newly added event from list
+        Frontend -> Customer : Displays eventinformation to user
+    else Validation failed
+        Backend -> Backend : Validation failed\n<size:20>X</size>
+        Backend -> Frontend : Displays alert of type ERROR
+        Frontend -> Customer : Lists up fields with errors
+        Customer -> Frontend : Closes alertbox
+    end
+end
+
+group Cancel
+    Customer -> Frontend : Presses the "Cancel"-button
+    Frontend -> Backend : Request to close process
+    Backend -> Backend : Deletes event-object
+    Backend -> Frontend : Closes window
+    Frontend -> Frontend : Selects first event in list
+    Frontend -> Customer : Displays list of events
+end
+
+@enduml
+```

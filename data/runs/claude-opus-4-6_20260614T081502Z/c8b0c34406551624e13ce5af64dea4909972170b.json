@@ -1,0 +1,21 @@
+{
+  "id": "msg_01H2fpAdqr45eYsXxWbbLfhk",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle User getUsers\n\nactor API_Gateway\nparticipant UserRouter\nparticipant Middleware\nparticipant UserController\ndatabase UserDB\n\nAPI_Gateway -> UserRouter : getUsers(token)\nUserRouter -> Middleware : withAuth(token)\n\nalt [!token]\n    Middleware --> UserRouter : 'Unauthorized: No token provided (401)'\n    UserRouter --> API_Gateway : 'Unauthorized: No token provided (401)'\nend\n\nMiddleware -> Middleware : jwt.verify(token)\n\nalt [token != valid]\n    Middleware --> UserRouter : 'Unauthorized: Invalid token (401)'\n    UserRouter --> API_Gateway : 'Unauthorized: Invalid token (401)'\nelse Token Valid\n    Middleware -> UserController : getUsers()\n    UserController -> UserDB : find()\n    UserDB --> UserController : users[]\n\n    alt [users.length == 0]\n        UserController --> UserRouter : 'User not found 404'\n        UserRouter --> API_Gateway : 'User not found 404'\n    else\n        UserController --> UserRouter : return(res.status(200), users)\n        UserRouter --> API_Gateway : return(res.status(200), users)\n    end\nend\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432390,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 298,
+    "prompt_tokens": 1636,
+    "total_tokens": 1934
+  }
+}

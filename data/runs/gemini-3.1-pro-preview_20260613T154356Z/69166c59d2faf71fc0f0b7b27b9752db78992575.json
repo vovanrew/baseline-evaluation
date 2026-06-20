@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nactor Caller\nparticipant \":RoomTransactionService\" as RTS\nparticipant \":RoomTransactionCommand\" as RTC\nparticipant \":Nats Streaming\" as Nats\n\nCaller -> RTS : Create(context, payload)\nRTS -> RTS : Validate()\n\nalt \"Data Not Valid\"\n    RTS --> Caller : UnprocessableEntity\nelse\n    loop \"For each shift\"\n        RTS -> RTS : rt := RoomTransactionModel()\n        RTS -> RTC : Create(context, rt)\n        RTC --> RTS : uuid\n    end\n    RTS -> Nats : publishTransactionCreated(context, []uuid)\n    Nats --> RTS : published\n    RTS --> Caller : created\nend\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHM8mYjgv4qvxY1qHDoda8gJFKkOyucQReGkRiO1h9qR0dn19xCMIHkMkuiukO"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1160,
+    "candidatesTokenCount": 161,
+    "totalTokenCount": 1321,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1080
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "3u4vaqPNE9vtxs0PnPOVKA"
+}

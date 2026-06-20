@@ -1,0 +1,57 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "참가자" as User
+participant "깃헛 리포지토리" as Repo
+participant "깃헛 액션" as Action
+participant "운영자" as Operator
+participant "파워 오토메이트" as PowerO
+participant "데이터베이스" as DB
+
+note over User, Repo
+PR 생성
+GHA 챗리지 완료 인증샷
+이벤트 생성
+라벨 추가: review-required
+@endnote
+
+note over Repo, Action
+리뷰
+라벨 추가: review-completed
+라벨 삭제: review-required
+코멘트: /ghasignoff
+이벤트 생성
+지정된 사용자만 이벤트 생성 가능
+GitHub ID
+PR 분문
+제출시간
+호출
+레코드 조회
+GitHub ID
+레코드 업데이트
+PR ID
+업데이트 완료
+확인 이메일
+[레코드 없음]
+호출
+PR ID
+레코드 없음
+확인 이메일
+@endnote
+
+alt [레코드 있음]
+    Repo -> PowerO: 레코드 업데이트
+    PowerO -> User: 호출
+    PowerO -> DB: 레코드 업데이트
+    DB -> PowerO: PR ID
+    PowerO -> User: 업데이트 완료
+    PowerO -> User: 확인 이메일
+    alt [레코드 없음]
+        PowerO -> User: 호출
+        PowerO -> DB: PR ID
+        DB -> PowerO: 레코드 없음
+        PowerO -> User: 확인 이메일
+    end
+@endal
+
+@enduml

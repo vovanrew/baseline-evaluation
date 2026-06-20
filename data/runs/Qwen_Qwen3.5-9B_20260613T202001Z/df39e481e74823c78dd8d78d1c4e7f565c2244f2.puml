@@ -1,0 +1,71 @@
+@startuml
+' Define package structure
+package "controller" as controller {
+  class File {
+    - save()
+    - load()
+    - make_directory()
+    - remove_directory()
+    - is_file_path_ok()
+  }
+  class AnalyseData {
+  }
+  class AnalyseWeatherData {
+  }
+  folder "conversation" as conversation
+}
+
+package "models" as models {
+  class Forecaster {
+    - name: string
+    - my_name: string
+    - speak_color: string
+    + hello()
+    + goodbye()
+  }
+  class MyForecaster {
+    + ask_which_area()
+    + ask_from_when_to_when()
+    + say_results()
+  }
+  class JmaDataModel {
+    + get_daily_weather_data()
+    - get_http_body()
+    - integrate_monthly_data()
+    - str2float()
+  }
+  class CSVModel {
+  }
+  class File {
+  }
+}
+
+package "views" as views {
+  class Console {
+    + downloading_data()
+    + get_template_dir_path()
+    + find_template()
+    + get_template()
+  }
+  class Graph {
+  }
+}
+
+package "template" as template {
+  note "say_hello"
+  note "say_goodbye"
+  note "which_area_do_you_want"
+  note "which_period_do_you_want"
+  note "say_weather_data_analysis_results"
+}
+
+' Relationships
+controller.File --> models.MyForecaster
+controller.AnalyseData <|-- controller.AnalyseWeatherData
+controller.AnalyseWeatherData --> models.MyForecaster
+models.Forecaster <|-- models.MyForecaster
+models.MyForecaster --> models.JmaDataModel
+models.JmaDataModel <|-- models.CSVModel
+models.MyForecaster --> views.Console
+views.Console --> template
+@enduml

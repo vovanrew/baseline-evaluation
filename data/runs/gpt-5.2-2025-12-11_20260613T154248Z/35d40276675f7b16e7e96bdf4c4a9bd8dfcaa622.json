@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLjuCQPqpVjA5ckwRh7db9qUC0nG",
+  "object": "chat.completion",
+  "created": 1781368994,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Update Relationship Event Handler UML\n\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  LifeLineBorderColor #666666\n  LifeLineBackgroundColor transparent\n  ParticipantBorderColor #333333\n  ParticipantBackgroundColor #EEEEEE\n  ActorBorderColor #333333\n  ActorBackgroundColor #EEEEEE\n  BoxBorderColor #333333\n  BoxPadding 10\n  ArrowColor #222222\n  MessageAlign left\n}\n\nbox \"SNS\" #d97a96\nparticipant \"Event Dispatcher Topic\" as SNS\nend box\n\nbox \"Lambda\" #f39c12\nparticipant \"Update Relationship Event Handler\" as L\nend box\n\nbox \"DynamoDB\" #3b6bdc\ndatabase \"Relationship Owner Table\" as ROT\ndatabase \"Relationship Commitment Table\" as RCT\nend box\n\nSNS -> L : filter on\\nRelationship::Update Event\nactivate L\n\nL -> L : [SessionDecorator.puml]\nL -> L : [TrackEventHandlerWrapper.puml]\nL -> L : extract Message from Event\nL -> L : validate Message\nL -> L : validate event-name\nL -> L : validate event-version\nL -> L : validate stage\n\nL -> ROT : Get Existing Relationship\nROT --> L\n\nL -> L : Generate Relationship Dict\nL -> L : Combine Existing Relationship\\nAttributes With New Changes\n\nopt [if missing required schema key]\n  L -> L : <color:red>Error Handling</color>\nend\n\nL -> L : Get AdditionalAttributes\n\nalt [if Relationship contains description and AdditionalAttributes\\ndoesn't contain completed signal]\n  L -> ROT : update Relationship\n  ROT --> L\n  L -> L : <color:red>Error Handling</color>\nend\n\nL -> L : Generate commitments to add or delete\n\nalt [if Commitment Operations Exist]\n  L -> L : Generate starting indexes based on AdditionalAttributes\n  L -> RCT : Batch_Write() RelationshipCommitments\n  RCT --> L\n  L -> L : <color:red>Error Handling</color>\nend\n\nL -> L : Track Event Handler Wrapper\nL -> L : Error Handler Wrapper\n\ndeactivate L\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1849,
+    "completion_tokens": 464,
+    "total_tokens": 2313,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

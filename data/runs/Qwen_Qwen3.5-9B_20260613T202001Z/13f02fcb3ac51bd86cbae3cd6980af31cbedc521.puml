@@ -1,0 +1,31 @@
+@startuml
+left to right direction
+actor "读者" as reader
+actor "图书管理员" as librarian
+rectangle "还书界面" as returnBookInterface
+rectangle ":还书信息" as returnBookInfo
+rectangle ":系统" as system
+
+loop
+  activate reader
+  reader -> librarian : 1.取消预定
+  activate librarian
+  librarian -> returnBookInterface : 2.处理图书
+  activate returnBookInterface
+  returnBookInterface -> returnBookInfo : 3.获取图书信息
+  activate returnBookInfo
+  returnBookInfo --> returnBookInterface : 4.图书信息
+  deactivate returnBookInfo
+  returnBookInterface -> system : 5.删除预定记录
+  activate system
+  system --> system : 6.删除预定记录
+  system --> returnBookInterface : 7.删除预定成功
+  deactivate system
+  returnBookInterface --> librarian : 8.处理图成功
+  deactivate returnBookInterface
+  librarian --> reader : 9.取消预定成功
+  deactivate librarian
+  deactivate reader
+endloop
+
+@enduml

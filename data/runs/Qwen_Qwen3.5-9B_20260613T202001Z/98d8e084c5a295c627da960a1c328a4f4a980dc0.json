@@ -1,0 +1,22 @@
+{
+  "id": "33841af9-9f96-4733-aff7-c147e9217e08",
+  "object": "chat.completion",
+  "created": 1781417052,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle PB-158 UC8 SQD: Get campaigns customer is eligible for\n\nactor \"Next Customer\" as customer\n\npackage \"Next Platform\" as platform {\n  participant \"P&O (Core Next)\" as po\n  database \"P&O DB\" as pobd\n}\n\nparticipant \"Core Bradesco\" as core\n\nnote right of customer\n  **Endpoint:**\n  GET /campaigns\n\n  **Current implementation:**\n  Currently only called by system management, returns a list of all campaigns\n  with the option to specify:\n  * NAME\n  * PARTNER_ID\n  * OFFER_ID\n\n  **Required implementation:**\n  Either through extension of existing API or new, enable the user\n  to call the endpoint. When a user calls the endpoint return a list of campaigns\n  that that the user is eligible for. As part of the request, include an optional\n  field for whether or not to return the offer logo.\n\n  As part of the CAMPAIGN_RETRIEVAL response include:\n  * Campaign logo version number\n  * Campaign logo (optional)\n\n  **ENSURE BACKWARDS COMPATIBILITY IS MAINTAINED**\nend note\n\nnote top of platform\n  **Abstract:**\n  This use cases describes the changes being made to an existing endpoint.\n  The endpoint will be modified so that it can be called by the user and\n  will return a list of campaigns that the customer is eligible for. A campaign\n  logo version number will be returned, as well as a campaign logo image\n  (if requested).\nend note\n\ncustomer -> platform: 1 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})\n\nactivate po\n  po -> pobd: 2 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})\n  activate pobd\n    note right of pobd\n      **Note:**\n      Read P&O tables:\n      * ELLIGIBLE_USER\n      * CAMPAIGN\n    end note\n    pobd --> po: 3 Read campaigns user is eligible for\n  deactivate pobd\n  po --> customer: 4 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)\n  deactivate po\nend activate\n\nalt if user has been or is eligible for at least one campaign\n  customer <- po: 5 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)\nelse if user is not eligible for any active campaigns\n  customer <- po: 6 Return error (MESSAGE)\nend\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1615,
+    "completion_tokens": 572,
+    "total_tokens": 2187
+  }
+}

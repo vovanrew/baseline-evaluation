@@ -1,0 +1,68 @@
+@startuml
+title Capture Credit Card Payment
+
+participant "Client" as Client
+participant "Shop" as Shop
+participant "PAYONE" as PAYONE
+
+Client -> Shop: POST prepare.php
+activate Shop
+Shop --> Client: 302 capture.php
+deactivate Shop
+
+Client -> Shop: GET capture.php
+activate Shop
+
+alt [No Pseudo Card PAN present]
+  Shop --> Client: 200 Credit Card Form
+  Client -> Shop: POST Card PAN
+  activate Shop
+  Shop --> PAYONE: 200 Pseudo Card PAN
+  deactivate Shop
+  Shop --> Client: 200 Pseudo Card PAN
+  Client -> Shop: POST capture.php
+  activate Shop
+  Shop --> PAYONE: POST request=authorization
+  activate PAYONE
+  alt [With 3-D Secure]
+    Shop --> Client: 302 3-D Secure Form
+    Client -> Shop: POST 3-D Secure Password
+    activate Shop
+    Shop --> PAYONE: POST notify.php txaction=appointed
+    activate PAYONE
+    Shop --> Shop: Set Payment Status to "captured"
+    PAYONE --> Shop: 200 TSOK
+    Shop --> Client: 302 done.php
+    deactivate Shop
+    deactivate PAYONE
+  else [No 3-D Secure]
+    Shop --> PAYONE: 200 status=APPROVED
+    activate PAYONE
+    Shop --> Shop: Set Payment Status to "pending"
+    PAYONE --> Shop: 200 TSOK
+    Shop --> Client: 302 done.php
+    deactivate Shop
+    deactivate PAYONE
+  end
+  Client -> Shop: GET done.php
+  activate Shop
+  Shop --> Client: 200 Thanks
+  deactivate Shop
+  deactivate Shop
+else
+  some time later
+  Shop --> PAYONE: POST notify.php txaction=appointed transaction_status=completed
+  activate PAYONE
+  Shop --> Shop: Set Payment Status to "captured"
+  PAYONE --> Shop: 200 TSOK
+  deactivate Shop
+  deactivate PAYONE
+  some time later
+  Shop --> PAYONE: POST notify.php txaction=paid
+  activate PAYONE
+  Shop --> Shop: 200 TSOK
+  deactivate Shop
+  deactivate PAYONE
+end
+
+@enduml

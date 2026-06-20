@@ -1,0 +1,58 @@
+```plantuml
+@startuml
+
+actor Member
+
+participant ":TicketDetailPage" as TDP
+participant ":TicketDetailContainer" as TDC
+participant ":AttendanceService (Frontend)" as ASF
+participant ":Router" as Router
+participant ":AttendanceHTTPTransport" as AHT
+participant ":AttendanceEndpoint" as AE
+participant ":AttendanceService" as AS
+participant ":RequesterService" as RS
+participant ":AttendanceCommand" as AC
+participant ":AttendanceQuery" as AQ
+
+Member -> TDP : Click "Yes" Button
+TDP -> TDC : handleConfirmation(input)
+TDC -> ASF : confirmAttendance(classId, payload)
+ASF -> Router : route("PATCH", "v2/class/{class_id}/attendance/confirmation")
+Router -> AHT : Confirmation(AttendanceService, []ServerOption)
+AHT -> AE : Confirmation(AttendanceService)
+AE -> AS : Confirmation(context, payload)
+AS -> AS : Validate()
+
+alt ["Data Valid"]
+    AS -> AQ : GetPureModel(context, []SliceCondition)
+    AQ --> AS : ticket
+    
+    alt ["Ticket Status is Accepted"]
+        AS -> AC : Register(context, []payload)
+        AS -> RS : UpdateRequestStatus(context, ticket)
+        RS --> AS : is updated
+    end
+    
+    AS -> AS : is updated
+    AS -> AS : response := Response(is updated, nil)
+    AS --> AE : response
+    AE --> AHT : response
+    AHT --> Router : response
+    Router --> ASF : response
+    ASF --> TDC : response
+    TDC --> TDP : response
+    TDP --> Member : response
+
+else
+    AS --> AQ : UnprocessableEntity
+    AQ --> AE : UnprocessableEntity
+    AE --> AHT : UnprocessableEntity
+    AHT --> Router : UnprocessableEntity
+    Router --> ASF : UnprocessableEntity
+    ASF --> TDC : UnprocessableEntity
+    TDC --> TDP : UnprocessableEntity
+    TDP --> Member : UnprocessableEntity
+end
+
+@enduml
+```

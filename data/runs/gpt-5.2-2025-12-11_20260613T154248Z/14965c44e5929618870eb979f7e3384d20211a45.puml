@@ -1,0 +1,68 @@
+```plantuml
+@startuml
+title Beregning af BMI
+
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 25
+  BoxPadding 15
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor #FFFFFF
+  BoxBorderColor #888888
+  BoxBackgroundColor #E6E6E6
+  ParticipantBorderColor #888888
+  ParticipantBackgroundColor #EFEFEF
+  ActorBorderColor #888888
+  ActorBackgroundColor #FFFFFF
+}
+
+actor bruger as Bruger
+boundary "index.jsp" as Index
+boundary "resultat.jsp" as ResultatJsp
+
+box "BmiUtil" #E6E6E6
+  participant "Initializer" as Initializer
+end box
+
+box "PresentationLayer" #E6E6E6
+  control "FrontController" as FrontController
+  participant "Command" as Command
+  participant "Resultat" as Resultat
+end box
+
+box "LogicFacade" #E6E6E6
+  participant "LogicFacade" as LogicFacade
+end box
+
+box "DBAccess" #E6E6E6
+  participant "BmiMapper" as BmiMapper
+end box
+
+database "BmiDB" as BmiDB
+
+Bruger -> Index : 1 start
+
+== Initialization ==
+
+Index -> Initializer : 2 getSportList()
+Initializer --> Index : 3 ArrayList<Sport>
+
+== Beregn BMI ==
+
+Index -> FrontController : 4 doPost()
+FrontController -> FrontController : 5 processRequest()
+FrontController -> Command : 6 from()
+Command --> FrontController : 7 Resultat
+FrontController -> Resultat : 8 execute()
+Resultat -> LogicFacade : 9 insertBmiItem()
+LogicFacade -> BmiMapper : 10 insertBmiItem()
+BmiMapper -> BmiDB : 11 executeQuery()
+BmiDB --> BmiMapper : 12 OK
+BmiMapper --> LogicFacade : 13 OK
+LogicFacade --> Resultat : 14 OK
+Resultat --> FrontController : 15 resultat
+FrontController --> ResultatJsp : 16 forward()
+
+@enduml
+```

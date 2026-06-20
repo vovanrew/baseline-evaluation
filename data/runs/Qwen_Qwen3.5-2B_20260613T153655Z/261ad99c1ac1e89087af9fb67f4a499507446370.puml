@@ -1,0 +1,26 @@
+@startuml
+skinparam actorStyle fillcolor: #f0f0f0, border: 1px solid #999
+skinparam labelStyle fillcolor: #f0f0f0, border: 1px solid #999
+
+title start EventLoop
+
+server.activeListener.OnAccept [server.activeListener.OnAccept]
+server.newActiveRawConn [server.newActiveRawConn]
+server.ContinueFilterChain [server.ContinueFilterChain]
+server.activeListener.newConnection [server.activeListener.newConnection]
+server.activeListener.OnNewConnection [server.activeListener.OnNewConnection]
+server.newActiveConnection [server.newActiveConnection]
+network.connection.Start [network.connection.Start]
+network.startRWLoop [network.startRWLoop]
+network.attachEventLoop [network.attachEventLoop]
+
+server.activeListener.OnAccept ..> server.newActiveRawConn : 创建 filter chain
+server.newActiveRawConn ..> server.ContinueFilterChain : 创建 connection
+server.ContinueFilterChain ..> server.activeListener.newConnection : 调用 activeListener 的处理新连接事件接口
+server.activeListener.newConnection ..> server.activeListener.OnNewConnection : 处理新连接事件
+server.activeListener.OnNewConnection ..> server.newActiveConnection : 连接启动
+server.newActiveConnection ..> network.connection.Start : 处理读写时间
+network.connection.Start ..> network.startRWLoop : 保存 EventLoop
+network.startRWLoop ..> network.attachEventLoop : 处理新连接事件
+
+@enduml

@@ -1,0 +1,139 @@
+```plantuml
+@startuml
+package com {
+  package mercedesbenz {
+    package sechub {
+      package domain {
+        package scan {
+          package project {
+            class FalsePositiveJobDataService {
+              ~ ScanReportRepository : scanReportRepository
+              ~ ScanProjectConfigService : configService
+              ~ FalsePositiveJobDataListValidation : falsePositiveJobDataListValidation
+              ~ FalsePositiveJobDataConfigMerger : merger
+            }
+            class ScanProjectConfigService {
+              ~ ScanProjectConfigRepository : repository
+            }
+            class FalsePositiveJobDataConfigMerger {
+            }
+            class FalsePositiveJobDataListValidation {
+            }
+            class ScanProjectConfig {
+            }
+            class ScanProjectConfigRepository {
+            }
+            class FalsePositiveProjectConfiguration {
+              - List<FalsePositiveEntry> : falsePositives
+            }
+            class FalsePositiveJobDataList {
+              - String : apiVersion
+              - String : type
+              - FalsePositiveJobData : jobData
+            }
+            class FalsePositiveEntry {
+              - FalsePositiveJobData : jobData
+              - String : author
+              - FalsePositiveMetaData : metaData
+              - Date : created
+            }
+            class FalsePositiveJobData {
+              - UUID : jobUUID
+              - String : comment
+            }
+            class FalsePositiveMetaData {
+              - ScanType : scanType
+              - String : name
+              - Severity : severity
+              - FalsePositiveCodeMetaData : code
+              - FalsePositiveWebMetaData : web
+              - Integer : cweId
+              - String : cveId
+              - String : owasp
+            }
+            class FalsePositiveCodeMetaData {
+              - FalsePositiveCodePartMetaData : start
+              - FalsePositiveCodePartMetaData : end
+            }
+            class FalsePositiveWebMetaData {
+              - FalsePositiveWebRequestMetaData : request
+              - FalsePositiveWebResponseMetaData : response
+            }
+            class FalsePositiveCodePartMetaData {
+              - String : location
+              - String : relevantPart
+              - String : sourceCode
+            }
+            class FalsePositiveWebRequestMetaData {
+              - String : method
+              - String : target
+              - String : protocol
+              - String : version
+              - String : attackVector
+            }
+            class FalsePositiveWebResponseMetaData {
+              - String : evidence
+              - int : statuscode
+            }
+          }
+          package report {
+            class ScanSecHubReport {
+            }
+            class ScanReportRepository {
+            }
+          }
+        }
+      }
+      package commons {
+        package model {
+          class Severity {
+          }
+          class ScanType {
+          }
+          class SecHubCodeCallStack {
+          }
+          class SecHubFinding {
+          }
+        }
+      }
+    }
+  }
+}
+
+FalsePositiveJobDataService *-- ScanProjectConfigService
+FalsePositiveJobDataService *-- FalsePositiveJobDataConfigMerger
+FalsePositiveJobDataService *-- FalsePositiveJobDataListValidation
+FalsePositiveJobDataService *-- ScanReportRepository
+
+ScanProjectConfigService *-- ScanProjectConfigRepository
+ScanProjectConfigService -[#blue]- ScanProjectConfig
+
+FalsePositiveJobDataConfigMerger ..> FalsePositiveProjectConfiguration
+FalsePositiveJobDataConfigMerger ..> FalsePositiveJobDataList
+FalsePositiveJobDataConfigMerger ..> FalsePositiveEntry
+FalsePositiveJobDataConfigMerger ..> FalsePositiveJobData
+
+FalsePositiveJobDataListValidation ..> FalsePositiveJobDataList
+FalsePositiveJobDataListValidation -[#blue]- SecHubFinding
+
+FalsePositiveProjectConfiguration *-- FalsePositiveEntry
+
+FalsePositiveJobDataList *-- FalsePositiveJobData
+
+FalsePositiveEntry *-- FalsePositiveJobData
+FalsePositiveEntry *-- FalsePositiveMetaData
+
+FalsePositiveMetaData *-- FalsePositiveCodeMetaData
+FalsePositiveMetaData *-- FalsePositiveWebMetaData
+FalsePositiveMetaData -[#blue]- ScanType
+FalsePositiveMetaData -[#blue]- Severity
+
+FalsePositiveCodeMetaData *-- FalsePositiveCodePartMetaData
+
+FalsePositiveWebMetaData *-- FalsePositiveWebRequestMetaData
+FalsePositiveWebMetaData *-- FalsePositiveWebResponseMetaData
+
+ScanSecHubReport -[#green,dashed]- SecHubCodeCallStack
+
+@enduml
+```

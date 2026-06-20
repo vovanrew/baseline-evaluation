@@ -1,0 +1,22 @@
+{
+  "id": "e05d0eab-2c7a-4fa8-a370-bac28f8464e2",
+  "object": "chat.completion",
+  "created": 1781415472,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Search for Products by ID (using DB dao)\n\nactor \"User\" as User\nrectangle \"\u00abmain\u00bb Administration\" as Administration\nframe \"\u00abframe\u00bb MainMenu\" as MainMenu\ndialog \"\u00abdialog\u00bb ProductReportDialog\" as ProductReportDialog\ndatabase \"Database\" as Database\nrectangle \"\u00abProductDAO\u00bb ProductDatabaseDAO\" as ProductDatabaseDAO\nrectangle \"SimpleListModel :model\" as SimpleListModel\n\nUser -> Administration : clicks 'View Products'\nAdministration -> MainMenu : \u00abconstruct\u00bb\nMainMenu -> ProductReportDialog : \u00abconstruct\u00bb\nProductReportDialog -> ProductDatabaseDAO : \u00abconstruct\u00bb\nProductDatabaseDAO -> Database : getProducts()\nDatabase --> ProductDatabaseDAO : select * from product\nProductDatabaseDAO --> ProductReportDialog : ResultSet\nactivate ProductDatabaseDAO\nProductDatabaseDAO -> ProductDatabaseDAO : reconstruct products from ResultSet\nProductDatabaseDAO --> ProductReportDialog : products\ndeactivate ProductDatabaseDAO\n\nProductReportDialog -> SimpleListModel : \u00abconstruct\u00bb\nProductReportDialog -> SimpleListModel : updateItems(products)\nactivate SimpleListModel\ndeactivate SimpleListModel\n\nProductReportDialog -> ProductReportDialog : IstProducts.setModel(model)\nactivate ProductReportDialog\ndeactivate ProductReportDialog\n\nnote right of ProductReportDialog\n  products now visible to user\nend note\n\nUser -> ProductReportDialog : enters product id into search bar\nProductReportDialog -> ProductReportDialog : txtId.getText : id\nactivate ProductReportDialog\ndeactivate ProductReportDialog\n\nUser -> ProductReportDialog : clicks \"Search\"\nProductReportDialog -> ProductDatabaseDAO : search(id)\nactivate ProductDatabaseDAO\nProductDatabaseDAO -> Database : select * from product where product_id = id\nDatabase --> ProductDatabaseDAO : product\ndeactivate ProductDatabaseDAO\n\nProductReportDialog -> SimpleListModel : updateItems(product)\nactivate SimpleListModel\ndeactivate SimpleListModel\n\nProductReportDialog -> ProductReportDialog : IstProducts.getModel(model)\nactivate ProductReportDialog\ndeactivate ProductReportDialog\n\nnote right of ProductReportDialog\n  only searched product now visible to user\nend note\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2399,
+    "completion_tokens": 433,
+    "total_tokens": 2832
+  }
+}

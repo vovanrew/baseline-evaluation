@@ -1,0 +1,33 @@
+```plantuml
+@startuml
+participant Admin
+participant "Webhook\nServer" as WebhookServer
+participant Consumer
+
+== Register webhook ==
+autonumber
+Admin -> WebhookServer: Register webhook\nconsumer
+WebhookServer -> Admin: OK
+
+== Event received ==
+autonumber 3
+[-> WebhookServer: Event
+WebhookServer -> WebhookServer: Store event\nin DB
+
+== Consumer connected ==
+autonumber 5
+Consumer -> WebhookServer: Connect over WS
+
+loop
+    autonumber 6
+    WebhookServer -> WebhookServer: Load webhooks\nfrom DB
+    WebhookServer -> Consumer: Forward forwarding events
+end
+
+loop
+    autonumber 8
+    Consumer --> WebhookServer: Ack messages\nby webhook ID
+end
+
+@enduml
+```

@@ -1,0 +1,106 @@
+@startuml
+' Define styles
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor White
+  BorderColor Black
+  FontColor Black
+}
+skinparam note {
+  BackgroundColor #FFFFE0
+  BorderColor #D4D0C8
+  FontColor Black
+}
+skinparam interface {
+  BackgroundColor #E6E6FA
+  BorderColor #9370DB
+  FontColor Black
+}
+skinparam database {
+  BackgroundColor #E6E6FA
+  BorderColor #9370DB
+  FontColor Black
+}
+
+' Define classes and interfaces
+class "DataBase" as DataBase {
+  <<interface>>
+}
+
+class "Repository" as Repository {
+  <<class>>
+  Repository(DataBase, ProjectFabric)
+}
+
+class "RepositoryCache" as RepositoryCache {
+  <<class>>
+  RepositoryCache( ProjectManager )
+}
+
+class "ProjectFabric" as ProjectFabric {
+  <<class>>
+  createProjectObject(map[versionName]code, projectGUID, name) Project
+}
+
+class "Project" as Project {
+  <<class>>
+  map[apiVersion]ProjectVersion
+  map[entityName][]uniqueField
+  DataBase
+}
+
+class "ProjectVersion" as ProjectVersion {
+  <<class>>
+  Code
+  map[name]Entity
+  map[path]map[method]ast
+  DataBase Ref
+}
+
+class "ProjectVersionManager" as ProjectVersionManager {
+  <<interface>>
+  GetUniqueFields() map[entityName][]uniqueField
+  ExecRequest(path, method, params, accessToken)
+}
+
+class "ProjectManager" as ProjectManager {
+  <<interface>>
+  CreateVersion(versionName, code) ok
+  GetVersion(versionName) ProjectVersion
+  UpdateVersion(versionName, code) ok
+  DeleteVersion(versionName) ok
+  SetUniqFields(map[entityName][]uniqueField)
+  GetUniqFields() map[entityName][]uniqueField
+}
+
+class "RepositoryManager" as RepositoryManager {
+  <<interface>>
+  createProject(project name)
+  deleteProject(project name)
+  getProject(project name) ProjectManager
+}
+
+' Define notes
+note "интерфейс баз данных" as note1
+note "Класс для работы с проектами в базе данных" as note2
+note "Обёртка над репозиторием для кэширования данных" as note3
+note "Фабрика для создания объекта project" as note4
+note "У всех версий в итоге работает общая схема уникальных и неуникальных полей: если среди версий находится указание на уникальность поля, то оно становится уникальным для всех" as note5
+
+' Define relationships
+note1 --> DataBase
+note2 --> Repository
+note3 --> RepositoryCache
+note4 --> ProjectFabric
+note5 --> Project
+
+DataBase --> Repository
+DataBase --> RepositoryCache
+Repository --> RepositoryManager
+RepositoryCache --> RepositoryManager
+ProjectFabric --> Project
+Project --> ProjectVersion
+ProjectVersion --> ProjectVersionManager
+ProjectManager --> RepositoryManager
+
+@enduml

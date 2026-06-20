@@ -1,0 +1,22 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "Data Consumer" as Consumer
+participant "Data Source" as Source
+
+Consumer ->> Source: 1a. GET [query URL]
+Source ->> Consumer: search-response Bundle with new records
+    note right of Consumer: (use most recent meta.lastUpdated in filter for subsequent polls)
+    Consumer ->> Source: 2b. Empty search-response bundle
+
+alt [No updates]
+    Source ->> Consumer: 1b. POST [base query URL] with
+    Consumer ->> Source: GET [next URL]
+    Source ->> Consumer: search-response with Bundle of next results
+    note right of Consumer: (use most recent meta.lastUpdated in filter for subsequent polls)
+    Consumer ->> Source: 2a. search-response Bundle with new records
+    note right of Consumer: (use most recent meta.lastUpdated in filter for subsequent polls)
+    Consumer ->> Source: 2b. Empty search-response bundle
+end
+
+@enduml

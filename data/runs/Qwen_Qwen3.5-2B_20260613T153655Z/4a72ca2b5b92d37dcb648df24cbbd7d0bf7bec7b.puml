@@ -1,0 +1,25 @@
+@startuml
+participant "SalesClerk" as Actor
+
+interface «presentation» DefineNewCategoryUI as UI
+
+interface «application» DefineNewCategoryController as Controller
+
+interface «builder» CategoryBuilder as Builder
+
+interface «domain» category:Category as Domain
+
+database «repository» CategoryRepository as Repository
+
+Actor -> UI : 1 Define new category
+UI -> Controller : 2 create
+Controller -> Builder : 7 withCode(code)
+Controller -> Builder : 8 withDescription(description)
+Builder -> Domain : 9 create(categoryCode, categoryDescription)
+Domain -> Builder : 10 category
+Builder -> Controller : 11 category
+Controller -> Repository : 13 categoryRepository
+Controller -> Repository : 14 save(category)
+UI -> Actor : 16 displayCategoryInfo
+
+@enduml

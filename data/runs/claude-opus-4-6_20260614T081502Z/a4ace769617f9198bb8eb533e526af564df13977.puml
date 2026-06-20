@@ -1,0 +1,33 @@
+```plantuml
+@startuml
+
+participant "接入平台的前端页" as frontend
+participant "权限中心登录页" as loginpage
+participant "starter-auth(权限中心)" as authcenter
+database "auth数据库" as authdb
+database "redis" as redis
+
+frontend -> loginpage : 未登录的请求自动重定向
+loginpage -> authcenter : 获取用户登录授权码接口
+authcenter -> authdb : 查询用户信息
+authdb --> authcenter : 返回用户信息
+
+note right of authcenter
+验证用户密码
+不匹配则响应：登陆失败
+创建授权码
+end note
+
+authcenter ..> redis : 异步：缓存授权码关联的用户信息60s
+authcenter --> loginpage : 响应授权码和重定向页面
+
+note left of loginpage
+重定向到接入服务指定的前端页
+在请求路径中带上用户登录授权码
+路径如：https://www.xxx.com/?aucoCode=xxxxxxxxxxxx
+end note
+
+loginpage --> frontend
+
+@enduml
+```

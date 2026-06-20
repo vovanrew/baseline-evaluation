@@ -1,0 +1,43 @@
+@startuml
+actor Customer
+participant Frontend
+participant Backend
+database Database
+
+box "Make Event"
+end box
+
+group Make Event
+  Customer -> Frontend : Presses the "Make new Event"-button
+  Frontend -> Backend : Request to open new window
+  Backend -> Backend : Generates empty event-object
+  Frontend <-- Backend : Opens new window
+  Customer -> Frontend : Enters event information
+  Customer -> Frontend : Presses "Create"-button
+  Frontend -> Backend : Request to validate input
+
+  alt [Successful case]
+    Backend -> Backend : Validation successful
+    Backend -> Database : Adds event to database
+    Backend <-- Database : Adds event to list
+    Frontend <-- Backend : Closes window
+    Frontend -> Frontend : Selects newly added event from list
+    Customer <-- Frontend : Displays eventinformation to user
+  else [Validation failed]
+    Backend ->x Backend : Validation failed
+    Frontend <-- Backend : Displays alert of type ERROR
+    Customer <-- Frontend : Lists up fields with errors
+    Customer -> Frontend : Closes alertbox
+  end
+end
+
+group Cancel
+  Customer -> Frontend : Presses the "Cancel"-button
+  Frontend -> Backend : Request to close process
+  Backend -> Backend : Deletes event-object
+  Frontend <-- Backend : Closes window
+  Frontend -> Frontend : Selects first event in list
+  Customer <-- Frontend : Displays list of events
+end
+
+@enduml

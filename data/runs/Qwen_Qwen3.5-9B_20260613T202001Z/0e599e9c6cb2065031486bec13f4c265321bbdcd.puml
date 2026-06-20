@@ -1,0 +1,91 @@
+@startuml
+' UML Class Diagram for a Simple Physics Simulation System
+
+class Creator {
+  + SceneManager makeScene(QJsonObject spec)
+  - Table makeTable(QJsonObject spec)
+  - Ball makeBall(QJsonObject spec)
+}
+
+class SceneBuilder {
+  + void setTable(Table)
+  + void addBall(Ball)
+  + void resetBalls()
+  + SceneManager build()
+}
+
+class SimpleCreator {
+  - Table makeTable(QJsonObject spec)
+  - Ball makeBall(QJsonObject spec)
+}
+
+class SimpleTable {
+  - QColor color
+  + void draw(QPainter painter)
+}
+
+class SimpleBall {
+  - QColor color
+  + void draw(QPainter painter)
+}
+
+class Table {
+  - QSize dimension
+  - float surface_friction
+}
+
+class Ball {
+  - float mass
+  - QVector2D position
+  - QVector2D velocity
+  - float radius
+}
+
+class SceneManager {
+  - Table table
+  - vector<Ball> balls
+  - QPoint offset
+  + QSize viewPort()
+  + void tick(float dtime)
+  + void draw(QPainter painter)
+}
+
+class Graphic {
+  + void draw(QPainter painter)
+}
+
+class MainWindow {
+  - QTimer updater
+  - QTimer ticker
+  - QElapsedTimer timer
+  - SceneManager scene
+  + void paintEvent(QPaintEvent event)
+  + void tick()
+  + void nextFrame()
+}
+
+' Relationships
+
+Creator --> SceneBuilder
+SimpleCreator ..> Table
+SimpleCreator ..> Ball
+SimpleTable ..> Table
+SimpleBall ..> Ball
+Table ..> Graphic
+Ball ..> Graphic
+SceneManager ..> Graphic
+SceneManager --> MainWindow
+SceneBuilder ..> SceneManager
+
+' Key Legend
+class Key {
+  <<legend>>
+  public
+  protected
+  private
+  public method()
+  protected method()
+  private method()
+}
+
+@enduml

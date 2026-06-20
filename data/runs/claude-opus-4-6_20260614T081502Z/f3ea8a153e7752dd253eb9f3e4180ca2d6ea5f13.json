@@ -1,0 +1,21 @@
+{
+  "id": "msg_01SSDDphY95vHvcKxVgkS2pm",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nbox \"User application\"\nparticipant Main\nend box\n\nparticipant Propagator\nparticipant Integrator\nparticipant DifferentialEquations\nparticipant OrbitType\nparticipant TimesDerivative\nparticipant \"Force Model i\" as ForceModel\nparticipant NewtonianAttraction\n\nMain -> Propagator : propagate\nactivate Propagator\n\nPropagator -> DifferentialEquations : create\nactivate DifferentialEquations\ndeactivate DifferentialEquations\n\nPropagator -> TimesDerivative : create\nactivate TimesDerivative\ndeactivate TimesDerivative\n\nPropagator -> Integrator : integrate\nactivate Integrator\n\nloop for n steps\n    Integrator -> DifferentialEquations : computeDerivatives\n    activate DifferentialEquations\n    \n    DifferentialEquations -> OrbitType : mapArrayToOrbit\n    activate OrbitType\n    deactivate OrbitType\n    \n    loop for all perturbation force models\n        DifferentialEquations -> ForceModel : addContribution\n        activate ForceModel\n        \n        ForceModel -> TimesDerivative : addAcceleration\n        activate TimesDerivative\n        deactivate TimesDerivative\n        \n        deactivate ForceModel\n    end\n    \n    DifferentialEquations -> NewtonianAttraction : addContribution\n    activate NewtonianAttraction\n    \n    NewtonianAttraction -> TimesDerivative : addKeplerContribution\n    activate TimesDerivative\n    deactivate TimesDerivative\n    \n    deactivate NewtonianAttraction\n    \n    deactivate DifferentialEquations\nend\n\nIntegrator --> Propagator : final state\ndeactivate Integrator\n\nPropagator --> Main : final state\ndeactivate Propagator\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432819,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 435,
+    "prompt_tokens": 1646,
+    "total_tokens": 2081
+  }
+}

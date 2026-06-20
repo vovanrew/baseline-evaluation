@@ -1,0 +1,22 @@
+{
+  "id": "e17623c8-c318-4c64-9639-49f645ad1876",
+  "object": "chat.completion",
+  "created": 1781400840,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n\nparticipant \"Mojaloop Adapter\" as MojoAdapter\nparticipant \"API\" as API\nparticipant \"api / Handler\" as Handler\nparticipant \"Application Layer (domain / service / facade)\" as AppLayer\nparticipant \"TigerBeetle Client\" as Client\nparticipant \"TigerBeetle Cluster\" as Cluster\nparticipant \"MySQL\" as DB\n\nnote over MojoAdapter, API\nHub operator or DFSP interactions\nend note\n\nnote over API\nNodeJS interface invokes REST API\nend note\n\nnote over Handler\nJSON request decoded & processed via handler\nend note\n\nnote over AppLayer\nExpose service functions & handle database interactions\nend note\n\nsubgraph Central-Settlement\n    MojoAdapter\n    API\n    Handler\n    AppLayer\nend subgraph\n\nsubgraph Storage\n    Client\n    Cluster\n    DB\nend subgraph\n\nsubgraph UpdateSettlement\n    1 JSON (settlement data)\n    2 Invoke handler\n    3 Invoke application layer\n    4 Retrieve settlement data (excluding accounts)\n    5 Retrieve accounts for all Transfers for a settlement window\n    6 Update settlement data (excluding accounts)\n    7 Settlement state processing\n    8 Invoke account creation based on settlement state of each Transfer\n    9 Create settlement accounts & return result\n    10 Return settlement result\n    11 Update final settlement state & return result\n    12 Return result\n    13 Return result\n    14 Return result with settlementData\nend subgraph\n\nMojoAdapter -> API: 1 JSON (settlement data)\nAPI -> Handler: 2 Invoke handler\nHandler -> AppLayer: 3 Invoke application layer\nAppLayer -> DB: 4 Retrieve settlement data (excluding accounts)\nDB -> Client: 5 Retrieve accounts for all Transfers for a settlement window\nClient -> AppLayer: 6 Update settlement data (excluding accounts)\nAppLayer -> DB: 7 Settlement state processing\nAppLayer -> DB: 8 Invoke account creation based on settlement state of each Transfer\nDB -> Cluster: 9 Create settlement accounts & return result\nCluster -> AppLayer: 10 Return settlement result\nAppLayer -> Handler: 11 Update final settlement state & return result\nHandler -> API: 12 Return result\nAPI -> MojoAdapter: 13 Return result\nMojoAdapter -> API: 14 Return result with settlementData\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2105,
+    "completion_tokens": 526,
+    "total_tokens": 2631
+  }
+}

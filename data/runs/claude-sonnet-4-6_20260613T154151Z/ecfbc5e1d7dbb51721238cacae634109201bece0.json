@@ -1,0 +1,21 @@
+{
+  "id": "msg_01JYEYst62cMGrrSG9inSzAb",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Compass Sequence Diagram\n\nactor User\nparticipant HubSpot\nparticipant TypeForm\nparticipant \"TypeForm API\" as TypeFormAPI\nparticipant \"Node App\" as NodeApp\nbox \"AWS\"\nparticipant \"S3 Bucket\" as S3Bucket\nparticipant SES\nend box\n\nUser -> HubSpot : Loads Compass\nHubSpot -> HubSpot : Generate UUID to identify user\nHubSpot -> TypeForm : Load embedded TypeForm survery\nUser -> HubSpot : Completes survey\nHubSpot -> HubSpot : Redirects to HubSpot Landing Page Submission Form\\nhttps://info.codurance.com/en/compass-details-submission\nUser -> HubSpot : Completes submission form\nHubSpot -> HubSpot : Save submission info\\n& contact in Hubspot\nHubSpot -> NodeApp : Redirects to /report/submit/:uuid (to generate report)\nNodeApp -> NodeApp : Start report generation\nNodeApp -> HubSpot : Redirects to HubSpot Thanks Landing Page\\n\"https://info.codurance.com/en/compass-successful-submission\"\nNodeApp -> TypeFormAPI : Gets survery questions & answers\nnote left of NodeApp : generate report\\nand send email\nNodeApp -> HubSpot : Get user details\nHubSpot --> NodeApp : \nNodeApp -> NodeApp : Build report and render with jsreport\nNodeApp -> S3Bucket : Upload report to AWS S3 bucket\nNodeApp -> S3Bucket : Query report link\nS3Bucket --> NodeApp : \nNodeApp -> NodeApp : Compose email data with report pdf link\nNodeApp -> SES : Queue email for sending\nSES -> User : Send email to user\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781372269,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 426,
+    "prompt_tokens": 1664,
+    "total_tokens": 2090
+  }
+}

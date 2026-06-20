@@ -1,0 +1,22 @@
+{
+  "id": "b0cca01c-1756-49bc-aa9a-11a4563564c3",
+  "object": "chat.completion",
+  "created": 1781484822,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle 3.1.0 Get Participant Callback Details\n\npackage \"ML API Adapter Service\" as ML {\n    actor \"ML-API-ADAPTER\" as adapter\n}\n\npackage \"Central Services\" as CS {\n    boundary \"Central Service API\" as api\n    usecase \"Participant Handler\" as handler\n    database \"Participant DAO\" as dao\n    database \"Central Store\" as store\n}\n\nrectangle \"Get Callback Details\" as main {\n    adapter -> api : 1 Request to get callback details - GET - /participants/{name}/endpoints?type={typeValue}\n    \n    activate api\n    api -> handler : 2 Fetch Callback details for Participant\n    activate handler\n    \n    handler -> dao : 3 Fetch Participant\\nError code: 3200\n    activate dao\n    dao -> store : 4 Fetch Participant\n    activate store\n    store --> dao : 5 Retrieved Participant\n    deactivate store\n    dao --> handler : 6 Return Participant\n    deactivate dao\n    \n    handler -> handler : 7 Validate DFSP\n    \n    alt Validate participant (success)\n        handler -> handler : 8 check if \"type\" parameter is sent\n        \n        alt Check if \"type\" parameter is sent (Sent)\n            handler -> dao : 9 Fetch Callback details for Participant and type\\nError code: 3000\n            activate dao\n            \n            dao -> store : 10 Fetch Callback details for Participant and type\n            activate store\n            note right of store: Condition:\\nisActive = 1\\n[endpointTypeId = <type>]\n            store --> dao : 11 Retrieved Callback details for Participant and type\n            deactivate store\n            \n            dao --> handler : 12 Return Callback details for Participant and type\n            deactivate dao\n            \n            note right of handler: Message:\\n{\\n  endpoints: {type: <type>, value: <value>}\\n}\n            \n            handler -> api : 13 Return Callback details for Participant\n            deactivate handler\n            api -> adapter : 14 Return Callback details for Participant\n            deactivate api\n            \n        else Check if \"type\" parameter is sent (Not Sent)\n            handler -> dao : 15 Fetch Callback details for Participant\\nError code: 3000\n            activate dao\n            \n            dao -> store : 16 Fetch Callback details for Participant\n            activate store\n            note right of store: Condition:\\nisActive = 1\n            store --> dao : 17 Retrieved Callback details for Participant\n            deactivate store\n            \n            dao --> handler : 18 Return Callback details for Participant\n            deactivate dao\n            \n            note right of handler: Message:\\n{\\n  endpoints: [\\n    {type: <type>, value: <value>},\\n    {type: <type>, value: <value>}\\n  ]\\n}\n            \n            handler -> api : 19 Return Callback details for Participant\n            deactivate handler\n            api -> adapter : 20 Return Callback details for Participant\n            deactivate api\n        end\n        \n    else Validate participant (failure)/ Error\n        note right of handler: Validation failure/ Error!\n        note right of handler: Message:\\n{\\n  \"errorInformation\": {\\n    \"errorCode\": <errorCode>,\\n    \"errorDescription\": <ErrorMessage>\\n  }\\n}\n        \n        handler -> api : 21 Return Error code: 3000, 3200\n        deactivate handler\n        api -> adapter : 22 Return Error code: 3000, 3200\n        deactivate api\n    end\n}\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2252,
+    "completion_tokens": 774,
+    "total_tokens": 3026
+  }
+}

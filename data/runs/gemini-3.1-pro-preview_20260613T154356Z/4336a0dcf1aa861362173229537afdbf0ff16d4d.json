@@ -1,0 +1,63 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nactor Member\nparticipant \":TicketDetailPage\" as TicketDetailPage\nparticipant \":TicketDetailContainer\" as TicketDetailContainer\nparticipant \":AttendanceService (Frontend)\" as AttendanceServiceFrontend\nparticipant \":Router\" as Router\nparticipant \":AttendanceHTTPTransport\" as AttendanceHTTPTransport\nparticipant \":AttendanceEndpoint\" as AttendanceEndpoint\nparticipant \":AttendanceService\" as AttendanceService\nparticipant \":RequesterService\" as RequesterService\nparticipant \":AttendanceCommand\" as AttendanceCommand\nparticipant \":AttendanceQuery\" as AttendanceQuery\n\nMember -> TicketDetailPage : Click \"Yes\" Button\nTicketDetailPage -> TicketDetailContainer : handleConfirmation(input)\nTicketDetailContainer -> AttendanceServiceFrontend : confirmAttendance(classId, payload)\nAttendanceServiceFrontend -> Router : route(\"PATCH\", \"v2/class/{class_id}/attendance/confirmation\")\nRouter -> AttendanceHTTPTransport : Confirmation(AttendanceService, []ServerOption)\nAttendanceHTTPTransport -> AttendanceEndpoint : Confirmation(AttendanceService)\nAttendanceEndpoint -> AttendanceService : Confirmation(context, payload)\nAttendanceService -> AttendanceService : Validate()\n\nalt \"Data Valid\"\n    AttendanceService -> AttendanceQuery : GetPureModel(context, []SliceCondition)\n    AttendanceQuery --> AttendanceService : ticket\n    \n    alt \"Ticket Status is Accepted\"\n        AttendanceService -> RequesterService : Register(context, []payload)\n        RequesterService --> AttendanceService : \n        AttendanceService -> AttendanceCommand : UpdateRequestStatus(context, ticket)\n        AttendanceCommand --> AttendanceService : is updated\n    end\n    \n    AttendanceService --> AttendanceEndpoint : is updated\n    AttendanceEndpoint --> AttendanceEndpoint : response := Response(is updated, nil)\n    AttendanceEndpoint --> AttendanceHTTPTransport : response\n    AttendanceHTTPTransport --> Router : response\n    Router --> AttendanceServiceFrontend : response\n    AttendanceServiceFrontend --> TicketDetailContainer : response\n    TicketDetailContainer --> TicketDetailPage : response\n    TicketDetailPage --> Member : response\nelse\n    AttendanceService --> AttendanceEndpoint : UnprocessableEntity\n    AttendanceEndpoint --> AttendanceHTTPTransport : UnprocessableEntity\n    AttendanceHTTPTransport --> Router : UnprocessableEntity\n    Router --> AttendanceServiceFrontend : UnprocessableEntity\n    AttendanceServiceFrontend --> TicketDetailContainer : UnprocessableEntity\n    TicketDetailContainer --> TicketDetailPage : UnprocessableEntity\n    TicketDetailPage --> Member : UnprocessableEntity\nend\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHSYJmQxYJ5pHRJ61VpDzQYO+6S+eBQ1eCYQ4l8ILDjzsll+Ef/eDJ92Y6/iP1"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "citationMetadata": {
+        "citationSources": [
+          {
+            "startIndex": 222,
+            "endIndex": 730,
+            "uri": "https://github.com/fwidjaya20/fazzlearning-uml",
+            "license": ""
+          },
+          {
+            "startIndex": 823,
+            "endIndex": 1194,
+            "uri": "https://github.com/fwidjaya20/fazzlearning-uml",
+            "license": ""
+          },
+          {
+            "startIndex": 1619,
+            "endIndex": 1927,
+            "uri": "https://github.com/fwidjaya20/fazzlearning-uml",
+            "license": ""
+          },
+          {
+            "startIndex": 2005,
+            "endIndex": 2279,
+            "uri": "https://github.com/fwidjaya20/fazzlearning-uml",
+            "license": ""
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1172,
+    "candidatesTokenCount": 499,
+    "totalTokenCount": 1671,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1092
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "Z18xasfOH-6YvdIPgMapuA4"
+}

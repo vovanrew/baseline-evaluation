@@ -1,0 +1,56 @@
+@startuml
+left to right direction
+actor client
+rectangle gateway
+rectangle developer-service
+cylinder devs-db
+circle broker
+rectangle planning-service
+cylinder planning-db
+
+participant client as client1
+participant gateway as gateway1
+participant developer-service as developer_service1
+participant devs-db as devs_db1
+participant broker as broker1
+participant planning-service as planning_service1
+participant planning-db as planning_db1
+
+client1 -> gateway1 : POST dev
+gateway1 -> developer_service1 : POST dev
+developer_service1 -> devs_db1 : persist
+developer_service1 -> gateway1 : response 201
+gateway1 -> client1 : 201
+developer_service1 -> broker1 : emit DevCreated Event
+broker1 -> planning_service1 : consume Event
+planning_service1 -> planning_db1 : persist Dev
+
+note right of client1
+client
+end note
+
+note right of gateway1
+gateway
+end note
+
+note right of developer_service1
+developer-service
+end note
+
+note right of devs_db1
+devs-db
+end note
+
+note right of broker1
+broker
+end note
+
+note right of planning_service1
+planning-service
+end note
+
+note right of planning_db1
+planning-db
+end note
+
+@enduml

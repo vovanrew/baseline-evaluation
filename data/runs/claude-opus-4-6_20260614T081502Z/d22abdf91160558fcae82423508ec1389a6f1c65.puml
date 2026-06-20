@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+title HashedTimelockERC20 contract: normal flow – receiver withdraws with preimage before the timelock expires
+
+box "Ethereum Network" #LightBlue
+participant "<<Account>>\nSender" as Sender
+participant "<<Account>>\nReceiver" as Receiver
+participant "<<Smart Contract>>\nHashedTimelockERC20" as HTLC
+participant "<<Smart Contract>>\nERC20Contract" as ERC20
+participant "Events" as Events
+end box
+
+note right of Receiver #LightYellow
+State stored for each HTLC:
+address sender;
+address receiver;
+address tokenContract;
+uint amount;
+bytes32 hashlock;
+uint timelock; // UNIX ts
+bool withdrawn;
+bool refunded;
+bytes32 preimage;
+end note
+
+Sender -> ERC20 : approve(htlc address, amount)
+
+Sender -> HTLC : newContract(\n    receiver,\n    hashlock,\n    timelock,\n    tokenContract,\n    amount\n)
+
+HTLC -> ERC20 : transferFrom(sender, htlc address, amount)
+
+HTLC -> Events : LogHTLCERC20New(contractId, locks, values, etc.)
+
+HTLC --> Sender : contractId
+
+Sender -> Receiver : reveals contractId
+
+Receiver -> Receiver : knows/obtains secret preimage\n[sha256(secret preimage) == hashlock]
+
+Receiver -> HTLC : withdraw(contractId, secret preimage)
+
+HTLC -> ERC20 : transfer(receiver, amount)
+
+HTLC -> Events : LogHTLCERC20Withdraw(contractId)
+
+@enduml
+```

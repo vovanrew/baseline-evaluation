@@ -1,0 +1,56 @@
+```plantuml
+@startuml
+participant IntegrationTest
+participant "Spring\nApplication" as SpringApp
+participant "De /nSerializer" as Serializer
+participant "info:AddMember\nRequestInfoDTO" as InfoDTO
+participant "ctrl:AddMember\nToGroupController" as Controller
+participant "AddMember\nRequestAssembler" as RequestAssembler
+participant "requestDTO:\nAddMemberRequestDTO" as RequestDTO
+participant "AddMemberResponse\nDTOAssembler" as ResponseAssembler
+participant "groupRespDTO:\nGroupResponseDTO" as GroupRespDTO
+participant "srv:AddMember\nToGroupService" as Service
+
+note over Service: Continues through\nnext Diagram
+
+activate IntegrationTest
+IntegrationTest -> SpringApp : **1** POST\n/groups/"Family"/\nmembers/"ana@gmail.com"
+activate SpringApp
+
+SpringApp -> Serializer : **1.1** deserialize("groupDesc":"Family",\n"personEmail":"ana@gmail.com")
+activate Serializer
+Serializer -> InfoDTO ** : **1.1.1** create (groupDesc,\nPersonEmail)
+deactivate Serializer
+
+SpringApp -> Controller : **1.2** addMember(info)
+activate Controller
+
+Controller -> RequestAssembler : **1.2.1** addMemberMapToDTO\n(info.getGroupDescription(),\ninfo.getPersonEmail())
+activate RequestAssembler
+RequestAssembler -> RequestDTO ** : **1.2.1.1** create
+deactivate RequestAssembler
+
+Controller -> Service : **1.2.2** addMemeber(requestDTO)
+Service --> Controller : **1.2.3** groupDTO
+
+Controller -> ResponseAssembler : **1.2.4** mapToGroupResponseDTO(GroupDTO)
+activate ResponseAssembler
+ResponseAssembler -> GroupRespDTO ** : **1.2.4.1** create
+deactivate ResponseAssembler
+
+Controller --> SpringApp : **1.2.5** groupRespDTO
+deactivate Controller
+
+SpringApp --> SpringApp : **1.2.6** ResponseEntity(groupRespDTO,\nHttpStatus.OK)
+
+SpringApp -> Serializer : **1.3** serialize(ResponseEntity(groupRespDTO,\nHttpStatus.OK))
+activate Serializer
+Serializer --> SpringApp : **1.4** HttpResponse
+deactivate Serializer
+
+SpringApp --> IntegrationTest : **1.5** HttpResponse
+deactivate SpringApp
+deactivate IntegrationTest
+
+@enduml
+```

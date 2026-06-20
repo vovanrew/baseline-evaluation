@@ -1,0 +1,61 @@
+```plantuml
+@startuml
+title フィールド選択シーケンス図
+
+actor ユーザ
+participant "Manager" as Manager
+participant "FieldModel" as FieldModel
+participant "FieldSelectPresenter" as FieldSelectPresenter
+participant "FieldSelectView" as FieldSelectView
+
+' 初期化フロー
+ユーザ -> Manager
+activate Manager
+Manager -> FieldModel: (Child Component)
+activate FieldModel
+Manager -> FieldSelectPresenter: Instantiate()
+activate FieldSelectPresenter
+FieldSelectPresenter -> FieldSelectView: (Child Component)
+activate FieldSelectView
+
+Manager -> FieldSelectPresenter: Initialized()
+activate FieldSelectPresenter
+FieldSelectPresenter -> FieldModel: Fields
+activate FieldModel
+FieldModel --> FieldSelectPresenter
+deactivate FieldModel
+FieldSelectPresenter -> FieldSelectView: Initialized()
+activate FieldSelectView
+FieldSelectView --> FieldSelectPresenter
+deactivate FieldSelectView
+FieldSelectPresenter --> Manager
+deactivate FieldSelectPresenter
+deactivate FieldSelectView
+deactivate FieldModel
+deactivate Manager
+
+' オプションフレーム：フィールド選択時
+opt [フィールド選択時]
+    ユーザ -> FieldSelectView: フィールド選択
+    activate FieldSelectView
+    FieldSelectView -> FieldSelectPresenter: OnSelectedField()
+    activate FieldSelectPresenter
+    FieldSelectPresenter --> FieldSelectView
+    deactivate FieldSelectPresenter
+    deactivate FieldSelectView
+end
+
+' オプションフレーム：ランダムボタン押下時
+opt [ランダムボタン押下時]
+    ユーザ -> FieldSelectView: ランダムボタン押下
+    activate FieldSelectView
+    FieldSelectView -> FieldSelectPresenter: OnSelectedRundom()
+    activate FieldSelectPresenter
+    FieldSelectPresenter -> FieldSelectPresenter: 
+    FieldSelectPresenter --> FieldSelectView
+    deactivate FieldSelectPresenter
+    deactivate FieldSelectView
+end
+
+@enduml
+```

@@ -1,0 +1,72 @@
+```plantuml
+@startuml
+package "parsing" {
+
+class ANTLRErrorListener <<org.antlr.v4.runtime>> {
+}
+
+class ANTLRParserErrorListener {
+  - syntaxErrorsCount: int
+  --
+  + hasSyntaxErrors(): boolean
+  + syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e)
+}
+
+abstract class DP1CircuitBaseVisitor <<generated>> {
+}
+
+class ANTLRVisitor {
+  - nodes: Map<String, String>
+  - edges: Map<String, List<String>>
+  --
+  + ANTLRVisitor()
+  + visit(tree: ParseTree)
+  + visitNodeDefinition(ctx: DP1CircuitParser.NodeDefinitionContext): CircuitDefinition
+  + visitEdgeDefinition(ctx: DP1CircuitParser.EdgeDefinitionContext): CircuitDefinition
+}
+
+class CircuitParserFactory {
+  + circuitParserNames: Set<String>
+  --
+  + CircuitParserFactory()
+  + getCircuitParser(name: String): ICircuitParser
+}
+
+interface ICircuitParser {
+  + parse(cleanedTxtCircuit: String): CircuitDefinition
+}
+
+class ANTLRCircuitParser {
+  + parse(cleantedTxtCircuit): CircuitDefinition
+  - convertParseTreeToCircuitDefinition(parseTree: ParseTree): CircuitDefinition
+}
+
+class XMLCircuitParser {
+  - nodes: Map<String, String>
+  - edges: Map<String, List<String>>
+  --
+  + parse(cleanedTxtCircuit): CircuitDefinition
+  - parseNodes(document: Document)
+  - parseEdges(document: Document)
+}
+
+class CircuitDefinition {
+}
+
+ANTLRErrorListener <|.. ANTLRParserErrorListener
+
+DP1CircuitBaseVisitor <|-- ANTLRVisitor
+
+ANTLRVisitor --> "1" CircuitDefinition : circuitDefinition
+
+CircuitParserFactory --> "0..*" ICircuitParser : circuitParsers
+
+ICircuitParser <|.. ANTLRCircuitParser
+ICircuitParser <|.. XMLCircuitParser
+
+ANTLRCircuitParser ..|> ICircuitParser
+XMLCircuitParser ..|> ICircuitParser
+
+}
+@enduml
+```

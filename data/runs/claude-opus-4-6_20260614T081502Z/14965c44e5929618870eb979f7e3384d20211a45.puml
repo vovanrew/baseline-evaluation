@@ -1,0 +1,52 @@
+```plantuml
+@startuml
+title Beregning af BMI
+
+actor bruger
+boundary "index.jsp" as index
+boundary "resultat.jsp" as resultat
+
+box "BmiUtil"
+participant Initializer
+end box
+
+box "PresentationLayer"
+participant FrontController
+participant Command
+participant Resultat as ResObj
+end box
+
+box "LogicFacade"
+participant LogicFacade
+end box
+
+box "DBAccess"
+participant BmiMapper
+end box
+
+database BmiDB
+
+== Initialization ==
+
+bruger -> index : 1 start
+index -> Initializer : 2 getSportList()
+index <-- Initializer : 3 ArrayList<Sport>
+
+== Beregn BMI ==
+
+bruger -> FrontController : 4 doPost()
+FrontController -> FrontController : 5 processRequest()
+FrontController -> ResObj : 6 from()
+FrontController <-- ResObj : 7 Resultat
+FrontController -> Command : 8 execute()
+Command -> LogicFacade : 9 insertBmiItem()
+LogicFacade -> BmiMapper : 10 insertBmiItem()
+BmiMapper -> BmiDB : 11 executeQuery()
+BmiMapper <-- BmiDB : 12 OK
+LogicFacade <-- BmiMapper : 13 OK
+Command <-- LogicFacade : 14 OK
+FrontController <-- Command : 15 resultat
+resultat <-- FrontController : 16 forward()
+
+@enduml
+```

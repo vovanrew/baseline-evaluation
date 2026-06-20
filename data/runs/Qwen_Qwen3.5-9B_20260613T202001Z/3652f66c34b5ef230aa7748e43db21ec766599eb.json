@@ -1,0 +1,22 @@
+{
+  "id": "c247bdd8-4f18-4261-8878-7eed3e53e779",
+  "object": "chat.completion",
+  "created": 1781409564,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor User\nactor JobManager\nrectangle \"Process/Application\" as Process\nrectangle \"ESDM\" as ESDM\nrectangle \"Post Processing\" as PostProcessing\nrectangle \"Storage System\" as StorageSystem\nactor Observer\n\nactivate Observer\nObserver -> Observer : collects observations\nStorageSystem <- Observer : (may write directly)\nObserver -> ESDM : write observation t\nESDM -> ESDM : (transform for efficiency)\nESDM -> StorageSystem : write container for observation t\n\ndeactivate Observer\n\nactivate ESDM\nJobManager -> JobManager : periodically submit job(IN=t, OUT)\nJobManager -> Process : allocates resources and calls\nProcess -> ESDM : read IN=x\nESDM -> StorageSystem : read\nStorageSystem -> ESDM : return\nESDM -> Process : return\nProcess -> Process : compute\nProcess -> ESDM : write async OUT=y\n\ndeactivate ESDM\n\nactivate ESDM\nESDM -> PostProcessing : make available\nPostProcessing -> PostProcessing : perform analysis\nPostProcessing -> StorageSystem : (may write directly)\nPostProcessing -> ESDM : return result\nESDM -> Process : return\n\ndeactivate ESDM\n\nProcess -> Process : multiple iterations\n\nactivate ESDM\nESDM -> ESDM : Finalise\nProcess -> User : OUT files become visible\n\ndeactivate ESDM\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2350,
+    "completion_tokens": 301,
+    "total_tokens": 2651
+  }
+}

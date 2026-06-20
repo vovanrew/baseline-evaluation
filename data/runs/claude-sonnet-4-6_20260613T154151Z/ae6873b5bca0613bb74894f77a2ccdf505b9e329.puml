@@ -1,0 +1,19 @@
+@startuml
+participant halon
+participant ios1
+participant ios2
+participant client
+
+note over ios2 : SNS operation
+
+halon ->x ios1 : m0_spiel_repair_abort
+halon ->x ios2
+
+loop [until all IOS are in [IDLE,FAILED]]
+  halon -> ios2 : repair status request
+  halon <- ios2 : repair status reply
+end
+
+halon -> client : notify [(pool, PREVIOUS_STATE), (disk, PREVIOUS_STATE)]
+
+@enduml

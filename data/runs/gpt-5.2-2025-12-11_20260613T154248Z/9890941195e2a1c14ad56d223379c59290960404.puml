@@ -1,0 +1,51 @@
+@startuml
+title Sistema_de_Cobranças
+
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+class Cliente {
+  id: Int
+  nome: String
+  cobranças: List<Cobrança>
+  --
+  fazerPagamento()
+}
+
+class Cobrança {
+  id: Int
+  cliente: Client
+  quitada: Boolean
+  --
+  gerarBoleto()
+  consultaBoleto(): Boolean
+}
+
+class Boleto {
+  id: Int
+  validade: Date
+  valor: Float
+  quitado: Boolean
+  --
+  foiQuitado(): Boolean
+  setQuitado(Boolean: foiQuitado)
+  informaStatusDoBoleto()
+}
+
+interface FazerCobrança {
+  gerarBoleto()
+  consultaBoleto(): Boolean
+}
+
+interface PagarBoleto {
+  fazerPagamento()
+}
+
+Cliente "1" o-- "0..*" Cobrança
+Cobrança "1" *-- "1" Boleto
+
+Cobrança ..|> FazerCobrança
+Cliente ..> PagarBoleto
+
+@enduml

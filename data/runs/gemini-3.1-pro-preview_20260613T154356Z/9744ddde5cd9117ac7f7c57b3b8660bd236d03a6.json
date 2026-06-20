@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nparticipant \"User Agent\" as UA\n\nbox \"Wallet\"\nparticipant \"Frontend\" as WF\nparticipant \"Backend\" as WB\nend box\n\nbox \"Issuer\"\nparticipant \"Metadata\" as IM\nparticipant \"Web Site\" as IWS\nparticipant \"Token Endpoint\" as ITE\nparticipant \"Credential Endpoint\" as ICE\nend box\n\nUA -> IWS: get credential\nnote over UA, IWS: prepare credential issuance\nIWS -> UA: Issuance Initiation Request\\n(pre-authz-code, credential_type, expected_key_types, issuer)\nUA -> WF: Issuance Initiation Request\\n(pre-authz-code, credential_type, expected_key_types, issuer)\n\nWF -> WF: gen DPoP key\nWF -> WF: gen DPoP proof for issuer token endpoint\nWF -> WB: get nonce (for app attestation)\nWB -> WF: nonce\nWF -> WF: obtain app attestation (nonce)\nWF -> WB: get assertion for code exchange\\n(hash(pre-authz-code), app attestation)\nWB -> WB: check app_attestation\nWB -> WB: generate assertion\\n(iss=wallet backend, pre_authz_code_hash, client_id)\nWB -> WF: assertion\n\nWF -> IM: get issuer metadata\nWF -> ITE: token request\\n(pre-authz-code, pin, client_id, assertion, dpop_proof)\nnote over WF, ITE: wallet authenticates with issuer as OAuth Client using the assertion issued by its backend (RFC 7523)\\nissuer checks wallet backend id and key against trust registry\nnote over WF, ITE: Token Endpoint validates pre-authorized code and creates corresponding access token\nITE -> WF: token response\\n(access_token, c_nonce)\n\nWF -> WF: gen key : key, key_attestation\nWF -> WF: create proof of posssion (c_nonce)\nWF -> WF: create DPoP proof for issuance request\nWF -> ICE: issue credential\\n(access_token, credential_type, format, proof, key_policy, dpop_proof)\nnote over WF, ICE: Credential Endpoint Token checks whether the access token is good for requested credential type and\\nwhether the proof of possession is valid\nICE -> WF: credential response (credential, format)\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHSShrVBz3bK7MH1iLmoGqRKbFuw/SjrqfwU963gLnW0EFqP7GftIfDEjvbnTu"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1172,
+    "candidatesTokenCount": 528,
+    "totalTokenCount": 1700,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1092
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "rl0xatWyBNnZvdIP2oiq0Q4"
+}

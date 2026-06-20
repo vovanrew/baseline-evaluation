@@ -1,0 +1,24 @@
+```plantuml
+@startuml
+actor loggedInOrgAdmin
+
+participant "frontend" as frontend
+participant "UserController" as UserController
+participant "UserService" as UserService
+participant "AclUpdateHelper" as AclUpdateHelper
+
+loggedInOrgAdmin -> frontend : add coach role for myself
+activate frontend
+frontend -> UserController : addCoachRoleToOrgAdmin(org_id)
+activate UserController
+UserController -> UserService : addCoachRoleToLoggedInUser(org_id) (Check user is org admin)
+activate UserService
+UserService -> AclUpdateHelper : add acl permission to user
+activate AclUpdateHelper
+deactivate AclUpdateHelper
+deactivate UserService
+deactivate UserController
+deactivate frontend
+
+@enduml
+```

@@ -1,0 +1,50 @@
+```plantuml
+@startuml
+abstract class Expression
+
+class Value {
+    - int value
+}
+
+class Addition {
+    - Expression& lhs
+    - Expression& rhs
+}
+
+class Multiplication {
+    - Expression& lhs
+    - Expression& rhs
+}
+
+class Printer {
+    - stringstream oss
+    + visit(Expression& expr)
+        if (auto de = dynamic_cast<Value&>(e))
+            oss << de.value
+        else if (auto ae = dynamic_cast<Addition&>(e))
+            visit(ae.left)
+            oss << "+"
+            visit(ae.right)
+        else if...
+}
+
+abstract class Visitor {
+    + visit(Expression& expr)
+}
+
+class Evaluator {
+    - int total
+    + visit(Expression& expr)
+}
+
+Expression <|-- Value
+Expression <|-- Addition
+Expression <|-- Multiplication
+Printer ..> Value
+Printer ..> Addition
+Printer ..> Multiplication
+Visitor <|-- Printer
+Visitor <|-- Evaluator
+
+@enduml
+```

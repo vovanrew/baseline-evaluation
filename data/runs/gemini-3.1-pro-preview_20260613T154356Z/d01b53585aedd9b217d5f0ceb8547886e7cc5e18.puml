@@ -1,0 +1,86 @@
+```plantuml
+@startuml
+title RqP - Request Resource
+
+actor "Requesting Party\n(RqP)" as RqP
+
+box "Client Application (CA)\n<<Custom Application>>" #LightGreen
+participant "User Interface" as UI
+end box
+
+box "Resource Server (RS)\n<<Custom Application>>" #Bisque
+participant "REST API" as RS_REST
+database "Resource" as RS_Resource
+database "Credential" as RS_Credential
+end box
+
+box "Authorization Server (AS)\nForgeRock Access Manager" #AntiqueWhite
+participant "AM API" as AS_AM
+participant "UMA API" as AS_UMA
+participant "OAuth API" as AS_OAuth
+end box
+
+box "Content Server (CS)\n<<Custom Application>>" #PaleTurquoise
+participant "REST API" as CS_REST
+database "Data" as CS_Data
+end box
+
+RqP -> AS_AM : Authenticate
+activate AS_AM
+AS_AM --> RqP : Authenticated
+deactivate AS_AM
+
+RqP -> UI : Access Interface
+activate UI
+
+UI -> UI : Obtain Resource Id\n(maybe from Discover Resources)
+UI -> RS_REST : GET /share/resources/{resourceId}\nscopes (no valid RPT)
+activate RS_REST
+
+RS_REST -> RS_Resource : Get _id
+activate RS_Resource
+RS_Resource --> RS_REST : meta data
+deactivate RS_Resource
+
+RS_REST -> AS_AM : Get PAT
+activate AS_AM
+AS_AM --> RS_REST : PAT
+deactivate AS_AM
+
+note left of RS_REST : Get permission ticket for the\nresource and scope
+RS_REST -> AS_UMA : POST /am/uma/permission_request\nresource_id + scopes
+activate AS_UMA
+AS_UMA --> RS_REST : permission ticket
+deactivate AS_UMA
+
+RS_REST --> UI : permission ticket + AS URI
+deactivate RS_REST
+
+UI -> UI : Get client auth basic
+
+note left of UI : Get claim token for the\nRequesting Party (RqP)
+UI -> AS_OAuth : POST /am/oauth2/access_token\nscope=openid\nSSO session
+activate AS_OAuth
+
+AS_OAuth -> AS_OAuth : Validate SSO session
+AS_OAuth --> UI : claim token
+deactivate AS_OAuth
+
+note left of UI : Get Requesting Party Token (RPT)\nusing the permission ticket\nand claim token
+UI -> AS_OAuth : POST /am/oauth2/access_token\ngrant_type=urn:ietf:params:oauth:grant-type:uma-ticket\nscope=..., ticket=..., claim_token=..., claim_token_format=...
+activate AS_OAuth
+
+AS_OAuth -> AS_AM : Check Access
+activate AS_AM
+AS_AM -> AS_AM : No Policy for RqP + Resource + scopes\nCreate Access Request for Resource Owner
+AS_AM --> AS_OAuth : No Access, request Submitted
+deactivate AS_AM
+
+AS_OAuth --> UI : Error: Request Submitted
+deactivate AS_OAuth
+
+UI --> RqP
+deactivate UI
+
+@enduml
+```

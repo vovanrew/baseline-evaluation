@@ -1,0 +1,105 @@
+```plantuml
+@startuml
+class Turno {
+    +numeroDeRonda: Int
+    +jugador: Jugador
+    +Jugador[] jugadores
+    +atacarAConEjercitos(paisDefensor: String, paisAtacante: String, ejercitos: Int)
+    +posicionarEnRelevos(pais: String, cantidad: Int): Int
+    -siguiente(): Int
+    -esUltimoDeLaRonda(): Boolean
+    -siguienteEnCola(): Jugador
+}
+
+class Juego {
+    +atacarAConEjercitos(paisDefensor: String, paisAtacante: String, ejercitos: Int)
+    +agregarJugador(nombreJugador: String, color: String)
+    +iniciarJuego()
+    +reagruparDeAEjercitos(paisInicial: String, paisFinal: String, cantidad: Int)
+    +posicionarEnRelevos(pais: String, cantidad: Int): void
+    +cargarJSONPaisesYContinentes(rutaArchivo: String): void
+    +iniciarRondaDeCarga(cantidadEjercitos: Int)
+    +repartirCartas(): void
+    +esNombreValido(nombreJugador: String): Boolean
+    +agregarALimitrofes(nombrePais: String, limitrofes: String[]): void
+    +agregarPaisesYContinentes(json: JSONArray): void
+    +cargarJSONCartasConSimbolos(): void
+}
+
+class Jugador {
+    +relevos: Int
+    +tirarDados(cantidadDeDados: Int): Int resultado[]
+    +obtenerPais(unNombrePais: String): Pais
+    +prepararCargaEjercitos(cantidadRelevos: Int)
+    +agregarPais(unPais: Pais)
+    +agregarObjetivo(objetivo: Objetivo)
+    +posicionarEnRelevos(pais: String, cantidad: Int): Boolean
+    +quitarPais(unPais: Pais): void
+}
+
+class Pais {
+    +cantidad: Int
+    +continente: String
+    +agregarLimitrofe(pais: Pais)
+    +esLimitrofe(unNombrePais: String): Bool
+    +sumarEjercitos(Int cantidad): void
+    +cantidadFichasParaDados(fichasMinimas: Int, fichasMaximas: Int)
+    +quitarFicha(): void
+    +agregarFicha(): void
+    +noTieneFichas(): Boolean
+    +coincideNombre(unNombre: String): Boolean
+}
+
+class Mapa {
+    +buscarPais(nombrePais: String): Pais
+    +agregarALimitrofe(unNombrePais: String, unPaisLimitrofe: String): void
+    +agregarPais(unPais: Pais): void
+    +distribuirPaises(jugadores[] jugadores): void
+}
+
+class Ronda {
+    +Jugador[] jugadores
+    +numeroDeRonda: Int
+    +turno: Turno
+    +atacarAConEjercitos(paisDefensor: String, paisAtacante: String, ejercitos: Int)
+    +posicionarEnRelevos(pais: String, cantidad: Int): Ronda
+}
+
+class RondaDeCarga {
+    +atacarAConEjercitos(paisDefensor: String, paisAtacante: String, ejercitos: Int)
+    +posicionarEnRelevos(pais: String, cantidad: Int): Ronda
+}
+
+class RondaDeAtaque {
+    +atacarAConEjercitos(paisDefensor: String, paisAtacante: String, ejercitos: Int)
+    +posicionarEnRelevos(pais: String, cantidad: Int): Ronda
+}
+
+Turno --|> Ronda : 1..*
+Juego --|> Ronda : 1..*
+Juego --> Jugador : 0..6
+Jugador --> Pais : 1
+Pais --> Mapa : 50
+Ronda <|-- RondaDeCarga
+Ronda <|-- RondaDeAtaque
+
+note "C" as C1
+note "C" as C2
+note "C" as C3
+note "C" as C4
+note "C" as C5
+note "A" as A1
+note "C" as C6
+note "C" as C7
+
+C1 .. Turno
+C2 .. Juego
+C3 .. Jugador
+C4 .. Pais
+C5 .. Mapa
+A1 .. Ronda
+C6 .. RondaDeCarga
+C7 .. RondaDeAtaque
+
+@enduml
+```

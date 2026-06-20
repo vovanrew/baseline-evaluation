@@ -1,0 +1,21 @@
+{
+  "id": "msg_01WaFZVTB1uvnuBvK2S68yGW",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle TCPClient::connectToServer(string ipAddress, int port)\n\nparticipant \"UC1\" as UC1\nparticipant \"TCPClient\" as TCP\nparticipant \"clientStructure\" as CS\n\nUC1 -> TCP : connectToServer(ipAddress, port)\n\nnote right of TCP : create a socket\n\nTCP -> TCP : socket_ = socket(AF_INET, SOCK_STREAM, 0);\n\nopt [socket_ == -1]\n  TCP --> UC1 : return -1 (socket create faild)\nend\n\nnote right of CS : objeckt of\\nsockaddr_in\n\nTCP -> CS : clientStructure()\n\nTCP -> TCP : clientStructure.sin_family = AF_INET;\n\nTCP -> TCP : clientStructure.sin_port = htons(port);\n\nnote right of TCP : linking ipAddress to clientstructure\\nusing AF_INET standart\n\nTCP -> TCP : inet_pton(AF_INET, ipAddress.c_str(),\\n&clientStructure.sin_addr);\n\nTCP -> TCP : connectRes = connect(socket_, (sockaddr*)&clientStructure,\\nsizeof(clientStructure));\n\nopt [connectRes == -1]\n  TCP --> UC1 : return -1 (faild to connect)\nend\n\ndestroy CS\n\nTCP --> UC1 : return 0 (connected)\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781369644,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 326,
+    "prompt_tokens": 1656,
+    "total_tokens": 1982
+  }
+}

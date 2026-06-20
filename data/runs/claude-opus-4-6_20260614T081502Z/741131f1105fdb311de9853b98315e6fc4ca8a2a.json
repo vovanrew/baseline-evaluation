@@ -1,0 +1,21 @@
+{
+  "id": "msg_0166MJBzaqp2ZsBHqjJctkdH",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nactor Client\n\nparticipant \"RegisterClientUI\" as RegisterClientUI\nparticipant \"RegisterClientController\" as RegisterClientController\nparticipant \"app\\n:ApplicationPOT\" as app\nparticipant \"clientService\\n:ClientService\" as clientService\nparticipant \"clientDB\\n:ClientDB\" as clientDB\nparticipant \"client\\n:Client\" as client\nparticipant \"user\\n:User\" as user\nparticipant \"EncryptPassword\" as EncryptPassword\nparticipant \"Address\" as Address\nparticipant \"CreditCard\" as CreditCard\nparticipant \"EmailSender\" as EmailSender\nparticipant \"DataHandler\" as DataHandler\n\nClient -> RegisterClientUI : 1 Engages the register feature/button\n\nRegisterClientUI --> Client : 2 Asks for all the information required\\nfor the register (i.e., name,nif,email,password,latitude,longitude,altitude,\\nstreetName,doorNumber,postalCode,locality,country,creditCardNr,validityDate,\\nCCV)\n\nClient -> RegisterClientUI : 3 Fills all the information required\n\nRegisterClientUI --> Client : 4 Presents the data and asks for a confirmation\n\nClient -> RegisterClientUI : 5 Confirms\n\nRegisterClientUI -> RegisterClientController : 6 registerNewClient(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)\n\nRegisterClientController -> app : 7 create()\n\napp -> clientService : 8 create()\napp -> clientDB\n\nRegisterClientController -> clientService : 9 validateInput(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)\n\nalt [if all the information given as input has a valid format]\n\nRegisterClientController -> clientService : 10 newClient(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)\n\nclientService -> client **: 11 create(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)\n\nclient -> user **: 12 create(email,password,nif,name)\n\nuser -> EncryptPassword : 13 encryptPasswordMD5(password)\n\nclient -> Address **: 14 create(latitude,longitude,altitude,streetName,doorNumber,postalCode,locality,country)\n\nclient -> CreditCard **: 15 create(creditCardNr,validityDate,CCV)\n\nRegisterClientController -> clientService : 16 registerNewClient(client)\n\nclientService -> clientDB : 17 addClientToDB(client)\n\nref over clientDB\nSD_CONNECTIONS\nend ref\n\nclientDB -> DataHandler : 18 sendEmail(email,subject,body)\n\nRegisterClientUI --> Client : 19 Validates and informs about the success of the operation\n\nelse [if any information does not have a valid format]\n\nRegisterClientUI --> Client : 20 Informs the User that the operation\\nwas not successful\n\nend\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781431742,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 783,
+    "prompt_tokens": 1272,
+    "total_tokens": 2055
+  }
+}

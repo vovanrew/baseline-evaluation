@@ -1,0 +1,51 @@
+@startuml
+actor User
+
+participant CellEditor
+participant Address
+participant Controller
+participant Cell
+participant CellImpl
+participant FormulaCompiler
+participant ExcelExpressionCompiler
+participant ANTLRStringStream
+participant FormulaLexer
+participant CommonTokenStream
+participant FormulaParser
+participant Expression
+participant Formula
+
+note over User, CellEditor : Inputs block of instructions
+
+User -> CellEditor : address = getAddress()
+User -> CellEditor : cell = getCell(address)
+CellEditor -> Controller : setContent(content)
+User -> Controller : setContent(content)
+Controller -> CellImpl : setContent(content)
+CellImpl -> CellImpl : storeContent(content)
+CellImpl -> FormulaCompiler : compile(cell, content)
+FormulaCompiler -> ExcelExpressionCompiler : compile(cell, content)
+ExcelExpressionCompiler -> ANTLRStringStream : input = create(source)
+ANTLRStringStream --> ExcelExpressionCompiler
+ExcelExpressionCompiler -> FormulaLexer : lexer = create(input)
+FormulaLexer --> ExcelExpressionCompiler
+ExcelExpressionCompiler -> CommonTokenStream : tokens = create(lexer)
+CommonTokenStream --> ExcelExpressionCompiler
+ExcelExpressionCompiler -> FormulaParser : parser = create(tokens)
+FormulaParser --> ExcelExpressionCompiler
+ExcelExpressionCompiler -> FormulaParser : tree = parser.expression()
+FormulaParser --> ExcelExpressionCompiler
+ExcelExpressionCompiler -> Expression : create()
+Expression --> ExcelExpressionCompiler
+ExcelExpressionCompiler -> Expression : expression = convert(cell, tree)
+Expression --> ExcelExpressionCompiler
+ExcelExpressionCompiler --> FormulaCompiler : expression
+FormulaCompiler -> Formula : formula = create(cell, expression)
+Formula --> FormulaCompiler
+FormulaCompiler --> CellImpl : formula
+CellImpl -> CellEditor : show()
+
+note over User : Result
+User <- CellEditor
+
+@enduml

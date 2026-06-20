@@ -1,0 +1,53 @@
+```plantuml
+@startuml
+title create order sequence diagram
+
+actor Customer
+actor Cashier
+participant ":Inventory System" as InventorySystem
+participant ":Order" as Order
+participant ":Product" as Product
+participant ":Stock" as Stock
+participant ":Invoice" as Invoice
+participant ":Transaction" as Transaction
+
+Customer -> Cashier : 1. Request order product
+activate Cashier
+Cashier -->> Customer : 2. Receive order
+deactivate Cashier
+
+Cashier -> InventorySystem : 3. requestCreateOrder()
+activate InventorySystem
+InventorySystem -> Product : 3.1 selectProduct()
+activate Product
+Product -> Stock : 3.2 checkStock()
+activate Stock
+Stock --> Product : 3.3 return stock
+deactivate Stock
+Product --> InventorySystem : 3.4 return product
+deactivate Product
+
+alt F (stock.qty > order.qty)
+    InventorySystem -> Order : 3.5 createOrder(order)
+    activate Order
+    Order -> Stock : 3.6 updateStock()
+    activate Stock
+    Stock --> InventorySystem : 3.7 return update stock
+    deactive Stock
+    Order -> Invoice : 3.8 systemCreateInvoice()
+    activate Invoice
+    Invoice -> Invoice : 3.9 printInvoice()
+    Invoice --> InventorySystem : 3.10 return invoice
+    deactivate Invoice
+    Order --> InventorySystem : 3.11 return order
+    deactivate Order
+else
+    Order --> InventorySystem : 3.12 can't create order
+end
+
+InventorySystem --> Cashier : 4. response create order status
+deactivate InventorySystem
+
+Cashier -->> Customer : 5. Invoice
+@enduml
+```

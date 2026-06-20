@@ -1,0 +1,22 @@
+{
+  "id": "433a1793-54e7-44ef-888b-31564b5c501f",
+  "object": "chat.completion",
+  "created": 1781408097,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle TCPClient::connectToServer(string ipAddress, int port)\n\nparticipant \"UC1\" as UC1\nparticipant \"TCPClient\" as TCPClient\nparticipant \"clientStructure\" as clientStructure\n\nactivate TCPClient\n\nTCPClient -> TCPClient : create a socket\nTCPClient -> TCPClient : socket_ = socket(AF_INET, SOCK_STREAM, 0);\n\nopt [socket_ == -1]\n  TCPClient --> UC1 : return -1 (socket create faild)\n  deactivate TCPClient\n  return\nend\n\nTCPClient -> clientStructure : clientStructure()\n\nTCPClient -> TCPClient : clientStructure.sin_family = AF_INET;\nTCPClient -> TCPClient : clientStructure.sin_port = htons(port);\n\nnote right of TCPClient\n  linking ipAddress to clientstructure\n  using AF_INET standart\nend note\n\nTCPClient -> TCPClient : inet_pton(AF_INET, ipAddress.c_str(), &clientStructure.sin_addr);\n\nTCPClient -> TCPClient : connectRes = connect(socket_, (sockaddr*)&clientStructure, sizeof(clientStructure));\n\nopt [connectRes == -1]\n  TCPClient --> UC1 : return -1 (faild to connect)\n  deactivate TCPClient\n  return\nend\n\nTCPClient --> UC1 : return 0 (connected)\n\ndeactivate TCPClient\ndeactivate clientStructure\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2448,
+    "completion_tokens": 286,
+    "total_tokens": 2734
+  }
+}

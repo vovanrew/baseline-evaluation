@@ -1,0 +1,43 @@
+@startuml
+title Login Sequence GET
+
+skinparam backgroundColor white
+skinparam sequence {
+  ParticipantPadding 30
+  BoxPadding 20
+  LifeLineBorderColor #666666
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor transparent
+  MessageAlign left
+}
+skinparam participant {
+  BackgroundColor #E6E6FA
+  BorderColor #666666
+  FontColor black
+}
+skinparam actor {
+  BorderColor #666666
+  FontColor black
+}
+
+actor customer
+participant Tomcat
+
+box "entries (UI)" #DDDDDD
+participant Index
+participant BaseServlet
+participant "index.jsp" as index_jsp
+participant Login
+participant "login.jsp" as login_jsp
+end box
+
+customer -> Tomcat : 1 GET /
+Tomcat -> Index : 2 doGet()
+Index -> BaseServlet : 3 render()
+BaseServlet -> index_jsp : 4 forward()
+index_jsp -> Login : 5 doGet()
+Login -> BaseServlet : 6 render()
+BaseServlet -> login_jsp : 7 forward()
+Tomcat <-- customer : 8 result
+
+@enduml

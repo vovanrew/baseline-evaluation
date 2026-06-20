@@ -1,0 +1,21 @@
+{
+  "id": "msg_01TS78UFyhzr2uEMLyfLcmtv",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"Requester\" as Requester\nparticipant \"PageLocsMgr\" as PageLocsMgr\nparticipant \"MgrQueue\" as MgrQueue <<thread>>\nparticipant \"StateTask\" as StateTask\nparticipant \"StateQueue\" as StateQueue <<thread>>\nparticipant \"RetrieveQueue\" as RetrieveQueue <<thread>>\nparticipant \"RetrieverTask\" as RetrieverTask\n\nRequester -> RetrieverTask : Startup\nRequester -> StateTask : Startup\nRequester -> StateTask : start(doc, first_item, item_count)\n\nnote over StateTask : The document retrieval\\noptimizes the order of\\nthe items considering\\nhow the user interacts.\n\nStateTask -> MgrQueue : start_document(...)\n\nloop [All Items]\n    StateTask -> RetrieveQueue : retrieve(item)\n    RetrieveQueue -> RetrieverTask : retrieve(item)\n    ref over RetrieverTask : do item\n    RetrieverTask -> RetrieveQueue : item_retrieved(item)\n    RetrieveQueue -> StateTask : item_retrieved(item)\nend\n\n== Item already known ==\n\nRequester -> PageLocsMgr : get_page_loc(item, offset)\nPageLocsMgr -> Requester : got_it(start_offset, size)\n\n== Item needs to be retrieved (no yet in the list) ==\n\nRequester -> PageLocsMgr : get_page_loc(item, offset)\nPageLocsMgr -> MgrQueue : retrieve_asap(item)\nMgrQueue -> StateTask : retrieve_asap(item)\nStateTask -> RetrieveQueue : retrieve(item)\nRetrieveQueue -> RetrieverTask : retrieve(item)\nref over RetrieverTask : do item\nRetrieverTask -> RetrieveQueue : item_retrieved(item)\nRetrieveQueue -> StateTask : item_retrieved(item)\nStateTask -> MgrQueue : got_asap(item)\nMgrQueue -> PageLocsMgr : got_asap(item)\nPageLocsMgr -> Requester : got_it(start_offset, size)\nStateTask -> MgrQueue : end_document()\nMgrQueue -> PageLocsMgr : end_document()\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371886,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 549,
+    "prompt_tokens": 1654,
+    "total_tokens": 2203
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01KKhar2RuHJTVM4jAoddJkH",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\npackage \"security\" {\n  package \"auth\" {\n    class \"@Roles\" as Roles {\n    }\n    class \"type Role = 'ADMIN' | 'MITARBEITER' | 'KUNDE'\" as RoleType {\n    }\n    Roles --> RoleType\n  }\n}\n\npackage \"auto\" {\n  package \"entity\" {\n    class \"Auto\" as Auto <<entity>> {\n    }\n  }\n\n  package \"rest\" {\n    class \"AutoWriteController\" as AutoWriteController <<control>> <<@Controller()>> <<@UseGuards()>> <<@UseInterceptors()>> {\n      + @Post() @Roles() async create(@Body() auto: Auto, @Req() req: Request, @Res() res: Response): Promise<Response>\n      + @Put() @Roles() async update(@Body() auto: Auto, @Param() id: string, @Headers() version: string, @Res() res: Response): Promise<Response>\n      + @Delete() @Roles() async delete(@Param() id: string, @Res() res: Response): Promise<Response>\n    }\n\n    package \"service\" {\n      class \"AutoWriteService\" as AutoWriteService <<control>> {\n      }\n      class \"AutoReadService\" as AutoReadService <<control>> {\n      }\n    }\n\n    AutoWriteController --> AutoWriteService : service\n    AutoWriteController --> AutoReadService : readService\n  }\n}\n\ninterface \"Promise\" as Promise <<T>> {\n}\n\npackage \"express\" {\n  class \"Request\" as Request {\n  }\n  class \"Response\" as Response {\n  }\n}\n\npackage \"@nestjs/common\" {\n  class \"@Controller\" as NestController {\n  }\n  class \"@UseGuards\" as NestUseGuards {\n  }\n  class \"@UseInterceptors\" as NestUseInterceptors {\n  }\n  class \"@Post\" as NestPost {\n  }\n  class \"@Put\" as NestPut {\n  }\n  class \"@Delete\" as NestDelete {\n  }\n  class \"@Req\" as NestReq {\n  }\n  class \"@Res\" as NestRes {\n  }\n  class \"@Param\" as NestParam {\n  }\n  class \"@Body\" as NestBody {\n  }\n  class \"@Headers\" as NestHeaders {\n  }\n}\n\nAutoWriteController ..|> Promise\nAutoWriteController ..> Request\nAutoWriteController ..> Response\nAutoWriteController ..> NestController\nAutoWriteController ..> NestUseGuards\nAutoWriteController ..> NestUseInterceptors\nAutoWriteController ..> NestPost\nAutoWriteController ..> NestPut\nAutoWriteController ..> NestDelete\nAutoWriteController ..> NestReq\nAutoWriteController ..> NestRes\nAutoWriteController ..> NestParam\nAutoWriteController ..> NestBody\nAutoWriteController ..> NestHeaders\nAutoWriteController ..> Auto\n\nAutoWriteService ..> Roles\nAutoReadService ..> RoleType\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781367551,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 760,
+    "prompt_tokens": 1644,
+    "total_tokens": 2404
+  }
+}

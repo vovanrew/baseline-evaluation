@@ -1,0 +1,21 @@
+{
+  "id": "msg_01N5MCndRN6duSxYRKycQhvr",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Project - Staff - Update\n\nparticipant \"Client\" as Client #salmon\nparticipant \"ProjectService\" as ProjectService #salmon\nparticipant \"RedisCache\" as RedisCache #salmon\nparticipant \"Kafka\" as Kafka #salmon\nparticipant \"PersisterService\" as PersisterService #salmon\nparticipant \"IndexerService\" as IndexerService #salmon\nparticipant \"ErrorService\" as ErrorService #salmon\nparticipant \"ElasticSearch\" as ElasticSearch #salmon\ndatabase \"Database\" as Database\n\nClient -> ProjectService: /project/staff/v1/_update\nProjectService -> ProjectService: Validate request body\nProjectService --> ProjectService: \n\nalt [request validation fails]\n    ProjectService -> ProjectService: Request validation failed\n    ProjectService --> ProjectService: \n    ProjectService -> Client: HttpStatus: 400 with appropriate error code\n    note left of Client: Error Code: REQUEST_VALIDATION_FAILED\nend\n\nProjectService -> ProjectService: Request validation successful\nProjectService --> ProjectService: \n\nalt [record doesn't exist]\n    ProjectService -> RedisCache: Search record based on serverGeneratedId\n    RedisCache --> ProjectService: 0 rows\n    ProjectService -> Database: Search record based on serverGeneratedId\n    Database --> ProjectService: 0 row\n    ProjectService -> Client: HttpStatus: 400 with appropriate error code\n    note left of Client: Error Code: RECORD_NOT_FOUND\nend\n\nalt [record doesn't exists in cache]\n    ProjectService -> RedisCache: Search record based on serverGeneratedId\n    RedisCache --> ProjectService: 0 rows\n    ProjectService -> Database: Search record based on serverGeneratedId\n    Database --> ProjectService: 1 row\n    ProjectService -> RedisCache: 1 record\n    RedisCache --> ProjectService: \nend\n\nProjectService -> RedisCache: Fetch the existing record\nRedisCache --> ProjectService: 1 row\n\nalt [incorrect rowVersion]\n    ProjectService -> ProjectService: Compare rowVersion between request and db\n    ProjectService --> ProjectService: \n    ProjectService -> ProjectService: Incorrect rowVersion [request: should be +1 only]\n    ProjectService --> ProjectService: \n    ProjectService -> Client: HttpStatus: 400 with appropriate error code\n    note left of Client: Error Code: BAD_REQUEST\nend\n\nProjectService -> ProjectService: Compare rowVersion between request and db\nProjectService --> ProjectService: \nProjectService -> ProjectService: rowVersion in request = rowVersion in db + 1\nProjectService --> ProjectService: \nProjectService -> Kafka: Project Staff Data /update_topic\nProjectService -> RedisCache: Update new record in cache against serverGeneratedId\nRedisCache --> ProjectService: \n\nProjectService -> Client: HttpStatus: 202 ACCEPTED\n\ngroup async\n    Kafka -> PersisterService: Consume Project Staff Data\n    Kafka -> IndexerService: Consume Project Staff Data\n    PersisterService -> Database: Store Project Staff Data\n    Database --> PersisterService: \n    IndexerService -> ElasticSearch: Update Project Staff Data\nend\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781372354,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 726,
+    "prompt_tokens": 1636,
+    "total_tokens": 2362
+  }
+}

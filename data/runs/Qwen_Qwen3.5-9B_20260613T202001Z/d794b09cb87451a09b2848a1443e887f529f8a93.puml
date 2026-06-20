@@ -1,0 +1,105 @@
+@startuml
+left to right direction
+skinparam sequenceMessageAlign center
+skinparam note {
+  BackgroundColor #FFFFE0
+  BorderColor #FFD700
+}
+
+title [組織_プロジェクト遅延削除]
+
+participant "«lambda» タスクコントローラ" as taskController
+participant "«lambda» プロジェクト削除バッチ" as projectBatch
+participant "«sqs» 組織タスクキュー" as taskQueue
+participant "«dynamodb» 組織タスク" as orgTask
+participant "«dynamodb» プロジェクト" as project
+participant "«dynamodb» AWSアカウント連携" as awsAccount
+participant "«dynamodb» レポート" as report
+participant "«dynamodb» レポートジョブ履歴" as reportJobHistory
+participant "«s3» レポートストレージ" as reportStorage
+
+taskController -> projectBatch: invoke (InvocationType='Event')
+activate projectBatch
+
+note right of projectBatch
+  タスクID、メッセージのメッセージIDと受信ハンドルを渡す
+end note
+
+projectBatch -> orgTask: query
+note right of orgTask
+  タスクIDをキーとしてタスク情報を取得
+end note
+
+alt [ステータス=0（待機中）]
+  projectBatch -> orgTask: 更新
+  note right of orgTask
+    タスクのステータスを1（実行中）に更新（更新条件：ステータスが0）
+  end note
+  orgTask --> projectBatch: ...
+else [ステータス=1（実行中）]
+  note right of projectBatch
+    処理終了
+  end note
+else [ステータス=2（完了）]
+  note right of projectBatch
+    処理終了
+  end note
+else [ステータス=-1（エラー）、かつリトライ回数=最大リトライ回数]
+  note right of projectBatch
+    処理終了
+  end note
+else [ステータス=-1（エラー）、かつリトライ回数<最大リトライ回数]
+  projectBatch -> orgTask: 更新
+  note right of orgTask
+    タスクのステータスを1（実行中）、リトライ回数+1に更新（更新条件：ステータスが-1）
+  end note
+  orgTask --> projectBatch: ...
+end
+
+deactivate projectBatch
+
+projectBatch -> projectBatch: タスク情報から処理対象（プロジェクトID）を取得
+
+alt [削除処理成功]
+  projectBatch -> projectBatch: プロジェクト削除処理
+  activate projectBatch
+
+  projectBatch -> awsAccount: レコード削除
+  note right of awsAccount
+    親プロジェクトがプロジェクトIDに該当するAWSアカウント連携を削除
+  end note
+  awsAccount --> projectBatch: ...
+
+  projectBatch -> report: query
+  note right of report
+    親プロジェクトがプロジェクトIDに該当するレポート情報を取得
+  end note
+  report --> projectBatch: ...
+
+  loop [レポート数]
+    projectBatch -> projectBatch: レポートIDを取得
+    projectBatch -> report: レポート情報を削除
+    report --> projectBatch: ...
+  end
+
+  ref "レポート削除処理"
+
+  projectBatch -> orgTask: 更新
+  note right of orgTask
+    タスクのステータスを2（完了）に更新（更新条件：ステータスが1）
+  end note
+  orgTask --> projectBatch: ...
+
+  projectBatch -> taskQueue: 処理済みのメッセージを削除
+  taskQueue --> projectBatch: ...
+
+  deactivate projectBatch
+else [削除処理エラー]
+  projectBatch -> orgTask: 更新
+  note right of orgTask
+    タスクのステータスを-1（エラー）に更新（更新条件：ステータスが1）
+  end note
+  orgTask --> projectBatch: ...
+end
+
+@enduml

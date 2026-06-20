@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLn7uukD254ptpNxWk39WRhkDBbd",
+  "object": "chat.completion",
+  "created": 1781369193,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #000000\n  LifeLineBorderColor #999999\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #999999\n  ParticipantBackgroundColor #EEEEEE\n  BoxBorderColor #666666\n  BoxBackgroundColor #FFFFFF\n}\n\nparticipant FragmentVideoChat as FVC\nparticipant LicodeConnector as LC\nparticipant PeerConnectionFactory as PCF\nparticipant RoomObserver as RO\nparticipant MediaStream as MS\nparticipant PeerConnection as PC\nparticipant StreamDescription as SD\nparticipant LicodeSdpObserver as LSO\nparticipant LicodeServer as LS\nparticipant SocketIOClient as SIO\n\n== Init ==\nFVC -> LC : init\nLC -> PCF : initializeAndroidGlobals\nFVC -> LC : addObserver(RoomObserver)\n\n== Publish ==\nFVC -> FVC : startCastView.onClick\nFVC -> LC : requestPublish\nLC -> LC : triggerPublishAllowed\nLC --> FVC : onPublishAllowed\nFVC -> FVC : startPublish\nFVC -> FVC : makeVideoView\nFVC -> LC : publish(VideoStreamsView)\nLC -> LC : doPublish\n\n== Publish - create media ==\nLC -> PCF : createLocalMediaStream\nLC <-- PCF : createMediaConstraints\nLC -> PCF : getVideoCapturer\nLC -> PCF : createVideoSource(VideoCapturer, MediaConstraints)\nLC -> PCF : createVideoTrack(String, VideoSource)\nLC -> LC : addTrack\nLC -> PCF : createAudioSource(MediaConstraints)\nLC -> PCF : createAudioTrack(String, AudioSource)\nLC -> LC : addTrack\n\n== Publish - create offer ==\nLC <-- LC : makePcConstraints\nLC <-- LC : create MyPcObserver\nLC -> PCF : createPeerConnection(List<LicodeServer>, MediaConstraints, Observer)\nLC -> MS : addStream(MediaStream, MediaConstraints)\nLC -> MS : setMedia\nLC -> MS : attachRenderer\nLC -> MS : initLocal(PeerConnection, SdpObserver)\n\nPC -> LSO : createOffer\nLSO --> PC : onCreateSuccess\nPC -> SD : setLocalDescription\nSD --> PC : onSetSuccess\nPC -> LS : sendLocalDescription\nLS <-- PC : sendSDPSocket(\"publish\")\nLS -> SIO : publish\nSIO --> LS : publish success\nLS -> PC : setRemoteDescription\n\n== Subscribe ==\n== Subscribe - token ==\nFVC -> LC : startVideoChat\nFVC -> LC : createToken\nFVC -> LC : load\nFVC -> LC : load Balance\nLC --> FVC : createToken success\nFVC -> LC : connect\nLC -> LC : createToken\nLC -> LC : decodeToken\nLC -> LS : connect to server\nLS -> SIO : socket\nSIO --> LC : onConnectCompleted\n\n== Subscribe - listen socket events ==\nLC -> LC : listen events\\nonAddStream\\nonSubscribeP2P\\nonPublishP2P\\nonDataStream\\nonRemoveStream\\ndisconnect\nLC -> SIO : sendMessageSocket(\"token\")\nSIO --> LC : token success\nLC --> FVC : onRoomConnected\nFVC -> LC : setBandwidthLimits\n\nalt has streams\n  LC -> LC : triggerStreamAdded\n  LC --> FVC : onAddStream\n  LC -> LC : triggerStreamAdded\nend\n\nFVC --> LC : onStreamAdded\nFVC -> LC : subscribe\nLC -> LC : doSubscribe\nLC -> LC : triggerMediaAvailable\nLC --> FVC : onStreamMediaAvailable\nFVC -> FVC : makeVideoView\nFVC -> LC : attachRenderer\n\nLC -> MS : attachRenderer\nLC <-- LC : create MyPcObserver\nLC -> PCF : createPeerConnection\nLC -> MS : initRemote(PeerConnection, SdpObserver)\n\nPC -> LSO : createOffer\nLSO --> PC : onCreateSuccess\nPC -> SD : setLocalDescription\nSD --> PC : onSetSuccess\nPC -> LS : sendLocalDescription\nLS <-- PC : sendSDPSocket(\"subscribe\")\nLS -> SIO : subscribe success\nLS -> PC : setRemoteDescription\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1849,
+    "completion_tokens": 886,
+    "total_tokens": 2735,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

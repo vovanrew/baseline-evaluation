@@ -1,0 +1,45 @@
+```plantuml
+@startuml
+skinparam componentStyle rectangle
+
+participant "browser" as browser
+participant "listener" as listener
+participant "sequence_1" as sequence_1
+participant "http_inbound_travelocity" as http_inbound_travelocity
+participant "OIDC_IdP" as OIDC_IdP
+participant "http_inbound_commonauth" as http_inbound_commonauth
+participant "sequence_2" as sequence_2
+
+browser -> listener : SAML login request
+activate listener
+listener -> sequence_1 : SAML login request
+activate sequence_1
+browser -> http_inbound_travelocity : SAML login request
+activate http_inbound_travelocity
+http_inbound_travelocity -> sequence_1 : request
+activate sequence_1
+note right of sequence_1: SAML request process
+note right of sequence_1: OIDC request build
+sequence_1 -> http_inbound_travelocity : Redirect to IDP
+deactivate sequence_1
+http_inbound_travelocity -> browser : Redirect to IDP
+deactivate http_inbound_travelocity
+browser -> OIDC_IdP : Redirect to IDP
+activate OIDC_IdP
+OIDC_IdP -> browser : login page
+browser -> OIDC_IdP : Submit credentials
+OIDC_IdP -> http_inbound_commonauth : ID token
+activate http_inbound_commonauth
+http_inbound_commonauth -> sequence_2 : ID token
+activate sequence_2
+note right of sequence_2: OIDC response process
+note right of sequence_2: SAML response build
+sequence_2 -> http_inbound_commonauth : SAML response
+deactivate sequence_2
+http_inbound_commonauth -> browser : SAML response
+deactivate http_inbound_commonauth
+deactivate OIDC_IdP
+deactivate listener
+
+@enduml
+```

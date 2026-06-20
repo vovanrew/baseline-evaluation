@@ -1,0 +1,45 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle User getUsers\n\nboundary API_Gateway\ncontrol UserRouter\ncontrol Middleware\ncontrol UserController\ndatabase UserDB\n\nactivate API_Gateway\nAPI_Gateway -> UserRouter : getUsers(token)\nactivate UserRouter\nUserRouter -> Middleware : withAuth(token)\nactivate Middleware\n\nalt [!token]\n    Middleware -> UserRouter : 'Unauthorized: No token provided (401)'\n    UserRouter -> API_Gateway : 'Unauthorized: No token provided (401)'\nelse\n    Middleware -> Middleware : jwt.verify(token)\n    alt [token != valid]\n        Middleware -> UserRouter : 'Unauthorized: Invalid token (401)'\n        UserRouter -> API_Gateway : 'Unauthorized: Invalid token (401)'\n    else\n        Middleware -> UserRouter : Token Valid\n        deactivate Middleware\n        UserRouter -> UserController : getUsers()\n        activate UserController\n        UserController -> UserDB : find()\n        activate UserDB\n        UserDB -> UserController : users[]\n        deactivate UserDB\n        \n        alt [users.length == 0]\n            UserController -> UserRouter : 'User not found 404'\n            UserRouter -> API_Gateway : 'User not found 404'\n        else\n            UserController -> UserRouter : return(res.status(200), users)\n            UserRouter -> API_Gateway : return(res.status(200), users)\n        end\n        deactivate UserController\n    end\nend\ndeactivate UserRouter\ndeactivate API_Gateway\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHP+CVhvNqjJsOGK+sWbNnxR7kgvlY+W8ru3ZHRPhGPkhDiLJxn8MU1RalymSl"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "citationMetadata": {
+        "citationSources": [
+          {
+            "startIndex": 13,
+            "endIndex": 1346,
+            "uri": "https://github.com/Xiirf/FIS-Backend-Login",
+            "license": ""
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1153,
+    "candidatesTokenCount": 346,
+    "totalTokenCount": 1499,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1073
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "XFkyateBHYrPvdIP7de3qQQ"
+}

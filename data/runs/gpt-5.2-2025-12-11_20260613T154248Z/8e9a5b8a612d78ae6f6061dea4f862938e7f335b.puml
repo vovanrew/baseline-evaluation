@@ -1,0 +1,65 @@
+```plantuml
+@startuml
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam packageBorderColor #000000
+skinparam packageBackgroundColor #FFFFFF
+skinparam classBackgroundColor #F7F7F7
+skinparam classBorderColor #777777
+skinparam classAttributeIconSize 0
+
+left to right direction
+
+package "otherservice" as otherservice {
+  class "SmartValueTargetServiceContracts" as SmartValueTargetServiceContracts
+}
+
+package "billing" as billing {
+
+  class "TotalFee" as TotalFee
+
+  package "discount" as discount {
+    class "DiscountFee" as DiscountFee
+    class "DiscountService" as DiscountService
+    class "ContractForDiscount" as ContractForDiscount
+  }
+
+  package "contract" as contract {
+    class "ContractFee" as ContractFee
+    class "ContractForCharge\nDataMax5GPLan" as ContractForCharge
+  }
+}
+
+package "contractmanage" as contractmanage {
+  class "FamilyContracts" as FamilyContracts
+  class "Contract" as Contract
+  interface "ContractRepository" as ContractRepository
+}
+
+package "plan" as plan {
+  class "Plan" as Plan
+}
+
+' Relationships
+DiscountService --> SmartValueTargetServiceContracts
+
+TotalFee --> DiscountFee
+TotalFee --> ContractFee
+
+DiscountService --> DiscountFee
+DiscountService --> ContractForDiscount
+
+ContractForCharge --> ContractFee
+
+ContractRepository --> FamilyContracts
+ContractRepository --> Contract
+
+DiscountService --> FamilyContracts
+ContractForDiscount --> Contract
+ContractForCharge --> Contract
+
+Contract --> Plan
+ContractForCharge --> Plan
+
+@enduml
+```

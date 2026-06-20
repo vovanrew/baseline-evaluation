@@ -1,0 +1,38 @@
+@startuml
+actor DefaultMQProducerImpl
+participant Validators
+participant MQClientManager
+participant MQClientInstance
+participant MQClientAPIImpl
+participant PullMessageService
+participant RebalanceService
+
+note left of DefaultMQProducerImpl: start
+
+DefaultMQProducerImpl -> Validators: checkConfig
+Validators --> DefaultMQProducerImpl: result
+
+DefaultMQProducerImpl -> MQClientManager: getInstance
+activate MQClientManager
+MQClientManager -> MQClientManager: getAndCreateMQClientInstance
+MQClientManager -> MQClientInstance: new
+deactivate MQClientManager
+
+MQClientManager --> DefaultMQProducerImpl: mQClientFactory: MQClientInstance
+
+DefaultMQProducerImpl -> MQClientInstance: registerProducer
+
+DefaultMQProducerImpl -> MQClientInstance: start
+activate MQClientInstance
+MQClientInstance -> MQClientAPIImpl: start
+MQClientInstance -> MQClientInstance: startScheduledTask
+MQClientInstance -> PullMessageService: start
+MQClientInstance -> RebalanceService: start
+deactivate MQClientInstance
+
+MQClientInstance --> DefaultMQProducerImpl: start
+
+DefaultMQProducerImpl -> MQClientInstance: sendHeartbeatToAllBrokerWithLock
+
+== start 结束 ==
+@enduml

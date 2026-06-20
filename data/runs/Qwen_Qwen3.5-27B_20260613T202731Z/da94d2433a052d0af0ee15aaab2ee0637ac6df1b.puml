@@ -1,0 +1,32 @@
+```plantuml
+@startuml
+autonumber
+
+participant "Test" as Test
+participant "GrpcClient" as GrpcClient
+participant "Front" as Front
+participant "Edge" as Edge
+participant "HttpToGrpcMock" as HttpToGrpcMock
+
+Test -> Front : POST /send/post
+Test --> GrpcClient : instruct to wait for /external/call
+Front -> Edge : Internal communication
+Edge -> HttpToGrpcMock : http
+note right of HttpToGrpcMock: Thinks is calling actual\nexternal service
+HttpToGrpcMock -> GrpcClient : grpc
+note right of HttpToGrpcMock: Info about received request\nis forwarded to tests
+GrpcClient -> Test : Assert request
+activate Test
+deactivate Test
+Test -> GrpcClient : Mocked response
+GrpcClient -> HttpToGrpcMock : 
+HttpToGrpcMock -->> Edge : http
+Edge -->> Front : 
+note bottom of Front: Responding back front may not be necessary in most cases.\nMaybe it would be database update or something like that
+Front -->> Test : Resolve /send/post promise
+Test -> Test : Assert response
+activate Test
+deactivate Test
+
+@enduml
+```

@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLsDee5zpnu8DFKsA0n60r5IhV6t",
+  "object": "chat.completion",
+  "created": 1781369509,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle RqP - Request Resource\n\nhide footbox\nskinparam shadowing false\nskinparam sequenceMessageAlign left\nskinparam ParticipantPadding 25\nskinparam BoxPadding 15\nskinparam NoteBackgroundColor #FFF9C4\nskinparam NoteBorderColor #999999\n\nactor \"Requesting Party\\n(RqP)\" as RqP\n\nbox \"Client Application (CA)\\n<<Custom Application>>\" #98FB98\nparticipant \"User Interface\" as UI\nend box\n\nbox \"Resource Server (RS)\\n<<Custom Application>>\" #FAD7B5\nparticipant \"REST API\" as RS_REST\ndatabase \"Resource\" as RS_Resource\ndatabase \"Credential\" as RS_Credential\nend box\n\nbox \"Authorization Server (AS)\\nForgeRock Access Manager\" #F7E7D3\nparticipant \"AM API\" as AM_API\nparticipant \"UMA API\" as UMA_API\nparticipant \"OAuth API\" as OAUTH_API\nend box\n\nbox \"Content Server (CS)\\n<<Custom Application>>\" #AEEEEE\nparticipant \"REST API\" as CS_REST\ndatabase \"Data\" as CS_Data\nend box\n\nRqP -> UI : Authenticate\nUI --> RqP : Authenticated\nRqP -> UI : Access Interface\n\nactivate UI\nUI -> UI : Obtain Resource Id\\n(maybe from Discover Resources)\nUI -> RS_REST : GET /share/resources/{resourceId}\\nscopes (no valid RPT)\ndeactivate UI\n\nactivate RS_REST\nRS_REST -> RS_Resource : Get _id\nactivate RS_Resource\nRS_Resource --> RS_REST : meta data\ndeactivate RS_Resource\n\nRS_REST -> RS_Credential : Get PAT\nactivate RS_Credential\nRS_Credential --> RS_REST : PAT\ndeactivate RS_Credential\n\nnote left of RS_REST\nGet permission ticket for the\nresource and scope\nend note\n\nRS_REST -> UMA_API : POST /am/uma/permission_request\\nresource_id + scopes\nactivate UMA_API\nUMA_API --> RS_REST : permission ticket\ndeactivate UMA_API\n\nRS_REST --> UI : permission ticket + AS URI\ndeactivate RS_REST\n\nactivate UI\nUI -> UI : Get client auth basic\n\nnote left of UI\nGet claim token for the\nRequesting Party (RqP)\nend note\n\nUI -> OAUTH_API : POST /am/oauth2/access_token\\nscope=openid\\nSSO session\nactivate OAUTH_API\nOAUTH_API -> OAUTH_API : Validate SSO session\nOAUTH_API --> UI : claim token\ndeactivate OAUTH_API\n\nnote left of UI\nGet Requesting Party Token (RPT)\nusing the permission ticket\nand claim token\nend note\n\nUI -> OAUTH_API : POST /am/oauth2/access_token\\ngrant_type=urn:ietf:params:oauth:grant-type:uma-ticket\\nscope=..., ticket=..., claim_token=..., claim_token_format=...\nactivate OAUTH_API\n\nactivate AM_API\nAM_API -> AM_API : Check Access\nAM_API -> AM_API : No Policy for RqP + Resource + scopes\\nCreate Access Request for Resource Owner\nAM_API -> AM_API : No Access, request Submitted\ndeactivate AM_API\n\nOAUTH_API --> UI : Error: Request Submitted\ndeactivate OAUTH_API\ndeactivate UI\n\nUI --> RqP : Error: Request Submitted\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2052,
+    "completion_tokens": 728,
+    "total_tokens": 2780,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

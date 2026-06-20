@@ -1,0 +1,21 @@
+{
+  "id": "msg_01DgwmRrK5YqVMFiC5SG1TKw",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Traffic influencing flows between OpenNESS controller and 5G Core\n\nactor \"User/Admin\" as User\n\nbox \"OpenNESS Controller components\" #LightBlue\nparticipant \"UI/CLI\" as UI\nparticipant \"AF Microservice\" as AF\nend box\n\nbox \"5G Core components\" #LightGreen\nparticipant \"NEF\" as NEF\nparticipant \"NGC\\nCP Functions\" as NGC\nend box\n\nnote over NEF : OpenNESS provided\\nCore component with\\nlimited functionality\n\ngroup Get all subscribed traffic influence info\n  User -> UI : Request all traffic influence\\nsubscribed\n  UI -> AF : /af/v1/subscriptions : GET\n  AF -> NEF : /3gpp-traffic-Influence/v1/{afId}/subscriptions\\n: GET\n  NEF -> NGC : NGC_STUB(PCF,UDR,BSF)\n  NGC --> NEF : {Open: 3rd party NGC\\nintegration with\\nOpenNESS(NEF)}\n  NEF --> AF : OK: traffic influence info\\nERROR: {400/500}\n  AF --> UI : OK: traffic influence info\\nERROR: {400/500}\n  UI --> User : Traffic influence details\nend\n\ngroup Get subscribed traffic influence info by subscriptionId\n  User -> UI : Request traffic influence using\\nsubscriptionId\n  UI -> AF : /af/v1/subscriptions/{subscriptionId}\\n: GET\n  AF -> NEF : /3gpp-traffic-Influence/v1/{afId}/subscriptions/{subscriptionId}\\n: GET\n  NEF -> NGC : NGC_STUB(PCF,UDR,BSF)\n  NGC --> NEF : {Open: 3rd party NGC\\nintegration with\\nOpenNESS(NEF)}\n  NEF --> AF : OK: traffic influence info\\nERROR: {400/500}\n  AF --> UI : OK: traffic influence info\\nERROR: {400/500}\n  UI --> User : Traffic influence details\nend\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781372341,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 499,
+    "prompt_tokens": 1626,
+    "total_tokens": 2125
+  }
+}

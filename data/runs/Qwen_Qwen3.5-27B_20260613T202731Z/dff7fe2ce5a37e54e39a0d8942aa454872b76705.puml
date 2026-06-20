@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+title SDP Initiated Request/Response Pattern with Correlation ID
+
+participant "SERVER NODE 1" as Node1
+participant "SERVER NODE 2" as Node2
+participant "STATE CACHE" as Cache
+participant "BROKER" as Broker
+participant "APP" as App
+
+group SDP
+    participant "SERVER NODE 1" as Node1
+    participant "SERVER NODE 2" as Node2
+    participant "STATE CACHE" as Cache
+    participant "BROKER" as Broker
+end
+
+group TBM/HU
+    participant "APP" as App
+end
+
+Node1 -> Node1: new request/response interaction
+activate Node1
+Node1 -> Node1: create interaction context
+Node1 -> Cache: newMessageID = nextMessageID()
+Node1 -> Cache: put(newMessageID, interaction context)
+Node1 -> Node1: create message
+Node1 -> Node1: message.messageID = newMessageID
+Node1 -> Broker: publish message
+deactivate Node1
+
+Broker -> App: read message
+activate App
+App -> App: create response
+App -> App: response.correlationID = message.messageID
+App -> Broker: publish response
+deactivate App
+
+Broker -> Node2: read response
+activate Node2
+Node2 -> Cache: interaction context = get(response.correlationID)
+Node2 -> Node2: process response
+Node2 -> Cache: delete(response.correlationID)
+deactivate Node2
+
+@enduml
+```

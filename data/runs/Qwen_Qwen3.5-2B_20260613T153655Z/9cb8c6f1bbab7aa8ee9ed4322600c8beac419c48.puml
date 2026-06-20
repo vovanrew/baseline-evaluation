@@ -1,0 +1,40 @@
+@startuml
+skinparam sequenceDiagram
+
+participant Application
+participant Node
+participant Composed_VStack
+participant VStack
+participant State
+participant NodeBuilder
+participant Control.Layer
+participant Renderer
+
+note over Application, Node, Composed_VStack, VStack, State, NodeBuilder, Control.Layer, Renderer
+  布局树构建过程
+end note
+
+Application ->> Node: build
+Node ->> Composed_VStack: buildNode
+Composed_VStack ->> VStack: setupStateProperties
+Composed_VStack ->> VStack: setupEnvironmentProperties
+Composed_VStack <- Node: addNode
+
+alt [LayoutRoot]
+  Composed_VStack ->> VStack: loadData
+end alt
+
+note over Application, Node, Composed_VStack, VStack, State, NodeBuilder, Control.Layer, Renderer
+  布局更新构建过程
+end note
+
+State ->> State: set
+State ->> Application: invalidateNode
+Application ->> Application: scheduleUpdate
+Application ->> Application: update
+Application ->> Node: update
+Node ->> NodeBuilder: updateNode
+NodeBuilder ->> Control.Layer: invalidate
+Application ->> Renderer: update
+
+@enduml

@@ -1,0 +1,34 @@
+```plantuml
+@startuml
+title カレンダー表示機能
+
+actor ユーザー
+rectangle "カレンダー表示機能" as CalendarFunc
+database "画像DB" as ImageDB
+
+ref over ユーザー,ImageDB : 画像取得 from Locix
+
+== 画像取得 ==
+ユーザー -> CalendarFunc: カレンダー表示
+activate CalendarFunc
+CalendarFunc -> ImageDB: 日付単位で画像取得
+activate ImageDB
+ImageDB --> CalendarFunc: レスポンス
+deactivate ImageDB
+deactivate CalendarFunc
+
+== カレンダー表示 ==
+alt [画像取得中]
+    CalendarFunc --> ユーザー: ローディングインジケーター表示
+else [画像取得完了]
+    CalendarFunc --> ユーザー: カレンダーを表示
+end
+
+== 一覧表示 ==
+ユーザー -> CalendarFunc: 撮影日付選択
+activate CalendarFunc
+CalendarFunc --> ユーザー: 画像一覧を撮影時間の降順で表示
+deactivate CalendarFunc
+
+@enduml
+```

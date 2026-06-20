@@ -1,0 +1,77 @@
+```plantuml
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 25
+skinparam BoxPadding 10
+
+actor "laboratory coordinator" as LC
+participant ":LabCoordinatorUI" as UI
+participant ":ValidateTestReportController" as C
+participant ":Company" as Company
+participant "rp : TestStore" as TestStore
+participant "rp : Test" as Test
+participant "rp : TestReportStore" as TRStore
+participant "rp : TestReport" as TR
+participant ":TestDiagnosis" as TD
+
+LC -> UI : 1 asks to validate report and diagnosis
+activate UI
+
+UI -> C : 2 createTestList()
+activate C
+
+C -> Company : 3 get = testReportsToValidate()
+activate Company
+
+Company -> TestStore : 4 get = testReportsToValidate()
+activate TestStore
+
+TestStore -> Test : 5 get = getTestList()
+activate Test
+
+TestStore -> TRStore : 6 get = testReportsToValidate()
+activate TRStore
+
+TRStore -> TR : 7 get = getTestReportList()
+activate TR
+
+TR -> TD : 8 get = getTestDiagnosis()
+activate TD
+deactivate TD
+deactivate TR
+deactivate TRStore
+deactivate Test
+deactivate TestStore
+deactivate Company
+
+ref over C
+US15_SD_testReportsDTO.puml
+end ref
+
+C --> UI : 9
+deactivate C
+
+UI --> LC : 10 shows the available test reports and diagnosis and requests selection
+LC -> UI : 11 chooses all tests
+UI --> LC : 12 asks for confirmation
+LC -> UI : 13 confirms selection
+
+UI -> C : 14 validateAllTestReport()
+activate C
+
+loop
+C -> TestStore : 15 validateTestReport(testId);
+activate TestStore
+TestStore -> Test : 16 setState(VALIDATED);
+TestStore -> TRStore : 17 registerValidationDate(date);
+TRStore -> TR : 18 setValidationDate(date);
+deactivate TestStore
+end
+
+C --> LC : 19 informs operation success
+deactivate C
+deactivate UI
+
+@enduml
+```

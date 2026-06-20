@@ -1,0 +1,22 @@
+{
+  "id": "f3646c70-9414-46fa-bfae-9e13088e16d8",
+  "object": "chat.completion",
+  "created": 1781868098,
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Zhinahan Classes\n\npackage \"Zhinahan\" {\n    package \"Parser\" {\n        class Parser <<C>> {\n            - matchers : Array<AbstractLineMatcher> #red;\n            - appendix_detector : AppendixDetector #red;\n            - context : Context #red;\n            \n            + parse(file : string) : Dictionary #green;\n            -- per_line(line : string, index : int);#red;\n            -- parse_line(line : string, index : int)#red;\n        }\n        \n        class LineParser <<C>> {\n            + parse(context : Context) #green;\n        }\n        \n        class AbstractLineMatcher <<A>> {\n            + match(context : Context) : MatchResult? #green;\n            + pattern(context : Context) : RegExp #green;\n            + type() : Symbol #teal;\n        }\n        \n        class RadicalLineMatcher <<C>> {}\n        class ExplanationLineMatcher <<C>> {}\n        class PronunciationLineMatcher <<C>> {}\n        class CharacterLineMatcher <<C>> {}\n        \n        class AppendixDetector <<C>> {\n            + starts_appendix_section?(line : string) : bool #green;\n            + has_leaved_appendix_section?(line : string) : bool #green;\n        }\n        \n        class Context <<C>> {\n            ~ while_appendix : bool #orange;\n            ~ line : string? #orange;\n            ~ index : int? #orange;\n            \n            + within_appendix?() : bool #green;\n            + enter_appendix() : void #green;\n            + leave_appendix() : void #green;\n            + update_position(line : string, index : int) : void #green;\n        }\n        \n        class MatchResult <<C>> {\n            ~ matched : MatchData #orange;\n            o type : String #teal;\n            g matched() : Hash<String, String>#darkseagreen4;\n        }\n        \n        ' Relationships in Parser Package\n        \n        Parser --> LineParser \n        LineParser *-- AbstractLineMatcher \n        \n        AbstractLineMatcher <|-- RadicalLineMatcher\n        AbstractLineMatcher <|-- ExplanationLineMatcher\n        AbstractLineMatcher <|-- PronunciationLineMatcher\n        AbstractLineMatcher <|-- CharacterLineMatcher\n        \n        Parser *--> AppendixDetector\n        Parser *--> Context\n        \n        LineParser ..> Context\n        AbstractLineMatcher .up.> Context\n        \n        note right of AbstractLineMatcher\\nas A \\nfor abstract classes or interfaces\n    \n}\n\n\n' Core Section at Bottom Left Corner \n\nclass Dictionary <<C>>{  \ncharacters:Array<Character>;   \nfind(character:string):Character;}  \n\nDictionary \"*\"---o 1:\"*\"   character::character  \n\n\nClass Description<<c >>{}    \nDescription*----0..*:Explanation     \ndescription*- ----pronounciation    \n\nnote leftof description\\nclassification for descriptions \n\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1566,
+    "completion_tokens": 629,
+    "total_tokens": 2195
+  }
+}

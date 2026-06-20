@@ -1,0 +1,25 @@
+```plantuml
+@startuml
+title 用户信息正确请求URL
+
+participant "用户信息正确请求URL" as UserRequest
+participant "UrlFilterSecurityInterceptor" as UrlFilterSecurityInterceptor
+participant "UrlMetadataSourceService" as UrlMetadataSourceService
+participant "UrlConfigAttribute" as UrlConfigAttribute
+participant "UrlAccessDecisionManager" as UrlAccessDecisionManager
+
+UserRequest -> UrlFilterSecurityInterceptor: Authentication Request
+activate UrlFilterSecurityInterceptor
+UrlFilterSecurityInterceptor -> UrlMetadataSourceService: getAttributes(Object object)
+activate UrlMetadataSourceService
+UrlMetadataSourceService -> UrlConfigAttribute: UrlConfigAttribute(HttpServletRequest httpServletRequest)
+activate UrlConfigAttribute
+UrlConfigAttribute -> UrlAccessDecisionManager: decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes)
+activate UrlAccessDecisionManager
+deactivate UrlAccessDecisionManager
+deactivate UrlConfigAttribute
+deactivate UrlMetadataSourceService
+deactivate UrlFilterSecurityInterceptor
+
+@enduml
+```

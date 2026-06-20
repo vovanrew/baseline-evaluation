@@ -1,0 +1,46 @@
+@startuml
+title OAuth2 Authorization Code Grant Workflow\nwith SAML2 Post Binding for user provisioning
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor black
+  LifeLineBorderColor gray
+  LifeLineBackgroundColor white
+  ParticipantBorderColor black
+  ParticipantBackgroundColor white
+  BoxBorderColor black
+  BoxBackgroundColor #BFE3EE
+}
+
+participant "HealthCloud" as HC #3CB54A
+participant "Embedded Browser" as EB #3CB54A
+
+box "HealthSphere" #BFE3EE
+  participant "Apigee Edge" as AE #F2B400
+  participant "Orion Health Platform" as OHP #F2B400
+end box
+
+HC -> EB : 
+EB -> AE : GET /authorize?response_type=code
+AE --> EB : 302 https://<redirect_url> (SAML OR token)
+
+group SAML Authentication
+  EB -> AE : POST /oauth2/saml
+  AE -> OHP : POST /login-auth/saml?path=/actor/current
+  activate OHP
+  OHP -> OHP : Verify SAMLResponse
+  OHP --> AE
+  deactivate OHP
+
+  activate AE
+  AE -> AE : Generate authorization code
+  deactivate AE
+
+  AE --> EB : 302 https://<redirect_url>?code=<code>
+end group
+
+HC -> AE : POST /token?code=<code>
+AE --> HC : 200 access_token + refresh_token
+
+@enduml

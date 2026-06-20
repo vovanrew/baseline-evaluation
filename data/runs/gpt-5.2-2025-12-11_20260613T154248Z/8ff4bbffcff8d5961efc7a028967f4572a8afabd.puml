@@ -1,0 +1,57 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6F2
+  ActorBorderColor #666666
+  ActorBackgroundColor #FFFFFF
+  ArrowColor #000000
+  BoxBorderColor #000000
+  BoxBackgroundColor #FFFFFF
+}
+
+participant File
+participant LexicalAnalysisDriver
+participant LexicalAnalysisJava
+participant JavaSyntaxLib
+participant TypeCheck
+participant ColorCode
+participant ErrorCheck
+
+File -> LexicalAnalysisDriver : invokes
+activate LexicalAnalysisDriver
+
+LexicalAnalysisDriver -> LexicalAnalysisJava : Calls
+activate LexicalAnalysisJava
+
+LexicalAnalysisJava -> JavaSyntaxLib : Calls
+activate JavaSyntaxLib
+JavaSyntaxLib --> LexicalAnalysisJava
+deactivate JavaSyntaxLib
+
+LexicalAnalysisJava -> TypeCheck : SyntaxTypeCheck()
+activate TypeCheck
+TypeCheck --> File : Return(TypeCheck)
+deactivate TypeCheck
+
+LexicalAnalysisJava -> ColorCode : SyntaxColorCheck()
+activate ColorCode
+ColorCode --> File : Return(ColorCode)
+deactivate ColorCode
+
+LexicalAnalysisJava -> ErrorCheck : SyntaxErrorCheck()
+activate ErrorCheck
+
+alt [successful case]
+  ErrorCheck --> File : Error Free
+else [Error Case]
+  ErrorCheck --> File : Return Error Message
+end
+
+deactivate ErrorCheck
+deactivate LexicalAnalysisJava
+deactivate LexicalAnalysisDriver
+@enduml

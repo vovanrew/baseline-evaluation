@@ -1,0 +1,42 @@
+@startuml
+
+participant "generate_delta_main.cc" as main
+participant "delta_diff_generator.cc" as delta
+participant "payload_file.cc" as payload
+participant "payload_generation_config.cc" as config
+
+[-> main : "--dynamic_partition_info_file"
+
+activate main
+main -> main : brillo::KeyValueStore.Load(file)
+
+main -> config : payload_config.target.LoadDynamicPartitionMetadata(store)
+return
+
+main -> config : payload_config.target.ValidateDynamicPartitionMetadata()
+return
+
+main -> delta : GenerateUpdatePayloadFile()
+activate delta
+
+delta -> payload : payload.Init(config)
+activate payload
+payload -> config : manifest_.dynamic_partition_metadata
+return
+return
+
+note right of delta : generate payload data
+
+delta -> payload : payload.WritePayload()
+activate payload
+payload -> config : manifest_.SerializeToString()
+return
+payload -> config : Write(serialized_manifest.data())
+return
+
+deactivate delta
+
+delta --> main
+[<-- main : done
+
+@enduml

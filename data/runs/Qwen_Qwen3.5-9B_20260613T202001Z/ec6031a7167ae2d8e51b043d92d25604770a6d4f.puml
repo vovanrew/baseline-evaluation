@@ -1,0 +1,34 @@
+@startuml
+left to right direction
+actor "User" as User
+rectangle "Frontend" as Frontend
+rectangle "Backend" as Backend
+database "Database" as Database
+
+rectangle "Login" as Login {
+  User -> Frontend : Presses the "Login"-button
+  Frontend -> Backend : Request to open new window
+  Backend --> Frontend : Opens new window
+  User -> Frontend : Enters login information
+  User -> Frontend : Presses "Confirm"-button
+  Frontend -> Backend : Request to validate input
+  Backend -> Database : Validates login input
+
+  alt [Successful case]
+    Database --> Backend : Validation successful
+    Backend --> Frontend : Allows user to proceed
+    Frontend --> User : Proceeds to next window
+  else [Validation failed]
+    Backend -> Database : Validation failed
+    Backend --> Frontend : Displays alert of type ERROR
+    Frontend --> User : Lists up fields with errors
+  end
+}
+
+rectangle "Cancel" as Cancel {
+  User -> Frontend : Presses the "Cancel"-button
+  Frontend -> Backend : Request to close process
+  Backend --> Frontend : Closes window
+}
+
+@enduml

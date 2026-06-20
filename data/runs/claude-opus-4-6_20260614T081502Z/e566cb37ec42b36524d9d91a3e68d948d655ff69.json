@@ -1,0 +1,21 @@
+{
+  "id": "msg_01TAtC35XoQC32dQgQsiNVPv",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor User\nparticipant \"Frontend\" as Frontend\nparticipant \"API\" as API\ndatabase \"Database\" as Database\n\ngroup Log in with token\n    User -> Frontend : Request token\n    \n    alt Token found\n        Frontend -> API : Validate token\n        API -> Database : Find token\n        Database --> API : Return matching user\n        Frontend --> User : Open main page\n    else Token not in database\n        Database -x API : Return error\n        Frontend --> User : Open loginpage\n    end\nend\n\ngroup Log in without token\n    User -> Frontend : Enter login information\n    User -> Frontend : Accept to be remembered\n    User -> Frontend : Press \"Log in\"\n    Frontend -> API : Request validation\n    API -> Database : Validate login information\n    \n    alt validation successful\n        Database --> API : Validation successful\n        API --> User : Add token to user\n        Frontend --> User : Move to main page\n    else validation failure\n        Database -x API : Validation failed\n        Frontend --> User : Show error message\n        Frontend --> Frontend : Retry login page\n    end\nend\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432702,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 258,
+    "prompt_tokens": 1660,
+    "total_tokens": 1918
+  }
+}

@@ -1,0 +1,62 @@
+```plantuml
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Project Manager" as PM
+participant ":ProjectManagerUI" as UI
+participant "AGVServer" as AGVS
+participant "AGVServerThread" as AGVST
+participant "AVGManagerController" as AMC
+participant "AGVDigitalTwinServer" as DTWS
+participant "AGVDigitalTwinThread" as DTWT
+participant "AGVDigitalTwinController" as DTWC
+participant "CodingAndDecoding2" as CAD
+
+PM -> UI : Wants to assign ready to go Orders to an AGV
+activate UI
+UI -> AGVS : message
+activate AGVS
+AGVS -> AGVS : accept
+AGVS -> AGVST : start
+activate AGVST
+AGVST -> CAD : Decoding(r)
+activate CAD
+CAD --> AGVST : Message
+deactivate CAD
+AGVST -> AMC : FifoAGV()
+activate AMC
+AMC -> AMC : findavailableOrder()
+loop until orderList is empty
+    AMC -> AMC : findavailableAGV(weight,volume)
+    AMC -> AMC : createTaskandSave(description,order,agv)
+    AMC -> AMC : doTask()
+    AMC -> DTWS : message
+    activate DTWS
+    DTWS -> DTWS : accept
+    DTWS -> DTWT : start
+    activate DTWT
+    DTWT -> CAD : Decoding(r)
+    activate CAD
+    CAD --> DTWT : message
+    deactive CAD
+    DTWT -> DTWC : doTask(taskPerform)
+    activate DTWC
+    DTWC --> DTWT : TaskReportMessage
+    deactivate DTWC
+    DTWT --> DTWS : TaskReportMessage
+    deactivate DTWT
+    DTWS --> AMC : TaskReportMessage
+    deactivate DTWS
+end
+AMC --> AGVST : ResponseMessage
+deactivate AMC
+AGVST --> AGVS : ResponseMessage
+deactivate AGVST
+AGVS --> UI : ResponseMessage
+deactivate AGVS
+UI --> PM : Informs operation success
+deactivate UI
+
+@enduml
+```

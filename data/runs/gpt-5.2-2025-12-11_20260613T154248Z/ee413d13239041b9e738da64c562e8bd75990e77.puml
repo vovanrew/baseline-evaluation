@@ -1,0 +1,43 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 10
+  LifeLineBorderColor #777777
+  LifeLineBorderThickness 1
+  MessageAlign left
+}
+skinparam participant {
+  BackgroundColor #E6E6E6
+  BorderColor #777777
+  FontColor #000000
+}
+skinparam actor {
+  BorderColor #777777
+  FontColor #000000
+}
+
+actor user as user
+
+participant runtime as runtime
+participant ibex as ibex
+participant "ibex.sklearn" as ibex_sklearn
+participant loader as loader
+participant "sklearn.linear_model" as sklearn_linear_model
+
+user -> runtime : 1 import ibex.sklearn.linear_model
+runtime -> ibex : 2 import ibex
+runtime -> ibex_sklearn : 3 import ibex.sklearn
+
+ibex_sklearn -> ibex_sklearn : 4 register sys.metapath
+
+runtime -> loader : 5 import ibex.sklearn.linear_model
+
+loader -> sklearn_linear_model : 6 dir
+sklearn_linear_model --> loader : 7 members
+
+loader -> loader : 8 inspect
+loader -> loader : 9 wrap
+
+@enduml

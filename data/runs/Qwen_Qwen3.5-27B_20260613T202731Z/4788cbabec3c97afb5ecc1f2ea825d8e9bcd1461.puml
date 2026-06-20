@@ -1,0 +1,31 @@
+```plantuml
+@startuml
+title Validation Tocken
+
+actor "RemoteServiceServlet" as RemoteServiceServlet
+participant "HttpSessionCollector" as HttpSessionCollector
+participant "SysLog" as SysLog
+participant "Validation_User" as Validation_User
+
+activate RemoteServiceServlet
+
+RemoteServiceServlet -> RemoteServiceServlet: Data Request
+RemoteServiceServlet -> RemoteServiceServlet: Get Session ID_client
+RemoteServiceServlet -> HttpSessionCollector: Get Session by ID_client
+activate HttpSessionCollector
+HttpSessionCollector --> RemoteServiceServlet: Session
+deactivate HttpSessionCollector
+
+alt Validation Tocken = True
+    RemoteServiceServlet -> RemoteServiceServlet: Access success
+    RemoteServiceServlet -> Validation_User: Access success
+else Validation Tocken = False
+    RemoteServiceServlet -> RemoteServiceServlet: Tocken Failure (Name, Time)
+    RemoteServiceServlet -> SysLog: Tocken Failure (Name, Time)
+    RemoteServiceServlet --> RemoteServiceServlet: Access denied
+end
+
+deactivate RemoteServiceServlet
+
+@enduml
+```

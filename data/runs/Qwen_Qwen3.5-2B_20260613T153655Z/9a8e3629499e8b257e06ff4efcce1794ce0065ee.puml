@@ -1,0 +1,44 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "havenarbeider" as A
+participant "douane en voedselinspectie" as B
+participant "scheepsagent" as C
+participant "Api gateway" as D
+participant "kapiteinsdienst" as E
+participant "administratie" as F
+participant "containerbeheer en -transport" as G
+
+note over A, B, C, D, E, F, G
+per schip
+end note
+
+A ->> D: registerVessel
+D ->> E: requestOffer
+E ->> F: offerCreated
+F ->> G: newContainerList
+G ->> D: newContainerList
+
+opt [deleteOffer]
+D ->> E: offerConfirmation(isConfirmed == false)
+E ->> F: deleteOffer
+
+D ->> B: getDocuments
+B ->> F: getDocuments
+F ->> D: getDocuments
+
+note over A, B, C, D, E, F, G
+per havenarbeider
+end note
+
+A ->> D: timeBadging
+D ->> E: timeBadging
+E ->> F: timeBadging
+F ->> D: timeBadging
+
+A ->> D: getPayCheck
+D ->> E: getPayCheck
+E ->> F: getPayCheck
+F ->> D: getPayCheck
+
+@enduml

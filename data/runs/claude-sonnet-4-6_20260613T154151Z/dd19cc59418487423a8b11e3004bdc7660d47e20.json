@@ -1,0 +1,21 @@
+{
+  "id": "msg_01CTF42HNhTRPHmbQHyaGrUd",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant UI as UI\nparticipant sessionRoute as sessionRoute\nparticipant passport as passport\nparticipant SessionController as SessionController\ndatabase innoDB as innoDB\n\nUI -> sessionRoute : GET() \"/session\"\\nAuth: Bearer token\\n{userID, DASS21_SCORES, sessionDetails}\nsessionRoute -> passport : \"/save\", authenticate(\"jwt\")\n\nalt [Success: Authenticated]\n    passport -> sessionRoute : done(null, user)\n    sessionRoute -> SessionController : Request Products\n    SessionController -> SessionController : Validate info\n\n    alt [Success: Required info provided]\n        SessionController -> innoDB : saveSession()\n        innoDB -> SessionController : session\n        SessionController -> sessionRoute : httpResponse(200)\\nsession\n        sessionRoute -> UI : httpResponse(200)\\nallProducts\n    else [Failure: missing information]\n        SessionController -> sessionRoute : {\"msg\":\"missing required\\ninformation\"}(400)\n        sessionRoute -> UI : http Response(400)\\n{\"msg\":\"missing required information\"}\n    end\n\nelse [Failure: Unauthorized]\n    passport -> sessionRoute : done(null,false)\n    sessionRoute -> UI : http Response(401)\\nUnauthorized\nend\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370597,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 283,
+    "prompt_tokens": 1650,
+    "total_tokens": 1933
+  }
+}

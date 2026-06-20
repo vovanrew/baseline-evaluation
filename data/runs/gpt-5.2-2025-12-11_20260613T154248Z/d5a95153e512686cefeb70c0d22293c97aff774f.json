@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLsxyrg0Xbtq5YRb6IkZxZbbmol7",
+  "object": "chat.completion",
+  "created": 1781369555,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle US031 - As Team Member, I want to create a task in a user story\n\nactor TeamMember\nboundary \":CreateUSTaskUI\" as UI\ncontrol \":CreateUSTaskController\" as C\nparticipant Company\nparticipant \"taskTypeStore\\n:TaskTypeStore\" as TaskTypeStore\nparticipant \"taskTypeList\\n:List<TaskType>\" as TaskTypeList\nparticipant \"taskType\\n:TaskType\" as TaskType\nparticipant \"taskTypesNames\\n:List<String>\" as TaskTypesNames\n\nparticipant \"pStore\\n:ProjectStore\" as PStore\nparticipant \"proj\\n:project\" as Proj\nparticipant \"sList\\n:SprintList\" as SList\nparticipant \"sprint\\n:Sprint\" as Sprint\nparticipant \"sprintBacklog\" as SprintBacklog\nparticipant \"userStoryList\" as UserStoryList\nparticipant \"Us\" as Us\nparticipant \"UsTaskList\\n:TaskList\" as UsTaskList\n\nparticipant \"taskList\\n:List<Task>\" as TaskList\nparticipant \"task\\n:Task\" as Task\nparticipant \"tasksNames\\n:List<String>\" as TasksNames\n\nparticipant \"projectTeam\\n:ProjectTeam\" as ProjectTeam\nparticipant \"projectTeam\\n:List<Resource>\" as ProjectTeamList\nparticipant \"resource\\n:Resource\" as Resource\nparticipant \"currentResName\\n:List<String>\" as CurrentResName\n\nparticipant \":TaskMapper\" as TaskMapper\nparticipant \"createTaskDTO\\n:CreateTaskDTO\" as CreateTaskDTO\nparticipant \"newTask\\n:Task\" as NewTask\n\nTeamMember -> UI : 1 Ask to create a task of a user story\nUI -> C : 2 getTaskTypes()\nC -> Company : 3 getTaskTypeStore()\nCompany --> C : 4 taskTypeStore\nC -> TaskTypeStore : 5 getTaskTypesNames()\nTaskTypeStore -> TaskTypesNames : 6 create()\n\nloop for each know task type\n  TaskTypeStore -> TaskTypeList : 7 get(i)\n  TaskTypeList --> TaskTypeStore : 8 taskType\n  TaskTypeStore -> TaskType : 9 getName()\n  TaskType --> TaskTypeStore : 10 typeName\n  TaskTypeStore -> TaskTypesNames : 11 add(typeName)\n  TaskTypeStore --> TaskTypeStore : 12 true\nend\n\nTaskTypeStore --> C : 13 taskTypesNames\nC --> UI : 14 taskTypesNames\nUI --> TeamMember : 15 Show a list of task types\nTeamMember -> UI : 16 Selects task type\n\nUI -> C : 17 getUSTaskInfo(projCode, sprintID, uId)\nC -> Company : 18 getProjectStore()\nCompany --> C : 19 pStore\nC -> PStore : 20 getProjectByCode(projCode)\nPStore --> C : 21 proj\nC -> Proj : 22 getSprints()\nProj --> C : 23 sList\nC -> SList : 24 getSprint(sprintID)\nSList --> C : 25 sprint\nC -> Sprint : 26 getBacklog()\nSprint --> C : 27 sprintBacklog\nC -> SprintBacklog : 28 getUsList()\nSprintBacklog --> C : 29 usList\nC -> UserStoryList : 30 getUserStory(uId)\nUserStoryList --> C : 31 Us\nC -> Us : 32 getUsTaskList()\nUs --> C : 33 usTaskList\nC -> UsTaskList : 34 getTasksNames()\nUsTaskList -> TasksNames : 35 create()\n\nloop for each know task\n  UsTaskList -> TaskList : 36 get(i)\n  TaskList --> UsTaskList : 37 task\n  UsTaskList -> Task : 38 getName()\n  Task --> UsTaskList : 39 taskName\n  UsTaskList -> TasksNames : 40 add(taskName)\n  UsTaskList --> UsTaskList : 41 true\nend\n\nUsTaskList --> C : 42 tasksNames\nC --> UI : 43 tasksNames\nUI --> TeamMember : 44 Show a list of current tasks (to choose a precedence, if want)\nTeamMember -> UI : 45 Select precedence (optional)\n\nUI -> C : 46 getCurrentProjectTeam()\nC -> Proj : 47 getProjectTeam()\nProj --> C : 48 projectTeam\nC -> ProjectTeam : 49 getCurrentResourcesNames()\nProjectTeam -> CurrentResName : 50 create()\n\nloop for each know resource\n  ProjectTeam -> ProjectTeamList : 51 get(i)\n  ProjectTeamList --> ProjectTeam : 52 resource\n  ProjectTeam -> Resource : 53 isCurrent()\n  Resource --> ProjectTeam : 54 result\n  alt result == true\n    ProjectTeam -> Resource : 55 getName()\n    Resource --> ProjectTeam : 56 resourceName\n    ProjectTeam -> CurrentResName : 57 add(resourceName)\n    ProjectTeam --> ProjectTeam : 58 true\n  end\nend\n\nProjectTeam --> C : 59 currentResourcesNames\nC --> UI : 60 currentResourcesNames\nUI --> TeamMember : 61 Shows resource list and request data (1) name, description, effortEstimate, taskType, responsible\nTeamMember -> UI : 62 Choose and typed requested data\n\nUI -> C : 63 createUSTask(createTaskDTO)\nC -> TaskMapper : 64 createUSTask(createTaskDTO)\nTaskMapper -> CreateTaskDTO : 65 toModel(createTaskDTO)\n\nCreateTaskDTO -> CreateTaskDTO : 66 name = getName()\nCreateTaskDTO -> CreateTaskDTO : 67 description = getDescription()\nCreateTaskDTO -> CreateTaskDTO : 68 effortEstimate = getEffortEstimate()\nCreateTaskDTO -> CreateTaskDTO : 69 taskType = getTaskType()\nCreateTaskDTO -> CreateTaskDTO : 70 responsible = getResponsible()\n\nCreateTaskDTO -> NewTask : 71 createTask(name, description,\\neffortEstimate, taskType, responsible)\nTaskMapper --> C : 72 newTask\nC -> UsTaskList : 73 add(newTask)\nC -> UsTaskList : 74 validate(newTask)\nC -> UsTaskList : 75 add(newTask)\nUsTaskList --> C : 76 true\nC --> UI : 77 created and saved successfully\nUI --> TeamMember : 78 created and saved successfully\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2395,
+    "completion_tokens": 1351,
+    "total_tokens": 3746,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

@@ -1,0 +1,21 @@
+{
+  "id": "msg_017xLmJSL9FEsayvA2W6k5m1",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor Admin\n\nparticipant \":DivisionPage\" as DivisionPage\nparticipant \":DivisionTableContainer\" as DivisionTableContainer\nparticipant \":DivisionTable\" as DivisionTable\nparticipant \":DivisionService (Frontend)\" as DivisionServiceFE\nparticipant \":Router\" as Router\nparticipant \":DivisionHTTPTransport\" as DivisionHTTPTransport\nparticipant \":DivisionEndpoint\" as DivisionEndpoint\nparticipant \":DivisionService\" as DivisionService\nparticipant \":DivisionCommand\" as DivisionCommand\nparticipant \":DivisionQuery\" as DivisionQuery\n\nAdmin -> DivisionPage : Open \"Manage Division\" Page\nDivisionPage -> DivisionTableContainer : Render \"Division Table\" Container\nDivisionTableContainer -> DivisionTable : Render \"Division Table\"\nDivisionTableContainer <-- DivisionTable : rendered\nDivisionPage <-- DivisionTableContainer : rendered\nAdmin <-- DivisionPage : rendered\n\nAdmin -> DivisionPage : Mark \"Division\"\nDivisionPage -> DivisionTableContainer : Mark \"Division\"\nDivisionTableContainer -> DivisionTable : Mark \"Division\"\nDivisionTableContainer <-- DivisionTable : marked\nDivisionPage <-- DivisionTableContainer : marked\nAdmin <-- DivisionPage : marked\n\nAdmin -> DivisionPage : Click \"Delete Selected\" Button\nDivisionPage -> DivisionTableContainer : showDeleteConfirmation(item)\n\nalt [\"Cancel Delete\"]\n    DivisionTableContainer --> DivisionPage : Close Dialog\n    Admin <-- DivisionPage : Close Dialog\nend\n\nDivisionTableContainer -> DivisionServiceFE : handleDeleteConfirmation(item)\nDivisionTableContainer <-- DivisionServiceFE : \nDivisionTableContainer -> DivisionServiceFE : deleteDivision([]payload)\nDivisionServiceFE -> Router : route(\"DELETE\", \"v2/divisions\", formData)\nRouter -> DivisionHTTPTransport : DeleteDivisions(DivisionService, []ServerOption)\nDivisionHTTPTransport -> DivisionEndpoint : DeleteMany(DivisionService)\nDivisionEndpoint -> DivisionService : DeleteDivisions(context, []uuid)\n\nloop [\"for each uuid\"]\n    DivisionService -> DivisionQuery : Find(context, uuid)\n    DivisionService <-- DivisionQuery : division\n    DivisionService -> DivisionCommand : Delete(context, division)\n    DivisionService <-- DivisionCommand : isDeleted\nend\n\nDivisionEndpoint <-- DivisionService : isDeleted\nDivisionEndpoint -> DivisionEndpoint : response := Response(isDeleted, nil)\nDivisionHTTPTransport <-- DivisionEndpoint : response\nRouter <-- DivisionHTTPTransport : response\nDivisionServiceFE <-- Router : response\nDivisionTableContainer <-- DivisionServiceFE : response\nDivisionPage <-- DivisionTableContainer : response\nAdmin <-- DivisionPage : response\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371836,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 753,
+    "prompt_tokens": 1636,
+    "total_tokens": 2389
+  }
+}

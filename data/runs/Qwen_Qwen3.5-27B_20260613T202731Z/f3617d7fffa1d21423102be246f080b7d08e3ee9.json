@@ -1,0 +1,22 @@
+{
+  "id": "3c0fd8e8-681f-47ec-9f28-d6e560db8a7d",
+  "object": "chat.completion",
+  "created": 1781440308,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\ntitle Sequence Diagram for DIFA Operation Access\n\nactor \"Bruker\" as User\npackage \"Kjede\" {\n    participant \"Kjedesystem\" as KS\n    participant \"Identity Provider\" as IP\n}\npackage \"DIFA\" {\n    participant \"DifaGUI\" as GUI\n    participant \"Tilgangskontroll\" as TC\n    database \"HPR-DB\" as HPR\n}\nparticipant \"HDIR\" as HDIR\n\nUser -> KS: Velg DIFA operasjon fra meny\nKS -->> User: Redirect\nUser -> GUI: Utf\u00f8r operasjon\nGUI -->> User: Krever p\u00e5logging \u2013 redirect\nUser -> IP: Logg p\u00e5\nIP -->> User: Access token\nUser -> GUI: Access token\nactivate GUI\nGUI -> TC: Autoriser bruker\nactivate TC\nTC --> IP: Access token\nIP -->> TC: JWT\nnote right of IP: token er en signert JSON payload\nTC --> KS: \u00abcached\u00bb Hent kjedesertifikat\nTC -> TC: Verifiser token signatur\nTC -> TC: Hent HPR nr fra token (+ roller)\nTC -> HPR: HPR nummer\nHPR -->> TC: Autorisasjon (eks \"farmas\u00f8yt\")\nTC -> TC: Avgj\u00f8r tilgang\nTC --> GUI: \ndeactivate TC\nGUI -> GUI: utf\u00f8r operasjon\nGUI -->> User: \ndeactivate GUI\n\nHDIR -> HPR: Oppdatert helsepersonellregister\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2203,
+    "completion_tokens": 343,
+    "total_tokens": 2546
+  }
+}

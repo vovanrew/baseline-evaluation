@@ -1,0 +1,22 @@
+{
+  "id": "6037edf3-ae2f-4c1e-9cab-842c4784a481",
+  "object": "chat.completion",
+  "created": 1781440155,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle DefaultMQProducerImpl \u542f\u52a8\u6d41\u7a0b\n\nactor \"DefaultMQProducerImpl\" as Producer\nparticipant \"Validators\" as Validators\nparticipant \"MQClientManager\" as Manager\nparticipant \"MQClientInstance\" as Instance\nparticipant \"MQClientAPIImpl\" as API\nparticipant \"PullMessageService\" as PullService\nparticipant \"RebalanceService\" as RebalanceService\n\nnote left of Producer: start\n\nactivate Producer\n\nProducer -> Validators : checkConfig\nValidators -->> Producer : result\n\nProducer -> Manager : getInstance\nactivate Manager\nManager -> Manager : getAndCreateMQClientInstance\nManager -> Instance : new\ndeactivate Manager\nManager -->> Producer : mQClientFactory: MQClientInstance\n\nProducer -> Instance : registerProducer\nProducer -> Instance : start\nactivate Instance\n\nInstance -> API : start\nInstance -> Instance : startScheduledTask\nInstance -> PullService : start\nInstance -> RebalanceService : start\n\nInstance --> Producer : start\ndeactivate Instance\n\nProducer -> Instance : sendHeartbeatToAllBrokerWithLock\n\ndeactivate Producer\n\n== start \u7ed3\u675f ==\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1762,
+    "completion_tokens": 234,
+    "total_tokens": 1996
+  }
+}

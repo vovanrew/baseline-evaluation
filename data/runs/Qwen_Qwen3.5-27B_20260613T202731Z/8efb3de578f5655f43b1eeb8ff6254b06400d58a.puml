@@ -1,0 +1,145 @@
+```plantuml
+@startuml
+' version: 1.20201118.1
+' SketUML - UML diagram generator for Sketchware Pro
+' https://github.com/SketchwarePro/SketUML
+
+skinparam classAttributeIconSize 0
+skinparam topmargin 5
+skinparam leftmargin 5
+skinparam bottommargin 5
+skinparam rightmargin 5
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam padding 3
+skinparam border 1
+skinparam Class {
+  ArrowColor Black
+  BackgroundColor White
+  BorderColor Black
+}
+skinparam monochrome true
+
+package "com" as com {
+  package "unisa" as unisa {
+    package "cinehub" as cinehub {
+      package "control" as control {
+        class "GestioneCatalogoControl" as GestioneCatalogoControl {
+          + addFilm(Film film): Film
+          + addSerieTV(SerieTV serieTv): SerieTv
+          + addPuntata(Puntata puntata, Long idSerieTv, Integer numeroStagione): void
+          + addCast(Cast cast): void
+          + addRuolo(Ruolo ruolo, Long castId, Long mediaId): void
+          + findAllCast(): List<Cast>
+          + updateFilm(Film film): void
+          + updateSerieTV(SerieTv serieTv): void
+          + updatePuntata(Puntata puntata): void
+          + removeFilm(Long id): void
+          + removeSerieTV(Long id): void
+          + removePuntata(PuntataID id): void
+          + removeCast(Long id): void
+          + addGeneriFilm(Collection<Genere> generi, Long id): void
+          + addGeneriSerieTV(Collection<Genere> generi, Long id): void
+          + findRecensioniByMiPlace(Recensibile recensibile): List<Recensione>
+          + requestAllRecensioni(): List<Recensione>
+        }
+        class "CatalogoControl" as CatalogoControl {
+          + addRecensione(Recensione recensione): void
+          + requestRecensioneById(Long id): Recensione
+          + addMiPlace(boolean b, Recensione recensione): void
+          + findMiPlaceById(Recensione recensione): MiPlace
+          + getNumeroMiPlaceOfRecensione(Recensione recensione): Integer
+          + getNumeroNonMiPlaceOfRecensione(Recensione recensione): Integer
+          + rispondiARecensione(Recensione risposta): void
+          + findAllFilm(): List<Film>
+          + findAllSerieTv(): List<SerieTv>
+          + findMostRecentMedia(Integer howMany): List<Media>
+          + puntateByStagione(Long idSerieTv, Integer numeroStagione): List<Puntata>
+          + puntateBySerie(Long idSerieTv): List<Puntata>
+          + findFilmById(Long id): Film
+          + findSerieTvById(Long id): SerieTv
+          + findPuntataById(PuntataID puntataID): List<Puntata>
+          + searchFilmByGenere(Collection<Genere> generi): List<Film>
+          + searchSerieTvByGenere(Collection<Genere> generi): List<SerieTv>
+          + searchFilmByTitle(String titolo): List<Film>
+          + findAllPuntate(): List<Puntata>
+          + findPuntataByTitle(String titolo): List<Puntata>
+          + searchSerieTvByTitle(String titolo): List<SerieTv>
+          + findMostVoted(): List<Media>
+        }
+        class "ModerazioneControl" as ModerazioneControl {
+          + addSegnalazione(Recensione recensione): void
+          + bannaRecensore(String email): void
+          + findAllSegnalazioni(): List<Segnalazione>
+          + deleteRecensione(Recensione recensione): void
+          + isSignalled(Recensione recensione): Boolean
+        }
+        class "UtenteControl" as UtenteControl {
+          # cal : Calendar
+          # eventPublisher : ApplicationEventPublisher
+          + getAllRecensori(): List<Recensore>
+          + getAllNotBannedRecensori(): List<Recensore>
+          + registrazioneUtente(Utente utente): Utente
+          + confermaRegistrazione(String token): void
+        }
+      }
+      package "model" as model {
+        package "media" as media {
+          package "film" as film {
+            class "FilmService" as FilmService {
+              
+            }
+          }
+          package "serietv" as serietv {
+            class "PuntataService" as PuntataService {
+              
+            }
+            class "SerieTVService" as SerieTVService {
+              
+            }
+            class "CastService" as CastService {
+              
+            }
+            class "RuoloService" as RuoloService {
+              
+            }
+          }
+        }
+        package "recensione" as recensione {
+          class "RecensioneService" as RecensioneService {
+            
+          }
+        }
+        package "utente" as utente {
+          class "MiPlaceService" as MiPlaceService {
+            
+          }
+          class "UtenteService" as UtenteService {
+            
+          }
+          class "SegnalazioneService" as SegnalazioneService {
+            
+          }
+          class "RecensoreService" as RecensoreService {
+            
+          }
+        }
+      }
+    }
+  }
+}
+
+GestioneCatalogoControl --> FilmService
+GestioneCatalogoControl --> PuntataService
+GestioneCatalogoControl --> SerieTVService
+GestioneCatalogoControl --> CastService
+GestioneCatalogoControl --> RuoloService
+CatalogoControl --> RecensioneService
+ModerazioneControl --> RecensioneService
+ModerazioneControl --> UtenteService
+ModerazioneControl --> SegnalazioneService
+UtenteControl --> RecensoreService
+UtenteControl --> UtenteService
+
+@enduml
+```

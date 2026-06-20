@@ -1,0 +1,41 @@
+@startuml
+title Sequence diagram for the whole CCX (external) data pipeline
+
+package "Insights operator" as insights {
+  participant "Control logic" as control_logic
+  participant "IO memory cache" as io_cache
+}
+
+participant "Smart Proxy" as smart_proxy
+participant "3Scale" as three_scale
+participant "CRD" as crd
+participant "OCP WebConsole" as ocp_webconsole
+
+activate insights
+
+note over insights: Pulling data from Smart Proxy
+
+control_logic -> three_scale: Get recommendations\norg ID\ncluster ID
+three_scale -> smart_proxy: Get recommendations\norg ID\ncluster ID
+smart_proxy --> three_scale: Recommendations for cluster
+three_scale --> insights: Recommendations for cluster
+
+activate insights
+note over insights: Exposing recommendations
+
+control_logic -> io_cache: Store recommendations
+io_cache --> crd: Expose recommendations
+
+activate insights
+note over insights: Pulling from OCP WebConsole
+
+crd --> ocp_webconsole: Read recommendations
+ocp_webconsole --> crd: Here are required data
+
+deactivate insights
+
+deactivate insights
+
+note right of insights: Copyright © 2020 Red Hat, Inc. Author: Pavel Tisnovsky
+
+@enduml

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01SSR2xz733mND3YSj2xoJZQ",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor User\nparticipant \"BileMo API\" as API\ndatabase \"BileMo Database\" as DB\n\nUser -> API : 1 Authentication Request (email, plain password)\nAPI -> DB : 2 Find user with matching email & password combination\n\nalt invalid credentials\n    DB --> API : 3 null\n    API --> User : 4 JSON Authentication response: 401 Invalid credentials\nelse valid credentials\n    DB --> API : 5 User object\n    API --> User : 6 JSON Authentication Response: 200 JWT token\nend\n\nUser -> API : 7 Show products list (JWT token)\nAPI -> API : 8 Check route & query parameters are valid\n\nalt Route does not exist\n    API --> User : 9 404 Route not found\nelse Route found\n    API -> API : 10 Security firewall: check token is valid & user permissions\n\n    alt Access denied\n        API --> User : 11 403 Forbidden\n    else Token expired\n        API --> User : 12 401 Unauthorized\n    else Token valid & permission granted\n        API -> DB : 13 Get products results\n        DB --> API : 14 Results query response (Products object)\n        API -> API : 15 Serialize(normalize+encode) results object to JSON\n        API --> User : 16 Response 200 Serialized JSON results\n    end\nend\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781430258,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 332,
+    "prompt_tokens": 1654,
+    "total_tokens": 1986
+  }
+}

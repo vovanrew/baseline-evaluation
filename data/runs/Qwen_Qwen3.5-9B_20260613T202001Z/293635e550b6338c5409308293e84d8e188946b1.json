@@ -1,0 +1,22 @@
+{
+  "id": "4583f35e-64ad-4a6b-bd99-b72d8937713b",
+  "object": "chat.completion",
+  "created": 1781425520,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nskinparam packageStyle rectangle\nskinparam sequenceMessageSize 100\n\nactor \"Admin\" as Admin\nparticipant \"Sqoop\" as Sqoop\ndatabase \"Metastore DB\" as MetastoreDB\npackage \"HDFS\" as HDFS\nparticipant \"Hive SQL\" as HiveSQL\ndatabase \"Hive\" as HiveDB\nparticipant \"Hive Table\" as HiveTable\nparticipant \"Ambari\" as Ambari\n\nnote right of Admin\n  This process should be run several days\n  BEFORE the actual upgrade to reduce the downtime\n  of the upgrade.\n\n  And should be run just BEFORE the upgrade and\n  AFTER all users have been cleared from the system\n  to ensure no tables are modified after this runs.\nend note\n\nAdmin -> Sqoop: Run \"Collect the Metadata\"\nSqoop -> MetastoreDB: Extracts from\nSqoop -> HDFS: Saves to\nAdmin -> HiveTable: Run \"Build Supporting Tables\"\n\nAdmin -> HiveTable: Run \"Distinct Serdes\"\nAdmin -> HiveTable: Fix Tables with Serde Issues\nAdmin -> HiveTable: Run \"Check Partition Location\"\nAdmin -> HiveTable: Run \"Non-Managed Table Locations\"\nAdmin -> HiveTable: Run \"Managed Table Locations\"\nAdmin -> HiveTable: Run \"Missing HDFS Directories Check\"\nAdmin -> HiveTable: Correct \"Missing Directories\"\nAdmin -> HiveTable: Run \"Table Migration Check\"\nAdmin -> HiveTable: Run \"Acid Table Conversions\"\nAdmin -> HiveTable: Run \"Conversion Table Directories\"\n\nAdmin -> HiveTable: Run \"Acid Table Compaction Check\"\nAdmin -> HiveTable: Run \"Acid Table Compaction Required\"\nAdmin -> HiveTable: TUNE THE COMPACTOR for estimated compaction needs\nAdmin -> HiveTable: Run the compaction script. Break it apart if needed.\n\nAdmin -> HiveTable: Run \"Acid Table Locations\". Save artifact for Upgrade.\n\nAdmin -> Ambari: Review and Run ALL previous steps and collect details.\nAdmin -> Ambari: Decision to intervene with Ambari Process based on volumes indicated through research\nAdmin -> Ambari: Hack Pre/Post Processes\nAdmin -> Ambari: Run Compaction Routine one last time.\nAdmin -> Ambari: Start Upgrade\nAdmin -> Ambari: Run the Post Upgrade Planning Output to convert tables.\nAdmin -> Ambari: Complete Upgrade\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2301,
+    "completion_tokens": 529,
+    "total_tokens": 2830
+  }
+}

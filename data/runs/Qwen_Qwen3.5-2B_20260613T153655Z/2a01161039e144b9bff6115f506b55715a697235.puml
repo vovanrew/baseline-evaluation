@@ -1,0 +1,29 @@
+@startuml
+title PCWS Sequences
+
+actor Customer as C1
+participant PCWS as PCWS
+participant PostgreSQL as PG
+participant Disk as Disk
+participant transfer_logs.sh as TransferLogs
+participant AccountService as AccountService
+participant DatalogService as DatalogService
+
+C1 ..> PCWS : request image
+PCWS ..> AccountService : check account permission
+AccountService ..> PG : write data log
+PCWS ..> Disk : write data log
+PCWS ..> C1 : image
+
+C1 ..> TransferLogs : read data log
+TransferLogs ..> DatalogService : send data log
+DatalogService ..> TransferLogs : read data log
+
+TransferLogs ..> Disk : some time later
+
+loop [for each log]
+    TransferLogs ..> Disk : read data log
+    TransferLogs ..> DatalogService : send data log
+end loop
+
+@enduml

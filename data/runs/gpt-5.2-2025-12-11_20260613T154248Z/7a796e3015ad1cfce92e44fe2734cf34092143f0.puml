@@ -1,0 +1,50 @@
+@startuml
+title 2. プロフィール編集
+
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 60
+  ActorBorderColor #000000
+  ParticipantBorderColor #000000
+  LifeLineBorderColor #000000
+  LifeLineBackgroundColor #FFFFFF
+  BoxBorderColor #000000
+  BoxBorderThickness 3
+}
+
+actor "お嬢" as OJ
+participant "CABABA" as CAB
+database "データベース" as DB
+participant "LINE" as LINE
+
+box "登録" #FFFFFF
+  OJ -> CAB : ログイン画面
+  activate CAB
+  CAB --> OJ : LINEへリダイレクト
+  deactivate CAB
+
+  OJ -> LINE : LINEログイン画面
+  activate LINE
+  LINE --> CAB : リダイレクト (line_user_id)
+  deactivate LINE
+
+  activate CAB
+  CAB -> DB : INSERT User
+  activate DB
+  DB --> CAB
+  deactivate DB
+
+  CAB --> OJ : プロフィール登録ページ
+
+  OJ -> CAB : プロフィール送信
+
+  CAB -> DB : INSERT HostessProfile
+  activate DB
+  DB --> CAB
+  deactivate DB
+
+  CAB --> OJ : 登録完了画面
+  deactivate CAB
+end box
+@enduml

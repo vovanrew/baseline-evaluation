@@ -1,0 +1,20 @@
+@startuml
+left to right direction
+actor "SecurityEngineer" as se
+participant "EventBus" as eb
+rectangle "Security Profile Manager" as spm {
+  interface "spm"
+}
+rectangle "Software Defined Infrastructure" as sdi {
+  participant "storageresource" as sr
+  participant "securityprofile" as sp
+}
+
+se -> eb : Monitor Security Profile
+eb -> spm : securityprofile.create
+spm -> sr : create (name: secProfileMSP,file: ./templates/secprofile.yml)
+sr --> eb : securityprofile.create
+spm -> sp : status (name: secProfileMSP)
+sp --> eb : securityprofile.status
+
+@enduml

@@ -1,0 +1,55 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam noteBorderColor black
+skinparam noteBackgroundColor #FFFFCC
+
+participant "finest level" as F
+participant "intermediate level(s)" as I
+participant "base level" as B
+
+hnote over F : U(k,2) -> F(U(k,2))
+
+F -> F : SDC
+hnote over F : U(k',2) -> F(U(k',2))
+
+F -> I : restrict
+hnote over I : U(k,1) -> F(U(k,1))
+
+I -> I : FAS
+hnote over I : tau = Q(1)*F(U(k,1)) – R*Q(2)*F(U(k',2))
+
+I -> I : SDC with FAS
+hnote over I : U(k',1) -> F(U(k',1))
+
+I -> B : restrict
+hnote over B : U(k,0) -> F(U(k,0))
+
+B -> B : FAS
+hnote over B : tau = Q(0)*F(U(k,0)) – R*Q(1)*F(U(k',1))
+
+B -> B : SDC with FAS
+hnote over B : U(k+,0) -> F(U(k+,0))
+
+B -> B : coarse correction
+hnote over B : c(0) = U(k+,0) – R*U(k',1)
+
+B -> I : prolongate
+
+I -> I : correct
+hnote over I : U(k'',1) = U(k',1) + P*c(0)
+
+I -> I : SDC
+hnote over I : U(k+,1) -> F(U(k+,1))
+
+I -> I : coarse correction
+hnote over I : c(1) = U(k+,1) – R*U(k',2)
+
+I -> F : prolongate
+
+F -> F : correct
+hnote over F : U(k'',2) = U(k',2) + P*c(1)
+
+F -> F : SDC
+hnote over F : U(k+,2) -> F(U(k+,2))
+
+@enduml

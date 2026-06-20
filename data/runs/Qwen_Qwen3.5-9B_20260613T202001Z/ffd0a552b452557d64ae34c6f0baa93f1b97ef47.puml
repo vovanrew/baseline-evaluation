@@ -1,0 +1,22 @@
+@startuml
+left to right direction
+actor "Time" as Time
+participant "tradecenter" as tradecenter
+participant "wms" as wms
+participant "合作商仓储系统" as 合作商仓储系统
+participant "Aftership" as Aftership
+
+Time -> tradecenter: [030] 定时推送运单
+wms <-right 合作商仓储系统: [010] 回传发货信息imei运单号等
+wms -> wms: [020] 生成运单信息
+wms -> Aftership: [040] 推送运单至aftership
+Aftership -> wms: [050] 推送路由轨迹信息
+wms -> wms: [060] 轨迹处理和封装
+wms -> wms: [070] 记录运单信息更新状态
+
+alt [路由最终状态]
+  wms <-right tradecenter: [080] 通知订单发货单的路由状态
+else [非最终状态]
+end
+
+@enduml

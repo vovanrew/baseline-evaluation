@@ -1,0 +1,106 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #F7F7F7
+  BorderColor #666666
+}
+skinparam stereotypeCBackgroundColor #BFE3BF
+skinparam stereotypeABackgroundColor #BFE9EA
+skinparam stereotypeIBackgroundColor #CFC7FF
+skinparam stereotypeEBackgroundColor #F2B3A6
+
+' --- Classes / Interfaces / Enums ---
+class Comercio <<C>> {
+  - Productos[] productos;
+  - Historial [] operaciones;
+  --
+  + crearInsumo();
+  + crearServicioDeArmado();
+  + crearServicioDeReparacion();
+  + buscarProductoPorNombre();
+  + modificarPrecioListaProducto ();
+  + addOperacion();
+  + mostrarHistorialDeOperaciones();
+  + mostrarProductoDisponibleParaVenta();
+}
+
+class Operaciones <<C>> {
+  - String nombre;
+  - String fechaVenta;
+  - double precioLista;
+}
+
+abstract class Productos <<A>> {
+  # String nombre;
+  # double precioLista;
+  --
+  {abstract} clonar()
+  {abstract} precioDeVenta()
+  {abstract} devolverMontoFacturacion()
+}
+
+interface Matematica <<I>> {
+  + Double resultado;
+  + Double delta;
+  --
+  + {default} sumarPorcentaje();
+}
+
+class Insumos <<C>> {
+  - String tipo;
+  - Double porcentajeGanancia;
+  --
+  + devolverMontoFacturacion();
+}
+
+abstract class Servicios <<A>> {
+  # Double horasOcupaServicio;
+  --
+  {abstract} devolverMontoFacturacion();
+}
+
+class ServicioReparacion <<C>> {
+  - Dificultad dificultad;
+}
+
+class ServicioArmado <<C>> {
+}
+
+enum Tipo <<E>> {
+  PERIFERICO
+  HARDWARE
+  LIMPIEZA
+  --
+  - String descripcionTipo;
+  - int nivelTipo;
+}
+
+enum Dificultad <<E>> {
+  SIMPLE
+  NORMAL
+  COMPLEJO
+  AVANZADO
+  EXPERTO
+  --
+  - String descripcion;
+  - int nivel;
+}
+
+' --- Relationships ---
+Comercio "1" -- "1..*" Operaciones
+Comercio "1" -- "1..*" Productos
+
+Insumos ..|> Matematica
+Insumos --|> Productos
+
+Servicios --|> Productos
+ServicioReparacion --|> Servicios
+ServicioArmado --|> Servicios
+
+Insumos .. Tipo
+ServicioReparacion .. Dificultad
+
+@enduml
+```

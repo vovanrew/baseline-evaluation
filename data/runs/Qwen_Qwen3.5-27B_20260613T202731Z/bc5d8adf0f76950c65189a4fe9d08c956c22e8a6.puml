@@ -1,0 +1,83 @@
+```plantuml
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "user" as User
+
+rectangle "FindWorkbookUI" as UI {
+}
+
+rectangle "UIController" as Controller {
+}
+
+rectangle "FindWorkbooksController" as FindController {
+}
+
+rectangle "StartWorkbooksSearch" as Search {
+}
+
+rectangle "fw : FindWorkbooks" as FW {
+}
+
+rectangle "Paths" as Paths {
+}
+
+rectangle "Files" as Files {
+}
+
+rectangle "Cleansheets" as Cleansheets {
+}
+
+User -> UI : startWorkbooksSearch()
+activate UI
+UI -> FindController : create()
+activate FindController
+
+alt adicionar
+    loop todas as adicoes
+        UI -> FindController : add(path)
+    end
+else remover
+    loop todas as remocoes
+        UI -> FindController : remover(path)
+    end
+end
+
+deactivate FindController
+UI -> FindController : startWorkbooksSearch()
+activate FindController
+
+loop todas as paths
+    FindController -> Search : create(path, WorkbooksFoundList)
+    activate Search
+    Search -> Search : startWorkbooksSearch()
+    
+    Search -> Search : create()
+    note right of Search: this create() call represents\nthe creation of a new thread\nof this same class
+    
+    Search -> Search : start()
+    Search -> Search : run()
+    
+    Search -> FW : create()
+    activate FW
+    
+    Search -> Paths : p : get()
+    Search -> Files : walkFileTree(p, fw)
+    
+    deactivate FW
+    deactivate Search
+end
+
+deactivate FindController
+
+User -> UI : openFoundWorkbook()
+activate UI
+UI -> Controller : app : getApp()
+note right of UI: f represents a file that is created when\nthe user selects a workbook to open from\nthe list of found workbooks
+UI -> Cleansheets : w : getWorkbook(f)
+UI -> Controller : setActiveWorkbook(w)
+deactivate UI
+
+@enduml
+```

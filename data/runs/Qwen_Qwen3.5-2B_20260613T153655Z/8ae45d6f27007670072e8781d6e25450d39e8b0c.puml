@@ -1,0 +1,31 @@
+@startuml
+participant "PowerUser" as PowerUser
+participant ":EnergyConsumptionInPeriodUI" as UI
+participant ":EnergyConsumptionInPeriodCTRL" as CTRL
+participant ":RoomList" as RoomList
+participant ":Room" as Room
+participant ":Device" as Device
+participant ":ReadConfigFile" as ReadConfigFile
+participant ":ReadingList" as ReadingList
+participant ":Reading" as Reading
+
+PowerUser ..> UI : Get Total Metered Energy Consumption
+
+UI ..> RoomList : Show Options: Device,Room,Grid
+RoomList ..> UI : Show Room List
+UI ..> PowerUser : Choose a Room
+PowerUser ..> UI : Ask for the time interval
+UI ..> PowerUser : Input the time interval
+
+UI ..> CTRL : tMe=getEnergyConsumption InPeriod(index, start, end)
+CTRL ..> RoomList : rLS=showRoomListInStr()
+RoomList ..> UI : rLS=showRoomListInStr()
+UI ..> PowerUser : Show Total Metered Energy Consumption in the Room
+
+CTRL ..> Device : tMe = getEnergyConsumption InPeriod(start, end)
+Device ..> ReadConfigFile : i=getDevicesMeteringPeriod()
+ReadConfigFile ..> Device : ReadConfigFile
+Device ..> ReadingList : tMe=getValueOfReadings InTimeInterval(start, end)
+ReadingList ..> Reading : v=returnValueOfReading
+Reading ..> Device : Reading
+@enduml

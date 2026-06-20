@@ -1,0 +1,31 @@
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 40
+skinparam BoxPadding 10
+
+actor "Admin\nSAV Manager\nSAV Technician\nScooter Owner" as Admin
+boundary verifyEmail as VE
+control VerificationController as VC
+actor User as U
+
+Admin -> VE : FillVerifyEmailForm(email,token)
+VE --> Admin : FormFilled
+
+activate VE
+VE -> VE : VerifyVerifyEmailForm(email,token)
+VE --> VE : FormVerified
+deactivate VE
+
+alt [FormVerified is true]
+  VE -> VC : verifyUser(email,code)
+  activate VC
+  VC -> U : verifyUser(email,code)
+  U --> VC : user enabled
+  VC --> VE : user enabled
+  deactivate VC
+  VE --> Admin : user enabled
+else [FormVerified is false]
+  VE --> Admin : showErrorMessage
+end
+@enduml

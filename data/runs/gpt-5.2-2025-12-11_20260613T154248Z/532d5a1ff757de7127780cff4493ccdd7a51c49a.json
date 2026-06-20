@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLkvtT5q71datEevScPCXmIdyDd2",
+  "object": "chat.completion",
+  "created": 1781369057,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequenceMessageAlign center\nskinparam responseMessageBelowArrow true\nskinparam ParticipantPadding 18\nskinparam BoxPadding 10\nskinparam ArrowColor #333333\nskinparam LifeLineBorderColor #999999\nskinparam LifeLineBackgroundColor #FFFFFF\nskinparam ParticipantBorderColor #999999\nskinparam ParticipantBackgroundColor #E9E9F2\nskinparam NoteBackgroundColor #FFFFFF\nskinparam NoteBorderColor #999999\n\nactor \"Sales Clerk\" as SalesClerk\n\nparticipant \"Presentation>>\\n: OrderDeliveredUI\" as UI\nparticipant \"\u00abApplication\u00bb\\n: OrderDeliveredController\" as Controller\nparticipant \"\u00abService\u00bb\\n: OrderDeliveredService\" as Service\nparticipant \"\u00abPersistence\u00bb\\n: PersistenceContext\" as PC\nparticipant \"\u00abFactory\u00bb\\nfactory : RepositoryFactory\" as RF\ndatabase \"\u00abRepository\u00bb\\norderRepository : Repository\" as Repo\nparticipant \"\u00abDomain\u00bb\\norderList : List<Order>\" as OrderList\nparticipant \"\u00abDTO\u00bb\\norderDTOList : List<OrderDTO>\" as OrderDTOList\nparticipant \"\u00abDTO\u00bb\\n: OrderMapper\" as Mapper\nparticipant \"\u00abDTO\u00bb\\norderDTO : OrderDTO\" as OrderDTO\nparticipant \"\u00abDTO\u00bb\\nselectedOrderDTOList : List<OrderDTO>\" as SelectedOrderDTOList\nparticipant \"\u00abDomain\u00bb\\norder : Order\" as Order\n\nnote left of SalesClerk\nThe Sales Clerk initializes\nthe process of updating the status of the order\nend note\n\ncreate UI\nSalesClerk -> UI : create\nactivate UI\n\ncreate Controller\nUI -> Controller : create\nactivate Controller\n\ncreate Service\nController -> Service : create\nactivate Service\n\nService -> PC : repositories()\nactivate PC\nPC --> Service : factory\ndeactivate PC\n\ncreate RF\nService -> RF : create\nactivate RF\n\nService -> RF : orderRepository()\nRF --> Service : orderRepository\n\ncreate Repo\nService -> Repo : create\nactivate Repo\n\nUI -> Controller : listAllDispatchedOrders()\nController -> Service : listAllDispatchedOrders()\nService -> Repo : getAllDispatchedOrders()\ncreate OrderList\nRepo --> Service : orderList\n\ncreate OrderDTOList\nService -> OrderDTOList : create\n\nloop foreach\n  Service -> OrderList : getNext()\n  OrderList --> Service : order\n  Service -> Mapper : toDTO(order)\n  create OrderDTO\n  Mapper --> Service : orderDTO\n  Service -> OrderDTOList : add(orderDTO)\nend\n\nService --> Controller : orderDTOList\nController --> UI : orderDTOList\n\nnote left of SalesClerk\nThe System presents a list of Orders to the\nSales Clerk whose Status are \"Preparation\"\nand asks the Sales Clerk to choose Orders\nwhose Status will be updated to \"Delivered\".\nend note\n\nnote left of SalesClerk\nThe Sales Clerk selects the Orders whose\nStatus are to be updated.\nend note\n\nUI -> Controller : updateStatus(selectedOrderDTOList)\nController -> Service : updateStatusAndPersist(selectedOrderDTOList)\n\nloop foreach\n  Service -> SelectedOrderDTOList : getNext()\n  SelectedOrderDTOList --> Service : orderDTO\n  Service -> Mapper : toOrder(orderDTO)\n  Mapper --> Service : order\n  Service -> Order : changeStatusToDelivered()\n  Service -> Repo : update(order)\nend\n\nnote left of SalesClerk\nThe System updates the Status of the selected Orders\nand informs the Sales Clerk of the operation success.\nend note\n\ndeactivate Repo\ndeactivate RF\ndeactivate Service\ndeactivate Controller\ndeactivate UI\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1614,
+    "completion_tokens": 769,
+    "total_tokens": 2383,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

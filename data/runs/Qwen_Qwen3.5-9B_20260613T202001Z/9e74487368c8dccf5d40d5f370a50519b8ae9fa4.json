@@ -1,0 +1,22 @@
+{
+  "id": "1152d5cb-27f2-4ee1-9dc4-15d905d48e7c",
+  "object": "chat.completion",
+  "created": 1781606482,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"laboratory coordinator\" as labCoordinator\nparticipant \":LabCoordinatorUI\" as labCoordinatorUI\nparticipant \":ValidateTestReportController\" as validateTestReportController\nparticipant \":Company\" as company\nparticipant \"rp : TestStore\" as testStore\nparticipant \"rp : Test\" as test\nparticipant \"rp : TestReportStore\" as testReportStore\nparticipant \"rp : TestReport\" as testReport\nparticipant \":TestDiagnosis\" as testDiagnosis\n\nlabCoordinator -> labCoordinatorUI : 1 asks to validate report and diagnosis\nlabCoordinatorUI -> validateTestReportController : 2 createTestList()\nvalidateTestReportController -> company : 3 get = testReportsToValidate()\ncompany -> testStore : 4 get = testReportsToValidate()\ntestStore -> test : 5 get = getTestList()\ncompany -> testReportStore : 6 get = testReportsToValidate()\ntestReportStore -> testReport : 7 get = getTestReportList()\ntestReport -> testDiagnosis : 8 get = getTestDiagnosis()\n\nactivate validateTestReportController\nactivate labCoordinatorUI\nactivate company\nactivate testStore\nactivate test\nactivate testReportStore\nactivate testReport\nactivate testDiagnosis\n\nlabCoordinatorUI --> labCoordinator : 10 shows the available test reports and diagnosis and requests selection\nlabCoordinator -> labCoordinatorUI : 11 chooses all tests\nlabCoordinatorUI --> validateTestReportController : 12 asks for confirmation\nlabCoordinator -> labCoordinatorUI : 13 confirms selection\n\nvalidateTestReportController -> validateTestReportController : 14 validateAllTestReport()\nactivate validateTestReportController\nloop\n  validateTestReportController -> testStore : 15 validateTestReport(testId)\n  testStore -> testStore : 16 setState(VAIDATED)\n  validateTestReportController -> testStore : 17 registerValidationDate(date)\n  testStore -> testStore : 18 setValidationDate(date)\nend\n\nlabCoordinatorUI --> labCoordinator : 19 informs operation success\n\ndeactivate testDiagnosis\ndeactivate testReport\ndeactivate testReportStore\ndeactivate test\ndeactivate testStore\ndeactivate company\ndeactivate validateTestReportController\ndeactivate labCoordinatorUI\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1272,
+    "completion_tokens": 491,
+    "total_tokens": 1763
+  }
+}

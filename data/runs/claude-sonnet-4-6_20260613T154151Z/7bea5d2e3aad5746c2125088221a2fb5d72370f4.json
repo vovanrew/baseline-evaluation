@@ -1,0 +1,21 @@
+{
+  "id": "msg_01WkMT6KQqSxegwohcTknrQ7",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant RtpSenderEgress\nparticipant ModuleRtpRtcpImpl\nparticipant PacketRouter\nparticipant ProcessThreadImpl\nparticipant PacingController\nparticipant PacedSender\nparticipant RTPSender\nparticipant RTPSenderAudio\nparticipant AudioCodingModuleImpl\nparticipant ChannelReceive\nparticipant ChannelSend\nparticipant AcmReceiver\nparticipant AudioSendStream\nparticipant AudioMixerImpl\nparticipant AudioTransportImpl\nparticipant AudioDeviceBuffer\nparticipant AudioTrackJni\nparticipant AudioRecordJni\n\nAudioRecordJni -> AudioRecordJni : DataIsRecorded()\nAudioRecordJni -> AudioTrackJni : DeliverRecordedData()\nAudioTrackJni -> AudioDeviceBuffer : RecordedDataIsAvailable()\nAudioDeviceBuffer -> AudioTransportImpl : SendAudioData()\nAudioTransportImpl -> AudioSendStream : ProcessAndEncodeAudio()\nAudioSendStream -> AudioCodingModuleImpl : Add10MsData()\nAudioCodingModuleImpl -> AudioCodingModuleImpl : Encode()\nAudioCodingModuleImpl -> ChannelSend : SendData()\nChannelSend -> ChannelSend : SendRtpAudio()\nChannelSend -> AudioSendStream : SendAudio()\nAudioSendStream -> PacedSender : SendToNetwork()\nPacedSender -> PacedSender : EnqueuePackets()\nProcessThreadImpl -> PacingController : Process()\nPacingController -> PacedSender : Process()\nPacedSender -> PacedSender : ProcessPackets()\nPacedSender -> PacedSender : SendRtpPacket()\nPacedSender -> RTPSender : SendPacket()\nRTPSender -> PacketRouter : TrySendPacket()\nPacketRouter -> ModuleRtpRtcpImpl : SendPacket()\nModuleRtpRtcpImpl -> RtpSenderEgress : SendPacketToNetwork()\nRtpSenderEgress -> RtpSenderEgress\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371328,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 524,
+    "prompt_tokens": 992,
+    "total_tokens": 1516
+  }
+}

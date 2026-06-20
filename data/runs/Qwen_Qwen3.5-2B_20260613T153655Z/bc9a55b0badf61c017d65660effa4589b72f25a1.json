@@ -1,0 +1,22 @@
+{
+  "id": "3d1b493b-5226-4145-8c0f-958df17ab93f",
+  "object": "chat.completion",
+  "created": 1781398084,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Secure Map Reduce 2 - Shuffle Service Token Flow\n\nparticipant \"Client (c)\" as c\nparticipant \"ResourceManager (rm)\" as rm\nparticipant \"Node Manager (nm)\" as nm\nparticipant \"Shuffle Handler (ss)\" as ss\nparticipant \"Application Master (am)\" as am\nparticipant \"Application Container (ac)\" as ac\nparticipant \"Task (t)\" as t\nparticipant \"File System (fs)\" as fs\n\nsection \"Bootstrap\"\n    rm -- nm : Bootstrap\nendsection\n\nsection \"Job Definition\"\n    c -- rm : Job Definition\n    c -- rm : createJob [...] () : job-id\n    c -- rm : createShuffleToken ( shfl-tkn-mk ) : shfl-tkn\n    c -- rm : serializeTokens ( shfl-tkn, ...) : c-tokens{shfl-tkn,...}\nendsection\n\nsection \"Job Submission\"\n    c -- rm : Job Submission\n    c -- rm : submitApplication [...] (job-id, c-tokens{shfl-tkn}, ...) : app-rpt{clnt-tkn}\nendsection\n\nsection \"Job Initiation\"\n    rm -- nm : Job Initiation\n    rm -- am : startContainer [...] ( c-tokens{shfl-tkn},svc-tokens{shfl-tkn}, ...)\n    am -- ss : initApp ( job-id, shfl-tkn )\n    am -- ac : exec\n    nm -- ac : startContainer [...] ( svc-tokens{shfl-tkn}, ...)\n    ac -- t : exec\nendsection\n\nsection \"Map Task Execution\"\n    ac -- fs : Map Task Execution\n    ac -- fs : 11 writeShuffleData[]:\nendsection\n\nsection \"Reduce Task Execution\"\n    ac -- fs : Reduce Task Execution\n    ac -- fs : 12 readShuffleData [SDT:shfl-tkn] (...): shfl-data\n    ac -- fs : 13 readShuffleData\n    ac -- fs : 14 shfl-data\nendsection\n\nsection \"Job Completion\"\n    c -- rm : Job Completion\nendsection\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2399,
+    "completion_tokens": 466,
+    "total_tokens": 2865
+  }
+}

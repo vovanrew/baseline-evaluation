@@ -1,0 +1,54 @@
+@startuml
+left to right direction
+actor "참가자" as participant
+package "PR" as pr {
+  participant "깃허브 리포지토리" as github_repo
+  participant "깃허브 액션" as github_action
+  participant "운영자" as operator
+  participant "파워 오토메이트" as power_automate
+  participant "데이터베이스" as database
+}
+
+participant "참가자" as participant2
+participant "깃허브 리포지토리" as github_repo2
+participant "깃허브 액션" as github_action2
+participant "운영자" as operator2
+participant "파워 오토메이트" as power_automate2
+participant "데이터베이스" as database2
+
+note right of participant: GHA 챌린지 완료 인증샷
+note right of github_repo: 이벤트 생성
+note right of github_repo: 라벨 추가: review-required
+
+note right of github_repo: 라벨 추가: review-completed
+note right of github_repo: 라벨 삭제: review-required
+note right of github_repo: 코멘트: /ghasignoff
+note right of github_repo: 이벤트 생성
+
+note right of github_repo: 지정된 사용자만 이벤트 생성 가능
+note right of github_action: GitHub ID\nPR 본문\n제출시간
+note right of power_automate: GitHub ID
+note right of power_automate: 레코드 조회
+note right of power_automate: 레코드 업데이트
+note right of power_automate: PR ID
+note right of power_automate: 업데이트 완료
+note right of power_automate: PR ID
+note right of power_automate: 레코드 없음
+
+note right of participant: 확인 이메일
+note right of participant: 확인 이메일
+
+alt [레코드 있음]
+  power_automate -> database: 레코드 업데이트
+  github_action2 -> power_automate: 호출
+  github_repo2 -> github_action2: 라벨 추가: record-updated
+  github_repo2 -> github_action2: 라벨 추가: completed-gha
+  github_repo2 -> github_action2: 라벨 삭제: review-completed
+  github_repo2 -> github_action2: PR 머지
+else [레코드 없음]
+  power_automate -> database: 호출
+  github_repo2 -> github_action2: 라벨 추가: review-required
+  github_repo2 -> github_action2: 라벨 삭제: review-completed
+end
+
+@enduml

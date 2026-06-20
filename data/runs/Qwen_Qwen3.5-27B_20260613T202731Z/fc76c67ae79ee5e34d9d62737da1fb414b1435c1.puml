@@ -1,0 +1,142 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+interface Directory {
+    + String[] listAll()
+    + void deleteFile(String name)
+    + long fileLength(String name)
+    + IndexOutput createOutput(String name, IOContext context)
+    + IndexOutput createTempOutput(String prefix, String suffix, IOContext context)
+    + void sync(Collection<String> names)
+    + void rename(String source, String dest)
+    + void syncMetaData()
+    + IndexInput openInput(String name, IOContext context)
+    + Lock obtainLock(String name)
+}
+
+abstract class BaseDirectory {
+    + LockFactory lockFactory
+}
+
+class FSDirectory {
+    + Path directory
+    + FSDirectory.open(Path path, LockFactory lockFactory)
+}
+
+class SimpleFSDirectory {}
+
+class MMapDirectory {
+    <<Important>>
+}
+
+class NIOFSDirectory {}
+
+class RAMDirectory {}
+
+class FileSwitchDirectory {
+    // ??????
+}
+
+class FilterDirectory {
+    // 装饰
+}
+
+class NRTCachingDirectory {}
+
+class LockValidatingDirectoryWrapper {}
+
+class TrackingDirectoryWrapper {
+    + Set<String> getCreatedFiles()
+}
+
+class SleepingLockWrapper {}
+
+Directory <|-- BaseDirectory
+BaseDirectory <|-- FSDirectory
+FSDirectory <|-- SimpleFSDirectory
+FSDirectory <|-- MMapDirectory
+FSDirectory <|-- NIOFSDirectory
+BaseDirectory <|-- RAMDirectory
+BaseDirectory <|-- FileSwitchDirectory
+Directory <|-- FilterDirectory
+FilterDirectory <|-- NRTCachingDirectory
+FilterDirectory <|-- LockValidatingDirectoryWrapper
+FilterDirectory <|-- TrackingDirectoryWrapper
+FilterDirectory <|-- SleepingLockWrapper
+
+note top of Directory
+    Directory表示一些扁平(没有子目录)文件的集合, 这些文件都只能在创建时写入一次。
+    写入之后, 就只能读或者删除, 不可再修改。
+end note
+
+note right of Directory:listAll
+    返回目录下所有文件
+end note
+
+note right of Directory:deleteFile
+    删除一个文件
+end note
+
+note right of Directory:createOutput
+    创建一个新文件
+end note
+
+note right of Directory:createTempOutput
+    创建一个临时文件
+end note
+
+note right of Directory:sync
+    确保对这些文件所有的写入都被转移到稳定的存储介质上去。
+end note
+
+note right of Directory:rename
+    重命名文件
+end note
+
+note right of Directory:syncMetaData
+    持久化Directory的元数据
+end note
+
+note right of Directory:openInput
+    打开一个文件
+end note
+
+note right of Directory:obtainLock
+    获取锁
+end note
+
+note right of BaseDirectory
+    Directory具体实现的基类, 使用LockFactory来获取锁
+end note
+
+note right of FSDirectory
+    在文件系统上的实现
+end note
+
+note right of FSDirectory:FSDirectory.open
+    根据当前的环境来选择使用哪一种实现。
+end note
+
+note right of RAMDirectory
+    在内存中的实现
+end note
+
+note right of MMapDirectory
+    使用mmap来读取数据
+end note
+
+note right of TrackingDirectoryWrapper
+    可以记录创建了哪些文件
+end note
+
+note right of SleepingLockWrapper
+    如果获取锁失败, 则休眠一段时间后重试。
+end note
+
+note right of LockValidatingDirectoryWrapper
+    在一些写操作进行之前, 提供锁的校验
+end note
+
+@enduml
+```

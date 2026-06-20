@@ -1,0 +1,26 @@
+@startuml
+skinparam sequenceDiagram
+
+participant TaskExecutionStrategy as "TaskExecutionStrategy"
+participant Action as "Action"
+participant Connection as "Connection"
+participant SSH client/server connection as "SSH client/server connection"
+participant ssh daemon (or winrm service) as "ssh daemon (or winrm service)"
+
+TaskExecutionStrategy->>Action: init(..)
+Action->>Action: init(..)
+Action->>Action: run()
+Action->>Connection: put_file()
+Connection->>SSH client/server connection: transfer module data
+SSH client/server connection->>ssh daemon (or winrm service): save module to disk
+ssh daemon (or winrm service)--<Connection: transfer complete
+Connection->>Action: return remote path
+Action->>Connection: exec_command()
+Connection->>ssh daemon (or winrm service): run module remotely
+ssh daemon (or winrm service)--<Connection: execute shell command
+ssh daemon (or winrm service)--<Connection: return response code, stdout, stderr
+Connection->>Action: return response code, stdout, stderr
+Action->>TaskExecutionStrategy: return JSON
+TaskExecutionStrategy--<Action: return JSON
+
+@enduml

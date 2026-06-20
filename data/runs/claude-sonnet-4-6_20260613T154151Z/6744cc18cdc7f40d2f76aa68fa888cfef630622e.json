@@ -1,0 +1,21 @@
+{
+  "id": "msg_01SfTjCXBNADNuHPT99Tiyx2",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nbox \"Central-Settlement\" #white\nparticipant \"API\" as API\nparticipant \"api / Handler\" as Handler\nparticipant \"Application Layer\\n(domain / service / facade)\" as AppLayer\nend box\n\nbox \"Storage\" #white\nparticipant \"TigerBeetle Client\" as TBClient\nparticipant \"TigerBeetle Cluster\" as TBCluster\ndatabase \"MySQL\" as MySQL\nend box\n\nactor \"Mojaloop Adapter\" as MojAdapter\n\nnote over MojAdapter : Hub operator or\\nDFSP interactions\n\nnote over API : NodeJS interface\\ninvokes REST API\n\nnote over Handler : JSON request decoded &\\nprocessed via handler\n\nnote over AppLayer : Expose service functions &\\nhandle database interactions\n\nbox \"Update Settlement\" #white\nend box\n\nMojAdapter -> API : 1 **JSON**\\n**(settlement data)**\nAPI -> Handler : 2 Invoke handler\nHandler -> AppLayer : 3 Invoke application layer\nAppLayer -> MySQL : 4 Retrieve settlement data\\n(excluding accounts)\nMySQL --> AppLayer : 5 Retrieve accounts for all *Transfers*\\nfor a settlement window\nAppLayer -> MySQL : 6 Update settlement data\\n(excluding accounts)\nAppLayer -> AppLayer : 7 Settlement state\\nprocessing\nAppLayer -> TBClient : 8 Invoke account creation based on\\nsettlement state of each *Transfer*\nTBClient -> TBCluster : \nTBCluster --> TBClient : 9 Create settlement accounts\\n& return result\nTBClient --> AppLayer : 10 Return settlement result\nAppLayer -> MySQL : 11 Update final settlement state\\n& return result\nMySQL --> AppLayer : \nAppLayer --> Handler : 12 Return result\nHandler --> API : 13 Return result\nAPI --> MojAdapter : 14 Return result with\\n***settlementData***\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371248,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 454,
+    "prompt_tokens": 1644,
+    "total_tokens": 2098
+  }
+}

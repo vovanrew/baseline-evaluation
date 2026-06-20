@@ -1,0 +1,66 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 8
+
+class TeleAlgo << (C,#b7d7b7) >> {
+  -abonoMensual : float
+  -llamadas : Llamada
+  -tarifaInternacional : float
+  --
+  +conAbonoMensual(abono : float)
+  -abonoMensual(unAbono : Float)
+  -aplicarTarifaPorMinutoALlamadaInternacional(tarifa : float)
+  -calcularGastoFinal() : float
+  -consultarPorLlamadaEfectuadaMasCostosa() : str
+  -registrarLlamadaNacional(duracion : int, horario : int)
+  -registrarLlamadaInternacional(duracion : int, horario : int, destino : str)
+}
+
+abstract class Llamada << (A,#b7d7e6) >> {
+  #duracion: int
+  #horario: int
+  #tarifa : Tarifa
+  --
+  +costoTotal() : float
+  {abstract} +descripcion() : str
+  #duracion(unaDuracion : int)
+  #esDeLargaDuracion() : bool
+  #horario(horario : int)
+  #montoDescuento(montoBruto : float) : float
+  #tarifa(tarifa : float)
+}
+
+class Tarifa << (C,#b7d7b7) >> {
+  -monto : float
+  --
+  +conMontoEnBaseAHorario(horario : int)
+  +conMontoFijo(monto : int)
+  -monto() : float
+  -monto(monto : float)
+}
+
+class LlamadaNacional << (C,#b7d7b7) >> {
+  +conDuracionYHorario(duracion : int, horario : int)
+  +descripcion() : str
+}
+
+class LlamadaInternacional << (C,#b7d7b7) >> {
+  -destino : str
+  --
+  +conDuracionHorarioTarifaYDestino(
+  duracion : int,
+  horario : int,
+  tarifa : float,
+  destino : str
+  )
+  +descripcion() : str
+  -destino(destino : str)
+}
+
+TeleAlgo "1" *-- "*" Llamada
+Llamada "1" *-- "1" Tarifa
+
+LlamadaNacional --|> Llamada
+LlamadaInternacional --|> Llamada
+@enduml

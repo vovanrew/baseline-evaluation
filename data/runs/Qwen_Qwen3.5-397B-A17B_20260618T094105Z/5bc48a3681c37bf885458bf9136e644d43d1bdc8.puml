@@ -1,0 +1,28 @@
+@startuml
+actor Manager
+participant "HovedLayoutView" as HovedLayoutView
+participant "HovedLayout" as HovedLayout
+database EventList
+database Database
+
+Manager -> HovedLayoutView : select event
+activate HovedLayoutView
+HovedLayoutView -> HovedLayout : event selected
+deactivate HovedLayoutView
+activate HovedLayout
+HovedLayout -> EventList : get selected event
+EventList --> HovedLayout : return event info
+HovedLayout -> HovedLayoutView : show event info
+deactivate HovedLayout
+
+Manager -> HovedLayoutView : delete event
+activate HovedLayoutView
+HovedLayoutView -> HovedLayout : send deletion request
+deactivate HovedLayoutView
+activate HovedLayout
+HovedLayout -> EventList : delete selected event
+EventList -> Database : deletion request
+Database --> EventList : event deleted
+EventList --> HovedLayout : event deleted
+HovedLayout -> HovedLayoutView : event successfully deleted
+@enduml

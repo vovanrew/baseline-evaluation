@@ -1,0 +1,46 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "Jugador" as Jugador
+participant "Telegram" as Telegram
+participant "Gestor" as Gestor
+participant "Ranking" as Ranking
+participant "User" as User
+participant "Timer" as Timer
+participant "Options" as Options
+
+note right of Gestor
+ref
+Desplacar-se per l'escenari()
+end note
+
+note right of Gestor
+Emmagatzemar Ranking
+AddtoRanking(User)
+return(bool)
+end note
+
+note right of Gestor
+Mostrar Ranking
+FiveFirstRanking()
+return(bool)
+printRanking()
+return(bool)
+end note
+
+Jugador ->> Telegram: Seleccionar_opcio()
+Telegram ->> Gestor: Realitzar_jugada(self, bot, update)
+Gestor ->> User: GetTimer()
+User ->> Gestor: return(timer)
+Gestor ->> Timer: RestarSeg()
+Timer ->> Gestor: Return(bool)
+Gestor ->> Options: get_texts(ind)
+Options ->> Gestor: Return(String)
+Gestor ->> Options: get_options(ind)
+Options ->> Gestor: Return(String)
+Gestor ->> Options: get_realitzar_mod(ind)
+Options ->> Gestor: Return(String)
+Gestor ->> Jugador: Return(String)
+Jugador ->> Telegram: Return(String)
+
+@enduml

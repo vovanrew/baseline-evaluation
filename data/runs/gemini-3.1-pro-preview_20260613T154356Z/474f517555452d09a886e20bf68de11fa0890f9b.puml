@@ -1,0 +1,42 @@
+```plantuml
+@startuml
+hide footbox
+skinparam sequenceMessageAlign center
+
+mainframe Virologist wear gloves
+
+participant "attackerVirologist:Virologist" as attacker
+participant "v: Virologist" as v
+participant "glovesOnVirologist:Gloves" as gloves
+
+attacker -> v : attack(forgetAgent:Agent, attackerVirologist:Virologist)
+activate v
+
+v -> gloves : defense(forgetAgent:Agent,v:Virologist, attackerVirologist:Virologist)
+activate gloves
+
+gloves -> attacker : attack(forgetAgent:Agent, attackerVirologist:Virologist,v:Virologist)
+activate attacker
+attacker --> gloves
+deactivate attacker
+
+gloves -> gloves : decreaseTTL()
+activate gloves
+gloves --> gloves
+deactivate gloves
+
+opt life == 0
+    gloves -> gloves : discard(v:Virologist)
+    activate gloves
+    gloves --> gloves
+    deactivate gloves
+end
+
+gloves --> v
+deactivate gloves
+
+v --> attacker
+deactivate v
+
+@enduml
+```

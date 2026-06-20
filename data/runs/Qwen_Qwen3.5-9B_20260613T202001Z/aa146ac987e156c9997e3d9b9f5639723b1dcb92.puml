@@ -1,0 +1,38 @@
+@startuml
+title SignUp Flow
+
+actor "Client" as Client
+participant "Mobile" as Mobile
+participant "SMS Gateway" as SMS
+participant "Push Gateway" as Push
+participant "DigitalDB" as DB
+participant "Keycloak + Extension" as Keycloak
+
+Client -> Mobile: 1 Enter PhoneNumber, Birthday
+Client -> Mobile: 2 Enter Password
+Mobile -> Keycloak: 3 POST /auth/signup (PhoneNumber, Birthday)
+Keycloak -> DB: 4 findClientRecord(PhoneNumber, Birthday): ClientRecord
+DB --> Keycloak: 5 ClientRecord
+
+alt [ClientRecord is NOT found]
+  Keycloak --> Mobile: 6 HTTP 202
+  Keycloak -> Keycloak: 7 saveInOTPContext(ClientRecord.id)
+  Keycloak -> Keycloak: 8 generateAndSaveOTP(): OTP
+  Keycloak --> Mobile: 9 HTTP 202
+  Keycloak -> SMS: 10 sendSMS(phone=PhoneNumber, data=OTP)
+  SMS --> Mobile: 11 SMS with OTP
+  Mobile -> Push: 12 getPushToken(): Push Token
+  Push --> Mobile: 13 Push Token
+  Mobile -> Mobile: 14 generateKeys(): [PublicKey, PrivateKey]
+  Client -> Mobile: 15 Enter OTP
+  Mobile -> Keycloak: 16 POST /auth/signup/complete (OTP, Password, Push Token, PublicKey)
+  Keycloak -> Keycloak: 17 validateOTP(OTP)
+  Keycloak -> DB: 18 updateUser(ClientId, KeycloakUserId)
+  DB --> Keycloak: 19
+  Keycloak -> DB: 20 createMobileDevice(ClientId, Push Token, PublicKey)
+  DB --> Keycloak: 21
+  Keycloak -> Keycloak: 22 generateJWT(scope="regular_user"): JWT
+  Keycloak --> Mobile: 23 HTTP 200 {jwt: JWT}
+end
+
+@enduml

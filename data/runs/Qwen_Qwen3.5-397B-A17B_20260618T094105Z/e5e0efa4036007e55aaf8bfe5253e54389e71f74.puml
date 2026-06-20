@@ -1,0 +1,31 @@
+@startuml
+skinparam handwritten true
+
+title 系统用户登录时序图
+
+actor Client
+participant API
+participant MsgServer
+
+== login ==
+
+Client ->> API : 1 login\nactivate API
+API -) API : 2 account verify\ndeactivate API
+
+alt [verify success:] 
+    note right of Client: connect MsgServer with jwt
+    
+    API -->> Client : 3 generate jwt and return
+    activate Client
+    deactivate API
+    
+    Client ->> MsgServer : 4 connect MsgServer and build tcp connect \nactivate MsgServer
+    Note over Client,MsgServer #D9EAD3#06578C#:connect MsgServer with jwt 
+    
+    MsgServer -) MsgServer : 5 parse jwt and attr the accountInfo to Channel  
+    MsgServer --> Client : 6 connect success   
+else [verify fail:]    
+   API ..>> Client : 7 login failed;     
+end 
+
+@enduml

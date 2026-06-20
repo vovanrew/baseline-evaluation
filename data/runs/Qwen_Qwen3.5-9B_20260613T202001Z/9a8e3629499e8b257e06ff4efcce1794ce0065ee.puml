@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+actor "havenarbeider" as havenarbeider
+actor "douane en voedselinspectie" as douane
+actor "scheepsagent" as scheepsagent
+participant "Api gateway" as api_gateway
+participant "kapiteinsdienst" as kapiteinsdienst
+participant "administratie" as administratie
+participant "containerbeheer en -transport" as containerbeheer
+
+rectangle "per schip" {
+  scheepsagent -> api_gateway: registerVessel
+  api_gateway -> kapiteinsdienst: registerVessel
+  kapiteinsdienst -> administratie: requestOffer
+  administratie -> kapiteinsdienst: offerCreated
+  administratie -> containerbeheer: newContainerList
+
+  opt [deleteOffer] {
+    scheepsagent -> api_gateway: offerConfirmation(isConfirmed == false)
+    api_gateway -> kapiteinsdienst: offerConfirmation(isConfirmed == false)
+    kapiteinsdienst -> administratie: deleteOffer
+  }
+
+  douane -> api_gateway: getDocuments
+  api_gateway -> administratie: getDocuments
+  administratie --> api_gateway: 
+  api_gateway --> douane: 
+}
+
+rectangle "per havenarbeider" {
+  havenarbeider -> api_gateway: timeBadging
+  api_gateway -> administratie: timeBadging
+  havenarbeider -> api_gateway: getPayCheck
+  api_gateway -> administratie: getPayCheck
+  administratie --> api_gateway: 
+  api_gateway --> havenarbeider: 
+}
+
+@enduml

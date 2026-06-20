@@ -1,0 +1,74 @@
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam shadowing false
+
+actor Administrative
+
+participant ":AddScooterUI" as AddScooterUI
+participant ":AddScooterController" as AddScooterController
+participant ":Pharmacy" as Pharmacy
+participant "ls:ListScooters" as ListScooters
+participant "sc:Scooter" as Scooter
+participant "bat:Battery" as Battery
+database "scdb:ScooterDB" as ScooterDB
+database "batdb:BatteryDB" as BatteryDB
+
+Administrative -> AddScooterUI : 1 begins the process of adding a scooter
+AddScooterUI -> Administrative : 2 asks for the necessary data(id_Scooter, qrCode, status, id_Battery, capacity)
+Administrative -> AddScooterUI : 3 inserts the solicited data
+
+AddScooterUI -> AddScooterController : 4 newScooter(id_Scooter, qrCode, status, id_Battery, capacity)
+activate AddScooterController
+
+AddScooterController -> Pharmacy : 5 ls = getListScooters()
+activate Pharmacy
+Pharmacy --> AddScooterController : 5 ls
+deactivate Pharmacy
+
+AddScooterController -> ListScooters : 6 sc=newScooter(id_Scooter, qrCode, status, id_Battery, capacity)
+activate ListScooters
+
+ListScooters -> Scooter : 7 create(id_Scooter, qrCode, status, id_Battery, capacity)
+activate Scooter
+
+Scooter -> Battery : 8 create(id_Battery, capacity)
+activate Battery
+
+Battery -> Battery : 9 validateBattery(bat)
+deactivate Battery
+
+deactivate Scooter
+
+AddScooterController -> ListScooters : 10 validateScooter(sc)
+deactivate ListScooters
+
+AddScooterUI --> Administrative : 11 validates the data, presents it and asks the administrator for its confirmation
+Administrative -> AddScooterUI : 12 confirms
+
+AddScooterUI -> AddScooterController : 13 registerScooter()
+activate AddScooterController
+
+AddScooterController -> ListScooters : 14 registerScooter(sc)
+activate ListScooters
+
+ListScooters -> ListScooters : 15 validateScooter(sc)
+ListScooters -> ListScooters : 16 addScooter(sc)
+ListScooters -> Scooter : 17 save(sc)
+activate Scooter
+
+Scooter -> ScooterDB : 18 save(sc)
+activate ScooterDB
+deactivate ScooterDB
+
+Scooter -> BatteryDB : 19 save(bat)
+activate BatteryDB
+deactivate BatteryDB
+
+deactivate Scooter
+deactivate ListScooters
+deactivate AddScooterController
+
+AddScooterUI --> Administrative : 20 adds the scooter to a list of scooters
+
+@enduml

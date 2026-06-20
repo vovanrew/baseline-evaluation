@@ -1,0 +1,33 @@
+@startuml
+autonumber
+left to right direction
+skinparam sequenceMessageSize 100
+
+actor "User" as user1
+participant "server" as server
+database "user" as db
+
+activate server
+
+user1 -> server: 1 POST /sign-up with body: email and password
+
+activate db
+server -> db: 2 Check email existence
+
+alt [Email existed]
+  db --> server: 3 Error code
+  server --> user1: 4 Error message
+else [Email is new]
+  db --> server: 5 Email is available
+  activate server
+  server -> server: 6 Hash password
+  deactivate server
+  server -> db: 7 Store email and hashed password
+  db --> server: 8 Store complete
+  server --> user1: 9 Success message
+end
+
+deactivate db
+deactivate server
+
+@enduml

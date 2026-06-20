@@ -1,0 +1,23 @@
+@startuml
+skinparam backgroundColor LightBlue
+
+box "SnapHelper"
+participant "snap" as snap
+participant "OnFlingListener" as OFL <<C>>
+participant "OnScrollListener" as OSL <<C>>
+participant "SnapHelper" as SH <<C>>
+participant "LinearSmoothScroller" as LSS <<C>>
+end box
+
+OFL -> OFL : onFling
+OFL -> SH : snapFromFling
+snap <- SH : findTargetSnapPosition
+SH -> LSS : createSnapScroller
+SH <-- LSS : onTargetFound
+snap <- SH : calculateDistanceToFinalSnap
+OSL -> OSL : onScrollStateChanged
+OSL -> SH : snapToTargetExistingView
+snap <- SH : findSnapView
+snap <- SH : calculateDistanceToFinalSnap
+
+@enduml

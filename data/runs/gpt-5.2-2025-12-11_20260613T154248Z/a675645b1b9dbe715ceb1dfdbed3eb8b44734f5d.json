@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLp77f1FEstCI5AE6OsIPXC4NELu",
+  "object": "chat.completion",
+  "created": 1781369317,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam sequenceMessageAlign left\nskinparam ParticipantPadding 40\nskinparam BoxPadding 10\n\nparticipant Client\nparticipant Oauth\nparticipant \"Login Endpoint\" as Login\nparticipant \"Consent Endpoint\" as Consent\n\n== Open page ==\n\nClient -> Oauth : Initiate authorize code or implicit flow\nOauth -> Oauth : No user session (not authenticated)\nOauth -> Login : Redirect to login endpoint with <login_challenge>\nnote right of Login #ffffdd\nGET https://<LOGIN_ENDPOINT>/login?login_challenge=7bb518c4eec2454dbb289f5fdb4c0ee2\nend note\n\n== Login ==\n\nClient -> Login : Input user/password\nLogin -> Login : Verify user/password\nLogin -> Oauth : Fetch login request info with <login_challenge>\nnote right of Login #ffffdd\nGET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login?login_challenge=<challenge>\nend note\nnote right of Login #ffffdd\nPUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login/accept?login_challenge=<challenge>\n{\n  \"acr\": \"string\",\n  \"context\": {},\n  \"force_subject_identifier\": \"string\",\n  \"remember\": true,\n  \"remember_for\": 3600,\n  \"subject\": \"string\"\n}\nend note\nLogin -> Oauth : Accept login\nOauth --> Login : Return redirect url\nLogin --> Oauth : Redirect\n\n== Consent ==\n\nOauth -> Oauth : First time that client asks user for permission\nOauth -> Consent : Redirect with <consent_challenge>\nConsent -> Consent : Asking users permission to grant application access\nConsent -> Oauth : Fetch consent info\nnote right of Consent #ffffdd\nGET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent?consent_challenge=<challenge>\nend note\nnote right of Consent #ffffdd\nPUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent/accept?consent_challenge=<challenge>\n{\n  \"grant_scope\": [\"openid\", \"offline_access\"],\n  \"handled_at\": \"2019-08-24T14:15:22Z\",\n  \"session\": {\n    \"access_token\": {\n      \"foo\": \"This field will be available when introspecting the Access Token\"\n    },\n    \"id_token\": {\n      \"bar\": \"This field will be available as a claim in the ID Token\"\n    }\n  }\n}\nend note\nConsent -> Oauth : Accept\nOauth --> Consent : Return redirect url\nConsent --> Oauth : Redirect page\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2052,
+    "completion_tokens": 566,
+    "total_tokens": 2618,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

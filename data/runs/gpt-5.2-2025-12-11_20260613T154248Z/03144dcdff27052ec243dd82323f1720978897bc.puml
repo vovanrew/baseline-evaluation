@@ -1,0 +1,139 @@
+@startuml
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "php" {
+  package "SPL" {
+    interface "ArrayAccess" as SPL_ArrayAccess {
+      +offsetExists(offset)
+      +offsetGet(offset)
+      +offsetSet(offset, value)
+      +offsetUnset(offset)
+    }
+
+    interface "Countable" as SPL_Countable {
+      +count()
+    }
+
+    interface "Iterator" as SPL_Iterator {
+      +current()
+      +next()
+      +key()
+      +valid()
+      +rewind()
+    }
+
+    class "SplFixedArray" as SPL_SplFixedArray
+  }
+}
+
+package "Digitick" {
+  package "Foundation" {
+    package "Collection" {
+
+      interface "InterfaceCollection" as IF_Collection {
+        +addAll(InterfaceCollection elementCollection)
+        +clear()
+        +contains(element)
+        +containsAll(InterfaceCollection elementCollection)
+        +isEmpty()
+        +removeAll(interfaceCollection elementCollection)
+        +size()
+        +toArray()
+      }
+
+      interface "InterfaceSet" as IF_Set {
+        +add(element)
+        +get(element)
+        +remove(element)
+      }
+
+      abstract class "TraitCollection" as TR_Collection << (A,#BFEFFF) >> {
+        -indexOf(element, collectionObject)
+        -contains(element, collectionObject)
+      }
+
+      interface "InterfaceList" as IF_List {
+        +add(offset, element)
+        +remove(offset)
+        +get(offset)
+        +set(offset, element)
+        +indexOf(element)
+        +subList(fromIndex, toIndex)
+      }
+
+      abstract class "AbstractScalarSet" as ABS_ScalarSet << (A,#BFEFFF) >> {
+        #DEFAULT_SIZE
+        #nextAvailableOffset
+        #storageArray
+        #increaseSize(quantity=1)
+        #decreaseSize(quantity=1)
+        #shift(fromOffset)
+        #removeOffset(offset)
+      }
+
+      abstract class "AbstractObjectSet" as ABS_ObjectSet << (A,#BFEFFF) >> {
+        #storageArray
+        #nextAvailableOffset
+        #set(element, data)
+      }
+
+      abstract class "TraitTypedCollection" as TR_TypedCollection << (A,#BFEFFF) >> {
+        #CLASSORTYPENAME
+        -checkelementType(element)
+      }
+
+      abstract class "AbstractList" as ABS_List << (A,#BFEFFF) >>
+
+      abstract class "AbstractTypedScalarSet" as ABS_TypedScalarSet << (A,#BFEFFF) >>
+      class "BaseScalarSet" as BaseScalarSet << (C,#CFEFCF) >>
+      class "IntScalarSet" as IntScalarSet << (C,#CFEFCF) >>
+      class "StringScalarSet" as StringScalarSet << (C,#CFEFCF) >>
+
+      class "BaseObjectSet" as BaseObjectSet << (C,#CFEFCF) >>
+
+      abstract class "AbstractTypedObjectSet" as ABS_TypedObjectSet << (A,#BFEFFF) >>
+
+      abstract class "AbstractTypedList" as ABS_TypedList << (A,#BFEFFF) >>
+      class "BaseList" as BaseList << (C,#CFEFCF) >>
+      class "IntList" as IntList << (C,#CFEFCF) >>
+      class "StringList" as StringList << (C,#CFEFCF) >>
+    }
+  }
+}
+
+' Inheritance / realization inside Digitick
+IF_Set -|> IF_Collection
+IF_List -|> IF_Collection
+
+ABS_ScalarSet -|> IF_Set
+ABS_ObjectSet -|> IF_Set
+
+BaseScalarSet -|> ABS_ScalarSet
+IntScalarSet -|> ABS_ScalarSet
+StringScalarSet -|> ABS_ScalarSet
+ABS_TypedScalarSet -|> ABS_ScalarSet
+
+BaseObjectSet -|> ABS_ObjectSet
+
+ABS_TypedObjectSet -|> TR_TypedCollection
+ABS_TypedList -|> TR_TypedCollection
+
+ABS_List -|> IF_List
+ABS_TypedList -|> ABS_List
+BaseList -|> ABS_List
+
+IntList -|> ABS_TypedList
+StringList -|> ABS_TypedList
+
+TR_Collection -|> IF_Collection
+
+' SPL relations to Digitick
+IF_Collection -|> SPL_Countable
+IF_Collection -|> SPL_Iterator
+ABS_List -|> SPL_ArrayAccess
+
+SPL_SplFixedArray -|> SPL_Iterator
+@enduml

@@ -1,0 +1,78 @@
+```plantuml
+@startuml
+hide footbox
+skinparam backgroundColor #f6f2e6
+skinparam sequence {
+  LifeLineBorderColor #888
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #999
+  ParticipantBackgroundColor #e9e9ef
+  ActorBorderColor #999
+  ActorBackgroundColor #e9e9ef
+  BoxBorderColor #000
+  BoxBackgroundColor transparent
+  ArrowColor #000
+  ActivationBorderColor #333
+  ActivationBackgroundColor #666
+  NoteBorderColor #999
+  NoteBackgroundColor #fffde8
+}
+skinparam shadowing false
+
+participant "ebiz-salesman" as E
+participant "guide-event" as G
+participant "retail-sales" as R
+participant "tsp" as T
+
+E -> E : 1 监听账号合并消息，执行合并
+activate E
+E --> E : 2 返回
+deactivate E
+
+E -> E : 3 定时器扫描[扫描过滤出还未执行完成的明细任务],并调用相应 processor 执行
+activate E
+
+alt "[ 未完成 ]"
+  loop "[ tsp 回调执行 ]"
+    E -> E : 4 返回，等待其他 processor 任务执行
+    activate E
+    E --> E : 5
+    deactivate E
+  end
+else "[ 完成 ]"
+  E -> G : 6 发送账号合并完成消息[一个导购可能在 N 多家店有身份，那么将发送出 N 条消息]
+  activate G
+  E --> E : 7 ebiz-salesman 所有流程结束
+  deactivate E
+
+  G -> G : 8 开始消息处理流程
+  activate G
+  G -> G : 9 检查 apollo 是否开启账号合并开关
+  G --> G : 10
+
+  G -> G : 11 检查 shopping_guide_event_task 表是否已经存在此任务
+  G --> G : 12
+
+  note left of G
+  以 task_id 作为幂等键, task_id = SC:AM-rootKdtId-fromUId-toUId
+  end note
+
+  G -> G : 13 创建账号合并任务，将任务写入表
+  G --> G : 14
+
+  note left of G
+  1.shopping_guide_event_task
+  2.shopping_guide_event_detail_task
+  3.shopping_guide_event_exec_task
+  end note
+
+  G -> T : 15 创建 30 分钟延时任务，30分钟后检查并执行该任务
+  activate T
+  T --> G : 16
+  deactivate T
+
+  G --> G : 17 结束
+  deactivate G
+end
+@enduml
+```

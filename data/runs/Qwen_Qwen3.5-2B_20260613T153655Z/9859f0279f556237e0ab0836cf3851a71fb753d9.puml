@@ -1,0 +1,29 @@
+@startuml
+skinparam sequenceDiagram
+    participant AudioBundleAssembler as Client
+    participant UDPBundleReceiver as Server
+    participant UDPBundleSender as Server
+    participant QudpSocket as Server
+
+    Client ->> UDPBundleReceiver: rozpocznij watek odbierający
+    UDPBundleReceiver ->> UDPBundleSender: rozpocznij wysyłanie paczek
+    UDPBundleSender ->> QudpSocket: grupa 50 paczek
+
+    loop [dopóki nie pobrano wszystkich paczek]
+        loop [dopóki dostępne sa datagramy]
+            Client ->> UDPBundleReceiver: przekaz pobrane dotychczas datagramy
+            UDPBundleReceiver <- dane
+            UDPBundleReceiver ->> Client: odczytaj id paczki i zapisz
+            Client ->> UDPBundleSender: wyslij nastepny zestaw paczek
+            UDPBundleSender ->> QudpSocket: grupa 50 paczek
+            UDPBundleSender <- czy to ostatni zestaw
+            alt [istnieje paczki do retransmisji]
+                UDPBundleSender ->> QudpSocket: wyslij zestaw brakujących paczek
+            end
+        end
+    end
+
+    Client ->> UDPBundleReceiver: posortuj paczki
+    UDPBundleReceiver ->> Client: zapisz paczki do pliku
+
+@enduml

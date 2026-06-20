@@ -1,0 +1,22 @@
+{
+  "id": "16608bae-dddc-4b9c-b12f-82e05dd1e7ac",
+  "object": "chat.completion",
+  "created": 1781418576,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"Specialist Doctor\" as doctor\nparticipant \":CreateReportUI\" as ui\nparticipant \":CreateReportController\" as controller\nparticipant \":Company\" as company\nparticipant \":TestDiagnosis\" as testDiagnosis\nparticipant \"rp : TestReportStore\" as reportStore\n\ndoctor -> ui: 1 asks to create a new diagnosis\nactivate ui\nref \"US4_SD_testsDTO.puml\"\ndeactivate ui\n\nui -> doctor: 2 requests to choose a given test\ndoctor -> ui: 3 chooses a given test\nactivate ui\nui -> controller: 4 createTestDiagnosis(idTest)\nactivate controller\ncontroller -> testDiagnosis: 5 createTestDiagnosis(test)\nactivate testDiagnosis\ntestDiagnosis -> testDiagnosis: 6 createTestDiagnosis(testParameterList)\nactivate testDiagnosis\ntestDiagnosis -> testDiagnosis: obj : diagnosis\ndeactivate testDiagnosis\ntestDiagnosis -> controller: 7 getDiagnosis()\ndeactivate testDiagnosis\ncontroller -> ui: 8 getDiagnosis()\ndeactivate controller\nui -> doctor: 9 shows the diagnosis done automatically and requests the data for the report\ndoctor -> ui: 10 types the requested data\nactivate ui\nui -> controller: 11 createReport(idTest, diagnosis, report)\nactivate controller\ncontroller -> controller: 12 store = getTestReportStore()\nactivate controller\ncontroller -> reportStore: 13 createReport(idTest, diagnosis, report)\nactivate reportStore\nreportStore -> reportStore: 14 create(idTest, diagnosis, report)\ndeactivate reportStore\ncontroller -> reportStore: 15 validateReport()\nactivate reportStore\ndeactivate reportStore\nui -> doctor: 16 shows the typed data and asks for confirmation\ndoctor -> ui: 17 confirms the data\nactivate ui\nui -> controller: 18 saveReport(report)\nactivate controller\ncontroller -> company: 19 saveReport(report)\nactivate company\ncompany -> reportStore: 20 saveReport(report)\nactivate reportStore\nreportStore -> reportStore: 21 validateReport(report)\nactivate reportStore\ndeactivate reportStore\nreportStore -> reportStore: 22 addReport(report)\nactivate reportStore\ndeactivate reportStore\ndeactivate company\ndeactivate controller\nui -> doctor: 23 informs operation success\ndeactivate ui\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1566,
+    "completion_tokens": 524,
+    "total_tokens": 2090
+  }
+}

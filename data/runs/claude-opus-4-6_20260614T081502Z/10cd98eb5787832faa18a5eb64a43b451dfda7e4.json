@@ -1,0 +1,21 @@
+{
+  "id": "msg_012jfS4gNdc8k1yU5Lw4KWme",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nskinparam ParticipantPadding 5\nskinparam BoxPadding 5\n\nbox \"VideoSink\" #White\nparticipant \"SurfaceViewRenderer\" as SVR\nparticipant \"ProxyVideoSink\" as PVS\nparticipant \"VideoSinkWrapper\" as VSW\nparticipant \"VideoBroadcaster\" as VB\nend box\n\nbox \"VideoDecoder\" #White\nparticipant \"MediaCodecVideoDecoderStream\" as MCVDS\nparticipant \"IncomingVideoStream\" as IVS\nparticipant \"VideoStreamDecoder\" as VSD\nparticipant \"VCMDecodedFrameCallback\" as VDFC\nparticipant \"VideoDecoderCallback\" as VDC\nparticipant \"AndroidVideoDecoder\" as AVD\nparticipant \"VideoDecodeAndFrameCallbackWrapper\" as VDFCW\nparticipant \"VCMGenericDecoder\" as VCMGD\nend box\n\nbox \"VideoReceiver\" #White\nparticipant \"VideoReceiver\" as VR\nparticipant \"VideoRtpDecompressionHandler\" as VRDH\nparticipant \"VideoRtpReceiver\" as VRR\nend box\n\nbox \"RTPReceiver\" #White\nparticipant \"RtpDemuxer\" as RD\nparticipant \"RtpStreamReceiverController\" as RSRC\nparticipant \"RtpStreamReceiver\" as RSR\nend box\n\nbox \"Transceiver\" #White\nparticipant \"RtpTransport\" as RT\nparticipant \"SrtpTransport\" as ST\nparticipant \"webrtcDtlsTransport\" as WDT\nend box\n\nbox \"DTLS\" #White\nparticipant \"DtlsTransport\" as DT\nparticipant \"AsyncUDPSocket\" as AUP\nend box\n\n== Receive RTP ==\n\nAUP -> DT : OnReadPacket()\n\nnote right of AUP\n  RecvFrom()\n  MakeReceived\n  ...\n  readcb()\nend note\n\nDT -> DT : SignalReadEvent\nactivate DT\nDT -> DT : OnReadPacket()\nDT -> DT : HandleIncomingPacket()\ndeactivate DT\n\nDT -> WDT : UDPPort : OnReadPacket()\nDT -> WDT : PacketTransportInternal() : OnReadPacket()\nWDT -> WDT : ProcessConnection : OnReadPacket()\n\nWDT -> ST : webrtcDtlsTransport : OnReadPacket()\nST -> ST : RtpTransport::OnReadPacket()\n\nnote left of ST\n  SrtpTransportInternal()\n  RtpTransport\n  DtlsSrtpTransport\n  SrtpTransport\n  (DtlsSrtpTransport)\nend note\n\nST -> RT : RtpTransport : OnRtpPacketReceived()\n\nRT -> RD : OnRtpPacket()\n\nRD -> RSR : OnRtpPacket()\n\nnote right of RSR\n  RtpStreamReceiver()\n  (RtpVideoStreamReceiver2)\n  OnRtpPacket()\nend note\n\nRSR -> RSR : OnRtpPacket()\nRSR -> RSRC : OnRtpPacket()\nRSRC -> RSRC : OnRtpPacket()\n\n== Receive Video ==\n\nRSR -> RSR : OnRtpPacket()\n\nactivate RSR\nRSR -> RSR : ReceivePacket()\nRSR -> RSR : OnReceivedPayloadData()\nRSR -> RSR : OnAssembledFrame()\nRSR -> RSR : OnCompletePacket()\ndeactivate RSR\n\nVRDH -> VRDH : OnRtpPacket()\n\nRSR -> VRR : VideoRtpReceiver : OnCompleteFrame()\nVRR -> VRR : InsertFrame() : FrameBuffer\n\nnote over VRR : RESUME\n\nVRR -> VRR : HandleEncodedFrame()\nVRR -> VRR : VideoReceiver2 : Decode()\n\nVRR -> VCMGD : VCMGenericDecoder : Decode()\nVDFCW -> VDFCW : VideoDecodeAndFrameCallbackWrapper : Decode()\nAVD -> AVD : AndroidVideoDecoder : qbFrame()\nVDC -> VDC : VideoDecoderCallback : qbDecodedFrame()\nVDFC -> VDFC : VCMDecodedFrameCallback : Decoded()\nVSD -> VSD : VideoStreamDecoder : FrameToRender()\nIVS -> IVS : IncomingVideoStream : OnFrame()\n\nnote left of IVS\n  OnFrame()\n  ...\nend note\n\nIVS -> IVS : StartNewDecoder()\n\nMCVDS -> VB : OnFrame()\nVB -> VB : VideoBroadcaster : OnFrame()\nVSW -> VSW : VideoSinkWrapper : OnFrame()\nPVS -> PVS : ProxyVideoSink : onFrame()\nSVR -> SVR : SurfaceViewRenderer : onFrame()\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781431221,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 1243,
+    "prompt_tokens": 1272,
+    "total_tokens": 2515
+  }
+}

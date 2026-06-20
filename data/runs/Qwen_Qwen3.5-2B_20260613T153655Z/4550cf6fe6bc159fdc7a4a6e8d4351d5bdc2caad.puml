@@ -1,0 +1,48 @@
+@startuml
+package index {
+    class Index {
+        interface index(String term, File) -> void
+        interface search(String term) -> Set<File>
+        interface isPersistent() -> boolean
+    }
+
+    class PersistentIndex {
+        interface persist() -> void
+        interface restore() -> boolean
+    }
+
+    class InMemoryMapIndex {
+        attribute index: Map<String, Set<File>>
+    }
+
+    class MapIndex {
+        attribute indexFile: File
+        interface MapIndex(File, :Index)
+    }
+}
+
+package fulltextsearch {
+    package index
+}
+
+package ic6821 {
+    package fulltextsearch
+}
+
+package tec {
+    package ic6821
+}
+
+package edu {
+    package tec
+}
+
+index.Index ..> PersistentIndex : <<inherit>>
+index.Index ..> InMemoryMapIndex : <<inherit>>
+index.MapIndex ..> InMemoryMapIndex : <<delegate>> index
+
+index.PersistentIndex ..> index.Index : <<inherit>>
+index.PersistentIndex ..> index.MapIndex : <<inherit>>
+index.InMemoryMapIndex ..> index.MapIndex : <<inherit>>
+
+@enduml

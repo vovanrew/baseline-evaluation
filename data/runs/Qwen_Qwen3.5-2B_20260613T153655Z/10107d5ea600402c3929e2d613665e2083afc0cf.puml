@@ -1,0 +1,23 @@
+@startuml
+participant "client" as Client
+participant "fastAPI" as FastAPI
+participant "JobsCollection" as JobsCollection
+participant "Poller" as Poller
+participant "IngestService" as IngestService
+participant "MappingIngestor" as MappingIngestor
+participant "MongoSerializer" as MongoSerializer
+participant "DatabrokerCollections" as DatabrokerCollections
+participant "SciCatIngestor" as SciCatIngestor
+participant "Catamel" as Catamel
+
+Client ->|> FastAPI: file ready to ingest
+FastAPI -> JobsCollection: create Job
+Poller <- JobsCollection: poll for job
+Poller -> IngestService: ingest
+IngestService -> MappingIngestor: ingest
+MappingIngestor -> MongoSerializer: send docs
+MongoSerializer -> DatabrokerCollections: Persist docstream
+IngestService -> SciCatIngestor: ingest
+SciCatIngestor -> Catamel: many messages
+
+@enduml

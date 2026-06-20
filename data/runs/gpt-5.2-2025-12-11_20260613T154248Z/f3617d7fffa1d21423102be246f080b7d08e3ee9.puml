@@ -1,0 +1,75 @@
+```plantuml
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequence {
+  ParticipantPadding 30
+  BoxPadding 20
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor transparent
+  ActorBorderColor #333333
+  ActorBackgroundColor #EDEBFF
+  ParticipantBorderColor #333333
+  ParticipantBackgroundColor #EDEBFF
+  NoteBackgroundColor #FFF9C4
+  NoteBorderColor #666666
+  ArrowColor #333333
+  MessageAlign left
+}
+hide footbox
+
+box "Kjede" #E6E6E6
+actor Bruker as Bruker
+participant "Kjedesystem" as Kjedesystem
+participant "Identity Provider" as IdP
+end box
+
+box "DIFA" #E6E6E6
+participant "DifaGUI" as DifaGUI
+participant "Tilgangskontroll" as Tilgangskontroll
+database "HPR-DB" as HPRDB
+end box
+
+participant "HDIR" as HDIR
+
+HDIR -> HPRDB : Oppdatert\nhelsepersonellregister
+
+Bruker -> Kjedesystem : Velg DIFA operasjon fra meny
+Kjedesystem --> Bruker : Redirect
+
+Bruker -> DifaGUI : Utfør operasjon
+DifaGUI --> Bruker : Krever pålogging – redirect
+
+Bruker -> IdP : Logg på
+IdP --> Bruker : Access token
+
+Bruker -> DifaGUI : Access token
+
+activate DifaGUI
+DifaGUI -> Tilgangskontroll : Autoriser bruker
+activate Tilgangskontroll
+
+Tilgangskontroll -> IdP : Access token
+IdP --> Tilgangskontroll : JWT
+
+note left of DifaGUI
+token er en signert JSON payload
+end note
+
+Tilgangskontroll -> IdP : «cached» Hent kjedesertifikat
+
+Tilgangskontroll -> Tilgangskontroll : Verifiser token signatur
+Tilgangskontroll -> Tilgangskontroll : Hent HPR nr fra token (+ roller)
+
+Tilgangskontroll -> HPRDB : HPR nummer
+HPRDB --> Tilgangskontroll : Autorisasjon (eks "farmasøyt")
+
+Tilgangskontroll -> Tilgangskontroll : Avgjør tilgang
+
+Tilgangskontroll --> DifaGUI
+deactivate Tilgangskontroll
+
+DifaGUI -> DifaGUI : utfør operasjon
+deactivate DifaGUI
+
+@enduml
+```

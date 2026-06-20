@@ -1,0 +1,33 @@
+@startuml
+title New User Workflow
+
+actor User
+participant "uFR Nano" as NFC
+participant "Raspberry Pi" as Pi
+participant "WebInterface" as Web
+participant "PiPass" as PiPass
+participant "DB" as DB
+
+alt [Tap First Example]
+  User -> NFC: 1 Tap
+  Pi -> NFC: 2 Polling Service
+  NFC -> PiPass: 3 Ack Tap
+  PiPass -> DB: 4 User Lookup
+  DB -> PiPass: 5 Zero Results
+  PiPass -> PiPass: 6 Set user state to new.\nAwait WebInterface interaction.
+  NFC -> Web: 7 Complete Registration Workflow
+end
+
+alt [Web Create]
+  Web -> PiPass: 8 Start Registration Workflow
+  PiPass -> PiPass: 9 Save registration.\nAwait next unassigned tap.
+  NFC -> PiPass: 10 Ack Tap
+  PiPass -> DB: 11 User Lookup
+  DB -> PiPass: 12 Zero Results
+  PiPass -> PiPass: 13 Complete Registration
+  PiPass -> DB: 14 Save user details
+  PiPass -> Web: 15 Ack user registration
+  Web -> User: 16 Confirm
+end
+
+@enduml

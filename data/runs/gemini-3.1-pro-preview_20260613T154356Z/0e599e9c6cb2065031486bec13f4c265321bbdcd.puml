@@ -1,0 +1,98 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+class Key #khaki {
+  + public
+  # protected
+  - private
+  --
+  + publiic method()
+  # protected method()
+  - private method()
+}
+
+abstract class Creator #palegreen {
+  + SceneManager makeScene(QJsonObject spec)
+  # {abstract} Table makeTable(QJsonObject spec);
+  # {abstract} Ball makeBall(QJsonObject spec);
+}
+
+class SceneBuilder {
+  + void setTable(Table);
+  + void addBall(Ball);
+  + void resetBalls();
+  + SceneManager build();
+}
+
+class MainWindow {
+  - QTimer updater;
+  - QTimer ticker;
+  - QElapsedTimer timer;
+  - SceneManager scene;
+  --
+  + void paintEvent(QPaintEvent event);
+  == slots ==
+  + void tick();
+  + void nextFrame();
+}
+
+class SceneManager {
+  - Table table;
+  - vector<Ball> balls;
+  - QPoint offset;
+  --
+  QSize viewPort();
+  void tick(float dtime);
+  void draw(QPainter painter);
+}
+
+class SimpleCreator {
+  # Table makeTable(QJsonObject spec);
+  # Ball makeBall(QJsonObject spec);
+}
+
+abstract class Graphic #powderblue {
+  + {abstract} void draw(QPainter painter);
+}
+
+class Table #palegreen {
+  + QSize dimension;
+  + float surface_friction;
+}
+
+class Ball #palegreen {
+  + float mass;
+  + QVector2D position;
+  + QVector2D velocity;
+  + float radius;
+}
+
+class SimpleTable {
+  - QColor color;
+  --
+  + void draw(QPainter painter);
+}
+
+class SimpleBall {
+  - QColor color;
+  --
+  + void draw(QPainter painter);
+}
+
+Creator <|.. SimpleCreator
+Creator --> SceneBuilder
+SceneBuilder ..> SceneManager
+MainWindow *-- SceneManager
+SceneManager *-- Table
+SceneManager *-- Ball
+SceneManager ..|> Graphic
+Graphic <|.. Table
+Graphic <|.. Ball
+Table <|-- SimpleTable
+Ball <|-- SimpleBall
+SimpleCreator ..> SimpleTable
+SimpleCreator ..> SimpleBall
+
+@enduml
+```

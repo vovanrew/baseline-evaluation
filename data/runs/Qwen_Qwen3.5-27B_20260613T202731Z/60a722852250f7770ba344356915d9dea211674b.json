@@ -1,0 +1,22 @@
+{
+  "id": "3d0bb646-1005-4eff-8ad4-4d0416449143",
+  "object": "chat.completion",
+  "created": 1781437327,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam shadowing false\n\nactor \"Teacher\" as Teacher\nboundary \"UpdateRollCallForm\" as UpdateRollCallForm\ncontrol \"StudentController\" as StudentController\nentity \"RollCall\" as RollCall\nentity \"ClassroomMember\" as ClassroomMember\n\nactivate Teacher\nactivate UpdateRollCallForm\n\nTeacher -> UpdateRollCallForm: 1 // request update roll call\nactivate StudentController\nUpdateRollCallForm -> StudentController: 2 // request update roll call\nactivate ClassroomMember\nStudentController -> ClassroomMember: 3 // checking information is valid\n\nalt [information is valid]\n    ClassroomMember --> StudentController: 5 // Information is valid\n    activate RollCall\n    StudentController -> RollCall: 6 // Request make roll call\n    deactivate RollCall\n    StudentController --> UpdateRollCallForm: 8 // Roll call update done\n    deactivate StudentController\n    UpdateRollCallForm --> Teacher: 9 // Roll call done\nelse [information is not valid]\n    ClassroomMember --> StudentController: 5.1 // Information is not valid\n    StudentController --> UpdateRollCallForm: 5.2 // Roll call update failed\n    UpdateRollCallForm --> Teacher: 5.3 // Roll call failed, check information again\nend\n\ndeactivate ClassroomMember\ndeactivate UpdateRollCallForm\ndeactivate Teacher\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1566,
+    "completion_tokens": 295,
+    "total_tokens": 1861
+  }
+}

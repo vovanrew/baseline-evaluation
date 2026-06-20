@@ -1,0 +1,31 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+participant "App" as App
+participant "OperateStructure" as OperateStructure
+participant "OperateNodeA" as OperateNodeA
+participant "OperateNodeB" as OperateNodeB
+participant "VisitorA" as VisitorA
+
+App -> OperateStructure : new新建
+activate OperateStructure
+OperateStructure -> OperateNodeA : 调用OperateNode中的accept(Visitor)方法
+activate OperateNodeA
+OperateStructure -> OperateNodeB : 调用OperateNode中的accept(Visitor)方法
+activate OperateNodeB
+OperateNodeA -> VisitorA : 调用Visitor中的visit(OperateNodeA)方法
+activate VisitorA
+VisitorA --> OperateNodeA : 调用OperateNode中的attendance()方法,返回结果
+deactivate VisitorA
+OperateNodeB -> VisitorA : 调用Visitor中的visit(OperateNodeB)方法
+activate VisitorA
+deactivate VisitorA
+deactivate OperateNodeB
+deactivate OperateNodeA
+OperateNodeA --> OperateStructure
+OperateStructure --> App
+deactivate OperateStructure
+
+@enduml
+```

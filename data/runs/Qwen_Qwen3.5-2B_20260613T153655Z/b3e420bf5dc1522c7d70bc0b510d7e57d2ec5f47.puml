@@ -1,0 +1,84 @@
+@startuml
+package Actor {
+    class DataAnalysisCLI {
+        data: DataFrame
+        reader: KeyboardReader
+        DataAnalysisCLI()
+        run(): void
+        main(args: String[]): void
+    }
+}
+
+package Interface {
+    interface IBasicStats {
+        getMin(): double
+        getMax(): double
+        getSum(): double
+        getMean(): double
+    }
+}
+
+package Database {
+    class DataFrame {
+        fileName: String
+        headerNames: String[]
+        numOfRows: int
+        numOfCols: int
+        csvData: double[][]
+        DataFrame(fileName: String)
+        toString(): String
+        getColumnByIndex(index: int): Series
+        getHeaderNames(): String[]
+        numOfRows(): int
+        numOfCols(): int
+    }
+}
+
+class KeyboardReader {
+    reader: BufferedReader
+    KeyboardReader()
+    getKeyboardInput(): String
+    getKeyboardInteger(): int
+    getKeyboardDouble(): double
+    prompt(s: String): void
+    display(s: String): void
+    readKeyboard(): String
+}
+
+class Series {
+    label: String
+    data: double[]
+    count: int
+    Series(label: String)
+    size(): int
+    add(val: double): void
+    getMin(): double
+    getMax(): double
+    getSum(): double
+    getMean(): double
+    toString(): String
+}
+
+class DataSeries {
+    label: String
+    data: double[]
+    count: int
+    DataSeries(label: String)
+    size(): int
+    add(val: double): void
+    getMin(): double
+    getMax(): double
+    getSum(): double
+    getMean(): double
+    toString(): String
+}
+
+DataAnalysisCLI --* DataFrame : 1
+DataAnalysisCLI --* KeyboardReader : 1
+DataAnalysisCLI --* DataSeries : 1
+DataSeries --* DataFrame : 1
+DataSeries --* KeyboardReader : 1
+DataSeries --* DataSeries : 1
+DataSeries --* IBasicStats : 1
+
+@enduml

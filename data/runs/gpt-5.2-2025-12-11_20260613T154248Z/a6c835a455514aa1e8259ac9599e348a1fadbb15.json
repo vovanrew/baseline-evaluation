@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLpEBqreplKibmvxu2fPpraKFEND",
+  "object": "chat.completion",
+  "created": 1781369324,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle End Screen Action Sequences\n\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #000000\n  LifeLineBorderColor #666666\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #EDEDED\n  GroupBorderColor #666666\n  GroupBackgroundColor #FFFFFF\n  BoxBorderColor #666666\n  BoxPadding 10\n}\n\nactor User\n\nbox \"Views\" #A9D7E6\nparticipant Game\nparticipant End\nparticipant HighScore\nparticipant Start\nend box\n\nbox \"User Interface Control\" #A9D7E6\nparticipant Navigation\nend box\n\nbox \"Back End\" #B86AB8\nparticipant Settings\nparticipant JoggleCube\nparticipant HighScores\nparticipant Score\nparticipant Cube\nparticipant Block\nend box\n\n== High Score button clicked ==\nUser -> End : btnHighScoreClicked()\nactivate End\nEnd -> Navigation : show(ScreenType.HighScore)\nactivate Navigation\nNavigation -> HighScore : prepView()\nactivate HighScore\nHighScore -> JoggleCube : getOverallHighScores()\nactivate JoggleCube\nJoggleCube -> HighScores : getScores()\nactivate HighScores\nHighScores --> JoggleCube : scores\ndeactivate HighScores\nJoggleCube --> HighScore : scores\ndeactivate JoggleCube\n\nHighScore -> JoggleCube : getCurrentCubeHighScores()\nactivate JoggleCube\nJoggleCube -> HighScores : getScores()\nactivate HighScores\nHighScores --> JoggleCube : scores\ndeactivate HighScores\nJoggleCube --> HighScore : scores\ndeactivate JoggleCube\ndeactivate HighScore\n\nNavigation -> End : hideOverlay(ScreenType.End)\ndeactivate Navigation\ndeactivate End\n\n== Menu Clicked ==\nUser -> End : btnMenuClicked()\nactivate End\nEnd -> Navigation : show(ScreenType.Start)\nactivate Navigation\nNavigation -> Start : prepView()\nactivate Start\nStart -> Settings : getCurrLang()\nactivate Settings\nSettings --> Start : English\ndeactivate Settings\ndeactivate Start\nNavigation -> End : hideOverlay(ScreenType.End)\ndeactivate Navigation\ndeactivate End\n\n== Replay clicked ==\nUser -> End : replayGrid()\nactivate End\nEnd -> Navigation : show(ScreenType.GAME)\nactivate Navigation\nNavigation -> Game : prepView()\nactivate Game\nGame -> JoggleCube : getCubeData()\nactivate JoggleCube\nJoggleCube -> Cube : getCube()\nactivate Cube\nCube --> JoggleCube : cube[3][3][3]\ndeactivate Cube\nJoggleCube --> Game : cube[3][3][3]\ndeactivate JoggleCube\ndeactivate Game\nNavigation -> End : hideOverlay(ScreenType.End)\ndeactivate Navigation\ndeactivate End\n\n== Save Clicked ==\nUser -> End : btnSaveClicked()\nactivate End\nEnd -> JoggleCube : savGrid(filename)\nactivate JoggleCube\n\nJoggleCube -> Cube : saveCube(outfile)\nactivate Cube\nloop foreach Block\n  Cube -> Block : getLetter()\n  activate Block\n  Block --> Cube\n  deactivate Block\nend\nCube --> JoggleCube\ndeactivate Cube\n\nJoggleCube -> HighScores : saveScore(outfile)\nactivate HighScores\nloop foreach score\n  HighScores -> Score : save(outfile)\n  activate Score\n  Score --> HighScores\n  deactivate Score\nend\nHighScores --> JoggleCube\ndeactivate HighScores\n\ndeactivate JoggleCube\ndeactivate End\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2195,
+    "completion_tokens": 722,
+    "total_tokens": 2917,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

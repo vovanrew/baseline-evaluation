@@ -1,0 +1,107 @@
+```plantuml
+@startuml
+title Taskset Execution Sequence Diagram
+
+' Define participants with appropriate stereotypes
+participant "Client" as Client
+rectangle "Master" {
+    participant "Dispatcher" as Dispatcher
+    database "Database" as Database
+    participant "RSyncServer" as RSyncServer
+    participant "Arbiter" as Arbiter
+}
+rectangle "Worker" {
+    participant "Worker" as Worker
+}
+
+' Initial task creation and dispatching
+Client -> Dispatcher: Create a taskset
+activate Dispatcher
+Dispatcher -> Database: Enqueue tasks
+deactivate Dispatcher
+
+Client -> Dispatcher: Taskset request
+activate Dispatcher
+Dispatcher -> Worker: Taskset dispatch
+activate Worker
+Worker -> Database: Log the worker participation
+deactivate Worker
+
+' Synchronization phase
+note over RSyncServer, Worker: RSync
+RSyncServer -> Worker: RSync
+activate Worker
+deactivate Worker
+
+' Setup phase
+note over RSyncServer, Worker: Setup
+Worker -> Worker: Worker setup
+activate Worker
+Worker -> Database: Add a worker setup log
+deactivate Worker
+
+alt setup failed
+    Worker -> Arbiter: Fail request
+    activate Arbiter
+    Arbiter -> Database: Mark the taskset as failed
+    Arbiter -> Worker: Notify the taskset is marked as failed
+    deactivate Arbiter
+end
+
+' Testing phase
+note over Arbiter, Worker: Testing
+Worker -> Slave: Spawn slaves
+activate Slave
+Slave -> Slave: Slave setup
+deactivate Slave
+
+loop while tasks exist
+    Slave -> Database: Dequeue a task
+    Database --> Slave: Return a task
+    Slave -> Database: Add a trial
+    Slave -> Slave: Execute a task
+    activate Slave
+    deactive Slave
+    Slave -> Database: Add a trial result
+    Slave -> Arbiter: Notify the trial result
+    activate Arbiter
+    
+    Arbiter -> Database: Query the trial result
+    Database --> Arbiter: Respond to the query
+    
+    alt passed or pending
+        Arbiter -> Database: Mark the task as finished
+    else retry needed
+        Arbiter -> Database: Enqueue the task
+    else no more retries
+        Arbiter -> Database: Mark the task as failed
+    end
+    deactivate Arbiter
+end
+
+Slave -> Database: Dequeue a task
+Database --> Slave: No tasks left
+deactivate Slave
+
+Arbiter -> Database: Check request
+activate Arbiter
+Arbiter -> Database: Check whether all tasks are finished
+
+alt some tasks are left
+    Arbiter -> Database: Enqueue the tasks
+else
+    Arbiter -> Database: Mark the taskset as finished
+    Arbiter -> Worker: Notify the taskset is marked as finished
+    Worker -> Slave: Kill slaves
+    deactivate Slave
+    deactivate Worker
+    Slave -> Database: Add slave logs
+end
+deactivate Arbiter
+
+' Final status query
+Client -> Database: Query the status of the taskset
+Database --> Client: Respond to the query
+
+@enduml
+```

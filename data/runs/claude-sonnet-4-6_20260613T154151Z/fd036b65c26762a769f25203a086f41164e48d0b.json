@@ -1,0 +1,21 @@
+{
+  "id": "msg_01A163tHirPk515596WAyqoB",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor client\nparticipant gateway\nparticipant \"developer-service\" as developer_service\ndatabase \"devs-db\" as devs_db\nparticipant broker\nparticipant \"planning-service\" as planning_service\ndatabase \"planning-db\" as planning_db\n\nclient -> gateway : POST dev\nactivate gateway\ngateway -> developer_service : POST dev\nactivate developer_service\ndeveloper_service -> devs_db : persist\ndeveloper_service -> gateway : response 201\ndeactivate developer_service\ngateway -> client : 201\ndeactivate gateway\ndeveloper_service -> broker : emit DevCreated Event\nbroker -> planning_service : consume Event\nactivate planning_service\nplanning_service -> planning_db : persist Dev\ndeactivate planning_service\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781369802,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 175,
+    "prompt_tokens": 1646,
+    "total_tokens": 1821
+  }
+}

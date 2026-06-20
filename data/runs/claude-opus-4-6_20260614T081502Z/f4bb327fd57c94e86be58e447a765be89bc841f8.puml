@@ -1,0 +1,57 @@
+```plantuml
+@startuml
+
+database Database
+participant ManageLogDemo
+participant ManageLogReceiveFacade
+participant ManageLogReceiveProvider
+participant ManageLogCommon
+participant AnotherJavaProject
+participant ManageLogUploadFacade
+participant AnotherProject
+participant ManageLogQueryProvider
+participant ManageLogQueryFacade
+
+group rpc 上传日志
+    ManageLogDemo -> ManageLogReceiveFacade : aspect 获取数据
+    ManageLogReceiveFacade -> ManageLogReceiveProvider : rpc/http/kafka，数据为业务数据，configName
+    ManageLogReceiveProvider -> ManageLogCommon : 使用工具类
+    ManageLogCommon -> ManageLogReceiveProvider : 抓取配置
+    ManageLogReceiveProvider -> Database : 落地数据
+end
+
+group 自主使用 facade 上传日志
+    AnotherJavaProject -> ManageLogReceiveFacade : 自己组装数据，使用 facade 提供的策略上传
+    ManageLogReceiveFacade -> ManageLogReceiveProvider : rpc/http/kafka，数据为业务数据，configName
+    ManageLogReceiveProvider -> ManageLogCommon : 使用工具类
+    ManageLogCommon -> ManageLogReceiveProvider : 抓取配置
+    ManageLogReceiveProvider -> Database : 落地数据
+end
+
+group 自主上传日志
+    AnotherProject -> ManageLogReceiveProvider : http/kafka，数据为业务数据，configName
+    ManageLogReceiveProvider -> ManageLogCommon : 使用工具类
+    ManageLogCommon -> ManageLogReceiveProvider : 抓取配置
+    ManageLogReceiveProvider -> Database : 落地数据
+end
+
+group 日志查询
+    Database -> Database : 获取数据
+    Database -> ManageLogQueryProvider
+    ManageLogQueryProvider -> ManageLogQueryFacade : rpc 提供
+    ManageLogQueryFacade -> ManageLogQueryProvider : http 提供（默认）
+end
+
+database Database
+participant ManageLogDemo
+participant ManageLogReceiveFacade
+participant ManageLogReceiveProvider
+participant ManageLogCommon
+participant AnotherJavaProject
+participant ManageLogUploadFacade
+participant AnotherProject
+participant ManageLogQueryProvider
+participant ManageLogQueryFacade
+
+@enduml
+```

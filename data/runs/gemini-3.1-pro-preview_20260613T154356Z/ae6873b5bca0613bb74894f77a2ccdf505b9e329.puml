@@ -1,0 +1,22 @@
+```plantuml
+@startuml
+participant halon
+participant ios1
+participant ios2
+participant client
+
+... SNS operation ...
+
+halon -> ios2 : m0_spiel_repair_abort
+destroy ios1
+destroy ios2
+
+loop until all IOS are in [IDLE,FAILED]
+    halon -> ios2 : repair status request
+    ios2 -> halon : repair status reply
+end
+
+halon -> client : notify [(pool, PREVIOUS_STATE), (disk, PREVIOUS_STATE)]
+
+@enduml
+```

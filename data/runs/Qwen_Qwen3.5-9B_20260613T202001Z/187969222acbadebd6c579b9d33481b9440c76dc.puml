@@ -1,0 +1,111 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+  FontColor Black
+  FontSize 12
+}
+
+class "User" {
+  int id
+  string name
+  string github ( github地址 )
+  string sex
+  string picture
+}
+
+class "Teacher" {
+  int teacherNumber ( 工号 )
+  string office ( 办公室 )
+  string phone
+}
+
+class "Student" {
+  int studentNumber ( 学号 )
+  string class ( 班级 )
+}
+
+class "TeacherCourse" {
+  int id
+  int teacherId
+  int courseId
+}
+
+class "StudentCourse" {
+  int id
+  int studentId
+  int courseId
+}
+
+class "Course" {
+  int id
+  int courseNum
+  string name
+  string term
+  float credit ( 学分 )
+}
+
+class "Experiment" {
+  int id
+  string name ( 实验名 )
+  Date date ( 实验发布时间 )
+  string github ( 实验的github地址 )
+  int courseId ( 与Course类的id关联 )
+}
+
+class "Scoreitem" {
+  int id
+  int complexScore ( 复杂度得分 )
+  int completeScore ( 完成度得分 )
+  int answerScore ( 答辩得分 )
+}
+
+class "Experimentscore" {
+  int id
+  int username ( 学生账号就是学号，老师账号是工号 )
+  string password
+  int role ( 角色 )
+}
+
+class "Login" {
+  int id
+  int username ( 学生账号就是学号，老师账号是工号 )
+  string password
+  int role ( 角色 )
+}
+
+class "Experimentcore" {
+  int id
+  int studentId ( 与学生关联 )
+  int scoreitemId ( 与scoreitem关联 )
+}
+
+"User" <|-- "Teacher"
+"User" <|-- "Student"
+
+"Teacher" -- "TeacherCourse" : 1..n
+"Student" -- "StudentCourse" : 1..n
+"TeacherCourse" -- "Course" : n..1
+"StudentCourse" -- "Course" : n..1
+"Course" -- "Experiment" : 1..n
+"Experiment" -- "Scoreitem" : 1..n
+"Scoreitem" -- "Experimentscore" : 1..n
+"Experimentscore" -- "Login" : n..1
+"Experimentscore" -- "Experimentcore" : n..1
+
+note right of "Scoreitem"
+  一个scoreitem实例就表示了一个学生的一个实验成绩
+end note
+
+note right of "TeacherCourse"
+  “老师选课”类
+end note
+
+note right of "StudentCourse"
+  “学生选课”类
+end note
+
+@enduml

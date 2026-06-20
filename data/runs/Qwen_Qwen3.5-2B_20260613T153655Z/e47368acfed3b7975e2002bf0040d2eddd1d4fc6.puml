@@ -1,0 +1,29 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "tuple" as T
+participant "Upper layer" as U
+participant "IP Layer" as IP
+participant "IPv4 Inetface" as IPv4
+participant "ARP" as ARP
+participant "Lower layer" as L
+
+T -- U : IPv4.dst = 192.0.2.1
+
+U -> IP : IPdata
+IP -> IP : Allocate IPv4 header
+IP -- IP : dst = 192.0.2.1
+IP -- T : IPv4.oif = ifp1
+IP -- T : IPv4.gw = 198.51.100.1
+IP -- T : IPv4.src = 198.51.100.2
+IPv4 -- IPv4 : gw = 198.51.100.1
+IPv4 -- ARP : mac = 00:00:0e:00:00:01
+ARP -- IPv4 : (implicit)
+IPv4 -- L : Ether.dst = 00:00:0e:00:00:01
+L -- IPv4 : (implicit)
+
+IP -- IPv4 : Routing table
+IP -- IPv4 : IPv4 layer
+IP -- IPv4 : IPv4 interface
+IP -- ARP : (implicit)
+@enduml

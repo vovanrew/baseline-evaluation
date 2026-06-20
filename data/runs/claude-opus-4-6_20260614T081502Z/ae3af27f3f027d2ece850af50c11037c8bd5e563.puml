@@ -1,0 +1,63 @@
+```plantuml
+@startuml
+
+participant "main" as main
+participant "bkup.BackupFacade" as facade
+participant "srcrepo.SourceRepository" as srcrepo
+participant "dstrepo.DestinationRepository" as dstrepo
+participant "metarepo.MetadataRepository" as metarepo
+participant "scanner.AllFileScanner" as scanner
+database "FileSystem" as fs
+database "SQLite3" as db
+
+main -> facade : execute()
+
+group Get all files
+    facade -> scanner : get_all_files()
+    scanner <-- fs
+    facade <-- scanner : all_files
+end
+
+group Get source files
+    facade -> srcrepo : get_files_matching_criteria(all_files)
+    facade <-- srcrepo : src_files
+end
+
+group Cleanup of metadata corresponding to already deleted files
+    facade -> metarepo : get_uncontained_keys(src_files)
+    metarepo -> db : SELECT
+    metarepo <-- db : result
+    facade <-- metarepo : uncontained_keys
+    facade -> metarepo : remove_metadatas(uncontained_keys)
+    loop [until the generator finishes]
+        metarepo -> db : DELETE
+        facade <-- metarepo : **yield** removed_metadata <return value is discarded>
+    end
+end
+
+group Create backup and update metadata
+    facade -> facade : _get_backup_list(src_files)
+    facade <-- facade : backup_list
+    facade -> dstrepo : create_backups(backup_list)
+    loop [until the generator finishes]
+        dstrepo -> fs : shutil.copy2(src_file, dst_file)
+        facade <-- dstrepo : **yield** backed_up_src_file
+        facade -> metarepo : update_metadata(backed_up_src_file)
+        metarepo -> db : REPLACE INTO
+    end
+end
+
+group Discard old backups
+    facade -> dstrepo : get_discard_list(today, all_files)
+    facade <-- dstrepo : discard_list
+    facade -> dstrepo : remove_backups(discard_list)
+    loop [until the generator finishes]
+        dstrepo -> fs : os.remove(file_to_be_removed)
+        facade <-- dstrepo : **yield** removed_file <return value is discarded>
+    end
+end
+
+facade --> main : return
+
+@enduml
+```

@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLkGujoQiJfjIJSW1EBIgNFGjXoM",
+  "object": "chat.completion",
+  "created": 1781369016,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequenceMessageAlign left\nskinparam ParticipantPadding 25\nskinparam BoxPadding 10\n\nactor Actor as A\nboundary Dashboard as Dashboard\n\ncontrol DashboardController as DashboardController\ncontrol IssuesDetailController as IssuesDetailController\ncontrol IssuesService as IssuesService\ncontrol IssuesEntityService as IssuesEntityService\ncontrol EntityService as EntityService\ndatabase IssuesRepository as IssuesRepository\ndatabase IssueRepository as IssueRepository\n\n== Issues ==\nA -> Dashboard : /issues\nDashboard -> DashboardController : createIssues()\ndestroy Dashboard\ncreate Table\nDashboardController -> Table : new / redirect\n\npar\n  Table -> IssuesDetailController : getIssues()\n  activate IssuesDetailController\n  IssuesDetailController -> IssuesService : createIssuesStatistics()\n  activate IssuesService\n  IssuesService -> IssuesEntityService : findAll()\n  activate IssuesEntityService\n  IssuesEntityService -> EntityService : selectAllIssues()\n  activate EntityService\n  EntityService -> IssuesRepository : findAll()\n  activate IssuesRepository\n\n  loop\n    create Issues\n    IssuesRepository -> Issues : new\n  end\n\n  loop\n    IssuesRepository -> IssueRepository : findById(id)\n    activate IssueRepository\n    create Issue\n    IssueRepository -> Issue : new\n    IssueRepository --> IssuesRepository : Issue\n    deactivate IssueRepository\n  end\n\n  IssuesRepository --> EntityService : Set<Issues>\n  deactivate IssuesRepository\n  EntityService --> IssuesEntityService : Set<Issues>\n  deactivate EntityService\n  IssuesEntityService --> IssuesService : Set<Issues>\n  deactivate IssuesEntityService\n  IssuesService --> IssuesDetailController : IssuesStatistics\n  deactivate IssuesService\n  IssuesDetailController --> Table : IssuesStatistics\n  deactivate IssuesDetailController\nend\n\nA -> Table : select report\nTable -> DashboardController : details\ndestroy Table\ncreate Details\nDashboardController -> Details : new / redirect\n\npar\n  Details -> IssuesDetailController : getCategories(origin, reference)\n  activate IssuesDetailController\n  IssuesDetailController -> IssuesService : createDistributionByCategory(origin, reference)\n  activate IssuesService\n  IssuesService -> IssuesEntityService : findByPrimaryKey(origin, reference)\n  activate IssuesEntityService\n  IssuesEntityService -> EntityService : select(origin, reference)\n  activate EntityService\n  EntityService -> IssuesRepository : findById(origin, reference)\n  activate IssuesRepository\n\n  create Issues\n  IssuesRepository -> Issues : new\n\n  loop\n    IssuesRepository -> IssueRepository : findById(id)\n    activate IssueRepository\n    create Issue\n    IssueRepository -> Issue : new\n    IssueRepository --> IssuesRepository : Issue\n    deactivate IssueRepository\n  end\n\n  IssuesRepository --> EntityService : Issues\n  deactivate IssuesRepository\n  EntityService --> IssuesEntityService : Issues\n  deactivate EntityService\n  IssuesEntityService --> IssuesService : Issues\n  deactivate IssuesEntityService\n  IssuesService --> IssuesDetailController : IssuePropertyDistribution\n  deactivate IssuesService\n  IssuesDetailController --> Details : IssuePropertyDistribution\n  deactivate IssuesDetailController\nend\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2388,
+    "completion_tokens": 647,
+    "total_tokens": 3035,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

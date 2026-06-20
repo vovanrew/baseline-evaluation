@@ -1,0 +1,53 @@
+@startuml
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+
+skinparam package {
+  BorderColor #000000
+  FontStyle bold
+}
+
+skinparam class {
+  BackgroundColor #F2F2F2
+  BorderColor #666666
+}
+
+package "Documents" as PDocs #F8D7DA {
+  interface "Document" as IDocument
+  class "StringDocument" as CStringDocument
+  class "URLDocument" as CURLDocument
+  class "FileDocument" as CFileDocument
+
+  CStringDocument ..|> IDocument
+  CURLDocument ..|> IDocument
+  CFileDocument ..|> IDocument
+}
+
+package "Indexes" as PIdx #DFF7D8 {
+  interface "SimilarityIndex" as ISimilarityIndex
+  class "CachingSimilarityIndex" as CCachingSimilarityIndex
+  class "JaacardIndex" as CJaacardIndex
+
+  CCachingSimilarityIndex ..|> ISimilarityIndex
+  CJaacardIndex ..|> ISimilarityIndex
+}
+
+package "Shingles" as PSh #D9DDFB {
+  interface "Shinglizer" as IShinglizer
+  class "WordShinglizer" as CWordShinglizer
+
+  CWordShinglizer ..|> IShinglizer
+}
+
+package "MinHash" as PMH #F6D5F6 {
+  class "HashGenerator" as CHashGenerator
+  class "MinHash" as CMinHash
+}
+
+ISimilarityIndex - IDocument
+
+CJaacardIndex o-- IShinglizer
+CJaacardIndex *-- CHashGenerator
+CJaacardIndex *-- CMinHash
+@enduml

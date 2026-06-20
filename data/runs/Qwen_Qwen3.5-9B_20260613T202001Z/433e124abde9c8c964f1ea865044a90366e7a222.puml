@@ -1,0 +1,52 @@
+@startuml
+'!option handwritten true
+
+title 迭代器模式
+
+' Aggregate interface
+interface Aggregate {
+  <<interface>>
+  + Iterator iterator()
+}
+
+' Iterator interface
+interface Iterator {
+  <<interface>>
+  + boolean hasNext()
+  + T next()
+}
+
+' BookShelf class
+class BookShelf {
+  <<class>>
+  + BookIterator iterator()
+}
+
+' BookIterator class
+class BookIterator {
+  <<class>>
+  - BookShelf bookShelf
+  + boolean hasNext()
+  + Book next()
+}
+
+' Relationships
+Aggregate ..|> BookShelf : implements
+Iterator ..|> BookIterator : implements
+BookShelf --> BookIterator : contains
+
+' Notes
+note left of Aggregate
+  集合，用于创建Iterator迭代器接口
+end note
+
+note right of BookIterator
+  具体的迭代器，
+  包含了遍历集合所必须的信息（bookShelf）
+end note
+
+note left of BookShelf
+  会创建出具体的Iterator角色
+end note
+
+@enduml

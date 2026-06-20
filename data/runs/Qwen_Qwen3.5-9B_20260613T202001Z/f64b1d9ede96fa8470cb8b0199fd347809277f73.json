@@ -1,0 +1,22 @@
+{
+  "id": "471799f3-8c57-4b6c-9881-c96003d36633",
+  "object": "chat.completion",
+  "created": 1781413116,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor Client\nparticipant \"Service1\" as Service1\nparticipant \"Service2\" as Service2\n\nnote right of Service1\nSessionFactory\none per node\nend note\n\nnote right of Service2\nSession\none per request!\nend note\n\nrectangle \"model check\" {\n  Client -> Service1: register(Class<Pojo>)\n  Service1 -> Service1: checkModel\n  Service1 -> Service1: createModelForPojo\n  alt [mode=\"create\"]\n    alt [model exists]\n      Service1 -> Service1: throw exception\n    else\n      Service1 -> Service1: createModelInDB\n    end\n  else [mode=\"drop-create\"]\n    Service1 -> Service1: dropModelInDB\n    Service1 -> Service1: createModelInDB\n  else [mode=\"update\"]\n    Service1 -> Service1: getModelDeltaInDB\n    Service1 -> Service1: updateModelInDB\n  else [mode=\"none\"]\n    Service1 -> Service1: checkModelInDB\n    alt [model differs]\n      Service1 -> Service1: throw exception\n    end\n  end\n}\n\nClient -> Service2: store(pojo)\nService2 -> Service2: getDelta(pojo)\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1321,
+    "completion_tokens": 282,
+    "total_tokens": 1603
+  }
+}

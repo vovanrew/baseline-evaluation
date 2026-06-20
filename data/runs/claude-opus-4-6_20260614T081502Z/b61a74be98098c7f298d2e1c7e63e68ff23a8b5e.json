@@ -1,0 +1,21 @@
+{
+  "id": "msg_01WLMmV6RBSLGcVYcZ98tbXU",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor Admin\nactor User\nparticipant AccountManagement\nparticipant Broker\nparticipant Notifications\nparticipant UAA\nparticipant EmailSender\n\nAdmin -> AccountManagement : WorkspaceInvitation\nnote right of AccountManagement : with email\nAccountManagement -> AccountManagement : save data to db\nAccountManagement --> Admin : 200 response\n\nAccountManagement -> Broker : create event \"new user invited event\"\nBroker -> Notifications : read event\nnote right of Notifications : with email and senderId\nNotifications -> UAA : read info about sender\nNotifications -> Notifications : generate email\nNotifications -> Broker : create \"new email event\"\nBroker -> EmailSender : read \"new email event\"\nEmailSender -> User : send email\n\nalt user accepts invitation\n    User -> AccountManagement : WorkspaceEmailValidation\n    AccountManagement -> AccountManagement : check email\n    AccountManagement -> User : WorkspaceEmailValidationResult\n\n    alt email valid\n        AccountManagement -> AccountManagement : generate access code\n        AccountManagement -> Broker : create event \"new access code\"\n        Broker -> Notifications : read event\n        note right of Notifications : with email and access code\n        Notifications -> Notifications : generate email\n        Notifications -> Broker : create \"new email event\"\n        Broker -> EmailSender : read \"new email event\"\n        EmailSender -> User : send email\n\n        User -> User : get access code from email\n        User -> AccountManagement : WorkspaceAccessCodeValidation\n        AccountManagement -> User : WorkspaceAccessCodeValidationResult\n        note right of AccountManagement : with email, access code\n\n        alt access code valid\n            AccountManagement -> AccountManagement : change state\n            User -> AccountManagement : WorkspaceRegistration\n            note right of AccountManagement : with email, username, password and code\n            AccountManagement -> AccountManagement : check state by email\n            note left of AccountManagement : with userId and email\n            AccountManagement -> Broker : create new event \"user created event\"\n            Broker -> UAA : read event \"user created event\"\n            UAA -> UAA : create user with email\n        end\n    end\nend\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432221,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 522,
+    "prompt_tokens": 1656,
+    "total_tokens": 2178
+  }
+}

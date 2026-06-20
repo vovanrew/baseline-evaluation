@@ -1,0 +1,55 @@
+```plantuml
+@startuml
+skinparam componentStyle uml2
+skinparam note {
+  BackgroundColor #ffffcc
+  BorderColor #cccc99
+}
+
+title IPv4 Packet Transmission Sequence Diagram
+
+actor "Upper layer" as upper
+database "tuple" as tuple_db
+package "IP Layer" {
+  component "IPv4 layer" as ipv4_layer
+  database "Routing table" as routing_table
+}
+package "IPv4 Ineterface" {
+  component "IPv4 interface" as ipv4_interface
+  database "ARP" as arp_db
+}
+actor "Lower layer" as lower
+
+upper -> ipv4_layer : IPdata
+activate ipv4_layer
+note right of ipv4_layer: Allocate\nIPv4 header
+
+ipv4_layer -> routing_table : dst=192.0.2.1
+activate routing_table
+routing_table --> ipv4_layer
+deactivate routing_table
+
+note left of ipv4_layer: IPv4.dst=192.0.2.1
+
+ipv4_layer --> upper
+note left of upper: IPv4.oif=ifp1\nIPv4.gw=198.51.100.1
+
+ipv4_layer -> ipv4_interface
+activate ipv4_interface
+ipv4_interface --> ipv4_layer
+note left of ipv4_layer: IPv4.src=198.51.100.2
+
+ipv4_interface -> arp_db : gw=198.51.100.1
+activate arp_db
+arp_db --> ipv4_interface : mac=00:00:0e:00:00:01
+deactivate arp_db
+
+ipv4_interface --> upper
+note left of upper: Ether.dst = 00:00:0e:00:00:01
+
+ipv4_interface -> lower
+deactivate ipv4_interface
+deactivate ipv4_layer
+
+@enduml
+```

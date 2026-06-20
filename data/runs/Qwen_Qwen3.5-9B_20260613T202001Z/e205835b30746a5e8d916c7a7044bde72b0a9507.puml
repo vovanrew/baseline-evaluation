@@ -1,0 +1,31 @@
+@startuml
+left to right direction
+actor "User" as User
+participant "SearchWindowUI" as SearchWindowUI
+participant "SearchOnAnotherInstanceController" as SearchOnAnotherInstanceController
+participant "NetworkFactory" as NetworkFactory
+participant "UDP_ClientImpl" as UDP_ClientImpl
+participant "Thread" as Thread
+participant "TCP_ClientImpl" as TCP_ClientImpl
+participant "SpreadCheet" as SpreadCheet
+participant "UDP_ClientImpl_03" as UDP_ClientImpl_03
+participant "TCP_ClientImpl_03" as TCP_ClientImpl_03
+participant "SearchWindowController" as SearchWindowController
+
+User -> SearchWindowUI: start searching instances
+SearchWindowUI -> SearchOnAnotherInstanceController: create(address)
+SearchOnAnotherInstanceController -> NetworkFactory: Obj = getUDPCClientImpl(availableInstances)
+NetworkFactory -> UDP_ClientImpl_03: create()
+UDP_ClientImpl -> Thread: create(obj)
+UDP_ClientImpl -> Thread: start()
+UDP_ClientImpl -> Thread: join()
+SearchWindowUI -> SearchOnAnotherInstanceController: checkIfIsAvailable()
+SearchOnAnotherInstanceController -> NetworkFactory: getInfo(destination)
+NetworkFactory -> TCP_ClientImpl_03: create()
+SearchOnAnotherInstanceController -> Thread: create(Object)
+SearchOnAnotherInstanceController -> Thread: start()
+SearchOnAnotherInstanceController -> TCP_ClientImpl_03: getInfo()
+SpreadCheet -> TCP_ClientImpl_03: getInfo()
+SearchWindowController -> Thread: join()
+
+@enduml

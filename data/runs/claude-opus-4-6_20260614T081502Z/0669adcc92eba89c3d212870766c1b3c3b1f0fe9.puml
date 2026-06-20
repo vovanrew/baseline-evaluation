@@ -1,0 +1,63 @@
+```plantuml
+@startuml
+
+skinparam classAttributeIconSize 0
+
+interface IBeverage {
+  {field} string Description
+  {method} void GetDescription()
+  {method} double Cost()
+}
+
+class HouseBlend {
+}
+
+class DarkRoast {
+}
+
+class Espresso {
+}
+
+abstract class CondimentDecorator {
+  {field} IBeverage _beverage
+  {field} string Description
+  {method} string GetDescription()
+  {method} double Cost()
+}
+
+class Milk {
+  {method} Milk(IBeverage beverage)
+}
+
+class Mocha {
+  {method} Mocha(IBeverage beverage)
+}
+
+class Whip {
+  {method} Whip(IBeverage beverage)
+}
+
+HouseBlend .up.|> IBeverage
+DarkRoast .up.|> IBeverage
+Espresso .up.|> IBeverage
+CondimentDecorator .up.|> IBeverage
+Milk -up-|> CondimentDecorator
+Mocha -up-|> CondimentDecorator
+Whip -up-|> CondimentDecorator
+CondimentDecorator o-left- IBeverage
+
+note bottom of CondimentDecorator
+  IBevarageを実装する理由は
+  スーパークラスの型を取得するため。
+  これを継承するクラスはBeverageを装飾することができる
+end note
+
+note left of IBeverage
+  全てのオブジェクトはこの抽象インタフェースを起点に操作する
+  特定の具象コンポーネントに対する操作がしたい時は設計を見直す必要がある。
+  例えば、HouseBlendのみ割引したい時とか、
+  装飾により型の情報は破壊されているので。。
+end note
+
+@enduml
+```

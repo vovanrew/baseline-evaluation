@@ -1,0 +1,25 @@
+```plantuml
+@startuml
+title 显示学期列表流程图
+
+actor "学生显示课程主页面" as student
+participant "API服务" as api
+database "数据库存储" as db
+
+== 学生主页面 ==
+
+student -> api : 传入用户的user_id、type和选择的学期term
+api -> api : 首先判断type是否为学生，再判断user_id的合法性
+api -> db : 获取该学生的专业MAJOR信息字段，并加上学期term约束，联合查询courses表
+db -> db : 通过courses表中的teacher_id查询teachers表和users表，获取老师姓名，加入course列表中
+db -> api : 返回符合条件的课程course记录
+api -> student : 返回符合条件的课程course记录
+student <-- api : 返回指定学期的课程course集合
+
+note right
+学生登录后正常使用，
+每次请求都会访问API
+end note
+
+@enduml
+```

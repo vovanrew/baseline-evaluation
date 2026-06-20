@@ -1,0 +1,21 @@
+{
+  "id": "msg_013HNESYC25Pi42kFV9tuBwJ",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Secure Map Reduce 2 - Shuffle Service Token Flow\n\nparticipant \"Client\\n(c)\" as c\nparticipant \"Resource\\nManager\\n(rm)\" as rm\nparticipant \"Node\\nManager\\n(nm)\" as nm\nparticipant \"Shuffle\\nHandler\\n(ss)\" as ss\n\nparticipant \"File\\nSystem\\n(fs)\" as fs\n\n== Bootstrap ==\n\n== Job Definition ==\n\nc -> rm : 1 **createJob** [...] ()\\n: job-id\n\nc -> c : **createShuffleToken**\\n2 ( shfl-tkn-mk )\\n: shfl-tkn\n\nc <- c : **serializeTokens**\\n3 ( shfl-tkn, ... )\\n: c-tokens{shfl-tkn,...}\n\n== Job Submission ==\n\nc -> rm : **submitApplication**\\n4 [...]\\n( job-id, c-tokens{shfl-tkn}, ... )\\n: app-rpt{clnt-tkn}\n\n== Job Initiation ==\n\nrm -> nm : **startContainer**\\n5 [...]\\n( c-tokens{shfl-tkn},svc-tokens{shfl-tkn}, ... )\n\nnm -> nm : 6 **initApp**\\n( job-id, shfl-tkn )\n\ncreate participant \"Application\\nMaster\\n(am)\" as am\nnm -> am : 7 exec\n\nnm -> nm : **startContainer**\\n8 [...]\\n( svc-tokens{shfl-tkn}, ... )\n\ncreate participant \"Application\\nContainer\\n(ac)\" as ac #Red\nnm -> ac : 9 exec\n\ncreate participant \"Task\\n(t)\" as t #Orange\nac -> t : 10 exec\n\n== Map Task Execution ==\n\nt -> fs : 11 writeShuffleData[]();\n\n== Reduce Task Execution ==\n\nt -> ss : 12 **readShuffleData** [SDT:shfl-tkn] {...}: shfl-data\n\nss -> nm : 13 **readShuffleData**\n\nnm --> t : 14 shfl-data\n\n== Job Completion ==\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781430833,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 527,
+    "prompt_tokens": 1656,
+    "total_tokens": 2183
+  }
+}

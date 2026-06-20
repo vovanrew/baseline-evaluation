@@ -1,0 +1,51 @@
+@startuml
+participant "NavBar" as NavBar
+participant "ReduxStore" as ReduxStore
+participant "UserActions" as UserActions
+participant "UserReducer" as UserReducer
+participant "ProfileMiddleware" as ProfileMiddleware
+participant "Solid.js" as SolidJS
+database "POD" as POD
+
+NavBar -> NavBar : loadEmailRequest()
+NavBar -> ReduxStore : dispatch(loadEmailRequest())
+ReduxStore -> UserActions : loadEmailRequest()
+destroy UserActions
+UserActions -> ProfileMiddleware : loadEmailRequest()
+ProfileMiddleware -> SolidJS : getEmail()
+UserActions -> UserReducer : loadEmailRequest()
+destroy UserReducer
+UserReducer --> ReduxStore : state
+
+SolidJS -> SolidJS : getEmail()
+SolidJS --> SolidJS : email
+destroy SolidJS
+
+alt [email successfully loaded]
+    ProfileMiddleware <-- SolidJS : email
+    destroy SolidJS
+    ReduxStore <- ProfileMiddleware : dispatch(loadEmailSuccess(email))
+    ReduxStore -> UserActions : loadEmailSuccess(email)
+    destroy UserActions
+    UserActions -> UserReducer : updateState(email)
+    UserReducer --> UserReducer : updateState(email)
+    ReduxStore <-- UserReducer : updated state with email
+    destroy UserReducer
+
+else [error at loading email]
+    ProfileMiddleware <-- SolidJS : error
+    destroy SolidJS
+    ReduxStore <- ProfileMiddleware : dispatch(loadEmailError(error))
+    ReduxStore -> UserActions : loadEmailError(error)
+    destroy UserActions
+    UserActions -> UserReducer : updateState(error)
+    UserReducer --> UserReducer : updateState(error)
+    ReduxStore <-- UserReducer : updated state
+    destroy UserReducer
+end
+
+destroy ProfileMiddleware
+
+NavBar <-- ReduxStore : state
+
+@enduml

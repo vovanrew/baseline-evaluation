@@ -1,0 +1,38 @@
+```plantuml
+@startuml
+
+participant "ebiz-salesman" as es
+participant "guide-event" as ge
+participant "retail-sales" as rs
+participant "tsp" as tsp
+
+es -> es : **1** 监听账号合并消息，执行合并
+
+es --> es : **2** 返回
+
+es -> es : **3** 定时器扫表[扫描过滤出还未执行完成的明细任务], 并调用相应 processor 执行
+
+alt 未完成
+    loop tsp 回调执行
+        es -> es : **4** 返回，等待其他 processor 任务执行
+        es --> es : **5**
+    end
+else 完成
+    es -> ge : **6** 发送账号合并完成消息[一个导购可能在 N 多家店有身份，那么将发送出 N 条消息]
+    ge -> es : **7** ebiz-salesman 所有流程结束
+    ge -> ge : **8** 开始消息处理流程
+    ge -> ge : **9** 检查 apollo 是否开启帐号合并开关
+    ge -> ge : **10**
+    ge -> ge : **11** 检查 shopping_guide_event_task 表是否已经存在此任务
+    note left : 以 task_id 作为幂等键, task_id = SG:AM-rootKdtId-fromUId-toUId
+    ge -> ge : **12**
+    ge -> ge : **13** 创建帐号合并任务，将任务写入表
+    note left : 1.shopping_guide_event_task\n2.shopping_guide_event_detail_task\n3.shopping_guide_event_exec_task
+    ge -> ge : **14**
+    ge -> ge : **15** 创建 30 分钟延时任务，30分钟后检查并执行该任务
+    ge -> rs : **16**
+    ge -> ge : **17** 结束
+end
+
+@enduml
+```

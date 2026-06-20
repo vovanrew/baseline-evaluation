@@ -1,0 +1,25 @@
+@startuml
+actor Admin
+participant "Employees Module" as EM #LightBlue20
+database "Search Index" as SI #LightBlue20
+database Database #LightBlue20
+
+Admin -> EM : trigger task
+activate EM
+EM -> SI : reset index (delete + create)
+deactivate SI
+SI --> EM 
+activate SI
+EM -> Database : stream all employees
+loop loop over each employee record from DB result set
+    activate Database
+    deactivate Database
+    
+    EM -> SI : index employee
+end
+Database -[dotted]-> EM 
+
+note right of this\nAll lines are to be interpreted.\nThey represent communication paths,\nnor physical connections., LightYellow
+
+
+@enduml

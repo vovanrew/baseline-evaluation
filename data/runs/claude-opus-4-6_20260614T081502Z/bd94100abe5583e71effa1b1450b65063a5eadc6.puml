@@ -1,0 +1,27 @@
+```plantuml
+@startuml
+
+participant "Data Consumer" as DC
+participant "Data Source" as DS
+
+alt No updates
+    DC -> DS : 1a. GET [query URL]
+else
+    DC -> DS : 1b. POST [base query URL] with
+end
+
+alt No updates
+    DS --> DC : 2a. search-response Bundle with new records\n(use most recent meta.lastUpdated in filter for subsequent polls)
+else
+    DS --> DC : 2b. Empty search-response bundle
+end
+
+opt
+    loop
+        DC -> DS : 3a. GET [next URL]
+        DS --> DC : 3b. search-response with Bundle of next results
+    end
+end
+
+@enduml
+```

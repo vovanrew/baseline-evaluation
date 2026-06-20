@@ -1,0 +1,28 @@
+@startuml
+title Virologist wear gloves
+
+participant "attackerVirologist:Virologist" as attacker
+participant "v: Virologist" as v
+participant "glovesOnVirologist:Gloves" as gloves
+
+attacker -> v : attack(forgetAgent:Agent, attackerVirologist:Virologist)
+activate v
+
+v -> gloves : defense(forgetAgent:Agent,v:Virologist, attackerVirologist:Virologist)
+activate gloves
+
+v --> attacker : attack(forgetAgent:Agent, attackerVirologist:Virologist,v:Virologist)
+
+gloves -> gloves : decreaseTTL()
+
+opt [life==0]
+  gloves -> gloves : discard(v:Virologist)
+end
+
+gloves --> v
+deactivate gloves
+
+v --> attacker
+deactivate v
+
+@enduml

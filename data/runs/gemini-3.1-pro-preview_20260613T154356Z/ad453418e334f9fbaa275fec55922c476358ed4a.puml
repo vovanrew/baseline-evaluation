@@ -1,0 +1,53 @@
+```plantuml
+@startuml
+actor Activity
+participant BaseMediaActivity
+participant MediaActivity
+
+Activity -> BaseMediaActivity : onCreate
+activate BaseMediaActivity
+
+BaseMediaActivity -> BaseMediaActivity : set theme
+BaseMediaActivity -> BaseMediaActivity : setup navigation drawer
+
+alt new activity
+    BaseMediaActivity -> MediaActivity : getActionBarTitle()
+    activate MediaActivity
+    MediaActivity -> BaseMediaActivity
+    deactivate MediaActivity
+    note left of BaseMediaActivity : set home icon to hamburger icon
+else restore action bar
+    note left of BaseMediaActivity : get home icon and action bar title\nfrom saved instance
+end
+
+BaseMediaActivity -> BaseMediaActivity : updateActionBar
+
+alt no fragment in layout (new activity)
+    BaseMediaActivity -> MediaActivity : createFragment()
+    activate MediaActivity
+    MediaActivity -> BaseMediaActivity
+    deactivate MediaActivity
+    BaseMediaActivity -> BaseMediaActivity : add fragment
+end
+
+BaseMediaActivity -> Activity
+deactivate BaseMediaActivity
+
+Activity -> BaseMediaActivity : onCreateOptionsMenu
+activate BaseMediaActivity
+note right of BaseMediaActivity : inflate generic menu items
+BaseMediaActivity -> Activity
+deactivate BaseMediaActivity
+
+note right of MediaActivity : user selects media item
+MediaActivity -> BaseMediaActivity : showFragment()
+activate MediaActivity
+activate BaseMediaActivity
+note left of BaseMediaActivity : sets up the shared element transition\nand updates the dataholder
+BaseMediaActivity -> BaseMediaActivity : replace current fragment\nwith new fragment
+BaseMediaActivity -> MediaActivity
+deactivate BaseMediaActivity
+deactivate MediaActivity
+
+@enduml
+```

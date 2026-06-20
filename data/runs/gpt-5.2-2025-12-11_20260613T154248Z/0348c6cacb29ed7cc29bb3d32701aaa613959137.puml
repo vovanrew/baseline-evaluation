@@ -1,0 +1,41 @@
+@startuml
+hide footbox
+skinparam sequenceMessageAlign center
+skinparam ParticipantPadding 30
+skinparam BoxPadding 10
+
+actor Guest
+participant Mobile
+participant Server
+participant TokenService
+participant MailService
+database Mongo
+
+Guest ->> Mobile : Nhập Thông tin đăng ký
+
+alt [Kiểm tra input (true)]
+  Mobile ->> Server : Send Api Register
+
+  alt [valdateDataApi (false)]
+    Server -->> Mobile : Data Không hợp lệ
+  end
+
+  Server ->> Mongo : Kiểm tra tồn tại\nuserName
+  Mongo -->> Server : thông tin user
+
+  alt [user tồn tại (true)]
+    Server -->> Mobile : UserName tồn tại
+  end
+
+  Server ->> Mongo : new User
+  Mongo -->> Server : user
+
+  Server -> Server : Tạo otp
+  Server ->> MailService : mail otp
+
+  Server -->> Mobile : Tao user success
+  Mobile -->> Guest : Hiển thị cho guest
+else [validateDateFail]
+  Mobile -->> Guest : Thông báo Nhập sai format
+end
+@enduml

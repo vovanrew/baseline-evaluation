@@ -1,0 +1,22 @@
+{
+  "id": "e15f394a-df71-4536-8d0a-0841fc8f1d27",
+  "object": "chat.completion",
+  "created": 1781440427,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nactor Client\nparticipant \"Service1\" as S1\nparticipant \"Service2\" as S2\n\nnote right of S1: SessionFactory\\none per node\nnote right of S2: Session\\none per request!\n\nrectangle \"model check\" {\n  Client -> S1 : register(Class<Pojo>)\n  activate S1\n  S1 -> S1 : checkModel\n  S1 -> S1 : createModelForPojo\n  \n  alt mode=\"create\"\n    alt model exists\n      S1 --> S1 : throw exception\n    else\n      S1 -> S1 : createModelInDB\n    end\n  else mode=\"drop-create\"\n    S1 -> S1 : dropModelInDB\n    S1 -> S1 : createModelInDB\n  else mode=\"update\"\n    S1 -> S1 : getModelDeltaInDB\n    S1 -> S1 : updateModelInDB\n  else mode=\"none\"\n    S1 -> S1 : checkModelInDB\n    alt model differs\n      S1 --> S1 : throw exception\n    end\n  end\n  deactivate S1\n}\n\nClient -> S2 : store(pojo)\nactivate S2\nS2 -> S2 : getDelta(pojo)\ndeactivate S2\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1321,
+    "completion_tokens": 289,
+    "total_tokens": 1610
+  }
+}

@@ -1,0 +1,39 @@
+@startuml
+participant "User" as User
+participant "Frontend" as Frontend
+participant "API" as API
+participant "Database" as Database
+
+section "Log in with token"
+    User -> Frontend : Request token
+    alt [Token found]
+        Frontend -> API : Validate token
+        API -> Database : Find token
+        Database -> API : Return matching user
+        API -> Frontend : Open main page
+        alt [Token not in database]
+            API -> API : Return error
+            API -> Frontend : Open loginpage
+        end
+    end
+end
+
+section "Log in without token"
+    User -> Frontend : Enter login information
+    User -> Frontend : Accept to be remembered
+    User -> Frontend : Press "Log in"
+    Frontend -> API : Request validation
+    API -> Database : Validate login information
+    alt [validation successful]
+        API -> Frontend : Validation successful
+        Frontend -> User : Add token to user
+        Frontend -> API : Move to main page
+        alt [validation failure]
+            API -> API : Validation failed
+            API -> Frontend : Show error message
+            Frontend -> User : Retry login page
+        end
+    end
+end
+
+@enduml

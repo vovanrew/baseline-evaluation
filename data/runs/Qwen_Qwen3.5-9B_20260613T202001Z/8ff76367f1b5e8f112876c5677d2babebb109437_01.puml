@@ -1,0 +1,57 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+  FontColor Black
+}
+
+class "PatientStudioDriver" {
+  [C]
+}
+
+class "PatientAdapter" {
+  [C]
+  <<Proxy>>
+  interviews
+}
+
+class "InterviewStudioDriver" {
+  [C]
+  save(study, patient, interview)
+}
+
+class "StudyStudioDriver" {
+  [C]
+}
+
+class "StudyAdapter" {
+  [C]
+  <<Proxy>>
+  start(command, ...args)
+  getInterviewItems(pageSet)
+  apply(interviewItems)
+}
+
+class "UpdateItemCommand" {
+  [C]
+  start(study, page, index)
+  getInterviewItems(pageSet)
+  apply(study, interviewItems)
+}
+
+interface "IMutationCommand" {
+  [I]
+}
+
+PatientStudioDriver --> PatientAdapter
+StudyStudioDriver --> StudyAdapter
+InterviewStudioDriver ..> StudyAdapter : apply(interviewItems)
+PatientAdapter ..> StudyAdapter : getInterviewItems(pageSet)
+StudyAdapter ..> UpdateItemCommand : start(...)
+StudyAdapter ..> UpdateItemCommand : apply(...)
+UpdateItemCommand ..|> IMutationCommand
+
+@enduml

@@ -1,0 +1,22 @@
+{
+  "id": "8dd63f18-a89b-4369-8401-386bff268b8a",
+  "object": "chat.completion",
+  "created": 1781441576,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nleft to right direction\nskinparam packageStyle rectangle\n\nactor \"Nurse\" as Nurse\nparticipant \"RecordAdverseReactionUI\" as UI\nparticipant \"RecordAdverseReactionController\" as Controller\nparticipant \"Company\" as Company\nparticipant \"AdverseReactionStore\" as Store\nparticipant \"AdverseReactionDTO\" as DTO\nparticipant \"AdverseReactionMapper\" as Mapper\nparticipant \"WaitingRoomStore\" as WaitingRoomStore\nparticipant \"AdverseReaction\" as AdverseReaction\n\nNurse -> UI: 1 Starts recording adverse reaction\nactivate UI\nUI --> Nurse: 2. asks for data(SNS Number, Adverse Reaction Text)\nNurse -> UI: 3 types requested data\nUI -> Controller: 4 createAdverseReaction(SNSNumber, advReact)\nactivate Controller\nController -> Company: 5 wstore = getWaitingRoomStore()\nactivate Company\nCompany --> Controller: \ndeactivate Company\nController -> Store: 6 store = getRecordAdverseReactionStore()\nactivate Store\nStore --> Controller: \ndeactivate Store\nController -> WaitingRoomStore: 7 snsu = getSNSUserInTheWaitingRoomByItsSNSNumber(snsuserNumber)\nactivate WaitingRoomStore\nWaitingRoomStore --> Controller: \ndeactivate WaitingRoomStore\nController -> WaitingRoomStore: 8 vc = getVaccinationCenterBySNSNumber(snsuserNumber)\nactivate WaitingRoomStore\nWaitingRoomStore --> Controller: \ndeactivate WaitingRoomStore\nController -> Store: 9 ar = createAdverseReaction(snsu, advReact, vc)\nactivate Store\nStore -> AdverseReaction: 10 create(snsu,advReact,vc)\nactivate AdverseReaction\nAdverseReaction --> Store: \ndeactivate AdverseReaction\nStore -> Store: 11 validateAdverseReaction(ar)\nactivate Store\nStore --> Store: \ndeactivate Store\nStore -> Mapper: 12 toDTO(ar)\nactivate Mapper\nnote over Mapper: ref\\nSD_AdverseReactionMapper_toDTO\nMapper --> Store: 13 arDTO\ndeactivate Mapper\nStore --> Controller: 14 arDTO\ndeactivate Store\nController --> UI: \ndeactivate Controller\nUI --> Nurse: 15 shows SNS User correspondent to the SNS Number\\nand adverse reaction waiting for approval\nNurse -> UI: 16 confirms action\nUI -> Controller: 17 saveAdverseReaction()\nactivate Controller\nController -> Store: 18 saveAdverseReaction(ar)\nactivate Store\nStore -> Store: 19 validateAdverseReaction(ar)\nactivate Store\nStore --> Store: \ndeactivate Store\nStore -> Store: 20 addAdverseReaction(ar)\nactivate Store\nStore --> Store: \ndeactivate Store\nStore --> Controller: \ndeactivate Store\nController --> UI: \ndeactivate Controller\nUI --> Nurse: 21 informs opertion success\ndeactivate UI\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1272,
+    "completion_tokens": 631,
+    "total_tokens": 1903
+  }
+}

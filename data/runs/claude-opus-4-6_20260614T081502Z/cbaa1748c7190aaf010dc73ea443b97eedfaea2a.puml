@@ -1,0 +1,54 @@
+```plantuml
+@startuml
+title Un client loue un bus avec chauffeur par Noël PRÉVAULT
+
+participant "Client" as Client
+participant "SystèmeInformations" as SI
+participant "OpérateurBancaire" as OB
+participant "Chauffeur" as Ch
+participant "OpérateurMaintenance" as OM
+
+alt Le client n'est pas inscrit
+    Client -> SI : Inscription
+    SI -> SI : Vérification des informations
+    SI --> Client : Inscription réussie
+end
+
+Client -> SI : Authentification
+SI -> SI : Authentification de l'utilisateur
+SI --> Client : Authentification réussie
+
+Client -> SI : Demande de location
+SI --> Client : Demande d'informations sur la location
+Client -> SI : Date, durée de location et point de retour
+
+alt Le système d'informations refuse la location si un véhicule et un chauffeur ne sont pas disponibles
+    SI -> SI : Recherche la disponibilité d'un chauffeur
+    SI --> Client : Annulation de la location en cours
+else Le système d'informations accepte la location
+    SI -> SI : Recherche les disponibilités d'un chauffeur et valide la location
+    SI --> Client : Demande informations de paiement
+    Client -> SI : Information de paiement\n(Permettant de payer le trajet)
+    SI -> OB : Demande confirmation pour le paiement
+    OB --> SI : Réponse concernant le paiement
+
+    alt Les informations de paiement sont refusées
+        SI --> Client : Refuse le paiement de la location
+        Client -> SI : Annule la location
+    else Le client annule paiement
+        Client -> SI : Annule la location
+        SI -> SI : Vérification si frais supplémentaires
+        SI -> OB : Demande annulation d'un montant du débit bancaire
+        SI --> Client : Annule la location
+    else Les informations de paiement sont acceptées
+        SI --> Client : Valide le paiement de la location
+        SI -> Ch : Notifie un chauffeur
+        Ch -> Ch : Utilise la location
+        Client <-- SI : Utilise la location conduite par le chauffeur
+        Ch -> OM : Ramène la location
+        OM -> OM : Réception et vérification du véhicule
+        SI -> SI : Validation de l'état du véhicule et mise à jour de son état
+    end
+end
+@enduml
+```

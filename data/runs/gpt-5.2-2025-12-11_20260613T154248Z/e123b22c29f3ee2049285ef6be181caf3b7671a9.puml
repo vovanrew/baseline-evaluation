@@ -1,0 +1,82 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+package "persistence" {
+
+  package "server" {
+    package "entity" {
+      class Server << (C,#B7D7A8) >> {
+        seq : Integer
+        name : String
+        ip : String
+      }
+    }
+  }
+
+  package "author" {
+    package "entity" {
+      class Author << (C,#B7D7A8) >> {
+        seq : Integer
+        name : String
+        regDate : Date
+      }
+    }
+  }
+
+  package "member" {
+    package "entity" {
+      class Member << (C,#B7D7A8) >> {
+        seq : Integer
+        id : String
+        password : String
+        name : String
+        type : MemberType
+      }
+
+      enum MemberType << (E,#F4B183) >> {
+        USER
+        ADMIN
+      }
+    }
+  }
+
+  package "book" {
+    package "entity" {
+
+      abstract class Book << (A,#9DC3E6) >> {
+        seq : Integer
+        title : String
+        author : Author
+        regDate : Date
+        expireDate : Date
+        register : Member
+        descriptionUrl : String
+        tags : List<Tag>
+      }
+
+      class Tag << (C,#B7D7A8) >> {
+        seq : Integer
+        value : String
+      }
+
+      class ScanBook << (C,#B7D7A8) >> {
+        fileName : String
+        fileHash : String
+        path : String
+        server : Server
+        size : Integer
+      }
+
+      class RidiBook << (C,#B7D7A8) >> {
+        url : String
+        ridiUserId : String
+      }
+
+      ScanBook --|> Book
+      RidiBook --|> Book
+    }
+  }
+}
+@enduml

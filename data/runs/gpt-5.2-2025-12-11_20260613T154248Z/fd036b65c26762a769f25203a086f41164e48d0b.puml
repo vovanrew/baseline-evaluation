@@ -1,0 +1,41 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 30
+  ActorBorderColor #333333
+  LifeLineBorderColor #333333
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #333333
+  ParticipantBackgroundColor #E9E9F6
+  DatabaseBorderColor #333333
+  DatabaseBackgroundColor #E9E9F6
+}
+
+actor client
+participant gateway
+participant "developer-service" as devsvc
+database "devs-db" as devsdb
+participant broker
+participant "planning-service" as plansvc
+database "planning-db" as plandb
+
+client -> gateway : POST dev
+activate gateway
+gateway -> devsvc : POST dev
+activate devsvc
+devsvc -> devsdb : persist
+devsvc --> gateway : response 201
+deactivate devsvc
+gateway --> client : 201
+deactivate gateway
+
+devsvc -> broker : emit DevCreated Event
+
+broker -> plansvc : consume Event
+activate plansvc
+plansvc -> plandb : persist Dev
+deactivate plansvc
+@enduml
+```

@@ -1,0 +1,22 @@
+{
+  "id": "f4b03082-b2ed-47f5-916f-79f2a81272eb",
+  "object": "chat.completion",
+  "created": 1781395507,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"controller\" as C\nparticipant \"agent\" as A\nparticipant \"STA\" as S\n\nC --> A : Perform MAUT setup steps (4.1.1 or 4.1.2)\nA --> S : Trigger STA to join the specified MAUT BSSID\n\nC --> A : send 1905, 0x8003,Multi-AP\nA --> C : Policy Config Request\nA --> C : AP Metrics Reporting Interval:0\nA --> C : STA MetricsReporting RSSI Threshold:0\nA --> C : STA Metrics Reporting RSSI Hysteresis Margin Override:0\nA --> C : AP Metrics Channel Utilization Reporting Threshold:1 (0.4%)\nA --> C : Associated STA Traffic Stats Inclusion Policy bit 7: 1\nA --> C : Associated STA Link Metrics Inclusion Policy bit 6: 1\nA --> C : bits 5-0 set to 0\nA --> C : No Steering Policy TLV\n\nC --> A : send_cmdu(MULTI_AP_POLICY_CONFIG_REQUEST_MESSAGE)\nA --> C : handle_multi_ap_policy_config_request()\nA --> C : send_cmdu(ACK_MESSAGE)\n\nC --> S : Trigger STA to start traffic generation to the controller\nS --> A : on_channel_utilization_measurement_period_elapsed()\nS --> A : Measure current channel utilization.\nS --> A : If difference with previous value crosses configured threshold, then send AP metrics.\nA --> C : send_cmdu(AP_METRICS_RESPONSE_MESSAGE)\nA --> C : with Associated STA Traffic Stats\nA --> C : and Associated STA Link Metrics\nA --> C : handle_cmdu_1905_ap_metric_response()\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1468,
+    "completion_tokens": 367,
+    "total_tokens": 1835
+  }
+}

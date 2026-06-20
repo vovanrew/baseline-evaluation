@@ -1,0 +1,40 @@
+@startuml
+left to right direction
+actor "Nutzer" as Nutzer
+participant "ServiceFactory" as ServiceFactory
+participant "PruefHandler" as PruefHandler
+participant "PersonenServiceImpl" as PersonenServiceImpl
+participant "Proxy" as Proxy
+
+activate ServiceFactory
+activate PruefHandler
+activate PersonenServiceImpl
+activate Proxy
+
+Nutzer -> ServiceFactory : 1 getPersonenService()
+ServiceFactory -> PruefHandler : 2 create
+PruefHandler -> PersonenServiceImpl : 3 create
+PersonenServiceImpl --> PruefHandler : 4 ziel
+PruefHandler --> ServiceFactory : 5 instanz
+ServiceFactory -> Proxy : 6 create
+Proxy --> ServiceFactory : 7 PersonenService
+ServiceFactory --> Nutzer : 8 service
+
+activate ServiceFactory
+activate PruefHandler
+activate PersonenServiceImpl
+activate Proxy
+
+Nutzer -> Proxy : 9 neu
+Proxy --> PruefHandler : 10 invoke
+PruefHandler -> PersonenServiceImpl : 11 neu
+PersonenServiceImpl --> PruefHandler : 12 Person
+PruefHandler --> Proxy : 13 Person
+Proxy --> Nutzer : 14 Person
+
+deactivate ServiceFactory
+deactivate PruefHandler
+deactivate PersonenServiceImpl
+deactivate Proxy
+
+@enduml

@@ -1,0 +1,68 @@
+@startuml
+title PB-749 UC4 - Update a Banner on System Management
+
+actor "System Management" as SM
+participant "Core Next" as CN
+database "Next Database" as DB
+participant "Core Bradesco" as CB
+
+rectangle "Next Platform" {
+  CN
+  DB
+}
+
+note right of SM
+  System Management will call this new endpoint
+  passing all the fields necessary to update an
+  existing Banner. The fields are:
+  1. BANNER_ID
+  2. BUSINESS_EVENT_TYPE_ID
+  3. TEMPLATE_HEADER
+  4. TEMPLATE_BODY
+  5. ENABLE_IND
+end note
+
+SM -> CN: 1 PUT /v1/notification/banner/{bannerID}
+
+note right of CN
+  Core Next will check if this Banner exists on BANNER table
+end note
+
+CN -> DB: 2 check if this Banner exists on BANNER table
+DB --> CN: 3 response
+
+alt [if the Banner exists]
+  CN -> DB: 4 check if exists an enabled Banner associated with that BUSINESS_EVENT_TYPE received on requisition on BANNER table
+
+  note right of CN
+    Note to developers
+    Core Next will check if exists any Banner linked to a BUSINESS_EVENT_TYPE on BANNER table. We can only have one enabled Banner linked to a BUSINESS_EVENT_TYPE. For this rule, we should disregard the records that are with DELETE_FLG enabled and the Card itself.
+  end note
+
+  DB --> CN: 5 response
+
+  alt [if exists an enabled Banner associated with that BUSINESS_EVENT_TYPE]
+    note right of CN
+      If exists any Banner linked to a BUSINESS_EVENT_TYPE passed by App,
+      we will throw back an error to App side.
+    end note
+    CN --> SM: 6 error
+    SM --> CN: HTTP code: 422
+  else [if don't exists an enabled Banner associated with that BUSINESS_EVENT_TYPE]
+    note right of CN
+      If the defensive checks pass, then we will update the register on BANNER table.
+    end note
+    CN -> DB: 7 update the register on BANNER table
+    DB --> CN: 8 success
+    CN --> SM: 9 success
+    SM --> CN: HTTP code: 200
+  end
+else [if the Banner don't exists]
+  note right of CN
+    If the Banner don't exists on BANNER table, then we will throw back an error to SM.
+    HTTP code: 404
+  end note
+  CN --> SM: 10 error
+end
+
+@enduml

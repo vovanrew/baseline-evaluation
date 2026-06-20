@@ -1,0 +1,22 @@
+{
+  "id": "d0273120-46e4-45d0-a045-79a3c492bb7f",
+  "object": "chat.completion",
+  "created": 1781424895,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nskinparam sequenceMessageAlign center\n\nparticipant \"browser\" as browser\nparticipant \"listener\" as listener\nparticipant \"sequence_1\" as sequence_1\nparticipant \"http_inbound_travelocity\" as http_inbound_travelocity\nparticipant \"OIDC_IdP\" as OIDC_IdP\nparticipant \"http_inbound_commonauth\" as http_inbound_commonauth\nparticipant \"sequence_2\" as sequence_2\n\nbrowser -> listener: SAML login request\nlistener -> sequence_1: SAML login request\nbrowser -> http_inbound_travelocity: SAML login request\nhttp_inbound_travelocity -> sequence_1: request\nactivate sequence_1\nsequence_1 --> sequence_1: SAML request process\nsequence_1 --> sequence_1: OIDC request build\nsequence_1 -> http_inbound_travelocity: Redirect to IDP\nhttp_inbound_travelocity -> browser: Redirect to IDP\nOIDC_IdP -> browser: login page\nbrowser -> OIDC_IdP: Submit credentials\nOIDC_IdP -> http_inbound_commonauth: ID token\nhttp_inbound_commonauth -> sequence_2: ID token\nactivate sequence_2\nsequence_2 --> sequence_2: OIDC response process\nsequence_2 --> sequence_2: SAML response build\nsequence_2 -> http_inbound_commonauth: SAML response\nhttp_inbound_commonauth -> browser: SAML response\ndeactivate sequence_2\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1468,
+    "completion_tokens": 312,
+    "total_tokens": 1780
+  }
+}

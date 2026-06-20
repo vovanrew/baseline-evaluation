@@ -1,0 +1,105 @@
+```plantuml
+@startuml
+actor "Sales Clerk" as SC
+participant ": OrderDeliveredUI" as UI <<Presentation>>
+participant ": OrderDeliveredController" as Controller <<Application>>
+participant ": OrderDeliveredService" as Service <<Service>>
+participant ": PersistenceContext" as PC <<Persistence>>
+participant "factory : RepositoryFactory" as RF <<Factory>>
+database "orderRepository : Repository" as OR <<Repository>>
+participant "orderList : List<Order>" as OL <<Domain>>
+participant "orderDTOList : List<OrderDTO>" as ODL <<DTO>>
+participant ": OrderMapper" as OM <<DTO>>
+participant "orderDTO : OrderDTO" as ODTO <<DTO>>
+participant "selectedOrderDTOList : List<OrderDTO>" as SODL <<DTO>>
+participant "order : Order" as O <<Domain>>
+
+SC -> UI : The Sales Clerk initializes\nthe process of updating the status of the order
+activate UI
+UI -> Controller : create
+activate Controller
+Controller -> Service : create
+activate Service
+Service -> PC : repositories()
+activate PC
+PC -> RF : create
+activate RF
+RF --> PC : factory
+deactivate RF
+PC --> Service : orderRepository()
+deactivate PC
+Service -> OR : create
+activate OR
+OR --> Service : orderRepository
+deactivate OR
+deactivate Service
+UI -> Controller : listAllDispatchedOrders()
+Controller -> Service : listAllDispatchedOrders()
+activate Service
+Service -> OR : getAllDispatchedOrders()
+activate OR
+OR -> OL : create
+activate OL
+OL --> OR : orderList
+deactivate OL
+OR --> Service : orderList
+deactivate OR
+Service -> ODL : create
+activate ODL
+loop foreach
+    Service -> OL : getNext()
+    activate OL
+    OL --> Service : order
+    deactivate OL
+    Service -> OM : toDTO(order)
+    activate OM
+    OM -> ODTO : create
+    activate ODTO
+    ODTO --> OM : orderDTO
+    deactivate ODTO
+    OM --> Service : orderDTO
+    deactivate OM
+    Service -> ODL : add(orderDTO)
+    activate ODL
+    ODL --> Service
+    deactivate ODL
+end
+Service --> Controller : orderDTOList
+deactivate Service
+Controller --> UI : orderDTOList
+deactivate Controller
+UI --> SC : The System presents a list of Orders to the\nSales Clerk whose Status are "Preparation"\nand asks the Sales Clerk to choose Orders\nwhose Status will be updated to "Delivered";
+deactivate UI
+
+SC -> UI : The Sales Clerk selects the Orders whose\nStatus are to be updated;
+activate UI
+UI -> Controller : updateStatus(selectedOrderDTOList)
+activate Controller
+Controller -> Service : updateStatusAndPersist(selectedOrderDTOList)
+activate Service
+loop foreach
+    Service -> SODL : getNext()
+    activate SODL
+    SODL --> Service : orderDTO
+    deactivate SODL
+    Service -> OM : toOrder(orderDTO)
+    activate OM
+    OM --> Service : order
+    deactivate OM
+    Service -> O : changeStatusToDelivered()
+    activate O
+    O --> Service
+    deactivate O
+    Service -> OR : update(order)
+    activate OR
+    OR --> Service
+    deactivate OR
+end
+Service --> Controller
+deactivate Service
+Controller --> UI
+deactivate Controller
+UI --> SC : The System updates the Status of the selected Orders\nand informs the Sales Clerk of the operation success;
+deactivate UI
+@enduml
+```

@@ -1,0 +1,67 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide circle
+
+class BattlerOrder { }
+class TurnSystem { }
+class BattleFlow { }
+class PlayerMainTactics { }
+class PassiveProperty { }
+class ActiveTargetResult { }
+class InvocationContext { }
+class ITargetable { }
+class TargetSelection { }
+class AIInvocationContext { }
+class TurnContext { }
+class TP { }
+class Attribute { }
+class Tolerance { }
+class HP { }
+class MP { }
+class Ability { }
+class PassiveEffectManager { }
+class PassiveSkill { }
+class PartySkill { }
+class VisualEffectContext { }
+class VisualEffect { }
+class ActiveProperty { }
+class ActiveTargetRange { }
+class ActiveTargetFilter { }
+class BattleEvent { }
+class ActiveEffect { }
+class BattleEventHandler { }
+
+
+Battler --|> ITargetable 
+BattleFlow --> "1" *-- "*" : battlers > Battler
+TurnSystem -up-|> BattleFlow  
+PlayerMainTactics <|-- Player 
+
+PassiveProperty o--> Ability: contains skills
+Ability <--o Battler: has abilities
+ActiveTargetResult <-|- ITargetable
+ITargetable ->* TargetSelection
+AIInvocationContext *-down-> TargetSelection
+TP <-*- Ability
+HP <-*- Ability
+MP <-*- Ability
+Attribute <-*- Ability
+Tolerance <-*- Ability
+VisualEffectContext ^--- VisualEffect
+ActiveProperty ..> ActiveTargetRange: uses range filter?
+ActiveProperty .u.[dashed]..[hidden]> VisualEffectContext: triggers visual effects on use
+ActiveTargetFilter ---< ActiveTargetRange
+PartySkill ---> Player
+PassiveSkill ----> Battler
+InvocationContext <---- TargetSelection
+TurnContext <----- Battler
+PassiveEffectManager --> PassiveEffect
+BattleEventHandler --> BattleEvent
+BattleEvent <|-- PassiveEffect
+BattleEvent <|-- ActiveEffect
+ActiveEffect --> BattleEvent
+' note right of this line\nthe following are all associations\nto be defined later in detail.\nendnote
+
+
+
+@enduml

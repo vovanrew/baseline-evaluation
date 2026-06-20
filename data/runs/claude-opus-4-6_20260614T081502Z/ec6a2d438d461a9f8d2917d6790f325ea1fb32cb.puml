@@ -1,0 +1,31 @@
+```plantuml
+@startuml
+
+actor "任务开始 nsq 消息" as actor1
+
+participant "GuideTaskStartListener" as A
+participant "GuideTaskStartProcessor" as B
+participant "GuideTaskStartDomainService" as C
+participant "GuideTaskStartStrategy" as D
+participant "ShoppingGuideReadApi" as E
+participant "GuideTaskRepository" as F
+participant "GuideTaskDataRepository" as G
+
+actor1 -> A: 1 监听任务开始消息
+A -> B: 2 开始处理
+B -> C: 3 查询任务
+C -> F:
+B -> C: 4 开始任务
+C -> D: 5 构建任务
+D -> E: 6 根据部门查询导购
+E --> D
+D -> D: 7 根据导购进行任务分配
+
+group Transaction
+C -> G: 8 保存分配给导购的任务
+C -> F: 9 status flow 任务状态流转至 已启动
+C -> G: 10 任务流转为执行中
+end
+
+@enduml
+```

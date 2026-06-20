@@ -1,0 +1,38 @@
+```plantuml
+@startuml
+actor User
+participant Index
+participant "User\nController" as UserController
+database Database
+
+activate User
+User -> Index : GET: /users/signup
+activate Index
+Index -> UserController : renderSignup()
+activate UserController
+UserController -> UserController : render(index)
+UserController -> Index : display signup
+deactivate UserController
+Index -> Index : POST: /users/signup
+Index -> UserController : async signup()
+activate UserController
+UserController -> Database : User.findOne(email)
+activate Database
+
+alt user not found
+    Database -> UserController : return false
+    deactivate Database
+    alt accept
+        UserController -> UserController : User.create()
+        UserController -> Index : display home
+    else refuse
+        UserController -> Index : display home
+    end
+else user already exist
+    UserController -> Index : show error
+end
+deactivate UserController
+deactivate Index
+deactivate User
+@enduml
+```

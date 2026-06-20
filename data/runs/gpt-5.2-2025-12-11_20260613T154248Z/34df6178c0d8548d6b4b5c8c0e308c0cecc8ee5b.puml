@@ -1,0 +1,37 @@
+@startuml
+actor User
+participant Browser
+participant Cell
+participant FormulaCompiler
+participant ExcelExpressionCompiler
+participant FormulaEvalVisitor
+participant FunctionCall
+participant Function
+
+User -> Browser : select workbook
+User -> Browser : type in formula
+User -> Browser : click button
+
+Browser -> Cell : setContent(formula)
+activate Cell
+Cell -> Cell : storeContent(formula)
+Cell -> FormulaCompiler : compile(this, formula)
+activate FormulaCompiler
+FormulaCompiler -> ExcelExpressionCompiler : compile(cell, formula)
+activate ExcelExpressionCompiler
+ExcelExpressionCompiler -> FormulaEvalVisitor : visit()
+activate FormulaEvalVisitor
+FormulaEvalVisitor -> FormulaEvalVisitor : visitFunction_call()
+deactivate FormulaEvalVisitor
+deactivate ExcelExpressionCompiler
+deactivate FormulaCompiler
+
+Cell -> Cell : reevaluate()
+Cell -> FunctionCall : evaluate()
+activate FunctionCall
+FunctionCall -> Function : applyTo()
+deactivate FunctionCall
+
+Browser -> Browser : refresh cell
+deactivate Cell
+@enduml

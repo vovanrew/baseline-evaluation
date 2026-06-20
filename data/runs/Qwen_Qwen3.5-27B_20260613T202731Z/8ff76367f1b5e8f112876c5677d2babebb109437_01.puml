@@ -1,0 +1,52 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+class PatientStudioDriver {
+    <<C>>
+}
+
+class StudyStudioDriver {
+    <<C>>
+}
+
+class InterviewStudioDriver {
+    <<C>>
+    save(study, patient, interview)
+}
+
+class PatientAdapter {
+    <<Proxy>>
+    <<C>>
+    interviews
+}
+
+class StudyAdapter {
+    <<Proxy>>
+    <<C>>
+    start(command, ...args)
+    getInterviewItems(pageSet)
+    apply(interviewItems)
+}
+
+interface IMutationCommand {
+    <<I>>
+}
+
+class UpdateItemCommand {
+    <<C>>
+    start(study, page, index)
+    getInterviewItems(pageSet)
+    apply(study, interviewItems)
+}
+
+PatientStudioDriver --> PatientAdapter
+StudyStudioDriver --> StudyAdapter
+UpdateItemCommand ..|> IMutationCommand
+PatientAdapter ..> StudyAdapter : getInterviewItems(pageSet)
+InterviewStudioDriver ..> StudyAdapter : apply(interviewItems)
+StudyAdapter ..> UpdateItemCommand : start(...)
+StudyAdapter ..> UpdateItemCommand : apply(...)
+
+@enduml
+```

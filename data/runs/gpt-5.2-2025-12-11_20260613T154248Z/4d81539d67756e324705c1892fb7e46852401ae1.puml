@@ -1,0 +1,36 @@
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 40
+skinparam BoxPadding 10
+
+participant Control
+participant Graph
+participant "nodes[i]:Node" as NodeI
+participant "ants[i]:Ant" as AntI
+
+activate Control
+Control -> Graph : getNodes()
+activate Graph
+Graph --> Control : nodes
+deactivate Graph
+
+loop nodes
+  opt nodes[i].getContent() instanceof FreeNode
+    Control -> NodeI : getAnts()
+    activate NodeI
+    NodeI --> Control : frms
+    deactivate NodeI
+
+    loop fourmis
+      opt ants[i] instanceof MovableAnt
+        AntI -> AntI : move()
+        activate AntI
+        deactivate AntI
+      end
+    end
+  end
+end
+
+deactivate Control
+@enduml

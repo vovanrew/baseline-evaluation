@@ -1,0 +1,58 @@
+```plantuml
+@startuml
+skinparam backgroundColor white
+skinparam sequence {
+  ParticipantPadding 20
+  BoxPadding 10
+  MessageAlign left
+  ArrowColor #000000
+  LifeLineBorderColor #999999
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F2
+  BoxBorderColor #000000
+  BoxBackgroundColor transparent
+}
+
+database Database as DB
+participant ManageLogDemo as Demo
+participant ManageLogReceiveFacade as ReceiveFacade
+participant ManageLogReceiveProvider as ReceiveProvider
+participant ManageLogCommon as Common
+participant AnotherJavaProject as AnotherJavaProject
+participant ManageLogUploadFacade as UploadFacade
+participant AnotherProject as AnotherProject
+participant ManageLogQueryProvider as QueryProvider
+participant ManageLogQueryFacade as QueryFacade
+
+box "rpc 上传日志" #transparent
+  Demo -> ReceiveFacade : aspect 获取数据
+  ReceiveFacade -> ReceiveProvider : rpc/http/kafka，数据为业务数据，configName
+  ReceiveProvider -> Common : 使用工具类
+  ReceiveProvider -> ReceiveProvider : 抓取配置
+  ReceiveProvider -> DB : 落地数据
+end box
+
+box "自主使用 facade 上传日志" #transparent
+  AnotherJavaProject -> ReceiveFacade : 自己组装数据，使用 facade 提供的策略上传
+  ReceiveFacade -> UploadFacade : rpc/http/kafka，数据为业务数据，configName
+  UploadFacade -> Common : 使用工具类
+  UploadFacade -> UploadFacade : 抓取配置
+  UploadFacade -> DB : 落地数据
+end box
+
+box "自主上传日志" #transparent
+  AnotherProject -> UploadFacade : http/kafka，数据为业务数据，configName
+  UploadFacade -> Common : 使用工具类
+  UploadFacade -> UploadFacade : 抓取配置
+  UploadFacade -> DB : 落地数据
+end box
+
+box "日志查询" #transparent
+  Demo -> QueryProvider : 获取数据
+  QueryProvider -> QueryFacade : rpc 提供
+  QueryProvider <- QueryFacade : http 提供（默认）
+end box
+
+@enduml
+```

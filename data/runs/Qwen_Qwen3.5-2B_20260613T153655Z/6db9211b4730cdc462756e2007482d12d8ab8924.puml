@@ -1,0 +1,44 @@
+@startuml
+skinparam sequenceDiagram
+    participant WEB
+    participant API
+    participant PMS
+    participant Cache
+    participant Redis
+
+    Note over WEB, API, PMS, Cache, Redis: 登录验证
+
+    Note over WEB, API, PMS, Cache, Redis: 访问后台接口
+
+    Note over WEB, API, PMS, Cache, Redis: 登录请求，用户名密码
+
+    WEB ->> API: 登录请求，用户名密码
+
+    API ->> PMS: 验证
+
+    PMS -->> API: 验证完成，返回GUID
+
+    API -->> PMS: 缓存信息
+
+    API ->> Redis: 如果开启，向redis存储数据
+
+    API -->> WEB: 返回登录信息 access_token(guid)
+
+    Note over WEB, API, PMS, Cache, Redis: 访问后台接口
+
+    WEB ->> API: SET HTTP HEADER "Authorization: Bearer access_token"
+
+    API ->> Cache: 从缓存读取，验证
+
+    Cache -->> API: 返回
+
+    API ->> Redis: 如果开启，Cache没有从redis读取
+
+    Redis -->> API: 返回
+
+    API -->> WEB: 验证有效
+
+    API -->> WEB: 失败，http code 401
+
+    Note over WEB, API, PMS, Cache, Redis: 登录验证
+@enduml

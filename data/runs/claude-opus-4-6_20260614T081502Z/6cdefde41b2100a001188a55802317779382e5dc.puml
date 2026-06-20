@@ -1,0 +1,55 @@
+@startuml
+participant AntFacadeController
+participant Soldat
+participant Ouvriere
+participant Fourmi
+participant Noeud
+participant Fourmilière
+participant Grille
+participant Random
+
+AntFacadeController -> AntFacadeController : 1 play
+
+loop Fourmilière f in listeFourmilières
+  loop Fourmi f in listeFourmis
+    alt Fourmi instanceof Soldat
+      AntFacadeController -> Soldat : 2 deplacer(Random)
+      Soldat -> Noeud : 3 noeudsLibres
+      Soldat <-- Noeud : 4 ArrayList<Noeud>
+      Soldat -> Random : 5 nextInt()
+      Soldat <-- Random : 6 int
+      Soldat -> Soldat : 7 setPosition:Noeud
+      Soldat <-- Soldat : 8 void
+      AntFacadeController <-- Soldat : 9 void
+    else Fourmi instanceof Ouvriere
+      AntFacadeController -> Ouvriere : 10 deplacer(Random)
+      Ouvriere -> Noeud : 11 noeudsLibres
+      Ouvriere <-- Noeud : 12 ArrayList<Noeud>
+      Ouvriere -> Noeud : 13 getNourriture()
+      Ouvriere <-- Noeud : 14 nourriture
+      Ouvriere -> Noeud : 15 getPheromones()
+      Ouvriere <-- Noeud : 16 pheromones
+      Ouvriere -> Random : 17 nextInt()
+      Ouvriere <-- Random : 18 int
+      Ouvriere -> Ouvriere : 19 setPosition:Noeud
+      Ouvriere <-- Ouvriere : 20 void
+      Ouvriere -> Noeud : 21 getNourriture
+      Ouvriere <-- Noeud : 22 nourriture
+      Ouvriere -> Noeud : 23 setNourriture(int)
+      Ouvriere <-- Noeud : 24 void
+      group transporte nourriture
+        Ouvriere -> Noeud : 25 ajouterPheromones(int)
+        Ouvriere <-- Noeud : 26 void
+      end
+      AntFacadeController <-- Ouvriere : 27 void
+    end
+  end
+
+  loop Noeud n in Grille
+    AntFacadeController -> Noeud : 28 evaporer(int)
+    AntFacadeController <-- Noeud : 29 void
+  end
+end
+
+[<-- AntFacadeController : 30 void
+@enduml

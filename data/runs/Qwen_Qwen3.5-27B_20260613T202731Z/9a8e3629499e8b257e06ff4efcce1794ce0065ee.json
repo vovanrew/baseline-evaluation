@@ -1,0 +1,22 @@
+{
+  "id": "e5bd1387-25c9-4ffa-b965-effb8bd770bc",
+  "object": "chat.completion",
+  "created": 1781438395,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plaintext\n@startuml\nleft to right direction\nskinparam packageStyle rectangle\n\nactor \"havenarbeider\" as havenarbeider\nactor \"douane en voedselinspectie\" as douane\nactor \"scheepsagent\" as scheepsagent\nparticipant \"Api gateway\" as api_gateway\nparticipant \"kapiteinsdienst\" as kapiteinsdienst\nparticipant \"administratie\" as administratie\nparticipant \"containerbeheer en -transport\" as containerbeheer\n\nrectangle \"per schip\" {\n    scheepsagent -> api_gateway: registerVessel\n    activate api_gateway\n    api_gateway -> kapiteinsdienst: registerVessel\n    activate kapiteinsdienst\n    kapiteinsdienst -> administratie: requestOffer\n    activate administratie\n    administratie --> kapiteinsdienst: offerCreated\n    deactivate administratie\n    kapiteinsdienst -> containerbeheer: newContainerList\n    activate containerbeheer\n    \n    opt [deleteOffer]\n        kapiteinsdienst -> api_gateway: offerConfirmation(isConfirmed == false)\n        activate api_gateway\n        api_gateway -> kapiteinsdienst: offerConfirmation(isConfirmed == false)\n        kapiteinsdienst -> administratie: deleteOffer\n        activate administratie\n        deactivate api_gateway\n    endopt\n    \n    deactivate containerbeheer\n    deactivate kapiteinsdienst\n    \n    douane -> api_gateway: getDocuments\n    activate api_gateway\n    api_gateway -> administratie: getDocuments\n    activate administratie\n    administratie --> api_gateway: \n    deactivate administratie\n    api_gateway --> douane: \n    deactivate api_gateway\n}\n\nrectangle \"per havenarbeider\" {\n    havenarbeider -> api_gateway: timeBadging\n    activate api_gateway\n    api_gateway -> administratie: timeBadging\n    activate administratie\n    administratie --> api_gateway: \n    deactivate administratie\n    \n    havenarbeider -> api_gateway: getPayCheck\n    activate api_gateway\n    api_gateway -> administratie: getPayCheck\n    activate administratie\n    administratie --> api_gateway: \n    deactivate administratie\n    api_gateway --> havenarbeider: \n    deactivate api_gateway\n}\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1419,
+    "completion_tokens": 469,
+    "total_tokens": 1888
+  }
+}

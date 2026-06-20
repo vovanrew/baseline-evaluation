@@ -1,0 +1,40 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "ユーザ" as User1
+participant "ブラウザ" as Browser
+database "web.php" as Web
+database "Kouka2_1Controller" as Controller
+database "Restdata" as RestData
+boundary "index.blade.php" as IndexBlade
+boundary "show.blade.php" as ShowBlade
+
+User1 -> Browser: 該当ページをリクエスト[/kouka2_1]
+Browser -> Web: GET[/kouka2_1]
+Web -> Controller: @index
+Controller -> RestData: all()
+activate RestData
+RestData --> Controller: 
+deactivate RestData
+Controller -> IndexBlade: 
+
+User1 -> Browser: 検索ボタンを押下
+Browser -> Web: GET[/kouka2_1/find]
+Web -> Controller: @find
+Controller -> RestData: where()->first()
+activate RestData
+RestData --> Controller: 
+deactivate RestData
+Controller -> ShowBlade: 
+
+actor "ユーザ" as User2
+participant "ブラウザ" as Browser2
+database "web.php" as Web2
+database "Kouka2_1Controller" as Controller2
+database "Restdata" as RestData2
+boundary "index.blade.php" as IndexBlade2
+boundary "show.blade.php" as ShowBlade2
+
+@enduml
+```

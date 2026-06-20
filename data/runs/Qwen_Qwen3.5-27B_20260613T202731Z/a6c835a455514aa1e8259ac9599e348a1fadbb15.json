@@ -1,0 +1,22 @@
+{
+  "id": "49fadd40-f5b6-4130-8324-61ae25840df5",
+  "object": "chat.completion",
+  "created": 1781489551,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle End Screen Action Sequences\n\nactor User\nrectangle \"Views\" #LightBlue {\n    participant Game\n    participant End\n    participant HighScore\n    participant Start\n}\nrectangle \"User Interface Control\" #LightBlue {\n    participant Navigation\n}\nrectangle \"Back End\" #Purple {\n    participant Settings\n    participant JoggleCube\n    participant HighScores\n    participant Score\n    participant Cube\n    participant Block\n}\n\nnote over Navigation,Block: High Score button clicked\nUser -> Game : btnHighScoreClicked()\nactivate Game\nGame -> Navigation : show(ScreenType.HighScore)\nactivate Navigation\nNavigation -> End : prepView()\nactivate End\nEnd -> JoggleCube : getOverallHighScores()\nactivate JoggleCube\nJoggleCube -> HighScores : getScores()\nactivate HighScores\nHighScores --> JoggleCube : scores\ndeactivate HighScores\nJoggleCube -> JoggleCube : getScores()\nactivate JoggleCube\nJoggleCube --> JoggleCube : scores\ndeactivate JoggleCube\nJoggleCube --> End : scores\ndeactivate JoggleCube\nEnd -> JoggleCube : getCurrentCubeHighScores()\nactivate JoggleCube\nJoggleCube -> Score : getScores()\nactivate Score\nScore --> JoggleCube : scores\ndeactivate Score\nJoggleCube --> End : scores\ndeactivate JoggleCube\nEnd --> Navigation : \ndeactivate End\nNavigation -> End : hideOverlay(ScreenType.End)\nactivate End\nEnd --> Navigation : \ndeactivate End\nNavigation --> Game : \ndeactivate Navigation\nGame --> User : \ndeactivate Game\n\nnote over Navigation,Block: Menu Clicked\nUser -> Game : btnMenuClicked()\nactivate Game\nGame -> Navigation : show(ScreenType.Start)\nactivate Navigation\nNavigation -> Start : prepView()\nactivate Start\nStart -> Settings : getCurrLang()\nactivate Settings\nSettings --> Start : English\ndeactivate Settings\nStart --> Navigation : \ndeactivate Start\nNavigation -> End : hideOverlay(ScreenType.End)\nactivate End\nEnd --> Navigation : \ndeactivate End\nNavigation --> Game : \ndeactivate Navigation\nGame --> User : \ndeactivate Game\n\nnote over Navigation,Block: Replay clicked\nUser -> Game : replayGrid()\nactivate Game\nGame -> Navigation : show(ScreenType.GAME)\nactivate Navigation\nNavigation -> Game : prepView()\nactivate Game\nGame -> Cube : getCubeData()\nactivate Cube\nCube -> Cube : getCube()\nactivate Cube\nCube --> Cube : cube[3][3][3]\ndeactivate Cube\nCube --> Game : cube[3][3][3]\ndeactivate Cube\nGame --> Navigation : \ndeactivate Game\nNavigation -> End : hideOverlay(ScreenType.End)\nactivate End\nEnd --> Navigation : \ndeactivate End\nNavigation --> Game : \ndeactivate Navigation\nGame --> User : \ndeactivate Game\n\nnote over Navigation,Block: Save Clicked\nUser -> Game : btnSaveClicked()\nactivate Game\nGame -> JoggleCube : savGrid(filename)\nactivate JoggleCube\nJoggleCube -> Cube : saveCube(outfile)\nactivate Cube\nloop foreach Block\n    Cube -> Block : getLetter()\n    activate Block\n    Block --> Cube : \n    deactivate Block\nend\nCube --> JoggleCube : \ndeactivate Cube\nJoggleCube -> HighScores : saveScore(outfile)\nactivate HighScores\nloop foreach score\n    HighScores -> HighScores : save(outfile)\n    activate HighScores\n    HighScores --> HighScores : \n    deactivate HighScores\nend\nHighScores --> JoggleCube : \ndeactivate HighScores\nJoggleCube --> Game : \ndeactivate JoggleCube\nGame --> User : \ndeactivate Game\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1909,
+    "completion_tokens": 801,
+    "total_tokens": 2710
+  }
+}

@@ -1,0 +1,53 @@
+```plantuml
+@startuml
+title ブリッジパターン
+
+skinparam shadowing false
+skinparam packageStyle folder
+skinparam classAttributeIconSize 0
+
+package "main" as PKG_MAIN {
+  class main as MAIN
+}
+
+package "Bridge" as PKG_BRIDGE {
+
+  abstract class Display << (C,#B7E1B0) >> {
+    impl
+    --
+    open(arg): void
+    print(arg): void
+    close(arg): void
+    display(arg): void
+  }
+
+  abstract class DisplayImpl << (A,#BFE9EA) >> {
+    --
+    {abstract} raw_open(arg): void
+    {abstract} raw_print(arg): void
+    {abstract} raw_close(arg): void
+  }
+
+  class CountDisplay << (C,#B7E1B0) >> {
+    --
+    multi_display(arg): void
+  }
+
+  class StringDisplayImpl << (C,#B7E1B0) >> {
+    --
+    raw_open(arg): void
+    raw_print(arg): void
+    raw_close(arg): void
+  }
+
+  Display o--> DisplayImpl
+  CountDisplay --|> Display
+  StringDisplayImpl --|> DisplayImpl
+}
+
+MAIN ..> Display : Uses
+MAIN ..> StringDisplayImpl : Uses
+MAIN ..> StringDisplayImpl : Create
+
+@enduml
+```

@@ -1,0 +1,78 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #808080
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #808080
+  ParticipantBackgroundColor #E6E6FA
+  BoxBorderColor #000000
+  BoxBackgroundColor #FFFFFF
+  NoteBackgroundColor #FFF9C4
+  NoteBorderColor #808080
+}
+
+participant JCallGraph
+participant CliManager
+participant MethodCallsList
+participant CalledFromList
+participant File
+participant JarFile
+participant ZipEntry
+participant ClassParser
+participant ClassVisitor
+participant Runner
+
+JCallGraph -> CliManager : new CliManager()
+activate CliManager
+deactivate CliManager
+
+JCallGraph -> CliManager : main(args)
+
+JCallGraph -> MethodCallsList : getMethodCallsList()
+activate MethodCallsList
+MethodCallsList --> JCallGraph : MethodCallsList
+deactivate MethodCallsList
+
+JCallGraph -> File : new File
+activate File
+File --> JCallGraph : File
+deactivate File
+
+JCallGraph -> JarFile : new JarFile(File)
+activate JarFile
+JarFile --> JCallGraph : JarFile
+deactivate JarFile
+
+JCallGraph -> JCallGraph : enumerationAsStream(Enumeration<T> e)
+note right of JCallGraph
+Jar en formato stream
+end note
+
+loop [forEach]
+  alt [isDirectory() and getName().endsWith(".class")]
+    JCallGraph -> ClassParser : new ClassParser(String, String)
+    activate ClassParser
+    ClassParser --> JCallGraph : cp = ClassParser
+    deactivate ClassParser
+
+    JCallGraph -> JCallGraph : getClassVisitor()
+    JCallGraph -> ClassVisitor : apply(ClassParser)
+    JCallGraph -> ClassVisitor : start()
+    activate ClassVisitor
+    ClassVisitor --> JCallGraph : HashMap<MethodReport, List<MethodReport>>
+    deactivate ClassVisitor
+
+    alt [!= null]
+      JCallGraph -> MethodCallsList : add(HashMap<MethodReport, List<MethodReport>>)
+    end
+  end
+
+  JCallGraph -> Runner : main(String[])
+  JCallGraph -> JCallGraph : exportFiles();
+end
+
+== [catch] ==
+JCallGraph -> JCallGraph : printStackTrace()
+@enduml

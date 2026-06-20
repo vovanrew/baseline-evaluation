@@ -1,0 +1,22 @@
+{
+  "id": "165dc7eb-6642-4767-86ab-2d711eb3d990",
+  "object": "chat.completion",
+  "created": 1781441779,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nleft to right direction\nskinparam sequence {\n    ArrowColor black\n    ActorBorderColor black\n    ActorBackgroundColor white\n    LifeLineBorderColor black\n    LifeLineBackgroundColor white\n}\n\nactor Administrator as admin\nparticipant \"SpecifyNewVaccineUI\" as ui\nparticipant \"SpecifyNewVaccineController\" as controller\nparticipant \"Company\" as company\nparticipant \"VaccineStore\" as store\ndatabase \"vc.Vaccine\" as vaccineDB\nrectangle \"admPro.AdministrationProcess\" as admProcess\ndatabase \"VaccineTypeStore\" as typeStore\ndatabase \"VaccineType\" as vType\n\nadmin -> ui : 1 starts specifying a new vaccine and its administration process\nactivate ui\nui -> controller : 2 createVaccine()\nactivate controller\ncontroller -> company : 3 typeList = getVaccineTypeList()\nactivate company\ncompany -> typeStore : 4 getVaccineTypeList()\nactivate typeStore\nloop for all known vaccineTypes\n    typeStore -> vType : 5 VaccineType(code, name)\nend\ndeactivate typeStore\ndeactivate company\ntypeStore --> controller : 6 request data (name, manufacturer, type, age groups,doses,elapsing interval, dosage) and show vaccineType list\ncontroller --> ui : 7 types requested data\nui -> controller : 8 createVaccine(id, name, manufacturer, type, administrationProcess)\ncontroller -> company : 9 createVaccine(id, name, manufacturer, type, administrationProcess)\ncompany -> store : 10 createVaccine(id, name, manufacturer, type, administrationProcess)\nactivate store\nstore -> vaccineDB : 11 vc = createVaccine(id, name, manufacturer, type, administrationProcess)\nactivate vaccineDB\nloop For all age groups\n    vaccineDB -> admProcess : 12 administrationProcess(minAge, maxAge, numberOfDoses, dosage, timeElapsed)\n    activate admProcess\n    admProcess --> vaccineDB : 13 validateVaccine()\n    deactivate admProcess\nend\nvaccineDB --> store : 14 updateVaccine()\ndeactivate store\ndeactivate vaccineDB\nstore --> ui : 15 shows data and request confirmation\nui --> controller : 16 confirms data\ncontroller -> company : 17 saveVaccine()\ncompany -> store : 18 saveVaccine()\nstore -> vaccineDB : 19 saveVaccine()\nvaccineDB --> store : 20 addVaccine()\ndeactivate store\ndeactivate company\ndeactivate controller\ndeactivate ui\nui --> admin : 21 informs operation (in)succcess\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 733,
+    "completion_tokens": 572,
+    "total_tokens": 1305
+  }
+}

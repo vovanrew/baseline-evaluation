@@ -1,0 +1,55 @@
+```plantuml
+@startuml
+title 認証のシーケンス
+
+box "フロントエンド(React)" #LightBlue
+participant "ブラウザ" as Browser
+participant "ContextProvider" as CP
+participant "_app" as App
+participant "Login" as Login
+end box
+
+participant "バックエンド" as Backend
+database "DB" as DB
+
+Browser -> Login : ログイン要求(email, password)
+Login -> App : (フレームワークの振る舞い)
+App -> CP : コンポーネントとして呼び出し
+
+note left of CP
+※ログイン時はとくに
+なにもしてない。
+end note
+
+CP --> Login
+Login -> Backend : ログイン要求(email, password)
+Backend -> DB : select(email, password)
+DB --> Backend : ユーザー情報
+
+note right of Backend
+ユーザー ID をもとに
+JWT を生成。
+response の cookie に
+{token: JWT} を載せる。
+end note
+
+Backend --> Login : ログイン結果(結果, cookie, ユーザー情報)
+Login -> CP : dispatch
+
+note left of CP
+(必要あれば)
+取得したユーザー情報を
+state に保持。
+end note
+
+CP --> Browser : ログイン結果(結果, cookie)
+
+note left of Browser
+ブラウザの cookie に
+{token: JWT} が保存される。
+今後のリクエストには
+この情報が付与される。
+end note
+
+@enduml
+```

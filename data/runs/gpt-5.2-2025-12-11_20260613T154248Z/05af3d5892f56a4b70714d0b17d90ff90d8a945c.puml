@@ -1,0 +1,43 @@
+@startuml
+left to right direction
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+
+participant "CShareMoreDlg" as CShareMoreDlg
+participant "CSharingMoreWrapper" as CSharingMoreWrapper
+participant "CPfwMainFrame" as CPfwMainFrame
+participant "CPfwChainMessageMapT" as CPfwChainMessageMapT
+participant "CMCUIMgr" as CMCUIMgr
+participant "CSmDefUIMgr" as CSmDefUIMgr
+participant "CPfwMessageCenterAgent" as CPfwMessageCenterAgent
+participant "CSmFITUIMgr" as CSmFITUIMgr
+participant "CMCFITUIMgr" as CMCFITUIMgr
+participant "CSmAppShareSessionMgr" as CSmAppShareSessionMgr
+participant "CPcmAppShareMgr" as CPcmAppShareMgr
+
+CShareMoreDlg -> CShareMoreDlg : OnBtnShareOtherApp
+note right of CShareMoreDlg
+User Click "Other Application"
+end note
+
+CShareMoreDlg -> CSharingMoreWrapper : ShareOtherApp
+CSharingMoreWrapper -> CPfwMainFrame : SendMessage
+note over CSharingMoreWrapper,CPfwMainFrame
+PFW_QS_MENU_SHARE_OTHER_APP_ID
+end note
+
+CPfwMainFrame -> CPfwChainMessageMapT : PfwChainProcessWindowMessage
+CPfwChainMessageMapT --> CPfwMainFrame : ProcessWindowMessage
+CPfwMainFrame -> CMCUIMgr : OnWindowMsg
+CMCUIMgr -> CSmDefUIMgr : OnWindowMsg
+CSmDefUIMgr -> CSmDefUIMgr : ChainToMsgCenter
+CSmDefUIMgr -> CPfwMessageCenterAgent : SendMessage
+CPfwMessageCenterAgent -> CSmFITUIMgr : ProcessWindowMessage
+CSmFITUIMgr -> CMCFITUIMgr : OnCommand
+CMCFITUIMgr --> CSmFITUIMgr : OnCommand
+CSmFITUIMgr -> CSmAppShareSessionMgr : SelectANewApplication
+CSmAppShareSessionMgr -> CPcmAppShareMgr : ShowInstalledAppDialog
+
+@enduml

@@ -1,0 +1,64 @@
+```plantuml
+@startuml
+box "User application" #F4F0F8
+participant Main
+end box
+participant Propagator
+participant Integrator
+participant DifferentialEquations
+participant OrbitType
+participant TimesDerivative
+participant "Force Model i" as ForceModel
+participant NewtonianAttraction
+
+activate Main
+Main -> Propagator : propagate
+activate Propagator
+
+Propagator -> DifferentialEquations : create
+activate DifferentialEquations
+deactivate DifferentialEquations
+
+Propagator -> TimesDerivative : create
+activate TimesDerivative
+deactivate TimesDerivative
+
+Propagator -> Integrator : integrate
+activate Integrator
+
+loop #E2EFE2 [for n steps]
+    Integrator -> DifferentialEquations : computeDerivatives
+    activate DifferentialEquations
+    
+    DifferentialEquations -> OrbitType : mapArrayToOrbit
+    activate OrbitType
+    deactivate OrbitType
+    
+    loop #F0EFE2 [for all perturbation force models]
+        DifferentialEquations -> ForceModel : addContribution
+        activate ForceModel
+        ForceModel -> TimesDerivative : addAcceleration
+        activate TimesDerivative
+        deactivate TimesDerivative
+        deactivate ForceModel
+    end
+    
+    DifferentialEquations -> NewtonianAttraction : addContribution
+    activate NewtonianAttraction
+    NewtonianAttraction -> TimesDerivative : addKeplerContribution
+    activate TimesDerivative
+    deactivate TimesDerivative
+    deactivate NewtonianAttraction
+    
+    deactivate DifferentialEquations
+end
+
+Integrator --> Propagator : final state
+deactivate Integrator
+
+Propagator --> Main : final state
+deactivate Propagator
+deactivate Main
+
+@enduml
+```

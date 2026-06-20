@@ -1,0 +1,21 @@
+{
+  "id": "msg_01RbSfCwfV4NfjnuA7LhRREQ",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nbox \"Master\"\nparticipant Client\nparticipant Dispatcher\ndatabase Database\nparticipant RSyncServer\nparticipant Arbiter\nend box\n\nbox \"Worker\"\nparticipant Slave\nparticipant Worker\nend box\n\nClient -> Database : Create a taskset\nClient -> Database : Enqueue tasks\nClient -> Dispatcher : Taskset request\nDispatcher -> Worker : Taskset dispatch\nDispatcher -> Database : Log the worker participation\n\n== RSync ==\n\nRSyncServer <-> Worker : RSync\n\n== Setup ==\n\nWorker -> Worker : Worker setup\nWorker -> Database : Add a worker setup log\n\nalt setup failed\nWorker -> Dispatcher : Fail request\nDispatcher -> Database : Mark the taskset as failed\nDispatcher -> Client : Notify the taskset is marked as failed\nend\n\n== Testing ==\n\nWorker -> Slave : Spawn slaves\nSlave -> Slave : Slave setup\n\nloop\nSlave -> Database : Dequeue a task\nSlave <-- Database : Return a task\nSlave -> Database : Add a trial\nSlave -> Slave : Execute a task\nSlave -> Database : Add a trial result\nSlave -> Arbiter : Notify the trial result\nArbiter -> Database : Query the trial result\nArbiter <-- Database : Respond to the query\n\nalt passed or pending\nArbiter -> Database : Mark the task as finished\nelse retry needed\nArbiter -> Database : Enqueue the task\nelse no more retries\nArbiter -> Database : Mark the task as failed\nend\nend\n\nSlave -> Database : Dequeue a task\nSlave <-- Database : No tasks left\nSlave -> Arbiter : Check request\nArbiter -> Database : Check whether all tasks are finished\n\nalt some tasks are left\nArbiter -> Database : Enqueue the tasks\nend\n\nArbiter -> Database : Mark the taskset as finished\nArbiter -> Client : Notify the taskset is marked as finished\nWorker -> Slave : Kill slaves\nWorker -> Database : Add slave logs\nClient -> Database : Query the status of the taskset\nClient <-- Database : Respond to the query\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781432361,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 480,
+    "prompt_tokens": 1646,
+    "total_tokens": 2126
+  }
+}

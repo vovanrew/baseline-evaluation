@@ -1,0 +1,56 @@
+@startuml
+title Class Diagram - SP02 CLASS DIAGRAM
+
+skinparam packageStyle rectangle
+
+package "controllers" {}
+
+class Application <<C>>
+class RelationService <<C>>
+class AccountService <<C>>
+class TransactionService <<C>>
+interface Category <<I>>
+class Family <<C>>
+class FamilyMember <<C>>
+class CategoryService <<C>>
+class Relation <<C>>
+class FamilyService <<C>>
+class AccountData <<C>>
+interface Account <<I>>
+interface Transaction <<I>>
+class MoneyValue <<C>>
+
+package "category" {}
+package "accounts" {}
+
+controllers --> Application
+
+Application --> AccountService : has
+Application --> RelationService : has
+Application --> Family : has
+Application --> CategoryService : has list
+Application --> Relation : has list
+Application --> FamilyService : has
+
+RelationService --> Category : has
+RelationService --> FamilyMember : handles
+RelationService --> Family : handles
+RelationService ..> "category" : implements
+
+AccountService --> TransactionService : has
+
+TransactionService --> FamilyMember : handles
+
+"accounts" --> AccountService : handles
+
+FamilyMember --> Account : has list
+FamilyMember --> AccountData : implements
+
+Account --> Transaction : contains
+Account <-- Transaction : contains
+Transaction --> MoneyValue : contains
+Transaction --> Account : has list
+
+AccountData --* Account : implements
+
+@enduml

@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nclass TGestionnaireDels {\n  - FDerniereDel: TDel*\n  - FCignottement: bool\n  + TGestionnaireDels() = delete\n  + begin(periode: uint32_t, TimerInterrupt &timer)\n  G\u00e8re l'\u00e9tat d'une liste de DEL en utilisant\n  un Timer pour les faire clignoter\n}\n\nclass TimerInterrupt {\n  + init()\n  + attachInterruptInterval(periode: unsigned long,\n  isr: void(*)(void))\n  Voir: https://github.com/khoih-prog/TimerInterrupt\n}\n\nclass TRefDel<TTypeDel: TDel> {\n  - FDel: TTypeDel*\n  + TRefDel(broche: int)\n  + TRefDel(ref: TRefDel<TTypeDel>&)\n  + ~TRefDel()\n  + Del(): TTypeDel&\n  R\u00e9f\u00e9rence vers une TDel\n}\n\nclass TDel {\n  - FBroche: const int\n  - FEtat: TEtatDel\n  - FNbReferences: uint8_t\n  FDelPrecedente: TDel*\n  FDelSuivante: TDel*\n  + TDel(broche: int)\n  - TDel(del: TDel&) = delete\n  + ~TDel()\n  + Etat(etat: TEtatDel): int\n  + Etat(): TEtatDel\n  # MajEtat()\n  DEL g\u00e9r\u00e9e par TGestionnaireDels\n}\n\nenum TEtatDel {\n  edAllume\n  edEteinte\n  edClignotte\n  edInactive\n  edPremier\n  edDernier\n  Repr\u00e9sente l'\u00e9tat\n  d'une DEL pour TDelIsr\n}\n\nclass TDelClignotteTemp {\n  - FNbClignottements: uint8_t\n  - FClignottementsRestants: uint16_t\n  NB_CLIGNOTTEMENTS_DEFAUT: const uint8_t = 5;\n  - TDelClignotteTemp(broche: int)\n  + FaireClignotter()\n  + Clignotte(): bool\n  # MajEtat()\n  Permet de faire clignotter une DEL\n  un certain nombre de fois \u00e0 chaque\n  fois que la m\u00e9thode FaireClignotter\n}\n\nclass TGroupeCapteursObstruction {\n  - FCapteurs: TCapteurObstruction*\n  - FNbCapteurs: const size_t\n  + TGroupeCapteursObstruction(brochesCapteurs: const int*, nbCapteurs: int,\n  niveauObstruction: uint8_t,\n  delaiSansObstructions: uint32_t)\n  + ~TGroupeCapteursObstruction()\n  + begin()\n  + Lire()\n  + ObstruesImmediatement(): bool\n  + Obstrues(): bool\n  + DelaiSansObstruction(): uint32_t\n  + Capteurs(): TCapteurObstruction*\n  + NbCapteurs(): size_t\n  Groupe de capteurs d'obstructions.\n  Tant qu'un des capteurs du groupe est obstru\u00e9,\n  le groupe de capteurs est consid\u00e9r\u00e9 comme obstru\u00e9.\n}\n\nclass TCapteurObstruction {\n  - FBroche: int\n  - FNiveauObstruction: uint8_t\n  - FDelaiSansObstructions: uint32_t\n  - FDebutNonObstrue: uint32_t\n  - FDerniereLecture: bool\n  + OBSTRUE: const bool = true;\n  + NON_OBSTRUE: const bool = false;\n  + TCapteurObstruction(broche: int, niveauObstruction: uint8_t,\n  delaiSansObstructions: uint32_t);\n  + TCapteurObstruction();\n  + ChangerBroche(broche: int)\n  + ChangerNiveauObstruction(niveauObstruction: uint8_t)\n  + ChangerDelaiSansObstructions(delaiSansObstructions: uint32_t)\n  + begin();\n  + Lire();\n  + Obstrue(): bool\n  + ObstrueImmediatement(): bool\n  + DelaiSansObstruction(): uint32_t\n  Permet de lire la valeur d'un capteur\n  d'obstruction analogique. Il utilise\n  un d\u00e9lai configurable pour s'assurer\n  que le capteur d'obstruction est\n  bien d\u00e9couvert.\n}\n\nenum TEtatGlissiere {\n  egOuverte\n  egOuverture\n  egFermee\n  egFermeture\n  Repr\u00e9sente l'\u00e9tat de la glissi\u00e8re\n}\n\nclass TGlissiere {\n  - FDirectionOuvrir: int\n  - FDirectionFermer: int\n  - FCapteurOuvert: int\n  - FCapteurFerme: int\n  - FCommande: bool\n  - FDebutDeplacement: time_t\n  + const COMMANDE_OUVRIR: bool = true\n  + const COMMANDE_FERMER: bool = false\n  + TGlissiere(directionOuvrir: int, directionFermer: int, capteurOuvert: int, capteurFerme: int)\n  + begin()\n  + TempsDeplacement(): uint32_t\n  + EstEnDeplacement(): bool\n  + Etat(): TEtatGlissiere\n  + Commander(commande: bool)\n  Permet de contr\u00f4ler la glissi\u00e8re pour distribuer des m\u00e9dicaments\n}\n\nclass TVerrou {\n  - FBroche: int\n  - FEtat: bool\n  - FDebutDeverrouillage: uint32_t\n  + DelaiDeverrouillage\n  // Valeur de l'\u00e9tat du verrou lorsqu'il est verrouill\u00e9\n  + VERROUILLE: const bool = true\n  // Valeur de l'\u00e9tat du verrou lorsqu'il est d\u00e9verrouill\u00e9\n  + DEVERROUILLE: const bool = false\n  + TVerrou(broche: int, delaiDeverrouillage: uint32_t)\n  + begin()\n  + loop()\n  + Etat(): bool\n  + Etat(etat: bool)\n  + Deverrouiller()\n  Contr\u00f4le un verrou en PWM avec un cycle de travail de 50%. Le verrou est\n  verrouill\u00e9 par d\u00e9faut et ne se verrouille que pendant un interval sp\u00e9cifi\u00e9.\n  s'il est.\n  Le verrou doit \u00eatre verrouill\u00e9 sur un niveau logique bas\n}\n\nclass TGestionnaireDistribution {\n  - FMedicamentsRestant: uint16_t\n  - FMedicamentsADistribuer: uint8_t\n  - FGlissiere: TGlissiere\n  - FVerrou: TVerrou\n  - FNiveauReservoir: TGroupeCapteursObstruction\n  - FGlissiereObstruee: TCapteurObstruction\n  + begin()\n  + MedicamentsRestant(): uint16_t\n  + MedicamentsRestant(medicaments: uint16_t)\n  + DistribuerMedicaments(medicaments: uint16_t)\n  + MedicamentsADistribuer(medicaments: uint16_t)\n  G\u00e8re la distribution de m\u00e9dicaments\n}\n\nclass TCommunication {\n  - FAdresseI2C: uint16_t\n  - FCleEncryption: uint8_t[TAILLE_CLE_ENCRYPTION]\n  - TCommunication()\n  + begin()\n  + NotifierNiveauMedicamentCritique(): int\n  + CommunicationEncryptee(): bool\n  G\u00e8re la communication avec le module de contr\u00f4le\n}\n\nclass EEPROM {\n}\n\nclass Wire {\n}\n\nTGestionnaireDels -right-> TimerInterrupt\nTGestionnaireDels o--> TDel\nTRefDel -up-> TGestionnaireDels\nTRefDel -right-> TDel\nTDel -right-> TEtatDel\nTDel <|-- TDelClignotteTemp\nTGroupeCapteursObstruction o--> TCapteurObstruction\nTGestionnaireDistribution *--> TGlissiere\nTGestionnaireDistribution *--> TVerrou\nTGestionnaireDistribution *--> TGroupeCapteursObstruction\nTGestionnaireDistribution *--> TCapteurObstruction\nTCommunication -down-> EEPROM\nTCommunication -down-> Wire\nTGestionnaireDistribution -down-> EEPROM\nTDel -right-> delMedicDispo\nTDelClignotteTemp -left-> delErreur\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHCKm2QWjW1D5yATJqXL9Yf1gRkWXowdKNa+/BFzc+RzCMkcACa+H6dXsDax4K"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1172,
+    "candidatesTokenCount": 1940,
+    "totalTokenCount": 3112,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1092
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "V1guaoKLAuKe28oPubuZkAg"
+}

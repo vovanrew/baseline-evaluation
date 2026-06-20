@@ -1,0 +1,84 @@
+```plantuml
+@startuml
+' version: 1.20201212.3
+' skinparam: default
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+class Airport {
+    <<Thread>>
+    list<Runway> lst_runways
+    list<AirportOperation> lst_operations
+    bool permission_to_take_off(Airplane)
+    bool permission_to_land(Airplane)
+    void start_thread()
+}
+
+class Runway {
+    uint32_t id
+    RunwayState state
+}
+
+class AirportOperation {
+    Runway run_way
+    Airplane airplane
+    uint32_t time_request
+    uint32_t time_last_update
+    EnumAirportOperation operation_state
+    void free_runway()
+}
+
+class Airplane {
+    <<Thread>>
+    uint32_t id
+    uint32_t fuel
+    uint32_t fuel_consumption_rate
+    uint32_t airport_answer_timeout
+    AirplaneState state
+    void start_thread()
+    void take_off_authorized()
+    void take_off_denied()
+    void land_authorized()
+    void land_denied()
+}
+
+enum RunwayState {
+    Free
+    InUse
+}
+
+enum AirplaneState {
+    Stopped
+    AskingPermissionToTakeOff
+    TakingOff
+    Flying
+    AskingPermissionToLand
+    Landing
+    Crashed
+}
+
+enum EnumAirportOperation {
+    WaitingToTakeOff
+    AuthorizedToTakeOff
+    WaitingToLand
+    AuthorizedToLand
+}
+
+note right of Airport::start_thread()
+Iterate through lst_operations
+if it matches the criteria that airplane is already flying
+release runway
+update airplane status and related info
+order lst_operations to update next events
+end note
+
+Airport *-- Runway : "lst_runways"
+Airport *-- AirportOperation : "lst_operations"
+AirportOperation o-- Runway : "run_way"
+AirportOperation o-- Airplane : "airplane"
+AirportOperation *-- EnumAirportOperation : "operation_state"
+Airplane *-- AirplaneState : "state"
+Runway *-- RunwayState : "state"
+
+@enduml
+```

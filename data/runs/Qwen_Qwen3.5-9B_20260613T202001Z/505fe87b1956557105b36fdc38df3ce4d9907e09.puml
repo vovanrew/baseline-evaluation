@@ -1,0 +1,38 @@
+@startuml
+left to right direction
+actor "Freelancer" as freelancer
+participant ":AlterarCandidaturaUI" as ui
+participant ":RegistrarCandidaturaController" as controller
+participant ":Plataforma" as plataforma
+participant ":UsersAPI" as usersAPI
+participant "cand: Candidatura" as candidatura
+database "RepositorioFreelancer" as repoFreelancer
+database "RepositorioCandidatura" as repoCandidatura
+
+freelancer -> ui: 1 inicia alterar candidatura
+ui -> controller: 2 getFreelancerByEmail()
+controller -> plataforma: 3 email = getSessionEmail()
+plataforma -> usersAPI: 4 email = getEmail()
+usersAPI --> plataforma: 4
+controller -> repoFreelancer: 5 free = find(email)
+repoFreelancer --> controller: 5
+
+ui -> controller: 6 lcand = getCandidaturasDispByFreelancerEmail()
+controller -> repoCandidatura: 7 lcand = getAllCandidaturasByFreelancerEmail(email)
+repoCandidatura --> controller: 7
+
+ui --> freelancer: 8 solicita a escolha de uma das candidaturas por si efetuadas e, ainda, em período de candidaturas
+freelancer -> ui: 9 escolhe a candidatura
+ui -> controller: 10 cand = getCandById()
+controller -> repoCandidatura: 11 cand = find(id)
+repoCandidatura --> controller: 11
+
+ui --> freelancer: 12 solicita a introdução de novos dados (i.e. os que pretende alterar, mantendo os restantes iguais)
+freelancer -> ui: 13 introduz os dados solicitados (valor,nrDias,txtApresentacao,txtMotivacao)
+ui -> controller: 14 alterarCandidatura(valor,nrDias,txtApresentacao,txtMotivacao)
+controller -> repoCandidatura: 15 update(cand)
+repoCandidatura --> controller: 15
+
+ui --> freelancer: 16 valida e apresenta os dados ao Freelancer e pede a sua confirmação
+
+@enduml

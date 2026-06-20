@@ -1,0 +1,69 @@
+@startuml
+title SDP Initiated Request/Response Pattern with Correlation ID
+
+skinparam sequence {
+  backgroundColor #F5F5DC
+  actorBorderColor #000000
+  actorBackgroundColor #FFA500
+  actorFontColor #000000
+  lifelineBorderColor #000000
+  lifelineBackgroundColor #E0E0E0
+  lifelineFontColor #000000
+  messageFontColor #000000
+  messageFontName "Arial"
+  messageFontSize 12
+  noteFontColor #000000
+  noteFontName "Arial"
+  noteFontSize 12
+}
+
+participant "SERVER NODE 1" as SN1
+participant "SERVER NODE 2" as SN2
+participant "STATE CACHE" as SC
+participant "BROKER" as BR
+participant "APP" as APP
+
+SN1 -> SN1 : new request/response interaction
+activate SN1
+SN1 -> SN1 : create interaction context
+deactivate SN1
+
+SN1 -> SC : newMessageID = nextMessageID()
+activate SN1
+SN1 -> SC : put(newMessageID, interaction context)
+deactivate SN1
+
+SN1 -> SN1 : create message
+activate SN1
+SN1 -> SN1 : message.messageID = newMessageID
+deactivate SN1
+
+SN1 -> BR : publish message
+activate SN1
+deactivate SN1
+
+BR -> APP : read message
+activate BR
+activate APP
+APP -> APP : create response
+deactivate APP
+APP -> APP : response.correlationID = message.messageID
+deactivate APP
+
+APP -> BR : publish response
+activate APP
+deactivate APP
+
+BR -> SN2 : read response
+activate BR
+activate SN2
+SN2 -> SC : interaction context = get(response.correlationID)
+deactivate SN2
+SN2 -> SN2 : process response
+deactivate SN2
+SN2 -> SC : delete(response.correlationID)
+deactivate SN2
+
+deactivate BR
+
+@enduml

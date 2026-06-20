@@ -1,0 +1,51 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nentity sdx_downstream #00BFFF\nentity downstream_quarantine #00BFFF\nparticipant Downstream\nparticipant Store\nparticipant TransformCS\nparticipant Sequence\ndatabase Postgres #00BFFF\ncollections FTP #7CFC00\n\nsdx_downstream --> Downstream : Consume tx_id\nactivate Downstream #FFC0CB\n\nDownstream -> Store : GET /responses/{tx_id}\nactivate Store #FFC0CB\nStore --> Postgres\nStore -> Downstream : return response json\ndeactivate Store\n\nbreak error\n    Downstream --> downstream_quarantine\nend\n\nDownstream -> Sequence : GET /sequence\nactivate Sequence #FFC0CB\nSequence --> Postgres\nSequence -> Downstream : return number\ndeactivate Sequence\n\nbreak error\n    Downstream --> downstream_quarantine\nend\n\nalt common-software\n    Downstream -> TransformCS : POST /common-software/{sequence_no}\n    activate TransformCS #FFC0CB\nelse cora\n    Downstream -> TransformCS : POST /cora/{sequence_no}\nelse cord\n    Downstream -> TransformCS : POST /cord/{sequence_no}\nend\n\nTransformCS -> Sequence : GET /image-sequence?n\nactivate Sequence #FFC0CB\nSequence --> Postgres\nSequence -> TransformCS : return list\ndeactivate Sequence\n\nTransformCS -> Downstream : Return Zip\ndeactivate TransformCS\n\nbreak error\n    Downstream --> downstream_quarantine\nend\n\nDownstream -> Downstream : Unzip\nDownstream --> FTP : Send files\n\ndeactivate Downstream\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHGqaexcSk57AB3YMdHqACuGPrIvRQdEeK2Bif4L1SE0y9r4+0kBDBhAflg1Zj"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "citationMetadata": {
+        "citationSources": [
+          {
+            "startIndex": 572,
+            "endIndex": 822,
+            "uri": "https://github.com/ONSdigital/sdx-compose",
+            "license": ""
+          },
+          {
+            "startIndex": 1046,
+            "endIndex": 1338,
+            "uri": "https://github.com/ONSdigital/sdx-compose",
+            "license": ""
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1153,
+    "candidatesTokenCount": 350,
+    "totalTokenCount": 1503,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1073
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "BGAxaoPsKIS0xN8PspuWyQ4"
+}

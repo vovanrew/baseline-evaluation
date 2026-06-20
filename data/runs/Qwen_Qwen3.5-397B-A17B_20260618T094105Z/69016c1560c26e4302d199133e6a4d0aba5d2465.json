@@ -1,0 +1,22 @@
+{
+  "id": "728d091e-bc1b-4393-983a-bd7a445cc4ad",
+  "object": "chat.completion",
+  "created": 1781850148,
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n' Define custom styles to match the original diagram's appearance\nskinparam classAttributeIconSize 0\nskinparam noteBackgroundColor #FFFFCC\nskinparam rectangle {\n    BackgroundColor<<Thread>> LightGreen\n}\nhide circle\n\nclass \"Airport\" <<C Thread>> as Airport {\nlist<Runway> lst_runways\nlist<AirportOperation> lst_operations\nbool permission_to_take_off(Airplane)\nbool permission_to_land(Airplane)\nvoid start_thread()\n}\n\nnote right of Airport : Iterate through lst_operations\\nif it matches the criteria that airplane is already flying\\nrelease runway\\nupdate airplane status and related info\\norder lst_operations to update next events\n\nclass \"AirplaneState\" <<E>> as AirplaneStateEnum {\nStopped\nAskingPermissionToTakeOff\nTakingOff\nFlying\nAskingPermissionToLand\nLanding\nCrashed\n}\n\nenum EnumAirportOperation {\nWaitingToTakeOff\nAuthorizedToTakeOff\nWaitingToLand\nAuthorizedToLand\n}\n\nclass RunwayState <<E>> {\nFree\nInUse\n}\n\nclass \"Runway\" <<C>> as RunwayClass {\nuint32_t id\nRunwayState state\n}\n\nclass \"AirportOperation\" <<C>> as OperationClass {\nRunway run_way\nAirplane airplane\nuint32_t time_request\nuint32_t time_last_update\nEnumAirportOperation operation_state\nvoid free_runway()\n}\n\nclass \"Airplane\" <<C Thread>> as PlaneClass {\nuint32_t id\nuint32_t fuel\nuint32_t fuel_consumption_rate\nuint32_t airport_answer_timeout\nAirplaneState state\nvoid start_thread()\nvoid take_off_authorized()\nvoid take_off_denied()\nvoid land_authorized()\nvoid land_denied()\n}\n\n' Relationships based on composition/aggregation diamonds in source image\nAirport *-- RunwayClass\nAirport *-- OperationClass\nOperationClass o-- RunwayClass\nOperationClass --o PlaneClass\nPlaneClass --> AirplaneStateEnum\nRunwayClass --> RunwayState\nOperationClass --> EnumAirportOperation\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2350,
+    "completion_tokens": 457,
+    "total_tokens": 2807
+  }
+}

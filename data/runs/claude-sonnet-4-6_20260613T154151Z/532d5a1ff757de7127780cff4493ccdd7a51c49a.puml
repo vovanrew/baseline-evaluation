@@ -1,0 +1,81 @@
+```plantuml
+@startuml
+
+actor "Sales Clerk" as SalesClerk
+
+participant "«Presentation»\n: OrderDeliveredUI" as UI
+participant "«Application»\n: OrderDeliveredController" as Controller
+participant "«Service»\n: OrderDeliveredService" as Service
+participant "«Persistence»\n: PersistenceContext" as Persistence
+participant "«Factory»\nfactory : RepositoryFactory" as Factory
+database "«Repository»\norderRepository : Repository" as Repository
+collections "«Domain»\norderList : List<Order>" as OrderList
+collections "«DTO»\norderDTOList : List<OrderDTO>" as OrderDTOList
+participant "«DTO»\n: OrderMapper" as OrderMapper
+participant "«DTO»\norderDTO : OrderDTO" as OrderDTO
+collections "«DTO»\nselectedOrderDTOList : List<OrderDTO>" as SelectedOrderDTOList
+participant "«Domain»\norder : Order" as Order
+
+note left of SalesClerk
+The Sales Clerk initializes
+the process of updating the status of the order
+end note
+
+SalesClerk -> UI : create
+UI -> Controller : create
+Controller -> Persistence : repositories()
+Persistence -> Factory : create
+Controller -> Persistence : factory
+Controller -> Persistence : orderRepository()
+Persistence -> Repository : create
+Controller -> Persistence : orderRepository
+
+SalesClerk -> UI : listAllDispatchedOrders()
+UI -> Controller : listAllDispatchedOrders()
+Controller -> Service : getAllDispatchedOrders()
+Service -> OrderList : create
+Service -> OrderList : create
+
+loop [foreach]
+  Service -> OrderList : getNext()
+  OrderList --> Service : order
+  Service -> OrderMapper : toDTO(order)
+  OrderMapper -> OrderDTO : create
+  OrderMapper --> Service : orderDTO
+  Service -> OrderDTOList : add(orderDTO)
+end
+
+Service --> Controller : orderDTOList
+Controller --> UI : orderDTOList
+
+note left of SalesClerk
+The System presents a list of Orders to the
+Sales Clerk whose Status are "Preparation"
+and asks the Sales Clerk to choose Orders
+whose Status will be updated to "Delivered".
+end note
+
+note left of SalesClerk
+The Sales Clerk selects the Orders whose
+Status are to be updated.
+end note
+
+SalesClerk -> UI : updateStatus(selectedOrderDTOList)
+UI -> Controller : updateStatusAndPersist(selectedOrderDTOList)
+
+loop [foreach]
+  Controller -> SelectedOrderDTOList : getNext()
+  SelectedOrderDTOList --> Controller : orderDTO
+  Controller -> OrderMapper : toOrder(orderDTO)
+  OrderMapper --> Controller : order
+  Controller -> Order : changeStatusToDelivered()
+  Controller -> Repository : update(order)
+end
+
+note left of SalesClerk
+The System updates the Status of the selected Orders
+and informs the Sales Clerk of the operation success.
+end note
+
+@enduml
+```

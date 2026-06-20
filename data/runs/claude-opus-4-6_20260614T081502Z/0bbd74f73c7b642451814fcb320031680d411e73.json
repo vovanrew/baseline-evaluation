@@ -1,0 +1,21 @@
+{
+  "id": "msg_01WhjbVPc15TsSbhB9LYuabv",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nactor \"sidetree-core-go\" as client\n\nbox \"Instance 1\" #LightGray\nparticipant \"Operation\\nQueue\" as OQ1\nend box\n\nparticipant \"orb.operation\" as orb\n\ndatabase \"op-queue\\nDB\" as DB\n\nbox \"Instance 2\" #LightGray\nparticipant \"Operation\\nQueue\" as OQ2\nend box\n\nOQ1 -> orb : Subscribe\norb --> OQ1 : ok\n\nOQ2 -> orb : Subscribe\norb --> OQ2 : ok\n\nclient -> OQ1 : Add(op1)\nOQ1 -> orb : Publish(op1)\norb --> OQ1 : ok\nOQ1 --> client : ok\n\nclient -> OQ1 : Add(op2)\nOQ1 -> orb : Publish(op2)\norb --> OQ1 : ok\nOQ1 --> client : ok\n\nOQ1 -> OQ1 : op2\nOQ1 -> orb : ok\nOQ1 -> DB : Put(op2,handler1ID,expiry)\nDB --> OQ1 : ok\nOQ1 -> orb : Ack(op2)\norb --> OQ1 : ok\n\nOQ2 -> orb : op1\norb --> OQ2 : ok\nOQ2 -> DB : Put(op1,handler2ID,expiry)\nDB --> OQ2 : ok\nOQ2 -> orb : Ack(op1)\norb --> OQ2 : ok\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781431173,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 390,
+    "prompt_tokens": 1647,
+    "total_tokens": 2037
+  }
+}

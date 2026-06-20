@@ -1,0 +1,51 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nclass ProductOrder {\n  cancellationDate: date-time\n  cancellationReason: string\n  completionDate: date-time\n  href: string\n  id*: string\n  orderDate*: date-time\n  state*: MEFProductOrderStateType\n}\n\nclass MEFProductOrderChargeRef {\n}\n\nclass MEFProductOrderStateChange {\n  changeDate: date-time\n  changeReason: string\n  state: MEFProductOrderStateType\n}\n\nclass ProductOrderItem {\n  completionDate: date-time\n  expectedCompletionDate: date-time\n  expediteAcceptedIndicator: boolean\n  state: MEFProductOrderItemStateType\n}\n\nclass MEFProductOrderItemStateChange {\n  changeDate: date-time\n  changeReason: string\n  state: MEFProductOrderItemStateType\n}\n\nclass TerminationError {\n  code: Error422Code\n  propertyPath: string\n  value: string\n}\n\nclass MEFMilestone {\n  date*: date-time\n  name*: string\n  note: string\n}\n\nclass MEFQuoteItemRef {\n  id*: string\n  quoteHref: string\n  quoteId*: string\n}\n\nclass OrderItemRelationship {\n  id*: string\n  relationshipType*: string\n}\n\nclass MEFOrderItemCoordinatedAction {\n  coordinationDependency*: MEFOrderItemCoordinationDependencyType\n  itemId*: string\n}\n\nclass MEFItemTerm {\n  description: string\n  endOfTermAction*: MEFEndOfTermAction\n  name*: string\n}\n\nclass Duration {\n  amount*: integer\n  units*: TimeUnit\n}\n\nclass MEFProductOrderItem_Common {\n  action*: MEFProductActionType\n  agreementName: string\n  endCustomerName: string\n  expediteIndicator: boolean\n  id*: string\n  relatedBuyerPON: string\n  requestedCompletionDate: date-time\n  tspRestorationPriority: string\n}\n\nclass ProductOfferingQualificationItemRef {\n}\n\nclass MEFProductRefOrValueOrder {\n  href: string\n  id: string\n}\n\nclass MEFBillingAccountRef {\n  id*: string\n}\n\nclass Note {\n  author*: string\n  date*: date-time\n  id*: string\n  source*: MEFBuyerSellerType\n  text*: string\n}\n\nclass RelatedContactInformation {\n  emailAddress*: string\n  name*: string\n  number*: string\n  numberExtension: string\n  organization: string\n  role*: string\n}\n\nclass ProductOrder_Common {\n  externalId: string\n  projectId: string\n}\n\nclass ProductOrder_Update {\n  externalId: string\n  projectId: string\n}\n\nclass MEFProductOrderItem_Update {\n}\n\nclass RelatedPlaceRefOrValue {\n  @schemaLocation: uri\n  @type*: string\n  role*: string\n}\n\nclass ProductOfferingRef {\n  href: string\n  id*: string\n}\n\nclass ProductRelationship {\n  id*: string\n  href: string\n  relationshipType*: string\n}\n\nclass MEFProductConfiguration {\n  @type*: string\n}\n\nclass GeographicSiteRef {\n  href: string\n  id*: string\n}\n\nclass MEFGeographicPoint {\n  spatialRef*: string\n  x*: string\n  y*: string\n  z: string\n}\n\nclass FormattedAddress {\n  addrLine1*: string\n  addrLine2: string\n  city*: string\n  country*: string\n  locality: string\n  postcode: string\n  postcodeExtension: string\n  stateOrProvince: string\n}\n\nclass GeographicAddressLabel {\n  externalReferenceId*: string\n  externalReferenceType*: string\n}\n\nclass GeographicAddressRef {\n  href: string\n  id*: string\n}\n\nclass FieldedAddress {\n  city*: string\n  country*: string\n  locality: string\n  postcode: string\n  postcodeExtension: string\n  stateOrProvince: string\n  streetName*: string\n  streetNr: string\n  streetNrLast: string\n  streetNrLastSuffix: string\n  streetNrSuffix: string\n  streetSuffix: string\n  streetType: string\n}\n\nclass GeographicSubAddress {\n  buildingName: string\n  levelNumber: string\n  levelType: string\n  privateStreetName: string\n  privateStreetNumber: string\n}\n\nclass MEFSubUnit {\n  subUnitNumber*: string\n  subUnitType*: string\n}\n\nProductOrder *-- \"*\" MEFProductOrderChargeRef : cancellationCharge\nProductOrder *-- \"*\" MEFProductOrderStateChange : stateChange\nProductOrder *-- \"1..*\" ProductOrderItem : productOrderItem\nProductOrder --|> ProductOrder_Common\n\nProductOrderItem *-- \"*\" MEFProductOrderChargeRef : charge\nProductOrderItem *-- \"*\" MEFProductOrderItemStateChange : stateChange\nProductOrderItem *-- \"*\" TerminationError : terminationError\nProductOrderItem *-- \"*\" MEFMilestone : milestone\nProductOrderItem --|> MEFProductOrderItem_Common\n\nMEFProductOrderItem_Common *-- \"*\" MEFQuoteItemRef : quoteItem\nMEFProductOrderItem_Common *-- \"*\" OrderItemRelationship : productOrderItemRelationship\nMEFProductOrderItem_Common *-- \"*\" MEFOrderItemCoordinatedAction : coordinatedAction\nMEFProductOrderItem_Common *-- \"*\" MEFItemTerm : requestedItemTerm\nMEFProductOrderItem_Common *-- \"*\" ProductOfferingQualificationItemRef : productOfferingQualificationItem\nMEFProductOrderItem_Common *-- \"1\" MEFProductRefOrValueOrder : product\nMEFProductOrderItem_Common *-- \"*\" MEFBillingAccountRef : billingAccount\nMEFProductOrderItem_Common *-- \"*\" Note : note\nMEFProductOrderItem_Common *-- \"*\" RelatedContactInformation : relatedContactInformation\n\nMEFOrderItemCoordinatedAction *-- \"*\" Duration : coordinatedActionDelay\nMEFItemTerm *-- \"*\" Duration : duration\nMEFItemTerm *-- \"*\" Duration : rollInterval\n\nMEFProductRefOrValueOrder *-- \"*\" RelatedPlaceRefOrValue : place\nMEFProductRefOrValueOrder *-- \"1\" ProductOfferingRef : productOffering\nMEFProductRefOrValueOrder *-- \"*\" ProductRelationship : productRelationship\nMEFProductRefOrValueOrder *-- \"*\" MEFProductConfiguration : productConfiguration\n\nRelatedPlaceRefOrValue <|-- GeographicSiteRef\nRelatedPlaceRefOrValue <|-- MEFGeographicPoint\nRelatedPlaceRefOrValue <|-- FormattedAddress\nRelatedPlaceRefOrValue <|-- GeographicAddressLabel\nRelatedPlaceRefOrValue <|-- GeographicAddressRef\nRelatedPlaceRefOrValue <|-- FieldedAddress\n\nFieldedAddress *-- \"*\" GeographicSubAddress : geographicSubAddress\nGeographicSubAddress *-- \"*\" MEFSubUnit : subUnit\n\nProductOrder_Common *-- \"*\" Note : note\nProductOrder_Common *-- \"*\" RelatedContactInformation : relatedContactInformation\n\nProductOrder_Update *-- \"*\" Note : note\nProductOrder_Update *-- \"*\" RelatedContactInformation : relatedContactInformation\nProductOrder_Update *-- \"*\" MEFProductOrderItem_Update : productOrderItem\n\nRelatedContactInformation *-- \"*\" FieldedAddress : postalAddress\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHtoe5uIH8ir9HMVbFPjXX+USqCg34DL/CakKoNO2QwFcqn8bH8zlfmPZh3nWE"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "citationMetadata": {
+        "citationSources": [
+          {
+            "startIndex": 1270,
+            "endIndex": 1523,
+            "uri": "https://github.com/MEF-GIT/MEF-LSO-Sonata-SDK",
+            "license": ""
+          },
+          {
+            "startIndex": 2924,
+            "endIndex": 3168,
+            "uri": "https://github.com/liranlevy/MEF-LSO-Sonata-SDK",
+            "license": ""
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1184,
+    "candidatesTokenCount": 1563,
+    "totalTokenCount": 2747,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1104
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "r1suarutD6KLvdIP4s242Aw"
+}

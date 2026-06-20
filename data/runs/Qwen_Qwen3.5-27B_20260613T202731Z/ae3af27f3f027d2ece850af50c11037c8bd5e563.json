@@ -1,0 +1,22 @@
+{
+  "id": "3e7b8238-e0d5-4830-b6c0-4f0a90d08a5c",
+  "object": "chat.completion",
+  "created": 1781489986,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Backup Process Sequence Diagram\n\nparticipant \"main\" as main\nparticipant \"bkup.BackupFacade\" as backupFacade\nparticipant \"srcrepo.SourceRepository\" as sourceRepo\nparticipant \"dstrepo.DestinationRepository\" as destRepo\nparticipant \"metarepo.MetadataRepository\" as metadataRepo\nparticipant \"scanner.AllFileScanner\" as fileScanner\ndatabase \"FileSystem\" as fs\ndatabase \"SQLite3\" as db\n\n== execute() ==\nactivate main\nactivate backupFacade\n\n== Get all files ==\nactivate backupFacade\nbackupFacade ->> fileScanner : get_all_files()\nactivate fileScanner\nfileScanner ->> fs : \nfs --> fileScanner : \ndeactivate fileScanner\nfileScanner --> backupFacade : all_files\ndeactivate backupFacade\n\n== Get source files ==\nactivate backupFacade\nbackupFacade ->> sourceRepo : get_files_matching_criteria(all_files)\nactivate sourceRepo\nsourceRepo --> backupFacade : src_files\ndeactivate sourceRepo\ndeactivate backupFacade\n\n== Cleanup of metadata corresponding to already deleted files ==\nactivate backupFacade\nbackupFacade ->> metadataRepo : get_uncontained_keys(src_files)\nactivate metadataRepo\nmetadataRepo ->> db : SELECT\ndb --> metadataRepo : result\nmetadataRepo --> backupFacade : uncontained_keys\ndeactivate metadataRepo\n\nbackupFacade ->> metadataRepo : remove_metadatas(uncontained_keys)\nactivate metadataRepo\nloop until the generator finishes\n    metadataRepo ->> db : DELETE\n    db --> metadataRepo : yield removed_metadata <return value is discarded>\nend\ndeactivate metadataRepo\ndeactivate backupFacade\n\n== Create backup and update metadata ==\nactivate backupFacade\nbackupFacade ->> backupFacade : _get_backup_list(src_files)\nbackupFacade --> backupFacade : backup_list\nbackupFacade ->> destRepo : create_backups(backup_list)\nactivate destRepo\nloop until the generator finishes\n    destRepo ->> fs : shutil.copy2(src_file, dst_file)\n    fs --> destRepo : yield backed_up_src_file\n    destRepo ->> metadataRepo : update_metadata(backed_up_src_file)\n    activate metadataRepo\n    metadataRepo ->> db : REPLACE INTO\n    deactivate metadataRepo\nend\ndeactivate destRepo\ndeactivate backupFacade\n\n== Discard old backups ==\nactivate backupFacade\nbackupFacade ->> destRepo : get_discard_list(today, all_files)\nactivate destRepo\ndestRepo --> backupFacade : discard_list\nbackupFacade ->> destRepo : remove_backups(discard_list)\nloop until the generator finishes\n    destRepo ->> fs : os.remove(file_to_be_removed)\n    fs --> destRepo : yield removed_file <return value is discarded>\nend\ndeactivate destRepo\ndeactivate backupFacade\n\nbackupFacade --> main : return\ndeactivate main\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2350,
+    "completion_tokens": 599,
+    "total_tokens": 2949
+  }
+}

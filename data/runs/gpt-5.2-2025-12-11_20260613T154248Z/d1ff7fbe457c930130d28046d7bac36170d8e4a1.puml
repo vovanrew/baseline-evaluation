@@ -1,0 +1,50 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #777777
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F6
+  ActorBorderColor #666666
+  ActorBackgroundColor #E9E9F6
+  DatabaseBorderColor #666666
+  DatabaseBackgroundColor #E9E9F6
+  ArrowColor #222222
+  ArrowThickness 2
+  MessageAlign left
+}
+
+actor User as U
+participant "WebSite" as W
+participant "Server" as S
+database "phonebook" as P
+
+U -> W : select contact
+U -> W : click button\n"DeleteContact"
+
+activate W
+W -> S : deleteContact()
+activate S
+S -> P : Update()
+activate P
+P --> S : ok
+deactivate P
+S --> W : ok
+deactivate S
+deactivate W
+
+activate W
+W -> S : getAllContacts()
+activate S
+S -> P : findAll()
+activate P
+P --> S : ContactsList
+deactivate P
+S --> W : ContactsList
+deactivate S
+deactivate W
+
+@enduml
+```

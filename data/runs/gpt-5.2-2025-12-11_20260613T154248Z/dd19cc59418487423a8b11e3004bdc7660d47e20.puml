@@ -1,0 +1,45 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #777777
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #777777
+  ParticipantBackgroundColor #E9E9F2
+  ActorBorderColor #777777
+  ActorBackgroundColor #E9E9F2
+  ArrowColor #333333
+  BoxBorderColor #000000
+  BoxBackgroundColor transparent
+}
+
+actor UI
+participant sessionRoute
+participant passport
+participant SessionController
+database innoDB
+
+UI -> sessionRoute : GET() "/session"\nAuth: Bearer token\n{userID, DASS21_SCORES, sessionDetails}
+sessionRoute -> passport : "/save", authenticate("jwt")
+
+alt Success: Authenticated
+  passport --> sessionRoute : done(null, user)
+  sessionRoute -> SessionController : Request Products
+  SessionController -> SessionController : Validate info
+
+  alt Success: Required info provided
+    SessionController -> innoDB : saveSession()
+    innoDB --> SessionController : session
+    SessionController --> sessionRoute : httpResponse(200)\nsession
+    sessionRoute --> UI : httpResponse(200)\nallProducts
+  else Failure: missing information
+    SessionController --> sessionRoute : {"msg":"missing required\ninformation"}(400)
+    sessionRoute --> UI : http Response(400)\n{"msg":"missing required information"}
+  end
+
+else Failure: Unauthorized
+  passport --> sessionRoute : done(null,false)
+  sessionRoute --> UI : http Response(401)\nUnauthorized
+end
+
+@enduml

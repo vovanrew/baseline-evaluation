@@ -1,0 +1,23 @@
+```plantuml
+@startuml
+actor Time
+control tradecenter
+control wms
+boundary 合作商仓储系统
+boundary Aftership
+
+合作商仓储系统 --> wms : [010] 回传发货信息imei运单号等
+wms --> wms : [020] 生成运单信息
+Time --> wms : [030] 定时推送运单
+wms --> Aftership : [040] 推送运单至aftership
+Aftership --> wms : [050] 推送路由轨迹信息
+wms --> wms : [060] 轨迹处理和封装
+wms --> wms : [070] 记录运单信息更新状态
+
+alt 路由最终状态
+    wms --> tradecenter : <font color=red>[080]</font> 通知订单发货单的路由状态
+else 非最终状态
+end
+
+@enduml
+```

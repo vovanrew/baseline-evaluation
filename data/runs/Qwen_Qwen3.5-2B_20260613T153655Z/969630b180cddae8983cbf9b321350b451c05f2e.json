@@ -1,0 +1,22 @@
+{
+  "id": "047f4cd8-b348-4394-a38d-d8acaeb46b27",
+  "object": "chat.completion",
+  "created": 1781397198,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam UMLSequenceDiagram {\n    fontName 'Courier New'\n    fontColor 'black'\n    participantStyle 'fill: #f0f0f0; stroke: #666; stroke-width: 2px'\n}\n\nparticipant \"Skava AWS\" as skava\nparticipant \"Kafka\" as kafka\nparticipant \"YL Services\" as yl\n\nsubgraph \"Skava AWS\"\n    skava\n    participant \"Skava Event Orchestration\" as skava_event\nend\n\nsubgraph \"Kafka\"\n    kafka\n    participant \"Topics\" as topics\nend\n\nsubgraph \"YL Services\"\n    yl\n    participant \"Order Sync Service\" as order_sync\nend\n\nsubgraph \"Legacy DB\"\n    database \"Legacy DB\" as legacy_db\nend\n\nskava_event ..> kafka : 1 Produce OrderReplacedCompleted Message\nkafka ..> order_sync : 2 Consume OrderReplacedCompleted Message\norder_sync ..> legacy_db : 3 Update order status in legacy db\norder_sync ..> legacy_db : 4 Response/Order ID\norder_sync ..> kafka : 5 Produce OrderReplacedCompletedProcessed Message\nkafka ..> skava_event : 6 Consume OrderReplacedCompletedProcessed Message\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1223,
+    "completion_tokens": 278,
+    "total_tokens": 1501
+  }
+}

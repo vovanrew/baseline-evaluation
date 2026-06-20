@@ -1,0 +1,79 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 30
+  BoxPadding 10
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor #FFFFFF
+  ActorBorderColor #000000
+  ActorBackgroundColor #00B7EB
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6F2
+  DatabaseBorderColor #000000
+  DatabaseBackgroundColor #00B7EB
+}
+
+actor "sdx_downstream" as sdx
+actor "downstream_quarantine" as dq
+
+participant "Downstream" as Downstream
+participant "Store" as Store
+participant "TransformCS" as TransformCS
+participant "Sequence" as Sequence
+database "Postgres" as Postgres
+rectangle "FTP" as FTP #99FF00
+
+sdx -[#000000,dashed]> Downstream : Consume tx_id
+
+Downstream -> Store : GET /responses/{tx_id}
+activate Store
+Store -[#000000,dashed]> Postgres
+Store --> Downstream : return response json
+deactivate Store
+
+break [error]
+  Downstream -[#000000,dashed]> dq
+end
+
+Downstream -> Sequence : GET /sequence
+activate Sequence
+Sequence -[#000000,dashed]> Postgres
+Sequence --> Downstream : return number
+deactivate Sequence
+
+break [error]
+  Downstream -[#000000,dashed]> dq
+end
+
+alt [common-software]
+  Downstream -[#000000,dashed]> TransformCS : POST /common-software/{sequence_no}
+  activate TransformCS
+else [cora]
+  Downstream -[#000000,dashed]> TransformCS : POST /cora/{sequence_no}
+  activate TransformCS
+else [cord]
+  Downstream -> TransformCS : POST /cord/{sequence_no}
+  activate TransformCS
+end
+
+TransformCS -> Sequence : GET /image-sequence?n
+activate Sequence
+Sequence -[#000000,dashed]> Postgres
+Sequence --> TransformCS : return list
+deactivate Sequence
+
+TransformCS --> Downstream : Return Zip
+deactivate TransformCS
+
+break [error]
+  Downstream -[#000000,dashed]> dq
+end
+
+Downstream -> Downstream : Unzip
+Downstream -> Downstream : Send files
+Downstream -[#000000,dashed]> FTP
+
+@enduml
+```

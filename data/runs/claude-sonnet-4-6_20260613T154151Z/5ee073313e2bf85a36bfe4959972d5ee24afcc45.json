@@ -1,0 +1,21 @@
+{
+  "id": "msg_01SqeHsQBukmDxzujX6WhRBZ",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle create order sequence diagram\n\nactor Customer\nactor Cashier\nparticipant \":Inventory System\" as IS\nparticipant \":Order\" as Order\nparticipant \":Product\" as Product\nparticipant \":Stock\" as Stock\nparticipant \":Invoice\" as Invoice\nparticipant \":Transaction\" as Transaction\n\nCustomer -> Cashier : 1. Request order product\nCashier --> Customer : 2. Receive order\n\nCashier -> IS : 3. requestCreateOrder()\nIS -> Product : 3.1 selectProduct()\nProduct -> Stock : 3.2 checkStock()\nStock --> Product : 3.3 return stock\nProduct --> IS : 3.4 return product\n\nalt IF (stock.qty > order.qty)\n    IS -> Order : 3.5 createOrder(order)\n    Order -> Stock : 3.6 updateStock()\n    Stock --> IS : 3.7 return update stock\n    Order -> Invoice : 3.8 systemCreateInvoice()\n    Invoice -> Transaction : 3.9 printInvoice()\n    Invoice --> IS : 3.10 return invoice\n    Order --> IS : 3.11 return order\nelse [ELSE]\n    Order --> IS : 3.12 can't create order\nend\n\nIS --> Cashier : 4. response create order status\nCashier --> Customer : 5. Invoice\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371186,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 329,
+    "prompt_tokens": 1647,
+    "total_tokens": 1976
+  }
+}

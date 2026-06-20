@@ -1,0 +1,69 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+
+interface CommandInt <<interface>> {
+  + Execute() : void
+}
+
+class Commands {
+  - shape : string
+  + Commands(shape:string)
+  + Execute() : void
+  + Undo() : void
+  + Redo() : void
+  + PrintSVG() : void
+  + CreateSVG() : void
+  + {override} ToString() : string
+}
+
+class AddCMD {
+  - shape : string
+  + AddCMD(shape:String, history:List<string>)
+  + Execute() : void
+}
+
+class UndoCMD {
+  + UndoCMD(history:List<string>, redoList:List<string>)
+  + Execute() : void
+}
+
+class RedoCMD {
+  + RedoCMD(history:List<string>, redoList:List<string>)
+  + Execute() : void
+}
+
+class PrintSVGCMD {
+  + PrintSVGCMD(history:List<string>)
+  + Execute() : void
+}
+
+class CreateSVGCMD {
+  + CreateSVGCMD(history:List<string>)
+  + Execute() : void
+}
+
+class "List 1" as List1
+
+Commands ..|> CommandInt
+AddCMD ..|> CommandInt
+UndoCMD ..|> CommandInt
+RedoCMD ..|> CommandInt
+PrintSVGCMD ..|> CommandInt
+CreateSVGCMD ..|> CommandInt
+
+Commands --> CommandInt
+AddCMD --> CommandInt
+UndoCMD --> CommandInt
+RedoCMD --> CommandInt
+PrintSVGCMD --> CommandInt
+CreateSVGCMD --> CommandInt
+
+AddCMD --> List1 : history<string>
+UndoCMD --> List1 : history<string>
+UndoCMD --> List1 : redoList<string>
+RedoCMD --> List1 : history<string>
+RedoCMD --> List1 : redoList<string>
+PrintSVGCMD --> List1 : history<string>
+CreateSVGCMD --> List1 : history<string>
+@enduml

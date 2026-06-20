@@ -1,0 +1,62 @@
+@startuml
+title Upload File to BlockChain or Cloud
+
+participant Client
+participant BnodeApi
+participant BlockChain
+participant Cloud
+
+note left of Client
+Request:
+ multipart-formdata
+   file (binary)
+   privatekey_wif (string)
+   public_key_hex (string)
+   on_chain (boolean)
+Response:
+  code (int)
+  file_id (string)
+  encrypt_hex (string, encrypt random index list to hex)
+  tx_id_list (string of array)
+end note
+
+note over BnodeApi
+1.divid upload file.
+2.get divided file array.
+3.genarate random index array.
+4.divided file array is numbering random index.
+5.encrypt genarate random index array to string.
+6.save No.5 string in server.
+end note
+
+Client -> BnodeApi : uploadFile
+
+BnodeApi -> BnodeApi : 1.divid upload file.
+BnodeApi -> BnodeApi : 2.get divided file array.
+BnodeApi -> BnodeApi : 3.genarate random index array.
+BnodeApi -> BnodeApi : 4.divided file array is numbering random index.
+BnodeApi -> BnodeApi : 5.encrypt genarate random index array to string.
+
+alt [upload to BlockChain]
+  loop [divided file array]
+    BnodeApi -> BlockChain : upload Divided File(Max 100kb)
+    BlockChain --> BnodeApi
+  end
+else [upload to Cloud]
+  loop [divided file array]
+    BnodeApi -> Cloud : upload Divided File(Max File size on Config file)
+    Cloud --> BnodeApi
+  end
+end
+
+BnodeApi -> BnodeApi : 6.save No.5 string in server.
+
+alt [upload to BlockChain]
+else [upload to Cloud]
+  BnodeApi -> BlockChain : 7.calculate file hash and write hash on BlockChain.
+  BlockChain --> BnodeApi : txid
+end
+
+BnodeApi --> Client
+
+@enduml

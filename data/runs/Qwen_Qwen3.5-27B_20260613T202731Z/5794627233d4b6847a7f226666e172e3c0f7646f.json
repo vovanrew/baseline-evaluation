@@ -1,0 +1,22 @@
+{
+  "id": "15ab779d-f7ba-47a2-8205-93ede553bb15",
+  "object": "chat.completion",
+  "created": 1781437244,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Weekly Rewards to Vaults\n\nactor \"User\" as User\nactor \"Ops\" as Ops\nparticipant \"<<mStable>>\\nEmissions Controller\" as EmissionsController\nparticipant \"<<mStable>>\\nVaults\" as Vaults\nparticipant \"<<mStable>>\\nMTA\" as MTA\n\nUser -> EmissionsController: setVoterDialWeights ([dial ids], [weights])\nactivate EmissionsController\nnote right of EmissionsController: proportions voting power across dials\\nfor future distributions\ndeactivate EmissionsController\nEmissionsController --> User\n\n== After Thursday 00:00 UTC ==\n\nOps -> EmissionsController: calculateRewards ()\nactivate EmissionsController\nnote right of EmissionsController: Calculates and stores\\nrewards for each dial\ndeactivate EmissionsController\nEmissionsController --> Ops\n\nOps -> EmissionsController: distributeRewards ([dial ids])\nactivate EmissionsController\nloop [Dials]\n    note left: transfer MTA\\nfrom Emissions Controller\\nto Vault\n    EmissionsController -> MTA: transfer(vault, rewards)\n    activate MTA\n    deactivate MTA\n    MTA --> EmissionsController\n    \n    EmissionsController -> Vaults: notifyRewardAmount(rewards)\n    activate Vaults\n    note right of Vaults: Stream MTA to Users\n    deactivate Vaults\n    Vaults --> EmissionsController\nend loop\ndeactivate EmissionsController\nEmissionsController --> Ops\n\n== After rewards have accrued ==\n\nUser -> Vaults: claimRewards ()\nactivate Vaults\nnote left: transfer MTA\\nfrom Vault\\nto User\nVaults -> MTA: transfer(user, rewards)\nactivate MTA\ndeactivate MTA\nMTA --> Vaults\ndeactivate Vaults\nVaults --> User\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2497,
+    "completion_tokens": 392,
+    "total_tokens": 2889
+  }
+}

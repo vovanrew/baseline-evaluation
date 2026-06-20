@@ -1,0 +1,22 @@
+{
+  "id": "54f031f4-03e1-4cb7-ad2a-46541b01a2f5",
+  "object": "chat.completion",
+  "created": 1781489049,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle PB-158 UC8 SQD: Get campaigns customer is eligible for\n\nactor \"Next Customer\" as User\nparticipant \"P&O\\n(Core Next)\" as PnO\ndatabase \"P&O DB\" as Database\nparticipant \"Core Bradesco\" as CoreBradesco\n\nrectangle \"Next Platform\" {\n    PnO\n    Database\n}\n\nnote top\n#Abstract:\nThis use cases describes the changes being made to an existing endpoint.\nThe endpoint will be modified so that it can be called by the user and\nwill return a list of campaigns that the customer is eligible for. A campaign\nlogo version number will be returned, as well as a campaign logo\nimage (if requested).\nend note\n\nnote left of PnO\n#Endpoint:\nGET /campaigns\n\n#Current implementation:\nCurrently only called by system management, returns a list of all campaigns\nwith the option to specify:\n* NAME\n* PARTNER_ID\n* OFFER_ID\n\n#Required implementation:\n_Either through extension of existing API or new_, enable the user\nto call the endpoint. When a user calls the endpoint return a list of campaigns\nthat that the user is eligible for. As part of the request, include an optional\nfield for whether or not to return the offer logo.\n\nAs part of the CAMPAIGN_RETRIEVAL response include:\n* Campaign logo version number\n* Campaign logo (optional)\n\n**ENSURE BACKWARDS COMPATIBILITY IS MAINTAINED**\nend note\n\nUser -> PnO: 1 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})\nactivate PnO\ngroup filter on {NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}\n    PnO -> Database: 2 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})\n    activate Database\n    note right of Database\n    #Note:\n    Read P&O tables:\n    * ELLIGIBLE_USER\n    * CAMPAIGN\n    end note\n    Database --> PnO: 3 Read campaigns user is eligible for\n    deactivate Database\n    Database --> PnO: 4 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)\nend\ndeactivate PnO\n\nalt if user has been or is eligible for at least one campaign\n    PnO --> User: 5 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)\nelse if user is not eligible for any active campaigns\n    PnO --> User: 6 Return error (MESSAGE)\nend\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1615,
+    "completion_tokens": 594,
+    "total_tokens": 2209
+  }
+}

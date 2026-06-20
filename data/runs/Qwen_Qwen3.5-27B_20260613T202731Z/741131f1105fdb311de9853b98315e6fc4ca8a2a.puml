@@ -1,0 +1,63 @@
+```plantuml
+@startuml
+title Register Client Sequence Diagram
+
+actor "Client" as client
+participant "RegisterClientUI" as ui
+participant "RegisterClientController" as controller
+participant "ApplicationPOT\nApplicationPOT" as app
+participant "EncryptPassword" as encrypt
+participant "EmailSender" as email
+participant "DataHandler" as data
+
+client -> ui: 1 Engages the register feature/button
+ui --> client: Asks for all the information required\nfor the register (i.e. name,nif,email,password,latitude,longitude,altitude,\nstreetName,doorNumber,postalCode,locality,country,creditCardNr,validityDate,\nCCV)
+client -> ui: 3 Fills all the information required
+ui --> client: 4 Presents the data and asks for a confirmation
+client -> ui: 5 Confirms
+
+ui -> controller: 6 registerNewClient(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+activate controller
+controller -> app: 7 create()
+activate app
+app -> app: 8 create()
+deactivate app
+controller -> app: 9 validateInput(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+activate app
+deactivate app
+
+alt if all the information given as input has a valid format
+    app -> app: 10 newClient(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+    activate app
+    app -> app: 11 create(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+    activate app
+    app -> app: 12 create(email,password,nif,name)
+    activate app
+    app -> encrypt: 13 encryptPasswordMD5(password)
+    activate encrypt
+    deactivate encrypt
+    app -> app: 14 create(latitude,longitude,altitude,streetName,doorNumber,postalCode,locality,country)
+    activate app
+    app -> app: 15 create(creditCardNr,validityDate,CCV)
+    activate app
+    deactivate app
+    deactivate app
+    deactivate app
+    controller -> app: 16 registerNewClient(client)
+    activate app
+    app -> app: 17 addClientToDB(client)
+    activate app
+    app -> app: ref SD_CONNECTIONS
+    deactivate app
+    app -> email: 18 sendEmail(email,subject,body)
+    activate email
+    deactivate email
+    deactivate app
+    deactivate controller
+    controller --> client: 19 Validates and informs about the success of the operation
+else if any information does not have a valid format
+    controller --> client: 20 Informs the User that the operation\nwas not successful!
+end
+
+@enduml
+```

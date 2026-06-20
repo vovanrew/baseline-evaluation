@@ -1,0 +1,38 @@
+```plantuml
+@startuml
+participant UI
+participant sessionRoute
+control passport
+entity SessionController
+database innoDB
+
+UI -> sessionRoute : GET() "/session"\nAuth: Bearer token\n{userID, DASS21_SCORES, sessionDetails}
+sessionRoute -> passport : "/save", authenticate("jwt")
+activate passport
+
+alt Success: Authenticated
+    passport -> sessionRoute : done(null, user)
+    sessionRoute -> SessionController : Request Products
+    activate SessionController
+    SessionController -> SessionController : Validate info
+    
+    alt Success: Required info provided
+        SessionController -> innoDB : saveSession()
+        activate innoDB
+        innoDB -> SessionController : session
+        deactivate innoDB
+        SessionController -> sessionRoute : httpResponse(200)\nsession
+        sessionRoute -> UI : httpResponse(200)\nallProducts
+    else Failure: missing information
+        SessionController --> sessionRoute : {"msg":"missing required\ninformation"}(400)
+        deactivate SessionController
+        sessionRoute --> UI : http Response(400)\n{"msg":"missing required information"}
+    end
+else Failure: Unauthorized
+    passport --> sessionRoute : done(null,false)
+    deactivate passport
+    sessionRoute --> UI : http Response(401)\nUnauthorized
+end
+
+@enduml
+```

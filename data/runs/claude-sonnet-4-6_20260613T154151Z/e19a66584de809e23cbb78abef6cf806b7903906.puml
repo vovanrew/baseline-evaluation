@@ -1,0 +1,54 @@
+@startuml
+actor "Organization Employee" as OE
+
+participant ":CreateTaskUI" as UI
+participant ":CreateTaskController" as Controller
+participant "ApplicationPOT" as AppPOT
+participant "app\n:ApplicationPOT" as App
+participant "session\n:UserSession" as Session
+participant ":Platform" as Platform
+participant "org\n:Organization" as Org
+participant "task\n:Task" as Task
+participant "cat\n:Category" as Cat
+participant "lc\n:List<Category>" as LC
+
+OE -> UI : 1 asks to create a new task
+UI -> OE : 2 requests data (reference, designation, informal\ndescription, technical description, duration, cost)
+OE -> UI : 3 types requested data
+UI -> Controller : 4 lc=getTaskCategories()
+Controller -> AppPOT : 5 lc=getTaskCategories()
+AppPOT --> LC : 
+AppPOT --> Controller : 
+Controller --> UI : 
+UI -> OE : 6 shows task categories list and ask to select one
+OE -> UI : 7 selects a task category
+UI -> Controller : 8 createTask(ref,designation,informalDesc,technicalDesc,duration,cost,categoryId)
+Controller -> AppPOT : 9 cat=getCategoryById(categoryId)
+AppPOT --> Cat :
+AppPOT --> Controller :
+Controller -> App : 10 app = getInstance()
+App --> Controller :
+Controller -> Session : 11 session = getCurrentSession()
+Session --> Controller :
+Controller -> Session : 12 email = getUserEmail()
+Session --> Controller :
+Controller -> Platform : 13 org = getOrganizationByUserEmail(email)
+Platform --> Controller :
+Controller -> Org : 14 task=createTask(ref,designation,informalDesc,technicalDesc,duration,cost,cat)
+Org -> Task : 15 create(ref,designation,informalDesc,technicalDesc,duration,cost,cat)
+Org -> Task : 16 validateTask(task)
+Task --> Org :
+Org --> Controller : 17 result
+Controller --> UI : 
+UI -> OE : 18 shows all data and requests confirmation
+OE -> UI : 19 confirms the data
+UI -> Controller : 20 saveTask()
+Controller -> Org : 21 saveTask(task)
+Org -> Task : 22 validateTask(task)
+Task --> Org :
+Org -> Task : 23 addTask(task)
+Org --> Controller : 24 result
+Controller --> UI :
+UI -> OE : 25 informs operation success
+
+@enduml

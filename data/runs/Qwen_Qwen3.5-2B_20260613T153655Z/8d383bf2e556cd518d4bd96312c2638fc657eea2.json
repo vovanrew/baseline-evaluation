@@ -1,0 +1,22 @@
+{
+  "id": "86753ae7-39c3-4903-9acd-42cad9089eab",
+  "object": "chat.completion",
+  "created": 1781396976,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"browser\" as B\nparticipant \"proxy\" as P\nparticipant \"backend\" as BC\nparticipant \"component_config\" as CC\nparticipant \"subscription_map\" as SM\nparticipant \"normalized_object_map\" as NOM\nparticipant \"normalized_object\" as NO\n\nB --> P : get_state(configuration_name, geo_bounding_box)\n\nP --> BC : +TENANT_HEADER\n\nBC --> CC : component_config[configuration_name].subscription_usages\n\nCC -.-> P : [subscription_usage_config]\n\nP --> SM : foreach subscription_usage_config.subscription_id\n\nSM --> BC : subscription_map[subscription_id] (= normalized_object_map)\n\nSM --> NOM : foreach key\n\nNOM --> SM : normalized_object\n\nSM --> BC : foreach normalized_object:\n    if object.in(geo_bounding_box):\n        object.to_dto(subscription_usage_config)\n\nBC --> NO : object_dto\n\nP -.-> B : [object_dto]\n\nB --> P : 12\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1174,
+    "completion_tokens": 210,
+    "total_tokens": 1384
+  }
+}

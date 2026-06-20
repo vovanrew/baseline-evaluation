@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nparticipant User_App\nparticipant WebRTC_GW\nparticipant SkyWay_Server\nparticipant Target_Peer\n\nUser_App -> WebRTC_GW: POST /peers\\n{\\n  key: \"YOUR_API_KEY\",\\n  domain: \"localhost\",\\n  turn: true,\\n  peer_id: \"media_caller\"\\n}\nWebRTC_GW --> User_App: 201 Created\\n{\\n  command_type: \"PEERS_CREATE\",\\n  params:{\\n    peer_id: \"media_caller\",\\n    token: \"pt-be74737d-5762-401f-a526-01fa44d98a11\"\\n  }\\n}\nWebRTC_GW -> SkyWay_Server: CREATE PEER\nUser_App -> WebRTC_GW: GET /peers/media_caller/events?\\ntoken=pt-be74737d-5762-401f-a526-01fa44d98a11\nSkyWay_Server --> WebRTC_GW: SUCCESS\\n(to bind peer id)\nWebRTC_GW --> User_App: 200 OK\\n{\"event\"=>\"OPEN\",\\n  params: {\\n    peer_id: \"media_caller\",\\n    token: \"pt-be74737d-5762-401f-a526-01fa44d98a11\"\\n  }\\n}\nUser_App -> WebRTC_GW: POST /media\\n{\\n  is_video\":true\\n}\nWebRTC_GW --> User_App: 201 Created\\n{\\n  ip_v4: \"172.16.1.106\",\\n  media_id: \"vi-9856040d-bd3e-4b33-b121-e3435842e5fc\",\\n  port: 50003\\n}\nUser_App -> WebRTC_GW: POST /media\\n{\\n  is_video\":false\\n}\nWebRTC_GW --> User_App: 201 Created\\n{\\n  ip_v4: \"172.16.1.106\",\\n  media_id: \"au-a6c4c82c-9d9c-4e12-a52a-c927ec33793e\",\\n  port: 50004\\n}\nUser_App -> WebRTC_GW: POST /media/rtcp\\n{}\nWebRTC_GW --> User_App: 201 Created\\n{\\n  \"rtcp_id\": \"rc-970f2e5d-4da0-43e7-92b6-796678c104ad\",\\n  \"port\": 50003,\\n  \"ip_v4\": \"172.16.1.106\"\\n}\nUser_App -> WebRTC_GW: POST /media/rtcp\\n{}\nWebRTC_GW --> User_App: 201 Created\\n{\\n  \"rtcp_id\": \"rc-4044f658-dee5-4aac-a60a-ad133abb4f92\",\\n  \"port\": 50004,\\n  \"ip_v4\": \"172.16.1.106\"\\n}\nUser_App -> WebRTC_GW: POST /media/connections\\n{\\n  peer_id: \"media_caller\",\\n  token: \"pt-be74737d-5762-401f-a526-01fa44d98a11\",\\n  target_id: \"media_callee\",\\n  constraints:{\\n    video: true,\\n    videoReceiveEnabled: true,\\n    audio: true,\\n    audioReceiveEnabled: true,\\n    video_params: {\\n      band_width: 1500,\\n      codec: \"H264\",\\n      media_id: \"vi-9856040d-bd3e-4b33-b121-e3435842e5fc\",\\n      rtcp_id: \"rc-970f2e5d-4da0-43e7-92b6-796678c104ad\",\\n      payload_type: 100\\n    },\\n    audio_params:{\\n      band_width: 1500,\\n      codec: \"opus\",\\n      media_id: \"au-a6c4c82c-9d9c-4e12-a52a-c927ec33793e\",\\n      rtcp_id: \"rc-4044f658-dee5-4aac-a60a-ad133abb4f92\",\\n      payload_type: 111\\n    }\\n  },\\n  redirect_params: {\\n    video: {\\n      ip_v4: \"172.16.1.105\",\\n      port: 20000\\n    },\\n    video_rtcp: {\\n      ip_v4: \"172.16.1.105\",\\n      port: 20010\\n    },\\n    audio: {\\n      ip_v4: \"172.16.1.105\",\\n      port: 20001\\n    },\\n    audio_rtcp: {\\n      ip_v4: \"172.16.1.105\",\\n      port: 20011\\n    }\\n  }\\n}\nWebRTC_GW --> User_App: 201 Created\\n{\\n  command_type: \"MEDIA_CONNECTION_CREATE\",\\n  params: {\\n    media_connection_id: \"mc-55f0b97c-77c7-42d7-b21b-a6a6bc3fee3a\"\\n  }\\n}\nUser_App -> WebRTC_GW: GET /media/connections\\n/mc-55f0b97c-77c7-42d7-b21b-a6a6bc3fee3a/events\nWebRTC_GW --> User_App: 200 OK\\n{\\n  event: \"READY\"\\n}\n\nloop\n  User_App -> WebRTC_GW: send RTP Video to 172.16.1.106:50001\n  WebRTC_GW -> Target_Peer: redirect Video with MediaStream\n  User_App -> WebRTC_GW: send RTP Audio to 172.16.1.106:50002\n  WebRTC_GW -> Target_Peer: redirect Audio with MediaStream\n  User_App -> WebRTC_GW: send RTCP for Video to 172.16.1.106:50003\n  WebRTC_GW -> Target_Peer: redirect RTCP with MediaStream\n  User_App -> WebRTC_GW: send RTCP for Audio to 172.16.1.106:50004\n  WebRTC_GW -> Target_Peer: redirect RTCP with MediaStream\n  Target_Peer -> WebRTC_GW: recv Video with MediaStream\n  WebRTC_GW -> User_App: redirect RTP Video to 172.16.1.105:20000\n  Target_Peer -> WebRTC_GW: recv Audio with MediaStream\n  WebRTC_GW -> User_App: redirect RTP Audio to 172.16.1.105:20001\n  Target_Peer -> WebRTC_GW: recv RTCP for Video with MediaStream\n  WebRTC_GW -> User_App: redirect RTCP for Video to 172.16.1.105:20010\n  Target_Peer -> WebRTC_GW: recv RTCP for Audio with MediaStream\n  WebRTC_GW -> User_App: redirect RTCP for Audio to 172.16.1.105:20011\nend\n\nUser_App -> WebRTC_GW: Delete /media/connections\\n/mc-55f0b97c-77c7-42d7-b21b-a6a6bc3fee3a\nWebRTC_GW -> Target_Peer: Close MediaStream\nTarget_Peer -> WebRTC_GW: erase Video object\\nand Audio object\nWebRTC_GW --> User_App: 204 No Content\nUser_App -> WebRTC_GW: Delete /peers/media_caller?token=pt-be74737d-5762-401f-a526-01fa44d98a11\nWebRTC_GW -> SkyWay_Server: disconnect\nWebRTC_GW --> User_App: 204 No Content\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHqUVFII/aNdxgHcmsovyTH+Ixuwqk+utL6JOLzTPsjx40jh7Hs5geRzxzi1EF"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1142,
+    "candidatesTokenCount": 2190,
+    "totalTokenCount": 3332,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1062
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "t18xaqexLP_WvdIP8tmMoAE"
+}

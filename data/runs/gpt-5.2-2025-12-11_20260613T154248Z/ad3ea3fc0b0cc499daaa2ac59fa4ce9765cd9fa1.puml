@@ -1,0 +1,68 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #F3F3F3
+  BorderColor #333333
+}
+
+class TicTacToe {
+  - turn : Turn
+  - board : Board
+  - players : Player[] [0..*]
+  --
+  + TicTacToe()
+  + Play()
+}
+
+class Board {
+  + <u>Color : char[,] [0..*] = {'x', 'o'}</u>
+  --
+  - tokens : char[,] [0..*]
+  --
+  + Board()
+  --
+  + IsTicTacToe() : bool
+  - IsTicTacToe(token : char) : bool
+  + IsComplete() : bool
+  - IsTileEmpty(row : int, column : int) : bool
+  - IsTileFull(row : int, column : int) : bool
+  --
+  + ToString() : string
+}
+
+class Player {
+  # color : char
+  --
+  + Player(i: int)
+  + Put(board : Board)
+  + Move(board : Board)
+  + Win()
+}
+
+class Turn {
+  # value : int = 0
+  --
+  + Turn()
+  + Current() <<Take>>
+  + Next() <<NotTake>>
+  + Change()
+}
+
+class IO <<static>> {
+  --
+  + <u>ReadString(title : string) : string</u>
+  + <u>ReadInt(title : string) : int</u>
+  --
+  + <u>Write(title : string)</u>
+  + <u>WriteLn()</u>
+  + <u>WriteError(format : string)</u>
+}
+
+TicTacToe --> Board
+TicTacToe --> Player
+TicTacToe --> Turn
+
+Board ..> IO
+Player ..> IO
+@enduml

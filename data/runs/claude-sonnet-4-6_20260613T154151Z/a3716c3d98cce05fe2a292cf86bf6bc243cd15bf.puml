@@ -1,0 +1,81 @@
+```plantuml
+@startuml
+skinparam sequenceArrowThickness 2
+skinparam sequenceGroupBorderThickness 2
+
+box "Client" #LightGray
+participant "client" as client
+participant "tcpclient" as tcpclient
+end box
+
+box "Server" #LightGray
+participant "tcpserver" as tcpserver
+participant "server" as server
+end box
+
+server -> tcpserver : listen
+note over tcpserver #DeepSkyBlue
+  **LISTEN**
+end note
+
+client -> tcpclient : connect
+tcpclient -> tcpserver : SYN
+note over tcpclient #MediumTurquoise
+  **SYN-SENT**
+end note
+note over tcpserver #DeepSkyBlue
+  **SYN-RECEIVED**
+end note
+tcpserver -> tcpclient : SYN, ACK
+tcpclient -> tcpserver : ACK
+
+note over tcpclient #MediumSeaGreen
+  **ESTABLISHED**
+end note
+note over tcpserver #MediumSeaGreen
+  **ESTABLISHED**
+end note
+
+tcpserver -> server : EPOLLIN
+server -> tcpserver : write
+tcpserver -> tcpclient : PSH, ACK
+tcpclient -> tcpserver : ACK
+
+tcpclient -> client : EPOLLIN
+client -> tcpclient : read
+
+server -> tcpserver : close
+note over tcpserver #MediumPurple
+  **FIN_WAIT1**
+end note
+tcpserver -> tcpclient : FIN, ACK
+note over tcpclient #Violet
+  **CLOSE_WAIT**
+end note
+tcpclient -> tcpserver : ACK
+note over tcpserver #Orange
+  **FIN_WAIT2**
+end note
+
+tcpclient -> client : EPOLLRDHUP
+client -> tcpclient : close
+note over tcpclient #Magenta
+  **LAST_ACK**
+end note
+tcpclient -> tcpserver : FIN
+tcpserver -> tcpclient : ACK
+
+note over tcpclient #OrangeRed
+  **CLOSE**
+end note
+note over tcpserver #Yellow
+  **TIMEWAIT**
+end note
+
+tcpserver -> tcpserver : timer 60s
+note over tcpserver #OrangeRed
+  **CLOSE**
+end note
+
+@enduml
+```

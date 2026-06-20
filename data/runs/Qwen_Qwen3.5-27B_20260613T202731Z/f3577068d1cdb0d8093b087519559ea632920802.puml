@@ -1,0 +1,34 @@
+```plantuml
+@startuml
+title 借出图书 用例
+
+actor "图书管理员" as Librarian
+interface "账号判断" as AccountValidator
+class "业务控制" as BusinessController
+database "数据库" as Database
+
+rectangle "读者账号合法性验证" {
+    Librarian -> AccountValidator: 1 输入读者账号信息
+    activate AccountValidator
+    AccountValidator -> BusinessController: 2 获取账号信息
+    activate BusinessController
+    BusinessController -> Database: 3 比对账号密码合法性
+    activate Database
+    Database -->> BusinessController: 4 账号合法
+    deactivate Database
+    deactivate AccountValidator
+}
+
+rectangle "借出图书" {
+    Librarian -> BusinessController: 5 输入借出图书信息
+    BusinessController -> Database: 6 增加借阅信息
+    BusinessController -> Database: 7 修改图书库存
+    Database -->> BusinessController: 8 返回操作结果
+    deactivate Database
+    BusinessController -->> Librarian: 9 返回借出结果
+    deactivate BusinessController
+}
+
+note top of Librarian: Please use '!option handwritten true' to enable handwritten
+@enduml
+```

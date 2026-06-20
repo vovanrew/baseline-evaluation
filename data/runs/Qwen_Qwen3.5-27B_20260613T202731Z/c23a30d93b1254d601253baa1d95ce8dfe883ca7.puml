@@ -1,0 +1,35 @@
+```plantuml
+@startuml
+left to right direction
+skinparam monochrome true
+
+actor "Admin" as Admin
+actor "Customer" as Customer
+interface "Games Interface" as GamesInterface
+interface "Games Input Interface" as GamesInputInterface
+boundary "Games Controller" as GamesController
+database "Database" as Database
+
+Admin -> GamesInterface : CRUD games
+GamesInterface -> GamesInputInterface : Input games info
+GamesInputInterface -> GamesController : Send CRUD request to server
+GamesController -> Database : Query request to DB
+Database -->> GamesController : Response
+
+alt [success case]
+    GamesController -->> GamesInterface : CRUD successfully
+else [fail case]
+    GamesController -->> GamesInterface : CRUD fail
+end
+
+GamesInterface -> Admin : Show notification
+
+Customer -> GamesInterface : View Game
+GamesInterface -> GamesController : FETCH game from server
+GamesController -> Database : Query games
+Database -->> GamesController : Games data
+GamesController -->> GamesInterface : Games data
+GamesInterface -> Customer : Show all games
+
+@enduml
+```

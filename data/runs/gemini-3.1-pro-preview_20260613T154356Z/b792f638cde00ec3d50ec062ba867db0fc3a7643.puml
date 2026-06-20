@@ -1,0 +1,32 @@
+```plantuml
+@startuml
+actor User
+participant UpdateUserServlet
+participant "userDto:UserDto" as userDto
+participant "userDao:UserDao" as userDao
+participant users
+
+activate UpdateUserServlet
+UpdateUserServlet -> userDto : 生成
+activate userDto
+UpdateUserServlet -> userDto : setId(id)
+UpdateUserServlet -> userDto : setUserId(user_id)
+UpdateUserServlet -> userDto : setUserPass(User_password)
+UpdateUserServlet -> userDto : setUserName(user_name)
+UpdateUserServlet -> userDto : setAddress(address)
+UpdateUserServlet -> userDto : setSubAddress(address_sub)
+UpdateUserServlet -> userDto : setTel(tel)
+UpdateUserServlet -> userDto : setGender(gender)
+UpdateUserServlet -> userDao : 生成
+activate userDao
+UpdateUserServlet -> userDao : updateUser(userDto)
+deactivate userDto
+userDao -> users : UPDATE文実行
+activate users
+users --> userDao : true/false
+deactivate users
+userDao --> UpdateUserServlet : true/false
+deactivate userDao
+deactivate UpdateUserServlet
+@enduml
+```

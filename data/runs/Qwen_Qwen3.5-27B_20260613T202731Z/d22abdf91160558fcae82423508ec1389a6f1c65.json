@@ -1,0 +1,22 @@
+{
+  "id": "5e46e97b-9484-4642-a6fa-8adfafe26a3c",
+  "object": "chat.completion",
+  "created": 1781492621,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle HashedTimelockERC20 contract: normal flow \u2013 receiver withdraws with preimage before the timelock expires\n\nskinparam packageStyle rectangle\nskinparam participant {\n  BackgroundColor LightBlue\n  BorderColor Black\n}\nskinparam note {\n  BackgroundColor Yellow\n  BorderColor Black\n}\n\npackage \"Ethereum Network\" as EthereumNetwork {\n  participant \"\u00abAccount\u00bb\\nSender\" as Sender\n  participant \"\u00abAccount\u00bb\\nReceiver\" as Receiver\n  participant \"\u00abSmart Contract\u00bb\\nHashedTimelockERC20\" as HTLCContract\n  participant \"\u00abSmart Contract\u00bb\\nERC20Contract\" as ERC20Contract\n  participant \"Events\" as Events\n}\n\nnote right of HTLCContract\n  State stored for each HTLC:\n  address sender;\n  address receiver;\n  address tokenContract;\n  uint amount;\n  bytes32 hashlock;\n  uint timelock; // UNIX ts\n  bool withdrawn;\n  bool refunded;\n  bytes32 preimage;\nend note\n\nactivate Sender\nactivate ERC20Contract\nSender -> ERC20Contract : approve(htlc address, amount)\ndeactivate ERC20Contract\ndeactivate Sender\n\nactivate Sender\nactivate HTLCContract\nSender -> HTLCContract : newContract(\\nreceiver,\\nhashlock,\\ntimelock,\\ntokenContract,\\namount\\n)\nactivate ERC20Contract\nHTLCContract -> ERC20Contract : transferFrom(sender, htlc address, amount)\ndeactivate ERC20Contract\nHTLCContract -> Events : LogHTLCERC20New(contractId, locks, values, etc.)\nHTLCContract -> Sender : contractId\ndeactivate HTLCContract\ndeactivate Sender\n\nactivate Sender\nSender -> Receiver : reveals contractId\ndeactivate Sender\n\nactivate Receiver\nReceiver -> Receiver : knows/obtains secret preimage\\n[sha256(secret preimage) == hashlock]\nactivate HTLCContract\nReceiver -> HTLCContract : withdraw(contractId, secret preimage)\nactivate ERC20Contract\nHTLCContract -> ERC20Contract : transfer(receiver, amount)\ndeactivate ERC20Contract\nHTLCContract -> Events : LogHTLCERC20Withdraw(contractId)\ndeactivate HTLCContract\ndeactivate Receiver\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2252,
+    "completion_tokens": 516,
+    "total_tokens": 2768
+  }
+}

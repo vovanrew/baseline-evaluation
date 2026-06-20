@@ -1,0 +1,22 @@
+@startuml
+title Update PractitionerRole
+
+actor "Integrating application user" as User
+rectangle "Integrating application" as IntegratingApp
+rectangle "<FHIR API> HPI" as HPI
+rectangle "HPI Practitioner Role database" as HPIDatabase
+
+User -> IntegratingApp: Update PractitionerRole
+using hpi-practitionerrole-id
+
+IntegratingApp -> HPI: PUT<Endpoint> /PractitionerRole/[hpi-practitionerrole-id]
+
+HPI -> HPI: Validate[]
+
+HPI -> HPIDatabase: Request
+
+HPIDatabase -> HPI: HTTP 200 response
+
+IntegratingApp -> User: HTTP 200 response
+
+@enduml

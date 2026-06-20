@@ -1,0 +1,44 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "Programador" as Programador
+
+rectangle LEA {
+  participant "front: Ceed" as Front
+  participant "agent: Ceed" as Agent
+}
+
+Front -> Front : see(addBrain, brain)
+Front -> Front : see('listen', port)
+
+Programador -> Front : ws://lea
+activate Front
+Front -> Front : see('onSocketConnection', socket)
+activate Front
+Front --> Programador : socket.emit(agents)
+deactivate Front
+
+Programador -> Front : see(agent, action, args)
+activate Front
+Front -> Agent : see(action, args)
+activate Agent
+Agent --> Front : 
+deactivate Agent
+Front --> Programador : resolve()
+deactivate Front
+
+Programador -> Front : http://lea/:agent/:action
+activate Front
+Front -> Front : see('http', [req, res])
+activate Front
+Front -> Agent : see(action, [req, res])
+activate Agent
+Agent --> Front : 
+deactivate Agent
+Front --> Programador : res.send()
+deactivate Front
+deactivate Front
+
+@enduml
+```

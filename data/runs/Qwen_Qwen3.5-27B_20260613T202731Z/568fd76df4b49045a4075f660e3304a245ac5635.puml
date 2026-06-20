@@ -1,0 +1,64 @@
+```plantuml
+@startuml
+title HTTP/2 Connection and Stream Lifecycle
+
+participant "ConnectInterceptor" as CI
+participant "StreamAllocation" as SA
+participant "RealConnection" as RC
+participant "Http2Connection" as H2C
+participant "CallServerInterceptor" as CSI
+participant "Http2Codec" as Codec
+participant "Http2Writer" as Writer
+participant "Sink" as Sink
+participant "Socket" as Socket
+participant "ReaderRunnable" as Reader
+participant "Http2Read" as Read
+participant "Http2Stream" as Stream
+participant "Source" as Source
+
+CI -> SA: newStream
+activate SA
+SA -> RC: connect
+activate RC
+RC -> H2C: start()
+activate H2C
+
+CSI -> Codec: writeRequestHeaders
+activate Codec
+Codec --> H2C: newStream
+deactivate Codec
+
+H2C -> Writer: synStream
+activate Writer
+Writer -> Sink: write
+activate Sink
+Sink -> Socket: 
+deactivate Sink
+deactivate Writer
+
+CSI -> Sink: write
+activate Sink
+deactivate Sink
+
+H2C -> Reader: execute()
+activate Reader
+Reader -> Read: nextFrame()
+activate Read
+Read --> H2C: handle
+deactivate Read
+deactivate Reader
+
+H2C -> Stream: receiveXXX()
+activate Stream
+Stream -> Source: read()
+activate Source
+Source --> Stream: 
+deactivate Source
+deactivate Stream
+
+deactivate H2C
+deactivate RC
+deactivate SA
+
+@enduml
+```

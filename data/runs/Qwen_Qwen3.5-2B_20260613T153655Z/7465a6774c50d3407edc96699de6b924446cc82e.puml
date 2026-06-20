@@ -1,0 +1,34 @@
+@startuml
+participant "User" as User
+participant "index.jsp" as index.jsp
+participant "basket.jsp" as basket.jsp
+participant "Order" as Order
+participant "Pay" as Pay
+participant "LogicFacade" as LogicFacade
+participant "OrderMapper" as OrderMapper
+participant "Database" as Database
+
+note right of User
+We assume user is logged in
+endnote
+
+User -> index.jsp: user clicks "add to cart"
+index.jsp -> Order: [for each cupcake] AddToOrder()
+Order -> index.jsp: redirect (msg "added to basket")
+index.jsp -> User: display msg
+User -> index.jsp: user clicks "show basket"
+index.jsp -> basket.jsp: ShowBasket()
+basket.jsp -> Pay: Pay()
+Pay -> LogicFacade: Check date
+Pay -> LogicFacade: Check if logged in
+Pay -> LogicFacade: Check balance
+LogicFacade -> Pay: saveOrder()
+OrderMapper -> LogicFacade: saveOrder()
+LogicFacade -> OrderMapper: returns
+OrderMapper -> Database: saves order
+OrderMapper -> LogicFacade: returns
+LogicFacade -> Pay: return
+Pay -> index.jsp: redirect (msg "order placed")
+index.jsp -> User: display msg
+
+@enduml

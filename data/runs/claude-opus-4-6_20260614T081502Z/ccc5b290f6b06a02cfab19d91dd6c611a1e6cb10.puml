@@ -1,0 +1,124 @@
+@startuml
+
+actor CenterCoordinator
+
+participant "DataFromLegacySystemUI" as UI
+participant "DataFromLegacySystemController" as Controller
+participant "ReadLegacyDataFile" as ReadFile
+participant "Company" as Company
+participant "SNSUserStore" as SNSUserStore
+participant "App" as App
+participant "VaccinationCenter" as VaccinationCenter
+participant "Arrival" as Arrival
+participant "Departure" as Departure
+participant "vaccinationCentersStore" as vaccinationCentersStore
+
+CenterCoordinator -> UI : 1 Asks to load a CSV file with legacy data
+
+UI -> Controller : 2 DataFromLegacySystemController()
+activate Controller
+
+Controller -> Company : 3 getVaccinationCentersStore()
+Company --> Controller : 4 returns the store
+
+Controller -> Company : 5 getVaccinationCenterAssociatedToCoordinator(id)
+Company --> Controller : 6 returns the vaccination center
+
+Controller -> ReadFile : 7 ReadLegacyDataFile(center)
+activate ReadFile
+deactivate ReadFile
+
+deactivate Controller
+
+UI -> CenterCoordinator : 8 request path of the CSV file
+CenterCoordinator -> UI : 9 types path
+
+UI -> Controller : 10 readFile(path)
+
+Controller -> ReadFile : 11 readFile(String path)
+
+loop while csv has new lines
+ReadFile -> ReadFile : 12 validateFileLegacy(SNSUserNumber,\nvaccineName,secondDate,thirdDate,fourthDate)
+ReadFile -> ReadFile : 13 Saves data into an ArrayList<String> called\nlegacyDataList
+end
+
+Controller -> SNSUserStore : 14 getSNSUserList()
+SNSUserStore -> vaccinationCentersStore : 15 getSNSUserList()
+vaccinationCentersStore --> SNSUserStore : 16 returns list
+
+SNSUserStore --> Controller : 17 returns list
+
+Controller -> VaccinationCenter : 18 getVaccineList()
+VaccinationCenter --> Controller : 19 returns list
+
+loop while legacyDataList has new lines
+Controller -> Controller : 20 findPosOfSNSUser(snsUsersList,\nvalues,positionInSnsUserList)
+Controller -> Controller : 21 findPosOfVax(vaccinesList,values,positionInVaccinesList)
+Controller -> Controller : 22 checksDuplicates(updatedList,snsUsersList,vaccineList,positionInSnsUserList,positionInVaccinesList,lineOfTheData)
+Controller -> Controller : 23 Saves data into an ArrayList<String> called updatedList
+end
+
+Controller -> VaccinationCenter : 24 createArrival()
+
+VaccinationCenter -> Arrival : 25 createArrival()
+Arrival --> VaccinationCenter : 26 returns Arrival
+VaccinationCenter -> VaccinationCenter : 27 Saves arrival into List<Arrival> called arrivalsList
+VaccinationCenter -> VaccinationCenter : 28 genericsArrivals.binaryFileWrite(Constants.FILE_PATH_ARRIVALS, arrivalsList)
+
+Controller -> VaccinationCenter : 29 createDeparture()
+
+VaccinationCenter -> Departure : 30 createDeparture()
+Departure --> VaccinationCenter : 31 returns departure
+VaccinationCenter -> VaccinationCenter : 32 Saves departure into List<Departure> called departuresList
+VaccinationCenter -> VaccinationCenter : 33 genericsDeparture.binaryFileWrite(Constants.FILE_PATH_DEPARTURES, departuresList)
+
+Controller --> ReadFile : 34 returns updatedList
+ReadFile --> UI : 35 returns updatedList
+
+UI -> CenterCoordinator : 36 requests the option to sort
+CenterCoordinator -> UI : 37 selects option
+
+UI -> Controller : 38 chooseCriteriaToSort(option)
+Controller -> ReadFile : 39 setList(Option)
+
+loop while updatedList has new lines
+ReadFile -> ReadFile : Saves dates to a\n40 a List<LocalDateTime>\ncalled listToSort
+end
+
+UI -> CenterCoordinator : 41 requests the order of the sort
+
+alt algorithmToBeUsed = "InsertionSort", option = "0 - Ascending"
+CenterCoordinator -> UI : 42 selects order
+
+UI -> Controller : 43 getAlgorithm()
+Controller -> App : 44 getSortingAlgorithm()
+App --> Controller : 45 returns algorithm
+Controller --> UI : 46 returns algorithm
+
+UI -> ReadFile : 47 sortListWithAlgo(algorithmToBeUsed,option)
+
+note right of ReadFile : algorithmToBeUsed can be InsertionSort or HeapSort, both have methods that\ncan sort in ascending/descending order, here we are just representing\nthe InsertionSort algorithm because HeapSort functions in a similar way.
+
+ReadFile -> ReadFile : 48 insertionSortAscending()
+ReadFile --> ReadFile : 49 returns sortedList
+
+ReadFile --> UI : 50 returns sortedList
+UI -> CenterCoordinator : 51 prints sortedList
+
+else algorithmToBeUsed = "InsertionSort", option = "1 - Descending"
+CenterCoordinator -> UI : 52 selects order
+
+UI -> Controller : 53 getAlgorithm()
+Controller -> App : 54 getSortingAlgorithm()
+App --> Controller : 55 returns algorithm
+Controller --> UI : 56 returns algorithm
+
+UI -> ReadFile : 57 sortListWithAlgo(algorithmToBeUsed,option)
+ReadFile -> ReadFile : 58 insertionSortDescending()
+ReadFile --> ReadFile : 59 returns sortedList
+
+ReadFile --> UI : 60 returns sortedList
+UI -> CenterCoordinator : 61 prints sortedList
+end
+
+@enduml

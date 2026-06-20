@@ -1,0 +1,21 @@
+{
+  "id": "msg_01N2kseMRNq8Mwwzo7UKKLNv",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nbox \"Main process\" #LightBlue\nparticipant \"Hook_StartActivity\" as Hook\nparticipant \"VirtualCore\" as VC\nparticipant \"VActivityManager\" as VAM\nend box\n\nbox \"Server process\" #LightGreen\nparticipant \"VActivityManagerService\" as VAMS\nparticipant \"VPackageManagerService\" as VPMS\nparticipant \"ProviderCaller\" as PC\nend box\n\nbox \"App Client process\" #DarkGray\nparticipant \"StubContentProvider\" as SCP\nparticipant \"VRedirectActRequest\" as VRAR\nparticipant \"VActRedirectResult\" as VARR\nend box\n\n[-> Hook : onHook\nactivate Hook\n\nHook -> Hook : resolveActivityInfo\n\nHook -> Hook : new VRedirectActRequest\n\nHook -> VRAR : req\n\nHook -> Hook : redirectTargetActivity\n\nHook -> VAMS : redirectTargetActivity\n\nVAMS -> VAMS : redirectTargetActivityLocked\n\nVAMS -> VAMS : startProcessLocked\n\nVAMS -> VAMS : queryFreeStubForProcess\n\nVAMS -> VAMS : performStartProcessLocked\n\nVAMS -> VPMS : querySharedPackages\nVPMS --> VAMS : sharedPackages : List<String>\n\nVAMS -> VPMS : queryContentProviders\nVPMS --> VAMS : providers : List<ProviderInfo>\n\nVAMS -> VPMS : getSharedLibraries\nVPMS --> VAMS : usesLibraries : List<String>\n\nVAMS -> PC : call(MethodConstants.INIT_PROCESS)\n\nPC -> SCP : call\n\nSCP -> SCP : initProcess\n\nnote right of SCP\nStubContentProvider.java\u4e2d\u5b9a\u4e49\u4e8620\u4e2a\u9759\u6001\u5185\u90e8\u7c7bC1\u5230C20\uff0c\u90fd\n\u662fStubContentProvider\u7684\u5b50\u7c7b\u3002\u5e76\u4e14\u5728AndroidManifest.xml\n\u4e2d\u58f0\u660e\u4e86process\u5b57\u6bb5\uff0c\u4e0e\u5bf9\u5e94\u7684StubActivity\u4e00\u81f4\u3002\nVA\u7684\u670d\u52a1\u8fdb\u7a0b\u53d6\u51fa\u4e00\u4e2a\u7a7a\u7684stubContentProvider\uff0c\n\u501f\u52a9Android ContentProvider\u673a\u5236\uff0c\u7cfb\u7edf\u4f1a\u521b\u5efa\u4e00\u4e2a\u65b0\u8fdb\u7a0b\u51fa\u6765\uff0c\n\u7a0d\u540e\u88ab\u4f5c\u4e3a\u53cc\u5f00\u5e94\u7528\u7684\u5bb9\u8eab\u4e4b\u6240\u3002\u8fd9\u4e2a\u5077\u6881\u6362\u67f1\u7684\u8fc7\u7a0b\u7531VA\u670d\u52a1\u8fdb\u7a0b\n\u5b8c\u6210\u3002\nend note\n\nVAMS -> VAMS : fetchStubActivityInfo\n\nVAMS -> VAMS : result = new VActRedirectResult\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432763,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 595,
+    "prompt_tokens": 1660,
+    "total_tokens": 2255
+  }
+}

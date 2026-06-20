@@ -1,0 +1,22 @@
+{
+  "id": "4e7836bd-5293-4da2-a03a-289ca12317b6",
+  "object": "chat.completion",
+  "created": 1781502972,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Propagation Sequence Diagram\n\nactor \"User application\" as User\nparticipant \"Main\" as Main\nparticipant \"Propagator\" as Propagator\nparticipant \"Integrator\" as Integrator\nparticipant \"DifferentialEquations\" as DiffEq\nparticipant \"OrbitType\" as OrbitType\nparticipant \"TimesDerivative\" as TimesDeriv\nparticipant \"Force Model i\" as ForceModel\nparticipant \"NewtonianAttraction\" as Newtonian\n\n== Initialization ==\nUser -> Main: propagate\nactivate Main\nMain -> Propagator: create\nactivate Propagator\nPropagator -> DiffEq: create\nactivate DiffEq\ndeactivate DiffEq\nPropagator -> TimesDeriv: create\nactivate TimesDeriv\ndeactivate TimesDeriv\n\n== Integration Loop ==\nPropagator -> Integrator: integrate\nactivate Integrator\n\nrect rgb(220, 240, 220)\n    note right of Integrator: [for n steps]\n    \n    Integrator -> DiffEq: computeDerivatives\n    activate DiffEq\n    \n    DiffEq -> OrbitType: mapArrayToOrbit\n    activate OrbitType\n    deactivate OrbitType\n    \n    rect rgb(250, 240, 220)\n        note right of DiffEq: [for all perturbation force models]\n        DiffEq -> ForceModel: addContribution\n        activate ForceModel\n        ForceModel -> TimesDeriv: addAcceleration\n        activate TimesDeriv\n        deactivate TimesDeriv\n        deactivate ForceModel\n    end\n    \n    DiffEq -> Newtonian: addContribution\n    activate Newtonian\n    Newtonian -> TimesDeriv: addKeplerContribution\n    activate TimesDeriv\n    deactivate TimesDeriv\n    deactivate Newtonian\n    \n    deactivate DiffEq\nend\n\ndeactivate Integrator\n\n== Return Results ==\nIntegrator --> Propagator: final state\ndeactivate Propagator\nMain --> User: final state\ndeactivate Main\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1566,
+    "completion_tokens": 435,
+    "total_tokens": 2001
+  }
+}

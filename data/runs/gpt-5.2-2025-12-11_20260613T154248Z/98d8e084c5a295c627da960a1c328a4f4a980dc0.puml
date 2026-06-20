@@ -1,0 +1,80 @@
+@startuml
+title PB-158 UC8 SQD: Get campaigns customer is eligible for
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #808080
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #808080
+  ParticipantBackgroundColor #EDEDED
+  BoxBorderColor #808080
+  BoxBackgroundColor #DDDDDD
+  NoteBorderColor #808080
+  NoteBackgroundColor #FFF9C4
+}
+
+actor "Next Customer" as NC
+
+note top
+<b>Abstract:</b>
+This use cases describes the changes being made to an existing endpoint.
+The endpoint will be modified so that it can be called by the user and
+will return a list of campaigns that the customer is eligible for. A campaign
+logo version number will be returned, as well as a campaign logo
+image (if requested).
+end note
+
+note left of NC #E6A6E6
+<b>Endpoint:</b>
+GET /campaigns
+
+<b>Current implementation:</b>
+Currently only called by system management, returns a list of all campaigns
+with the option to specify:
+• NAME
+• PARTNER_ID
+• OFFER_ID
+
+<b>Required implementation:</b>
+Either through extension of existing API or new, enable the user
+to call the endpoint. When a user calls the endpoint return a list of campaigns
+that the user is eligible for. As part of the request, include an optional
+field for whether or not to return the offer logo.
+
+As part of the CAMPAIGN_RETRIEVAL response include:
+• Campaign logo version number
+• Campaign logo (optional)
+
+<b>ENSURE BACKWARDS COMPATIBILITY IS MAINTAINED</b>
+end note
+
+box "Next Platform" #DDDDDD
+participant "P&O\n(Core Next)" as PO
+database "P&O DB" as PODB
+end box
+
+participant "Core Bradesco" as CB
+
+NC -> PO : 1 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})
+
+group filter on {NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}
+  PO -> PODB : 2 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})
+  note right of PODB
+  Note:
+  Read P&O tables:
+  • ELLIGIBLE_USER
+  • CAMPAIGN
+  end note
+  PODB -> PODB : 3 Read campaigns user is eligible for
+  PODB --> PO : 4 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)
+end group
+
+alt if user has been or is eligible for at least one campaign
+  PO --> NC : 5 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)
+else if user is not eligible for any active campaigns
+  PO --> NC : 6 Return error (MESSAGE)
+end alt
+
+@enduml

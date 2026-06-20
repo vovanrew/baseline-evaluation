@@ -1,0 +1,25 @@
+@startuml
+title PCWS Sequences
+
+actor Customer
+participant PCWS
+database PostgreSQL
+artifact Disk
+control "transfer_logs.sh" as transfer
+participant "Account Service" as AccountService
+participant "Datalog Service" as DatalogService
+
+Customer -> PCWS : request image
+PCWS -> AccountService : check account permission
+PCWS -> PCWS : generate image
+PCWS -> Disk : write data log
+PCWS --> Customer : image
+
+... some time later ...
+
+loop [for each log]
+  transfer -> Disk : read data log
+  transfer -> DatalogService : send data log
+  DatalogService --> transfer
+end
+@enduml

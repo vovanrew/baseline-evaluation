@@ -1,0 +1,22 @@
+{
+  "id": "26b18270-6cc8-47d2-8d42-f835d242dcbf",
+  "object": "chat.completion",
+  "created": 1781435866,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\nactor \"User\" as User\nrectangle \"Frontend\" as Frontend {\n}\nparticipant \"API Gateway\" as APIGateway\nrectangle \"Matching Service\" as MatchingService {\n    participant \"Controller\" as Controller\n    participant \"Service\" as Service\n}\nrectangle \"Matching Database\" as MatchingDatabase {\n    database \"Questions\" as Questions\n    database \"MatchRequests\" as MatchRequests\n}\n\nUser -> Frontend : PUT /api/find/match\\npayload: {requestId}\nactivate Frontend\nFrontend -> APIGateway : PUT /api/find/match\\npayload: {requestId}\nactivate APIGateway\nAPIGateway -> Controller : checkForMatch(requestId)\nactivate Controller\nController -> Service : find user's MatchRequest with requestId\nactivate Service\nService -> MatchRequests : find user's MatchRequest with requestId\nactivate MatchRequests\nMatchRequests --> Service : user's MatchRequest\ndeactivate MatchRequests\nService -> MatchRequests : find another MatchRequest\nactivate MatchRequests\nMatchRequests --> Service : another MatchRequest\ndeactivate MatchRequests\nService -> Questions : get a random question\nactivate Questions\nQuestions --> Service : Question\ndeactivate Questions\nService -> Service : create sessionInfo and attach to each MatchRequest\nService -> MatchRequests : update the 2 MatchRequests\nactivate MatchRequests\nMatchRequests --> Service\ndeactivate MatchRequests\ndeactivate Service\nService --> Controller : user's MatchRequest\ndeactivate Controller\nController --> APIGateway : 200 OK\\npayload: {user's MatchRequest}\ndeactivate APIGateway\nAPIGateway --> Frontend : 200 OK\\npayload: {user's MatchRequest}\ndeactivate Frontend\nFrontend -> Frontend : switch to session page\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1517,
+    "completion_tokens": 383,
+    "total_tokens": 1900
+  }
+}

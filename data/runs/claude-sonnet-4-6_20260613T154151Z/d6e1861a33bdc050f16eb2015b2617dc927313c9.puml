@@ -1,0 +1,108 @@
+@startuml
+participant "AbstractApplicationContext" as AAC
+participant "GenericApplicationContext" as GAC
+participant "ApplicationContextAwareProcessor" as ACAP
+participant "AbstractAutowireCapableBeanFactory" as AACBF
+participant "DefaultListableBeanFactory" as DLBF
+
+note over AAC: 以下流程都在refresh( )方法内部
+
+note over AAC: 第1步
+
+AAC -> AAC: 1 prepareRefresh
+
+note left of AAC: 空方法,留给子类重写
+AAC -> AAC: initPropertySources()
+AAC <-- AAC
+
+AAC -> AAC: getEnvironment()
+AAC <-- AAC
+
+AAC -> AAC: validateRequiredProperties()
+AAC <-- AAC
+
+note left of AAC: 泛型ApplicationEvent
+AAC -> AAC: new LinkedHashSet<>()
+AAC <-- AAC
+
+note over AAC: 第2步
+
+AAC -> AAC: 2 obtainFreshBeanFactory()
+AAC <-- AAC
+
+AAC -> GAC: refreshBeanFactory()
+
+GAC -> DLBF: new DefaultListableBeanFactory()
+GAC <-- DLBF
+
+GAC -> DLBF: setSerializationId(getId())
+GAC <-- DLBF
+
+note left of AAC: 未定义变量接收返回值
+AAC --> GAC: getBeanFactory
+note left of AAC: 返回 DefaultListableBeanFactory
+AAC <-- GAC
+
+note over AAC: 第3步
+
+AAC -> AAC: 3 prepareBeanFactory
+AAC <-- AAC
+
+note left of AAC: 设置BeanFactory的类加载器、支持表达式解析器
+
+note left of AAC: 添加Bean后置处理器 例如
+
+AAC -> ACAP: addBeanPostProcessor(new ApplicationContextAwareProcessor(this))
+
+note right of ACAP: 构造器
+ACAP -> ACAP
+ACAP <-- ACAP
+
+note left of AAC: 返回 ApplicationContextAwareProcessor
+AAC <-- ACAP
+
+note left of AAC: 设置忽略的自动装配的接口 例如
+
+AAC -> AACBF: ignoreDependencyInterface(ApplicationEventPublisherAware.class)
+
+AACBF -> AACBF: ignoredDependencyInterfaces.add(ifc)
+AACBF <-- AACBF
+
+note left of AAC: 未定义变量接收返回值
+AAC <-- AACBF
+
+note left of AAC: 注册可以解析的自动装配 例如
+
+AAC -> DLBF: registerResolvableDependency(BeanFactory.class, beanFactory)
+
+note right of DLBF: params { dependencyType, autowiredValue }
+DLBF -> DLBF: resolvableDependencies.put();
+DLBF <-- DLBF
+
+note left of AAC: 未定义变量接收返回值
+AAC <-- DLBF
+
+note left of AAC: 添加ApplicationListenerDetector的Bean后置处理器
+
+note left of AAC: 添加编译时的Aspect）：
+
+note left of AAC: 给BeanFactory中注册一些能用的组件
+
+AAC -> DLBF: registerSingleton(ENVIRONMENT_BEAN_NAME / SYSTEM_PROPERTIES_BEAN_NAME) / SYSTEM_ENVIRONMENT_BEAN_NAME)
+
+note right of DLBF: params{beanName, singletonObject}
+DLBF -> DLBF: addSingleton();
+DLBF <-- DLBF
+
+note left of AAC: 未定义变量接收返回值
+AAC <-- DLBF
+
+note over AAC: 第4步
+
+note left of AAC: 在应用程序上下文的标准初始化之后修改其内部bean工厂
+
+note left of AAC: 空方法 留给子类重写
+AAC -> AAC: postProcessBeanFactory(beanFactory);
+AAC <-- AAC
+
+@enduml

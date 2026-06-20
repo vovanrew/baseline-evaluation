@@ -1,0 +1,174 @@
+```plantuml
+@startuml
+title band301
+
+participant "BTManager" as BTM
+participant "BTCallback" as BTCB
+participant "BleController" as BC
+participant "ScannerPresenter" as SP
+participant "LeScannerV21" as LS
+participant "WristbandManager" as WM
+participant "L2Layer" as L2L
+participant "L2KeyPacket" as L2KP
+participant "L2CMDPacket" as L2CP
+participant "L1Layer" as L1L
+participant "L1Packet" as L1P
+participant "GattLayer" as GL
+participant "BluetoothGatt" as BG
+
+== Initialization ==
+BTM->BTCB: onCreate
+activate BTCB
+BTCB->WM: instial
+activate WM
+WM->L2L: new
+activate L2L
+L2L->L1L: new
+activate L1L
+L1L->L1P: new
+activate L1P
+L1P->GL: new
+activate GL
+GL->BG: new
+activate BG
+deactivate BG
+deactivate GL
+deactivate L1P
+deactivate L1L
+deactivate L2L
+deactivate WM
+BTCB->BC: instial
+activate BC
+BC->SP: new
+activate SP
+SP->LS: new
+activate LS
+deactivate LS
+deactivate SP
+deactivate BC
+deactivate BTCB
+
+== 搜索设备 ==
+BC->BC: forceScan
+BC->BC: scan4Device
+activate BC
+note left of BC: 搜索蓝牙设备
+BC->SP: scanDevice
+activate SP
+SP->SP: scan4e
+SP->SP: scan4Device
+SP->SP: startScan
+SP->SP: onScanResult
+SP->SP: notify4eScan
+SP->SP: on4eScan
+deactivate SP
+BC->BC: onNewDevice
+BC->BC: mHandler.handleMessage
+note left of BC: MSG_FIND_BONDED_DEVICE
+deactivate BC
+
+== 建立GATT连接 ==
+BC->L2L: Connect：找到合适的地址后，使用该地址进行蓝牙连接
+activate L2L
+L2L->L1L: connect
+activate L1L
+L1L->L1L: startTxSchedule
+L1L->L1L: startRxSchedule
+note right of L1L: 开启两个线程，Tx发送，Rx接收
+L1L->BG: connect
+activate BG
+BG->BG: onConnectionStateChange
+BG->BG: requestMtu
+note left of BG: 设置MTU：240
+BG->BG: onMtuChanged
+BG->BG: discoverServices
+BG->BG: onServicesDiscovered
+note left of BG: 通过UUID，发现我们设置的Services和数据特征Characteristic
+BG->BG: onDescriptorWrite
+BG->L1L: mGattCallback.onConnectionStateChange
+L1L->L2L: mTransportCallback.onConnectionStateChange
+L2L->WM: mApplicationCallback.onConnectionStateChange
+note left of WM: MSG_STATE_CONNECTED
+WM->BC: mHandler.handleMessage
+BC->BC: StartLoginProcess
+BC->SP: RequestLogin
+SP->SP: RequestSetNeedInfo
+SP->SP: SetUserProfile
+deactivate SP
+deactivate BC
+deactivate L2L
+deactivate L1L
+deactivate BG
+
+== 封装并发送数据-Tx ==
+WM->L2L: SettingCmdUserSetting
+activate L2L
+L2L->L2KP: preparePacket：key(1B):data.len(2B):data
+L2L->L2CP: preparePacket：cmd(1B):version(1B)
+note left of L2L: 封装L2
+L2L->L1L: sendData
+activate L1L
+L1L->L1P: prepareDataPacket
+activate L1P
+note left of L1P: 封装L1
+L1P->L1P: preparePacket
+L1P->L1P: magic:AB, er-ack-version:00, len2(B):crc(2B):seq(2B)
+L1P->L1P: addToTxPacketList
+L1P->L1P: ThreadTx.run
+note left of L1P: 每隔1秒查询一次是否有新数据，有就发送，重试3次
+L1P->L1P: getFromTxPacketList
+L1P->L1P: UnpackSendPacket
+L1P->BG: sendGattLayerData
+L1P->L1P: sendData
+L1P->L1P: tellUpStackPacketSend
+note left of L1P: 反馈发送成功，SequenceId++
+L1P->L1L: onDataSend
+deactivate L1P
+deactivate L1L
+deactivate L2L
+
+== 接收数据-Rx ==
+BG->BG: onCharacteristicChanged
+activate BG
+BG->BG: mGattCallback.onDataReceive
+BG->BG: receiveData
+BG->L1L: decodeReceiveData
+activate L1L
+note left of L1L: 拆包L1
+L1L->L1L: parseHeader:解析出magic，ack，总长度，crc，seqnumid
+L1L->L1L: parseData
+note left of L1L: 如果接收的数据长度等于L1中记录的总长度则返回 LT_FULL_PACKET\n否则，把数据暂存起来（存504B），返回LT_SUCCESS，等待剩余数据传输过来
+L1L->L1L: sendAckPacket
+L1L->L1L: addToRxPacketList
+L1L->L1L: ThreadRx.run
+note left of L1L: 向对手发送成功的ack
+note left of L1L: 每隔1秒查询一次是否有新数据，有就拆包
+L1L->L1L: getFromRxPacketList
+L1L->L2L: onDataReceive
+activate L2L
+note left of L2L: 拆包L2
+L2L->L2L: parsedata:拆包L2: cmd(1B):version(1B)
+L2L->L2L: parsedata:拆包 key(1B)，len(2B):data
+L2L->WM: onHandshakeCallback
+deactivate L2L
+deactivate L1L
+deactivate BG
+
+== handshake ==
+BC->WM: handshake
+activate WM
+WM->L2L: handshake
+activate L2L
+L2L->L1L: handshake
+activate L1L
+L1L->L1L: sendData
+L1L->L2L: onDataReceive
+L2L->WM: onHandshakeCallback
+WM->BC: onHandshakeCallback
+deactivate BC
+deactivate WM
+deactivate L2L
+deactivate L1L
+
+@enduml
+```

@@ -1,0 +1,124 @@
+```plantuml
+@startuml
+
+actor Admin
+
+participant "AddEventPage" as AddEventPage
+participant "AddEventFormContainer" as AddEventFormContainer
+participant "AddClassPopupContainer" as AddClassPopupContainer
+participant "ClassForm" as ClassForm
+participant "ClassService (Frontend)" as ClassServiceFE
+participant "ShiftService (Frontend)" as ShiftServiceFE
+participant "Router" as Router
+participant "ClassHTTPTransport" as ClassHTTPTransport
+participant "ClassEndpoint" as ClassEndpoint
+participant "ClassService" as ClassService
+participant "ClassCommand" as ClassCommand
+participant "ClassQuery" as ClassQuery
+participant "TransactionGRPCTransport" as TransactionGRPCTransport
+participant "StorageGRPC Transport" as StorageGRPCTransport
+participant "MaterialService" as MaterialService
+participant "NatsStreaming" as NatsStreaming
+
+Admin -> AddEventPage : Click "Attach New Class" Button
+AddEventPage -> AddEventFormContainer : attachClass()
+AddEventFormContainer -> AddEventPage : attach
+
+Admin <-- AddEventPage : attach
+Admin <-- AddEventPage : Render "Add Class Popup" Container
+
+AddEventFormContainer -> AddClassPopupContainer : render
+AddClassPopupContainer -> AddEventFormContainer : rendered
+
+Admin <-- AddEventFormContainer : Rendered
+Admin -> AddEventFormContainer : choose date
+
+AddClassPopupContainer -> ClassForm : handleDateChange(value)
+ClassForm -> ClassServiceFE : fetchAvailableShifts(date)
+ClassServiceFE --> ClassForm : shifts
+
+ClassForm --> AddClassPopupContainer : form data
+
+Admin <-- AddClassPopupContainer : form data
+Admin -> AddClassPopupContainer : choose shift
+
+AddClassPopupContainer -> ClassForm : handleShiftChange()
+ClassForm -> ShiftServiceFE : fetchAvailableShifts(date, {shift})
+ShiftServiceFE --> ClassForm : rooms
+
+ClassForm --> AddClassPopupContainer : form data
+
+Admin <-- AddClassPopupContainer : form data
+Admin <-- AddClassPopupContainer : Fill Form
+
+Admin <-- AddClassPopupContainer : form data
+Admin -> AddClassPopupContainer : Click "Create Class" Button
+
+AddClassPopupContainer -> ClassForm : handleClassFormSubmitted()
+ClassForm -> ClassServiceFE : bookingClass(payload)
+ClassServiceFE -> Router : route("GET", "/v2/booking")
+Router -> ClassHTTPTransport : BookingClass(ClassService, []ServerOption)
+ClassHTTPTransport -> ClassEndpoint : BookingClass(ClassService, withPaginated)
+ClassEndpoint -> ClassService : Create(context, params)
+ClassService -> ClassService : Validate()
+
+alt ["Data Valid"]
+
+ClassService -> TransactionGRPCTransport : isValidTransaction(ProtoBuffer)
+TransactionGRPCTransport --> ClassService : ProtoResponse
+
+alt ["Is Valid Transaction"]
+
+ClassService -> ClassCommand : class = ClassModel()
+ClassCommand -> ClassCommand
+ClassCommand -> ClassCommand : Create(context, class)
+ClassCommand --> ClassService : uuid
+
+opt ["has materials"]
+ClassService -> MaterialService : CommitFile(context, ProtoBuffer)
+MaterialService --> ClassService : link
+ClassService -> StorageGRPCTransport : Create(context, payload)
+StorageGRPCTransport --> ClassService : isCreated
+end
+
+ClassService -> ClassQuery : Find(context, []SliceConditions)
+ClassQuery --> ClassService : classes
+ClassService -> NatsStreaming : publishClassCreated(context, data)
+NatsStreaming --> ClassService : published
+
+else
+
+ClassService --> ClassEndpoint : BadRequest
+ClassEndpoint --> ClassHTTPTransport : BadRequest
+ClassHTTPTransport --> Router : BadRequest
+Router --> ClassServiceFE : BadRequest
+ClassServiceFE --> ClassForm : BadRequest
+ClassForm --> AddClassPopupContainer : BadRequest
+AddClassPopupContainer --> Admin : BadRequest
+
+end
+
+else
+
+ClassService --> ClassEndpoint : UnprocessableEntity
+ClassEndpoint --> ClassHTTPTransport : UnprocessableEntity
+ClassHTTPTransport --> Router : UnprocessableEntity
+Router --> ClassServiceFE : UnprocessableEntity
+ClassServiceFE --> ClassForm : UnprocessableEntity
+ClassForm --> AddClassPopupContainer : UnprocessableEntity
+AddClassPopupContainer --> Admin : UnprocessableEntity
+
+end
+
+ClassEndpoint --> ClassEndpoint : class
+ClassEndpoint -> ClassEndpoint : response = Response(class, nil)
+
+ClassEndpoint --> ClassHTTPTransport : response
+ClassHTTPTransport --> Router : response
+Router --> ClassServiceFE : response
+ClassServiceFE --> ClassForm : response
+ClassForm --> AddClassPopupContainer : response
+AddClassPopupContainer --> Admin : response
+
+@enduml
+```

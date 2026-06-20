@@ -1,0 +1,43 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 30
+  BoxPadding 10
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6F2
+  ActorBorderColor #666666
+  ActorBackgroundColor #E6E6F2
+  ArrowColor #000000
+  BoxBorderColor #000000
+  BoxBackgroundColor transparent
+  BoxFontStyle bold
+}
+
+actor record as record
+participant configuration as configuration
+participant ekf as ekf
+participant pathgenerator as pathgenerator
+participant display as display
+participant diagnostics as diagnostics
+
+configuration --> record : 1 Get inital configuration
+
+group initialize
+  record -> ekf : 2 Create Object
+  record -> pathgenerator : 3 Create Object
+end
+
+group iterate
+  ekf --> record : 4 Get current location
+  record -> pathgenerator : 5 Send current location
+  pathgenerator --> record : 6 Return path
+  record -> display : 7 Path addition and walker location
+  record -> diagnostics : 8 Walker location and path status
+end
+
+@enduml
+```

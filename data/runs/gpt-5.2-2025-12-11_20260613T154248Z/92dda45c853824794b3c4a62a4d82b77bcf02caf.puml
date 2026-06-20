@@ -1,0 +1,45 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #000000
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #000000
+  ParticipantBackgroundColor #FFFFFF
+  ActorBorderColor #000000
+  ActorBackgroundColor #FFFFFF
+  NoteBackgroundColor #FFFFE0
+  NoteBorderColor #000000
+}
+
+actor "User Agent" as UA
+participant "Content Upload API" as API
+database "Content database" as DB
+participant "CAFF Parser" as PARSER
+
+UA -> API : Upload request (HTTP POST),\ncontains a single CAFF file in its body.
+note right of API
+MUST also include a CSRF token to prevent users of other,\npotentially XSS vulnerable sites to take part in a massive,\ndistributed spam or DoS operation.
+end note
+
+API -> PARSER : Validate upload request
+PARSER --> API : Return result
+
+alt [Failed to validate uploaded content]
+API --> UA : Return an HTTP status code that signals validation failure.\nExact value depends on how the validation failed.
+else [Request is deemed valid]
+API -> DB : Store content in database
+DB --> API : Return result of request
+
+note right of PARSER
+Uploads should be validated by at LEAST:\n* Content-Size header against max file size.\n* All size fields against their respective supported bounds.\n* Structure of all fields match expectations from the spec.\n* Number of bytes from the upload matches number of bytes expected from in-file metadata.
+end note
+
+alt [Upload succeeded]
+API --> UA : Return HTTP 201 Created
+else
+API --> UA : Return HTTP status code signaling the reason for failure.
+end
+end
+@enduml

@@ -1,0 +1,133 @@
+@startuml
+title af sync strategy ReferencePage
+Strategy:
+1. AF_FOLLOWER_COARSE_FOLLOW
+2. AF_FOLLOWER_COMPLETE_FOLLOW
+3. AF_FOLLOWER_SEQUENTIAL_FOLLOW tuning file not contain
+
+autonumber
+
+participant "af_core" as af_core
+participant "af_haf" as af_haf
+participant "camxhafadapter" as camxhafadapter
+participant "af_haf_default_mixer" as af_haf_default_mixer
+participant "af_haf_follower" as af_haf_follower
+
+note right of af_haf
+  how the follower create
+end note
+
+af_haf -> af_haf: af_haf_set_core_switch
+activate af_haf
+
+af_haf -> camxhafadapter: pAlgo->set_parameters
+type: AF_HAF_SET_PARAM_PEER_FOCUS_INFO
+activate camxhafadapter
+
+camxhafadapter -> af_haf_default_mixer: af_default_mixer_set_parameters
+activate af_haf_default_mixer
+
+note right of af_haf_default_mixer
+  if !master:
+    pMixer->p_primary = pMixer->p_follower_algo
+  else
+    pMixer->p_primary = pMixer->p_active_algo
+end
+end note
+
+af_haf_default_mixer --> af_haf: return
+deactivate af_haf_default_mixer
+
+af_haf --> af_core: return
+deactivate af_haf
+
+note right of af_haf
+  af process monitor
+end note
+
+af_core -> af_haf: af_follower_process_monitor
+activate af_haf
+
+note right of af_haf
+  checked with Lester
+  for follower_monitor, has no different
+  for follower_search,
+  current we use LEGACY, and Direct mapping require module calibration data
+end note
+
+alt [lens_mapping_method = FOLLOWER_LEGACY_MAPPING]
+  af_haf --> af_core: return
+else [lens_mapping_method = FOLLOWER_DIRECT_MAPPING]
+  af_haf --> af_core: return
+end
+
+note right of af_haf
+  af process search
+end note
+
+af_core -> af_haf: af_follower_process_search
+activate af_haf
+
+af_haf -> af_haf: af_follower_focus_converge
+activate af_haf
+
+note right of af_haf
+  just talk about the FOLLOWER_DIRECT_MAPPING
+end note
+
+alt [case AF_FOLLOWER_COARSE_FOLLOW]
+  af_haf -> af_haf: af_follower_focus_coarse_follow_dir_map
+  activate af_haf
+
+  note right of af_haf
+    1. if Coarse search ongoing, Fine search not in process
+    go to the target lenspos
+    2. if enter fine search, setup fine search
+    follower have seperate fine search Tuning Param
+  end note
+
+  af_haf --> af_haf: return
+  deactivate af_haf
+
+  [case AF_FOLLOWER_COMPLETE_FOLLOW]
+  af_haf -> af_haf: af_follower_focus_complete_follow_dir_map
+  activate af_haf
+
+  note right of af_haf
+    once master focusStatus is FOCUSED
+    we directly set LensPos
+  end note
+
+  af_haf --> af_haf: return
+  deactivate af_haf
+
+  [case AF_FOLLOWER_SEQUENTIAL_FOLLOW]
+  af_haf -> af_haf: af_follower_focus_sequential_follow_dir_map
+  activate af_haf
+
+  note right of af_haf
+    just like COMPLETE_FOLLOW, but even master is focus done
+    will do another fine search
+  end note
+
+  af_haf --> af_haf: return
+  deactivate af_haf
+
+  af_haf -> af_haf: af_follower_get_fine_range
+  activate af_haf
+
+  af_haf --> af_haf: return
+  deactivate af_haf
+
+  af_haf -> af_haf: af_follower_populate_process_search_output
+  activate af_haf
+
+  af_haf --> af_haf: return
+  deactivate af_haf
+
+end
+
+af_haf --> af_core: return
+deactivate af_haf
+
+@enduml

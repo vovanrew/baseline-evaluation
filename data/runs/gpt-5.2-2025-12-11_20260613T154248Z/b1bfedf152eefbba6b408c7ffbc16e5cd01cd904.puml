@@ -1,0 +1,84 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #B0B0B0
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #8A8A8A
+  ParticipantBackgroundColor #E9E9F6
+  BoxBorderColor black
+  BoxBackgroundColor #F2F2F2
+  NoteBackgroundColor #FFFEDB
+  NoteBorderColor #B0B0B0
+  ArrowColor black
+}
+
+participant Resident
+participant WeResident
+participant WeID
+participant WeService
+
+== Provider Login Into Provider App ==
+
+Resident -> WeResident : Send username:password /login
+
+alt [Provider already exist]
+  WeResident ->> WeID : Get Token by username:password\n/oauth/authorize
+  WeID -->> WeResident : Return Token to WeResident
+  WeResident --> Resident : Return {"token": "jwt-token"}
+end
+
+== Provider Query/Search Service ==
+
+Resident -> WeService : Query services including token\n/weservices/services\nHeader\nAuthorization: Bear {jwt-token}
+
+note left of Resident
+Query Service schema
+{"query":"string","status":12}
+end note
+
+alt [above token is valid]
+  WeService ->> WeID : verify token
+  WeID -->> WeService : 200
+  WeService --> Resident : Response services data
+  note left of Resident
+Service Data Array schema
+{[{"id":"string","company":"string","name":"string","rate":4.2,"image":"image.png"},{}],
+"total":10,"currentPage":1,"perPage":5}
+  end note
+else [Token is expired/invalid]
+  WeService ->> WeID : verify token
+  WeID -->> WeService : 400
+  WeService --> Resident : Response 401 status
+end
+
+== Create Order(Request) ==
+
+Resident -> WeService : Create Service\nPOST: /weservices/service/{serviceID}/order
+
+note left of Resident
+Order Request schema
+{"resident":"$userID",
+"service":"$serviceID",
+"pricingModel":{},
+"noteDetail":"string",
+"address":"string",
+"schedule":Time}
+end note
+
+WeService ->> WeID : verify token
+WeID -->> WeService : 200
+WeService --> Resident : Response Service Data(JSON)
+
+Resident -> WeService : Comment(chat) in Order\nPOST: /weservices/order/{orderID}/comment
+
+note left of Resident
+Comment Data
+{"content":"string"}
+end note
+
+WeService ->> WeID : verify token
+WeID -->> WeService : 200
+WeService --> Resident : 200
+
+@enduml

@@ -1,0 +1,118 @@
+```plantuml
+@startuml
+box "VideoSink"
+participant SurfaceViewRenderer
+participant ProxyVideoSink
+participant VideoSinkWrapper
+end box
+
+box "VideoDecoder"
+participant VideoBroadcaster
+participant webrtcVideoReceiveStream
+participant IncomingVideoStream
+participant VideoStreamDecoder
+participant VCMDecodedFrameCallback
+participant VideoDecoderCallback
+participant AndroidVideoDecoder
+participant VideoDecoderWrapper
+participant VideoDecoderSoftwareFallbackWrapper
+participant VCMGenericDecoder
+end box
+
+box "VideoReceiver"
+participant VideoReceiver2
+participant VideoReceiveStream
+participant FrameBuffer
+end box
+
+box "RTPReceiver"
+participant RtpVideoStreamReceiver
+participant RtpStreamReceiverController
+participant RtpDemuxer
+end box
+
+box "Transceiver"
+participant webrtcCall
+participant internalCall
+participant Transport
+participant MediaChannel
+participant WebRtcVideoChannel
+participant NetworkInterface
+participant BaseChannel
+participant VideoChannel
+participant RtpTransportInternal
+participant RtpTransport
+participant SrtpTransport
+participant DtlsSrtpTransport
+end box
+
+box "DTLS"
+participant webrtcDtlsTransport
+participant PacketTransportInternal
+participant P2PTransportChannel
+participant ProxyConnection
+participant UDPPort
+participant SignalReadEvent
+participant AsyncUDPSocket
+participant PhysicalSocket
+end box
+
+== Receive RTP ==
+
+AsyncUDPSocket -> PhysicalSocket : OnReadEvent()
+activate PhysicalSocket
+PhysicalSocket -> PhysicalSocket : RecvFrom()
+PhysicalSocket -> AsyncUDPSocket : recvfrom()
+deactivate PhysicalSocket
+
+AsyncUDPSocket -> SignalReadEvent : OnReadEvent()
+SignalReadEvent -> UDPPort : HandleIncomingPacket()
+UDPPort -> ProxyConnection : OnReadPacket()
+ProxyConnection -> P2PTransportChannel : OnReadPacket()
+P2PTransportChannel -> PacketTransportInternal : OnReadPacket()
+PacketTransportInternal -> webrtcDtlsTransport : OnReadPacket()
+webrtcDtlsTransport -> RtpTransportInternal : OnReadPacket()
+RtpTransportInternal -> RtpTransport : OnReadPacket()
+RtpTransport -> SrtpTransport : OnRtpPacketReceived()
+SrtpTransport -> DtlsSrtpTransport : OnRtpPacketReceived()
+DtlsSrtpTransport -> RtpDemuxer : OnRtpPacket()
+
+== Receive Video ==
+
+RtpDemuxer -> NetworkInterface : OnRtpPacket()
+NetworkInterface -> BaseChannel : OnPacketReceived()
+BaseChannel -> VideoChannel : OnPacketReceived()
+VideoChannel -> Transport : OnPacketReceived()
+Transport -> MediaChannel : OnPacketReceived()
+MediaChannel -> WebRtcVideoChannel : OnPacketReceived()
+WebRtcVideoChannel -> webrtcCall : DeliverPacket()
+webrtcCall -> internalCall : DeliverPacket()
+internalCall -> RtpStreamReceiverController : OnRtpPacket()
+RtpStreamReceiverController -> RtpVideoStreamReceiver : OnRtpPacket()
+RtpVideoStreamReceiver -> RtpVideoStreamReceiver : ReceivePacket()
+RtpVideoStreamReceiver -> RtpVideoStreamReceiver : OnReceivedPayloadData()
+RtpVideoStreamReceiver -> RtpVideoStreamReceiver : OnAssembledFrame()
+RtpVideoStreamReceiver -> VideoReceiveStream : OnInsertedPacket()
+VideoReceiveStream -> FrameBuffer : InsertFrame()
+FrameBuffer -> VideoReceiveStream : OnCompleteFrame()
+
+== RESUME ==
+
+VideoReceiveStream -> VideoReceiver2 : HandleEncodedFrame()
+VideoReceiver2 -> VCMGenericDecoder : Decode()
+VCMGenericDecoder -> VideoDecoderSoftwareFallbackWrapper : Decode()
+VideoDecoderSoftwareFallbackWrapper -> VideoDecoderWrapper : Decode()
+VideoDecoderWrapper -> AndroidVideoDecoder : Decode()
+AndroidVideoDecoder -> VideoDecoderCallback : OnDecodedFrame()
+VideoDecoderCallback -> VCMDecodedFrameCallback : Decoded()
+VCMDecodedFrameCallback -> VideoStreamDecoder : FrameToRender()
+VideoStreamDecoder -> IncomingVideoStream : OnFrame()
+IncomingVideoStream -> IncomingVideoStream : Dequeue()
+IncomingVideoStream -> webrtcVideoReceiveStream : OnFrame()
+webrtcVideoReceiveStream -> VideoBroadcaster : OnFrame()
+VideoBroadcaster -> VideoSinkWrapper : OnFrame()
+VideoSinkWrapper -> ProxyVideoSink : OnFrame()
+ProxyVideoSink -> SurfaceViewRenderer : OnFrame()
+
+@enduml
+```

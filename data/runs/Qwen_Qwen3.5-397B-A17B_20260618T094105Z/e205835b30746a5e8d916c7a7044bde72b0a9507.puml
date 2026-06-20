@@ -1,0 +1,35 @@
+@startuml
+actor User
+participant "SearchWindowUI" as SearchWindowUI
+participant "SearchOnAnotherInstanceController" as SearchOnAnotherInstanceController
+participant NetworkFactory
+participant UDP_ClientImpl1 as UDPClientImpl_03 {
+    participant Thread
+}
+participant TCP_ClientImpl2 as TCPClientImpl_03 {
+    participant SpreadCheetah
+}
+participant UDPCientImpI_04 as UDPClientImpl_05
+participant TCPClentlmpl_06 as TCPClientImpl_07
+participant SearchWindowController
+
+User ->> SearchWindowUI : start searching instances
+activate SearchWindowUI
+SearchWindowUI->>+SearchOnAnotherInstanceController:create(address) 
+note right of SearchOnAnotherInstanceController: Obj = getUDPClientImpl(availableInstances)\ncreate()\ngetInfo(destination)\nclose() 
+
+group create(obj);\njoin(); getInfo(dest);\nclose() #LightBlue;Text:black;line:green;text align center  
+  alt available instance found? then   
+     loop while not finished do    
+       par parallel execution      
+         rect rgb(200, 89 ,12 )#FFCCBB       
+           note left:this is colored          
+             thread.start(new Runnable(){public void run(){try{Thread.sleep((long)(Math.random()*1E+D));System.out.println("Hello from "+getName());}}});        
+          end         
+        else sequential part here           
+      End Parallel Block Here!!!!!              
+   END LOOP OVER ALL THREADS TO BE STARTED AT ONCE !!!!!!!!                
+else NO AVAILABLE INSTANCE FOUND SO CREATE NEW ONE INSTEAD !!!     
+end group closing bracket for this whole block above which includes both alternatives together under same parent node i.e., either/or condition check first before proceeding further down path depending upon outcome/result obtained during evaluation phase itself! So now we have two separate branches emerging out based on whether any existing server was detected earlier step one already completed successfully without errors occurring anywhere along way so far thus making sense logically speaking anyway...  
+
+@enduml

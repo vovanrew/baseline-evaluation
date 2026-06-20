@@ -1,0 +1,118 @@
+```plantuml
+@startuml
+
+actor user
+
+participant InpsectionSheetForm
+participant EquipmentForm
+participant InpsectionItemForm
+participant InpsectionItemDialog
+participant InspectionSheetContext
+participant InspectionItemContext
+
+== Add New Equipment ==
+
+user -> InpsectionSheetForm : 点検機器追加ボタンをクリック
+InpsectionSheetForm -> EquipmentForm : 点検機器追加
+EquipmentForm --> InpsectionSheetForm : 点検シート情報
+InpsectionSheetForm -> InpsectionSheetForm : 描画処理
+InpsectionSheetForm -> EquipmentForm : 描画処理
+EquipmentForm -> EquipmentForm : 表示結果
+EquipmentForm --> InpsectionSheetForm : 表示結果
+InpsectionSheetForm --> user : 更新後の表示結果
+
+== Remove Equipment ==
+
+user -> InpsectionSheetForm : 点検機器削除ボタンをクリック
+InpsectionSheetForm -> EquipmentForm : 点検機器削除
+EquipmentForm --> InpsectionSheetForm : 点検シート情報
+InpsectionSheetForm -> InpsectionSheetForm : 描画処理
+InpsectionSheetForm -> EquipmentForm : 描画処理
+EquipmentForm -> EquipmentForm : 表示結果
+EquipmentForm --> InpsectionSheetForm : 表示結果
+InpsectionSheetForm --> user : 更新後の表示結果
+
+== Update Equipment ==
+
+user -> EquipmentForm : 点検機器情報編集
+EquipmentForm -> InspectionSheetContext : 点検機器情報編集
+InspectionSheetContext --> EquipmentForm : 点検シート情報
+EquipmentForm -> EquipmentForm : 描画処理
+EquipmentForm -> InpsectionSheetForm : 描画処理
+InpsectionSheetForm -> InpsectionSheetForm : 表示結果
+InpsectionSheetForm --> EquipmentForm : 表示結果
+EquipmentForm --> user : 更新後の表示結果
+
+== Add Insepction Item ==
+
+user -> InpsectionSheetForm : 点検項目追加ボタンをクリック
+InpsectionSheetForm -> InpsectionItemForm : 追加モードに設定
+InpsectionItemForm --> InpsectionSheetForm : 
+InpsectionSheetForm -> InpsectionItemForm : 新規点検項目を設定
+InpsectionSheetForm -> InpsectionItemDialog : 点検項目ダイアログを開く
+InpsectionItemDialog --> user : 点検項目ダイアロ表示
+user -> InpsectionItemDialog : 点検項目編集
+InpsectionItemDialog -> InspectionItemContext : 点検項目編集
+InspectionItemContext --> InpsectionItemDialog : 点検項目情報
+
+alt [編集を適応する場合]
+  user -> InpsectionItemDialog : OKボタンをクリック
+  InpsectionItemDialog -> InspectionItemContext : 点検項目情報を取得
+  InspectionItemContext --> InpsectionItemDialog : 点検項目情報
+  InpsectionItemDialog -> InspectionItemContext : 点検項目を追加
+  InpsectionItemDialog -> InpsectionItemDialog : 点検項目ダイアログを閉じる
+  InpsectionItemDialog --> InpsectionSheetForm : 点検シート情報
+  InpsectionSheetForm -> InpsectionSheetForm : 描画処理
+  InpsectionSheetForm -> InpsectionItemForm : 描画処理
+  InpsectionItemForm -> InpsectionItemForm : 表示結果
+  InpsectionItemForm --> InpsectionSheetForm : 表示結果
+  InpsectionSheetForm --> user : 更新後の表示結果
+else [編集を適応しない場合]
+  user -> InpsectionItemDialog : キャンセルボタンをクリック
+  InpsectionItemDialog -> InpsectionItemDialog : 点検項目ダイアログを閉じる
+end
+
+== Remove Insepction Item ==
+
+user -> InpsectionItemForm : 点検項目削除ボタンをクリック
+InpsectionItemForm -> InspectionItemContext : 点検項目削除
+InspectionItemContext --> InpsectionItemForm : 点検シート情報
+InpsectionItemForm -> InpsectionItemForm : 描画処理
+InpsectionItemForm -> InpsectionSheetForm : 描画処理
+InpsectionSheetForm -> InpsectionSheetForm : 表示結果
+InpsectionSheetForm --> InpsectionItemForm : 表示結果
+InpsectionItemForm --> user : 更新後の表示結果
+
+== Edit Insepction Item ==
+
+user -> InpsectionItemForm : 点検項目編集ボタンをクリック
+InpsectionItemForm -> InpsectionItemForm : 更新モードに設定
+InpsectionItemForm -> InspectionItemContext : 点検項目情報を取得
+InspectionItemContext --> InpsectionItemForm : 点検項目情報
+InpsectionItemForm -> InpsectionItemForm : 新規点検項目を設定
+InpsectionItemForm -> InpsectionItemDialog : 点検項目ダイアログを開く
+InpsectionItemDialog --> user : 点検項目ダイアロ表示
+user -> InpsectionItemDialog : 点検項目編集
+InpsectionItemDialog -> InspectionItemContext : 点検項目編集
+InspectionItemContext --> InpsectionItemDialog : 点検項目情報
+InpsectionItemDialog --> user : 更新後の表示結果
+
+alt [編集を適応する場合]
+  user -> InpsectionItemDialog : OKボタンをクリック
+  InpsectionItemDialog -> InspectionItemContext : 点検項目情報を取得
+  InspectionItemContext --> InpsectionItemDialog : 点検項目情報
+  InpsectionItemDialog -> InspectionItemContext : 点検項目を追加
+  InpsectionItemDialog -> InpsectionItemDialog : 点検項目ダイアログを閉じる
+  InpsectionItemDialog --> InpsectionSheetForm : 点検シート情報
+  InpsectionSheetForm -> InpsectionSheetForm : 描画処理
+  InpsectionSheetForm -> InpsectionItemForm : 描画処理
+  InpsectionItemForm -> InpsectionItemForm : 表示結果
+  InpsectionItemForm --> InpsectionSheetForm : 表示結果
+  InpsectionSheetForm --> user : 更新後の表示結果
+else [編集を適応しない場合]
+  user -> InpsectionItemDialog : キャンセルボタンをクリック
+  InpsectionItemDialog -> InpsectionItemDialog : 点検項目ダイアログを閉じる
+end
+
+@enduml
+```

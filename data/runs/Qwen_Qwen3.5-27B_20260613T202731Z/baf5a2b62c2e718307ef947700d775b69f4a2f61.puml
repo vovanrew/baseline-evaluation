@@ -1,0 +1,169 @@
+```plantuml
+@startuml
+namespace com {
+  namespace mercedesbenz {
+    namespace sechub {
+      namespace domain {
+        namespace scan {
+          namespace project {
+            class FalsePositiveJobDataService {
+              <<C>>
+              + ScanReportRepository : scanReportRepository
+              + ScanProjectConfigService : configService
+              + FalsePositiveJobDataListValidation : falsePositiveJobDataListValidation
+              + FalsePositiveJobDataConfigMerger : merger
+            }
+
+            class ScanProjectConfigService {
+              <<C>>
+              + ScanProjectConfigRepository : repository
+            }
+
+            class ScanProjectConfig {
+              <<C>>
+            }
+
+            class ScanProjectConfigRepository {
+              <<C>>
+            }
+
+            class FalsePositiveJobDataList {
+              <<C>>
+              - String : apiVersion
+              - String : type
+              - FalsePositiveJobData : jobData
+            }
+
+            class FalsePositiveJobData {
+              <<C>>
+              - UUID : jobUUID
+              - String : comment
+            }
+
+            class FalsePositiveCodePartMetaData {
+              <<C>>
+              - String : location
+              - String : relevantPart
+              - String : sourceCode
+            }
+
+            class FalsePositiveCodeMetaData {
+              <<C>>
+              - FalsePositiveCodePartMetaData : start
+              - FalsePositiveCodePartMetaData : end
+            }
+
+            class FalsePositiveWebRequestMetaData {
+              <<C>>
+              - String : method
+              - String : target
+              - String : protocol
+              - String : version
+              - String : attackVector
+            }
+
+            class FalsePositiveWebResponseMetaData {
+              <<C>>
+              - String : evidence
+              - int : statusCode
+            }
+
+            class FalsePositiveWebMetaData {
+              <<C>>
+              - FalsePositiveWebRequestMetaData : request
+              - FalsePositiveWebResponseMetaData : response
+            }
+
+            class FalsePositiveEntry {
+              <<C>>
+              - FalsePositiveJobData : jobData
+              - String : author
+              - FalsePositiveMetaData : metaData
+              - Date : created
+            }
+
+            class FalsePositiveMetaData {
+              <<C>>
+              - ScanType : scanType
+              - String : name
+              - Severity : severity
+              - FalsePositiveCodeMetaData : code
+              - FalsePositiveWebMetaData : web
+              - Integer : cveId
+              - String : cveId
+              - String : owasp
+            }
+
+            class FalsePositiveJobDataConfigMerger {
+              <<C>>
+            }
+
+            class FalsePositiveProjectConfiguration {
+              <<C>>
+              - List<FalsePositiveEntry> : falsePositives
+            }
+
+            class FalsePositiveJobDataListValidation {
+              <<C>>
+            }
+
+            FalsePositiveJobDataService --> ScanProjectConfigService
+            FalsePositiveJobDataService --> FalsePositiveJobDataListValidation
+            FalsePositiveJobDataService --> FalsePositiveJobDataConfigMerger
+            ScanProjectConfigService --> ScanProjectConfigRepository
+            ScanProjectConfigService --> ScanProjectConfig
+            FalsePositiveJobDataList ..> FalsePositiveJobData
+            FalsePositiveJobData ..> FalsePositiveCodeMetaData
+            FalsePositiveCodeMetaData --> FalsePositiveCodePartMetaData
+            FalsePositiveWebMetaData --> FalsePositiveWebRequestMetaData
+            FalsePositiveWebMetaData --> FalsePositiveWebResponseMetaData
+            FalsePositiveEntry --> FalsePositiveJobData
+            FalsePositiveEntry --> FalsePositiveMetaData
+            FalsePositiveMetaData --> FalsePositiveCodeMetaData
+            FalsePositiveMetaData --> FalsePositiveWebMetaData
+            FalsePositiveJobDataConfigMerger ..> FalsePositiveProjectConfiguration
+            FalsePositiveProjectConfiguration --> FalsePositiveEntry
+            FalsePositiveJobDataListValidation ..> FalsePositiveJobDataList
+          }
+          namespace report {
+            class ScanSecHubReport {
+              <<C>>
+            }
+
+            class ScanReportRepository {
+              <<C>>
+            }
+
+            ScanSecHubReport ..> ScanReportRepository
+          }
+        }
+      }
+    }
+    namespace commons {
+      namespace model {
+        class Severity {
+          <<C>>
+        }
+
+        class ScanType {
+          <<C>>
+        }
+
+        class SecHubCodeCallStack {
+          <<C>>
+        }
+
+        class SecHubFinding {
+          <<C>>
+        }
+
+        FalsePositiveMetaData ..> Severity
+        FalsePositiveMetaData ..> ScanType
+        FalsePositiveMetaData ..> SecHubCodeCallStack
+        FalsePositiveMetaData ..> SecHubFinding
+      }
+    }
+  }
+}
+@enduml
+```

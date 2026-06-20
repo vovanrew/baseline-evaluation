@@ -1,0 +1,43 @@
+@startuml
+actor "laboratory coordinator" as labCoord
+
+participant ":LabCoordinatorUI" as LabUI
+participant ":ValidateTestReportController" as Controller
+participant ":Company" as Company
+participant "rp : TestStore" as TestStore
+participant "rp : Test" as Test
+participant "rp : TestReportStore" as TestReportStore
+participant "rp : TestReport" as TestReport
+participant ":TestDiagnosis" as TestDiagnosis
+
+labCoord -> LabUI : 1 asks to validate report and diagnosis
+LabUI -> Controller : 2 createTestList()
+Controller -> Company : 3 get = testReportsToValidate()
+Company -> TestStore : 4 get = testReportsToValidate()
+TestStore -> Test : 5 get = getTestList()
+Company -> TestReportStore : 6 get = testReportsToValidate()
+TestReportStore -> TestReport : 7 get = getTestReportList()
+TestReport -> TestDiagnosis : 8 get = getTestDiagnosis()
+
+ref over Controller, LabUI : US15_SD_testReportsDTO.puml
+
+Controller -> LabUI : 9
+
+LabUI --> labCoord : 10 shows the available test reports and diagnosis and requests selection
+labCoord -> LabUI : 11 chooses all tests
+
+LabUI --> labCoord : 12 asks for confirmation
+labCoord -> LabUI : 13 confirms selection
+
+LabUI -> Controller : 14 validateAllTestReport()
+
+loop
+    Controller -> TestStore : 15 validateTestReport(testId);
+    TestStore -> Test : 16 setState(VALIDATED);
+    Controller -> TestStore : 17 registerValidationDate(date);
+    TestStore -> Test : 18 setValidationDate(date);
+end
+
+LabUI --> labCoord : 19 informs operation success
+
+@enduml

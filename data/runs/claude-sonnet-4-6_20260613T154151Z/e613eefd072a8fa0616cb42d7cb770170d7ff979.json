@@ -1,0 +1,21 @@
+{
+  "id": "msg_01HH6TSqRQAQwrSGAtPMRaqQ",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceMessageAlign left\nskinparam backgroundColor white\n\nbox \"BL1 common code\" #LightGray\nparticipant \"bl1_main\" as bl1_main\nparticipant \"bl_common\" as bl_common\nend box\n\nbox \"arm platform code\" #LightBlue\nparticipant \"fvp_bl1_setup\" as fvp\nparticipant \"arm_bl1_setup\" as arm_bl1\nparticipant \"arm_io_storage\" as arm_io\nend box\n\nbox \"platform common code\" #LightGray\nparticipant \"plat_bl1_common\" as plat_bl1\nparticipant \"fconf\" as fconf\nend box\n\nbl1_main -> fvp : bl1_platform_setup()\nfvp -> arm_bl1 : arm_bl1_platform_setup()\narm_bl1 -> arm_io : plat_arm_io_setup()\nnote right of arm_io : register and setup fip\narm_bl1 -> fconf : fconf_load_config()\nnote right of fconf : create and populate an\\nimage_desc_t for FW_CONFIG\n\narm_bl1 -> bl1_main : load_auth_image(FW_CONFIG_ID, &image_info)\nnote left of bl1_main : load and auth image from fip\\nwith info from plat_io_policy\n\nbl1_main -> arm_io : \narm_io -> fconf : FCONF_GET_PROPERTY(arm, arm_io_policies, tb_fw_cfg)\nnote right of fconf : use staticaly defined policies in bl1\n\nbl1_main -> fconf : image_info\nnote right of fconf : get tb_fw_config_dtb from image_info\n\nfconf -> plat_bl1 : bl1_plat_get_image_desc(BL2_IMAGE_ID)\nplat_bl1 -> fconf : BL2_IMAGE_DESC\nnote right of fconf : set ep_info.args.arg0 of BL2_IMAGE_DESC\\nto FW_CONFIG base address\n\nfconf -> fvp : \n\nnote over bl1_main, fconf #white : **load & auth, prepare and jump to BL2**\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781372200,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 544,
+    "prompt_tokens": 1646,
+    "total_tokens": 2190
+  }
+}

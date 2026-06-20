@@ -1,0 +1,58 @@
+@startuml
+skinparam sequenceMessageAlign center
+autonumber "<b>[0]"
+
+participant "main" as main #LightBlue2
+participant "bkup.BackupFacade\n(Backup Facade)" as bkufacade #LavenderBlush1
+participant "srcrepo.SourceRepository\n(Source Repository)" as srcrepo #PaleGreen3
+participant "dstrepo.DestinationRepository\n(Dest Repo)" as dstrepo #PeachPuff4
+participant "metarepo.MetadataRepository\n(Metadata Repos.)" as metarepos #Plum2
+participant "scanner.AllFileScanner\n(File Scanner)" as scanner #Skyblue1
+database FileSystem #Azure5 { }
+database SQLite3 #Cornsilk6 { }
+
+
+== Get all files ==
+activate bkufacade 
+    activate scanner
+    
+        note over filesystem : Scan file system
+        
+            scanner ->> FileSystem: get_all_files()
+            
+                return
+            
+        
+        deactivate scanner 
+        
+    
+return  -->> bkufacade   :all_files 
+
+deactivate bkufacade 
+
+
+== Cleanup of metadata corresponding to already deleted files ==
+note right of srcfiles : Remove uncontained keys from Metadata repository
+activate bkufacade 
+    
+    loop until generator finishes [until the generator finishes]
+       
+       alt if key not in source repo then remove it from meta data repos.  
+           delete --> sqlite3   
+           
+               yield removed_metadata <color:red><<Return value discarded></color>:dashedline-> bkufacade     
+               
+       end
+      
+     end
+     
+     
+    
+    
+    
+
+end
+
+
+
+@enduml

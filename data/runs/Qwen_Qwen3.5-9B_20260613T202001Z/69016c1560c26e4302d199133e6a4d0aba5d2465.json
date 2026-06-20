@@ -1,0 +1,22 @@
+{
+  "id": "ad075d48-8177-4560-8154-72360b2198fc",
+  "object": "chat.completion",
+  "created": 1781396877,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nskinparam packageStyle rectangle\nskinparam class {\n  BackgroundColor White\n  ArrowColor Black\n  BorderColor Black\n  FontColor Black\n}\n\nclass \"Airport\" as Airport {\n  <<Thread>>\n  list<Runway> lst_runways\n  list<AirportOperation> lst_operations\n  bool permission_to_take_off(Airplane)\n  bool permission_to_land(Airplane)\n  void start_thread()\n}\n\nclass \"AirportOperation\" as AirportOperation {\n  Runway run_way\n  Airplane airplane\n  uint32_t time_request\n  uint32_t time_last_update\n  EnumAirportOperation operation_state\n  void free_runway()\n}\n\nclass \"Runway\" as Runway {\n  uint32_t id\n  RunwayState state\n}\n\nclass \"Airplane\" as Airplane {\n  <<Thread>>\n  uint32_t id\n  uint32_t fuel\n  uint32_t fuel_consumption_rate\n  uint32_t airport_answer_timeout\n  AirplaneState state\n  void start_thread()\n  void take_off_authorized()\n  void take_off_denied()\n  void land_authorized()\n  void land_denied()\n}\n\nclass \"EnumAirportOperation\" as EnumAirportOperation {\n  E\n  WaitingToTakeOff\n  AuthorizedToTakeOff\n  WaitingToLand\n  AuthorizedToLand\n}\n\nclass \"AirplaneState\" as AirplaneState {\n  E\n  Stopped\n  AskingPermissionToTakeOff\n  TakingOff\n  Flying\n  AskingPermissionToLand\n  Landing\n  Crashed\n}\n\nclass \"RunwayState\" as RunwayState {\n  E\n  Free\n  InUse\n}\n\nnote right of Airport\n  Iterate through lst_operations\n  if it matches the criteria that airplane is already flying\n  release runway\n  update airplane status and related info\n  order lst_operations to update next events\nend note\n\nAirport --|> AirportOperation : composition\nAirportOperation --|> Runway : composition\nAirportOperation --|> Airplane : composition\nAirportOperation --* EnumAirportOperation : composition\nAirplane --* AirplaneState : composition\nRunway --* RunwayState : composition\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2350,
+    "completion_tokens": 494,
+    "total_tokens": 2844
+  }
+}

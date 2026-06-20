@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+actor Client
+participant "RegisterClientUI" as UI
+participant "RegisterClientController" as Controller
+participant "ApplicationPOT" as AppPOT
+participant "app/ApplicationPOT" as AppPOT2
+participant "EncryptPassword" as Encrypt
+participant "EmailSender" as Email
+participant "DataHandler" as Data
+
+UI -> Client: 1 Engages the register feature/button
+Client --> UI: 2 Asks for all the information required\nfor the register (i.e. name,nif,email,password,latitude,longitude,altitude,\nstreetName,doorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+UI -> Client: 3 Fills all the information required
+Client --> UI: 4 Presents the data and asks for a confirmation
+UI -> Client: 5 Confirms
+
+UI -> AppPOT: 6 RegisterNewClient(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+AppPOT -> clientService:ClientService: 7 create()
+clientService:ClientService -> clientDB:ClientDB: 8 create()
+AppPOT -> AppPOT2: 9 validateInput(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+
+alt (if all the information given as input has a valid format)
+  AppPOT -> client:Client: 10 newClient(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+  client:Client -> user:User: 12 create(email,password,nif,name)
+  user:User -> Encrypt: 13 encryptPassword(MDS(password))
+  client:Client -> Address: 14 create(latitude,longitude,altitude,streetName,doorNumber,postalCode,locality,country)
+  client:Client -> CreditCard: 15 create(creditCardNr,validityDate,CCV)
+  AppPOT -> AppPOT2: 16 registerNewClient(client)
+  AppPOT2 -> Data: 17 addClientToDB(client)
+  Data --> AppPOT2: ref\nDB_CONNECTIONS
+  AppPOT2 -> Email: 18 sendEmail(email,subject,body)
+  Email --> AppPOT2:
+  AppPOT2 --> UI: 19 Validates and informs about the success of the operation
+else (if any information does not have a valid format)
+  AppPOT2 --> UI: 20 Informs the User that the operation\nwas not successful
+end
+
+@enduml

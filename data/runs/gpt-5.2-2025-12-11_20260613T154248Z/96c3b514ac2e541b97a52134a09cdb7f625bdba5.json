@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLoJSeLwBBUdeVbl4VWfXXggpZUP",
+  "object": "chat.completion",
+  "created": 1781369267,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #000000\n  LifeLineBorderColor #888888\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #888888\n  ParticipantBackgroundColor #E9E9F2\n  ActorBorderColor #888888\n  ActorBackgroundColor #FFFFFF\n}\n\nactor User\nparticipant CellEditor\nparticipant Address\nparticipant Controller\nparticipant Cell\nparticipant CellImpl\nparticipant FormulaCompiler\nparticipant ExcelExpressionCompiler\nparticipant ANTLRStringStream\nparticipant FormulaLexer\nparticipant CommonTokenStream\nparticipant FormulaParser\nparticipant Expression\nparticipant Formula\n\nUser -> CellEditor : Inputs block of instructions\nactivate CellEditor\nCellEditor -> Address : address = getAddress()\nCellEditor -> Controller : cell = getCell(address)\nactivate Controller\nController -> Cell : setContent(content)\nactivate Cell\nCell -> CellImpl : setContent(content)\nactivate CellImpl\nCellImpl -> CellImpl : storeContent(content)\nCellImpl -> FormulaCompiler : compile(cell, content)\nactivate FormulaCompiler\nFormulaCompiler -> ExcelExpressionCompiler : compile(cell, content)\nactivate ExcelExpressionCompiler\n\nExcelExpressionCompiler -> ANTLRStringStream : input = create(source)\nactivate ANTLRStringStream\ndeactivate ANTLRStringStream\n\nExcelExpressionCompiler -> FormulaLexer : lexer = create(input)\nactivate FormulaLexer\ndeactivate FormulaLexer\n\nExcelExpressionCompiler -> CommonTokenStream : tokens = create(lexer)\nactivate CommonTokenStream\ndeactivate CommonTokenStream\n\nExcelExpressionCompiler -> FormulaParser : parser = create(tokens)\nactivate FormulaParser\nExcelExpressionCompiler -> FormulaParser : tree = parser.expression()\ndeactivate FormulaParser\n\nExcelExpressionCompiler -> Expression : create()\nactivate Expression\ndeactivate Expression\n\nExcelExpressionCompiler -> ExcelExpressionCompiler : expression = convert(cell, tree)\nExcelExpressionCompiler --> FormulaCompiler : expression\ndeactivate ExcelExpressionCompiler\n\nFormulaCompiler -> Formula : formula = create(cell, expression)\nactivate Formula\ndeactivate Formula\n\nFormulaCompiler --> CellImpl : formula\ndeactivate FormulaCompiler\n\nCellImpl -> Cell : show()\ndeactivate CellImpl\ndeactivate Cell\ndeactivate Controller\ndeactivate CellEditor\n\nUser <-- CellEditor : Result\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1261,
+    "completion_tokens": 460,
+    "total_tokens": 1721,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

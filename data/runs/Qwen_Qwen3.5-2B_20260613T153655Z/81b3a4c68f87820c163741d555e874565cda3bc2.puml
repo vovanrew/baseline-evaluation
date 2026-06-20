@@ -1,0 +1,35 @@
+@startuml
+skinparam sequenceDiagram
+
+participant web
+participant bff_web_api
+participant authorization_api
+participant k8s_redis
+
+web ->> bff_web_api: /api/v1/auth/token
+note over web, bff_web_api: Request header<br/>Content-Type: application/json<br/>Request body<br/>- auth_code: xxxxxxx
+
+bff_web_api -> web: validate request
+note over bff_web_api, web: Request header<br/>Content-Type: application/x-www-form-urlencoded<br/>Request body<br/>- auth_code<br/>note:<br/>- handler late limit (brute force attack)
+
+bff_web_api -> authorization_api: /api/v1/oauth/token
+note over bff_web_api, authorization_api: Access token:<br/>{<br/>  header:<br/>    - alg: rsa256<br/>    - typ: JWT<br/>  payload:<br/>    - iss<br/>    - jti<br/>    - user_id<br/>    - iat<br/>    - exp<br/>    - roles<br/>  signature<br/>}<br/>ttl: 300000 milliseconds (5 min)<br/>Key: user_id:xxxxx<br/>Redis object value:<br/>- access_token<br/>- refresh_token
+
+bff_web_api -> authorization_api: return
+note over bff_web_api, authorization_api: Response header<br/>Content-Type: application/json<br/>Response body<br/>- accessToken<br/>- RefreshToken
+
+authorization_api -> k8s_redis: check auth_code from k8s_redis
+k8s_redis -> authorization_api: return redis object
+note over k8s_redis: Key:<br/>- auth_code<br/>Redis object<br/>- user_id<br/>- scope
+
+authorization_api -> k8s_redis: put user session into k8s_redis
+k8s_redis -> authorization_api: save data
+
+authorization_api -> bff_web_api: generate JWT Token with private key
+bff_web_api -> authorization_api: return
+
+authorization_api -> web: return
+note over authorization_api, web: Response header<br/>Content-Type: application/json<br/>Response body<br/>- accessToken<br/>- RefreshToken
+
+k8s_redis..> authorization_api: validate request
+@enduml

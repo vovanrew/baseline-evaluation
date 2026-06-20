@@ -1,0 +1,58 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "User" as User
+participant "JobManager" as JobManager
+package "Process/Application" as Process {
+}
+package "ESDM" as ESDM {
+}
+participant "Post Processing" as PostProcessing
+database "Storage System" as Storage
+actor "Observer" as Observer
+
+== Observer ==
+activate Observer
+Observer -> Observer : collects observations
+deactivate Observer
+Observer -> Storage : (may write directly)
+Observer -> ESDM : write observation t
+activate ESDM
+ESDM -> ESDM : (transform for efficiency)
+ESDM -> Storage : write container for observation t
+deactivate ESDM
+
+== Simulation Runs ==
+activate JobManager
+JobManager -> JobManager : periodically submit job(IN=t, OUT)
+JobManager -> Process : allocates resources and calls
+deactivate JobManager
+activate Process
+Process -> ESDM : read IN=x
+activate ESDM
+ESDM -> Storage : read
+Storage --> ESDM : return
+deactivate ESDM
+ESDM --> Process : return
+Process -> Process : compute
+Process -> ESDM : write async OUT=y
+deactivate Process
+
+== Value-added products ==
+activate ESDM
+ESDM -> PostProcessing : make available
+activate PostProcessing
+PostProcessing -> PostProcessing : perform analysis
+PostProcessing -> Storage : (may write directly)
+PostProcessing --> ESDM : return result
+deactivate PostProcessing
+ESDM --> Process : return
+deactivate ESDM
+note right of Process: multiple iterations
+
+== Finalise ==
+Storage -> User : OUT files become visible
+
+@enduml
+```

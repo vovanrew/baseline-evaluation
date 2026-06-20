@@ -1,0 +1,43 @@
+```plantuml
+@startuml
+actor Client
+participant "Service1" as S1
+participant "Service2" as S2
+
+note right of S1: SessionFactory\none per node
+note right of S2: Session\none per request!
+
+rectangle "model check" {
+  Client -> S1 : register(Class<Pojo>)
+  activate S1
+  S1 -> S1 : checkModel
+  S1 -> S1 : createModelForPojo
+  
+  alt mode="create"
+    alt model exists
+      S1 --> S1 : throw exception
+    else
+      S1 -> S1 : createModelInDB
+    end
+  else mode="drop-create"
+    S1 -> S1 : dropModelInDB
+    S1 -> S1 : createModelInDB
+  else mode="update"
+    S1 -> S1 : getModelDeltaInDB
+    S1 -> S1 : updateModelInDB
+  else mode="none"
+    S1 -> S1 : checkModelInDB
+    alt model differs
+      S1 --> S1 : throw exception
+    end
+  end
+  deactivate S1
+}
+
+Client -> S2 : store(pojo)
+activate S2
+S2 -> S2 : getDelta(pojo)
+deactivate S2
+
+@enduml
+```

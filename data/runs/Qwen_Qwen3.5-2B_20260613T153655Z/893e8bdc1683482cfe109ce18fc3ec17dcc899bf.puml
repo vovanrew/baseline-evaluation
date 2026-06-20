@@ -1,0 +1,102 @@
+@startuml
+participant "user" as User
+participant "InspectionSheetForm" as ISForm
+participant "EquipmentForm" as EQForm
+participant "InspectionItemForm" as IItemForm
+participant "InspectionItemDialog" as IItemDialog
+participant "InspectionSheetContext" as ISContext
+participant "InspectionItemContext" as IItemContext
+
+subgraph "Main Interface"
+    ISForm
+    EQForm
+    IItemForm
+    IItemDialog
+endsubgraph
+
+subgraph "Contexts"
+    ISContext
+    IItemContext
+endsubgraph
+
+subgraph "Add New Equipment"
+    User --> ISForm : 点検機器追加ボタンをクリック
+    ISForm --> ISContext : 点検機器情報
+    ISContext --> ISContext : 画面処理
+    ISContext --> IItemContext : 画面処理
+    IItemContext --> IItemContext : 表示結果
+    IItemContext --> ISContext : 表示結果
+    ISContext --> ISForm : 更新後の表示結果
+endsubgraph
+
+subgraph "Remove Equipment"
+    User --> ISForm : 点検機器削除ボタンをクリック
+    ISForm --> ISContext : 点検機器情報
+    ISContext --> ISContext : 画面処理
+    ISContext --> IItemContext : 画面処理
+    IItemContext --> IItemContext : 表示結果
+    IItemContext --> ISContext : 表示結果
+    ISContext --> ISForm : 更新後の表示結果
+endsubgraph
+
+subgraph "Update Equipment"
+    User --> ISForm : 点検機器情報編集
+    ISForm --> ISContext : 点検機器情報編集
+    ISContext --> ISContext : 画面処理
+    ISContext --> IItemContext : 画面処理
+    IItemContext --> IItemContext : 表示結果
+    IItemContext --> ISContext : 表示結果
+    ISContext --> ISForm : 更新後の表示結果
+endsubgraph
+
+subgraph "Add Inspection Item"
+    User --> ISForm : 点検項目追加ボタンをクリック
+    ISForm --> IItemDialog : 追加モードを設定
+    IItemDialog --> IItemDialog : 新規点検項目を設定
+    IItemDialog --> IItemDialog : 点検項目ダイアログを開く
+    IItemDialog --> IItemContext : 点検項目編集
+    IItemContext --> IItemContext : 点検項目情報
+    IItemContext --> IItemDialog : 点検項目編集
+    IItemDialog --> IItemContext : 点検項目情報
+    IItemContext --> ISForm : 更新後の表示結果
+endsubgraph
+
+subgraph "Remove Inspection Item"
+    User --> ISForm : 点検項目削除ボタンをクリック
+    ISForm --> IItemContext : 点検項目削除
+    IItemContext --> IItemContext : 画面処理
+    IItemContext --> IItemContext : 表示結果
+    IItemContext --> ISForm : 更新後の表示結果
+endsubgraph
+
+subgraph "Edit Inspection Item"
+    User --> ISForm : 点検項目編集ボタンをクリック
+    ISForm --> IItemDialog : 更新モードを設定
+    IItemDialog --> IItemDialog : 点検項目情報を取得
+    IItemDialog --> IItemContext : 点検項目情報
+    IItemDialog --> IItemDialog : 新規点検項目を設定
+    IItemDialog --> IItemDialog : 点検項目ダイアログを開く
+    IItemDialog --> IItemContext : 点検項目編集
+    IItemContext --> IItemContext : 点検項目情報
+    IItemContext --> IItemDialog : 点検項目情報
+    IItemDialog --> IItemContext : 点検項目情報
+    IItemContext --> ISForm : 更新後の表示結果
+endsubgraph
+
+subgraph "Alt: 編集を適応しない場合"
+    alt OKボタンをクリック
+        ISForm --> IItemDialog : 点検項目情報を取得
+        IItemDialog --> IItemDialog : 点検項目情報
+        IItemDialog --> IItemDialog : 点検項目を追加
+        IItemDialog --> IItemDialog : 点検項目ダイアログを開く
+        IItemDialog --> IItemContext : 点検項目ダイアログを開く
+        IItemContext --> IItemContext : 画面処理
+        IItemContext --> IItemContext : 表示結果
+        IItemContext --> ISForm : 更新後の表示結果
+        IItemContext --> ISForm : キャンセルボタンをクリック
+    else 編集を適応しない場合
+        ISForm --> IItemDialog : キャンセルボタンをクリック
+    end
+endsubgraph
+
+@enduml

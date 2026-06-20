@@ -1,0 +1,41 @@
+```plantuml
+@startuml
+
+participant "AddressPanel : JPanel" as AP
+participant "ContactsController" as CC
+participant "addressFrame: JFrame" as AF
+participant "Persistence" as P
+participant "RepositoryFactory" as RF
+participant "ContactsRepository" as CR
+participant "BufferedReader" as BR
+participant "FileReader" as FR
+
+note over AP
+double clicks on
+the contact to open a window
+end note
+
+AP -> AF : new (contact)
+activate AF
+
+AF --> CC : tmp = validatePostalCode(postalCode)
+
+AF -> FR : create()
+activate FR
+
+FR -> FR : create(file_name)
+
+loop while there are lines to read
+    AF -> BR : readLine()
+end
+
+alt tmp == true
+    AF -> CC : updateAddress(contact, main_address, secundary_address)
+    AF -> RF : getRepositoryFactory()
+    RF -> RF : newInstance()
+    AF -> RF : getContactsRepository()
+    AF -> CR : update(contact)
+end
+
+@enduml
+```

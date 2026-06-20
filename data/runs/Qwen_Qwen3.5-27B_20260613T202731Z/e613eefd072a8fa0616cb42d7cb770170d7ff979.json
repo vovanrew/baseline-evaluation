@@ -1,0 +1,22 @@
+{
+  "id": "78fe482b-9189-4495-a93d-624c161d41aa",
+  "object": "chat.completion",
+  "created": 1781494335,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam componentStyle rectangle\n\npackage \"BL1 common code\" {\n    component \"bl1_main\" as bl1_main\n    component \"bl_common\" as bl_common\n}\n\npackage \"arm platform code\" {\n    component \"fvp_bl1_setup\" as fvp_bl1_setup\n    component \"arm_bl1_setup\" as arm_bl1_setup\n    component \"arm_io_storage\" as arm_io_storage\n}\n\npackage \"platform common code\" {\n    component \"plat_bl1_common\" as plat_bl1_common\n    component \"fconf\" as fconf\n}\n\nbl1_main -> fvp_bl1_setup : bl1_platform_setup()\nactivate fvp_bl1_setup\nfvp_bl1_setup -> arm_bl1_setup : arm_bl1_platform_setup()\nactivate arm_bl1_setup\narm_bl1_setup -> arm_io_storage : plat_arm_io_setup()\nactivate arm_io_storage\nnote right of arm_io_storage: register and setup fip\narm_io_storage -> fconf : fconf_load_config()\nactivate fconf\nnote right of fconf: create and populate an\\nimage_desc_t for FW_CONFIG\nfconf --> bl_common : load_auth_image(FW_CONFIG_ID, &image_info)\ndeactivate fconf\nnote left of bl_common: load and auth image from fip\\nwith info from plat_io_policy\nbl_common -> arm_io_storage : FCONF_GET_PROPERTY(arm, arm_io_policies, tb_fw_cfg)\nnote right of arm_io_storage: use statically defined policies in bl1\narm_io_storage --> bl_common : image_info\ndeactivate arm_io_storage\ndeactivate arm_bl1_setup\ndeactivate fvp_bl1_setup\n\nbl_common -> plat_bl1_common : get tb_fw_config_dtb from image_info\nactivate plat_bl1_common\nplat_bl1_common -> fconf : bl1_plat_get_image_desc(BL2_IMAGE_ID)\nactivate fconf\nfconf --> plat_bl1_common : BL2_IMAGE_DESC\nnote right of fconf: set ep_info.args.arg0 of BL2_IMAGE_DESC\\nto FW_CONFIG base address\ndeactivate fconf\ndeactivate plat_bl1_common\n\nnote bottom: load & auth, prepare and jump to BL2\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1566,
+    "completion_tokens": 482,
+    "total_tokens": 2048
+  }
+}

@@ -1,0 +1,28 @@
+@startuml
+
+interface IVersionedMonoBehaviourInternal {
+  UpgradeFromUnityThread() : void
+}
+
+class MonoBehaviour {
+}
+
+class ISerializationCallbackReceiver {
+}
+
+abstract class VersionedMonoBehaviour {
+  version : int = 0
+  --
+  {method} ◇ «virtual» Awake() : void
+  {method} ◇ «virtual» Reset() : void
+  OnBeforeSerialize() : void
+  OnAfterDeserialize() : void
+  {method} ◇ «virtual» OnUpgradeSerializedData(version:int, unityThread:bool) : int
+  UpgradeFromUnityThread() : void
+}
+
+IVersionedMonoBehaviourInternal <|.. VersionedMonoBehaviour
+MonoBehaviour <|-- VersionedMonoBehaviour
+ISerializationCallbackReceiver <|.. VersionedMonoBehaviour
+
+@enduml

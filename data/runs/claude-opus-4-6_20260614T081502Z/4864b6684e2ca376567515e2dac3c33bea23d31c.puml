@@ -1,0 +1,54 @@
+```plantuml
+@startuml
+title int PI::calculate(double measured, double resultBuffer)
+
+participant "Aktuatorenhed" as A
+participant "PI" as PI
+
+A -> PI : calculate(measured, resultBuffer)
+
+PI -> PI : error = _setpoint – measured
+
+PI -> PI : integral = (_Ts/2)*(error+_preError)+_preIntegral
+note right : udregning af\nintegrale
+
+PI -> PI : maxIntegral = (100*_Ti)/_Kp
+note right : Anti-Windup
+
+alt [integral > maxIntegral]
+    PI -> PI : integral = maxIntegral
+else [integral < 0]
+    PI -> PI : integral = 0
+end
+
+PI -> PI : proportional = error
+note right : udregning af\nproportional
+
+PI -> PI : controlSignal = _Kp*(proportional+(1/_Ti)*integral)
+note right : udregning af\nstyresignal
+
+opt controlSignal < _minOut
+    PI -> PI : controlSignal = _minOut
+end
+note right : Max, Min afgrænsninger.\n0-100% dutycycle
+
+opt controlSignal > _maxOut
+    PI -> PI : controlSignal = _maxOut
+end
+
+PI -> PI : resultBuffer = controlSignal
+note right : return result
+
+PI -> PI : _preError = error\n_preIntegrale=integrale
+note right : Opdater hukommelse for\nerror og integral
+
+alt [controlSignal == _minOut]
+    PI --> A : return -1
+else [controlSignal == _maxOut]
+    PI --> A : return -2
+end
+
+PI --> A : return 0
+
+@enduml
+```

@@ -1,0 +1,60 @@
+@startuml
+!theme base
+
+class "CircuitParserFactory" as CircuitParserFactory {
+  + circuitParserNames: Set<String>
+  + CircuitParserFactory()
+  + getCircuitParser(name: String): ICircuitParser
+}
+
+class "ICircuitParser" as ICircuitParser {
+  + parse(cleanedTxtCircuit: String): CircuitDefinition
+}
+
+class "XMLCircuitParser" as XMLCircuitParser {
+  - nodes: Map<String, String>
+  - edges: Map<String, List<String>>
+  + parse(cleanedTxtCircuit): CircuitDefinition
+  + parseNodes(document: Document)
+  + parseEdges(document: Document)
+}
+
+class "ANTLRVisitor" as ANTLRVisitor {
+  - nodes: Map<String, String>
+  - edges: Map<String, List<String>>
+  + ANTLRVisitor()
+  + visit(tree: ParseTree)
+  + visitNodeDefinition(ctx: DP1CircuitParser.NodeDefinitionContext): CircuitDefinition
+  + visitEdgeDefinition(ctx: DP1CircuitParser.EdgeDefinitionContext): CircuitDefinition
+}
+
+class "DP1CircuitBaseVisitor" as DP1CircuitBaseVisitor {
+}
+
+class "CircuitDefinition" as CircuitDefinition {
+}
+
+class "ANTLRCircuitParser" as ANTLRCircuitParser {
+  + parse(cleantextCircuit): CircuitDefinition
+  - convertParseTreeToCircuitDefinition(parseTree: ParseTree): CircuitDefinition
+}
+
+class "ANTLRParserErrorListener" as ANTLRParserErrorListener {
+  - syntaxErrorsCount: int
+  + hasSyntaxErrors(): boolean
+  + syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e)
+}
+
+class "ANTLR4ErrorListener" as ANTLR4ErrorListener {
+  <<org.antlr.v4.runtime>>
+}
+
+CircuitParserFactory --> ICircuitParser : circuitParsers
+ICircuitParser <|-- XMLCircuitParser
+ICircuitParser <|-- ANTLRCircuitParser
+ANTLRVisitor --> CircuitDefinition : circuitDefinition
+ANTLRVisitor <|-- DP1CircuitBaseVisitor
+ANTLRVisitor <|-- ANTLR4ErrorListener
+ANTLRParserErrorListener ..|> ANTLR4ErrorListener
+
+@enduml

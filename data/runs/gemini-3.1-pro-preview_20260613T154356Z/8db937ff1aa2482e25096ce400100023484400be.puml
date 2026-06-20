@@ -1,0 +1,95 @@
+```plantuml
+@startuml
+title PB-428 UC12 View fund details
+
+legend top
+  **Abstract:**
+  This use case will return fund details for a single fund. This is an existing endpoint and we
+  will add additional response fields to this endpoint. They include:
+  1. FundCategory (new)
+  2. RequireFundTC (new)
+  3. RiskScore (existing field in table, but needs to be added in response)
+  4. IncomeValue (new)
+  5. IncomeDescription (new)
+  6. isNextSimples (new)
+end legend
+
+actor "Next Customer" as Customer
+
+box "Next Platform" #E0E0E0
+participant "Core Next" as CoreNext
+database "Next Database" as NextDB
+end box
+
+participant "Core Bradesco" as CoreBradesco
+
+autonumber
+Customer -> CoreNext: **HTTP**\nGET /investments/funds/completeDetails
+activate CoreNext
+
+note left of CoreNext
+  The App will make a call
+  to Core Next to get all the
+  details for a fund. It will
+  pass required input:
+  - Fund ID
+end note
+
+note left of CoreNext #FFA500
+  **Note to Dev**
+  Please check if the input
+  parameter Fund ID is the
+  Product ID or the External_
+  Core_Product_ID. From what
+  I can see, there are two
+  product records with the
+  same External_Core_Product_ID
+  (Next Simples) and this may
+  create issues.
+end note
+
+ref over CoreNext
+  Use existing methodology to get
+  complete details for a fund.
+end ref
+
+CoreNext -> NextDB: GET additional fields from Product table
+activate NextDB
+NextDB --> CoreNext: Response
+deactivate NextDB
+
+note right of CoreNext
+  Core Next will retrieve additional
+  data from the PRODUCT table and return
+  them to the App:
+  1. FundCategory (new)
+  2. RequireFundTC (new)
+  3. RiskScore (existing field in table,
+      but needs to be added in response)
+  4. IncomeValue (new)
+  5. IncomeDescription (new)
+  6. isNextSimples (new)
+end note
+
+CoreNext --> Customer: Response
+deactivate CoreNext
+
+note left of CoreNext
+  Core Next will return all
+  existing fields in the response
+  + the following new response
+  fields:
+  1. FundCategory (new)
+  2. RequireFundTC (new)
+  3. RiskScore (existing field in table,
+      but needs to be added in response)
+  4. IncomeValue (new)
+  5. IncomeDescription (new)
+  6. isNextSimples (new)
+
+  All of these fields will come
+  from the PRODUCT table.
+end note
+
+@enduml
+```

@@ -1,0 +1,22 @@
+{
+  "id": "e328b830-d8b6-472a-b31e-55e1ce38d90b",
+  "object": "chat.completion",
+  "created": 1781438343,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Credential Issuance Flow\n\nparticipant \"User Agent\" as UA\nrectangle \"Wallet\" {\n    participant \"Frontend\" as WF\n    participant \"Backend\" as WB\n}\nrectangle \"Issuer\" {\n    participant \"Metadata\" as IM\n    participant \"Web Site\" as IW\n    participant \"Token Endpoint\" as ITE\n    participant \"Credential Endpoint\" as ICE\n}\n\nUA -> IW : get credential\nactivate IW\nnote right of IW: prepare credential issuance\nIW --> WF : Issuance Initiation Request\\n(pre-authz-code, credential_type, expected_key_types, issuer)\nWF --> WB : Issuance Initiation Request\\n(pre-authz-code, credential_type, expected_key_types, issuer)\n\nWB -> WB : gen DPoP key\nWB -> WB : gen DPoP proof for issuer token endpoint\nWB -> WB : get nonce (for app attestation)\nWB <- WB : nonce\nWB -> WB : obtain app attestation (nonce)\nWB -> WB : get assertion for code exchange\\n(hash(pre-authz-code), app attestation)\nWB -> WB : check app_attestation\nWB -> WB : generate assertion\\n(iss=wallet backend, pre_authz_code_hash, client_id)\nWB -> WF : assertion\nWF -> IM : get issuer metadata\nWF -> ITE : token request\\n(pre-authz-code, pin, client_id, assertion, dpop_proof)\n\nnote over WF,ITE: wallet authenticates with issuer as OAuth Client using the assertion issued by its backend (RFC 7523)\\nissuer checks wallet backend id and key against trust registry\nnote over ITE: Token Endpoint validates pre-authorized code and creates corresponding access token\nITE --> WF : token response\\n(access_token, c_nonce)\n\nWF -> WF : gen key : key, key_attestation\nWF -> WF : create proof of posssion (c_nonce)\nWF -> WF : create DPoP proof for issuance request\nWF -> ICE : issue credential\\n(access_token, credential_type, format, proof, key_policy, dpop_proof)\n\nnote over ICE: Credential Endpoint Token checks whether the access token is good for requested credential type and\\nwhether the proof of possession is valid\nICE --> WF : credential response (credential, format)\ndeactivate IW\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1811,
+    "completion_tokens": 495,
+    "total_tokens": 2306
+  }
+}

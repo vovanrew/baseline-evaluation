@@ -1,0 +1,27 @@
+@startuml
+participant "Nutzer" as User
+participant "Webshop" as Webshop
+participant "Webshopdatenbank" as DB
+
+User -> Webshop : 1 Zahlungsdaten löschen
+Webshop -> DB : 2 Zahlungsdaten abrufen
+DB <--> Webshop : 3 Zahlungsdaten
+Webshop <--> Webshop : 4 Zahlungsdaten prüfen
+
+alt [keine weiteren Zahlungsdaten vorhanden]
+Webshop -> Webshop : Aboboxen prüfen
+Webshop <--> Webshop : Aboboxen prüfen
+
+alt [Abobox vorhanden]
+Webshop -> User : Error
+alt [keine Abobox vorhanden]
+Webshop -> DB : Daten löschen
+DB <--> Webshop : Succes
+User <--> Webshop : Bestätigung
+
+alt [weitere Zahlungsdaten vorhanden]
+Webshop -> DB : Daten löschen
+DB <--> Webshop : Succes
+User <--> Webshop : Bestätigung
+
+@enduml

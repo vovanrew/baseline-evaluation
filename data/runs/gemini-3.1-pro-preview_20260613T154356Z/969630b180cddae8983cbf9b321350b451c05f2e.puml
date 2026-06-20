@@ -1,0 +1,45 @@
+```plantuml
+@startuml
+title Skava Integration - Order Replaced Completed
+
+box "Skava AWS" #F5F5F5
+participant "Skava Event\nOrchestration" as SEO
+end box
+
+box "Kafka" #E0F2F1
+collections "Topics" as Topics
+end box
+
+box "YL Services" #E8EAF6
+participant "Order Sync Service" as OSS
+end box
+
+database "Legacy DB" as LDB
+
+SEO -> Topics : 1 Produce OrderReplacedCompleted Message
+activate Topics
+
+== Async ==
+
+Topics -> OSS : 2 Consume OrderReplacedCompleted Message
+deactivate Topics
+activate OSS
+
+OSS -> LDB : 3 Update order status in legacy db
+activate LDB
+LDB --> OSS : 4 Response/Order ID
+deactivate LDB
+
+OSS -> Topics : 5 Produce OrderReplacedCompletedProcessed Message
+deactivate OSS
+activate Topics
+
+== Async ==
+
+Topics -> SEO : 6 Consume OrderReplacedCompletedProcessed Message
+deactivate Topics
+activate SEO
+deactivate SEO
+
+@enduml
+```

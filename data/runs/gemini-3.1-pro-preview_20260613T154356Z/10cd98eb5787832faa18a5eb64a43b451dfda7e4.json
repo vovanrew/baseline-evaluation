@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nbox \"VideoSink\"\nparticipant SurfaceViewRenderer\nparticipant ProxyVideoSink\nparticipant VideoSinkWrapper\nend box\n\nbox \"VideoDecoder\"\nparticipant VideoBroadcaster\nparticipant webrtcVideoReceiveStream\nparticipant IncomingVideoStream\nparticipant VideoStreamDecoder\nparticipant VCMDecodedFrameCallback\nparticipant VideoDecoderCallback\nparticipant AndroidVideoDecoder\nparticipant VideoDecoderWrapper\nparticipant VideoDecoderSoftwareFallbackWrapper\nparticipant VCMGenericDecoder\nend box\n\nbox \"VideoReceiver\"\nparticipant VideoReceiver2\nparticipant VideoReceiveStream\nparticipant FrameBuffer\nend box\n\nbox \"RTPReceiver\"\nparticipant RtpVideoStreamReceiver\nparticipant RtpStreamReceiverController\nparticipant RtpDemuxer\nend box\n\nbox \"Transceiver\"\nparticipant webrtcCall\nparticipant internalCall\nparticipant Transport\nparticipant MediaChannel\nparticipant WebRtcVideoChannel\nparticipant NetworkInterface\nparticipant BaseChannel\nparticipant VideoChannel\nparticipant RtpTransportInternal\nparticipant RtpTransport\nparticipant SrtpTransport\nparticipant DtlsSrtpTransport\nend box\n\nbox \"DTLS\"\nparticipant webrtcDtlsTransport\nparticipant PacketTransportInternal\nparticipant P2PTransportChannel\nparticipant ProxyConnection\nparticipant UDPPort\nparticipant SignalReadEvent\nparticipant AsyncUDPSocket\nparticipant PhysicalSocket\nend box\n\n== Receive RTP ==\n\nAsyncUDPSocket -> PhysicalSocket : OnReadEvent()\nactivate PhysicalSocket\nPhysicalSocket -> PhysicalSocket : RecvFrom()\nPhysicalSocket -> AsyncUDPSocket : recvfrom()\ndeactivate PhysicalSocket\n\nAsyncUDPSocket -> SignalReadEvent : OnReadEvent()\nSignalReadEvent -> UDPPort : HandleIncomingPacket()\nUDPPort -> ProxyConnection : OnReadPacket()\nProxyConnection -> P2PTransportChannel : OnReadPacket()\nP2PTransportChannel -> PacketTransportInternal : OnReadPacket()\nPacketTransportInternal -> webrtcDtlsTransport : OnReadPacket()\nwebrtcDtlsTransport -> RtpTransportInternal : OnReadPacket()\nRtpTransportInternal -> RtpTransport : OnReadPacket()\nRtpTransport -> SrtpTransport : OnRtpPacketReceived()\nSrtpTransport -> DtlsSrtpTransport : OnRtpPacketReceived()\nDtlsSrtpTransport -> RtpDemuxer : OnRtpPacket()\n\n== Receive Video ==\n\nRtpDemuxer -> NetworkInterface : OnRtpPacket()\nNetworkInterface -> BaseChannel : OnPacketReceived()\nBaseChannel -> VideoChannel : OnPacketReceived()\nVideoChannel -> Transport : OnPacketReceived()\nTransport -> MediaChannel : OnPacketReceived()\nMediaChannel -> WebRtcVideoChannel : OnPacketReceived()\nWebRtcVideoChannel -> webrtcCall : DeliverPacket()\nwebrtcCall -> internalCall : DeliverPacket()\ninternalCall -> RtpStreamReceiverController : OnRtpPacket()\nRtpStreamReceiverController -> RtpVideoStreamReceiver : OnRtpPacket()\nRtpVideoStreamReceiver -> RtpVideoStreamReceiver : ReceivePacket()\nRtpVideoStreamReceiver -> RtpVideoStreamReceiver : OnReceivedPayloadData()\nRtpVideoStreamReceiver -> RtpVideoStreamReceiver : OnAssembledFrame()\nRtpVideoStreamReceiver -> VideoReceiveStream : OnInsertedPacket()\nVideoReceiveStream -> FrameBuffer : InsertFrame()\nFrameBuffer -> VideoReceiveStream : OnCompleteFrame()\n\n== RESUME ==\n\nVideoReceiveStream -> VideoReceiver2 : HandleEncodedFrame()\nVideoReceiver2 -> VCMGenericDecoder : Decode()\nVCMGenericDecoder -> VideoDecoderSoftwareFallbackWrapper : Decode()\nVideoDecoderSoftwareFallbackWrapper -> VideoDecoderWrapper : Decode()\nVideoDecoderWrapper -> AndroidVideoDecoder : Decode()\nAndroidVideoDecoder -> VideoDecoderCallback : OnDecodedFrame()\nVideoDecoderCallback -> VCMDecodedFrameCallback : Decoded()\nVCMDecodedFrameCallback -> VideoStreamDecoder : FrameToRender()\nVideoStreamDecoder -> IncomingVideoStream : OnFrame()\nIncomingVideoStream -> IncomingVideoStream : Dequeue()\nIncomingVideoStream -> webrtcVideoReceiveStream : OnFrame()\nwebrtcVideoReceiveStream -> VideoBroadcaster : OnFrame()\nVideoBroadcaster -> VideoSinkWrapper : OnFrame()\nVideoSinkWrapper -> ProxyVideoSink : OnFrame()\nProxyVideoSink -> SurfaceViewRenderer : OnFrame()\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbH+0AZjmTqCrXmnStwz2n+GFOO7pGGYZ6L3A6nRlgozl8V4AplWnU1jzjSEs4l"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1180,
+    "candidatesTokenCount": 908,
+    "totalTokenCount": 2088,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1100
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "6F4xatyNMvC8xN8Pzr7NkAo"
+}

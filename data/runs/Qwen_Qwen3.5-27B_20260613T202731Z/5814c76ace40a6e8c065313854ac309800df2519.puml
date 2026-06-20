@@ -1,0 +1,24 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "User" as User
+participant "UI" as UI
+rectangle "Main_Thread" as MainThread
+rectangle "Worker_Thread" as WorkerThread
+
+User -> UI : Push the button
+activate UI
+UI -> MainThread : Trigger 'postToWorkerThread'
+activate MainThread
+MainThread --> UI : Get textarea value
+deactivate MainThread
+UI -> WorkerThread : postMessage
+activate WorkerThread
+WorkerThread --> MainThread : postMessage with ACK (*1)
+deactivate WorkerThread
+MainThread --> UI : Set textarea value with ACK message
+deactivate UI
+
+@enduml
+```

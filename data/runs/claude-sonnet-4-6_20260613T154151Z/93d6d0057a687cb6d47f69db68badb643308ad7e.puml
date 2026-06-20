@@ -1,0 +1,27 @@
+@startuml
+title "OAuth2 Authorization Code Grant Workflow\n<i>with SAML2 Post Binding for user provisioning</i>"
+
+participant "HealthCloud" as HC #green
+participant "Embedded Browser" as EB #green
+
+box "HealthSphere" #lightblue
+participant "Apigee Edge" as AE #gold
+participant "Orion Health Platform" as OHP #gold
+end box
+
+HC -> EB
+EB -> AE : GET /authorize?response_type=code
+AE --> EB : <i>302 https://<b><redirect_url></b> (SAML OR <b>token</b>)</i>
+
+group SAML Authentication
+  EB -> AE : POST /oauth2/saml
+  AE -> OHP : POST /login-auth/saml?path=/actor/current
+  OHP -> OHP : Verify SAMLResponse
+  OHP --> AE : Generate authorization code
+  AE --> EB : <i>302 https://<b><redirect_url></b>?code=<code></i>
+end
+
+HC -> AE : POST /token?code=<code>
+AE --> HC : 200 access_token + refresh_token
+
+@enduml

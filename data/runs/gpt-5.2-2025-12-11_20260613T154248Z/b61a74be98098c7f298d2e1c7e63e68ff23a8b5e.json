@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLq8TqTAnLC7UGcLc6ORMMsj52Pg",
+  "object": "chat.completion",
+  "created": 1781369380,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  LifeLineBorderColor #999999\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #E6E6FA\n  ActorBorderColor #666666\n  ActorBackgroundColor #FFFFFF\n  NoteBackgroundColor #FFF9C4\n  NoteBorderColor #999999\n}\n\nactor Admin\nactor User\nparticipant AccountManagement\nparticipant Broker\nparticipant Notifications\nparticipant UAA\nparticipant EmailSender\n\nAdmin -> AccountManagement : WorkspaceInvitation\nnote right of AccountManagement\nwith email\nend note\nactivate AccountManagement\nAccountManagement -> AccountManagement : save data to db\ndeactivate AccountManagement\n\nAccountManagement --> Admin : 200 response\n\nAccountManagement -> Broker : create event \"new user invited event\"\nBroker -> Notifications : read event\nnote right of Notifications\nwith email and senderId\nend note\nNotifications -> UAA : read info about sender\nactivate Notifications\nNotifications -> Notifications : generate email\ndeactivate Notifications\nNotifications -> Broker : create \"new email event\"\nBroker -> EmailSender : read \"new email event\"\nEmailSender -> User : send email\n\nalt [user accepts invitation]\n  User -> AccountManagement : WorkspaceEmailValidation\n  activate AccountManagement\n  AccountManagement -> AccountManagement : check email\n  deactivate AccountManagement\n  AccountManagement --> User : WorkspaceEmailValidationResult\n\n  alt [email valid]\n    activate AccountManagement\n    AccountManagement -> AccountManagement : generate access code\n    deactivate AccountManagement\n    AccountManagement -> Broker : create event \"new access code\"\n    Broker -> Notifications : read event\n    note right of Notifications\n    with email and access code\n    end note\n    activate Notifications\n    Notifications -> Notifications : generate email\n    deactivate Notifications\n    Notifications -> Broker : create \"new email event\"\n    Broker -> EmailSender : read \"new email event\"\n    EmailSender -> User : send email\n  end\n\n  User -> User : get access code from email\n  User -> AccountManagement : WorkspaceAccessCodeValidation\n  AccountManagement --> User : WorkspaceAccessCodeValidationResult\n  note right of User\n  with email, access code\n  end note\n\n  alt [access code valid]\n    activate AccountManagement\n    AccountManagement -> AccountManagement : change state\n    deactivate AccountManagement\n\n    User -> UAA : WorkspaceRegistration\n    note right of UAA\n    with email, username, password and code\n    end note\n\n    UAA -> AccountManagement : check state by email\n    note left of UAA\n    with userId and email\n    end note\n    UAA -> Broker : create new event \"user created event\"\n    Broker -> Notifications : read event \"user created event\"\n    activate Notifications\n    Notifications -> Notifications : create user with email\n    deactivate Notifications\n  end\nend\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2791,
+    "completion_tokens": 603,
+    "total_tokens": 3394,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

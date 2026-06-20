@@ -1,0 +1,21 @@
+{
+  "id": "msg_017ZdXpist7sMHyK66SB5NHf",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor mobile\nparticipant \"www\" as www\nparticipant \"endpoint\" as endpoint\nparticipant \"haproxy\" as haproxy\nparticipant \"ipfs\" as ipfs\nparticipant \"postgraphile\" as postgraphile\nparticipant \"CITY Custom Net\" as cityCustomNet\nparticipant \"logstash\" as logstash\nparticipant \"dApp\" as dApp\ndatabase \"postgres\" as postgres\ndatabase \"elastic\" as elastic\nparticipant \"prometheus\" as prometheus\nparticipant \"kibana\" as kibana\n\nbox \"webUI\"\n  participant mobile\n  participant www\nend box\n\nmobile -> www : sign & send events\nnote over www : browser ext or mobile wallet\nwww -> haproxy : HTTPS gateway & peer tcp/4001\nhaproxy -> ipfs : /ipfs/{CID}\nhaproxy -> haproxy : HTTPS (oauth by EC Address)\nnote over www : User makes deposit / signs entry to trigger events.\n\nbox \"api - Admin/Write api\"\n  participant endpoint\nend box\n\nendpoint -> ipfs : /v2 - read/write factom api\nendpoint -> ipfs : /ipfs/{CID} - readonly gateway\nendpoint -> postgraphile : /graphql - readonly graphql queries\nendpoint -> cityCustomNet : livefeed log\nendpoint -> elastic : index event logs\nendpoint -> elastic : dApp specific events\npostgraphile -> dApp : Query/Sign\ndApp -> cityCustomNet : sign and dispatch requests\nendpoint -> cityCustomNet : read/write signed factom entries\n\nbox \"dashboard\"\n  participant logstash\nend box\n\nprometheus -> kibana : dashboard query\nprometheus -> prometheus : poll()\ndApp -> cityCustomNet : Monitor(FA2XXXXXXXXX) Balance changes\ndApp -> prometheus : HTTP GET /metrics\nendpoint -> prometheus : HTTP GET /metrics\nprometheus -> kibana : metrics_query\ndApp -> logstash : dApp specific rollup\n\nbox \"dApp - controller\"\n  participant dApp\nend box\n\ndApp -> cityCustomNet : dispatch on-chain event\ndApp -> logstash : dApp specific logging\ndApp -> ipfs : pin entry content on IPFS\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371459,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 495,
+    "prompt_tokens": 1656,
+    "total_tokens": 2151
+  }
+}

@@ -1,0 +1,162 @@
+```plantuml
+@startuml
+title US031 - As Team Member, I want to create a task in a user story
+
+actor TeamMember
+
+participant "CreateUSTaskUI" as UI
+participant "CreateUSTaskController" as Controller
+participant "Company" as Company
+participant "taskTypeStore\nTaskTypeStore" as taskTypeStore
+participant "taskTypeList\nList<TaskType>" as taskTypeList
+participant "taskType\nTaskType" as taskType
+participant "pStore\nProjectStore" as pStore
+participant "proj : Project" as proj
+participant "sList\nSprintList" as sList
+participant "sprint : Sprint" as sprint
+participant "sprintBacklog\nSprintBacklog" as sprintBacklog
+participant "UserStoryList" as UserStoryList
+participant "Us\nUsList" as Us
+participant "taskList\nList<Task>" as taskList
+participant "task : Task" as task
+participant "tasksNames\nList<String>" as tasksNames
+participant "projectTeam\nProjectTeam" as projectTeam
+participant "projectTeam\nList<Resource>" as projectTeamList
+participant "resource : Resource" as resource
+participant "currentResName\nList<String>" as currentResName
+participant "TaskMapper" as TaskMapper
+participant "createTaskDTO\nCreateTaskDTO" as createTaskDTO
+participant "newUs : Task" as newUs
+
+TeamMember -> UI : 3 Ask to create a task of a user story
+UI -> Controller : 2 getTaskTypes()
+Controller -> Company : 3 getTaskTypeStore()
+Company --> Controller : 4 taskTypeStore
+Controller -> taskTypeStore : 5 getTaskTypeNames()
+
+taskTypeStore -> taskTypeList : 6 create()
+
+note right of taskTypeList
+taskTypeNames
+List<String>
+end note
+
+loop for each know task type
+  taskTypeList -> taskTypeList : 7 get()
+  taskTypeList -> taskType : 8 taskType
+  taskType -> taskType : 9 getName()
+  taskType --> taskTypeList : 10 typeName
+  taskTypeList -> taskTypeList : 11 addTypeName()
+  taskTypeList --> taskTypeList : 12 true
+end
+
+taskTypeStore --> Controller : 13 taskTypeNames
+Controller --> UI : 14 taskTypeNames
+
+UI --> TeamMember : 15 Show a list of task types
+TeamMember -> UI : 16 Selects task type
+
+UI -> Controller : 17 getIsTasksInprojCode, sprintID, usId)
+Controller -> Company : 18 getProjectStore()
+Company --> Controller : 19 pStore
+Controller -> pStore : 20 getProjectByCode(projCode)
+pStore --> Controller : 21 proj
+Controller -> proj : 22 getSprintList()
+proj --> Controller : 23 sList
+Controller -> sList : 24 getSprintBySprintId()
+sList --> Controller : 25 sprint
+Controller -> sprint : 26 getBacklog()
+sprint --> Controller : 27 sprintBacklog
+Controller -> sprintBacklog : 28 getUsList()
+sprintBacklog --> Controller : 29 usList
+Controller -> Us : 30 getUs(usId)
+Us --> Controller : 31 us
+Controller -> Us : 32 getTaskList()
+Us --> Controller : 33 usTaskList
+Controller -> taskList : 34 getTaskNames()
+
+taskList -> tasksNames : 35 create()
+
+note right of tasksNames
+tasksNames
+List<String>
+end note
+
+loop for each know task
+  tasksNames -> tasksNames : 36 get()
+  tasksNames -> task : 37 task
+  task -> task : 38 getName()
+  task --> tasksNames : 39 taskName
+  tasksNames -> tasksNames : 40 addTaskName()
+  tasksNames --> tasksNames : 41 true
+end
+
+taskList --> Controller : 42 tasksNames
+Controller --> UI : 43 tasksNames
+
+UI --> TeamMember : 44 Show a list of current tasks\n(to choose a precedence, if want)
+TeamMember -> UI : 45 Selects precedence (optional)
+
+UI -> Controller : 46 getCurrentProjectTeam()
+Controller -> proj : 47 getProjectTeam()
+proj --> Controller : 48 projectTeam
+Controller -> projectTeam : 49 getCurrentResourcesNames()
+
+projectTeam -> currentResName : 50 create()
+
+note right of currentResName
+currentResName
+List<String>
+end note
+
+loop for each know resource
+  currentResName -> currentResName : 51 get()
+  currentResName -> resource : 52 resource
+  resource -> resource : 53 isCurrent()
+  resource --> currentResName : 54 result
+  alt result = true
+    resource -> resource : 55 getName()
+    resource --> currentResName : 56 resourceName
+    currentResName -> currentResName : 57 addResourceName()
+    currentResName --> currentResName : 58 true
+  end
+end
+
+projectTeam --> Controller : 59 currentResourcesNames
+Controller --> UI : 60 currentResourcesNames
+
+UI --> TeamMember : Shows resource list and request data\n61 (name, description, effortEstimate,\ntaskType, responsible)
+TeamMember -> UI : 62 Choose and typed requested data
+
+UI -> Controller : 63 createIsTask(createIsTaskDTO)
+Controller -> TaskMapper : 64 createIsTask(createIsTaskDTO)
+TaskMapper -> Us : 65 toModel(createIsTaskDTO)
+
+Us -> createTaskDTO : 66 name = getName()
+createTaskDTO --> Us : 
+Us -> createTaskDTO : 67 description = getDescription()
+createTaskDTO --> Us : 
+Us -> createTaskDTO : 68 effortEstimate = getEffortEstimate()
+createTaskDTO --> Us : 
+Us -> createTaskDTO : 69 taskType = getTaskType()
+createTaskDTO --> Us : 
+Us -> createTaskDTO : 70 responsible = getResponsible()
+createTaskDTO --> Us : 
+Us -> newUs : 71 create(taskName, description,\neffortEstimate, taskType, responsible)
+newUs --> Us : newUs : Task
+
+Us -> Us : 72 newIsTask
+Us -> Us : 73 saveTask(newIsTask)
+Us -> Us : 74 validateIsTask(task)
+Us --> Us : 
+Us -> Us : 75 addIsTask(task)
+Us --> Us : 
+Us --> TaskMapper : 76 true
+
+TaskMapper --> Controller : 
+Controller --> UI : 77 created and saved successfully
+
+UI --> TeamMember : 78 created and saved successfully
+
+@enduml
+```

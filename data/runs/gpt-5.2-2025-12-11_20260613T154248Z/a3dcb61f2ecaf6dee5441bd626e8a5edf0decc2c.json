@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLot7231mq2xb2SMDG64QqxTLFcw",
+  "object": "chat.completion",
+  "created": 1781369303,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Interactions between the Control Plane (master node) and the Worker Node\n\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #000000\n  LifeLineBorderColor #999999\n  LifeLineBackgroundColor transparent\n  ParticipantBorderColor #333333\n  ParticipantFontColor #000000\n  ParticipantBackgroundColor #BFE3F2\n  BoxBorderColor #333333\n  BoxBackgroundColor #FFFFFF\n  GroupBorderColor #333333\n  GroupBackgroundColor #FFFFFF\n  NoteBorderColor #333333\n}\n\nactor Georgina\n\nparticipant \"API-Server\" as apiserver #BFE3F2\ndatabase \"etcd\" as etcd #BFE3F2\nparticipant \"Controller Manager\" as cm #BFE3F2\nparticipant \"Scheduler\" as sched #BFE3F2\nparticipant \"Power Operator\" as pop #BFE3F2\nparticipant \"Kubelet\" as kubelet #A8E6A3\nparticipant \"Power Node Agent\" as pna #A8E6A3\nparticipant \"Power Optimization Library\" as pol #A8E6A3\nparticipant \"K8s Objects\" as k8sobj #A8E6A3\nparticipant \"Kube-Proxy\" as kubeproxy #A8E6A3\n\nlegend right\n|= Legend |\n|<#BFE3F2> Control Plane ~ Master Node |\n|<#A8E6A3> Worker Node |\n|<#D9D9D9> Power Manager System Setup |\n|<#FFF2CC> Power Manager Configuration |\n|<#F4B183> Power Manager Deployment |\nendlegend\n\n== Kubernetes Initialization ==\n\nGeorgina -> apiserver : 1 kubectl create -f pod.yaml\napiserver -> etcd : 2 save new state\napiserver -> cm : 3 check for changes\nsched -> apiserver : 4 watch for unassigned pods(s)\napiserver -> sched : 5 notify about pod w nodename=\"\"\nsched -> apiserver : 6 assign pod to node\napiserver -> etcd : 7 save new state\nkubelet -> apiserver : 8 look for newly assigned pod(s)\napiserver -> kubelet : 9 bind pod to node\nkubelet -> pna : 10 start container\nkubelet -> apiserver : 11 update pod status\napiserver -> etcd : 12 save new state\n\n== Power Manager Initialization ==\n\nkubelet -> kubeproxy : 1 Ensure correct proxy configuration\nkubelet -> kubelet : 2 Confirm CPU Manager policy\nnote right of kubelet #D9D9D9\ncpuManagerPolicy = \"static\"\nend note\nkubelet -> kubelet : 3 Reserve System CPUs\nnote right of kubelet #D9D9D9\nreservedSystemCPUs = \"0\"\nend note\n\nkubelet -> pna : 4 Create Namespace\nnote right of pna #FFF2CC\napply config/rbac/namespace.yaml\nend note\n\nkubelet -> pna : 5 Create RBAC and Service Accounts\nnote right of pna #FFF2CC\napply config/rbac/rbac.yaml\nend note\n\nkubelet -> k8sobj : 6 Create CRDs\nnote right of k8sobj #FFF2CC\nmake\nend note\n\nkubelet -> k8sobj : 7 Label nodes\nnote right of k8sobj #FFF2CC\nlabel node <NODE_NAME> feature.node.kubernetes.io/power-node=\"true\"\nend note\n\n== Power Manager Deployment ==\n\nkubelet -> pna : 1 Deploy Controller Manager\nnote right of pna #F4B183\napply config/manager/manager.yaml\nend note\n\nkubelet -> pol : 2 Deploy the config\nnote right of pol #F4B183\nexamples/example-powerconfig.yaml\nend note\n\nkubelet -> pol : 3 Set Shared Profile\nnote right of pol #F4B183\nexamples/example-shared-profile.yaml\nend note\n\nkubelet -> pol : 4 Deploy th Workload\nnote right of pol #F4B183\nexamples/example-shared-workload.yaml\nend note\n\nkubelet -> pol : 5 Deploy Pod\nnote right of pol #F4B183\nexamples/example-pod.yaml\nend note\n\n== Power Manager additional functionality ==\n\n=== Uncore ===\nkubelet -> kubelet : 1 Confirm Kernel verson\nnote right of kubelet #D9D9D9\nkernel 5.6+ required for uncore\nend note\n\nkubelet -> pol : 2 Set Freq in Die and Pkg\nnote right of pol #F4B183\nexamples/example-uncore\nend note\n\nkubelet -> pna : 3 Deploy Controller Manager\nnote right of pna #F4B183\napply config/manager/manager.yaml\nend note\n\nkubelet -> pol : 4 Deploy the config\nnote right of pol #F4B183\nexamples/example-powerconfig.yaml\nend note\n\nkubelet -> pol : 5 Set Shared Profile\nnote right of pol #F4B183\nexamples/example-shared-profile.yaml\nend note\n\nkubelet -> pol : 6 Deploy th Workload\nnote right of pol #F4B183\nexamples/example-shared-workload.yaml\nend note\n\nkubelet -> pol : 7 Deploy Pod\nnote right of pol #F4B183\nexamples/example-pod.yaml\nend note\n\nkubelet -> pol : 8 Set Time of Day functionality\nnote right of pol #F4B183\nexamples/example-timeofday\nend note\n\n=== P-State ===\nkubelet -> pna : 1 Deploy Controller Manager\nnote right of pna #F4B183\napply config/manager/manager.yaml\nend note\n\nkubelet -> pol : 2 Deploy the config\nnote right of pol #F4B183\nexamples/example-powerconfig.yaml\nend note\n\nkubelet -> pol : 3 Set Shared Profile\\nand configure the P-state governor\nnote right of pol #F4B183\nexamples/example-shared-profile.yaml\nend note\n\nkubelet -> pol : 4 Deploy th Workload\nnote right of pol #F4B183\nexamples/example-shared-workload.yaml\nend note\n\nkubelet -> pol : 5 Deploy Pod\nnote right of pol #F4B183\nexamples/example-pod.yaml\nend note\n\n=== C-State ===\nkubelet -> pna : Deploy Controller Manager\nnote right of pna #F4B183\napply config/manager/manager.yaml\nend note\n\nkubelet -> pol : Deploy the config\nnote right of pol #F4B183\nexamples/example-powerconfig.yaml\nend note\n\nkubelet -> pol : Set Shared Profile\nnote right of pol #F4B183\nexamples/example-shared-profile.yaml\nend note\n\nkubelet -> pol : Deploy th Workload\nnote right of pol #F4B183\nexamples/example-shared-workload.yaml\nend note\n\nkubelet -> pol : Deploy Pod\nnote right of pol #F4B183\nexamples/example-pod.yaml\nend note\n\nkubelet -> pol : Set C-State functionality\nnote right of pol #F4B183\nexamples/example-cstates\nend note\n\n=== Time of Day ===\nkubelet -> pna : Deploy Controller Manager\nnote right of pna #F4B183\napply config/manager/manager.yaml\nend note\n\nkubelet -> pol : Deploy the config\nnote right of pol #F4B183\nexamples/example-powerconfig.yaml\nend note\n\nkubelet -> pol : Set Shared Profile\nnote right of pol #F4B183\nexamples/example-shared-profile.yaml\nend note\n\nkubelet -> pol : Deploy th Workload\nnote right of pol #F4B183\nexamples/example-shared-workload.yaml\nend note\n\nkubelet -> pol : Deploy Pod\nnote right of pol #F4B183\nexamples/example-pod.yaml\nend note\n\nkubelet -> pol : Set Time of Day functionality\nnote right of pol #F4B183\nexamples/example-timeofday\nend note\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2146,
+    "completion_tokens": 1785,
+    "total_tokens": 3931,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

@@ -1,0 +1,40 @@
+```plantuml
+@startuml
+skinparam shadowing false
+skinparam actor {
+  BackgroundColor<< << >> #E8E8F0
+  BorderColor<< << >> black
+}
+skinparam rectangle {
+  BackgroundColor<< << >> #E8E8F0
+  BorderColor<< << >> black
+}
+skinparam database {
+  BackgroundColor<< << >> #E8E8F0
+  BorderColor<< << >> black
+}
+
+actor "User" as User
+rectangle "WebApp" as WebApp
+database "DB" as DB
+
+User -> WebApp : [POST] / driver {body}
+activate WebApp
+WebApp -> DB : save driver
+activate DB
+DB --> WebApp : OK
+deactivate DB
+WebApp --> User : 201 CREATED {body}
+deactivate WebApp
+
+User -> WebApp : [GET] / driver
+activate WebApp
+WebApp -> DB : get driver
+activate DB
+DB --> WebApp : driver object
+deactivate DB
+WebApp --> User : 200 OK {body}
+deactivate WebApp
+
+@enduml
+```

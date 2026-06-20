@@ -1,0 +1,55 @@
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam shadowing false
+
+participant ElementModel
+participant CardModel
+participant StringCard
+participant Publish
+participant ElementView
+participant DeckView
+participant IOTech
+participant DeckTechView
+
+ElementModel -> ElementModel : encode
+activate ElementModel
+ElementModel ->> CardModel : encode each CardModel
+activate CardModel
+CardModel -> StringCard : create
+activate StringCard
+StringCard --> CardModel
+deactivate StringCard
+CardModel -->> ElementModel : return StringCardCollection
+deactivate CardModel
+deactivate ElementModel
+
+ElementModel -> ElementModel : send
+activate ElementModel
+ElementModel -->> Publish : send StringCardCollection
+deactivate ElementModel
+
+activate Publish
+Publish -->> ElementView : send StringCardCollection
+deactivate Publish
+
+activate ElementView
+ElementView -> ElementView : Store StringCardCollection
+deactivate ElementView
+
+ElementModel -->> ElementView : Show
+
+ElementView -->> DeckView
+activate DeckView
+DeckView -->> IOTech : GetDeckView
+activate IOTech
+IOTech -> DeckTechView : create
+activate DeckTechView
+DeckTechView --> IOTech
+deactivate DeckTechView
+IOTech --> DeckView : return
+deactivate IOTech
+DeckView -->> DeckTechView : Show(StringCardCollection)
+deactivate DeckView
+
+@enduml

@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle Kubectl Request\n\nactor kubectl\nparticipant \"K8s Auth Proxy\" as proxy\nparticipant \"K8s API Server\" as api\nparticipant Hydra\n\nnote over kubectl\nSet the correct cluster with\nserver pointing to the k8auth\nin the kubectl config\nend note\n\nkubectl -> proxy: GET: https://k8s.dolittle.cloud/api/pods\\nHeader: { Authentication: Bearer <token> }\nproxy -> Hydra: GET: http://hydra.system-auth.svc.cluster.local/userinfo\n\nalt If good token\n    Hydra -> proxy: Status 200 { claims... }\n    proxy -> api: Impersonate: Hydra-User-Info\\nGET: https://<local-cluster-url>/api/pods\n    api -> proxy: Status 200 (results)\n    proxy -> kubectl: Status 200 (results)\nelse If bad/no token\n    Hydra -> proxy: Status 401\n    proxy -> kubectl: Status 401\nend\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHSMFGXTCWPGALO2m52g59sM1+lJJVefakKVRAS/YPq6PcBBIR9HL9mrJCDakt"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1172,
+    "candidatesTokenCount": 242,
+    "totalTokenCount": 1414,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1092
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "Se4vau3lFPOXvdIPh4uS6Qs"
+}

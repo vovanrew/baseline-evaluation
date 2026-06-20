@@ -1,0 +1,63 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle PD parse detail\n\nparticipant Chi\nparticipant pipeline\nparticipant \"pdlibwrapper\\ncamxpdlibwrapper.cpp\" as pdlibwrapper\nparticipant \"pdlibinterface\\ncamxpdlibinterface.cpp\" as pdlibinterface\nparticipant camxsensornode.cpp\nparticipant camxpdlibraryhandler.cpp\n\n== chi stats algo ==\n\nnote left of Chi\nChiPDEntry[] = \"ChiPDLibraryEntry\"\nChiASDEntry[] = \"ChiASDAlgorithmEntry\"\nChiAFDEntry[] = \"ChiAFDAlgorithmEntry\"\nChiAWBEntry[] = \"ChiAWBAlgorithmEntry\"\nChiAFEntry[] = \"ChiAFAlgorithmEntry\"\nfrom this text, can get Algorithm Entry\nend note\n\n== PD lib create ==\n\nChi -> Chi : ProbeChiComponents\nactivate Chi #LightSalmon\nChi -> Chi : GetAECAlgorithmCallback\nChi -> Chi : GetAFDAlgorithmCallback\nChi -> Chi : GetAFAlgorithmCallback\nChi -> Chi : GetAWBAlgorithmCallback\nChi -> Chi : GetASDAlgorithmCallback\nChi -> Chi : **GetPDLibraryCallback**\nChi -> Chi : GetHVXAlgorithmCallback\nChi -> Chi : return\ndeactivate Chi\n\nnote left of Chi\nThese Callback used in camxpipeline.cpp\nwhen call pipeline:CreateNodes\nend note\n\nnote left of Chi\nfor m_pStatscallback.pPDCallback\ncontain these inteface\n  pCallBacks->pfnGetCapabilities = PDWrapperGetCapabilities;\n  pCallBacks->pfnCreate = CreatePDLibWrapper;\n  pCallBacks->pfnQueryVendorTag = NULL;\n  pCallBacks->pfnSetAlgoInterface = PDWrapperSetNodeInterface;\nend note\n\nChi -> pdlibwrapper : CreatePDLibWrapper\nactivate pdlibwrapper\npdlibwrapper -> pdlibwrapper : CamX::LoadPDLib\nnote left of pdlibwrapper\n\"%s%s%s.%s\"\n\"VendorLibPath\"\n\"PathSeparator\"\n\"pLibName\"\n\"SharedLibraryExtension\"\nend note\npdlibwrapper -> pdlibwrapper : return Addr\npdlibwrapper -> camxpdlibraryhandler.cpp : pfnCreate\npdlibwrapper -> pdlibwrapper : return\ndeactivate pdlibwrapper\n\n== call PD lib ==\n\nnote right of pdlibwrapper\nin dir:\n1. camx-lib-3a/system/statsalgo/pdlib\n2. camx-lib/system/statsalgo/pdlibsony\nboth have camxpdlibinterface.cpp\nend note\n\n== Init PDLib ==\n\nnote left of Chi\nfor pipeline create, will create every node\nand pdlib is init in sensor node\nend note\n\npipeline -> camxsensornode.cpp : ProcessingNodeFinalizeInitialization\nactivate camxsensornode.cpp\nnote left of camxsensornode.cpp\n1. ReadEEPROMData\n2. GetCSIInfo\n3. GetOTPData\n4. PopulatePDAFInformation\n5. PublishPDAFInformation\nwhy we need publish this info?\nactually for PropertyIDSensorPDAFInfo, in IFE PDPCv1.1 and BPS PDPC2.0 will use it.\nsince type 3 sensor will not do pdpc\nend note\ncamxsensornode.cpp -> camxsensornode.cpp : LoadPDLibrary\ncamxsensornode.cpp -> camxpdlibraryhandler.cpp : CPDLibHandler::CreateLib\ndeactivate camxsensornode.cpp\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHoGxh8lis+J0epK/VxJwdHRGEBdF388WCEcSdXpTD0PA3iPOOxUpL/BtVRUl0"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "citationMetadata": {
+        "citationSources": [
+          {
+            "startIndex": 45,
+            "endIndex": 249,
+            "uri": "https://github.com/udditfk/scripts",
+            "license": ""
+          },
+          {
+            "startIndex": 586,
+            "endIndex": 906,
+            "uri": "https://github.com/udditfk/scripts",
+            "license": ""
+          },
+          {
+            "startIndex": 1050,
+            "endIndex": 1320,
+            "uri": "https://github.com/udditfk/scripts",
+            "license": ""
+          },
+          {
+            "startIndex": 2140,
+            "endIndex": 2405,
+            "uri": "https://github.com/udditfk/scripts",
+            "license": ""
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1160,
+    "candidatesTokenCount": 766,
+    "totalTokenCount": 1926,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1080
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "h2ExavuJIdaKvdIP6orKgAQ"
+}

@@ -1,0 +1,147 @@
+```plantuml
+@startuml
+class SharingFilesMenu {
+  + SharingFilesMenu(UIController uiController);
+}
+
+class SharingFilesAction {
+  # UIController uiController;
+  + JFrame jSharingFiles;
+  + SharingFilesAction(UIController uiController);
+  # String getName();
+  # void defineProperties();
+  + void actionPerformed(ActionEvent event);
+}
+
+class SharingFilesFrame {
+  - JButton jButton1;
+  - JButton jButton2;
+  - JButton jButton3;
+  - JButton jButton4;
+  - JButton jButton5;
+  - JFileChooser jFileChooser1;
+  - JLabel jLabel1;
+  - JLabel jLabel2;
+  - JLabel jLabel3;
+  - JLabel jLabel4;
+  - JLabel jLabel6;
+  - JComboBox jComboBox1;
+  - JRadioButton jRadioButton1;
+  - JRadioButton jRadioButton3;
+  - JScrollPane jScrollPane1;
+  - JScrollPane jScrollPane3;
+  - JTextField jTextField1;
+  - JTextField jTextField2;
+  - final UIController uiController;
+  - final SharingFilesController sharingController;
+  - DefaultComboBoxModel lstModel;
+  + String folderPath;
+  + JFileChooser chooser;
+  + JFileChooser chooser1;
+  + String choosertitle;
+  + String choosertitle1;
+  + SharingFilesFrame(UIController ui);
+}
+
+class SharingFilesExtension {
+  + SharingFilesExtension()
+  + UIExtension getUIExtension(UIController uiController);
+}
+
+class JFileChooser {
+  + File getSelectedFile();
+  + void setCurrentDirectory(File dir);
+  + void setDialogTitle(String dialogTitle);
+  + void setFileSelectionMode(int mode);
+  + void setAcceptAllFileFilterUsed(boolean b);
+  + int showOpenDialog(Component parent);
+  + File getCurrentDirectory();
+  + File getSelectedFile();
+}
+
+class DownloadController {
+  # UIController uiController;
+  + File file;
+  + DownloadController(UIController uiCont);
+  + Download(String path, File file)
+  + Update(String savePath, String path, File file)
+  + ContinueDownloadWithoutBar(File file)
+  + ContinueDownload(File newFile, JProgressBar progressBar)
+}
+
+class SharingFilesController {
+  # String NAME="Sharing Files";
+  # UIController uiController;
+  + int port;
+  + String path;
+  + ArrayList<File> files;
+  + ArrayList<SharingFile> sharfiles;
+  + TcpServer server;
+  + SharingFilesController(UIController uiCont);
+  + void startSharing(int port);
+  + ArrayList<File> Search();
+  + void accessSharing(String ip);
+  + int getPort();
+  + void setPort();
+  + String getPath();
+  + void setPath();
+  + ArrayList<File> getFiles();
+  + ArrayList<SharingFile> getSharedFiles();
+  + toDifferentType();
+  + UpdateList();
+}
+
+class TcpClient {
+  - int port;
+  - String ip;
+  + TcpClient(int port, String ip);
+  + ArrayList<File> getFilesShare();
+}
+
+class UIController {
+}
+
+class SharingFiles {
+  + File getFile();
+  + long getFileLenght();
+  + String toString();
+}
+
+class SharingFilesUI {
+  - SharingFilesMenu menu;
+  + SharingFilesUI(Extension extension, UIController uiController);
+  + JMenu getMenu();
+}
+
+class TcpServer {
+  + ServerSocket serverSocket;
+  + Thread thread;
+  + ArrayList<File> files;
+  + void startSF(int port, ArrayList<File> f);
+  + public TcpServer(ArrayList<File> f);
+}
+
+class File {
+  + String toString();
+  + boolean exists();
+  + boolean isFile();
+  + boolean mkdir();
+}
+
+SharingFilesMenu --> SharingFilesAction
+SharingFilesAction --> SharingFilesController
+SharingFilesFrame --> JFileChooser
+SharingFilesFrame --> DownloadController
+SharingFilesFrame --> SharingFilesController
+SharingFilesExtension --> UIController
+DownloadController --> UIController
+DownloadController --> SharingFiles
+DownloadController --> SharingFilesUI
+SharingFilesController --> UIController
+SharingFilesController --> SharingFiles
+SharingFilesController --> SharingFilesUI
+SharingFilesController --> TcpServer
+TcpClient --> TcpServer
+SharingFiles --> File
+@enduml
+```

@@ -1,0 +1,51 @@
+@startuml
+left to right direction
+skinparam sequenceMessageAlign center
+skinparam note {
+  BackgroundColor #FFFFE0
+  BorderColor #FFD700
+}
+
+participant "Mojaloop Adapter" as MA
+participant "API" as API
+participant "api / Handler" as Handler
+participant "Application Layer (domain / service / facade)" as AppLayer
+participant "TigerBeetle Client" as TBClient
+participant "TigerBeetle Cluster" as TBCluster
+participant "MySQL" as MySQL
+
+note right of MA: Hub operator or DFSP interactions
+note right of API: NodeJS interface invokes REST API
+note right of Handler: JSON request decoded & processed via handler
+note right of AppLayer: Expose service functions & handle database interactions
+
+rectangle "Central-Settlement" {
+  API
+  Handler
+  AppLayer
+}
+
+rectangle "Storage" {
+  TBClient
+  TBCluster
+  MySQL
+}
+
+rectangle "Update Settlement" {
+  MA -> API: 1 JSON (settlement data)
+  API -> Handler: 2 Invoke handler
+  Handler -> AppLayer: 3 Invoke application layer
+  AppLayer -> MySQL: 4 Retrieve settlement data (excluding accounts)
+  AppLayer -> MySQL: 5 Retrieve accounts for all Transfers for a settlement window
+  AppLayer -> MySQL: 6 Update settlement data (excluding accounts)
+  AppLayer -> AppLayer: 7 Settlement state processing
+  AppLayer -> TBClient: 8 Invoke account creation based on settlement state of each Transfer
+  TBClient -> TBCluster: 9 Create settlement accounts & return result
+  TBClient -> AppLayer: 10 Return settlement result
+  AppLayer -> MySQL: 11 Update final settlement state & return result
+  AppLayer -> Handler: 12 Return result
+  Handler -> API: 13 Return result
+  API -> MA: 14 Return result with settlementData
+}
+
+@enduml

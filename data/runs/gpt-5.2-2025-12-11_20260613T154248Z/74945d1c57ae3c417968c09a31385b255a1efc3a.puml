@@ -1,0 +1,81 @@
+```plantuml
+@startuml
+option handwritten true
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #3b6cff
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #1e88ff
+  ParticipantBackgroundColor #1e88ff
+  ParticipantFontColor white
+  ActorBorderColor #1e88ff
+  ActorFontColor #1e88ff
+  ArrowColor #1e88ff
+  ArrowFontColor black
+  ActivationBorderColor #0b6b6b
+  ActivationBackgroundColor #bfeeee
+}
+
+actor User
+participant BaseExecutor
+participant JdbcTransaction
+participant PooledDataSource
+participant PooledConnection
+participant Proxy
+participant Connection
+
+User -> BaseExecutor : getConnection
+activate BaseExecutor
+
+BaseExecutor -> JdbcTransaction : getConnection
+activate JdbcTransaction
+
+JdbcTransaction -> JdbcTransaction : openConnection
+
+JdbcTransaction -> PooledDataSource : getConnection
+activate PooledDataSource
+
+PooledDataSource -> PooledDataSource : popConnection
+
+PooledDataSource -> PooledConnection : <create>
+activate PooledConnection
+
+PooledConnection -> Proxy : newProxyInstance
+activate Proxy
+Proxy --> PooledConnection : 创建Connection代理类对象
+deactivate Proxy
+
+PooledConnection --> PooledDataSource : 返回PooledConnection实例
+deactivate PooledConnection
+
+PooledDataSource -> PooledConnection : isValid
+activate PooledConnection
+PooledConnection -> PooledConnection : pingConnection
+PooledConnection --> PooledDataSource : 检测连接是否有效
+PooledConnection --> PooledDataSource : 连接是否有效标识
+deactivate PooledConnection
+
+PooledDataSource -> PooledConnection : getProxyConnection
+activate PooledConnection
+PooledConnection --> PooledDataSource : 返回代理连接
+deactivate PooledConnection
+
+PooledDataSource --> JdbcTransaction : 返回代理连接
+deactivate PooledDataSource
+
+JdbcTransaction -> Connection : setTransactionIsolation
+activate Connection
+Connection --> JdbcTransaction : 设置隔离级别
+deactivate Connection
+
+JdbcTransaction -> JdbcTransaction : setDesiredAutoCommit
+JdbcTransaction --> JdbcTransaction : 设置提交模式
+JdbcTransaction --> JdbcTransaction : 获取连接
+JdbcTransaction --> BaseExecutor : 通过jdbc获取数据库连接
+deactivate JdbcTransaction
+
+BaseExecutor --> User : 返回数据库连接
+deactivate BaseExecutor
+@enduml
+```

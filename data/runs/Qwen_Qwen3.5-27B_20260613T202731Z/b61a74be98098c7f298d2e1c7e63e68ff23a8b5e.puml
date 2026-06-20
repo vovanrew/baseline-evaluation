@@ -1,0 +1,90 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "Admin" as Admin
+actor "User" as User
+participant "AccountManagement" as AM
+participant "Broker" as Broker
+participant "Notifications" as Notifications
+participant "UAA" as UAA
+participant "EmailSender" as EmailSender
+
+Admin -> AM: WorkspaceInvitation
+activate AM
+note right of AM: with email
+AM -> AM: save data to db
+deactivate AM
+AM --> Admin: 200 response
+activate AM
+AM -> Broker: create event "new user invited event"
+deactivate AM
+activate Broker
+Broker -> Notifications: read event
+deactivate Broker
+activate Notifications
+note right of Notifications: with email and senderId
+Notifications -> UAA: read info about sender
+Notifications -> Notifications: generate email
+Notifications -> Broker: create "new email event"
+deactivate Notifications
+activate Broker
+Broker -> EmailSender: read "new email event"
+deactivate Broker
+EmailSender -> User: send email
+
+alt [user accepts invitation]
+    User -> AM: WorkspaceEmailValidation
+    activate AM
+    AM -> AM: check email
+    deactivate AM
+    AM --> User: WorkspaceEmailValidationResult
+    
+    alt [email valid]
+        activate AM
+        AM -> AM: generate access code
+        AM -> Broker: create event "new access code"
+        deactivate AM
+        activate Broker
+        Broker -> Notifications: read event
+        deactivate Broker
+        activate Notifications
+        note right of Notifications: with email and access code
+        Notifications -> Notifications: generate email
+        Notifications -> Broker: create "new email event"
+        deactivate Notifications
+        activate Broker
+        Broker -> EmailSender: read "new email event"
+        deactivate Broker
+        EmailSender -> User: send email
+        
+        User -> User: get access code from email
+        User -> AM: WorkspaceAccessCodeValidation
+        activate AM
+        AM --> User: WorkspaceAccessCodeValidationResult
+        note right of AM: with email, access code
+        deactivate AM
+        
+        alt [access code valid]
+            activate AM
+            AM -> AM: change state
+            AM -> UAA: WorkspaceRegistration
+            note right of UAA: with email, username, password and code
+            UAA -> AM: check state by email
+            deactivate AM
+            activate UAA
+            UAA -> Broker: create new event "user created event"
+            note left of Broker: with userId and email
+            deactivate UAA
+            activate Broker
+            Broker -> Notifications: read event "user created event"
+            deactivate Broker
+            activate Notifications
+            Notifications -> Notifications: create user with email
+            deactivate Notifications
+        end
+    end
+end
+
+@enduml
+```

@@ -1,0 +1,36 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "user" as User
+participant "runtime" as Runtime
+participant "ibex" as Ibex
+participant "ibex.sklearn" as IbexSklearn
+participant "loader" as Loader
+participant "sklearn.linear_model" as SklearnLinearModel
+
+User -> Runtime: 1 import ibex.sklearn.linear_model
+activate Runtime
+Runtime -> Ibex: 2 import ibex
+activate Ibex
+Ibex -> IbexSklearn: 3 import ibex.sklearn
+activate IbexSklearn
+IbexSklearn -[loop]- : register sys.metapath
+IbexSklearn --> IbexSklearn
+deactivate IbexSklearn
+deactivate Ibex
+Runtime -> Loader: 5 import ibex.sklearn.linear_model
+activate Loader
+Loader -> SklearnLinearModel: 6 dir
+activate SklearnLinearModel
+SklearnLinearModel --> Loader: 7 members
+deactivate SklearnLinearModel
+Loader -[loop]- : inspect
+Loader --> Loader
+Loader -[loop]- : wrap
+Loader --> Loader
+deactivate Loader
+deactivate Runtime
+
+@enduml
+```

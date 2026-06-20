@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle Gestion de la cin\u00e9matique de connexion et de navigation entre les applications\n\nparticipant User\nparticipant Portal\nparticipant \"IAM Cognito\" as IAM\nparticipant SSO\nparticipant \"Manager Backend\" as Manager\nparticipant \"Reality Backend\" as RealityBackend\nparticipant \"Reality Frontend\" as RealityFrontend\n\nnote over SSO, Manager\n  **Question**:\n  Validation de l'utilisateur dans la plateforme Cognito cr\u00e9\u00e9 par l'administrateur ?\n  **R\u00e9ponse**:\n  D\u00e9sactiv\u00e9 dans Cognito, la validation de l'utilisateur par l'administrateur\nend note\n\ngroup \"S'inscrire\"\n  User -> Portal : S'enregistrer sur la plateforme\n  group \"Cr\u00e9ation de l'utilisateur\"\n    Portal -> SSO : Remplir le formulaire\n    note right of SSO\n      email\n      nom, pr\u00e9nom\n    end note\n    SSO -> Manager : Cr\u00e9er l'utilisateur\n    Manager -> Manager : Enregistre l'utilisateur\\ndans la base de donn\u00e9es\n    Manager -> Manager : Enregistre l'utilisateur\\nCognito avec un mot\\nde passe temporaire\n    alt success\n      Manager -> SSO : Retour de l'id de l'utilisateur\n      note right of SSO\n        **Suggestion**:\n        Email de confirmation ?\n        Changer le mot de passe lors de sa premi\u00e8re connexion\n      end note\n    else failure\n      Manager -> SSO : Retour de l'erreur\\n- utilisateur existe d\u00e9j\u00e0\\n- formulaire non valide\n    end alt\n  end\nend\n\ngroup \"Login cognito\"\n  User -> Portal : Se connecte\n  Portal -> User : est redirig\u00e9 vers le SSO\n  User -> SSO : Redirection\n  SSO -> User : est redirig\u00e9 via Passport\n  User -> IAM : Redirection\n  IAM -> User : Page d'authentification\n  User -> IAM : Saisi ses identifiants\n  alt success\n    IAM -> SSO : Utilisateur authentifi\u00e9\\navec le token Cognito\n    SSO -> SSO : Demande de d\u00e9coder\n    SSO -> SSO : Decode le token Cognito (Passport.js)\\npour r\u00e9cup\u00e9rer l'email et l'identifiant\n    SSO -> Manager : V\u00e9rification de l'utilisateur grace\\n\u00e0 son email et son/ses identifiant(s) (identities)\n    alt success\n      Manager -> SSO : Utilisateur est autoris\u00e9\n      SSO -> SSO : Cr\u00e9ation du token plateforme\n      note right of SSO\n        email\n        firstname\n        lastname\n        application ?\n      end note\n      note right of SSO\n        Utiliser un token SSO au lieu du JWT\n      end note\n      SSO -> SSO : Stocke le token plateforme en session\\ndu navigateur\n      SSO -> Manager : Stocke le token plateforme en BDD (PG)\n      SSO -> Portal : Redirige vers l'application\\net transmet le token plateforme au frontend\n      Portal -> Portal : Stocke le token sur sa session\n      Portal -> SSO : Acc\u00e8de \u00e0 l'application\\navec son token plateforme\n      note right of Portal\n        **Question**:\n        Doit-on aussi envoyer le token Cognito ?\n      end note\n      SSO -> Manager : Appel Manager pour r\u00e9cup\u00e9rer les droits\\nhauts pour l'utilisateur\n      alt success\n        Manager -> SSO : Renvoie les droits hauts (applications disponibles)\n        SSO -> Portal : Renvoie la page \u00e0 l'utilisateur\n      else failure\n        note right of Portal\n          **Question**:\n          Peut-on avoir un utilisateur sans droits hauts ?\n        end note\n        SSO -> Portal : Retour vers la page de login du SSO\n      end alt\n      note right of Portal\n        Rien n'est encore affich\u00e9\n      end note\n      note right of Portal\n        **Question**:\n        Gestion des droits haut niveau de mani\u00e8re automatique ?\n      end note\n      Portal -> Portal : Met \u00e0 disposition les applications\\nauxquelles l'utilisateur \u00e0 acc\u00e8s\n      User -> Portal : L'utilisateur peut naviguer\\nentre les applications\n    else failure\n      Manager -> SSO : Utilisateur non autoris\u00e9\n      SSO -> Portal : Redirige vers la page d'accueil du portail avec un message (non autoris\u00e9, pas de droits suffisant)\n      note right of Portal\n        **Question**:\n        Doit-on cr\u00e9er son compte sur la plateforme ?\n      end note\n    end alt\n  else failure\n    IAM -> SSO : Utilisateur non authentifi\u00e9\n    SSO -> Portal : Erreur de connexion sur la page Cognito\n  end alt\nend\n\ngroup \"Naviguer entre les applications\"\n  User -> Portal : Aller vers l'application\n  Portal -> RealityFrontend : **Redirection** route d'authentification\n  RealityFrontend -> SSO : **Redirection** vers le SSO\n  SSO -> SSO : Check du token en session (navigateur)\n  alt success\n    SSO -> RealityFrontend : **Redirection** avec le token en query (pour le r\u00e9cup\u00e9rer avec l'URL)\n    RealityFrontend -> RealityBackend : **Redirection** sur le callback de login avec\\nle token en query\n    RealityBackend -> RealityBackend : Stocke le token plateforme en local storage\n    RealityBackend -> Manager : Demande de r\u00e9cup\u00e9ration des droits fins\\nde l'utilisateur (appel simple)\n    Manager -> Manager : R\u00e9cup\u00e9ration des droits fins\\ndans sa propre BDD\n    Manager -> RealityBackend : Retour des droits utilisateur\n    RealityBackend -> RealityBackend : Stockage des droits utilisateur\\nen session\n    RealityBackend -> RealityFrontend : Redirection vers la page\\nprincipale de l'application\n  else failure\n    note right of SSO\n      **Question**:\n      La dur\u00e9e du token Cognito de l'utilisateur ?\n      30 min pour le token\n      \n      Comment faire la gestion du refresh du token ?\n      - Tous les x temps ?\n    end note\n    SSO -> RealityFrontend : Pas connect\u00e9 (token expir\u00e9 ?) ou pas autoris\u00e9\n    RealityFrontend -> RealityBackend : Eject de la connexion\n    RealityFrontend -> Portal : Redirection vers la page de connexion du portail\n  end alt\nend\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbH9AQbNY5FPPc5t8H914PKbaENjhrKvNV6ZolM3k7JUhA8GwEiJIIfp3NK1I0A"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1155,
+    "candidatesTokenCount": 1341,
+    "totalTokenCount": 2496,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1075
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "KV8xaqSLKK2_xN8Ph_TQ0Ao"
+}

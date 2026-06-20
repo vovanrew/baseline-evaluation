@@ -1,0 +1,32 @@
+@startuml
+actor browser
+participant G_Shield
+participant grabPay
+
+group deduction authorization and charge
+  browser -> G_Shield : insure
+  alt [authorization]
+    G_Shield -> grabPay : deduction authorization
+    G_Shield <-- grabPay : authorization page
+    browser -> grabPay : confirm authorization
+    browser <-- grabPay : authorization result
+  end
+  G_Shield <-- grabPay : authorization result
+  loop [charge]
+    G_Shield -> grabPay : silently charge
+    G_Shield <-- grabPay : charge result
+    G_Shield -> grabPay : confirm receive
+    G_Shield <-- G_Shield : underwriting
+  end
+end
+
+group refund
+  browser -> G_Shield : withdrawal
+  G_Shield <-- G_Shield : withdrawal
+  G_Shield -> grabPay : cancel authorization
+  G_Shield <-- grabPay : authorization result
+  G_Shield -> grabPay : refund
+  G_Shield <-- grabPay : refund result
+  browser <-- G_Shield : withdrawal result
+end
+@enduml

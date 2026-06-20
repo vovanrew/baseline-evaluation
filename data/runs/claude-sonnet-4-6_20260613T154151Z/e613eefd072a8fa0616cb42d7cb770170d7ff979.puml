@@ -1,0 +1,46 @@
+@startuml
+skinparam sequenceMessageAlign left
+skinparam backgroundColor white
+
+box "BL1 common code" #LightGray
+participant "bl1_main" as bl1_main
+participant "bl_common" as bl_common
+end box
+
+box "arm platform code" #LightBlue
+participant "fvp_bl1_setup" as fvp
+participant "arm_bl1_setup" as arm_bl1
+participant "arm_io_storage" as arm_io
+end box
+
+box "platform common code" #LightGray
+participant "plat_bl1_common" as plat_bl1
+participant "fconf" as fconf
+end box
+
+bl1_main -> fvp : bl1_platform_setup()
+fvp -> arm_bl1 : arm_bl1_platform_setup()
+arm_bl1 -> arm_io : plat_arm_io_setup()
+note right of arm_io : register and setup fip
+arm_bl1 -> fconf : fconf_load_config()
+note right of fconf : create and populate an\nimage_desc_t for FW_CONFIG
+
+arm_bl1 -> bl1_main : load_auth_image(FW_CONFIG_ID, &image_info)
+note left of bl1_main : load and auth image from fip\nwith info from plat_io_policy
+
+bl1_main -> arm_io : 
+arm_io -> fconf : FCONF_GET_PROPERTY(arm, arm_io_policies, tb_fw_cfg)
+note right of fconf : use staticaly defined policies in bl1
+
+bl1_main -> fconf : image_info
+note right of fconf : get tb_fw_config_dtb from image_info
+
+fconf -> plat_bl1 : bl1_plat_get_image_desc(BL2_IMAGE_ID)
+plat_bl1 -> fconf : BL2_IMAGE_DESC
+note right of fconf : set ep_info.args.arg0 of BL2_IMAGE_DESC\nto FW_CONFIG base address
+
+fconf -> fvp : 
+
+note over bl1_main, fconf #white : **load & auth, prepare and jump to BL2**
+
+@enduml

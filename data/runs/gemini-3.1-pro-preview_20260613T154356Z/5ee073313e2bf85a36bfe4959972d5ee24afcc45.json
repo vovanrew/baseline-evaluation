@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle create order sequence diagram\n\nactor Customer\nactor Cashier\nparticipant \":Inventory System\" as InventorySystem\nparticipant \":Order\" as Order\nparticipant \":Product\" as Product\nparticipant \":Stock\" as Stock\nparticipant \":Invoice\" as Invoice\nparticipant \":Transaction\" as Transaction\n\nactivate Customer\nCustomer -> Cashier : 1. Request order product\nactivate Cashier\nCashier --> Customer : 2. Receive order\ndeactivate Customer\n\nCashier -> InventorySystem : 3. requestCreateOrder()\nactivate InventorySystem\n\nInventorySystem -> Product : 3.1 selectProduct()\nactivate Product\n\nProduct -> Stock : 3.2 checkStock()\nactivate Stock\nStock -> Stock : 3.3 return stock\ndeactivate Stock\n\nProduct -> InventorySystem : 3.4 return product\ndeactivate Product\n\nalt IF (stock.qty > order.qty)\n    InventorySystem -> Order : 3.5 createOrder(order)\n    activate Order\n    \n    Order -> Stock : 3.6 updateStock()\n    activate Stock\n    Stock --> Order : 3.7 return update stock\n    deactivate Stock\n    \n    Order -> Invoice : 3.8 systemCreateInvoice()\n    activate Invoice\n    Invoice -> Invoice : 3.9 printInvoice()\n    Invoice --> Order : 3.10 return invoice\n    deactivate Invoice\n    \n    Order --> InventorySystem : 3.11 return order\nelse ELSE\n    Order --> InventorySystem : 3.12 can't create order\n    deactivate Order\nend\n\nInventorySystem -> Cashier : 4. response create order status\ndeactivate InventorySystem\n\nactivate Customer\nCashier --> Customer : 5. Invoice\ndeactivate Cashier\ndeactivate Customer\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHvDwrFa4Ih2QMfWR7jj7tNVBv5qiuCa4GwTGr7tz55XUqDZ5zqiBFXHe0U9Gh"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1160,
+    "candidatesTokenCount": 388,
+    "totalTokenCount": 1548,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1080
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "q18xapLxCPGH28oP1bC_mQ4"
+}

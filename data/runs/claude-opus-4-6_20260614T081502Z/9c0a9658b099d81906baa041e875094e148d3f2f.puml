@@ -1,0 +1,87 @@
+```plantuml
+@startuml
+
+class Turno {
+  # numeroDeRonda: Int
+  # jugador: Jugador
+  # Jugador[] jugadores
+  + atacarAConEjercitos(paisDefensor: String, paisAtacante: String, ejercitos: Int)
+  + posicionarEnRelevos(pais: String, cantidad: Int): Int
+  - siguiente(): Int
+  - esUltimoDeLaRonda(): Boolean
+  - siguienteEnCola(): Jugador
+}
+
+class Juego {
+  + atacarAConEjercitos(paisDefensor: String, paisAtacante: String, ejercitos: Int)
+  + agregarJugador(nombreJugador: String, color: String)
+  + iniciarJuego()
+  + reagruparDeAEjercitos(paisInicial: String, paisFinal: String, cantidad: Int)
+  + posicionarEnRelevos(pais: String, cantidad: Int): void
+  - cargarJSONPaisesYContinentes(rutaArchivo: String): void
+  - iniciarRondaDeCarga(cantidadEjercitos: Int)
+  + repartirCartas(): void
+  + esNombreValido(nombreJugador: String): Boolean
+  - agregarALimitrofes(nombrePais: String, limitrofes: String[]): void
+  - agregarPaisesYContinentes(json: JSONArray): void
+  - cargarJSONCartasConSimbolos(): void
+}
+
+class Jugador {
+  # relevos: Int
+  + tirarDados(cantidadDeDados: Int): Int resultado[]
+  + obtenerPais(unNombrePais: String): Pais
+  + prepararCargaEjercitos(cantidadRelevos: Int)
+  + agregarPais(unPais: Pais)
+  + agregarObjetivo(objetivo: Objetivo)
+  + posicionarEnRelevos(pais: String, cantidad: Int): Boolean
+  + quitarPais(unPais: Pais): void
+}
+
+abstract class Ronda {
+  # Jugador[] jugadores
+  # numeroDeRonda: Int
+  # turno: Turno
+  + atacarAConEjercitos(paisDefensor: String, paisAtacante: String, ejercitos: Int)
+  + posicionarEnRelevos(pais: String, cantidad: Int): Ronda
+}
+
+class RondaDeCarga {
+  + atacarAConEjercitos(paisDefensor: String, paisAtacante: String, ejercitos: Int)
+  + posicionarEnRelevos(pais: String, cantidad: Int): Ronda
+}
+
+class RondaDeAtaque {
+  + atacarAConEjercitos(paisDefensor: String, paisAtacante: String, ejercitos: Int)
+  + posicionarEnRelevos(pais: String, cantidad: Int): Ronda
+}
+
+class Pais {
+  # cantidad: Int
+  # continente: String
+  + agregarLimitrofe(pais: Pais)
+  + esLimitrofe(unNombrePais: String): Bool
+  + sumarEjercitos(Int cantidad): void
+  + cantidadFichasParaDados(fichasMinimas: Int, fichasMaximas: Int)
+  + quitarFicha(): void
+  + agregarFicha(): void
+  + noTieneFichas(): Boolean
+  + coincideNombre(unNombre: String): Boolean
+}
+
+class Mapa {
+  + buscarPais(nombrePais: String): Pais
+  + agregarALimitrofe(unNombrePais: String, unPaisLimitrofe: String): void
+  + agregarPais(unPais: Pais): void
+  + distribuirPaises(Jugadores[] jugadores): void
+}
+
+Juego --> Ronda
+Ronda <|-- RondaDeCarga
+Ronda <|-- RondaDeAtaque
+Juego "0..6" --> Jugador
+Jugador "1" -- "*" Pais
+Mapa "1" o-- "50" Pais
+
+@enduml
+```

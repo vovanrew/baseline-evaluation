@@ -1,0 +1,137 @@
+```plantuml
+@startuml
+title FragmentVideoChat Sequence Diagram
+
+participant "FragmentVideoChat" as FVC
+participant "LicodeConnector" as LC
+participant "PeerConnectionFactory" as PCF
+participant "RoomObserver" as RO
+participant "MediaStream" as MS
+participant "PeerConnection" as PC
+participant "StreamDescription" as SD
+participant "LicodeSdpObserver" as LSO
+participant "LicodeServer" as LS
+participant "SocketIOClient" as SIOC
+
+== Init ==
+activate FVC
+FVC -> FVC: configureConnector
+activate LC
+FVC -> LC: init
+LC --> FVC: initializeAndroidGlobals
+FVC -> LC: addObserver(RoomObserver)
+deactivate LC
+deactivate FVC
+
+== Publish ==
+activate FVC
+FVC -> FVC: startCastView.onClick
+FVC -> LC: requestPublish
+activate LC
+LC -> LC: triggerPublishAllowed
+LC --> LC: onPublishAllowed
+LC --> FVC: startPublish
+deactivate LC
+activate FVC
+FVC -> FVC: makeVideoView
+FVC -> LC: publish(VideoStreamsView)
+activate LC
+LC -> LC: doPublish
+deactivate LC
+deactivate FVC
+
+== Publish - create media ==
+activate LC
+LC -> PCF: createLocalMediaStream
+PCF --> LC: createMediaConstraints
+LC -> LC: getVideoCapturer
+LC -> MS: createVideoSource(VideoCapturer, MediaConstraints)
+MS --> LC: createVideoTrack(String, VideoSource)
+LC -> LC: addTrack
+LC -> MS: createAudioSource(MediaConstraints)
+MS --> LC: createAudioTrack(String, AudioSource)
+LC -> LC: addTrack
+deactivate LC
+
+== Publish - create offer ==
+activate LC
+LC -> LC: makePcConstraints
+LC -> LC: create MyPcObserver
+LC -> PCF: createPeerConnection(List<LiceServer>, MediaConstraints, Observer)
+PCF --> LC: addStream(MediaStream, MediaConstraints)
+LC -> PC: setMedia
+LC -> PC: attachRenderer
+LC -> PC: initLocal(PeerConnection, SdpObserver)
+activate PC
+PC -> SD: createOffer
+SD --> PC: onCreateSuccess
+PC -> SD: setLocalDescription
+SD --> PC: onSetSuccess
+PC -> LSO: sendLocalDescription
+LSO --> PC: sendsSDPSocket("publish")
+PC -> LS: publish
+LS --> PC: publish success
+PC -> SD: setRemoteDescription
+deactivate PC
+deactivate LC
+
+== Subscribe ==
+== Subscribe - token ==
+activate FVC
+FVC -> FVC: startVideoChat
+FVC -> LS: createToken
+LS --> FVC: http Load Balance
+LS --> FVC: createToken success
+FVC -> LC: connect
+activate LC
+LC -> LC: createToken
+LC -> LC: decodeToken
+LC -> LS: connect to server socket
+LS --> LC: onConnectCompleted
+deactivate LC
+deactivate FVC
+
+== Subscribe - listen socket events ==
+activate LC
+LC -> LC: listen events\nonAddStream\nonSubscribeP2P\nonPublishP2P\nonDataStream\nonRemoveStream\ndisconnect
+LC -> SIOC: sendMessageSocket("token")
+SIOC --> LC: token success
+SIOC --> FVC: onRoomConnected
+activate FVC
+FVC -> LC: setBandwidthLimits
+alt [has streams]
+    LC -> LC: triggerStreamAdded
+    LC --> LC: mOnAddStream
+    LC -> LC: triggerStreamAdded
+end
+SIOC --> FVC: onStreamAdded
+FVC -> LC: subscribe
+activate LC
+LC -> LC: doSubscribe
+LC -> LC: triggerMediaAvailable
+LC --> FVC: onStreamMediaAvailable
+deactivate LC
+activate FVC
+FVC -> FVC: makeVideoView
+FVC -> LC: attachRenderer
+activate LC
+LC -> PC: attachRenderer
+LC -> LC: create MyPcObserver
+LC -> PC: createPeerConnection
+LC -> PC: initRemote(PeerConnection, SdpObserver)
+activate PC
+PC -> SD: createOffer
+SD --> PC: onCreateSuccess
+PC -> SD: setLocalDescription
+SD --> PC: onSetSuccess
+PC -> LSO: sendLocalDescription
+LSO --> PC: sendsSDPSocket("subscribe")
+PC -> LS: subscribe
+LS --> PC: subscribe success
+PC -> SD: setRemoteDescription
+deactivate PC
+deactivate LC
+deactivate FVC
+
+@enduml
+```

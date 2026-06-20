@@ -1,0 +1,21 @@
+{
+  "id": "msg_01ThzxHTY1zTTvDLyaK3hhzo",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"User Agent\" as UA\nbox \"Wallet\"\nparticipant \"Frontend\" as FE\nparticipant \"Backend\" as BE\nend box\nbox \"Issuer\"\nparticipant \"Metadata\" as META\nparticipant \"Web Site\" as WS\nparticipant \"Token Endpoint\" as TE\nparticipant \"Credential Endpoint\" as CE\nend box\n\nUA -> WS : get credential\n\nnote over UA, CE : prepare credential issuance\n\nWS -> UA : Issuance Initiation Request\\n(pre-authz-code, credential_type, expected_key_types, issuer)\n\nUA -> FE : Issuance Initiation Request\\n(pre-authz-code, credential_type, expected_key_types, issuer)\n\nFE -> BE : gen DPoP key\nBE --> FE : \n\nFE -> BE : gen DPoP proof for issuer token endpoint\nBE --> FE : \n\nFE -> BE : get nonce (for app attestation)\nBE --> FE : nonce\n\nFE -> BE : obtain app attestation (nonce)\nBE --> FE : \n\nFE -> BE : get assertion for code exchange\\n(hash(pre-authz-code), app attestation)\n\nBE -> BE : check app_attestation\n\nBE -> BE : generate assertion\\n(iss=wallet backend, pre_authz_code_hash, client_id)\n\nBE --> FE : assertion\n\nFE -> META : get issuer metadata\n\nFE -> TE : token request\\n(pre-authz-code, pin, client_id, assertion, dpop_proof)\n\nnote over FE, TE : wallet authenticates with issuer as OAuth Client using the assertion issued by its backend (RFC 7523)\\nissuer checks wallet backend id and key against trust registry\n\nnote over FE, TE : Token Endpoint validates pre-authorized code and creates corresponding access token\n\nTE --> FE : token response\\n(access_token, c_nonce)\n\nFE -> BE : gen key : key, key_attestation\nBE --> FE : \n\nFE -> BE : create proof of posssion (c_nonce)\nBE --> FE : \n\nFE -> BE : create DPoP proof for issuance request\nBE --> FE : \n\nFE -> CE : issue credential\\n(access_token, credential_type, format, proof, key_policy, dpop_proof)\n\nnote over FE, CE : Credential Endpoint Token checks whether the access token is good for requested credential type and\\nwhether the proof of possession is valid\n\nCE --> FE : credential response (credential, format)\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370314,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 620,
+    "prompt_tokens": 1660,
+    "total_tokens": 2280
+  }
+}

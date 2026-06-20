@@ -1,0 +1,58 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ActorBorderColor black
+  ActorFontColor black
+  ParticipantBorderColor black
+  ParticipantFontColor black
+  LifeLineBorderColor gray
+  LifeLineBackgroundColor white
+  BoxBorderColor black
+  BoxBackgroundColor white
+  ArrowColor black
+  ArrowThickness 1
+  MessageAlign left
+}
+
+actor "Crapchat user" as U1
+actor "Another Crapchat user" as U2
+participant "Crapchat REST API" as API
+participant "Crapchat identity provider" as IDP
+database "Crapchat storage" as DB
+
+box "Search user" #white
+  U1 ->> API : HTTP POST request with search query
+  activate API
+  API ->> IDP : HTTP request with search query
+  activate IDP
+  IDP -->> API : HTTP response with list of users
+  deactivate IDP
+  API -->> U1 : HTTP response with array of users
+  deactivate API
+end box
+
+box "Send follow request" #white
+  U1 -> U1 : Clicks follow button
+  U1 ->> API : HTTP request with ID of the user to follow
+  activate API
+  API -> DB : SQL insert query
+  activate DB
+  DB --> API : Success response
+  deactivate DB
+  API -> U2 : Notify with follow request
+  API -->> U1 : HTTP OK response
+  deactivate API
+end box
+
+box "Accept follow request" #white
+  U2 ->> API : HTTP request to accept
+  activate API
+  API -> DB : SQL update query
+  activate DB
+  DB --> API : Success response
+  deactivate DB
+  API -->> U2 : HTTP OK response
+  deactivate API
+end box
+@enduml

@@ -1,0 +1,72 @@
+```plantuml
+@startuml
+actor "sidetree-core-go" as client
+
+box "Instance 1"
+participant "Operation\nQueue" as q1
+end box
+
+queue "orb.operation" as orb
+
+database "op-queue\nDB" as db
+
+box "Instance 2"
+participant "Operation\nQueue" as q2
+end box
+
+q1 -> orb : Subscribe
+activate orb
+orb --> q1 : ok
+deactivate orb
+
+q2 -> orb : Subscribe
+activate orb
+orb --> q2 : ok
+deactivate orb
+
+client -> q1 : Add(op1)
+activate q1
+q1 -> orb : Publish(op1)
+activate orb
+orb --> q1 : ok
+deactivate orb
+q1 --> client : ok
+deactivate q1
+
+client -> q2 : Add(op2)
+activate q2
+q2 -> orb : Publish(op2)
+activate orb
+orb --> q2 : ok
+deactivate orb
+q2 --> client : ok
+deactivate q2
+
+orb -> q1 : op2
+activate q1
+q1 --> orb : ok
+q1 -> db : Put(op2,handler1ID,expiry)
+activate db
+db --> q1 : ok
+deactivate db
+q1 -> orb : Ack(op2)
+activate orb
+orb --> q1 : ok
+deactivate orb
+deactivate q1
+
+orb -> q2 : op1
+activate q2
+q2 --> orb : ok
+q2 -> db : Put(op1,handler2ID,expiry)
+activate db
+db --> q2 : ok
+deactivate db
+q2 -> orb : Ack(op1)
+activate orb
+orb --> q2 : ok
+deactivate orb
+deactivate q2
+
+@enduml
+```

@@ -1,0 +1,65 @@
+```plantuml
+@startuml
+title AddMemberToGroupSequenceDiagram
+
+participant "IntegrationTest" as IntegrationTest
+participant "Spring Application" as SpringApplication
+participant "De\nSerializer" as DeSerializer
+participant "ctrl:AddMemberToGroupController" as Controller
+participant "AddMemberRequestAssembler" as RequestAssembler
+participant "AddMemberResponseDTOAssembler" as ResponseAssembler
+participant "srv:AddMemberToGroupService" as Service
+
+note right of Service: Continues through next Diagram
+
+IntegrationTest -> SpringApplication: POST 1 /groups/"Family"/members/"ana@gmail.com"
+
+activate SpringApplication
+    SpringApplication -> DeSerializer: 1.1 deserialize("groupDesc":"Family", "personEmail":"ana@gmail.com")
+    
+    activate DeSerializer
+        DeSerializer -> DeSerializer: 1.1.1 create (groupDesc, PersonEmail)
+        box #EEE "info:AddMemberRequestInfoDTO"
+            endbox
+        deactivate DeSerializer
+    
+    SpringApplication -> Controller: 1.2 addMember(info)
+    
+    activate Controller
+        Controller -> RequestAssembler: addMemberMapToDTO 1.2.1 (info.getGroupDescription(), info.getPersonEmail())
+        
+        activate RequestAssembler
+            RequestAssembler -> RequestAssembler: 1.2.1.1 create
+            box #EEE "requestDTO: AddMemberRequestDTO"
+                endbox
+            deactivate RequestAssembler
+        
+        Controller -> Service: 1.2.2 addMemeber(requestDTO)
+        
+        activate Service
+            Service --> Controller: 1.2.3 groupDTO
+            deactivate Service
+        
+        Controller -> ResponseAssembler: 1.2.4 mapToGroupResponseDTO(GroupDTO)
+        
+        activate ResponseAssembler
+            ResponseAssembler -> ResponseAssembler: 1.2.4.1 create
+            box #EEE "groupRespDTO: GroupResponseDTO"
+                endbox
+            ResponseAssembler --> Controller: 1.2.5 groupRespDTO
+            deactivate ResponseAssembler
+        
+        Controller --> SpringApplication: 1.2.6 ResponseEntity(groupRespDTO, HttpStatus.OK)
+        deactivate Controller
+    
+    SpringApplication -> DeSerializer: 1.3 serialize(ResponseEntity(groupRespDTO, HttpStatus.OK))
+    
+    activate DeSerializer
+        DeSerializer --> SpringApplication: 1.4 HttpResponse
+        deactivate DeSerializer
+    
+    SpringApplication --> IntegrationTest: 1.5 HttpResponse
+deactivate SpringApplication
+
+@enduml
+```

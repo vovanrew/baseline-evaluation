@@ -1,0 +1,42 @@
+```plantuml
+@startuml
+
+actor Teams
+boundary API
+participant BuildService
+participant CommandParser
+participant BuildCommand
+participant BuildSystem
+participant BuildFactory
+database BuildDb
+participant BuildMonitor
+participant NotificationService
+database NotificationDb
+
+Teams -> API : /api/messages
+API -> BuildService : ProcessCommandAsync
+BuildService -> CommandParser : ParseCommand
+BuildService <-- CommandParser : BuildCommand
+BuildService -> BuildCommand : Execute
+
+BuildCommand -> BuildSystem : CreateBuildAsync
+
+box "BuildSystem Library"
+BuildSystem -> BuildFactory : CreateBuildAsync
+BuildFactory -> BuildDb : Save build
+BuildFactory --> BuildSystem : Build
+BuildSystem -> BuildMonitor : AddBuildAsync
+BuildSystem <-- BuildMonitor
+end box
+
+BuildCommand <-- BuildSystem : Build
+BuildCommand -> NotificationService : AddNotificationAsync
+NotificationService -> NotificationDb : Save notification
+NotificationService <-- NotificationDb
+BuildCommand <-- NotificationService
+BuildService <-- BuildCommand
+API <-- BuildService
+Teams <-- API
+
+@enduml
+```

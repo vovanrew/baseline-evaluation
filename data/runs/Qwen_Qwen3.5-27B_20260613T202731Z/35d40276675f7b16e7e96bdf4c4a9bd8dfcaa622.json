@@ -1,0 +1,22 @@
+{
+  "id": "feba6f6a-617b-4c87-8ba4-edb733606478",
+  "object": "chat.completion",
+  "created": 1781442337,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Update Relationship Event Handler UML\n\nparticipant \"SNS\" as SNS\n    participant \"Event Dispatcher Topic\" as EDTopic\nparticipant \"Lambda\" as Lambda\n    participant \"Update Relationship Event Handler\" as Handler\nparticipant \"DynamoDB\" as DynamoDB\n    participant \"Relationship Owner Table\" as OwnerTable\n    participant \"Relationship Commitment Table\" as CommitmentTable\n\nEDTopic -> Handler: filter on Relationship::Update Event\n\nactivate Handler\nHandler -> Handler: [SessionDecorator.puml]\ndeactivate Handler\nactivate Handler\nHandler -> Handler: [TrackEventHandlerWrapper.puml]\ndeactivate Handler\nactivate Handler\nHandler -> Handler: extract Message from Event\ndeactivate Handler\nactivate Handler\nHandler -> Handler: validate Message\ndeactivate Handler\nactivate Handler\nHandler -> Handler: validate event-name\ndeactivate Handler\nactivate Handler\nHandler -> Handler: validate event-version\ndeactivate Handler\nactivate Handler\nHandler -> Handler: validate stage\ndeactivate Handler\nactivate Handler\nHandler -> OwnerTable: Get Existing Relationship\nactivate OwnerTable\nOwnerTable --> Handler\ndeactivate OwnerTable\ndeactivate Handler\nactivate Handler\nHandler -> Handler: Generate Relationship Dict\ndeactivate Handler\nactivate Handler\nHandler -> Handler: Combine Existing Relationship Attributes With New Changes\ndeactivate Handler\n\nopt if missing required schema key\n    activate Handler\n    Handler -> Handler: Error Handling\n    deactivate Handler\nend\n\nactivate Handler\nHandler -> Handler: Get AdditionalAttributes\ndeactivate Handler\n\nalt if Relationship contains description and AdditionalAttributes doesn't contain completed signal\n    activate Handler\n    Handler -> OwnerTable: update Relationship\n    activate OwnerTable\n    OwnerTable --> Handler\n    deactivate OwnerTable\n    deactivate Handler\n    activate Handler\n    Handler -> Handler: Error Handling\n    deactivate Handler\nend\n\nactivate Handler\nHandler -> Handler: Generate commitments to add or delete\ndeactivate Handler\n\nalt if Commitment Operations Exist\n    activate Handler\n    Handler -> Handler: Generate starting indexes based on AdditionalAttributes\n    deactivate Handler\n    activate Handler\n    Handler -> CommitmentTable: Batch_Write() RelationshipCommitments\n    activate CommitmentTable\n    CommitmentTable --> Handler\n    deactivate CommitmentTable\n    deactivate Handler\n    activate Handler\n    Handler -> Handler: Error Handling\n    deactivate Handler\nend\n\nactivate Handler\nHandler -> Handler: Track Event Handler Wrapper\ndeactivate Handler\nactivate Handler\nHandler -> Handler: Error Handler Wrapper\ndeactivate Handler\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1566,
+    "completion_tokens": 519,
+    "total_tokens": 2085
+  }
+}

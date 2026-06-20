@@ -1,0 +1,38 @@
+```plantuml
+@startuml
+skinparam participantStyle rectangle
+
+participant "subject" as S
+participant "blockchain" as B
+participant "issuer" as I
+
+activate S
+S -> B: look up issuer DID
+activate B
+B --> S: issuer public key
+deactivate B
+
+S <-[hidden]: encrypt request with issuer public key
+S <-[hidden]: sign request with subject private key
+
+S -> I: request credential
+activate I
+I -> B: look up subject DID
+activate B
+B --> I: subject public key
+deactivate B
+
+I <-[hidden]: validate request signature
+I <-[hidden]: decrypt request with issuer private key
+I <-[hidden]: validate facts of requested credential
+I <-[hidden]: create Verified Credential (VC)
+I <-[hidden]: sign VC with issuer private key
+
+I --> S: verified credential
+deactivate I
+
+S <-[hidden]: store credential
+deactivate S
+
+@enduml
+```

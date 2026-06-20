@@ -1,0 +1,80 @@
+@startuml
+actor Client
+participant Dispatcher
+database Database
+participant RSyncServer
+participant Arbiter
+participant Slave
+participant Worker
+
+box "Master"
+participant Dispatcher
+database Database
+participant RSyncServer
+participant Arbiter
+end box
+
+box "Worker"
+participant Slave
+participant Worker
+end box
+
+Client -> Dispatcher : Create a taskset
+Client -> Dispatcher : Enqueue tasks
+Client -> Dispatcher : Taskset request
+Dispatcher -> Worker : Taskset dispatch
+Dispatcher -> Database : Log the worker participation
+
+== RSync ==
+Dispatcher -> Worker : RSync
+
+== Setup ==
+Worker -> Worker : Worker setup
+Worker -> Database : Add a worker setup log
+
+alt [setup failed]
+  Worker -> Dispatcher : Fail request
+  Dispatcher -> Database : Mark the taskset as failed
+  Dispatcher -> Worker : Notify the taskset is marked as failed
+end
+
+== Testing ==
+Worker -> Slave : Spawn slaves
+Slave -> Slave : Slave setup
+
+Dispatcher -> Database : Dequeue a task
+Database --> Dispatcher : Return a task
+Dispatcher -> Database : Add a trial
+Worker -> Worker : Execute a task
+Worker -> Database : Add a trial result
+Worker -> Dispatcher : Notify the trial result
+Dispatcher -> Database : Query the trial result
+Database --> Dispatcher : Respond to the query
+
+alt [passed or pending]
+  Dispatcher -> Database : Mark the task as finished
+else [retry needed]
+  Dispatcher -> Database : Enqueue the task
+else [no more retries]
+  Dispatcher -> Database : Mark the task as failed
+end
+
+Dispatcher -> Database : Dequeue a task
+Database --> Worker : No tasks left
+Worker -> Dispatcher : Check request
+Dispatcher -> Database : Check whether all tasks are finished
+Database --> Dispatcher :
+
+alt [some tasks are left]
+  Dispatcher -> Database : Enqueue the tasks
+end
+
+Dispatcher -> Database : Mark the taskset as finished
+Dispatcher -> Worker : Notify the taskset is marked as finished
+Worker -> Slave : Kill slaves
+Worker -> Database : Add slave logs
+
+Client -> Dispatcher : Query the status of the taskset
+Dispatcher --> Client : Respond to the query
+
+@enduml

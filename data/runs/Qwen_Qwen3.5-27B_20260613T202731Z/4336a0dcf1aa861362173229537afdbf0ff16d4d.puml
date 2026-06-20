@@ -1,0 +1,50 @@
+```plantuml
+@startuml
+actor "Member" as Member
+participant ":TicketDetailPage" as TicketDetailPage
+participant ":TicketDetailContainer" as TicketDetailContainer
+participant ":AttendanceService (Frontend)" as AttendanceServiceFE
+participant ":Router" as Router
+participant ":AttendanceHTTPTransport" as AttendanceHTTPTransport
+participant ":AttendanceEndpoint" as AttendanceEndpoint
+participant ":AttendanceService" as AttendanceServiceBE
+participant ":RequesterService" as RequesterService
+participant ":AttendanceCommand" as AttendanceCommand
+participant ":AttendanceQuery" as AttendanceQuery
+
+Member -> TicketDetailPage: Click "Yes" Button
+TicketDetailPage -> TicketDetailContainer: handleConfirmationInput()
+TicketDetailContainer -> AttendanceServiceFE: confirmAttendance(classId, payload)
+AttendanceServiceFE -> Router: route("PATCH", "/v2/class/{class_id}/attendance/confirmation")
+Router -> AttendanceHTTPTransport: Confirmation(AttendanceService, [IServerOption])
+AttendanceHTTPTransport -> AttendanceEndpoint: Confirmation(AttendanceService)
+AttendanceEndpoint -> AttendanceServiceBE: Confirmation(context, payload)
+activate AttendanceServiceBE
+AttendanceServiceBE -> AttendanceServiceBE: Validate()
+alt "Data Valid"
+    AttendanceServiceBE -> AttendanceQuery: GetPureModel(context, [ISliceCondition])
+    activate AttendanceQuery
+    AttendanceQuery --> AttendanceServiceBE: ticket
+    deactivate AttendanceQuery
+    alt "Ticket Status is Accepted"
+        AttendanceServiceBE -> RequesterService: Register(context, [Ipayload])
+        activate RequesterService
+        RequesterService --> AttendanceServiceBE: UpdateRequestStatus(context, ticket)
+        deactivate RequesterService
+        RequesterService --> AttendanceServiceBE: is updated
+    end
+    AttendanceServiceBE --> AttendanceEndpoint: is updated
+    AttendanceServiceBE --> AttendanceEndpoint: response := Response(is updated, nil)
+    deactivate AttendanceServiceBE
+else
+    AttendanceServiceBE --> AttendanceEndpoint: UnprocessableEntity
+    deactivate AttendanceServiceBE
+end
+AttendanceEndpoint --> AttendanceHTTPTransport: response
+AttendanceHTTPTransport --> Router: response
+Router --> AttendanceServiceFE: response
+AttendanceServiceFE --> TicketDetailContainer: response
+TicketDetailContainer --> TicketDetailPage: response
+TicketDetailPage --> Member: response
+@enduml
+```

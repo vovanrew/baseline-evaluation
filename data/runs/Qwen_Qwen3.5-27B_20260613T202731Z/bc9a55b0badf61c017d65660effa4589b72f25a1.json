@@ -1,0 +1,22 @@
+{
+  "id": "6a65bf87-6a61-4f97-8aa3-11556cc3afc9",
+  "object": "chat.completion",
+  "created": 1781439278,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Secure Map Reduce 2 \u2013 Shuffle Service Token Flow\n\nparticipant \"Client\\n(c)\" as c\nparticipant \"Resource Manager\\n(rm)\" as rm\nparticipant \"Node Manager\\n(nm)\" as nm\nparticipant \"Shuffle Handler\\n(ss)\" as ss\nparticipant \"File System\\n(fs)\" as fs\n\n== Bootstrap ==\nactivate nm\ndeactivate nm\n\n== Job Definition ==\nc -> rm: 1 createJob [...] ()\\n: job-id\nactivate c\nc <- c: createShuffleToken\\n2 ( shfl-tkn-mk )\\n: shfl-tkn\nc <- c: serializeTokens\\n3 ( shfl-tkn, ... )\\n: c-tokens{shfl-tkn,...}\ndeactivate c\n\n== Job Submission ==\nc -> rm: submitApplication\\n4 [...]\\n( job-id, c-tokens{shfl-tkn}, ... )\\n: app-rpt{clnt-tkn}\n\n== Job Initiation ==\nrm -> nm: startContainer\\n5 [...]\\n( c-tokens{shfl-tkn},svc-tokens{shfl-tkn}, ... )\nactivate nm\nnm -> ss: 6 initApp\\n( job-id, shfl-tkn )\nactivate ss\nss -> am: 7 exec\nactivate \"Application Master\\n(am)\" as am\nam -> nm: startContainer\\n8 [...]\\n( svc-tokens{shfl-tkn}, ... )\nnm -> ac: 9 exec\nactivate \"Application Container\\n(ac)\" as ac\nac -> t: 10 exec\nactivate \"Task\\n(t)\" as t\n\n== Map Task Execution ==\nt -> fs: 11 writeShuffleData[]():\n\n== Reduce Task Execution ==\nss -> t: 12 readShuffleData [SDT:shfl-tkn] (...): shfl-data\nss -> fs: 13 readShuffleData\nfs --> ss: 14 shfl-data\n\n== Job Completion ==\ndeactivate t\ndeactivate ac\ndeactivate am\ndeactivate ss\ndeactivate nm\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2399,
+    "completion_tokens": 458,
+    "total_tokens": 2857
+  }
+}

@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 30
+skinparam BoxPadding 10
+
+actor "havenarbeider" as H
+actor "douane en voedselinspectie" as D
+actor "scheepsagent" as S
+
+participant "Api gateway" as API
+participant "kapiteinsdienst" as K
+participant "administratie" as A
+participant "containerbeheer en –transport" as C
+
+box "per schip"
+  S -> API : registerVessel
+  API -> K : registerVessel
+  K -> A : requestOffer
+  A --> K : offerCreated
+  A -> C : newContainerList
+
+  opt "[deleteOffer]"
+    D -> API : offerConfirmation(isConfirmed == false)
+    API -> K : offerConfirmation(isConfirmed == false)
+    K -> A : deleteOffer
+  end
+
+  D -> API : getDocuments
+  API -> A : getDocuments
+  A --> API
+  API --> D
+end box
+
+box "per havenarbeider"
+  H -> API : timeBadging
+  API -> A : timeBadging
+
+  H -> API : getPayCheck
+  API -> A : getPayCheck
+  A --> API
+  API --> H
+end box
+
+@enduml
+```

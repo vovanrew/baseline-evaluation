@@ -1,0 +1,21 @@
+{
+  "id": "msg_018n1gDd9Ka7y56LcP7CvpWK",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant JCallGraph\nparticipant CliManager\nparticipant MethodCallsList\nparticipant CalledFromList\nparticipant File\nparticipant JarFile\nparticipant ZipEntry\nparticipant ClassParser\nparticipant ClassVisitor\nparticipant Runner\n\nJCallGraph -> CliManager : new CliManager()\nJCallGraph -> CliManager : main(args)\nCliManager --> CliManager\n\nJCallGraph -> MethodCallsList : getMethodCallsList()\nMethodCallsList --> JCallGraph : MethodCallsList\n\nJCallGraph -> File : new File\nFile --> JCallGraph : File\n\nJCallGraph -> JarFile : new JarFile(File)\nJarFile --> JCallGraph : JarFile\n\nJCallGraph -> JarFile : enumerationAsStream(Enumeration<T> e)\nJarFile --> JCallGraph : note right: Jar en formato stream\n\nloop [forEach]\n  alt [isDirectory() and getName().endsWith(\".class\")]\n    JCallGraph -> ClassParser : new ClassParser(String, String)\n    ClassParser --> JCallGraph : cp = ClassParser\n\n    JCallGraph -> ClassParser : getClassVisitor()\n    ClassParser --> JCallGraph\n\n    JCallGraph -> ClassVisitor : apply(ClassParser)\n\n    JCallGraph -> ClassVisitor : start()\n    ClassVisitor --> JCallGraph : HashMap<MethodReport, List<MethodReport>>\n\n    alt [!= null]\n      JCallGraph -> MethodCallsList : add(HashMap<MethodReport, List<MethodReport>>)\n    end\n  end\nend\n\nJCallGraph -> Runner : main(String[])\n\nJCallGraph -> Runner : exportFiles();\nRunner --> JCallGraph\n\n....[catch]....\n\nJCallGraph -> JCallGraph : printStackTrace()\nJCallGraph --> JCallGraph\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370752,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 424,
+    "prompt_tokens": 1647,
+    "total_tokens": 2071
+  }
+}

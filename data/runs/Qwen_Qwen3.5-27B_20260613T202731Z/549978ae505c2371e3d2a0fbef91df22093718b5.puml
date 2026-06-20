@@ -1,0 +1,57 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+interface Observer {
+    + notify(event: ManagerEvent)
+}
+
+class System {
+    - managedTypes: List<ComponentType>
+    - filteredEntities: List<Entity>
+    + addEntityRef(): Unit
+    + removeEntityRef(): Unit
+    + update(): Unit
+    # checkEntityISCompatible(): Unit
+}
+
+class EntityManager {
+    - entities: List<Entity>
+    - systems: Set<Observer>
+    + subscribe(system: Observer)
+    + addEntity(entity: Entity)
+    + removeEntity(id: Int)
+    # notifySystems(event: ManagerEvent)
+}
+
+class ComponentType {
+    DIRECTION, POSITION, SPEED, SPAWN, ...
+}
+
+class Entity {
+    <<Product Type>>
+    - ID: Int
+    - components: Map<ComponentType, Component>
+}
+
+class Component {
+    <<Product Type>>
+    - type: ComponentType
+}
+
+' Relationships
+System --|> Observer : implements
+EntityManager o-- "0..*" Observer : observes
+EntityManager *-- "0..*" Entity : manages
+Entity *-- "0..*" Component : contains
+ComponentType *-- "1" Component : defines
+System o-- "0..*" Entity : filters
+System *-- "1..*" ComponentType : uses
+
+' Notes
+note right of Entity
+    Module + Case Class
+end note
+
+@enduml
+```

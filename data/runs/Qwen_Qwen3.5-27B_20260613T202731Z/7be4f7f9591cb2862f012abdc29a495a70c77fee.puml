@@ -1,0 +1,56 @@
+```plantuml
+@startuml
+package "test" {
+    package "usecase_test" {
+        [BrowseItemUseCaseTest] as BrowseItemUseCaseTest
+    }
+    package "mock_repository" {
+        [ItemRepositoryMock] as ItemRepositoryMock
+    }
+}
+
+package "presentation" {
+    package "api" {
+        [router] as router
+    }
+}
+
+package "application" {
+    package "usecase" {
+        [BrowseItemUseCase] as BrowseItemUseCase
+    }
+    package "dto" {
+        [BrowseItemDto] as BrowseItemDto
+    }
+}
+
+package "domain" {
+    package "repository" {
+        interface ItemRepository
+    }
+    package "model" {
+        [ItemEntity] as ItemEntity
+    }
+}
+
+package "infrastructure" {
+    package "db" {
+        [ItemRepositoryDbMysql] as ItemRepositoryDbMysql
+    }
+}
+
+BrowseItemUseCaseTest --> BrowseItemUseCase
+BrowseItemUseCaseTest --> ItemRepository
+BrowseItemUseCaseTest --> ItemEntity
+BrowseItemUseCaseTest --> ItemRepositoryMock
+ItemRepositoryMock ..|> ItemRepository
+router --> BrowseItemUseCase
+router --> BrowseItemDto
+BrowseItemUseCase ..> ItemRepository
+BrowseItemUseCase --> ItemEntity
+BrowseItemDto --> ItemEntity
+ItemRepositoryDbMysql ..|> ItemRepository
+ItemRepositoryDbMysql --> ItemEntity
+
+@enduml
+```

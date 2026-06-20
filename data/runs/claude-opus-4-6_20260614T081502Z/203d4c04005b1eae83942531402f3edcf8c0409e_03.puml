@@ -1,0 +1,37 @@
+```plantuml
+@startuml
+title Request Order Change
+
+actor Buyer
+actor Grower
+actor Manager
+entity System
+database db
+
+Grower -> System : Make **Order Change Request**
+System -> db : Insert **Order\nChange Request**
+System -> Manager : Email **Order\nChange Request**
+
+box "Confirmation process"
+Manager -> Buyer : Confirm details of **Order\nChange Request** over email
+Buyer -> Manager : Confirm details of **Order\nChange Request** over email
+end box
+
+alt All agreed?
+Manager -> System : Edit **Order**
+System -> db : Update **Order**
+System -> db : Update **Order\nChange Request**
+System -> Manager : Email details **Order Change**
+System -> Grower : Email details **Order Change**
+
+else Not agreed to?
+note right of System : Nothing to do here unless we add a\n**Change Request** editing function
+end
+
+note right of Manager
+1. //Email// could also mean text message,
+phone call or face to face
+end note
+
+@enduml
+```

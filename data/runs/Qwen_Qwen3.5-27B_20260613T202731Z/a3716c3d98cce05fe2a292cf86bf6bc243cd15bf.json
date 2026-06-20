@@ -1,0 +1,22 @@
+{
+  "id": "70cdae84-c850-4ee2-8bc9-abf7d66f60c0",
+  "object": "chat.completion",
+  "created": 1781489200,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam sequence {\n  ArrowColor DarkSlateGray\n  ActorBorderColor Black\n  ActorBackgroundColor WhiteSmoke\n  ParticipantBorderColor Black\n  ParticipantBackgroundColor LightSteelBlue\n  LifeLineBorderColor Black\n  LifeLineBackgroundColor WhiteSmoke\n}\n\ntitle TCP Connection Lifecycle\n\nparticipant \"client\" as ClientApp\nparticipant \"tcpclient\" as TcpClient\nparticipant \"tcpserver\" as TcpServer\nparticipant \"server\" as ServerApp\n\n== Connection Establishment ==\nactivate ServerApp\nTcpServer -> TcpServer: listen\nactivate TcpServer\nTcpServer -[blue]> TcpServer: LISTEN\ndeactivate TcpServer\n\nactivate ClientApp\nClientApp -> TcpClient: connect\nactivate TcpClient\nTcpClient -[teal]> TcpClient: SYN-SENT\nTcpClient -> TcpServer: SYN\nactivate TcpServer\nTcpServer -[blue]> TcpServer: SYN-RECEIVED\nTcpServer --> TcpClient: SYN, ACK\nTcpClient --> TcpServer: ACK\nTcpClient -[green]> TcpClient: ESTABLISHED\nTcpServer -[green]> TcpServer: ESTABLISHED\ndeactivate ClientApp\ndeactivate TcpClient\ndeactivate TcpServer\n\n== Data Transfer ==\nactivate ServerApp\nServerApp -> TcpServer: write\nTcpServer -> TcpServer: EPOLLIN\nTcpServer --> TcpClient: PSH, ACK\nTcpClient --> TcpServer: ACK\ndeactivate ServerApp\n\nactivate ClientApp\nTcpClient -> TcpClient: EPOLLIN\nClientApp -> TcpClient: read\ndeactivate ClientApp\ndeactivate TcpClient\ndeactivate TcpServer\n\n== Connection Termination (Server Initiated) ==\nactivate ServerApp\nServerApp -> TcpServer: close\nactivate TcpServer\nTcpServer -[purple]> TcpServer: FIN_WAIT1\nTcpServer --> TcpClient: FIN, ACK\nactivate TcpClient\nTcpClient -[pink]> TcpClient: CLOSE_WAIT\nTcpClient --> TcpServer: ACK\nTcpServer -[orange]> TcpServer: FIN_WAIT2\ndeactivate TcpClient\n\n== Connection Termination (Client Initiated) ==\nactivate ClientApp\nTcpClient -> TcpClient: EPOLLRDHUP\nClientApp -> TcpClient: close\nactivate TcpClient\nTcpClient -[magenta]> TcpClient: LAST_ACK\nTcpClient --> TcpServer: FIN\nTcpServer --> TcpClient: ACK\nTcpClient -[red]> TcpClient: CLOSE\ndeactivate TcpClient\ndeactivate ClientApp\n\n== Final Cleanup ==\nTcpServer -[yellow]> TcpServer: TIMEWAIT\nnote right of TcpServer: timer 60s\nTcpServer -[red]> TcpServer: CLOSE\ndeactivate TcpServer\ndeactivate ServerApp\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 831,
+    "completion_tokens": 576,
+    "total_tokens": 1407
+  }
+}

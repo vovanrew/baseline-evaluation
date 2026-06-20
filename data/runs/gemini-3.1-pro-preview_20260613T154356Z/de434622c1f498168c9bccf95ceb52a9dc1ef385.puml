@@ -1,0 +1,43 @@
+```plantuml
+@startuml
+skinparam maxMessageSize 150
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+
+actor "" as User
+participant "<<boundary>>\nZMRegistracijskiObrazec" as ZMRegistracijskiObrazec <<boundary>> #LightBlue
+participant "<<boundary>>\nZMDomačaStran" as ZMDomačaStran <<boundary>> #LightBlue
+participant "<<control>>\nKrmilnikRegistracija" as KrmilnikRegistracija <<control>> #LightGray
+participant "<<entity>>\nUporabnik" as Uporabnik <<entity>> #LightYellow
+
+User -> ZMRegistracijskiObrazec : vnesiPodatke(ime, priimek, email, geslo)
+activate ZMRegistracijskiObrazec
+
+ZMRegistracijskiObrazec -> KrmilnikRegistracija : registriraj(ime, priimek, email, geslo)
+activate KrmilnikRegistracija
+
+KrmilnikRegistracija -> KrmilnikRegistracija : preveriPodatke()
+activate KrmilnikRegistracija
+deactivate KrmilnikRegistracija
+
+KrmilnikRegistracija -> Uporabnik : ustvari(ime, priimek, email, geslo)
+activate Uporabnik
+
+Uporabnik -> Uporabnik : shrani()
+activate Uporabnik
+deactivate Uporabnik
+
+Uporabnik --> KrmilnikRegistracija : uspeh
+deactivate Uporabnik
+
+KrmilnikRegistracija --> ZMRegistracijskiObrazec : uspeh
+deactivate KrmilnikRegistracija
+
+ZMRegistracijskiObrazec -> ZMDomačaStran : prikaži()
+activate ZMDomačaStran
+deactivate ZMDomačaStran
+
+deactivate ZMRegistracijskiObrazec
+
+@enduml
+```

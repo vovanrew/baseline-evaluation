@@ -1,0 +1,41 @@
+```plantuml
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "browser" as Browser
+participant "G_Shield" as GShield
+participant "grabPay" as GrabPay
+
+== deduction authorization and charge ==
+
+Browser -> GShield : insure
+
+alt [authorization]
+    GShield -> GrabPay : deduction authorization
+    GrabPay --x Browser : authorization page
+    Browser -> GrabPay : confirm authorization
+    GrabPay --x Browser : authorization result
+end
+
+GrabPay --x GShield : authorization result
+
+loop [charge]
+    GShield -> GrabPay : silently charge
+    GrabPay -> GShield : charge result
+    GShield -x GrabPay : confirm receive
+    GShield -x GShield : underwriting
+end
+
+== refund ==
+
+Browser -> GShield : withdrawal
+GShield -> GShield : withdrawal
+GShield -> GrabPay : cancel authorization
+GrabPay --x GShield : authorization result
+GShield -> GrabPay : refund
+GrabPay --x GShield : refund result
+GShield --x Browser : withdrawal result
+
+@enduml
+```

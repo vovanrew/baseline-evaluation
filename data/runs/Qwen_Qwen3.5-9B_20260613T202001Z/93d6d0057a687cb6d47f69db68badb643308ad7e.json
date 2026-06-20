@@ -1,0 +1,22 @@
+{
+  "id": "b2d35f70-6b32-467f-bb52-f307b962ef36",
+  "object": "chat.completion",
+  "created": 1781410990,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle OAuth2 Authorization Code Grant Workflow with SAML2 Post Binding for user provisioning\n\npackage \"HealthSphere\" {\n  participant \"Apigee Edge\" as apigee\n  participant \"Orion Health Platform\" as orion\n}\n\nparticipant \"HealthCloud\" as healthcloud\nparticipant \"Embedded Browser\" as browser\n\nhealthcloud -> browser: GET /authorize?response_type=code\nbrowser --> healthcloud: 302 https://<redirect_url> (SAML OR token)\n\nactivate browser\nSAML Authentication\n  browser -> apigee: POST /oauth2/saml\n  activate apigee\n  apigee -> orion: POST /login-auth/saml?path=/actor/current\n  activate orion\n  orion --> orion: Verify SAMLResponse\n  deactivate orion\n  orion --> apigee: Generate authorization code\n  deactivate apigee\n  apigee --> browser: 302 https://<redirect_url>?code=<code>\n  deactivate browser\nend SAML Authentication\n\nhealthcloud -> apigee: POST /token?code=<code>\nactivate apigee\napigee --> healthcloud: 200 access_token + refresh_token\ndeactivate apigee\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1272,
+    "completion_tokens": 273,
+    "total_tokens": 1545
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01FLus2wQ4Nqqi1SFSPBqovX",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\ntitle US004 - As Administrator, I want to search for users\n\nactor Administrator\n\nparticipant \": SearchUsersByParamsRoute\" as Route\nparticipant \"inDto : SearchUserDto\" as inDto\nparticipant \": UsersController\" as Controller\nparticipant \": SearchUsersByParamsService\" as Service\nparticipant \": ISystemUserRepo\" as SysRepo\nparticipant \": IUserProfileRepo\" as ProfileRepo\nparticipant \"usersFound : List<SystemUser>\" as usersFoundList\nparticipant \"usersFoundDto : List<UserDto>\" as usersFoundDtoList\nparticipant \"user : SystemUser\" as user\nparticipant \": SystemUserMapper\" as Mapper\nparticipant \"userDto : OutputUserDto\" as userDto\nparticipant \"usersJson : ResponseEntity\" as usersJson\n\nnote left of Administrator\nThe parameters (name, email, profile and function) will be in the query of the request. At least, one of than must be typed or chosen.\nend note\n\nAdministrator -> Route : 1 GET /users?name={name}&email={email}&profile{profile}&func={func}\n\nRoute -> Controller : 2 searchUsersByTypedParams(inDto)\n\nController -> Service : 3 searchUsersByTypedParams(inDto)\n\nopt if the request has a profile\nService -> ProfileRepo : 4 result : existByUserProfileId(profile)\nend\n\nalt [depending on which params came from inputDto, the service class will invoke the respective method]\nService -> SysRepo : 5 findAllBy...()\n\nService -> usersFoundList : 6 create()\n\nSysRepo --> Service : 7 usersFound\nend\n\nService -> usersFoundDtoList : 8 create()\n\nloop [for which user found at the list]\nService -> Mapper : 9 model2Dto(user)\n\nMapper -> userDto : 10 create()\n\nMapper --> Service : 11 userDto\n\nService -> usersFoundDtoList : 12 add(userDto)\nend\n\nService --> Controller : 13 usersFoundDto\n\nController -> usersJson : 14 create(usersFoundDto)\n\nController --> Route : 15 usersJson\n\nRoute --> Administrator : 16 Show the list of user found by typed/chosen parameters\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432632,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 538,
+    "prompt_tokens": 1104,
+    "total_tokens": 1642
+  }
+}

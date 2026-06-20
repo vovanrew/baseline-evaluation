@@ -1,0 +1,50 @@
+```plantuml
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "ScooterOwner\nSavManager\nSavTechnicien" as User
+database "Claims" as ClaimsDB
+boundary "ClaimsService" as Service
+entity "Claim" as ClaimEntity
+
+User -> ClaimsDB : getClaimDetail(Id)
+activate ClaimsDB
+ClaimsDB -> Service : getClaimDetail(Id)
+activate Service
+Service -> ClaimEntity : getClaimDetail(Id)
+activate ClaimEntity
+
+alt claim is found
+    ClaimEntity --> Service : claimDetail
+    deactivate ClaimEntity
+    Service --> ClaimsDB : claimDetail
+    deactivate Service
+    ClaimsDB --> User : claimDetail
+else claim is not found
+    ClaimEntity --> Service : claimNotFound
+    deactivate ClaimEntity
+    Service --> ClaimsDB : claimNotFound
+    deactivate Service
+    ClaimsDB --> User : claimNotFound
+end
+deactivate ClaimsDB
+
+User -> ClaimsDB : getClaimTechnicienHistory()
+activate ClaimsDB
+ClaimsDB -> ClaimsDB : toggleTechnicienHistory()
+activate ClaimsDB
+ClaimsDB --> User : technicienHistory
+deactivate ClaimsDB
+deactivate ClaimsDB
+
+User -> ClaimsDB : getClaimStatusHistory()
+activate ClaimsDB
+ClaimsDB -> ClaimsDB : toggleStatusHistory()
+activate ClaimsDB
+ClaimsDB --> User : statusHistory
+deactivate ClaimsDB
+deactivate ClaimsDB
+
+@enduml
+```

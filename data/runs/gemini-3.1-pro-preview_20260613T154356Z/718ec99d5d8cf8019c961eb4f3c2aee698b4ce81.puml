@@ -1,0 +1,100 @@
+```plantuml
+@startuml
+package oop {
+  package exercises {
+    package ex43 {
+      class Application {
+        - websiteGenerator : WebsiteGenerator
+        + {static} main(String[] args) : void
+      }
+
+      class WebsiteGenerator {
+        - {static} reader : DataReader
+        - {static} loader : FileLoader
+        - siteName : String
+        - authorName : String
+        - jsFile : boolean
+        - cssFile : boolean
+        -- Constructors --
+        + WebsiteGenerator() : WebsiteGenerator
+        + WebsiteGenerator(String siteName, String authorName, boolean jsFile, boolean cssFile) : WebsiteGenerator
+        -- Accessors/Mutators --
+        + getSiteName() : String
+        + setSiteName(String siteName) : void
+        + getAuthorName() : String
+        + setAuthorName(String authorName) : void
+        + getJsSetting() : boolean
+        + setJsSetting(boolean jsFile) : void
+        + getCssSetting() : boolean
+        + setCssSetting(boolean cssFile) : void
+        + setSettingsThroughConsole() : void
+        -- Data Input --
+        - promptSiteName() : String
+        - promptAuthor() : String
+        - promptJsFolder() : boolean
+        - promptCssFolder() : boolean
+        -- Methods --
+        + generate() : String
+        - makeWebsiteDirectory() : void
+        - makeSiteNameDirectory() : String
+        - makeHtmlFile() : String
+        - makeJsFile() : String
+        - makeCssFile() : String
+        - buildHtmlString() : String
+      }
+    }
+
+    package util {
+      class ConsoleDataReader {
+        - in : Scanner
+        -- Methods --
+        + readString(String prompt) : String
+        + readInt(String prompt) : int
+        + readIntValidated(String prompt) : int
+        + readIntValidated(String prompt, String errorMessage) : int
+        + readDouble(String prompt) : double
+        + readDoubleValidated(String prompt) : double
+        + readDoubleValidated(String prompt, String errorMessage) : double
+        + readNDoubles(String prompt, int n) : double[]
+        + readNDoublesValidated(String prompt, int n) : double[]
+        + readNDoublesValidated(String prompt, String errorMessage, int n) : double[]
+        + readIntValidatedWithCondition(String prompt, String errorMessage, IntPredicate condition) : int
+      }
+
+      class FileLoader {
+        - searchDir : File
+        -- Constructors --
+        + FileLoader() : FileLoader
+        + FileLoader(String dir) : FileLoader
+        + FileLoader(File dir) : FileLoader
+        -- Accessors/Mutators --
+        + getSearchDir() : File
+        -- Methods --
+        + getFile(String fileName) : File
+        + getFile(File file) : File
+        + getPath(String fileName) : Path
+        + getPath(File file) : Path
+        + getBufferedReader(String fileName) : BufferedReader
+        + getBufferedReader(File file) : BufferedReader
+        + getBufferedWriter(String fileName) : BufferedWriter
+        + getBufferedWriter(File file) : BufferedWriter
+        + getBufferedWriter(String fileName, boolean append) : BufferedWriter
+        + getBufferedWriter(File file, boolean append) : BufferedWriter
+        + getLines(String fileName) : Stream<String>
+        + getLines(File file) : Stream<String>
+        + toString() : String
+      }
+      note bottom of FileLoader
+        No-args constructor uses
+        System.getProperty("user.dir")
+      end note
+    }
+  }
+}
+
+Application *-right-> WebsiteGenerator
+WebsiteGenerator *--> ConsoleDataReader
+WebsiteGenerator *--> FileLoader
+
+@enduml
+```

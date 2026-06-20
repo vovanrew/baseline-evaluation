@@ -1,0 +1,22 @@
+{
+  "id": "80e2e48a-508c-4300-a55e-fb6be1901808",
+  "object": "chat.completion",
+  "created": 1781412214,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Secure Map Reduce 2 \u2013 Shuffle Service Token Flow\n\nparticipant \"Client (c)\" as c\nparticipant \"Resource Manager (rm)\" as rm\nparticipant \"Node Manager (nm)\" as nm\nparticipant \"Shuffle Handler (ss)\" as ss\nparticipant \"File System (fs)\" as fs\n\nautonumber\n\nrectangle \"Bootstrap\" {\n  c -> rm: createJob [...] ()\n  rm -> c: : job-id\n  rm -> c: createShuffleToken\n  c -> rm: 2 ( shfl-tkn-mk )\n  rm -> c: : shfl-tkn\n  rm -> c: serializeTokens\n  c -> rm: 3 ( shfl-tkn, ... )\n  rm -> c: : c-tokens{shfl-tkn,...}\n}\n\nrectangle \"Job Submission\" {\n  c -> rm: submitApplication\n  c -> rm: 4 [...]\n  c -> rm: ( job-id, c-tokens{shfl-tkn}, ... )\n  rm -> c: : app-rpt{clnt-tkn}\n}\n\nrectangle \"Job Initiation\" {\n  rm -> nm: startContainer\n  rm -> nm: 5 [...]\n  rm -> nm: ( c-tokens{shfl-tkn},svc-tokens{shfl-tkn}, ... )\n  nm -> Application Master (am): initApp\n  nm -> Application Master (am): 6 ( job-id, shfl-tkn )\n  nm -> Application Master (am): exec\n  nm -> Application Master (am): 7 exec\n  Application Master (am) -> Application Container (ac): startContainer\n  Application Master (am) -> Application Container (ac): 8 [...]\n  Application Master (am) -> Application Container (ac): ( svc-tokens{shfl-tkn}, ... )\n  Application Master (am) -> Application Container (ac): exec\n  Application Master (am) -> Application Container (ac): 9 exec\n  Application Container (ac) -> Task (t): exec\n  Application Container (ac) -> Task (t): 10 exec\n}\n\nrectangle \"Map Task Execution\" {\n  Task (t) -> File System (fs): writeShuffleData[]()\n  Task (t) -> File System (fs): 11 writeShuffleData[]()\n}\n\nrectangle \"Reduce Task Execution\" {\n  Shuffle Handler (ss) -> File System (fs): readShuffleData [SDT:shfl-tkn] (...)\n  Shuffle Handler (ss) -> File System (fs): 12 readShuffleData\n  File System (fs) -> Shuffle Handler (ss): 13 readShuffleData\n  File System (fs) -> Shuffle Handler (ss): 14 shfl-data\n}\n\nrectangle \"Job Completion\" {\n}\n\nnote right of Application Master (am)\n  Application Master (am)\nend note\n\nnote right of Application Container (ac)\n  Application Container (ac)\nend note\n\nnote right of Task (t)\n  Task (t)\nend note\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2399,
+    "completion_tokens": 672,
+    "total_tokens": 3071
+  }
+}

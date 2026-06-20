@@ -1,0 +1,21 @@
+{
+  "id": "msg_01XEj9zaQbAryfj485q4zzto",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Shared memory receiver behaviour\n\nparticipant \"Shared memory receiver\" as SMR\nparticipant \"Semaphore coord\" as SC\nparticipant \"Reader count var\" as RCV\nparticipant \"locks_active\" as LA\nparticipant \"locks_leaving\" as LL\nparticipant \"Semaphore copy\" as SCopy\nparticipant \"Copy buff\" as CB\n\ngroup create\n    alt [\"Coordination semaphore doesn't exist\"]\n        SMR -> SC : Create semaphore\n        create participant \"Semaphore coord\" as SC2\n        SMR -> SC2\n    end\n\n    SMR -> RCV : wait\n    note right of CB : Writer inits it with the required number\n    RCV --> SMR : Writer sets up sharedmemory\\nWriter is ready\n    SMR <.. RCV : ok\n    note right of RCV : this way all readers access the memory,\\nthey will fail on the copy sem\n    SMR -> RCV : reincrease\n    SMR -> RCV : MMap coordination struct\n    SMR -> SCopy : Trylock copy semaphore\n\n    alt [fail]\n        SMR <-- SCopy : Can't lock\n        SMR <-- SMR : Fail\n    else [success]\n        SMR <-- SCopy : Success\n        SMR -> SMR : MMap copy buffer\n        SMR -> SMR : read_flag to true\n        SMR -> LL : Lock leaving[1]\n        SMR -> SCopy : Signal reader ready\n    end\n\n    SMR -> SC : Close coordination semaphore file\n    SMR <-- SMR : Success\nend\n\ngroup ready\n    SMR -> SMR : ready?\n    alt [finished flag set]\n        SMR <-- SMR : False\n    else [has read current chunk]\n        SMR -> LL : lock next chunk (reading)\n        note right of LL : Blocks until next\\nchunk is written\n        SMR -> LL : Release previous leaving\n        SMR -> SMR : Change active\n        SMR -> SMR : reset read flag\n        SMR -> RCV : get chunk size\n        SMR <.. RCV : c_size\n        SMR <-- SMR : c_size > 0\n    else [Yet to read current and no finished flag]\n        SMR <-- SMR : True\n    end\n\n    alt [finished]\n        note left of SMR : This is done before\\nactually returning\n        SMR -> SMR : Set finished flag\n        SMR -> SMR : Release lock\n    end\nend\n\ngroup buff size\n    SMR -> SMR : get buff_size from coord\n    [<-- SMR : buff_size\nend\n\ngroup receive\n    note right of SMR : This is called after ready so I am already on the correct\\nchunk and it has data to read\n    alt [read_flag_set or finished flag set]\n        SMR <-- SMR : Fail\n    end\n\n    SMR -> CB : Read data in current chunk\n    SMR <.. CB : vector\n    SMR -> SMR : set read flag\n    SMR -> LL : lock leaving\n    SMR -> LA : release active\n    [<-- SMR : vector\nend\n\ngroup destructor\n    SMR -> SMR : Destroy\n    alt [not finished]\n        alt [read_flag set]\n            SMR -> LL : unlock\n        else [read_flag false]\n            SMR -> LA : unlock\n        end\n    end\n\n    SMR -> RCV : Notify left\n    SMR -> SMR : Unmap memory\n    SMR -> SMR : Close files\nend\n\nparticipant \"Shared memory receiver\" as SMR2\nparticipant \"Semaphore coord\" as SC3\nparticipant \"Reader count var\" as RCV2\nparticipant \"locks_active\" as LA2\nparticipant \"locks_leaving\" as LL2\nparticipant \"Semaphore copy\" as SCopy2\nparticipant \"Copy buff\" as CB2\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781431899,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 928,
+    "prompt_tokens": 1608,
+    "total_tokens": 2536
+  }
+}

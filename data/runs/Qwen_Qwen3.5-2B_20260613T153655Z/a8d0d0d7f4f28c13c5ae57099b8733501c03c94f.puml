@@ -1,0 +1,53 @@
+@startuml
+title Fabric Private Chaincode - Enclave registry - Current approach
+
+actor Admin as Admin
+participant ECC as ECC
+participant ERCC as ERCC
+participant IAS as IAS
+participant Orderer as Orderer
+participant Peers as Peers
+
+subgraph instantiation
+    direction TB
+    Admin -> ECC : install
+    ECC -> ECC : instantiate(expected_mrenclave)
+    ECC -> Admin : success / error
+endsubgraph
+
+subgraph register new enclave
+    direction TB
+    Admin -> ECC : setup
+    ECC -> ERCC : create
+    ERCC -> ECC : quote, ECC_s_pk
+    ERCC -> ECC : register(quote, ECC_s_pk)
+    ECC -> Orderer : send quote
+    Orderer -> ERCC : Attestation
+    ERCC -> Orderer : putState(erccc.ECC_s_pk, Attestation)
+    ERCC -> ECC : success / error
+endsubgraph
+
+subgraph register validation
+    direction TB
+    Admin -> Orderer : submit setup transaction
+    Orderer -> Peers : broadcast block
+    Peers -> Peers : Validation
+    Peers -> ERCC : Normal validation
+    Peers -> ERCC : Custom ERCC validation
+    ERCC -> ERCC_VSCC : expected_mrenclave = getState(ecc.MRENCLAVE)
+    ERCC_VSCC -> ERCC : check attestation signature
+    ERCC_VSCC -> ERCC : check attestation ECC_s_pk and mrenclave
+endsubgraph
+
+subgraph Drawbacks
+    direction TB
+    note right of Orderer
+        Drawbacks
+        - Single-endorser policy only + Custom validation at every peer
+        - ERCC must contact IAS (Internet connection and IAS credentials needed)
+        - Current impl: No way to securely pass credentials to ERCC only
+        - for EPID attestation SPID is needed when quote is created (ECC must provide this)
+    end note
+endsubgraph
+
+@enduml

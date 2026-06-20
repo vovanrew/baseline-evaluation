@@ -1,0 +1,38 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "beerocks_cli" as cli
+participant "bml_internal" as bml_internal
+participant "controller" as controller
+participant "controller_db" as controller_db
+
+cli ->> bml_internal: "bml_clear_wifi_credentials <al-mac>"
+bml_internal ->> cli: cli_bml::clear_wifi_credentials_caller(args)
+cli ->> bml_internal: cli_bml::clear_wifi_credentials(args.stringArgs[0])
+bml_internal ->> cli: bml_clear_wifi_credentials(ctx, al-mac.c_str())
+cli ->> bml_internal: clear_wifi_credentials(const sMacAddr &al_mac)
+
+bml_internal ->> controller: message_com::send_cmdu(m_sockMaster, ACTION_BML_WIFI_CREDENTIALS_CLEAR_REQUEST)
+controller ->> controller_db: clear_bss_info_configuration(const sMacAddr &al_mac)
+controller_db ->> controller: message_com::send_cmdu(m_sockMaster, ACTION_BML_WIFI_CREDENTIALS_CLEAR_RESPONSE)
+controller ->> bml_internal: message_com::send_cmdu(m_sockMaster, ACTION_BML_WIFI_CREDENTIALS_CLEAR_RESPONSE)
+bml_internal ->> controller: message_com::send_cmdu(m_sockMaster, ACTION_BML_WIFI_CREDENTIALS_CLEAR_RESPONSE)
+
+note right of cli
+beerocks_cli -c
+"bml_clear_wifi_credentials <al-mac>"
+end note
+
+note right of bml_internal
+bml_internal
+end note
+
+note right of controller
+controller
+end note
+
+note right of controller_db
+controller_db
+end note
+
+@enduml

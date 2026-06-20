@@ -1,0 +1,46 @@
+```plantuml
+@startuml
+package Sistema_de_Cobranças <<Rectangle>> {
+
+class Cliente {
+  - id: Int
+  # nome: String
+  # cobranças: List<Cobrança>
+  + fazerPagamento()
+}
+
+class Cobrança {
+  - id: Int
+  # cliente: Client
+  # quitada: Boolean
+  + gerarBoleto()
+  + consultaBoleto(): Boolean
+}
+
+class Boleto {
+  - id: Int
+  # validade: Date
+  # valor: Float
+  # quitado: Boolean
+  + foiQuitado(): Boolean
+  + setQuitado(Boolean: foiQuitado)
+  + informaStatusDoBoleto()
+}
+
+interface FazerCobrança <<interface>> {
+  Cobrança ..|> FazerCobrança
+  + gerarBoleto()
+  + consultaBoleto(): Boolean }
+}
+
+interface PagarBoleto <<interface>> {
+  + fazerPagamento()
+}
+
+Cliente "1" -- "0..*" Cobrança : o
+Cobrança "1" *-- "1" Boleto
+Cliente ..|> PagarBoleto
+
+}
+@enduml
+```

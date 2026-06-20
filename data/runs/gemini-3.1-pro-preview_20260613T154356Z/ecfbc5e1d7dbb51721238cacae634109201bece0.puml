@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+title Compass Sequence Diagram
+
+actor User
+participant HubSpot
+participant TypeForm
+participant "TypeForm API" as TypeFormAPI
+participant "Node App" as NodeApp
+box "AWS" #e2e2e2
+participant "S3 Bucket" as S3Bucket
+participant SES
+end box
+
+User -> HubSpot : Loads Compass
+HubSpot -> HubSpot : Generate UUID to identify user
+HubSpot -> TypeForm : Load embedded TypeForm survery
+User -> HubSpot : Completes survey
+TypeForm -> HubSpot : Redirects to HubSpot Landing Page Submission Form\nhttps://info.codurance.com/en/compass-details-submission
+User -> HubSpot : Completes submission form
+HubSpot -> HubSpot : Save submission info\n& contact in Hubspot
+HubSpot -> NodeApp : Redirects to /report/submit/:uuid (to generate report)
+activate NodeApp
+NodeApp -> NodeApp : Start report generation
+NodeApp -> HubSpot : Redirects to HubSpot Thanks Landing Page\n"https://info.codurance.com/en/compass-successful-submission"
+NodeApp -> TypeFormAPI : Gets survery questions & answers
+activate TypeFormAPI
+TypeFormAPI --> NodeApp
+deactivate TypeFormAPI
+NodeApp -> HubSpot : Get user details
+note left: generate report\nand send email
+activate HubSpot
+HubSpot --> NodeApp
+deactivate HubSpot
+NodeApp -> NodeApp : Build report and render with jsreport
+NodeApp -> S3Bucket : Upload report to AWS S3 bucket
+NodeApp -> S3Bucket : Query report link
+activate S3Bucket
+S3Bucket --> NodeApp
+deactivate S3Bucket
+NodeApp -> NodeApp : Compose email data with report pdf link
+NodeApp -> SES : Queue email for sending
+deactivate NodeApp
+SES -> User : Send email to user
+
+@enduml
+```

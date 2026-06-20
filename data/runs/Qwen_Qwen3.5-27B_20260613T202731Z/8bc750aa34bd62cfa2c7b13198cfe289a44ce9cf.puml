@@ -1,0 +1,57 @@
+```plantuml
+@startuml
+skinparam componentStyle rectangle
+
+actor "mobile" as mobile
+component "www" as www
+participant "endpoint" as endpoint
+participant "haproxy" as haproxy
+database "ipfs" as ipfs
+database "postgraphile" as postgraphile
+database "CITY Custom Net" as city
+participant "logstash" as logstash
+participant "dApp" as dapp
+database "postgres" as postgres
+database "elastic" as elastic
+component "prometheus" as prometheus
+component "kibana" as kibana
+
+rectangle "webUI" {
+    mobile -> www: sign & send events
+    note right of mobile: browser ext or mobile wallet
+    www -> endpoint: HTTPS gateway & peer tcp/4001
+    endpoint -> ipfs: /ipfs/{CID}
+    endpoint -> haproxy: HTTPS (oauth by EC Address)
+    note left of haproxy: User makes deposit / signs entry to trigger events.
+}
+
+rectangle "api - Admin/Write api" {
+    haproxy -> endpoint: /v2 - read/write factom api
+    haproxy -> ipfs: /ipfs/{CID} - readonly gateway
+    haproxy -> postgraphile: /graphql - readonly graphql queries
+    endpoint -> logstash: livefeed log
+    logstash -> elastic: index event logs
+    elastic -> postgres: dApp specific events
+    postgraphile -> dapp: Query/Sign
+    dapp -> postgres: sign and dispatch requests
+    dapp -> endpoint: read/write signed factom entries
+}
+
+rectangle "dashboard" {
+    kibana -> elastic: dashboard query
+    kibana -> kibana: poll()
+    kibana -> prometheus: metrics query
+    prometheus -> endpoint: HTTP GET /metrics
+    prometheus -> haproxy: HTTP GET /metrics
+    prometheus -> dapp: Monitor(FA2XXXXXXXX) Balance changes
+    kibana -> postgres: dApp specific rollup
+}
+
+rectangle "dApp - controller" {
+    postgres -> dapp: dispatch on-chain event
+    dapp -> logstash: dApp specific logging
+    dapp -> ipfs: pin entry content on IPFS
+}
+
+@enduml
+```

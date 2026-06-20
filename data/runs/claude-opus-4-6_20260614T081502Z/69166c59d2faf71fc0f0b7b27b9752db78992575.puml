@@ -1,0 +1,28 @@
+```plantuml
+@startuml
+
+actor Caller
+
+participant ":RoomTransactionService" as RTS
+participant ":RoomTransactionCommand" as RTC
+participant ":Nats Streaming" as NS
+
+Caller -> RTS : Create(context, payload)
+RTS -> RTS : Validate()
+
+alt "Data Not Valid"
+    RTS ..> Caller : UnprocessableEntity
+else
+    loop "For each shift"
+        RTS -> RTS : rt := RoomTransactionModel()
+        RTS -> RTC : Create(context, rt)
+        RTC ..> RTS : uuid
+    end
+
+    RTS -> NS : publishTransactionCreated(context, []uuid)
+    NS ..> RTS : published
+    RTS ..> Caller : created
+end
+
+@enduml
+```

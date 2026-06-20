@@ -1,0 +1,43 @@
+```plantuml
+@startuml
+title Sequence Diagram for Lexical Analysis and Syntax Checking
+
+participant "File" as File
+participant "LexicalAnalysisDriver" as Driver
+participant "LexicalAnalysisJava" as Java
+participant "JavaSyntaxLib" as Lib
+participant "TypeCheck" as Type
+participant "ColorCode" as Color
+participant "ErrorCheck" as Error
+
+File -> Driver: invokes
+activate Driver
+Driver -> Java: Calls
+activate Java
+Java -> Lib: Calls
+activate Lib
+Lib --> Java: 
+deactivate Lib
+Java -> Type: SyntaxTypeCheck()
+activate Type
+Type --> File: Return(TypeCheck)
+deactivate Type
+Java -> Color: SyntaxColorCheck()
+activate Color
+Color --> File: Return(ColorCode)
+deactivate Color
+Java -> Error: SyntaxErrorCheck()
+activate Error
+
+alt successful case
+    Error --> File: Error Free
+else Error Case
+    Error --> File: Return Error Message
+end
+
+deactivate Error
+deactivate Java
+deactivate Driver
+
+@enduml
+```

@@ -1,0 +1,44 @@
+```plantuml
+@startuml
+abstract class Publisher<T> {
+    <<interface>>
+    void subscribe(Subscriber<? super T> s)
+}
+
+abstract class Flowable<T> {
+    <<abstract>>
+    void subscribeActual(Subscriber<? super T> s)
+}
+
+class FlowableFilter<T> {
+    <<concrete>>
+}
+
+class FilterSubscriber<T> {
+    <<concrete>>
+}
+
+class Subscription<T> {
+    <<interface>>
+    void request(long n)
+    void cancel()
+}
+
+class FlowableMap<T, U> {
+    <<concrete>>
+}
+
+class MapSubscriber<T, U> {
+    <<concrete>>
+}
+
+Publisher <..|.. Flowable : implements
+Flowable <|-- FlowableFilter
+Flowable <|-- FlowableMap
+FlowableFilter o-- FilterSubscriber : creates
+FlowableMap o-- MapSubscriber : creates
+Subscription <|.. FilterSubscriber : implements
+Subscription <|.. MapSubscriber : implements
+
+@enduml
+```

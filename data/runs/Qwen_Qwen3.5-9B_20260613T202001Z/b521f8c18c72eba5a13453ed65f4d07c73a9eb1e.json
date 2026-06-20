@@ -1,0 +1,22 @@
+{
+  "id": "3479db39-e85f-41bc-8c85-fb2a60671956",
+  "object": "chat.completion",
+  "created": 1781417951,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle PFD flow between Openness and 5G core\n\nactor \"Admin\" as Admin\n\npackage \"OpenNESS Controller Components\" {\n  participant \"UI/CLI\" as UI_CLI\n  participant \"Af Microservice\" as Af_Microservice\n}\n\npackage \"5G Core Components\" {\n  participant \"NEF\" as NEF\n  participant \"NGC CP Function\" as NGC_CP_Function\n  note right of NEF\n    OpenNESS provided\n    Core component with\n    limited functionality\n  end note\n}\n\nAdmin --> UI_CLI : Request all PFD transactions\nUI_CLI --> Af_Microservice : af/v1/pfd/transaction GET\nAf_Microservice --> NEF : 3gpp-pfd-management/v1/{scsAsId}/transactions/GET\nNEF --> NGC_CP_Function : NGC_STUB (UDR SMF)\nNGC_CP_Function --> NEF : OK: PFD information \\ ERROR\nNEF --> Af_Microservice : OK: PFD information \\ ERROR\nAf_Microservice --> UI_CLI : OK: PFD information \\ ERROR\nUI_CLI --> Admin : PFD details\n\nAdmin --> UI_CLI : Request transaction with transactionId\nUI_CLI --> Af_Microservice : af/v1/pfd/transactions/{transactionId} GET\nAf_Microservice --> NEF : 3gpp-pfd-management/v1/{scsAsId}/transactions/{transactionId} GET\nNEF --> NGC_CP_Function : NGC_STUB (UDR SMF)\nNGC_CP_Function --> NEF : OK: PFD information \\ ERROR\nNEF --> Af_Microservice : OK: PFD information \\ ERROR\nAf_Microservice --> UI_CLI : OK: PFD information \\ ERROR\nUI_CLI --> Admin : PFD details\n\nAdmin --> UI_CLI : Request transactions with applicationId\nUI_CLI --> Af_Microservice : af/v1/pfd/transactions/{transactionId}/applications/{applId} GET\nAf_Microservice --> NEF : 3gpp-pfd-management/v1/{scsAsId}/transactions/{transactionId}/applications/{applId} GET\nNEF --> NGC_CP_Function : NGC_STUB (UDR SMF)\nNGC_CP_Function --> NEF : OK: PFD information \\ ERROR\nNEF --> Af_Microservice : OK: PFD information \\ ERROR\nAf_Microservice --> UI_CLI : OK: PFD information \\ ERROR\nUI_CLI --> Admin : PFD details\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1713,
+    "completion_tokens": 539,
+    "total_tokens": 2252
+  }
+}

@@ -1,0 +1,122 @@
+```plantuml
+@startuml
+title Authorization token with auth_code
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #777777
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #777777
+  ParticipantBackgroundColor #E9E9F2
+  BoxBorderColor #777777
+  BoxBackgroundColor #D9D9D9
+  NoteBackgroundColor #FFFED6
+  NoteBorderColor #777777
+}
+
+participant web as "web"
+
+box "K8S_ZONE" #D9D9D9
+  participant bff as "bff_web_api"
+  participant auth as "authorization_api"
+  database redis as "k8s_redis"
+end box
+
+note left of web
+Ruqeest header
+Content-Type: application/json
+
+Request body
+- auth_code: xxxxxx
+end note
+
+web -> bff : /api/v1/auth/token
+activate bff
+bff -> bff : validate request
+
+note left of bff
+Request header
+Content-Type: application/x-www-form-urlencoded
+
+Request body
+- auth_code
+
+note:
+- handler late limit (brute force attack)
+end note
+
+bff -> auth : /api/v1/oauth/token
+activate auth
+auth -> auth : validate request
+
+auth -> redis : check auth_code from k8s_redis
+activate redis
+
+note right of redis
+Key:
+- auth_code
+
+Redis object
+- user_id
+- scope
+end note
+
+redis --> auth : return redis object
+deactivate redis
+
+note over auth
+Access token:
+{
+  header
+  - alg: rsa256
+  - typ: JWT
+
+  payload
+  - iss
+  - jti
+  - user_id
+  - iat
+  - exp
+  - roles
+
+  signature
+}
+end note
+
+auth -> auth : generate JWT Token with private key
+
+note over auth
+ttl: 300000 milliseconds (5 min)
+
+Key: user_id:xxxxx
+
+Redis object value:
+- access_token
+- refresh_token
+end note
+
+auth -> redis : put user session into k8s_redis
+activate redis
+redis -> redis : save data
+redis --> auth
+deactivate redis
+
+auth --> bff : return
+deactivate auth
+
+note over bff
+Response header
+Content-Type: application/json
+
+Response body
+- accessToken
+- RefreshToken
+end note
+
+bff --> web : return
+deactivate bff
+
+@enduml
+```

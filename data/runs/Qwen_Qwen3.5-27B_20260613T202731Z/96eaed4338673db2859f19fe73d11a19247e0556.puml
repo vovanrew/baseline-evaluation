@@ -1,0 +1,44 @@
+```plantuml
+@startuml
+title agregar jugadores a la partida
+
+actor jugador
+participant "VistaNuevaPartida" as VNP
+participant "SubVistaSeleccionEquipos" as SVSE
+participant "ControladorNuevaPartida" as CNP
+participant "Jugador" as Jug
+
+jugador -> VNP: click agregar jugador
+activate VNP
+VNP --> CNP
+activate CNP
+CNP -> Jug: obtenerJugadorAleatorio()
+activate Jug
+Jug -->> CNP: jugador jug
+deactivate Jug
+CNP -> CNP: agregarJugador(jug)
+activate CNP
+deactivate CNP
+
+alt jugadores<4
+    CNP -> VNP: agregarVistaInfoJugador(jug)
+    activate VNP
+    VNP -->> jugador: muestra el nuevo jugador agregado
+    deactivate VNP
+    
+    alt vista seleccion equipos activada
+        CNP -> SVSE: agregarJugador(Jugador jug)
+        activate SVSE
+        SVSE -->> jugador: muestra nuevo jugador agregado en equipo
+        deactivate SVSE
+    end
+else de lo contrario
+    CNP -> VNP: mostrarMensaje("Maximo 4 jugadores.")
+    VNP -->> jugador: muestra mensaje de maximo 4 jugadores
+end
+
+deactivate VNP
+deactivate CNP
+
+@enduml
+```

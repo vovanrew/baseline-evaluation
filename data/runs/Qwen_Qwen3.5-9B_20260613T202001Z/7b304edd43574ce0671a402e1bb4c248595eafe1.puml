@@ -1,0 +1,189 @@
+@startuml
+!theme base
+
+package "db" {
+  class ConnectionDB <<interface>> {
+    +connection : Connection
+    +getinstance() : ConnectionDBMySQL
+    +getDB() : Connection
+  }
+  
+  class ConnectionDBMySQL {
+    -connection : Connection
+    +getinstance() : ConnectionDBMySQL
+    +getDB() : Connection
+  }
+  
+  class LazyHolderDB {
+    -final INSTANCE : ConnectionDBMySQL
+  }
+  
+  LazyHolderDB ..> ConnectionDB : implements
+  ConnectionDBMySQL ..> ConnectionDB : implements
+}
+
+package "gui" {
+  class OfferController {
+    -FAQ : ListView
+    -answerQuestion : JButtonBar
+    -update : JButtonBar
+    -update : JButtonBar
+    -newQuestion : JButtonBar
+    -rateArea : JButtonBar
+    +handleNewQuestionActionEvent : ActionEvent -> void
+    +handleUpdateQuestionActionEvent : ActionEvent -> void
+    +handleUpdateAnswerQuestionActionEvent : ActionEvent -> void
+    +handleDeleteQuestionActionEvent : ActionEvent -> void
+    +handleDeleteAnswerQuestionActionEvent : ActionEvent -> void
+    +handleUpdateScoreQuestionActionEvent : ActionEvent -> void
+    +handleUpdateScoreAnswerQuestionEvent : ActionEvent -> void
+  }
+  
+  class NewQuestionController {
+    -questionArea : JTextArea
+    -postQuestion : JButtonBar
+    -cancel : JButtonBar
+    +handleNewQuestionActionEvent : ActionEvent -> void
+    +cancellationEvent : ActionEvent -> void
+  }
+  
+  class NewAnswerController {
+    -answerArea : JTextArea
+    -postAnswer : JButtonBar
+    -cancel : JButtonBar
+    +handleNewAnswerActionEvent : ActionEvent -> void
+    +cancellationEvent : ActionEvent -> void
+  }
+  
+  class LoadView {
+    +loadNamesFromXML : Parent -> void
+    +changeScreenActionEvent : ActionEvent, view : String -> void
+  }
+  
+  OfferController --> NewQuestionController
+  OfferController --> NewAnswerController
+  LoadView --> OfferController
+}
+
+package "business" {
+  class FAQFacade {
+    +getQuestionById : int -> Question
+    +getAnswerById : int -> Answer
+    +createQuestionId : int, userid : int, offerid : int, answerid : int, question : String, score : int -> Question
+    +createAnswerId : int, userid : int, answer : String, score : int -> Answer
+    +getQuestionsByOfferId : int -> ArrayList<Question>
+    +getAnswersByOfferId : int -> ArrayList<Answer>
+    +updateQuestionScoreId : int, userid : int, offerid : int, answerid : int, question : String, score : int -> Question
+    +updateAnswerScoreId : int, userid : int, answer : String, score : int -> Answer
+    +deleteQuestionId : int -> boolean
+    +deleteAnswerId : int -> boolean
+  }
+  
+  class SessionFacade {
+    +getSession() : User
+    +getUserId() : int
+  }
+  
+  class Question {
+    -questionid : int
+    -content : String
+    -score : int
+    -answerid : int
+    -offerid : int
+    +Question()
+    +getQuestionid() : int
+    +getContent() : String
+    +getScore() : int
+    +getAnswerid() : int
+    +getOfferid() : int
+    +setQuestionid : int -> void
+    +setContent : String -> void
+    +setAnswer : Answer -> void
+    +setScore : int -> void
+    +setUserId : int -> void
+    +setOfferId : int -> void
+  }
+  
+  class Answer {
+    -answerid : int
+    -content : String
+    -score : int
+    -userid : int
+    +Answer()
+    +getAnswerid() : int
+    +getContent() : String
+    +getScore() : int
+    +getUserId() : int
+    +setAnswerid : int -> void
+    +setContent : String -> void
+    +setScore : int -> void
+    +setUserId : int -> void
+    +setOfferId : int -> void
+  }
+  
+  FAQFacade --> SessionFacade
+}
+
+package "dao" {
+  class DAO <<interface>> {
+    +findId : int -> T
+    +create : T -> T
+    +update : T -> T
+    +delete : T -> boolean
+  }
+  
+  class AnswerDao {
+    -getinstance() : QuestionDao
+    -LazyHolder
+    +getQuestionsByOfferId : int -> ArrayList<Answer>
+    +questionExistsId : int -> boolean
+    +answerExistsId : int -> boolean
+  }
+  
+  class OfferDao {
+    -getinstance() : QuestionDao
+    -LazyHolder
+    +getQuestionsByOfferId : int -> ArrayList<Question>
+    +questionExistsId : int -> boolean
+    +hasAnAnswerId : int -> boolean
+  }
+  
+  class QuestionDao {
+    -getinstance() : QuestionDao
+    -LazyHolder
+    +getQuestionsByOfferId : int -> ArrayList<Question>
+    +questionExistsId : int -> boolean
+    +hasAnAnswerId : int -> boolean
+  }
+  
+  class AbstractFactoryDao {
+    -final connectionDB : ConnectionDB
+    -content : String
+    -userid : int
+    +getFactoryType : TypeDB -> AbstractFactoryDao
+    +getAnswerDao() : AnswerDao
+    +getQuestionDao() : QuestionDao
+  }
+  
+  class AnswerDaoMySQL {
+    +final connectionDB : ConnectionDB
+  }
+  
+  class QuestionDaoMySQL {
+    +final connectionDB : ConnectionDB
+  }
+  
+  class FactoryDaoMySQL {
+  }
+  
+  AnswerDao ..> DAO : implements
+  OfferDao ..> DAO : implements
+  QuestionDao ..> DAO : implements
+  AnswerDaoMySQL ..> AnswerDao : implements
+  QuestionDaoMySQL ..> QuestionDao : implements
+  FactoryDaoMySQL ..> AbstractFactoryDao : implements
+  AbstractFactoryDao --> AnswerDaoMySQL
+  AbstractFactoryDao --> QuestionDaoMySQL
+}
+
+@enduml

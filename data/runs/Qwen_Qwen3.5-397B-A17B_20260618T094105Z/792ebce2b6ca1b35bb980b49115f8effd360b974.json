@@ -1,0 +1,22 @@
+{
+  "id": "888ce645-72e1-4df9-aa2f-d70129a94621",
+  "object": "chat.completion",
+  "created": 1781916605,
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceMessageAlign center\n\nactor \"sdx_downstream\" as sdxDownstream #09C4F2\nparticipant downstream_quarantine #09C4F2\nbox \"\" DownStreamParticipant #D6DBDF ##Black \n    participant Downstream\nend box\ndatabase Postgres #318CE7\npackage FTP #5FB403 { }\n\n\n== Consume tx_id ==\nactivate sdxDownstream\ndownstream_quarantine ->> Downstream : GET /responses/{tx_id}\ndeactivate sdxDownstream\nreturn response json \n\nbreak [error]\n  return error message to quarantine queue  \nelse\n  \n   activate SequenceService\n     downsteam->>+Sequence:GET/sequence\\n[query params]\\n{page_size=xxx}\\n{order_by=\"asc\"}\\n...etc..\n      deactivate SequenceService\n      \n       alt common-software\n        \n        POST/common_software/{seq_no}/images?image_ids=[id,id,...]&zip=true&include_meta=false\n    \n         else cora \n        \n          post/cora/{seq_no}?ids=id&id....&&zip=True\n     \n           else cord\n            \n            post/cord/{seq_no}&ids=&zip=Ture\n   \n   \n       \n      \n    \n     \n    \n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2007,
+    "completion_tokens": 267,
+    "total_tokens": 2274
+  }
+}

@@ -1,0 +1,17 @@
+@startuml
+participant Client
+participant Device
+
+note left of Client : Send UDP broadcast to port 56700\ntagged = 1
+Client -> Device : Lx::Protocol::Device::GetService
+
+note left of Client : Register device service and port\nFuture messages can be unicast datagrams
+Device -> Client : Lx::Protocol::Device::StateService
+
+note left of Client : source = <unique 32bit id>\nack_required = true\nsequence = <wrap around sequence>
+Client -> Device : Lx::Protocol::Device::SetLabel
+
+note right of Device : source = <unique 32bit id from request>\nsequence = <sequence number from request>
+Device -> Client : Lx::Protocol::Device::Acknowlegement
+
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+participant "Guest" as Guest
+participant "Mobile" as Mobile
+participant "Server" as Server
+participant "TokenService" as TokenService
+participant "MailService" as MailService
+participant "Mongo" as Mongo
+
+Guest ..> Mobile : Nhập Thông tin đăng ký
+
+alt [Kiểm tra input (true)]
+    Mobile ..> Server : Send Api Register
+    alt [validateDataApi (false)]
+        Server ..> Mongo : Kiểm tra tồn tại username
+        Mongo ..> Server : thông tin user
+        alt [user tồn tại (true)]
+            Server ..> Mobile : Username tồn tại
+            alt [validateDateFail]
+                Mobile ..> Guest : Thông báo Nhập sai format
+            end
+        end
+    end
+end
+
+@enduml

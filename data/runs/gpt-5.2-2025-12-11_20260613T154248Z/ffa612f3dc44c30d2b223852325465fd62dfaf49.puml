@@ -1,0 +1,71 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+
+enum Points {
+  value: Int
+  LOVE
+  FIFTEEN
+  THIRTY
+  --
+  next(): Points
+}
+
+enum Player {
+  A
+  B
+}
+
+abstract class Score <<sealed>> {
+  placard: String
+  isGame: Boolean = false
+  --
+  next(): Score
+}
+
+class Deuce {
+  placard = "Deuce"
+  --
+  next(): Score
+}
+
+class ByPoints {
+  placard = "$A - $B"
+  --
+  next(): Score
+}
+
+class Forty {
+  placard = "$A - 40" | "40 - $B"
+  --
+  next(): Score
+}
+
+class Advantage {
+  placard = "Advantage $W"
+  --
+  next(): Score
+}
+
+class Game {
+  placard = "Game $W"
+  isGame = true
+  --
+  next() = throw
+}
+
+ByPoints --|> Score
+Forty --|> Score
+Advantage --|> Score
+Game --|> Score
+Deuce --|> Score
+
+ByPoints *-- Points : pointsA
+ByPoints *-- Points : pointsB
+
+Forty *-- Points : pointsOther
+
+Forty o-- Player : player
+Advantage o-- Player : player
+Game o-- Player : winner
+@enduml

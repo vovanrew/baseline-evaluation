@@ -1,0 +1,36 @@
+```plantuml
+@startuml
+skinparam sequence {
+  ArrowColor black
+  LifeLineBorderColor black
+  LifeLineBackgroundColor white
+}
+
+actor "User" as User
+participant "Application" as App
+participant "<<engine>>\nAuto SDK Engine" as Engine
+participant "<<avs>>\nAlexa" as Alexa
+
+box "Activating Trial" #white
+  note right of App: clicks `Activate Trial` button\non screen to activate\ntrial up-sell.
+  App ->> Engine: Publish SendConnectivityEvent message specifying ACTIVATE_TRIAL event
+end box
+
+box "Activating Paid Plan" #white
+  note right of App: clicks `Activate Paid Plan` button\non screen to activate\npaid plan up-sell.
+  App ->> Engine: Publish SendConnectivityEvent message specifying ACTIVATE_PAID_PLAN event
+end box
+
+activate Engine
+Engine ->> Alexa: InitiateDataPlanSubscription event
+
+alt "Successful in sending event to Alexa"
+  Engine --> App: Receive SendConnectivityEventReply message with SUCCESS status
+else "on failure"
+  Engine --> App: Receive SendConnectivityEventReply message with FAIL status
+end
+
+deactivate Engine
+
+@enduml
+```

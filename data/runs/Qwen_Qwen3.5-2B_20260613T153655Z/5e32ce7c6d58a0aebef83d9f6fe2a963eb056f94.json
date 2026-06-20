@@ -1,0 +1,22 @@
+{
+  "id": "54d6c322-8121-4b37-9a49-2ed75d9faaea",
+  "object": "chat.completion",
+  "created": 1781400653,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"Project Manager\" as PM\nparticipant \":ProjectManagerUI\" as :ProjectManagerUI\nparticipant \"AGVServer\" as AGVServer\nparticipant \"AGVServerThread\" as AGVServerThread\nparticipant \"AVGManagerController\" as AVGManagerController\nparticipant \"AGVDigitalTwinServer\" as AGVDigitalTwinServer\nparticipant \"AGVDigitalTwinThread\" as AGVDigitalTwinThread\nparticipant \"AGVDigitalTwinController\" as AGVDigitalTwinController\nparticipant \"CodingAndDecoding2\" as CodingAndDecoding2\n\nactor PM\n\nPM -> :ProjectManagerUI :Wants to assign ready to go Orders to an AGV\n:ProjectManagerUI -> AGVServer :message\nAGVServer -> AGVServerThread :accept\nAGVServerThread -> CodingAndDecoding2 :start\nCodingAndDecoding2 -> AGVDigitalTwinServer :Decoding(r)\nAGVDigitalTwinServer -> AGVDigitalTwinThread :message\nAGVDigitalTwinThread -> AGVDigitalTwinController :accept\nAGVDigitalTwinController -> AGVDigitalTwinThread :doTask(taskPerform)\nAGVDigitalTwinThread -> CodingAndDecoding2 :TaskReportMessage\nCodingAndDecoding2 -> AGVDigitalTwinThread :TaskReportMessage\nAGVDigitalTwinThread -> AGVDigitalTwinController :ResponseMessage\nAGVDigitalTwinController -> AGVServerThread :ResponseMessage\nAGVServerThread -> :ProjectManagerUI :ResponseMessage\n:ProjectManagerUI -> PM :Informs operation success\n\nloop [until orderList is empty]\n    AVGManagerController -> AGVServer :findavailableOrder()\n    AGVServer -> AVGManagerController :findavailableAGV(weight, volume)\n    AVGManagerController -> AGVServer :createTaskandSave(description, order, agv)\n    AVGManagerController -> AGVDigitalTwinServer :doTask()\n    AGVDigitalTwinServer -> AGVDigitalTwinThread :message\n    AGVDigitalTwinThread -> AGVDigitalTwinController :accept\n    AGVDigitalTwinController -> AGVDigitalTwinThread :doTask(taskPerform)\n    AGVDigitalTwinThread -> CodingAndDecoding2 :TaskReportMessage\n    CodingAndDecoding2 -> AGVDigitalTwinThread :TaskReportMessage\n    AGVDigitalTwinThread -> AGVDigitalTwinController :ResponseMessage\n    AGVDigitalTwinController -> AGVServerThread :ResponseMessage\n    AGVServerThread -> :ProjectManagerUI :ResponseMessage\nend\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1713,
+    "completion_tokens": 567,
+    "total_tokens": 2280
+  }
+}

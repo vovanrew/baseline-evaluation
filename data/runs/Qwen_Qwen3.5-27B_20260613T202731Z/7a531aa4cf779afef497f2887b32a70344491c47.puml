@@ -1,0 +1,26 @@
+```plantuml
+@startuml
+autonumber
+
+participant "HostApp" as HostApp
+participant "NanoRep" as NanoRep
+participant "NSURLConnection" as NSURLConnection
+participant "NSUserDefaults" as NSUserDefaults
+
+HostApp -> NanoRep : (any request)
+
+alt [Check if the session id is stored]
+    NanoRep -> NSUserDefaults : fetch the session id
+else [Send request for session id]
+    NanoRep -> NSURLConnection : 
+    NSURLConnection -[dotted] > NanoRep : session id from server
+    NanoRep -> NSUserDefaults : store session id
+    NanoRep -> NSURLConnection : keep alive request
+    NSURLConnection -[dotted] > NanoRep : keep alive response
+end
+
+NanoRep -> NSURLConnection : (any request)
+NSURLConnection -[dotted] > HostApp : response for the (any request)
+
+@enduml
+```

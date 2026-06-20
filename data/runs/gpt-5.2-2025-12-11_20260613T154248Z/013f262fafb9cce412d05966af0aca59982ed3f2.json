@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqL6zg66nVVzhjnVHN5mYhgQBUX2S",
+  "object": "chat.completion",
+  "created": 1781366581,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam classAttributeIconSize 0\nskinparam shadowing false\nskinparam linetype ortho\n\nclass TGestionnaireDels << (C,#A9D18E) >> {\n  +FDerniereDel: \"TDel\"\n  +FClignottement: bool\n  +TGestionnaireDels() = delete\n  --\n  +begin(periode: uint32_t, TimerInterrupt &timer)\n  ..\n  Cr\u00e9e l'\u00e9tat d'une liste de DEL en utilisant\n  un Timer pour les faire clignotter\n}\n\nclass TimerInterrupt << (C,#A9D18E) >> {\n  +init()\n  +attachInterruptInterval(periode: unsigned long, isr: void(*)void)\n  ..\n  Voir: https://github.com/khoih-prog/TimerInterrupt\n}\n\nclass TDel << (C,#A9D18E) >> {\n  +FBroche: const int\n  +FEtat: TEtatDel\n  +FNbReference: uint8_t\n  +FDelPrecedente: \"TDel*\"\n  +FDelSuivante: \"TDel*\"\n  +TDel(broche: int)\n  +TDel(del: TDel&) = delete\n  +~TDel()\n  --\n  +Etat(): TEtatDel\n  +Etat(etat: TEtatDel): int\n  +MajEtat()\n  ..\n  DEL g\u00e9r\u00e9e par TGestionnaireDels\n}\n\nclass TRefDel << (C,#A9D18E) >> {\n  +FDel: \"TTypeDel*\"\n  +TRefDel(broche: int)\n  +TRefDel(refDel: TRefDel<TTypeDel>&)\n  +~TRefDel()\n  --\n  +Del(): \"TTypeDel*\"\n  ..\n  R\u00e9f\u00e9rence vers une TDel\n}\n\nclass TEtatDel << (E,#F4B183) >> {\n  edAllumee\n  edEteinte\n  edClignotte\n  edInactive\n  ..\n  Repr\u00e9sente l'\u00e9tat\n  d'une DEL pour TDel\n}\n\nclass TDelClignotteTemp << (C,#A9D18E) >> {\n  +FNbClignottements: uint8_t\n  +FClignottementsRestants: uint16_t\n  --\n  {static} NB_CLIGNOTTEMENTS_DEFAUT: const uint8_t = 5\n  --\n  +TDelClignotteTemp(broche: int)\n  --\n  +FaireClignotter()\n  +Clignotte(): bool\n  +MajEtat()\n  ..\n  Permet de faire clignotter une DEL\n  un certain nombre de fois \u00e0 chaque\n  fois que la m\u00e9thode FaireClignotter\n  est appel\u00e9e.\n}\n\nclass delErreur\n\nclass TGroupeCapteursObstruction << (C,#A9D18E) >> {\n  +FCapteurs: \"TCapteurObstruction*\"\n  +FNbCapteurs: const size_t\n  --\n  +TGroupeCapteursObstruction(brochesCapteurs: const int*, nbCapteurs: int, niveauObstruction: uint8_t, delaisSansObstructions: uint32_t)\n  +~TGroupeCapteursObstruction()\n  --\n  +begin()\n  +Lire()\n  --\n  +ObstrueImmediatement(): bool\n  +Obstrue(): bool\n  +DelaisSansObstruction(): uint32_t\n  +Capteurs(): \"TCapteurObstruction*\"\n  +NbCapteurs(): size_t\n  ..\n  Groupe de capteurs d'obstructions.\n  Tant qu'un des capteurs est obstru\u00e9,\n  le groupe de capteurs est consid\u00e9r\u00e9 comme obstru\u00e9.\n}\n\nclass TCapteurObstruction << (C,#A9D18E) >> {\n  +FBroche: int\n  +FNiveauObstruction: uint8_t\n  +FDelaisSansObstruction: uint32_t\n  +FDebutNonObstrue: uint32_t\n  +FDerniereLecture: bool\n  --\n  {static} OBSTRUE: const bool = true\n  {static} NON_OBSTRUE: const bool = false\n  --\n  +TCapteurObstruction(broche: int, niveauObstruction: uint8_t, delaisSansObstruction: uint32_t)\n  +~TCapteurObstruction()\n  --\n  +ChangerBroche(broche: int)\n  +ChangerNiveauObstruction(niveauObstruction: uint8_t)\n  +ChangerDelaisSansObstruction(delaisSansObstructions: uint32_t)\n  --\n  +begin()\n  +Lire()\n  --\n  +Obstrue(): bool\n  +ObstrueImmediatement(): bool\n  +DelaisSansObstruction(): uint32_t\n  ..\n  Permet de lire la valeur d'un capteur\n  d'obstruction analogique. Il utilise\n  un d\u00e9lai configurable pour s'assurer\n  que la config d'obstruction est\n  bien d\u00e9couvert.\n}\n\nclass TEtatGlissiere << (E,#F4B183) >> {\n  egOuverte\n  egOuverture\n  egFermee\n  egFermeture\n  ..\n  Repr\u00e9sente l'\u00e9tat de la glissi\u00e8re\n}\n\nclass TGlissiere << (C,#A9D18E) >> {\n  +FDirectionOuvrir: int\n  +FDirectionFermer: int\n  +FDirection: bool\n  +FCapteurOuvert: int\n  +FCapteurFerme: int\n  +FCommande: bool\n  +FDebutDeplacement: time_t\n  --\n  {static} COMMANDE_OUVRIR: bool = true\n  {static} COMMANDE_FERMER: bool = false\n  --\n  +TGlissiere(directionOuvrir: int, directionFermer: int, capteurOuvert: int, capteurFerme: int)\n  +begin()\n  --\n  +TempsDeplacement(): uint32_t\n  +EstEnDeplacement(): bool\n  --\n  +Etat(): TEtatGlissiere\n  +Commander(commande: bool)\n  ..\n  Permet de contr\u00f4ler la glissi\u00e8re pour distribuer des m\u00e9dicaments\n}\n\nclass TVerrou << (C,#A9D18E) >> {\n  +FBroche: int\n  +FEtat: bool\n  +FDebutDeverrouillage: uint32_t\n  +FDelaiDeverrouillage\n  --\n  {static} VERROU: const bool = true\n  {static} DEVERROUILLE: const bool = false\n  --\n  +TVerrou(broche: int, delaiDeverrouillage: uint32_t)\n  +begin()\n  --\n  +Etat()\n  +Etat(etat: bool)\n  --\n  +Deverrouiller()\n  ..\n  Contr\u00f4le un verrou en PWM avec un cycle de travail de 50%. Le verrou est\n  verrouill\u00e9 par d\u00e9faut et ne se verrouille que pendant un interval sp\u00e9cifi\u00e9.\n  S'il est.\n  Le verrou doit \u00eatre verrouill\u00e9 sur un niveau logique bas\n}\n\nclass TGestionnaireDistribution << (C,#A9D18E) >> {\n  +FMedicamentsRestant: uint16_t\n  +FMedicamentsADistribuer: uint16_t\n  --\n  +FVerrou: TVerrou\n  +FNiveauAsservir: TGroupeCapteursObstruction\n  +FGlissiereObstrue: TCapteurObstruction\n  --\n  +begin()\n  +Lire()\n  --\n  +MedicamentsRestant(): uint16_t\n  +MedicamentsRestant(medicaments: uint16_t)\n  --\n  +DistribuerMedicaments(medicaments: uint16_t)\n  +MedicamentsADistribuer(medicaments: uint16_t)\n  ..\n  G\u00e8re la distribution de m\u00e9dicaments\n}\n\nclass TCommunication << (C,#A9D18E) >> {\n  +FCS: uint8_t\n  +FDelEncryption: uint8_t <<TAILLE_CLE_ENCRYPTION>>\n  --\n  +TCommunication()\n  --\n  +begin()\n  --\n  +NotifierNiveauMedicamentCritique(): int\n  +CommunicationEncryptee(): bool\n  ..\n  G\u00e8re la communication avec le module de contr\u00f4le\n}\n\nclass EEPROM << (C,#A9D18E) >>\nclass Wire << (C,#A9D18E) >>\n\nTGestionnaireDels --> TimerInterrupt\nTGestionnaireDels --> TDel\nTRefDel --> TDel\nTDel --> TEtatDel\nTDelClignotteTemp -left- delErreur\nTDelClignotteTemp --|> TDel\n\nTGroupeCapteursObstruction *-- TCapteurObstruction\nTGestionnaireDistribution --> TGroupeCapteursObstruction\nTGestionnaireDistribution --> TCapteurObstruction\nTGestionnaireDistribution --> TGlissiere\nTGestionnaireDistribution --> TVerrou\n\nTEtatGlissiere --> TGlissiere\n\nTCommunication --> TGestionnaireDistribution\nTCommunication --> EEPROM\nTCommunication --> Wire\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1261,
+    "completion_tokens": 1974,
+    "total_tokens": 3235,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

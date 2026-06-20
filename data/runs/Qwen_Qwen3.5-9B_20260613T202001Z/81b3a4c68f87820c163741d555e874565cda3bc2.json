@@ -1,0 +1,22 @@
+{
+  "id": "56be795d-1fa3-45bd-a6b9-d0c41af14bec",
+  "object": "chat.completion",
+  "created": 1781416148,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Authorization token with auth_code\n\npackage \"K8S_ZONE\" as K8S_ZONE {\n  participant \"bff_web_api\" as bff_web_api\n  participant \"authorization_api\" as authorization_api\n  database \"k8s_redis\" as k8s_redis\n}\n\nparticipant \"web\" as web\n\nnote left of web\n  Reuquest header\n  Content-Type: application/json\n  Request body\n  - auth_code: xxxxxx\nend note\n\nweb -> bff_web_api: /api/v1/auth/token\nactivate bff_web_api\n\nnote left of bff_web_api\n  Request header\n  Content-Type: application/x-www-form-urlencoded\n  Request body\n  - auth_code\n  note:\n  - handler late limit (brute force attack)\nend note\n\nbff_web_api -> bff_web_api: validate request\nactivate bff_web_api\n\nbff_web_api -> authorization_api: /api/v1/oauth/token\nactivate authorization_api\n\nauthorization_api -> authorization_api: validate request\nactivate authorization_api\n\nauthorization_api -> k8s_redis: check auth_code from k8s_redis\nactivate k8s_redis\n\nnote right of k8s_redis\n  Key:\n  - auth_code\n  Redis object\n  - user_id\n  - scope\nend note\n\nk8s_redis --> authorization_api: return redis object\ndeactivate k8s_redis\n\nauthorization_api -> authorization_api: generate JWT Token with private key\nactivate authorization_api\n\nnote right of authorization_api\n  Access token:\n  {\n    header\n    - alg: rsa256\n    - typ: JWT\n    payload\n    - iss\n    - jti\n    - user_id\n    - iat\n    - exp\n    - roles\n    signature\n  }\nend note\n\nauthorization_api -> k8s_redis: put user session into k8s_redis\nactivate k8s_redis\n\nnote right of authorization_api\n  ttl: 300000 milliseconds (5 min)\n  Key: user_id:xxxxx\n  Redis object value:\n  - access_token\n  - refrech_token\nend note\n\nk8s_redis -> k8s_redis: save data\nactivate k8s_redis\n\nk8s_redis --> authorization_api: return\ndeactivate k8s_redis\n\nauthorization_api --> bff_web_api: return\ndeactivate authorization_api\n\nbff_web_api --> web: return\ndeactivate bff_web_api\n\nnote right of bff_web_api\n  Response header\n  Content-Type: application/json\n  Response body\n  - accessToken\n  - RefreshToken\nend note\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2252,
+    "completion_tokens": 564,
+    "total_tokens": 2816
+  }
+}

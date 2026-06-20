@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+actor "User" as User
+participant "CellEditor" as CellEditor
+participant "Address" as Address
+participant "Controller" as Controller
+participant "Cell" as Cell
+participant "CellImpl" as CellImpl
+participant "FormulaCompiler" as FormulaCompiler
+participant "ExcelExpressionCompiler" as ExcelExpressionCompiler
+participant "ANTLRStringStream" as ANTLRStringStream
+participant "FormulaLexer" as FormulaLexer
+participant "CommonTokenStream" as CommonTokenStream
+participant "FormulaParser" as FormulaParser
+participant "Expression" as Expression
+participant "Formula" as Formula
+
+User -> CellEditor: Inputs block of instructions
+CellEditor -> Address: address = getAddress()
+CellEditor -> Controller: cell = getCell(address)
+CellEditor -> Cell: setContent(content)
+Cell -> CellImpl: setContent(content)
+CellImpl -> CellImpl: storeContent(content)
+CellImpl -> FormulaCompiler: compile(cell, content)
+FormulaCompiler -> ExcelExpressionCompiler: compile(cell, content)
+ExcelExpressionCompiler -> ANTLRStringStream: input = create(source)
+ExcelExpressionCompiler -> FormulaLexer: lexer = create(input)
+ExcelExpressionCompiler -> CommonTokenStream: tokens = create(lexer)
+ExcelExpressionCompiler -> FormulaParser: parser = create(tokens)
+FormulaParser -> Expression: tree = parser.expression()
+Expression -> Formula: create()
+ExcelExpressionCompiler -> ExcelExpressionCompiler: expression = convert(cell, tree)
+FormulaCompiler -> Formula: formula = create(cell, expression)
+FormulaCompiler -> CellImpl: expression
+CellImpl -> Cell: formula
+Cell -> User: show()
+User <- Cell: Result
+
+@enduml

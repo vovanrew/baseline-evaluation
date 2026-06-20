@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nactor CenterCoordinator\nparticipant \":DataFromLegacySystemUI\" as UI\nparticipant \":DataFromLegacySystemController\" as Controller\nparticipant \":ReadLegacyDataFile\" as Reader\nparticipant \":Company\" as Company\nparticipant \":SNSUserStore\" as SNSUserStore\nparticipant \":App\" as App\nparticipant \":VaccinationCenter\" as VaccinationCenter\nparticipant \":Arrival\" as Arrival\nparticipant \":Departure\" as Departure\nparticipant \":VaccinationCentersStore\" as VaccinationCentersStore\n\nCenterCoordinator -> UI : 1 Asks to load a CSV file with legacy data\nactivate UI\nUI -> Controller : 2 DataFromLegacySystemController()\nactivate Controller\nController -> Company : 3 getVaccinationCentersStore()\nactivate Company\nCompany --> Controller : 4 returns the store\ndeactivate Company\nController -> VaccinationCentersStore : 5 getVaccinationCenterAssociatedToCoordinator(id)\nactivate VaccinationCentersStore\nVaccinationCentersStore --> Controller : 6 returns the vaccination center\ndeactivate VaccinationCentersStore\nController -> Reader : 7 ReadLegacyDataFile(center)\nactivate Reader\ndeactivate Controller\nUI --> CenterCoordinator : 8 request path of the CSV file\ndeactivate UI\n\nCenterCoordinator -> UI : 9 types path\nactivate UI\nUI -> Controller : 10 readFile(path)\nactivate Controller\nController -> Reader : 11 readFile(String path)\nactivate Reader\n\nloop while csv has new lines\n    Reader -> Reader : 12 validateFileLegacy(SNSUserNumber,\\nfirstDate,secondDate,thirdDate,fourthDate)\n    Reader -> Reader : 13 Saves data into an ArrayList<String> called\\nlegacyDataList\nend\n\nReader -> Company : 14 getSNSUserList()\nactivate Company\nCompany -> SNSUserStore : 15 getSNSUserList()\nactivate SNSUserStore\nSNSUserStore --> Company : 16 returns list\ndeactivate SNSUserStore\nCompany --> Reader : 17 returns list\ndeactivate Company\n\nReader -> Company : 18 getVaccineList()\nactivate Company\nCompany --> Reader : 19 returns list\ndeactivate Company\n\nloop while legacyDataList has new lines\n    Reader -> Reader : 20 findPosOfSNSUser(snsUsersList,\\nvalues,positionInSnsUserList)\n    Reader -> Reader : 21 findPosOfVax(vaccineList,values,positionInVaccinesList)\n    Reader -> Reader : 22 checksDuplicates(updatedList,snsUsersList,vaccineList,positionInSnsUserList,positionInVaccinesList,lineOfTheData)\n    Reader -> Reader : 23 Saves data into an ArrayList<String> called updatedList\n    Reader -> VaccinationCenter : 24 createArrival()\n    activate VaccinationCenter\n    VaccinationCenter -> Arrival : 25 createArrival()\n    activate Arrival\n    Arrival --> VaccinationCenter : 26 returns Arrival\n    deactivate Arrival\n    VaccinationCenter -> VaccinationCenter : 27 Saves arrival into List<Arrival> called arrivalsList\n    VaccinationCenter -> VaccinationCenter : 28 genericsArrivals.binaryFileWrite(Constants.FILE_PATH_ARRIVALS, arrivalsList)\n    deactivate VaccinationCenter\n    \n    Reader -> VaccinationCenter : 29 createDeparture()\n    activate VaccinationCenter\n    VaccinationCenter -> Departure : 30 createDeparture()\n    activate Departure\n    Departure --> VaccinationCenter : 31 returns departure\n    deactivate Departure\n    VaccinationCenter -> VaccinationCenter : 32 Saves departure into List<Departure> called departuresList\n    VaccinationCenter -> VaccinationCenter : 33 genericsDeparture.binaryFileWrite(Constants.FILE_PATH_DEPARTURES, departuresList)\n    deactivate VaccinationCenter\nend\n\nReader --> Controller : 34 returns updatedList\ndeactivate Reader\nController --> UI : 35 returns updatedList\ndeactivate Controller\nUI --> CenterCoordinator : 36 requests the option to sort\ndeactivate UI\n\nCenterCoordinator -> UI : 37 selects option\nactivate UI\nUI -> Controller : 38 chooseCriteriaToSort(option)\nactivate Controller\nController -> Reader : 39 setList(Option)\nactivate Reader\nloop while updatedList has new lines\n    Reader -> Reader : 40 Saves dates to a\\nList<LocalDateTime>\\ncalled listToSort\nend\ndeactivate Reader\ndeactivate Controller\nUI --> CenterCoordinator : 41 requests the order of the sort\ndeactivate UI\n\nalt algorithmToBeUsed = \"InsertionSort\", option = \"0 - Ascending\"\n    CenterCoordinator -> UI : 42 selects order\n    activate UI\n    UI -> Controller : 43 getAlgorithm()\n    activate Controller\n    Controller -> App : 44 getSortingAlgorithm()\n    activate App\n    App --> Controller : 45 returns algorithm\n    deactivate App\n    Controller --> UI : 46 returns algorithm\n    deactivate Controller\n    UI -> Controller : 47 sortListWithAlgo(algorithmToBeUsed,option)\n    activate Controller\n    note right of Controller\n        algorithmToBeUsed can be InsertionSort or HeapSort, both have methods that\n        can sort in ascending/descending order, here we are just representing\n        the InsertionSort algorithm because HeapSort functions in a similar way.\n    end note\n    Controller -> Controller : 48 insertionSortAscending()\n    Controller --> Controller : 49 returns sortedList\n    Controller --> UI : 50 returns sortedList\n    deactivate Controller\n    UI --> CenterCoordinator : 51 prints sortedList\n    deactivate UI\nelse algorithmToBeUsed = \"InsertionSort\", option = \"1 - Descending\"\n    CenterCoordinator -> UI : 52 selects order\n    activate UI\n    UI -> Controller : 53 getAlgorithm()\n    activate Controller\n    Controller -> App : 54 getSortingAlgorithm()\n    activate App\n    App --> Controller : 55 returns algorithm\n    deactivate App\n    Controller --> UI : 56 returns algorithm\n    deactivate Controller\n    UI -> Controller : 57 sortListWithAlgo(algorithmToBeUsed,option)\n    activate Controller\n    Controller -> Controller : 58 insertionSortDescending()\n    Controller --> Controller : 59 returns sortedList\n    Controller --> UI : 60 returns sortedList\n    deactivate Controller\n    UI --> CenterCoordinator : 61 prints sortedList\n    deactivate UI\nend\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbH3lgGA56AHiJi0HKxWAEQ0nnrmHuGzfBb0AtTMkTJq71IjXR/5c4/B6TRqS/p"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1153,
+    "candidatesTokenCount": 1402,
+    "totalTokenCount": 2555,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1073
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "j2ExaojODpS6nsEPqJOhkQg"
+}

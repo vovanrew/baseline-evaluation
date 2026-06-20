@@ -1,0 +1,60 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor Requester
+participant "PageLocsMgr" as PLM
+circle MgrQueue
+participant "StateTask" as ST
+circle StateQueue
+circle RetrieveQueue
+participant "RetrieverTask" as RT
+
+== Initialization ==
+PLM -> RT : Startup
+PLM -> ST : Startup
+PLM -> StateQueue : start(doc, first_item, item_count)
+
+note right of MgrQueue: The document retrieval\noptimizes the order of\nthe items considering\nhow the user interacts.
+
+StateQueue -> ST : start_document(...)
+
+== Document Retrieval Loop ==
+group loop [All Items]
+    ST -> RetrieveQueue : retrieve(item)
+    RetrieveQueue -> RT : retrieve(item)
+    activate RT
+    RT -> RT : do item
+    deactivate RT
+    RT -> StateQueue : item_retrieved(item)
+    StateQueue -> ST : item_retrieved(item)
+end
+
+== Item already known ==
+Requester -> PLM : get_page_loc(item, offset)
+activate PLM
+PLM --> Requester : got_it(start_offset, size)
+deactivate PLM
+
+== Item needs to be retrieved (no yet in the list) ==
+Requester -> PLM : get_page_loc(item, offset)
+activate PLM
+PLM -> StateQueue : retrieve_asap(item)
+StateQueue -> ST : retrieve_asap(item)
+ST -> RetrieveQueue : retrieve(item)
+RetrieveQueue -> RT : retrieve(item)
+activate RT
+RT -> RT : do item
+deactivate RT
+RT -> StateQueue : item_retrieved(item)
+StateQueue -> ST : item_retrieved(item)
+ST -> MgrQueue : got_asap(item)
+MgrQueue -> PLM : got_asap(item)
+PLM --> Requester : got_it(start_offset, size)
+deactivate PLM
+
+ST -> MgrQueue : end_document()
+MgrQueue -> PLM : end_document()
+
+@enduml
+```

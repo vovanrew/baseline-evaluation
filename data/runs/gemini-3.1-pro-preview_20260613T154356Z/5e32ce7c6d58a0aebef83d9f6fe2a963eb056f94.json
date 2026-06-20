@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nactor \"Project Manager\" as PM\nparticipant \":ProjectManagerUI\" as UI\nparticipant \"AGVServer\" as Server\nparticipant \"AGVServerThread\" as ServerThread\nparticipant \"AVGManagerController\" as Controller\nparticipant \"AGVDigitalTwinServer\" as TwinServer\nparticipant \"AGVDigitalTwinThread\" as TwinThread\nparticipant \"AGVDigitalTwinController\" as TwinController\nparticipant \"CodingAndDecoding2\" as Codec\n\nactivate PM\nPM -> UI : Wants to assign ready to go Orders to an AGV\nactivate UI\nUI -> Server : message\nactivate Server\nServer -> Server : accept\nServer -> ServerThread : start\nactivate ServerThread\nServerThread -> Codec : Decoding(r)\nactivate Codec\nCodec -> ServerThread : Message\nServerThread -> Controller : FifoAGV()\nactivate Controller\nController -> Controller : findavailableOrder()\nactivate Controller\ndeactivate Controller\n\nloop until orderList is empty\n    Controller -> Controller : findavailableAGV(weight,volume)\n    activate Controller\n    deactivate Controller\n    Controller -> Controller : createTaskandSave(description,order,agv)\n    activate Controller\n    deactivate Controller\n    Controller -> Controller : doTask()\n    activate Controller\n    deactivate Controller\n    Controller -> TwinServer : message\n    activate TwinServer\n    TwinServer -> TwinServer : accept\n    TwinServer -> TwinThread : start\n    activate TwinThread\n    TwinThread -> Codec : Decoding(r)\n    activate Codec\n    Codec -> TwinThread : message\n    deactivate Codec\n    TwinThread -> TwinController : doTask(taskPerform)\n    activate TwinController\n    TwinController -> TwinThread : TaskReportMessage\n    deactivate TwinController\n    TwinThread -> TwinServer : TaskReportMessage\n    deactivate TwinThread\n    TwinServer -> Controller : TaskReportMessage\n    deactivate TwinServer\nend\n\nController -> ServerThread : ResponseMessage\ndeactivate Controller\nServerThread --> Server : ResponseMessage\ndeactivate ServerThread\nactivate Server\nServer -> UI : ResponseMessage\ndeactivate Server\nUI -> PM : Informs operation success\ndeactivate UI\ndeactivate PM\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHpscZAD/4wMJ7f2kz6jgfUfgIRH3FDmrds5Kkqo5Ro0OAQdVt3oZ3UV8hL1Vt"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1160,
+    "candidatesTokenCount": 478,
+    "totalTokenCount": 1638,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1080
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "pV8xapniJKOavdIPzI_huAY"
+}

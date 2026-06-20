@@ -1,0 +1,62 @@
+@startuml
+!theme plain
+
+title SOURCE's Class Diagram
+
+package "model" as model {
+  package "data" as data {
+    package "source" as source {
+      class "Collector" as Collector {
+        +Collector()
+        +getDatumLinkListByTree()
+        +getEntityDescription()
+        +getEntityName()
+        +getQualifiers()
+        +getReferences()
+        +getSingleStatement()
+        +getStatementList()
+        +triggerLoad()
+        +triggerSave()
+      }
+
+      class "WebCollector" as WebCollector {
+        +loaded : Entities
+        -gson : Gson
+        -seen : ArrayList<Entities>
+        +WebCollector()
+        +getDatumLinkListByTree()
+        +getEntityDescription()
+        +getEntityName()
+        +getQualifiers()
+        +getReferences()
+        +getSingleStatement()
+        +getStatementList()
+        +triggerLoad()
+        +triggerSave()
+        +getJson()
+        -formatURL()
+        -iterateSnaks()
+        -tryGetQualifiers()
+      }
+
+      class "LocalCollector" as LocalCollector {
+        +LocalCollector()
+        +triggerSave()
+        +getJson()
+      }
+
+      class "LocalRepository" as LocalRepository {
+        -file : File
+        +LocalRepository()
+        +load()
+        +save()
+      }
+
+      Collector <|-- WebCollector
+      Collector --o LocalRepository : repository
+      WebCollector <|-- LocalCollector
+    }
+  }
+}
+
+@enduml

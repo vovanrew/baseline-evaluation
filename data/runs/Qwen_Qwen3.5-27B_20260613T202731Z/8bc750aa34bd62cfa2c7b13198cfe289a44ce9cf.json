@@ -1,0 +1,22 @@
+{
+  "id": "b18f3cb9-317f-476c-88bd-8bd45d7f2072",
+  "object": "chat.completion",
+  "created": 1781501192,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam componentStyle rectangle\n\nactor \"mobile\" as mobile\ncomponent \"www\" as www\nparticipant \"endpoint\" as endpoint\nparticipant \"haproxy\" as haproxy\ndatabase \"ipfs\" as ipfs\ndatabase \"postgraphile\" as postgraphile\ndatabase \"CITY Custom Net\" as city\nparticipant \"logstash\" as logstash\nparticipant \"dApp\" as dapp\ndatabase \"postgres\" as postgres\ndatabase \"elastic\" as elastic\ncomponent \"prometheus\" as prometheus\ncomponent \"kibana\" as kibana\n\nrectangle \"webUI\" {\n    mobile -> www: sign & send events\n    note right of mobile: browser ext or mobile wallet\n    www -> endpoint: HTTPS gateway & peer tcp/4001\n    endpoint -> ipfs: /ipfs/{CID}\n    endpoint -> haproxy: HTTPS (oauth by EC Address)\n    note left of haproxy: User makes deposit / signs entry to trigger events.\n}\n\nrectangle \"api - Admin/Write api\" {\n    haproxy -> endpoint: /v2 - read/write factom api\n    haproxy -> ipfs: /ipfs/{CID} - readonly gateway\n    haproxy -> postgraphile: /graphql - readonly graphql queries\n    endpoint -> logstash: livefeed log\n    logstash -> elastic: index event logs\n    elastic -> postgres: dApp specific events\n    postgraphile -> dapp: Query/Sign\n    dapp -> postgres: sign and dispatch requests\n    dapp -> endpoint: read/write signed factom entries\n}\n\nrectangle \"dashboard\" {\n    kibana -> elastic: dashboard query\n    kibana -> kibana: poll()\n    kibana -> prometheus: metrics query\n    prometheus -> endpoint: HTTP GET /metrics\n    prometheus -> haproxy: HTTP GET /metrics\n    prometheus -> dapp: Monitor(FA2XXXXXXXX) Balance changes\n    kibana -> postgres: dApp specific rollup\n}\n\nrectangle \"dApp - controller\" {\n    postgres -> dapp: dispatch on-chain event\n    dapp -> logstash: dApp specific logging\n    dapp -> ipfs: pin entry content on IPFS\n}\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1468,
+    "completion_tokens": 493,
+    "total_tokens": 1961
+  }
+}

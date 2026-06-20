@@ -1,0 +1,87 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+  FontColor Black
+}
+
+class EspecificarCompetenciaTecnicaUI {
+  <<Interface>>
+}
+
+class EspecificarCompetenciaTecnicaController {
+  <<Interface>>
+  +getAreasAtividade()
+  +getAreaAtividadeById(areaAtividadeId)
+  +addGP(valor, designacao)
+  +registarCompetenciaTecnica()
+}
+
+class Plataforma {
+  <<Interface>>
+  -String designacao
+  +getRegistoCompetenciaTecnica()
+  +getRegistoAreaAtividade()
+}
+
+class RegistoCompetenciaTecnica {
+  <<Interface>>
+  +CompetenciaTecnica(String cod, String dsBreve, String dsDet, AreaAtividade areaAtividade, GrauProficiencia gp)
+  +novaCompetenciaTecnica(String cod, String dsBreve, String dsDet, areaAtividade)
+  +validaCompetenciaTecnica(competencia)
+  +registarCompetenciaTecnica(competencia)
+  -addCompetenciaTecnica(CompetenciaTecnica competencia)
+}
+
+class RegistoAreaAtividade {
+  <<Interface>>
+  +getAreasAtividade()
+  +getAreaAtividadeById(areaAtividadeId)
+}
+
+class CompetenciaTecnica {
+  <<Interface>>
+  -String codigo
+  -String descBreve
+  -String descDetalhada
+  -AreaAtividade areaAtividade
+  +CompetenciaTecnica(String cod, String dsBreve, String dsDet, AreaAtividade areaAtividade, GrauProficiencia gp)
+  +CompetenciaTecnica(String cod, String dsBreve, AreaAtividade areaAtividade)
+  -addGP(valor, designacao)
+  -validaGP(gp)
+  -addGP(gp)
+}
+
+class GrauProficiencia {
+  <<Interface>>
+  -String designacao
+  -Int valor
+  +GrauProficiencia(valor, designacao)
+}
+
+class AreaAtividade {
+  <<Interface>>
+  -String codigo
+  -String descBreve
+  -String descDetalhada
+}
+
+EspecificarCompetenciaTecnicaUI ..> EspecificarCompetenciaTecnicaController
+EspecificarCompetenciaTecnicaController ..> Plataforma
+EspecificarCompetenciaTecnicaController ..> RegistoCompetenciaTecnica
+EspecificarCompetenciaTecnicaController ..> RegistoAreaAtividade
+EspecificarCompetenciaTecnicaController ..> CompetenciaTecnica
+EspecificarCompetenciaTecnicaController ..> GrauProficiencia
+EspecificarCompetenciaTecnicaController ..> AreaAtividade
+
+Plataforma "1" -- "1" RegistoCompetenciaTecnica : possui
+Plataforma "1" -- "1" RegistoAreaAtividade : possui
+RegistoCompetenciaTecnica "1" -- "*" CompetenciaTecnica : possui
+RegistoAreaAtividade "1" -- "*" AreaAtividade : possui
+CompetenciaTecnica "1" -- "0..*" GrauProficiencia : possui
+CompetenciaTecnica "*" -- "1" AreaAtividade : referente
+
+@enduml

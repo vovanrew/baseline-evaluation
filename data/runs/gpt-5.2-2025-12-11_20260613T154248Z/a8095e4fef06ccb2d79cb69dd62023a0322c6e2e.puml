@@ -1,0 +1,64 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+
+interface "QuestReward" as QuestReward << (I,#b39ddb) >>
+note top of QuestReward
+interface since QuestRewards need to have RewardPlayer but that logic will vary from reward to reward
+end note
+QuestReward : + void RewardPlayer()
+QuestReward : + String ToString() so that the reward can be described in text in the quest window
+
+class "Quest" as Quest << (A,#b2ebf2) >>
+Quest : + bool isActive
+Quest : + bool isComplete
+Quest : # [SerializedField] string name
+Quest : # [SerializedField] string description
+Quest : # [SerializedField] List<QuestReward> questRewards
+Quest : {abstract} make sure it does not derive from monobehaviour
+Quest : {abstract} all classes that inherit from quest need the [Serializable] attribute
+
+class "RivalQuest" as RivalQuest << (C,#c8e6c9) >>
+RivalQuest : {abstract} rival quests will need their own unique logic and AI
+
+class "CountQuest" as CountQuest << (C,#c8e6c9) >>
+CountQuest : - int currentCount
+CountQuest : - [SerializedField] int completionCount
+CountQuest : + void checkWin() sets isComplete to true if currentCount == completionCount
+
+enum "CountQuestTypes" as CountQuestTypes << (E,#ffab91) >>
+CountQuestTypes : GrindTime, Graffiti, SpeedMeter, Coins, Enemies
+
+class "QuestGiver" as QuestGiver << (C,#c8e6c9) >>
+QuestGiver : {abstract} attaches to NPC objects, derives from monobehaviour
+QuestGiver : - [SerializedField] Quest questToGive;
+QuestGiver : - [SerializedField] GameObject questWindow
+QuestGiver : - [SerializedField] TextMeshProUGUI titleText
+QuestGiver : - [SerializedField] TextMeshProUGUI descText
+QuestGiver : - [SerializedField] TextMeshProUGUI rewardText;
+QuestGiver : {abstract} not sure if the player will need its own new quest script of if questing logic can go in an existing one
+QuestGiver : - PlayerReference player;
+QuestGiver : + void OpenQuestWindow()
+QuestGiver : + void AcceptQuest()
+QuestGiver : + void CompleteQuest()
+
+class "MonoBehaviour" as MonoBehaviour << (C,#c8e6c9) >>
+MonoBehaviour : Unity MonoBehaviour
+
+' Relationships
+QuestReward *-- Quest : has
+QuestReward *-- RivalQuest : has
+QuestReward *-- CountQuest : has
+
+RivalQuest --|> Quest : inherits from
+CountQuest --|> Quest : inherits from
+
+CountQuest *-- CountQuestTypes : has
+
+QuestGiver *-- Quest : gives
+QuestGiver --|> MonoBehaviour : inherits from
+
+@enduml
+```

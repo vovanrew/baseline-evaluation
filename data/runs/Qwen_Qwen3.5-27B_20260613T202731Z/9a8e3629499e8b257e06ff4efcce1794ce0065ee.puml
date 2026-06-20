@@ -1,0 +1,67 @@
+```plaintext
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "havenarbeider" as havenarbeider
+actor "douane en voedselinspectie" as douane
+actor "scheepsagent" as scheepsagent
+participant "Api gateway" as api_gateway
+participant "kapiteinsdienst" as kapiteinsdienst
+participant "administratie" as administratie
+participant "containerbeheer en -transport" as containerbeheer
+
+rectangle "per schip" {
+    scheepsagent -> api_gateway: registerVessel
+    activate api_gateway
+    api_gateway -> kapiteinsdienst: registerVessel
+    activate kapiteinsdienst
+    kapiteinsdienst -> administratie: requestOffer
+    activate administratie
+    administratie --> kapiteinsdienst: offerCreated
+    deactivate administratie
+    kapiteinsdienst -> containerbeheer: newContainerList
+    activate containerbeheer
+    
+    opt [deleteOffer]
+        kapiteinsdienst -> api_gateway: offerConfirmation(isConfirmed == false)
+        activate api_gateway
+        api_gateway -> kapiteinsdienst: offerConfirmation(isConfirmed == false)
+        kapiteinsdienst -> administratie: deleteOffer
+        activate administratie
+        deactivate api_gateway
+    endopt
+    
+    deactivate containerbeheer
+    deactivate kapiteinsdienst
+    
+    douane -> api_gateway: getDocuments
+    activate api_gateway
+    api_gateway -> administratie: getDocuments
+    activate administratie
+    administratie --> api_gateway: 
+    deactivate administratie
+    api_gateway --> douane: 
+    deactivate api_gateway
+}
+
+rectangle "per havenarbeider" {
+    havenarbeider -> api_gateway: timeBadging
+    activate api_gateway
+    api_gateway -> administratie: timeBadging
+    activate administratie
+    administratie --> api_gateway: 
+    deactivate administratie
+    
+    havenarbeider -> api_gateway: getPayCheck
+    activate api_gateway
+    api_gateway -> administratie: getPayCheck
+    activate administratie
+    administratie --> api_gateway: 
+    deactivate administratie
+    api_gateway --> havenarbeider: 
+    deactivate api_gateway
+}
+
+@enduml
+```

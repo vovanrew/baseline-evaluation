@@ -1,0 +1,45 @@
+```plantuml
+@startuml
+title agregar jugadores a la partida
+
+actor jugador
+participant VistaNuevaPartida
+participant SubVistaSeleccionEquipos
+participant ControladorNuevaPartida
+participant Jugador
+
+jugador -> VistaNuevaPartida : click agregar jugador
+activate VistaNuevaPartida
+VistaNuevaPartida ..> ControladorNuevaPartida
+activate ControladorNuevaPartida
+ControladorNuevaPartida -> Jugador : obtenerJugadorAleatorio()
+activate Jugador
+ControladorNuevaPartida <.. Jugador : jugador jug
+deactivate Jugador
+ControladorNuevaPartida -> ControladorNuevaPartida : agregarJugador(jug)
+
+alt jugadores <4
+    ControladorNuevaPartida -> VistaNuevaPartida : agregarVistaInfoJugador(jug)
+    activate VistaNuevaPartida
+    jugador <.. VistaNuevaPartida : muestra el nuevo\njugador agregado
+    deactivate VistaNuevaPartida
+
+    alt vista seleccion equipos activada
+        VistaNuevaPartida -> SubVistaSeleccionEquipos : agregarJugador(Jugador jug)
+        activate SubVistaSeleccionEquipos
+        jugador <.. SubVistaSeleccionEquipos : muestra nuevo jugador\nagregado en equipo
+        deactivate SubVistaSeleccionEquipos
+    end
+
+else [de lo contrario]
+    ControladorNuevaPartida -> VistaNuevaPartida : mostrarMensaje("Maximo 4 jugadores.")
+    activate VistaNuevaPartida
+    jugador <.. VistaNuevaPartida : muestra mensaje de\nmaximo 4 jugadores
+    deactivate VistaNuevaPartida
+end
+
+deactivate ControladorNuevaPartida
+deactivate VistaNuevaPartida
+
+@enduml
+```

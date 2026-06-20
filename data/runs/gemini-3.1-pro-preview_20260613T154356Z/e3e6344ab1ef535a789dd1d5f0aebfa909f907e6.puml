@@ -1,0 +1,260 @@
+```plantuml
+@startuml
+class ProductOrder {
+  cancellationDate: date-time
+  cancellationReason: string
+  completionDate: date-time
+  href: string
+  id*: string
+  orderDate*: date-time
+  state*: MEFProductOrderStateType
+}
+
+class MEFProductOrderChargeRef {
+}
+
+class MEFProductOrderStateChange {
+  changeDate: date-time
+  changeReason: string
+  state: MEFProductOrderStateType
+}
+
+class ProductOrderItem {
+  completionDate: date-time
+  expectedCompletionDate: date-time
+  expediteAcceptedIndicator: boolean
+  state: MEFProductOrderItemStateType
+}
+
+class MEFProductOrderItemStateChange {
+  changeDate: date-time
+  changeReason: string
+  state: MEFProductOrderItemStateType
+}
+
+class TerminationError {
+  code: Error422Code
+  propertyPath: string
+  value: string
+}
+
+class MEFMilestone {
+  date*: date-time
+  name*: string
+  note: string
+}
+
+class MEFQuoteItemRef {
+  id*: string
+  quoteHref: string
+  quoteId*: string
+}
+
+class OrderItemRelationship {
+  id*: string
+  relationshipType*: string
+}
+
+class MEFOrderItemCoordinatedAction {
+  coordinationDependency*: MEFOrderItemCoordinationDependencyType
+  itemId*: string
+}
+
+class MEFItemTerm {
+  description: string
+  endOfTermAction*: MEFEndOfTermAction
+  name*: string
+}
+
+class Duration {
+  amount*: integer
+  units*: TimeUnit
+}
+
+class MEFProductOrderItem_Common {
+  action*: MEFProductActionType
+  agreementName: string
+  endCustomerName: string
+  expediteIndicator: boolean
+  id*: string
+  relatedBuyerPON: string
+  requestedCompletionDate: date-time
+  tspRestorationPriority: string
+}
+
+class ProductOfferingQualificationItemRef {
+}
+
+class MEFProductRefOrValueOrder {
+  href: string
+  id: string
+}
+
+class MEFBillingAccountRef {
+  id*: string
+}
+
+class Note {
+  author*: string
+  date*: date-time
+  id*: string
+  source*: MEFBuyerSellerType
+  text*: string
+}
+
+class RelatedContactInformation {
+  emailAddress*: string
+  name*: string
+  number*: string
+  numberExtension: string
+  organization: string
+  role*: string
+}
+
+class ProductOrder_Common {
+  externalId: string
+  projectId: string
+}
+
+class ProductOrder_Update {
+  externalId: string
+  projectId: string
+}
+
+class MEFProductOrderItem_Update {
+}
+
+class RelatedPlaceRefOrValue {
+  @schemaLocation: uri
+  @type*: string
+  role*: string
+}
+
+class ProductOfferingRef {
+  href: string
+  id*: string
+}
+
+class ProductRelationship {
+  id*: string
+  href: string
+  relationshipType*: string
+}
+
+class MEFProductConfiguration {
+  @type*: string
+}
+
+class GeographicSiteRef {
+  href: string
+  id*: string
+}
+
+class MEFGeographicPoint {
+  spatialRef*: string
+  x*: string
+  y*: string
+  z: string
+}
+
+class FormattedAddress {
+  addrLine1*: string
+  addrLine2: string
+  city*: string
+  country*: string
+  locality: string
+  postcode: string
+  postcodeExtension: string
+  stateOrProvince: string
+}
+
+class GeographicAddressLabel {
+  externalReferenceId*: string
+  externalReferenceType*: string
+}
+
+class GeographicAddressRef {
+  href: string
+  id*: string
+}
+
+class FieldedAddress {
+  city*: string
+  country*: string
+  locality: string
+  postcode: string
+  postcodeExtension: string
+  stateOrProvince: string
+  streetName*: string
+  streetNr: string
+  streetNrLast: string
+  streetNrLastSuffix: string
+  streetNrSuffix: string
+  streetSuffix: string
+  streetType: string
+}
+
+class GeographicSubAddress {
+  buildingName: string
+  levelNumber: string
+  levelType: string
+  privateStreetName: string
+  privateStreetNumber: string
+}
+
+class MEFSubUnit {
+  subUnitNumber*: string
+  subUnitType*: string
+}
+
+ProductOrder *-- "*" MEFProductOrderChargeRef : cancellationCharge
+ProductOrder *-- "*" MEFProductOrderStateChange : stateChange
+ProductOrder *-- "1..*" ProductOrderItem : productOrderItem
+ProductOrder --|> ProductOrder_Common
+
+ProductOrderItem *-- "*" MEFProductOrderChargeRef : charge
+ProductOrderItem *-- "*" MEFProductOrderItemStateChange : stateChange
+ProductOrderItem *-- "*" TerminationError : terminationError
+ProductOrderItem *-- "*" MEFMilestone : milestone
+ProductOrderItem --|> MEFProductOrderItem_Common
+
+MEFProductOrderItem_Common *-- "*" MEFQuoteItemRef : quoteItem
+MEFProductOrderItem_Common *-- "*" OrderItemRelationship : productOrderItemRelationship
+MEFProductOrderItem_Common *-- "*" MEFOrderItemCoordinatedAction : coordinatedAction
+MEFProductOrderItem_Common *-- "*" MEFItemTerm : requestedItemTerm
+MEFProductOrderItem_Common *-- "*" ProductOfferingQualificationItemRef : productOfferingQualificationItem
+MEFProductOrderItem_Common *-- "1" MEFProductRefOrValueOrder : product
+MEFProductOrderItem_Common *-- "*" MEFBillingAccountRef : billingAccount
+MEFProductOrderItem_Common *-- "*" Note : note
+MEFProductOrderItem_Common *-- "*" RelatedContactInformation : relatedContactInformation
+
+MEFOrderItemCoordinatedAction *-- "*" Duration : coordinatedActionDelay
+MEFItemTerm *-- "*" Duration : duration
+MEFItemTerm *-- "*" Duration : rollInterval
+
+MEFProductRefOrValueOrder *-- "*" RelatedPlaceRefOrValue : place
+MEFProductRefOrValueOrder *-- "1" ProductOfferingRef : productOffering
+MEFProductRefOrValueOrder *-- "*" ProductRelationship : productRelationship
+MEFProductRefOrValueOrder *-- "*" MEFProductConfiguration : productConfiguration
+
+RelatedPlaceRefOrValue <|-- GeographicSiteRef
+RelatedPlaceRefOrValue <|-- MEFGeographicPoint
+RelatedPlaceRefOrValue <|-- FormattedAddress
+RelatedPlaceRefOrValue <|-- GeographicAddressLabel
+RelatedPlaceRefOrValue <|-- GeographicAddressRef
+RelatedPlaceRefOrValue <|-- FieldedAddress
+
+FieldedAddress *-- "*" GeographicSubAddress : geographicSubAddress
+GeographicSubAddress *-- "*" MEFSubUnit : subUnit
+
+ProductOrder_Common *-- "*" Note : note
+ProductOrder_Common *-- "*" RelatedContactInformation : relatedContactInformation
+
+ProductOrder_Update *-- "*" Note : note
+ProductOrder_Update *-- "*" RelatedContactInformation : relatedContactInformation
+ProductOrder_Update *-- "*" MEFProductOrderItem_Update : productOrderItem
+
+RelatedContactInformation *-- "*" FieldedAddress : postalAddress
+
+@enduml
+```

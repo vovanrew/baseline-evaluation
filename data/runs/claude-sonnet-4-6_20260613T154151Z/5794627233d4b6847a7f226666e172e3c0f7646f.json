@@ -1,0 +1,21 @@
+{
+  "id": "msg_01NENuueA9jVEHu6rqNmw3qS",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle **Weekly Rewards to Vaults**\n\nactor User\nactor Ops\nparticipant \"\u00abmStable\u00bb\\nEmissions Controller\" as EC\nparticipant \"\u00abmStable\u00bb\\nVaults\" as Vaults\nparticipant \"\u00abmStable\u00bb\\nMTA\" as MTA\n\nUser -> EC : setVoterDialWeights ([dial ids], [weights])\nnote right of EC : proportions voting power across dials\\nfor future distributions\nEC --> User\n\n== After Thursday 00:00 UTC ==\n\nOps -> EC : calculateRewards ()\nnote right of EC : Calculates and stores\\nrewards for each dial\nEC --> Ops\n\nOps -> EC : distributeRewards ([dial ids])\n\nloop [Dials]\n  note left of EC : transfer MTA\\nfrom Emissions Controller\\nto Vault\n  EC -> MTA : transfer(vault, rewards)\n  MTA --> EC\n  EC -> Vaults : notifyRewardAmount(rewards)\n  note right of Vaults : Stream MTA to Users\n  Vaults --> EC\nend\n\nEC --> Ops\n\n== After rewards have accrued ==\n\nUser -> Vaults : claimRewards ()\nnote right of Vaults : transfer MTA\\nfrom Vault\\nto User\nVaults -> MTA : transfer(user, rewards)\nMTA --> Vaults\nVaults --> User\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370096,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 339,
+    "prompt_tokens": 1656,
+    "total_tokens": 1995
+  }
+}

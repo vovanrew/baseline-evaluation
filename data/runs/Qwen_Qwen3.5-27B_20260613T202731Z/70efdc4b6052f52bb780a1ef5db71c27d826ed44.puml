@@ -1,0 +1,54 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+title Test() Sequence Diagram
+
+participant "LCM" as LCM
+rectangle "Class\nApplicationProperty" #LightGreen {
+    participant "Class\nApplicationProperty" as AppProp
+}
+rectangle "Class\nDscResourceBase" #Lavender {
+    participant "Class\nDscResourceBase" as DscResBase
+}
+rectangle "Function\nConvertTo-HashtableFromObject" #Lavender {
+    participant "Function\nConvertTo-HashtableFromObject" as ConvertFunc
+}
+rectangle "Function\nTest-DscParameterState" #Lavender {
+    participant "Function\nTest-DscParameterState" as TestFunc
+}
+
+== Main Flow ==
+LCM -> AppProp: ApplicationProperty.Test()
+activate AppProp
+
+AppProp -> DscResBase: ([DscResourceBase] $this).Test()
+activate DscResBase
+
+== Internal Processing in DscResourceBase ==
+DscResBase -> ConvertFunc: $this
+activate ConvertFunc
+ConvertFunc --> DscResBase: Return Type: [Hashtable]
+deactivate ConvertFunc
+
+DscResBase -> DscResBase: $actual = $this.Get()
+DscResBase -> ConvertFunc: $actual
+activate ConvertFunc
+ConvertFunc --> DscResBase: Return Type: [Hashtable]
+deactivate ConvertFunc
+
+== Parameter State Testing ==
+DscResBase -> TestFunc: Parameter: both Hashtables
+activate TestFunc
+note right of TestFunc: DscResourceBase must determine which properties\nare optional to exclude them the comparison.
+TestFunc --> DscResBase: Return Type: [Boolean]
+deactivate TestFunc
+
+== Return Flow ==
+DscResBase --> AppProp: Return Type: [Boolean]
+deactivate DscResBase
+AppProp --> LCM: Return Type: [Boolean]
+deactivate AppProp
+
+@enduml
+```

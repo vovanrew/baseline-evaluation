@@ -1,0 +1,29 @@
+@startuml
+participant "Admin" as Admin
+participant "Customer" as Customer
+participant "Games Interface" as GamesInterface
+participant "Games Input Interface" as GamesInputInterface
+participant "Games Controller" as GamesController
+participant "Database" as Database
+
+Admin ..> GamesInterface : CRUD games
+GamesInterface ..> GamesInputInterface : Input games info
+GamesInputInterface ..> GamesController : Send CRUD request to server
+GamesController ..> Database : Query request to DB
+Database ..> GamesController : Response
+
+alt [success case]
+GamesController ..> GamesInterface : CRUD successfully
+else [fail case]
+GamesController ..> GamesInterface : CRUD fail
+end
+
+GamesInterface ..> Admin : Show notification
+Customer ..> GamesInterface : View Game
+GamesInterface ..> GamesController : FETCH game from server
+GamesController ..> Database : Query games
+Database ..> GamesController : Games data
+GamesController ..> GamesInterface : Games data
+GamesInterface ..> Customer : Show all games
+
+@enduml

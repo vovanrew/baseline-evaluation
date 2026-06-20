@@ -1,0 +1,121 @@
+@startuml
+skinparam sequenceMessageAlign center
+autonumber "<b>[0]"
+
+box "Resident" #LightBlue2
+    participant Resident
+end box
+
+box "" #WhiteSmoke
+    participant WeResident
+end box
+
+box "" #WhiteSmoke
+    participant WeiD
+end box
+
+box "" #WhiteSkyBlue
+    participant Weservice
+end box
+
+
+== Provider Login Into Provider App == 
+activate Resident
+->>WeResident : Send username:password /login\n 
+
+alt [Provider already exist]   
+   ->WeiD:Get Token by  \nusername:password \n/oauth/authorize  
+   -->>WeResident:Return Token to WeResident
+   
+else
+    
+ end
+ 
+-->>Resident: Return {"token": "jwt-token"}\n 
+
+
+deactivate Resident
+
+
+
+== Provider Query/Search Service =  
+
+note right of WeResident:<u><font color=black size="14">Query services including token</color></size>\n/weservices/services </u>\nHeader <i>"Authorization:Bear {jwt-token}"</i>  
+
+
+-->Weservice:\n 
+
+
+
+ note left of WeResident:#Yellow;__<u>Query Service schema</u>#Black;\n{"query":"string","status":12}#white;/
+
+
+
+
+ alt[above token is valid ]    
+     <--WeiD:verify token
+     
+      -->WeiD:200
+      
+       <-Resident:Response services data
+        
+        Note over Residnet,Weservice:#yellow;<u>Service Data Array Schema:</u>{[{\"id\":\"String\",\"company\": \"string\", \"name\": \"string\",\r\r\"rate\": 4.2,\"image\": \"Image.png\"},{},{}],{\"total\":10,\r\r\"currentPage\":1,\"perPage\":5}}#/ 
+        
+ else[Token expired or invalid]\n     
+      
+         <--WeiD: verify token
+         
+          -->WeiD:400
+          
+           -<<Resident: Response status(401)       
+           
+           
+            
+            
+        
+    
+    
+    
+    
+    
+    
+
+endif
+
+
+
+
+
+== Create Order(Request)= 
+
+
+
+
+create order service POST:/weservices/service/{serviceID}/order --->Weservice :\n 
+
+Note Over weResident,weservice:#lightgreen ;Order Request Schema:{resident:$userID,service:$serviceId,PricingModel:{},"notedetail:string",address:"string,schedule:Time}\n#/
+
+
+<-weiD:Verify token
+
+ weiD-:>weResident:200 
+ 
+ <<---resdient:response serivceData(JSON)\n
+  
+ comment(chat in order )POST:weserices/order{orderId}/comment ----> weservice:\n 
+  
+ note over resident ,wesevice:#pink|Comment Data(content:\"string\")#\n
+ 
+ <->weiD: Verify token
+ 
+ weiD---->:weresident:200
+ 
+ weresident------>:resident:200
+
+
+
+
+
+
+
+@enduml

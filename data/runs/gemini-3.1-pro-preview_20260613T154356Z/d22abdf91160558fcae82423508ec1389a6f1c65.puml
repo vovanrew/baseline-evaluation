@@ -1,0 +1,58 @@
+```plantuml
+@startuml
+skinparam maxMessageSize 150
+skinparam sequenceMessageAlign left
+
+title HashedTimelockERC20 contract: normal flow - receiver withdraws with preimage before the timelock expires
+
+box "Ethereum Network" #B0C4DE
+participant Sender <<Account>>
+participant Receiver <<Account>>
+participant HashedTimelockERC20 <<Smart Contract>>
+participant ERC20Contract <<Smart Contract>>
+participant Events
+end box
+
+note over HashedTimelockERC20
+State stored for each HTLC:
+  address sender;
+  address receiver;
+  address tokenContract;
+  uint amount;
+  bytes32 hashlock;
+  uint timelock; // UNIX ts
+  bool withdrawn;
+  bool refunded;
+  bytes32 preimage;
+end note
+
+Sender -> ERC20Contract: approve(htlc address, amount)
+activate ERC20Contract
+ERC20Contract -> Sender
+deactivate ERC20Contract
+
+Sender -> HashedTimelockERC20: newContract(\n  receiver,\n  hashlock,\n  timelock,\n  tokenContract,\n  amount\n)
+activate HashedTimelockERC20
+HashedTimelockERC20 -> ERC20Contract: transferFrom(sender, htlc address, amount)
+activate ERC20Contract
+ERC20Contract -> HashedTimelockERC20
+deactivate ERC20Contract
+HashedTimelockERC20 -> Events: LogHTLCERC20New(contractId, locks, values, etc.)
+HashedTimelockERC20 -> Sender: contractId
+deactivate HashedTimelockERC20
+
+Sender -> Receiver: reveals contractId
+
+Receiver -> Receiver: knows/obtains secret preimage\n[sha256(secret preimage) == hashlock]
+
+Receiver -> HashedTimelockERC20: withdraw(contractId, secret preimage)
+activate HashedTimelockERC20
+HashedTimelockERC20 -> ERC20Contract: transfer(receiver, amount)
+activate ERC20Contract
+ERC20Contract -> HashedTimelockERC20
+deactivate ERC20Contract
+HashedTimelockERC20 -> Events: LogHTLCERC20Withdraw(contractId)
+deactivate HashedTimelockERC20
+
+@enduml
+```

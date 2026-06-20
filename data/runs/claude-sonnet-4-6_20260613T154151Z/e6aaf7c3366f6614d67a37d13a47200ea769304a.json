@@ -1,0 +1,21 @@
+{
+  "id": "msg_01PUe2zaoUEB2YhduYRx1h1d",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant halon\nparticipant ios1\nparticipant ios2\nparticipant client\n\nbox \"SNS operation start\"\nnote over halon, ios2 : notification [(pool, repair), (disk, repair)]\n\nloop [until all ios are ready]\n  halon -> ios2 : repair status request\n  halon <- ios2 : repair status reply\nend\n\nhalon -> ios1 : spiel_repair_start\nend box\n\nnote over halon, ios2 : repair process\n\nalt [sucessful case]\n  halon <- ios1 : notify [(pool, repaired), (disk, repaired)]\n\n  box \"SNS status query\"\n  loop [unil all ios are in IDLE]\n    halon -> ios2 : repair status request\n    halon <- ios2 : repair status reply [IDLE, IDLE]\n  end\n  halon -> client : notify [(pool, REPAIRED), (disk, REPAIRED)]\n  end box\n\nelse [partial repair]\n  halon <- ios1 : notify [(pool, repair), (disk, repair)]\n  note over halon, ios2 : Abort SNS operation\n\nelse [transient disk]\n  halon <- halon : notify [(disk, transient)]\n  note over halon, ios2 : Pause SNS operation\n\nelse [failed disk]\n  halon <- halon : notify [(disk, failed)]\n  note over halon, ios2 : Abort SNS operation\n\nend\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781372208,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 349,
+    "prompt_tokens": 1636,
+    "total_tokens": 1985
+  }
+}

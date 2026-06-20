@@ -1,0 +1,53 @@
+@startuml
+skinparam sequenceMessageAlign center
+
+
+participant "Database" as db <<database>> #DBE9F6#03A8FC 
+box "#D7DADE#1B425C ManageLogDemo\nManageLogReceiveFacade"  #FFFFFF#0000FF  
+    participant "" as demo   
+end box 
+
+box "#D7DADE#1B425C \nManageLogReceiveProvider;ManageLogCommon;\nAnotherJavaProject;"   #FFFFFF#0000FF    
+	participant "" as provider     
+	participant "" as common      
+	participant "" as anotherproject       
+end box 
+
+
+box "#D7DADE#1B425C \nManageLogUploadFacade;\nAnotherProject;"     #FFFFFF#0000FF        
+	 participant "" as uploadfacade         
+	  participant "" as project          
+ end box 
+ 
+ box "#D7DADE#1B425C \nManageLogQueryProvider;\nManageLogQueryFacade"      #FFFFFF#0000FF           
+	   participant "" as queryprovider            
+	    participant "" as facade             
+	end box 
+	
+	note over demo,facade : rpc/http/kafka ,数据为业务数据，configName
+	
+	frame "rpc 上传日志"{	
+	demo ->>demo: aspect 获取数据		
+	db <- -db:落地数据			
+}	
+
+frame "自主使用 facde 上传日志 "{	
+	project->>uploadfacade：自己组装数据，使用 facade 提供的策略上传				
+	db<- -db:落地数据					
+}		
+
+frame "自主上传日志"{						
+anotherproject-->common:http/kafka,数据为业务数据，configName							
+db<--db:落地数据								
+}			
+
+note right of demo,database:#ffffff#ff0000 <b><u>注意</u></b>\ndemo和数据库之间没有交互
+			
+frame "日志查询"{									
+	facade -->queryprovider:获取数据										
+	queryprovider- > facade:rpc提供											
+	facade <-- project:http 提供（默认）												
+}	
+
+
+@enduml

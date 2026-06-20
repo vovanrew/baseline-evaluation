@@ -1,0 +1,21 @@
+{
+  "id": "msg_01AKBbQvRNRAfqQwj7gireRN",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor Member\n\nparticipant \":TicketDetailPage\" as TicketDetailPage\nparticipant \":TicketDetailContainer\" as TicketDetailContainer\nparticipant \":AttendanceService (Frontend)\" as AttendanceServiceFE\nparticipant \":Router\" as Router\nparticipant \":AttendanceHTTPTransport\" as AttendanceHTTPTransport\nparticipant \":AttendanceEndpoint\" as AttendanceEndpoint\nparticipant \":AttendanceService\" as AttendanceService\nparticipant \":RequesterService\" as RequesterService\nparticipant \":AttendanceCommand\" as AttendanceCommand\nparticipant \":AttendanceQuery\" as AttendanceQuery\n\nMember -> TicketDetailPage : Click \"Yes\" Button\nTicketDetailPage -> TicketDetailContainer : handleConfirmation(input)\nTicketDetailContainer -> AttendanceServiceFE : confirmAttendance(classId, payload)\nAttendanceServiceFE -> Router : route(\"PATCH\", \"v2/class/{class_id}/attendance/confirmation\")\nRouter -> AttendanceHTTPTransport : Confirmation(AttendanceService, []ServerOption)\nAttendanceHTTPTransport -> AttendanceEndpoint : Confirmation(AttendanceService)\nAttendanceEndpoint -> AttendanceService : Confirmation(context, payload)\nAttendanceService -> AttendanceCommand : Validate()\nAttendanceCommand --> AttendanceService :\n\nalt \"Data Valid\"\n    AttendanceService -> AttendanceQuery : GetPureModel(context, []SliceCondition)\n    AttendanceQuery --> AttendanceService : ticket\n\n    alt \"Ticket Status is Accepted\"\n        AttendanceService -> AttendanceCommand : Register(context, []payload)\n        AttendanceCommand --> AttendanceService :\n        AttendanceService -> AttendanceCommand : UpdateRequestStatus(context, ticket)\n        AttendanceCommand --> AttendanceService : is updated\n    end\n\n    AttendanceCommand --> AttendanceService : is updated\n    AttendanceService -> AttendanceEndpoint : response := Response(is updated, nil)\n    AttendanceEndpoint --> AttendanceHTTPTransport :\n    AttendanceHTTPTransport --> Router : response\n    Router --> AttendanceServiceFE : response\n    AttendanceServiceFE --> TicketDetailContainer : response\n    TicketDetailContainer --> TicketDetailPage : response\n    TicketDetailPage --> Member : response\n\nelse\n    AttendanceService --> AttendanceEndpoint : UnprocessableEntity\n    AttendanceEndpoint --> AttendanceHTTPTransport : UnprocessableEntity\n    AttendanceHTTPTransport --> Router : UnprocessableEntity\n    Router --> AttendanceServiceFE : UnprocessableEntity\n    AttendanceServiceFE --> TicketDetailContainer : UnprocessableEntity\n    TicketDetailContainer --> TicketDetailPage : UnprocessableEntity\n    TicketDetailPage --> Member : UnprocessableEntity\nend\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371070,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 705,
+    "prompt_tokens": 1384,
+    "total_tokens": 2089
+  }
+}

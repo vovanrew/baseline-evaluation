@@ -1,0 +1,28 @@
+@startuml
+title $update-core
+
+actor "Integrating application user" as user
+participant "Integrating application" as app
+participant "<FHIR API> HPI" as fhir
+participant "HPI MDM" as mdm
+
+user -> app: Provide core details to be updated
+activate app
+app -> fhir: POST<Endpoint>/Practitioner/$update-core
+activate fhir
+fhir -> fhir: Validate[]
+fhir -> mdm: Request
+activate mdm
+mdm --> fhir: <<return>>
+deactivate mdm
+fhir --> app: Return updated Practitioner record
+deactivate fhir
+app -> user: Display updated Provider details to user
+deactivate app
+
+actor "Integrating application user" as user2
+participant "Integrating application" as app2
+participant "<FHIR API> HPI" as fhir2
+participant "HPI MDM" as mdm2
+
+@enduml

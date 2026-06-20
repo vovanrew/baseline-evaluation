@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Re2MmZ3coM8DmYcdWN51zX",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Un client loue un bus avec chauffeur par No\u00ebl PR\u00c9VAULT\n\nparticipant \"Client\" as Client\nparticipant \"Syst\u00e8meInformations\" as SI\nparticipant \"Op\u00e9rateurBancaire\" as OB\nparticipant \"Chauffeur\" as Ch\nparticipant \"Op\u00e9rateurMaintenance\" as OM\n\nalt [Le client n'est pas inscrit]\n  Client -> SI : Inscription\n  SI -> SI : V\u00e9rification des informations\n  SI --> Client : Inscription r\u00e9ussie\nend\n\nClient -> SI : Authentification\nSI -> SI : Authentification de l'utilisateur\nSI --> Client : Authentification r\u00e9ussie\nClient -> SI : Demande de location\nSI --> Client : Demande d'informations sur la location\nClient -> SI : Date, dur\u00e9e de location et point de retour\n\nalt [Le syst\u00e8me d'informations refuse la location si un v\u00e9hicule et un chauffeur ne sont pas disponibles]\n  SI -> SI : Recherche la disponibilit\u00e9 d'un chauffeur\n  SI --> Client : Annulation de la location en cours\nelse [Le syst\u00e8me d'informations accepte la location]\n  SI -> SI : Recherche les disponibilit\u00e9s d'un chauffeur et valide la location\n  SI --> Client : Demande informations de paiement\n  Client -> SI : Information de paiement\\n(Permettant de payer le trajet)\n  SI -> OB : Demande confirmation pour le paiement\n  OB --> SI : R\u00e9ponse concernant le paiement\n\n  alt [Les informations de paiement sont refus\u00e9es]\n    SI --> Client : Refuse le paiement de la location\n    SI --> Client : Annule la location\n  else [Le client annule paiement]\n    Client -> SI : Annule la location\n    SI -> SI : V\u00e9rification si frais suppl\u00e9mentaires\n    SI -> OB : Demande annulation d'un montant du d\u00e9bit bancaire\n    SI --> Client : Annule la location\n  else [Les informations de paiement sont accept\u00e9es]\n    SI --> Client : Valide le paiement de la location\n    SI -> Ch : Notifie un chauffeur\n    Ch -> Ch : Utilise la location\n    SI --> Client : Utilise la location conduite par le chauffeur\n    Ch -> OM : Ram\u00e8ne la location\n    OM -> OM : R\u00e9ception et v\u00e9rification du v\u00e9hicule\n    OM -> SI : Validation de l'\u00e9tat du v\u00e9hicule et mise \u00e0 jour de son \u00e9tat\n  end\nend\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370562,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 630,
+    "prompt_tokens": 1656,
+    "total_tokens": 2286
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "msg_018SxWXhVwbCvznS7dR4fRuz",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nparticipant \"generate_delta_main.cc\" as main\nparticipant \"delta_diff_generator.cc\" as delta\nparticipant \"payload_file.cc\" as payload\nparticipant \"payload_generation_config.cc\" as config\n\n[-> main : \"--dynamic_partition_info_file\"\n\nactivate main\nmain -> main : brillo::KeyValueStore.Load(file)\n\nmain -> config : payload_config.target.LoadDynamicPartitionMetadata(store)\nreturn\n\nmain -> config : payload_config.target.ValidateDynamicPartitionMetadata()\nreturn\n\nmain -> delta : GenerateUpdatePayloadFile()\nactivate delta\n\ndelta -> payload : payload.Init(config)\nactivate payload\npayload -> config : manifest_.dynamic_partition_metadata\nreturn\nreturn\n\nnote right of delta : generate payload data\n\ndelta -> payload : payload.WritePayload()\nactivate payload\npayload -> config : manifest_.SerializeToString()\nreturn\npayload -> config : Write(serialized_manifest.data())\nreturn\n\ndeactivate delta\n\ndelta --> main\n[<-- main : done\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781430790,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 256,
+    "prompt_tokens": 1656,
+    "total_tokens": 1912
+  }
+}

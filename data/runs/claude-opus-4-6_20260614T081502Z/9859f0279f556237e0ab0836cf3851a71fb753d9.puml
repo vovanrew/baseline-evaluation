@@ -1,0 +1,51 @@
+```plantuml
+@startuml
+
+box "FAMPClient"
+participant "AudioBundleAssembler" as ABA
+participant "UDPBundleReceiver" as UBR
+end box
+
+box "FAMPServer"
+participant "UDPBundleSender" as UBS
+participant "QUdpSocket" as QUS
+end box
+
+ABA -> UBR : rozpocznij watek\nodbierajacy
+activate ABA
+ABA -> UBS : rozpocznij wysylanie\npaczek
+activate UBS
+UBS -> QUS : grupa 50 paczek
+activate QUS
+deactivate QUS
+
+loop dopoki nie pobrano wszystkich paczek
+
+    loop dopoki dostepne sa datagramy
+        ABA -> UBR : przekaz pobrane\ndotychczas datagramy
+        activate UBR
+        UBR --> ABA : dane
+        deactivate UBR
+        ABA -> ABA : odczytaj id paczki i zapisz
+    end
+
+    alt nie wszystkie paczki wyslane
+        ABA -> UBS : wyslij nastepny zestaw paczek
+        UBS -> QUS : grupa 50 paczek
+        activate QUS
+        deactivate QUS
+        UBS --> ABA : czy to ostatni zestaw
+    else istnieja paczki do retransmisji
+        ABA -> UBS : wyslij zestaw brakujacych paczek
+    end
+
+end
+
+deactivate UBS
+
+ABA -> ABA : posortuj paczki
+ABA -> ABA : zapisz paczki do pliku
+deactivate ABA
+
+@enduml
+```

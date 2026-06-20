@@ -1,0 +1,51 @@
+```plantuml
+@startuml
+
+package "controller" {
+    package "model" as controller_model {
+        class User
+    }
+
+    interface Controller {
+        + execute(args : json) : json
+    }
+
+    class Amount
+
+    class TransferSend
+
+    class Transfer
+
+    package "view" as controller_view {
+        class "Amount" as ViewAmount
+    }
+
+    class Factory {
+        + create(name : string) : Controller
+    }
+
+    TransferSend ..|> Controller
+    Transfer ..|> Controller
+    Amount ..|> Controller
+
+    Amount ..> User : 
+
+    TransferSend ..> User : 
+
+    Factory ..> Amount : create
+    Factory ..> TransferSend : create
+    Factory ..> Transfer : create
+
+    Amount ..> ViewAmount
+}
+
+package "view" as ext_view {
+    class "Amount" as ExtViewAmount
+}
+
+package "model" as ext_model {
+    class "User" as ExtModelUser
+}
+
+@enduml
+```

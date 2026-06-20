@@ -1,0 +1,82 @@
+```plantuml
+@startuml
+title Update States
+
+participant "Simulator" as Simulator
+rectangle "Wayside Controller" {
+    participant "TrackControllers" as TrackControllers
+    participant "WaysideController" as WaysideController
+    participant "PLC" as PLC
+    participant "WaysideControllerGUI" as WaysideControllerGUI
+}
+participant "TrackModel" as TrackModel
+
+Simulator -> TrackControllers: timeUpdate(SimTime)
+activate TrackControllers
+
+loop waysideControllers
+    TrackControllers -> WaysideController: updateStates()
+    activate WaysideController
+    
+    loop associatedBlocks
+        WaysideController -> TrackControllers: receiveBlockInfo(line, blockId)
+        activate TrackControllers
+        
+        TrackControllers -> TrackModel: getBlockInfo(line, blockId)
+        activate TrackModel
+        TrackModel --> TrackControllers: Block
+        deactivate TrackModel
+        
+        TrackControllers --> WaysideController: Block
+        deactivate TrackControllers
+        
+        WaysideController -> PLC: runPLC(occupancy)
+        activate PLC
+        PLC -> PLC: getLogic()
+        PLC --> WaysideController: String logic
+        deactivate PLC
+        
+        if (newState != currentState) then
+            WaysideController -> TrackControllers: transmitState(line, blockId, state)
+            activate TrackControllers
+            
+            TrackControllers -> TrackModel: setState(line, blockId, state)
+            activate TrackModel
+            TrackModel --> TrackControllers: Success
+            deactivate TrackModel
+            
+            deactivate TrackControllers
+        endif
+    end
+    
+    if (Wayside Controller Selected) then
+        WaysideController -> WaysideControllerGUI: displayInfo()
+        activate WaysideControllerGUI
+        
+        WaysideControllerGUI -> WaysideController: receiveBlockInfo(line, blockId)
+        activate WaysideController
+        
+        WaysideController -> TrackControllers: receiveBlockInfo(line, blockId)
+        activate TrackControllers
+        
+        TrackControllers -> TrackModel: getBlockInfo(line, blockId)
+        activate TrackModel
+        TrackModel --> TrackControllers: Block
+        deactivate TrackModel
+        
+        TrackControllers --> WaysideController: Block
+        deactivate TrackControllers
+        
+        WaysideController --> WaysideControllerGUI: Block
+        deactivate WaysideController
+        
+        deactivate WaysideControllerGUI
+    endif
+    
+    deactivate WaysideController
+end
+
+deactivate TrackControllers
+
+@enduml
+```

@@ -1,0 +1,56 @@
+@startuml
+title 3.1.0 Get Participant Callback Details
+
+ML API Adapter Service as ML_API_ADAPTER
+  ML-API-ADAPTER as ML_API_ADAPTER_ACTOR
+Central Services as CENTRAL_SERVICES
+  Central Service API as CENTRAL_SERVICE_API
+  Participant Handler as PARTICIPANT_HANDLER
+  Participant DAO as PARTICIPANT_DAO
+  Central Store as CENTRAL_STORE
+
+ML_API_ADAPTER_ACTOR --> CENTRAL_SERVICE_API : 1 Request to get callback details - GET - /participants/{name}/endpoints?type={typeValue}
+CENTRAL_SERVICE_API --> PARTICIPANT_HANDLER : 2 Fetch Callback details for Participant
+PARTICIPANT_HANDLER --> PARTICIPANT_DAO : 3 Fetch Participant
+  error_code_3200 : Error code: 3200
+PARTICIPANT_DAO --> CENTRAL_STORE : 4 Fetch Participant
+CENTRAL_STORE --> PARTICIPANT_DAO : 5 Retrieved Participant
+  participant : participant
+PARTICIPANT_DAO --> PARTICIPANT_HANDLER : 6 Return Participant
+PARTICIPANT_HANDLER --> PARTICIPANT_HANDLER : 7 Validate DFSP
+
+alt Validate participant (success)
+  PARTICIPANT_HANDLER --> PARTICIPANT_HANDLER : 8 check if "type" parameter is sent
+  alt Check if "type" parameter is sent (Sent)
+    PARTICIPANT_HANDLER --> PARTICIPANT_DAO : 9 Fetch Callback details for Participant and type
+      error_code_3000 : Error code: 3000
+    PARTICIPANT_DAO --> CENTRAL_STORE : 10 Fetch Callback details for Participant and type
+      condition : Condition: isActive = 1 [endpointTypeId = <type>]
+    CENTRAL_STORE --> PARTICIPANT_DAO : 11 Retrieved Callback details for Participant and type
+      participantEndpoint : participantEndpoint
+    PARTICIPANT_DAO --> PARTICIPANT_HANDLER : 12 Return Callback details for Participant and type
+      message : Message: { endpoints: {type: <type>, value: <value>} }
+    PARTICIPANT_HANDLER --> CENTRAL_SERVICE_API : 13 Return Callback details for Participant
+    CENTRAL_SERVICE_API --> ML_API_ADAPTER_ACTOR : 14 Return Callback details for Participant
+  alt Check if "type" parameter is sent (Not Sent)
+    PARTICIPANT_HANDLER --> PARTICIPANT_DAO : 15 Fetch Callback details for Participant
+      error_code_3000 : Error code: 3000
+    PARTICIPANT_DAO --> CENTRAL_STORE : 16 Fetch Callback details for Participant
+      condition : Condition: isActive = 1
+    CENTRAL_STORE --> PARTICIPANT_DAO : 17 Retrieved Callback details for Participant
+      participantEndpoint : participantEndpoint
+    PARTICIPANT_DAO --> PARTICIPANT_HANDLER : 18 Return Callback details for Participant
+      message : Message: { endpoints: [{type: <type>, value: <value>}, {type: <type>, value: <value>}] }
+    PARTICIPANT_HANDLER --> CENTRAL_SERVICE_API : 19 Return Callback details for Participant
+    CENTRAL_SERVICE_API --> ML_API_ADAPTER_ACTOR : 20 Return Callback details for Participant
+  end
+end
+
+alt Validate participant (failure) / Error
+  PARTICIPANT_HANDLER --> PARTICIPANT_HANDLER : Validation failure / Error!
+  message : Message: { "errorInformation": { "errorCode": <errorCode>, "errorDescription": <ErrorMessage> } }
+  PARTICIPANT_HANDLER --> CENTRAL_SERVICE_API : 21 Return Error code: 3000, 3200
+  CENTRAL_SERVICE_API --> ML_API_ADAPTER_ACTOR : 22 Return Error code: 3000, 3200
+end
+
+@enduml

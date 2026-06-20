@@ -1,0 +1,83 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+class MenuDemo <<C>> {
+  - JFrame frame;
+  - CustomPaintComponent CPC;
+  + MenuDemo(IMenuItem[] IML_ar, JFrame frame)
+  + DrawGraph(DirectedWeightedGraphAlgorithms DWGA): void
+}
+
+interface ActionListener <<I>> {
+  + actionPerformed(ActionEvent e): void
+}
+
+interface ItemListener <<I>> {
+  + itemStateChanged(ItemEvent e): void
+}
+
+class Gui <<C>> {
+  + main(String[] args): void
+  + makeMenueBar(JFrame frame): JMenuBar
+}
+
+class CustomPaintComponent <<C>> {
+  - DirectedWeightedGraphAlgorithms DWGA;
+  - ScreenSize:int[]
+  - double min_x = Double.MAX_VALUE;
+  - double min_y = Double.MAX_VALUE;
+  - double max_x = 0;
+  - double max_y = 0;
+  - final int nodeSize = 7;
+  - final int margin = 50;
+  - final int indexOffset = 8;
+  - final int arrowTipSize = 12;
+  + paint(Graphics g): void
+  + SetGraph(DirectedWeightedGraphAlgorithms DWG):void
+  + GetGraph(): DirectedWeightedGraphAlgorithms
+  + SetScreenSize(int[] ScreenSize):void
+  + GetScreenSize(): int[]
+  + SetGraphics2D(Graphics2D g2d): void
+  + GetGraphics2D(): Graphics2D
+  + drawNodes(Graphics2D g2d): void
+  + drawEdges(Graphics2D g2d): void
+  + algoX(double x): double
+  + algoY(double y): double
+  + updatePrivateValues(DirectedWeightedGraph DWG): void
+  + drawArrow(Graphics2D g2d, int x1, int y1, int x2, int y2): void
+  + highLightNode(NodeData node): void
+  + highLightPath(LinkedList<NodeData> nodes): void
+}
+
+package "javax" {
+  package "swing" {
+    class JFrame <<C>>
+    class JMenuBar <<C>>
+  }
+}
+
+package "classes" {
+  class classes <<C>>
+}
+
+package "java" {
+  package "awt" {
+    class AWEvent <<C>>
+    class Component <<C>>
+  }
+}
+
+MenuDemo ..|> ActionListener
+MenuDemo ..|> ItemListener
+MenuDemo --> Gui
+
+Gui --> JFrame
+Gui --> JMenuBar
+
+CustomPaintComponent --> AWEvent
+CustomPaintComponent --> Component
+
+classes --> CustomPaintComponent
+Gui --> CustomPaintComponent
+@enduml

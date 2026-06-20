@@ -1,0 +1,42 @@
+```plantuml
+@startuml
+title 资料图片编辑
+
+participant "授课端" as TeachingClient
+participant "imgsvc" as ImgSvc
+participant "livesvc" as LiveSvc
+participant "liveteachingsvc" as LiveTeachingSvc
+participant "cos/oss" as CosOss
+
+' Step 1: Get course preparation info
+TeachingClient -> LiveSvc: ( wiki:206898375 课程备课详情 )\n/{h5}pt/v1/live_order_course/preparing_info
+
+' Step 2: Get material info for preview/edit
+TeachingClient -> LiveTeachingSvc: ( 预览/编辑 资料图片 wiki:288817172 PT 根据不同类型获取课程绑定资料的信息 )\n/{h5}pt/v1/live_order_course/material_info
+
+' Note about frontend operations
+note right of TeachingClient: 旋转/裁剪/删除 前端行为，等点击确认时再汇报后端
+
+' Step 3: Get upload signature
+TeachingClient -> LiveSvc: ( PT V3 wiki:185074611 多地址文件上传前获取签名 )\n/{h5}pt/v3/image/object_upload_auth ( PT )
+
+' Step 4: Upload image to COS/OSS
+TeachingClient -> CosOss: 上传图片
+
+' Step 5: Add image record
+TeachingClient -> ImgSvc: /pb/v1/media/add/image ( wiki:11574780 )
+
+' Step 6: Cover study material images
+TeachingClient -> LiveTeachingSvc: ( wiki:288327306 PT 覆盖已绑定课程学习资料图片 )\n( 入参：需要解绑的general_file_id列表、需要替换的image列表（包含被替换的general_file_id） )\n/{h5}pt/v1/study_material/course_images_cover
+
+' Database operations in liveteachingsvc
+LiveTeachingSvc -> LiveTeachingSvc: delete t_general_file ( 原general_file )\ninsert t_general_file ( 替换的general_file )
+activate LiveTeachingSvc
+deactivate LiveTeachingSvc
+
+LiveTeachingSvc -> LiveTeachingSvc: delete t_live_order_course_general_file ( 解绑+被替换的general_file )\ninsert t_live_order_course_general_file ( 替换的general_file )
+activate LiveTeachingSvc
+deactivate LiveTeachingSvc
+
+@enduml
+```

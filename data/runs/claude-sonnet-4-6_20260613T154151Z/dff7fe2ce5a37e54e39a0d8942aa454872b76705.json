@@ -1,0 +1,21 @@
+{
+  "id": "msg_01YaB634STbUMheuM9FzHHL2",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle **SDP Initiated Request/Response\\nPattern with Correlation ID**\n\nbox \"SDP\" #lightgrey\nparticipant \"**SERVER\\nNODE 1**\" as SN1 #orange\nparticipant \"**SERVER\\nNODE 2**\" as SN2 #orange\nparticipant \"**STATE\\nCACHE**\" as SC #orange\nparticipant \"**BROKER**\" as BR #orange\nend box\n\nbox \"TBM/HU\" #lightgrey\nparticipant \"**APP**\" as APP #orange\nend box\n\nSN1 -> SN1 : new request/response\\ninteraction\nSN1 -> SN1 : create interaction\\ncontext\nSN1 -> SC : newMessageID =\\nnextMessageID()\nSN1 -> SC : put(newMessageID,\\ninteraction context)\nSN1 -> SN1 : create message\nSN1 -> SN1 : message.messageID =\\nnewMessageID\nSN1 -> BR : publish message\n\nBR -> APP : read message\nAPP -> APP : create response\nAPP -> APP : response.correlationID =\\nmessage.messageID\nAPP -> BR : publish response\n\nBR -> SN2 : read response\nSN2 -> SC : interaction context =\\nget(response.correlationID)\nSN2 -> SN2 : process response\nSN2 -> SC : delete(response.correlationID)\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781372132,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 361,
+    "prompt_tokens": 1656,
+    "total_tokens": 2017
+  }
+}

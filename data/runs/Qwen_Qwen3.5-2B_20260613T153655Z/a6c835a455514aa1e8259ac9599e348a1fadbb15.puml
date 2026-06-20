@@ -1,0 +1,66 @@
+@startuml
+title End Screen Action Sequences
+
+actor User
+participant Views
+participant User Interface Control
+participant Back End
+
+participant Game
+participant End
+participant HighScore
+participant Start
+
+participant Navigation
+participant Settings
+participant JoggleCube
+participant HighScores
+participant Score
+participant Cube
+participant Block
+
+section High Score button clicked
+    btnHighScoreClicked()
+    show(ScreenType.HighScore)
+    Navigation -> User Interface Control: prepView()
+    User Interface Control -> User Interface Control: getOverallHighScores()
+    User Interface Control -> Back End: getScores()
+    Back End -> Back End: scores
+    User Interface Control -> User Interface Control: scores
+    User Interface Control -> Navigation: hideOverlay(ScreenType.End)
+end section
+
+section Menu Clicked
+    btnMenuClicked()
+    show(ScreenType.Start)
+    User Interface Control -> User Interface Control: prepView()
+    User Interface Control -> Back End: getCurrLang()
+    Back End -> Back End: English
+    User Interface Control -> User Interface Control: hideOverlay(ScreenType.End)
+end section
+
+section Replay clicked
+    replayGrid()
+    show(ScreenType.GAME)
+    User Interface Control -> User Interface Control: prepView()
+    User Interface Control -> Back End: getCubeData()
+    Back End -> Back End: getCube()
+    Back End -> Back End: cube[3][3][3]
+    User Interface Control -> User Interface Control: cube[3][3][3]
+    User Interface Control -> Navigation: hideOverlay(ScreenType.End)
+end section
+
+section Save Clicked
+    btnSaveClicked()
+    savGrid(filename)
+    User Interface Control -> Back End: saveCube(outfile)
+    Back End -> Back End: loop [foreach Block]
+        Back End -> Back End: getLetter()
+        Back End -> Back End: saveCube(outfile)
+    Back End -> User Interface Control: saveScore(outfile)
+    User Interface Control -> User Interface Control: loop [foreach score]
+        User Interface Control -> User Interface Control: save(outfile)
+    User Interface Control -> User Interface Control: saveScore(outfile)
+end section
+
+@enduml

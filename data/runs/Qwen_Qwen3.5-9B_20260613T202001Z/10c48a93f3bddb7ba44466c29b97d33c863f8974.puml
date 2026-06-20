@@ -1,0 +1,43 @@
+@startuml
+!theme plain
+
+package "drv-ns16550" {
+  participant "入出力制御" as IO
+  participant "転送制御" as Transfer
+  participant "デバイスファイル管理" as DeviceFile
+  participant "MLib" as MLib
+}
+
+ref "デバイスファイル管理\n状態遷移Task32" as DeviceFileTask
+
+note right of Transfer
+  THR割込み許可
+end note
+
+opt [転送状態 == 転送停止中] {
+  IER書込み ( COM1/2, [1]=1 )
+  
+  ref "入出力制御\nデバイス書込み" as IORef
+  IORef -> IO : デバイス書込み
+  
+  転送状態設定 ( 転送中 )
+}
+
+Transfer -> DeviceFile : 転送要求 ( COM1/2 )
+DeviceFile -> Transfer : スピンロック ( COM1/2 )
+Transfer -> MLib : スピンロック ( COM1/2 )
+MLib --> Transfer : スピンロック ( COM1/2 )
+
+Transfer -> IO : IER書込み ( COM1/2, [1]=1 )
+IO --> Transfer : IER書込み ( COM1/2, [1]=1 )
+
+Transfer -> DeviceFile : 転送状態設定 ( 転送中 )
+DeviceFile --> Transfer : 転送状態設定 ( 転送中 )
+
+Transfer -> MLib : スピンアンロック ( COM1/2 )
+MLib --> Transfer : スピンアンロック ( COM1/2 )
+
+Transfer -> DeviceFile : スピンアンロック ( COM1/2 )
+DeviceFile --> Transfer : スピンアンロック ( COM1/2 )
+
+@enduml

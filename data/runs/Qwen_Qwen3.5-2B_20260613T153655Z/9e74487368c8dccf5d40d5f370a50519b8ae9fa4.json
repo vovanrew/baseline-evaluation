@@ -1,0 +1,22 @@
+{
+  "id": "999287ce-a9eb-4d95-ab7c-d1cabeb2629b",
+  "object": "chat.completion",
+  "created": 1781401869,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor laboratory_coordinator as Actor\n\ninterface :LabCoordinatorUI as LabCoordinatorUI\n\ninterface :ValidateTestReportController as ValidateTestReportController\n\ninterface :Company as Company\n\ninterface rp : TestStore as TestStore\n\ninterface rp : Test as Test\n\ninterface rp : TestReportStore as TestReportStore\n\ninterface rp : TestReport as TestReport\n\ninterface :TestDiagnosis as TestDiagnosis\n\nActor -- LabCoordinatorUI : 1 asks to validate report and diagnosis\n\nLabCoordinatorUI -- ValidateTestReportController : 2 createTestList()\n\nValidateTestReportController -- Company : 3 get = testReportsToValidate()\n\nCompany -- TestStore : 4 get = testReportsToValidate()\n\nCompany -- TestReportStore : 6 get = testReportsToValidate()\n\nTestReportStore -- TestReport : 7 get = testReportList()\n\nTestReport -- TestDiagnosis : 8 get = testDiagnosis()\n\nLabCoordinatorUI ..> ValidateTestReportController : ref US15_SD_testReportsDTO.puml\n\nValidateTestReportController -- LabCoordinatorUI : 9 shows the available test reports and diagnosis and requests selection\n\nActor -- LabCoordinatorUI : 11 chooses all tests\n\nLabCoordinatorUI -- ValidateTestReportController : 12 asks for confirmation\n\nLabCoordinatorUI -- ValidateTestReportController : 13 confirms selection\n\nValidateTestReportController -- LabCoordinatorUI : 14 validateAllTestReport()\n\nloop for each test report\n    ValidateTestReportController -- TestStore : 15 validateTestReport(testId)\n    TestStore -- TestReportStore : 16 setState(VALIDATED)\n    TestStore -- Test : 17 registerValidationDate(date)\n    TestStore -- TestReportStore : 18 setValidationDate(date)\nend loop\n\nLabCoordinatorUI -- Actor : 19 informs operation success\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1272,
+    "completion_tokens": 394,
+    "total_tokens": 1666
+  }
+}

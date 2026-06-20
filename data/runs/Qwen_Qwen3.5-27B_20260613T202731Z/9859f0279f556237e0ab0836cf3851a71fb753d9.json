@@ -1,0 +1,22 @@
+{
+  "id": "83152487-816b-48e4-a2ea-8c357017a032",
+  "object": "chat.completion",
+  "created": 1781489012,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\npackage \"FAMPClient\" {\n    participant \"AudioBundleAssembler\" as aba\n    participant \"UDPBundleReceiver\" as ubr\n}\n\npackage \"FAMPServer\" {\n    participant \"UDPBundleSender\" as uds\n    participant \"QUdpSocket\" as qus\n}\n\naba -> ubr : rozpocznij watek odbierajacy\naba -> uds : rozpocznij wyslanie paczek\nuds -> qus : grupa 50 paczek\n\nrectangle loop [dopoki nie pobrano wszystkich paczek] {\n    rectangle loop [dopoki dostepne sa datagramy] {\n        aba -> ubr : przekaz pobrane dotychczas datagramy\n        ubr -->> aba : dane\n        aba -> aba : odczytaj id paczki i zapisz\n    }\n    \n    rectangle alt [nie wszystkie paczki wyslane] {\n        aba -> uds : wyslij nastepny zestaw paczek\n        uds -> qus : grupa 50 paczek\n        uds -->> aba : czy to ostatni zestaw\n        \n        alt [istnieja paczki do retransmisji] {\n            uds -> qus : wyslij zestaw brakujacych paczek\n        }\n    }\n}\n\naba -> aba : posortuj paczki\naba -> aba : zapisz paczki do pliku\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2448,
+    "completion_tokens": 324,
+    "total_tokens": 2772
+  }
+}

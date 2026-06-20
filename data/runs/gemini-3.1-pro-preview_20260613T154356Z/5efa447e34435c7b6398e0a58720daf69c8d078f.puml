@@ -1,0 +1,143 @@
+```plantuml
+@startuml
+package com {
+  package events {
+    package cdc {
+      package connector {
+        package db {
+          package transaction {
+            package log {
+              package converter {
+                interface TransactionLogEntryConverter {
+                  + Optional<TLM> convert(TransactionLogEntry)
+                }
+                interface TransactionLogEntryConverterFactory {
+                }
+                class TransactionLogEntryToMessageWithDestinationConverter {
+                  - IdGenerator idGenerator
+                  + Optional<MessageWithDestination> convert(TransactionLogEntry)
+                }
+                class TransactionLogEntryToEventWithSourcingConverter {
+                  - IdGenerator idGenerator
+                  + Optional<EventWithSourcing> convert(TransactionLogEntry)
+                }
+                TransactionLogEntryConverter <|.. TransactionLogEntryToMessageWithDestinationConverter
+                TransactionLogEntryConverter <|.. TransactionLogEntryToEventWithSourcingConverter
+              }
+              package messaging {
+                interface TransactionLogMessage {
+                  + Optional<TransactionLogFileOffset> getTransactionLogFileOffset()
+                }
+                class MessageWithDestination {
+                  - String destination
+                  - String payload
+                  - Map<String, String> headers
+                  - TransactionLogFileOffset transactionLogFileOffset
+                  + String getDestination()
+                  + String getPayload()
+                  + Optional<String> getPartitionId()
+                  + Optional<String> getHeader(String)
+                  + String getRequiredHeader(String)
+                  + boolean hasHeader(String)
+                  + String getId()
+                  + Map<String, String> getHeaders()
+                  + void setPayload(String)
+                  + void setHeaders(Map<String, String>)
+                  + void setHeader(String, String)
+                  + void removeHeader(String)
+                  + String toJson()
+                  + Optional<TransactionLogFileOffset> getTransactionLogFileOffset()
+                }
+                class EventWithSourcing {
+                  - String id
+                  - String entityId
+                  - String entityType
+                  - String eventData
+                  - String eventType
+                  - TransactionLogFileOffset transactionLogFileOffset
+                  - Optional<String> metadata
+                  + String getId()
+                  + void setId(String)
+                  + void setEntityId(String)
+                  + void setEntityType(String)
+                  + void setEventData(String)
+                  + void setEventType(String)
+                  + String getEntityId()
+                  + String getEntityType()
+                  + String getEventData()
+                  + String getEventType()
+                  + Optional<String> getMetadata()
+                  + void setMetadata(Optional<String>)
+                  + Optional<TransactionLogFileOffset> getTransactionLogFileOffset()
+                  + void setTransactionLogFileOffset(TransactionLogFileOffset)
+                }
+                class TransactionLogFileOffset {
+                  - String transactionLogFilename
+                  - long offset
+                  - int rowsToSkip
+                  + String getTransactionLogFilename()
+                  + void setTransactionLogFilename(String)
+                  + long getOffset()
+                  + void setOffset(long)
+                  + int getRowsToSkip()
+                  + void setRowsToSkip(int)
+                  + boolean isSameOrAfter(TransactionLogFileOffset)
+                  + boolean equals(Object)
+                  + int hashCode()
+                  + String toString()
+                }
+                TransactionLogMessage <|.. MessageWithDestination
+                TransactionLogMessage <|.. EventWithSourcing
+              }
+              package offset {
+                class OffsetProcessor {
+                  - Logger logger
+                  - AtomicBoolean processingOffsets
+                  - ConcurrentLinkedQueue<Optional<OFFSET>> offsets
+                  - GenericOffsetStore<OFFSET> offsetStore
+                  - Consumer<Exception> offsetSavingExceptionHandler
+                  - Executor executor
+                  + void saveOffset(CompletableFuture<Optional<OFFSET>>)
+                  + void processOffsetsWithExceptionHandling(Optional<OFFSET>, Throwable)
+                  + void processOffsets()
+                  + void collectAndSaveOffsets()
+                  + Optional<OFFSET> getOffset(CompletableFuture<Optional<OFFSET>>)
+                  + boolean isDone(CompletableFuture<Optional<OFFSET>>)
+                  + AtomicInteger getUnprocessedOffsetCount()
+                }
+                interface GenericOffsetStore {
+                  + void save(OFFSET)
+                }
+                interface OffsetStore {
+                  + Optional<TransactionLogFileOffset> getLastTransactionLogFileOffset()
+                  + void save(TransactionLogFileOffset)
+                }
+                GenericOffsetStore <|-- OffsetStore
+              }
+              package entry {
+                class TransactionLogEntryHandler {
+                  - SchemaAndTable schemaAndTable
+                  - TransactionLogEntryConverter<TLM> transactionLogEntryConverter
+                  - Function<TLM, CompletableFuture<?>> cdcPublisher
+                  + String getQualifiedTable()
+                  + SchemaAndTable getSchemaAndTable()
+                  + boolean isFor(SchemaAndTable)
+                  + CompletableFuture<?> publish(TransactionLogEntry)
+                }
+                interface TransactionLogEntry {
+                  + Object getColumn(String)
+                  + TransactionLogFileOffset getTransactionLogFileOffset()
+                  + boolean getBooleanColumn(String)
+                  + Long getLongColumn(String)
+                  + String getStringColumn(String)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+@enduml
+```

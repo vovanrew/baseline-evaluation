@@ -1,0 +1,68 @@
+@startuml
+actor Teams
+boundary API
+control BuildService
+control CommandParser
+control BuildCommand
+control BuildSystem
+control BuildFactory
+database BuildDb
+control BuildMonitor
+control NotificationService
+database NotificationDb
+
+Teams -> API : /api/messages
+activate API
+
+API -> BuildService : ProcessCommandAsync
+activate BuildService
+
+BuildService -> CommandParser : ParseCommand
+activate CommandParser
+CommandParser --> BuildService : BuildCommand
+deactivate CommandParser
+
+BuildService -> BuildCommand : Execute
+activate BuildCommand
+
+BuildCommand -> BuildSystem : CreateBuildAsync
+activate BuildSystem
+
+box "BuildSystem Library"
+BuildSystem -> BuildFactory : CreateBuildAsync
+activate BuildFactory
+
+BuildFactory -> BuildDb : Save build
+activate BuildDb
+BuildDb --> BuildFactory : Build
+deactivate BuildDb
+
+BuildFactory -> BuildMonitor : AddBuildAsync
+activate BuildMonitor
+BuildMonitor --> BuildFactory
+deactivate BuildMonitor
+deactivate BuildFactory
+end box
+
+BuildSystem --> BuildCommand : Build
+deactivate BuildSystem
+
+BuildCommand -> NotificationService : AddNotificationAsync
+activate NotificationService
+NotificationService -> NotificationDb : Save notification
+activate NotificationDb
+NotificationDb --> NotificationService
+deactivate NotificationDb
+NotificationService --> BuildCommand
+deactivate NotificationService
+
+BuildCommand --> BuildService
+deactivate BuildCommand
+
+BuildService --> API
+deactivate BuildService
+
+API --> Teams
+deactivate API
+
+@enduml

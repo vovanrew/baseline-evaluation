@@ -1,0 +1,29 @@
+```plantuml
+@startuml
+autonumber
+
+participant "Client" as Client
+participant "RuleService" as RuleService
+database "database" as database
+
+activate Client
+activate RuleService
+
+Client -> RuleService : POST api /rule-management/v1/business-rule
+
+activate RuleService
+RuleService -> RuleService : Validate path variable and json body
+RuleService -> RuleService : Extract data from json
+RuleService -> RuleService : Set data to entity
+RuleService -> database : Insert data to database
+activate database
+database --> RuleService
+deactivate database
+deactivate RuleService
+
+RuleService --> Client : Return result
+deactivate Client
+deactivate RuleService
+
+@enduml
+```

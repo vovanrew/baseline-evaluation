@@ -1,0 +1,47 @@
+@startuml
+left to right direction
+actor "ユーザ" as user
+boundary "ブラウザ" as browser
+boundary "web.php" as webphp
+boundary "PersonController" as personcontroller
+boundary "Person" as person
+boundary "person.find.blade" as blade
+
+user -> browser : 該当ページをリクエスト [person/find]
+browser -> webphp : GET[person/find]
+webphp -> personcontroller : @find
+personcontroller -> blade : 
+user -> blade : findボタン押下
+blade -> webphp : POST
+webphp -> personcontroller : @search
+personcontroller -> person : find()
+person --> personcontroller : 
+personcontroller -> blade : 
+blade -> person : getData()
+person --> blade : 
+
+note right of person
+  Person
+end note
+
+note right of blade
+  person.find.blade
+end note
+
+note right of personcontroller
+  PersonController
+end note
+
+note right of webphp
+  web.php
+end note
+
+note right of browser
+  ブラウザ
+end note
+
+note right of user
+  ユーザ
+end note
+
+@enduml

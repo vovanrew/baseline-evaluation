@@ -1,0 +1,64 @@
+@startuml
+left to right direction
+actor "Specialist Doctor" as doctor
+participant ":CreateReportUI" as ui
+participant ":CreateReportController" as controller
+participant ":Company" as company
+participant ":TestDiagnosis" as testDiagnosis
+participant "rp : TestReportStore" as reportStore
+
+doctor -> ui: 1 asks to create a new diagnosis
+activate ui
+ref "US4_SD_testsDTO.puml"
+deactivate ui
+
+ui -> doctor: 2 requests to choose a given test
+doctor -> ui: 3 chooses a given test
+activate ui
+ui -> controller: 4 createTestDiagnosis(idTest)
+activate controller
+controller -> testDiagnosis: 5 createTestDiagnosis(test)
+activate testDiagnosis
+testDiagnosis -> testDiagnosis: 6 createTestDiagnosis(testParameterList)
+activate testDiagnosis
+testDiagnosis -> testDiagnosis: obj : diagnosis
+deactivate testDiagnosis
+testDiagnosis -> controller: 7 getDiagnosis()
+deactivate testDiagnosis
+controller -> ui: 8 getDiagnosis()
+deactivate controller
+ui -> doctor: 9 shows the diagnosis done automatically and requests the data for the report
+doctor -> ui: 10 types the requested data
+activate ui
+ui -> controller: 11 createReport(idTest, diagnosis, report)
+activate controller
+controller -> controller: 12 store = getTestReportStore()
+activate controller
+controller -> reportStore: 13 createReport(idTest, diagnosis, report)
+activate reportStore
+reportStore -> reportStore: 14 create(idTest, diagnosis, report)
+deactivate reportStore
+controller -> reportStore: 15 validateReport()
+activate reportStore
+deactivate reportStore
+ui -> doctor: 16 shows the typed data and asks for confirmation
+doctor -> ui: 17 confirms the data
+activate ui
+ui -> controller: 18 saveReport(report)
+activate controller
+controller -> company: 19 saveReport(report)
+activate company
+company -> reportStore: 20 saveReport(report)
+activate reportStore
+reportStore -> reportStore: 21 validateReport(report)
+activate reportStore
+deactivate reportStore
+reportStore -> reportStore: 22 addReport(report)
+activate reportStore
+deactivate reportStore
+deactivate company
+deactivate controller
+ui -> doctor: 23 informs operation success
+deactivate ui
+
+@enduml

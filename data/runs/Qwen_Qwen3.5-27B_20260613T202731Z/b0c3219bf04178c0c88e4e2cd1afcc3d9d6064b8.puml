@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "Crapchat user" as User1
+actor "Another Crapchat user" as User2
+rectangle "Crapchat REST API" as API
+rectangle "Crapchat identity provider" as IdentityProvider
+database "Crapchat storage" as Storage
+
+rectangle "Search user" as SearchUser {
+    User1 -> API : HTTP POST request with search query
+    activate API
+    API -> IdentityProvider : HTTP request with search query
+    activate IdentityProvider
+    IdentityProvider --> API : HTTP response with list of users
+    deactivate IdentityProvider
+    API --> User1 : HTTP response with array of users
+    deactivate API
+}
+
+rectangle "Send follow request" as SendFollowRequest {
+    User1 -> User1 : Clicks follow button
+    User1 -> API : HTTP request with ID of the user to follow
+    activate API
+    API -> Storage : SQL insert query
+    activate Storage
+    Storage --> API : Success response
+    deactivate Storage
+    API -> User2 : Notify with follow request
+    API --> User1 : HTTP OK response
+    deactivate API
+}
+
+rectangle "Accept follow request" as AcceptFollowRequest {
+    User2 -> API : HTTP request to accept
+    activate API
+    API -> Storage : SQL update query
+    activate Storage
+    Storage --> API : Success response
+    deactivate Storage
+    API --> User2 : HTTP OK response
+    deactivate API
+}
+
+@enduml
+```

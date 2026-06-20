@@ -1,0 +1,121 @@
+@startuml
+package platform
+  MultiCameraCore_Configuration
+
+  MultiCameraCore
+    "C" MultiCameraCore
+    multiCameraGoals : List<MultiCameraGoal>
+    additionalFields : Map<String, Object>
+    agentActions : List<CommunicationAction>
+    MultiCameraCore()
+    setup()
+    initDependencyObjects()
+    buildMCAFromConfigFile()
+    init()
+    executeMAPELLoop()
+    removeNewInfo()
+    monitor()
+    analyse()
+    plan()
+    execute()
+    createGlobalMap()
+    getWorkingCameras()
+
+  CameraManager
+    "C" CameraManager
+    id : String
+    cameras : List<Camera>
+    cameraIdMap : Map<String, Camera>
+    CameraManager()
+    initCameras()
+    heartbeat()
+    reinitNotWorkingCameras()
+    initCamera()
+    getWorkingCameras()
+    getNotWorkingCameras()
+    testSimpleAllCameras()
+    addAndInitCameras()
+
+  Heartbeat
+    "C" Heartbeat
+    timer : int
+    cameraHeartbeatReceived : HashMap<String, Boolean>
+    Heartbeat()
+    init()
+    recordHeartbeat()
+    checkHeartBeats()
+
+  AdaptationTypeManager
+    "C" AdaptationTypeManager
+    stringToAdaptationMap : HashMap<String, AdaptivePolicy>
+    AdaptationTypeManager()
+    getAdaptivePolicy()
+
+  GlobalMap
+    "C" GlobalMap
+    swLong : double
+    swLat : double
+    neLong : double
+    neLat : double
+    GlobalMap()
+
+  AnalysisTypeManager
+    "C" AnalysisTypeManager
+    stringToAnalysisMap : HashMap<String, ImageProcessor>
+    AnalysisTypeManager()
+    getImageProcessObject()
+
+  map
+    "C" map
+    swLong : double
+    swLat : double
+    neLong : double
+    neLat : double
+    map()
+
+  utilities
+    "C" utilities
+    heartbeat : HashMap<String, Boolean>
+    cameraHeartbeatReceived : HashMap<String, Boolean>
+    Heartbeat()
+    init()
+    recordHeartbeat()
+    checkHeartBeats()
+
+  imageAnalysis
+    "C" imageAnalysis
+    stringToAnalysisMap : HashMap<String, ImageProcessor>
+    AnalysisTypeManager()
+    getImageProcessObject()
+
+  MultiCameraCore_Configuration
+    "C" MultiCameraCore_Configuration
+    LOGGER : Logger
+    id : String
+    cameraConfigurationFiles : List<String>
+    multiCameraGoals : List<MultiCameraGoal>
+    additionalFields : Map<String, Object>
+    xstream : XStream
+    XML_HEADER : String
+    MultiCameraCore_Configuration()
+    writeConfigurationToXML()
+    readMCPConfig()
+    createMCAFromMCPConfigurationFile()
+
+  MultiCameraCore -- cameraManager : cameraManager
+  CameraManager -- Heartbeat : heartbeat
+  CameraManager -- AdaptationTypeManager : adaptationTypeManager
+  CameraManager -- imageAnalysis : imageAnalysis
+  CameraManager -- map : globalMap
+  Heartbeat -- MultiCameraCore : multiCameraGoals
+  Heartbeat -- MultiCameraCore : agentActions
+  AdaptationTypeManager -- MultiCameraCore : multiCameraGoals
+  AdaptationTypeManager -- MultiCameraCore : agentActions
+  AnalysisTypeManager -- MultiCameraCore : multiCameraGoals
+  AnalysisTypeManager -- MultiCameraCore : agentActions
+  GlobalMap -- MultiCameraCore : multiCameraGoals
+  GlobalMap -- MultiCameraCore : agentActions
+  MultiCameraCore_Configuration -- MultiCameraCore : multiCameraGoals
+  MultiCameraCore_Configuration -- MultiCameraCore : agentActions
+
+@enduml

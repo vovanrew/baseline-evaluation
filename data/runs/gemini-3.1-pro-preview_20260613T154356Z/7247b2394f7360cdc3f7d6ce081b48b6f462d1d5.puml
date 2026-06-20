@@ -1,0 +1,56 @@
+```plantuml
+@startuml
+title Logg inn system
+
+actor Bruker
+participant System
+participant Database
+
+Bruker -> System: Trykker logg inn knapp
+activate System
+System --> Bruker: Send til skjema for innlogging
+Bruker -> System: Send inn e-mail og passord
+System -> Database: Validere brukerdetaljer
+activate Database
+deactivate System
+deactivate Database
+
+alt #LightGreen [Logg inn godkjent]
+    Database --> System: Brukerdetaljer godkjent
+    activate Database
+    activate System
+    System --> Bruker: Send til innlogget side
+    deactivate System
+    deactivate Database
+
+else #Pink [Feil Passord]
+    Database --> System: Feil passord
+    activate Database
+    activate System
+    System --> Bruker: "Du har oppgitt feil passord. Glemt passordet?"
+    Bruker -> System: Glemt passord
+    System --> Bruker: Send til skjema for glemt passord
+    Bruker -> System: Send inn e-mail adresse
+    System -> Database: Verifiser e-mail adresse
+    deactivate System
+    deactivate Database
+
+    Database --> System: E-mail adresse verifisert
+    activate Database
+    activate System
+    System --> Bruker: Send e-mail for å gjenopprette passord
+    System --> Bruker: "Vi har sendt en mail til denne adressen..."
+    deactivate System
+    deactivate Database
+
+else #Pink [Brukeren eksisterer ikke]
+    Database --> System: Finner ikke bruker
+    activate Database
+    activate System
+    System --> Bruker: "Vi finner ingen bruker registrert med denne e-mailadressen"
+    deactivate System
+    deactivate Database
+end
+
+@enduml
+```

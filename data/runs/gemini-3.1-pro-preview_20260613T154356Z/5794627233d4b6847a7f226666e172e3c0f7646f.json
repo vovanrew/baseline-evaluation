@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle Weekly Rewards to Vaults\n\nactor User\nactor Ops\nparticipant \"Emissions Controller\" as EC <<mStable>>\nparticipant Vaults <<mStable>>\nparticipant MTA <<mStable>>\n\nUser -> EC : setVoterDialWeights ([dial ids], [weights])\nactivate EC\nnote right of EC\n  proportions voting power across dials\n  for future distributions\nend note\nEC -->> User\ndeactivate EC\n\n== After Thursday 00:00 UTC ==\n\nOps -> EC : calculateRewards ()\nactivate EC\nnote right of EC\n  Calculates and stores\n  rewards for each dial\nend note\nEC -->> Ops\ndeactivate EC\n\nOps -> EC : distributeRewards ([dial ids])\nactivate EC\nloop Dials\n  note right of EC\n    transfer MTA\n    from Emissions Controller\n    to Vault\n  end note\n  EC -> MTA : transfer(vault, rewards)\n  activate MTA\n  MTA -->> EC\n  deactivate MTA\n  \n  EC -> Vaults : notifyRewardAmount(rewards)\n  activate Vaults\n  note right of Vaults\n    Stream MTA to Users\n  end note\n  Vaults -->> EC\n  deactivate Vaults\nend\nEC -->> Ops\ndeactivate EC\n\n== After rewards have accrued ==\n\nUser -> Vaults : claimRewards ()\nactivate Vaults\nnote left of Vaults\n  transfer MTA\n  from Vault\n  to User\nend note\nVaults -> MTA : transfer(user, rewards)\nactivate MTA\nMTA -->> Vaults\ndeactivate MTA\nVaults -->> User\ndeactivate Vaults\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHzpyJPbvKTdO92l+x6ZFxOspapXwyPhMPPdjb9bDTSzzJnO+Tvf3ShHewpqGL"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1169,
+    "candidatesTokenCount": 364,
+    "totalTokenCount": 1533,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1089
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "-lwxatiqLfC8xN8Pzr7NkAo"
+}

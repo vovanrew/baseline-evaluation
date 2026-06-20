@@ -1,0 +1,42 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "User" as User
+participant "BeanShellExtension" as BeanShellExtension
+participant "BeanShellExtensionUI" as BeanShellExtensionUI
+participant "BeanShellMenu" as BeanShellMenu
+participant "BeanShellMacroAction" as BeanShellMacroAction
+participant "BeanShellMacrosUI" as BeanShellMacrosUI
+participant "BeanShellMacroController" as BeanShellMacroController
+participant "BSInterpreter" as BSInterpreter
+
+User -> BeanShellExtension : openBSext()
+activate BeanShellExtension
+BeanShellExtension -> BeanShellExtensionUI : create(this, uicontroller)
+activate BeanShellExtensionUI
+BeanShellExtensionUI -> BeanShellMenu : openBSmenu(uicontroller)
+activate BeanShellMenu
+BeanShellMenu -> BeanShellMacroAction : open(uicontroller)
+activate BeanShellMacroAction
+BeanShellMacroAction -> BeanShellMacrosUI : create()
+activate BeanShellMacrosUI
+BeanShellMacrosUI -> BeanShellMacroController : create()
+activate BeanShellMacroController
+BeanShellMacroController -> BSInterpreter : create()
+activate BSInterpreter
+
+User -> BeanShellMacrosUI : write expressions
+User -> BeanShellMacrosUI : execute expressions
+BeanShellMacrosUI -> BeanShellMacroController : getInterpreter().executeMacro(exp.toString());
+
+deactivate BSInterpreter
+deactivate BeanShellMacroController
+deactivate BeanShellMacrosUI
+deactivate BeanShellMacroAction
+deactivate BeanShellMenu
+deactivate BeanShellExtensionUI
+deactivate BeanShellExtension
+
+@enduml
+```

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01LyGndf71i659LzkWZpEeK6",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nbox \"Client\"\nparticipant client\nparticipant tcpclient\nend box\n\nbox \"Server\"\nparticipant tcpserver\nparticipant server\nend box\n\nserver -> tcpserver : listen\nhnote over tcpserver #cyan : LISTEN\n\nclient -> tcpclient : connect\ntcpclient -> tcpserver : SYN\nhnote over tcpclient #green : SYN-SENT\nhnote over tcpserver #blue : SYN-RECEIVED\ntcpserver -> tcpclient : SYN, ACK\ntcpclient -> tcpserver : ACK\nhnote over tcpclient #lightgreen : ESTABLISHED\nhnote over tcpserver #lightgreen : ESTABLISHED\n\ntcpserver -> server : EPOLLIN\nserver -> tcpserver : write\ntcpclient -> tcpserver : PSH, ACK\ntcpclient -> tcpserver : ACK\n\ntcpclient -> client : EPOLLIN\nclient -> tcpclient : read\n\nserver -> tcpserver : close\nhnote over tcpserver #mediumpurple : FIN_WAIT1\n\ntcpserver -> tcpclient : FIN, ACK\nhnote over tcpclient #magenta : CLOSE_WAIT\n\ntcpclient -> tcpserver : ACK\nhnote over tcpserver #orange : FIN_WAIT2\n\ntcpclient -> client : EPOLLRDHUP\nclient -> tcpclient : close\nhnote over tcpclient #magenta : LAST_ACK\n\ntcpclient -> tcpserver : FIN\ntcpserver -> tcpclient : ACK\nhnote over tcpclient #red : CLOSE\n\nhnote over tcpserver #yellow : TIMEWAIT\nnote right of tcpserver : timer 60s\nhnote over tcpserver #yellow : CLOSE\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432047,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 443,
+    "prompt_tokens": 1048,
+    "total_tokens": 1491
+  }
+}

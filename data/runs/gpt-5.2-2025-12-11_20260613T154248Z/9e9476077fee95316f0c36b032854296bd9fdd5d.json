@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLdsCN2uM9phtM08gUV5VwUGmyuU",
+  "object": "chat.completion",
+  "created": 1781368620,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Sequence Diagram: Internal state synchronization\n\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  LifeLineBorderColor #666666\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #E6E6FA\n  BoxBorderColor #666666\n  BoxBackgroundColor #D9D9D9\n  GroupBorderColor #000000\n  GroupBackgroundColor #FFFFFF\n  GroupHeaderFontStyle bold\n  ArrowColor #000000\n  ActorBorderColor #666666\n  ActorBackgroundColor #E6E6FA\n  ActivationBorderColor #CC6666\n  ActivationBackgroundColor #F6B3B3\n}\n\n' Notes in the original image (top-right)\nnote right\nAuthors: pw@zoi.de\nVersion: 0.1\nend note\n\nbox \"Internal Service\" #D9D9D9\nactor Sender as Sender\nparticipant IoTClient as IoTClient\nparticipant ShadowCallback as ShadowCallback\nend box\n\nbox \"AWS Cloud\" #90EE90\nparticipant ShadowService as ShadowService\nend box\n\n== client connection ==\n\nSender -> IoTClient : connect()\nIoTClient -> ShadowCallback : on_connct_wrapper()\nShadowCallback --> IoTClient : subscribe(\"AWS Shadow Topics\")\nIoTClient -> ShadowService : subscribe()\nIoTClient -> ShadowCallback : on_subscribe_wrapper()\nactivate ShadowCallback\nShadowCallback -> ShadowCallback : request_desired_state()\ndeactivate ShadowCallback\n\n== state retrival ==\n\nactivate IoTClient #F4A582\nIoTClient -> ShadowService : publish(\"myClient/shadow/get\")\ndeactivate IoTClient\n\nShadowService --> IoTClient : on_message(\"myClient/shadow/get/accepted\", state)\nIoTClient -> ShadowCallback : on_message_wrapper(rawState)\nactivate ShadowCallback\nShadowCallback -> ShadowCallback : on_desired_state_change(rawState)\ndeactivate ShadowCallback\n\n== state synchronization ==\n\nShadowCallback --> Sender : set_state(desiredState)\nSender -> ShadowCallback : on_set_state_wrapper()\nactivate ShadowCallback\nShadowCallback -> ShadowCallback : publish_new_state()\nShadowCallback --> IoTClient : publish(\"myClient/shadow/update\", reportedState)\ndeactivate ShadowCallback\n\nactivate IoTClient #F4A582\nIoTClient -> ShadowService : publish(\"myClient/shadow/update\", state)\ndeactivate IoTClient\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2488,
+    "completion_tokens": 515,
+    "total_tokens": 3003,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

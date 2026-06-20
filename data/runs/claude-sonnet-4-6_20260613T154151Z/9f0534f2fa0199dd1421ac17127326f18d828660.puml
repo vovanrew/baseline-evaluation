@@ -1,0 +1,136 @@
+```plantuml
+@startuml
+
+skinparam rectangle {
+    BackgroundColor #f5f5dc
+    BorderColor #a0a0a0
+}
+
+' ProductOrder Aggregate Package
+package "«aggregate» ProductOrder" {
+    rectangle "**C** TotalPriceWithoutVAT" as C_TPWV
+    rectangle "**C** TotalVolume" as C_TV
+    rectangle "**C** BillingAddress" as C_BA
+    rectangle "**E** OrderItem" as E_OI
+    rectangle "**C** Status" as C_S
+    rectangle "**C** DeliveryAddress" as C_DA
+    rectangle "**E** ProductOrder" as E_PO
+    rectangle "**C** TotalPriceWithVAT" as C_TPWVAT
+    rectangle "**C** TotalWeight" as C_TW
+}
+
+' AGV Aggregate Package
+package "«aggregate» AGV" {
+    rectangle "**C** AGVStatus" as C_AGVS
+    rectangle "**C** AGVPosition" as C_AGVP
+    rectangle "**C** Model" as C_M
+    rectangle "**C** MaxVolumeCapacity" as C_MVC
+    rectangle "**C** BriefDescription" as C_BD
+    rectangle "**C** MaxWeightCapacity" as C_MWC
+    rectangle "**C** Range" as C_R
+    rectangle "**E** AGV" as E_AGV_pkg
+    rectangle "**E** AGVTask" as E_AGVT_pkg
+    rectangle "**C** AGVId" as C_AGVID
+}
+
+' Value Objects and Entities in diagram
+
+class "BriefDescription" as VO_BD <<value object>> {
+    -briefDescription
+}
+
+class "Model" as VO_M <<value object>> {
+    -model
+}
+
+class "AGVPosition" as VO_AGVP <<value object>> {
+    -agvPosition
+}
+
+class "AGVStatus" as VO_AGVS <<value object>> {
+    -taskState
+}
+
+class "AGV" as E_AGV <<entity>>\n<<root>> {
+    -state
+}
+
+class "AGVTask" as E_AGVTASK <<entity>> {
+    -id
+    -agvTaskDescription
+}
+
+class "AGVId" as VO_AGVID <<value object>> {
+    -id
+}
+
+class "Range" as VO_RANGE <<value object>> {
+    -range
+}
+
+class "MaxWeightCapacity" as VO_MWC <<value object>> {
+    -maxWeightCapacity
+}
+
+class "MaxVolumeCapacity" as VO_MVOL <<value object>> {
+    -volume
+}
+
+class "ProductOrder" as E_PRODUCTORDER <<entity>>\n<<root>> {
+    -numericIdentifier
+    -dateOfOrder
+    -shipmentMethod
+    -paymentMethod
+}
+
+class "OrderItem" as E_ORDERITEM <<entity>> {
+    -itemQuantity
+}
+
+class "TotalPriceWithVAT" as VO_TPWVAT <<value object>> {
+}
+
+class "DeliveryAddress" as VO_DELIVADDR <<value object>> {
+}
+
+class "BillingAddress" as VO_BILLADDR <<value object>> {
+}
+
+class "Status" as VO_STATUS <<value object>> {
+}
+
+class "TotalVolume" as VO_TOTVOL <<value object>> {
+}
+
+class "TotalWeight" as VO_TOTWT <<value object>> {
+}
+
+class "TotalPriceWithoutVAT" as VO_TPWOVAT <<value object>> {
+}
+
+' Relationships from AGV
+E_AGV --> VO_BD : "characterized by"
+E_AGV --> VO_M : "has"
+E_AGV --> VO_AGVP : "located in"
+E_AGV --> VO_AGVS : "collects\n1..*"
+E_AGV --> E_AGVTASK : "associated\n1"
+E_AGV --> VO_AGVID : "has\n1"
+E_AGV --> VO_RANGE : "respects\n1"
+E_AGV --> VO_MWC : "respects\n1"
+E_AGV --> VO_MVOL : "respects\n1"
+
+' AGVTask to ProductOrder
+E_AGVTASK --> E_PRODUCTORDER : "composed by\n1..*"
+
+' ProductOrder relationships
+E_PRODUCTORDER --> E_ORDERITEM : "composed by\n1..*"
+E_PRODUCTORDER --> VO_TPWVAT : "is marked\n1"
+E_PRODUCTORDER --> VO_DELIVADDR : "associated with\n1"
+E_PRODUCTORDER --> VO_BILLADDR : "associated with\n1"
+E_PRODUCTORDER --> VO_STATUS : "is in\n1"
+E_PRODUCTORDER --> VO_TOTVOL : "associated with\n1"
+E_PRODUCTORDER --> VO_TOTWT : "associated with\n1"
+E_PRODUCTORDER --> VO_TPWOVAT : "is marked"
+
+@enduml
+```

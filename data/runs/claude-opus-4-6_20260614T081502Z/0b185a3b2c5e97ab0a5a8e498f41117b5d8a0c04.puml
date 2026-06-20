@@ -1,0 +1,91 @@
+```plantuml
+@startuml
+
+participant "producer" as producer
+participant "consumer" as consumer
+participant "broker" as broker
+participant "NameServer" as ns1
+participant "NameServer" as ns2
+
+== NameServer 启动流程 ==
+
+group 1 启动 NameServer 服务器
+    producer -> ns2
+    note right of ns1: 2 启动监听
+    ns1 -> ns1
+    note right of ns1: 监听 broker 链接\n监听 producer 链接\n监听 consumer 链接
+    ns2 --> ns1: 3
+end
+
+group 4
+    producer <-- ns2
+end
+
+== broker 启动流程 ==
+
+group 5 启动 broker 服务器
+    producer -> broker
+    broker -> ns2: 6 每个 broker 与 每个 NameServer 建立长链接
+    broker <-- ns2: 7
+end
+
+group 8
+    producer <-- ns2
+    broker --> ns2: 9 每 30 秒发送心跳
+end
+
+== producer 启动/发消息流程 ==
+
+group 10 启动
+    producer -> broker
+    producer -> ns1: 11 先与一台 NameServer 建立长链接
+    producer <-- ns2: 12
+    producer -> ns2: 13 获取路由信息，获取 topic 与 broker queue 的对应关系
+    producer <-- ns2: 14
+end
+
+group 15
+    producer <-- broker
+    producer --> ns2: 16 每 30 秒更新一次路由信息
+end
+
+group 17 发送消息
+    producer -> broker
+    producer -> broker: 18 随机选择一个 queue，并发送消息
+    producer <-- broker: 19
+end
+
+group 20
+    producer <-- broker
+end
+
+== consumer 启动/pull消息流程 ==
+
+group 21 启动
+    producer -> broker
+    consumer -> ns2: 22 与一台 NameServer 建立长链接
+    consumer <-- ns2: 23
+    consumer -> ns2: 24 获取 topic 的路由信息
+    consumer <-- ns2: 25
+    consumer -> broker: 26 建立长链接并获取 queue
+    consumer <-- broker: 27
+end
+
+group 28
+    producer <-- ns2
+    consumer --> broker: 29 每 30 秒发送心跳，确保 broker 存活
+    consumer --> ns2: 30 每 30 秒更新路由信息
+end
+
+group 31 消息消费
+    producer -> broker
+    consumer -> broker: 32 拉取消息消费
+    consumer <-- broker: 33
+end
+
+group 34
+    producer <-- broker
+end
+
+@enduml
+```

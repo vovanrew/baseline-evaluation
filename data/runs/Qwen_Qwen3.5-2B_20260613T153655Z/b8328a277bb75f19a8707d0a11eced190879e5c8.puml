@@ -1,0 +1,26 @@
+@startuml
+participant "Programador" as P
+
+participant "LEA" as LEA
+
+    subgraph LEA
+        participant "front: Ceed" as Front
+        participant "agent: Ceed" as Agent
+
+        Front
+        Agent
+    endsub
+
+    P -> Front : ws://lea
+    Front -> Front : see('listen', port)
+    Front -> Agent : see('onSocketConnection', socket)
+    Front -> P : socket.emit(agents)
+    P -> Front : see(agent, action, args)
+    Front -> Agent : see(action, args)
+    Agent -> Front : resolve()
+    Front -> P : http://lea/:agent/:action
+    Front -> Front : see('http', [req, res])
+    Front -> Agent : see(action, [req, res])
+    Agent -> Front : res.send()
+
+@enduml

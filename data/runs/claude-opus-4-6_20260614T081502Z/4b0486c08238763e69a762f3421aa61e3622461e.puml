@@ -1,0 +1,86 @@
+```plantuml
+@startuml
+
+package "security" {
+    package "auth" {
+        class "@Roles" as Roles
+        class "type Role = 'ADMIN' | 'MITARBEITER' | 'KUNDE'" as Role
+        Roles --> Role
+    }
+}
+
+package "auto" {
+    package "entity" {
+        class Auto <<entity>> {
+        }
+    }
+
+    package "rest" {
+        class AutoWriteController <<control>> <<@Controller()>> <<@UseGuards()>> <<@UseInterceptors()>> {
+            + @Post() @Roles() async create(@Body() auto: Auto, @Req() req: Request,  @Res() res: Response): Promise<Response>
+            + @Put() @Roles() async update(@Body() auto: Auto, @Param() id: string, @Headers() version: string, @Res() res: Response): Promise<Response>
+            + @Delete() @Roles() async delete(@Param() id: string, @Res() res: Response): Promise<Response>
+        }
+    }
+
+    package "service" {
+        class AutoWriteService <<control>> {
+        }
+        class AutoReadService <<control>> {
+        }
+    }
+}
+
+package "express" {
+    class Request {
+    }
+    class Response {
+    }
+}
+
+interface Promise {
+}
+
+package "@nestjs/common" {
+    class "@Controller" as NController
+    class "@UseGuards" as NUseGuards
+    class "@UseInterceptors" as NUseInterceptors
+    class "@Post" as NPost
+    class "@Put" as NPut
+    class "@Delete" as NDelete
+    class "@Req" as NReq
+    class "@Res" as NRes
+    class "@Param" as NParam
+    class "@Body" as NBody
+    class "@Headers" as NHeaders
+}
+
+AutoWriteController "1" o-- "1" AutoWriteService : service
+AutoWriteController "1" o-- "1" AutoReadService : readService
+
+AutoWriteController ..> Auto
+AutoWriteController ..> Roles
+AutoWriteController ..> Role
+AutoWriteController ..> Request
+AutoWriteController ..> Response
+AutoWriteController ..> Promise
+
+AutoWriteService ..> Auto
+AutoWriteService ..> Promise
+AutoReadService ..> Auto
+AutoReadService ..> Promise
+
+AutoWriteController ..> NController
+AutoWriteController ..> NUseGuards
+AutoWriteController ..> NUseInterceptors
+AutoWriteController ..> NPost
+AutoWriteController ..> NPut
+AutoWriteController ..> NDelete
+AutoWriteController ..> NReq
+AutoWriteController ..> NRes
+AutoWriteController ..> NParam
+AutoWriteController ..> NBody
+AutoWriteController ..> NHeaders
+
+@enduml
+```

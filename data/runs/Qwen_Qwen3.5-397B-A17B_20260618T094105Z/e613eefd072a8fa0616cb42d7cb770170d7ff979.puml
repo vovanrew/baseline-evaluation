@@ -1,0 +1,59 @@
+@startuml
+skinparam sequenceMessageAlign center
+autonumber "<b>[0]"
+
+box "BL1 common code" #LightGray
+    participant bl1_main
+    participant bl_common
+end box
+
+box "arm platform code" #lightblue
+    participant fvp_bl1_setup
+    participant arm_bll_setup as arm_bl1_setup
+    participant arm_io_storage
+end box
+
+box "platform common code" #LightGrey
+    participant plat_bl1_common
+    participant fconf
+end box
+
+
+bl1_main ->>fvp_bl1_setup :  bll_platform_setup() 
+activate fvp_bl1_setup  
+   fvp_bl1_setup->>arm_bl1_setup: arm_bll_platform_setup ()   
+      activate arm_bl1_setup    
+         arm_bl1_setup->>arm_io_storage:plat_arm_io_setup()\nregister and setup flp\n         
+            activate arm_io_storage            
+               deactivate arm_io_storage               
+                  arm_bl1_setup-->fconf:fconf_load_config()\ncreate and populate an \nimagedesc_t for FW_CONFIG                  
+                     activate fconf                     
+                        fconf-->>bl_common:load_auth_image(FW CONFIG ID &image_info)\n load and auth image from flip \nwith info from platio_policy                        
+                           activate bl_common                            
+                              bl_common -->fconf:FCONF_GET_PROPERTY(arm, armllo_policies tb_fw_cfg) use staticaly defined policies in bli                               
+                                 activate fconf                                
+                                    fconf -- >>bl_common:image_inf o get tbfwconfigdtbfrom imagelnfo                                    
+                                       deactivate fconff                                     
+                                        deactivat eblcommon                                        
+                                          end                                          
+                                            alt                                             
+                                               group                                               
+                                                  loop                                                 
+                                                     par                                                      
+                                                        rect                                                         
+                                                           note right                                                     
+                                                              set epinfo.args.argO of BL2_IMAGE_DESC toFWCONFIG base address                                                           
+                                                               endnote                                                                        
+                                                                  else                                                                           
+                                                                     opt                                                                               
+                                                                        try                                                                                   
+                                                                           break                                                                                
+                                                                              finally                                                                              
+                                                                                 assert                                                                                 
+                                                                                    critical                                                                                    
+                                                                                        partition                                                                                       
+                                                                                            hgroup                                                                                          
+                                                                                                frame                                                                                             
+                                                                                                   package                                                                                              
+                                                                                                                                          
+@enduml

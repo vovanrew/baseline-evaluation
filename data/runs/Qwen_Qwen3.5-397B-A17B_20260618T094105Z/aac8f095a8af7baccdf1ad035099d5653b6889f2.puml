@@ -1,0 +1,63 @@
+@startuml
+title 检测计划-修改任务流程
+
+participant "省级管理员" as Admin #LightBlue
+participant "前端" as Frontend #White
+participant "后端" as Backend #White
+database "数据库" as DB #White
+
+
+Admin ->> Frontend :1 输入需修改的任务信息(任务名称、任务描述、\n    任务类型、生效时间、到期时限增减量)\n提交，发起修改任务信息请求\n 
+Frontend->>Backend:2 校验修改任务信息请求参数正确性(定时任务id不能为空) \n3 调用后端修改任务信息接口updateTask() 
+
+note right of Frontend：数据是否合规:\n任务类型(消毒质量监测,院感数据监测) 
+
+
+activate Backend  
+Backend->>DB:4 校验修改任务信息请求参数正确性   
+Backend->>DB:5 根据任务信息数据查询定时任务表记录数(排除记录本身）  
+
+alt [根据任务信息数据查询定时任务表记录数为0]    
+   activate DB     
+     Backend<- -DB:6 根据定时任务Id查询定时任务表      
+      Backend<--DB:7返回定时任务信息       
+       Backend-->Backend:8 根据线程名关闭定时任务        
+        Backend->>DB:9 修改定时任务表任务信息数据         
+         alt[修改定时任务表任务信息数据成功]\n          
+          Backend<<--DB:10 返回修改任务信息成功           
+           Frontend<<--Backend:11 返回添加任务信息成功状态到前端            
+            else[修改定时任务表任务信息数据失败]\n             
+             Frontend<<..Backend:12 返回修改任务信息失败              
+              Frontend<<..Backend:13 返回添加任务信息失败状态到前端               
+               end                
+                deactivate DB                 
+                 elseif[根据任务信息数据查询定时任务表记录数不为0]\n                  
+                  Frontend<<..Backend:14 返回当前任务信息已存在                   
+                   endif                    
+                    Backend>>Backend:15开启定时任务                     
+                     Backend->>DB:16 根据新建的定时任务ID启用状态为启用查询定时任务表                      
+                      Backend<--DB:17 返回定时任务信息                       
+                       Backend->>DB:18 添加推送任务信息数据到推送任务表                        
+                        if[添加推送任务信息数据到推送任务表成功]\n                         
+                         Backend<<--DB:19 返回添加推送任务信息成功                          
+                          Frontend<<--Backend:20 返回添加推送任务信息成功状态到前端                           
+                           else[添加推送任务信息数据到推送任务表失败]\n                            
+                            Frontend<<..Backend:21 返回添加推送任务信息失败                             
+                             Frontend<<..Backend:22 返回添加推送任务信息失败状态到前端                              
+                              endif                               
+                               Backend->>DB:23 根据新建的定时任务ID启用状态为启用查询模板配置表                                
+                                Backend<--DB:24 返回模板配置信息                                 
+                                  Backend->>DB:25 添加推送任务子信息数据到推送任务子表                                  
+
+if[添加推送任务子信息数据到推送任务子表成功]\n                                    
+                                     Backend<<--DB:26 返回添加推送任务子信息成功                                     
+                                       Frontend<<--Backend:27 返回添加推送任务子信息成功状态到端                                       
+                                         else[添加推送任务子信息数据到推送任务子表失败]\n                                         
+                                           Frontend<<..Backend:28 返回添加推送任务子信息失败                                           
+                                             Frontend<<..Backend:29 返回添加推送任务子信息失败状态到前端                                             
+                                               endif                                               
+                                                 deactivate Backend                                                 
+
+
+
+@enduml

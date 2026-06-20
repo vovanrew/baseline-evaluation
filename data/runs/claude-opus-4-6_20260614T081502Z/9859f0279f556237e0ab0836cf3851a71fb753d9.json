@@ -1,0 +1,21 @@
+{
+  "id": "msg_01LzAXLtFM8nw79iX6mt3vGw",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nbox \"FAMPClient\"\nparticipant \"AudioBundleAssembler\" as ABA\nparticipant \"UDPBundleReceiver\" as UBR\nend box\n\nbox \"FAMPServer\"\nparticipant \"UDPBundleSender\" as UBS\nparticipant \"QUdpSocket\" as QUS\nend box\n\nABA -> UBR : rozpocznij watek\\nodbierajacy\nactivate ABA\nABA -> UBS : rozpocznij wysylanie\\npaczek\nactivate UBS\nUBS -> QUS : grupa 50 paczek\nactivate QUS\ndeactivate QUS\n\nloop dopoki nie pobrano wszystkich paczek\n\n    loop dopoki dostepne sa datagramy\n        ABA -> UBR : przekaz pobrane\\ndotychczas datagramy\n        activate UBR\n        UBR --> ABA : dane\n        deactivate UBR\n        ABA -> ABA : odczytaj id paczki i zapisz\n    end\n\n    alt nie wszystkie paczki wyslane\n        ABA -> UBS : wyslij nastepny zestaw paczek\n        UBS -> QUS : grupa 50 paczek\n        activate QUS\n        deactivate QUS\n        UBS --> ABA : czy to ostatni zestaw\n    else istnieja paczki do retransmisji\n        ABA -> UBS : wyslij zestaw brakujacych paczek\n    end\n\nend\n\ndeactivate UBS\n\nABA -> ABA : posortuj paczki\nABA -> ABA : zapisz paczki do pliku\ndeactivate ABA\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432007,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 413,
+    "prompt_tokens": 1656,
+    "total_tokens": 2069
+  }
+}

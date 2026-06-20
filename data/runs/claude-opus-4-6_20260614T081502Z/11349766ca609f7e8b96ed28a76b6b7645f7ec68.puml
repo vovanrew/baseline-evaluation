@@ -1,0 +1,64 @@
+@startuml
+
+participant ListPrivateImpl
+participant ProfileRetrievalService
+participant DFSBasedProfileStorageImpl
+participant DFSSystem
+participant DFSConnectionService
+participant DFSConnectionServiceImpl
+participant DFSConnection
+participant GsonSerde
+participant BucketAccessService
+participant BucketAccessServiceImpl
+participant DFSCredentialsService
+participant DFSCredentialsServiceImpl
+participant DocumentListService
+participant ListPathDecryptingServiceImpl
+participant ListPathNonDecryptingServiceImpl
+
+ListPrivateImpl -> ListPrivateImpl : resolvePrivateLocation
+ListPrivateImpl -> ProfileRetrievalService : privateProfile
+ProfileRetrievalService -> DFSBasedProfileStorageImpl : privateProfile
+DFSBasedProfileStorageImpl -> DFSSystem : systemDfs
+DFSBasedProfileStorageImpl <.. DFSSystem : DFSAccess
+DFSBasedProfileStorageImpl -> DFSConnectionService : obtain
+DFSConnectionService -> DFSConnectionServiceImpl : obtain
+DFSConnectionServiceImpl --> DFSConnectionService : DFSConnection
+DFSBasedProfileStorageImpl <.. DFSConnectionService : DFSConnection
+DFSBasedProfileStorageImpl -> DFSBasedProfileStorageImpl : locatePrivateProfile
+DFSBasedProfileStorageImpl <.. DFSBasedProfileStorageImpl : BucketPath
+DFSBasedProfileStorageImpl -> DFSConnection : getBlob
+DFSBasedProfileStorageImpl <.. DFSConnection : Payload
+DFSBasedProfileStorageImpl -> GsonSerde : fromJson
+DFSBasedProfileStorageImpl <.. GsonSerde : T
+ProfileRetrievalService <.. DFSBasedProfileStorageImpl : UserPrivateProfile
+ListPrivateImpl <.. ProfileRetrievalService : UserPrivateProfile
+
+== ==
+
+ListPrivateImpl -> BucketAccessService : privateAccessFor
+BucketAccessService -> BucketAccessServiceImpl : privateAccessFor
+BucketAccessServiceImpl -> DFSCredentialsService : privateUserCredentials
+DFSCredentialsService -> DFSCredentialsServiceImpl : privateUserCredentials
+DFSCredentialsServiceImpl --> DFSCredentialsService : DFSCredentials
+BucketAccessServiceImpl <.. DFSCredentialsService : DFSCredentials
+BucketAccessServiceImpl -> BucketAccessServiceImpl : systemDfs
+BucketAccessServiceImpl <.. BucketAccessServiceImpl : DFSAccess
+BucketAccessServiceImpl <.. BucketAccessServiceImpl : DFSAccess
+ListPrivateImpl <.. BucketAccessService : DFSAccess
+
+== ==
+
+ListPrivateImpl -> DocumentListService : list
+ListPrivateImpl -> ListPathDecryptingServiceImpl : obtain
+ListPathDecryptingServiceImpl -> DFSConnectionService : obtain
+DFSConnectionService --> ListPathDecryptingServiceImpl : DFSConnection
+ListPathDecryptingServiceImpl <.. DFSConnectionService : DFSConnection
+ListPathDecryptingServiceImpl -> ListPathDecryptingServiceImpl : list
+ListPathDecryptingServiceImpl -> ListPathNonDecryptingServiceImpl : list
+ListPathNonDecryptingServiceImpl --> ListPathDecryptingServiceImpl : List
+ListPathDecryptingServiceImpl --> ListPathDecryptingServiceImpl : Stream
+ListPathNonDecryptingServiceImpl --> ListPathNonDecryptingServiceImpl : Stream
+ListPrivateImpl <.. ListPrivateImpl : Stream
+
+@enduml

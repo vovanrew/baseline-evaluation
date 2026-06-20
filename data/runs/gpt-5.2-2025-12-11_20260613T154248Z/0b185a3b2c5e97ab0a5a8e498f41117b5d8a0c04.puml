@@ -1,0 +1,96 @@
+@startuml
+skinparam backgroundColor #d9d9d9
+skinparam sequence {
+  ParticipantBackgroundColor #8fd0f0
+  ParticipantBorderColor #4a4a4a
+  ParticipantFontColor #000000
+  LifeLineBorderColor #9a9a9a
+  LifeLineBackgroundColor transparent
+  ActorBorderColor #4a4a4a
+  ActorBackgroundColor #8fd0f0
+  ArrowColor #4a4a4a
+  BoxBorderColor #7a7a7a
+  BoxBackgroundColor transparent
+  NoteBackgroundColor #b9f2b0
+  NoteBorderColor #2f7d2f
+}
+hide footbox
+
+participant producer
+participant consumer
+participant broker
+participant "NameServer" as NS1
+participant "NameServer" as NS2
+
+== NameServer 启动流程 ==
+producer -> NS1 : 1 启动 NameServer 服务器
+activate NS1
+NS1 -> NS2 : 2 启动监听
+note right of NS1
+监听 broker 链接
+监听 producer 链接
+监听 consumer 链接
+end note
+NS1 -> NS1 : 3
+NS1 --> producer : 4
+deactivate NS1
+
+== broker 启动流程 ==
+producer -> broker : 5 启动 broker 服务器
+activate broker
+broker -> NS1 : 6 每个 broker 与 每个 NameServer 建立长链接
+activate NS1
+NS1 --> broker : 7
+deactivate NS1
+broker --> producer : 8
+broker --> NS1 : 9 每 30 秒发送心跳
+deactivate broker
+
+== producer 启动/发消息流程 ==
+producer -> producer : 10 启动
+activate producer
+producer -> NS1 : 11 先与一台 NameServer 建立长链接
+activate NS1
+NS1 --> producer : 12
+deactivate NS1
+producer -> NS1 : 13 获取路由信息，获取 topic 与 broker queue 的对应关系
+activate NS1
+NS1 --> producer : 14
+deactivate NS1
+producer --> producer : 15
+producer --> NS2 : 16 每 30 秒更新一次路由信息
+producer -> producer : 17 发送消息
+producer -> broker : 18 随机选择一个 queue，并发送消息
+activate broker
+broker --> producer : 19
+deactivate broker
+producer --> producer : 20
+deactivate producer
+
+== consumer 启动/pull消息流程 ==
+consumer -> consumer : 21 启动
+activate consumer
+consumer -> NS2 : 22 与一台 NameServer 建立长链接
+activate NS2
+NS2 --> consumer : 23
+deactivate NS2
+consumer -> NS2 : 24 获取 topic 的路由信息
+activate NS2
+NS2 --> consumer : 25
+deactivate NS2
+consumer -> broker : 26 建立长链接并获取 queue
+activate broker
+broker --> consumer : 27
+deactivate broker
+consumer --> consumer : 28
+consumer --> broker : 29 每 30 秒发送心跳，确保 broker 存活
+consumer --> NS2 : 30 每 30 秒更新路由信息
+consumer -> consumer : 31 消息消费
+consumer -> broker : 32 拉取消息消费
+activate broker
+broker --> consumer : 33
+deactivate broker
+consumer --> consumer : 34
+deactivate consumer
+
+@enduml

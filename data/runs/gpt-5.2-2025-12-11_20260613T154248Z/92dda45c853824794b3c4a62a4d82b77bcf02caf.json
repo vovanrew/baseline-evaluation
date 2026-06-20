@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLd3VgmOmyxv2WobMO0ACDvgRtyH",
+  "object": "chat.completion",
+  "created": 1781368569,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #000000\n  LifeLineBorderColor #000000\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #000000\n  ParticipantBackgroundColor #FFFFFF\n  ActorBorderColor #000000\n  ActorBackgroundColor #FFFFFF\n  NoteBackgroundColor #FFFFE0\n  NoteBorderColor #000000\n}\n\nactor \"User Agent\" as UA\nparticipant \"Content Upload API\" as API\ndatabase \"Content database\" as DB\nparticipant \"CAFF Parser\" as PARSER\n\nUA -> API : Upload request (HTTP POST),\\ncontains a single CAFF file in its body.\nnote right of API\nMUST also include a CSRF token to prevent users of other,\\npotentially XSS vulnerable sites to take part in a massive,\\ndistributed spam or DoS operation.\nend note\n\nAPI -> PARSER : Validate upload request\nPARSER --> API : Return result\n\nalt [Failed to validate uploaded content]\nAPI --> UA : Return an HTTP status code that signals validation failure.\\nExact value depends on how the validation failed.\nelse [Request is deemed valid]\nAPI -> DB : Store content in database\nDB --> API : Return result of request\n\nnote right of PARSER\nUploads should be validated by at LEAST:\\n* Content-Size header against max file size.\\n* All size fields against their respective supported bounds.\\n* Structure of all fields match expectations from the spec.\\n* Number of bytes from the upload matches number of bytes expected from in-file metadata.\nend note\n\nalt [Upload succeeded]\nAPI --> UA : Return HTTP 201 Created\nelse\nAPI --> UA : Return HTTP status code signaling the reason for failure.\nend\nend\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1261,
+    "completion_tokens": 376,
+    "total_tokens": 1637,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

@@ -1,0 +1,38 @@
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+
+participant "AddressPanel : JPanel" as AP
+participant "ContactsController" as CC
+participant "addressFrame: JFrame" as AF
+participant "Persistence" as P
+participant "RepositoryFactory" as RF
+participant "ContactsRepository" as CR
+participant "BufferedReader" as BR
+participant "FileReader" as FR
+
+note over AP
+double clicks on
+the contact to open a window
+end note
+
+AP -> AF : new (contact)
+AF --> CC : tmp = validatePostalCode(postalCode)
+CC -> BR : create()
+BR -> FR : create(file_name)
+
+loop while there are lines to read
+CC -> BR : readLine()
+end
+
+alt tmp == true
+AF --> CC : updateAddress(contact, main_address, secundary_address)
+CC -> P : getRepositoryFactory()
+P -> RF : newInstance()
+CC -> RF : getContactsRepository()
+CC -> CR : update(contact)
+end
+
+@enduml

@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\npackage Hugobot {\n  package time_intervals_adapter {\n    class TimeIntervalsAdapter {\n      - max_gap\n      + connect_timestamps(df, epsilon=1)\n      + create_time_intervals(symbolic_time_series)\n    }\n  }\n\n  package kfold {\n    class KFold {\n      - nb_folds\n      - entity_class_relations\n      + divide_dataset(dataset)\n    }\n  }\n\n  package abstraction_per_property {\n    class AbstractionPerProperty {\n      - preprocessing_params_df\n      - temporal_abstraction_params_df\n      + preprocessing_per_property(dataset)\n      + temporal_abstraction_per_property(dataset, entity_class_relations=None, states=None)\n      + intervalization_per_property(symbolic_time_series)\n      - generate_preprocessing_by_name(params_row)\n      - generate_abstraction_by_name(params_row, entity_class_relations=None, states=None)\n    }\n  }\n\n  package preprocessing {\n    class Transformation {\n      + transform(dataset)\n    }\n    class PAA {\n      - window_size\n      + transform(dataset)\n    }\n    class OutliersRemover {\n      - std_coef\n      + transform(dataset)\n    }\n    Transformation <|-- PAA\n    Transformation <|-- OutliersRemover\n  }\n\n  package temporal_abstraction {\n    abstract class TemporalAbstraction {\n      + discretize_property(prop_df)\n      + discretize_to_bins(cutpoints, values)\n      + create_symbolic_time_series(states, time_point_series)\n      + extract_cutpoints_from_states(states)\n    }\n    class Gradient <<Node>> {\n      - window_size\n      - states\n      + discretize_property(prop_df)\n      + gradient(df, window_size, states)\n      + derivative(df, gradient_window_size)\n    }\n    class KnowledgeBased <<Node>> {\n      - states\n      + discretize_property(prop_df)\n      + knowledge_based(states, prop_df)\n    }\n    TemporalAbstraction <|-- Gradient\n    TemporalAbstraction <|-- KnowledgeBased\n\n    package discretization {\n      abstract class Discretization {\n        ~ nb_bins\n        ~ generate_cutpoints(prop_df)\n        + discretize_property(prop_df)\n        + create_prop_states(prop_id, cutpoints, scores)\n      }\n      abstract class Unsupervised {\n      }\n      abstract class Supervised {\n        ~ entity_class_relations\n      }\n      TemporalAbstraction <|-- Discretization\n      Discretization <|-- Unsupervised\n      Discretization <|-- Supervised\n\n      package methods {\n        class EqualWidth {\n          + generate_cutpoints(...) : List[cutpoints]\n          - equal_width(...)\n        }\n        class EqualFrequency {\n          + generate_cutpoints(...) : List[cutpoints]\n          - equal_frequency(...)\n        }\n        class KMeans {\n          + generate_cutpoints(...) : List[cutpoints]\n          - kmeans_adapter(...)\n        }\n        class SAX {\n          + generate_cutpoints(...) : List[cutpoints]\n          - sax(...)\n        }\n        Unsupervised <|-- EqualWidth\n        Unsupervised <|-- EqualFrequency\n        Unsupervised <|-- KMeans\n        Unsupervised <|-- SAX\n\n        package td4c_persist {\n          class Persist {\n            - persist(...)\n            - all_states_persistence()\n            - single_state_persistence()\n            - calc_state_probabilities()\n            - calc_marginal_probabilities()\n          }\n          class shared_functions {\n            ~ candidate_selection()\n            ~ generate_candidate_cutpoints()\n            ~ symmetric_kullback_leibler()\n          }\n          abstract class TD4C {\n            - DDM_scoring_function(df, cutoffs, entity_class_relations)\n            - distance_measure(p, q)\n          }\n          class TD4C_Cosine {\n            - distance_measure(p, q)\n          }\n          class TD4C_Kullback_Leibler {\n            - distance_measure(p, q)\n          }\n          class TD4C_Entropy {\n            - distance_measure(p, q)\n          }\n          class TD4C_Entropy_IG {\n            - distance_measure(p, q)\n          }\n          Supervised <|-- TD4C\n          TD4C <|-- TD4C_Cosine\n          TD4C <|-- TD4C_Kullback_Leibler\n          TD4C <|-- TD4C_Entropy\n          TD4C <|-- TD4C_Entropy_IG\n        }\n      }\n    }\n  }\n\n  KFold --> AbstractionPerProperty\n  AbstractionPerProperty --> time_intervals_adapter\n  AbstractionPerProperty --> preprocessing\n  AbstractionPerProperty --> temporal_abstraction\n}\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbH3WSXakM/ImalqG8m5Ozln+c7c2QfP9HpIJJXAengrErKgT8OmlN2oYuOBfFL"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1193,
+    "candidatesTokenCount": 1176,
+    "totalTokenCount": 2369,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1113
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "nVguar2WDu6bvdIP67nsqAc"
+}

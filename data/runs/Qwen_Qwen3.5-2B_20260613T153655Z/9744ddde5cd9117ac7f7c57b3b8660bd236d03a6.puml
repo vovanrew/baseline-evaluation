@@ -1,0 +1,61 @@
+@startuml
+participant "User Agent" as UA
+participant "Wallet" as Wallet
+    participant "Frontend" as WF
+    participant "Backend" as WB
+    participant "Issuer" as Issuer
+        participant "Metadata" as Meta
+        participant "Web Site" as WS
+        participant "Token Endpoint" as TE
+        participant "Credential Endpoint" as CE
+
+    UA -> WS: get credential
+
+    note right of WS
+        prepare credential issuance
+    end note
+
+    UA -> WS: Issuance Initiation Request
+        (pre-authz-code, credential_type, expected_key_types, issuer)
+
+    UA -> WS: Issuance Initiation Request
+        (pre-authz-code, credential_type, expected_key_types, issuer)
+
+    WB -> WB: gen DPoP key
+    WB -> WB: gen DPoP proof for issuer token endpoint
+    WB -> WB: get nonce (for app attestation)
+    WB -> WB: nonce
+    WB -> WB: obtain app attestation (nonce)
+    WB -> WB: get assertion for code exchange (hash(pre-authz-code), app attestation)
+    WB -> TE: check app_attestation
+    WB -> WB: generate assertion (iss=wallet backend, pre_authz_code_hash, client_id)
+    WB -> WB: assertion
+    WB -> Meta: get issuer metadata
+    WB -> TE: token request
+        (pre-authz-code, pin, client_id, assertion, dpop_proof)
+
+    note right of TE
+        wallet authenticates with issuer as OAuth Client using the assertion issued by its backend (RFC 7523)
+        issuer checks wallet backend id and key against trust registry
+    end note
+
+    note right of TE
+        Token Endpoint validates pre-authorized code and creates corresponding access token
+    end note
+
+    WB -> TE: token response
+        (access_token, c_nonce)
+    WB -> WB: gen key : key, key_attestation
+    WB -> WB: create proof of posssion (c_nonce)
+    WB -> WB: create DPoP proof for issuance request
+    WB -> CE: issue credential
+        (access_token, credential_type, format, proof, key_policy, dpop_proof)
+
+    note right of CE
+        Credential Endpoint Token checks whether the access token is good for requested credential type and
+        whether the proof of possession is valid
+    end note
+
+    WB -> UA: credential response (credential, format)
+
+@enduml

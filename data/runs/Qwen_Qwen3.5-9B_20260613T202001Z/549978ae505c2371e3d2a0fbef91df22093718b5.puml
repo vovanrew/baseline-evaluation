@@ -1,0 +1,71 @@
+@startuml
+' Define color scheme
+skinparam backgroundColor #FFFFFF
+skinparam class {
+    BackgroundColor #F5F5F5
+    BorderColor #666666
+    FontColor #000000
+}
+
+' Define class styles
+class EntityManager {
+    [C]
+    entities: List<Entity>
+    systems: Set<Observer>
+    + subscribe(system: Observer)
+    + addEntity(entity: Entity)
+    + removeEntity(id: Int)
+    - notifySystems(event: ManagerEvent)
+}
+
+class Observer {
+    [I]
+    + notify(event: ManagerEvent)
+}
+
+class System {
+    [C]
+    managedTypes: List<ComponentType>
+    filteredEntities: List<Entity>
+    + addEntityRef(): Unit
+    + removeEntityRef(): Unit
+    + update(): Unit
+    - checkEntityISCompatible(): Unit
+}
+
+class Entity {
+    [C]
+    <<Product Type>>
+    ID: Int
+    components: Map<ComponentType, Component>
+}
+
+class Component {
+    [C]
+    <<Product Type>>
+    type: ComponentType
+}
+
+class ComponentType {
+    [E]
+    DIRECTION,
+    POSITION,
+    SPEED,
+    SPAWN,
+    ...
+}
+
+' Relationships
+EntityManager "1" *-- "0..*" Observer
+EntityManager "1" *-- "0..*" Entity
+System "1..*" *-- "0..*" ComponentType
+System "0..*" o-- "0..*" Entity
+Entity "1" *-- "0..*" Component
+ComponentType --|> Observer
+
+' Notes
+note right of Entity
+    Module + Case Class
+end note
+
+@enduml

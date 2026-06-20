@@ -1,0 +1,22 @@
+{
+  "id": "bea2dc6c-ee55-4761-bec9-4492b0515d80",
+  "object": "chat.completion",
+  "created": 1781411607,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam packageStyle rectangle\nskinparam noteStyle rectangle\nskinparam sequenceStyle rectangle\n\npackage \"finest level\" as finest {\n  note U(k,2) -> F(U(k,2))\n  note U(k',2) -> F(U(k',2))\n  note U(k'',2) = U(k',2) + P*c(1)\n  note U(k+,2) -> F(U(k+,2))\n}\n\npackage \"intermediate level(s)\" as intermediate {\n  note U(k,1) -> F(U(k,1))\n  note U(k',1) -> F(U(k',1))\n  note U(k'',1) = U(k',1) + P*c(0)\n  note U(k+,1) -> F(U(k+,1))\n}\n\npackage \"base level\" as base {\n  note U(k,0) -> F(U(k,0))\n  note U(k+,0) -> F(U(k+,0))\n  note c(0) = U(k+,0) - R*U(k',1)\n  note c(1) = U(k+,1) - R*U(k',2)\n}\n\nfinest -> intermediate : restrict\nintermediate -> base : restrict\nbase -> intermediate : prolongate\nintermediate -> finest : prolongate\n\nfinest -> finest : SDC\nintermediate -> intermediate : FAS\nintermediate -> intermediate : SDC with FAS\nbase -> base : FAS\nbase -> base : SDC with FAS\nbase -> base : coarse correction\nintermediate -> intermediate : coarse correction\nintermediate -> intermediate : correct\nfinest -> finest : correct\n\nnote tau = Q(1)*F(U(k,1)) - R*Q(2)*F(U(k',2))\nnote tau = Q(0)*F(U(k,0)) - R*Q(1)*F(U(k',1))\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1321,
+    "completion_tokens": 419,
+    "total_tokens": 1740
+  }
+}

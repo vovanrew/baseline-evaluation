@@ -1,0 +1,91 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+left to right direction
+
+class BattlerOrder
+class TurnSystem
+class BattleFlow
+class BattleContext
+class PlayerMainTactics
+class Player
+class Battler
+
+class ActiveTargetResult
+interface ITargetable
+class TargetSelection
+class InvocationContext
+interface AInvocationContext
+class TurnContext
+
+class PassiveProperty
+class Ability
+class TP
+class Attribute
+class Tolerance
+class HP
+class MP
+
+class PassiveEffect
+class PassiveEffectManager
+
+class BattleEvent
+class ActiveEffect
+class BattleEventHandler
+
+class ActiveProperty
+class ActiveTargetRange
+class ActiveTargetFilter
+
+class VisualEffectContext
+class VisualEffect
+
+' Top chain
+TurnSystem --> BattlerOrder
+BattleFlow --> TurnSystem
+BattleFlow o-- BattleContext
+
+' Left side relations
+BattleContext o-- Battler
+BattleContext ..> PlayerMainTactics
+Player --> PlayerMainTactics
+Player o-- Battler : PartySkill
+
+ActiveTargetResult o-- ITargetable
+TargetSelection ..|> ITargetable
+Battler --> ITargetable
+Battler --> TargetSelection
+InvocationContext --> TurnContext
+AInvocationContext <|-- InvocationContext
+Battler --> AInvocationContext
+Battler --> TurnContext
+
+' Passive/ability cluster
+PassiveProperty o-- Ability : PassiveSkill
+Ability --> TP
+Ability --> Attribute
+Ability --> Tolerance
+Ability --> HP
+Ability --> MP
+
+Battler --> Ability
+Battler --> PassiveEffectManager
+PassiveEffectManager --> PassiveEffect
+
+PassiveProperty o-- PassiveEffect
+PassiveProperty o-- ActiveEffect
+
+' Events/effects
+PassiveEffect --> BattleEvent
+ActiveEffect --> BattleEvent
+BattleEventHandler o-- ActiveEffect
+BattleEventHandler --> BattleEvent
+
+' Active property / targeting / visuals
+ActiveProperty o-- ActiveTargetRange
+ActiveTargetRange o-- ActiveTargetFilter
+ActiveProperty --> VisualEffect : ActiveEffect?
+VisualEffect --> VisualEffectContext
+
+@enduml
+```

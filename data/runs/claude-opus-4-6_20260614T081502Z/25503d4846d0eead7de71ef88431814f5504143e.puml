@@ -1,0 +1,17 @@
+@startuml
+participant SendMessageController
+participant SendMessageEngine
+
+SendMessageController -> SendMessageEngine : sendMessage(message)
+create participant SendMessageSender
+SendMessageEngine -> SendMessageSender : create(message, port)
+create participant Socket
+SendMessageSender -> Socket : create(message.getInetAddress(), port))
+SendMessageEngine -> SendMessageSender : sendMessage()
+create participant ObjectOutputStream
+SendMessageSender -> ObjectOutputStream : create(socket.getOutputStream())
+SendMessageSender -> ObjectOutputStream : writeObject(message.getSheetTalkMessage())
+SendMessageSender -> ObjectOutputStream : flush()
+SendMessageSender -> ObjectOutputStream : close()
+SendMessageSender -> Socket : close()
+@enduml

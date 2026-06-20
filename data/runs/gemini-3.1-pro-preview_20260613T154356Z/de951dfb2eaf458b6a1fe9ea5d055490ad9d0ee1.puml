@@ -1,0 +1,68 @@
+```plantuml
+@startuml
+title US004 - As Administrator, I want to search for users
+
+actor Administrator
+participant ": SearchUsersByParamsRoute" as Route
+participant "inDto : SearchUserDto" as inDto
+participant ": UsersController" as Controller
+participant ": SearchUsersByParamsService" as Service
+participant ": ISystemUserRepo" as UserRepo
+participant ": IUserProfileRepo" as ProfileRepo
+participant "user : SystemUser" as User
+participant ": SystemUserMapper" as Mapper
+
+activate Administrator
+Administrator -> Route : 1 GET /users?name={name}&email={email}&profile={profile}&func={func}
+note left
+The parameters (name, email, profile and function) will be in the query of the request. At least, one of them must be typed or chosen.
+end note
+activate Route
+
+Route -> Controller : 2 searchUsersByTypedParams(inDto)
+activate Controller
+
+Controller -> Service : 3 searchUsersByTypedParams(inDto)
+activate Service
+
+opt if the request has a profile
+    Service -> ProfileRepo : 4 result : existByUserProfileId(profile)
+    activate ProfileRepo
+    deactivate ProfileRepo
+end
+
+alt depending on which params came from inputDto, the service class will invoke the respective method
+    Service -> UserRepo : 5 findAllBy...()
+    activate UserRepo
+    UserRepo --> "usersFound : List<SystemUser>" ** : 6 create()
+    UserRepo --> Service : 7 usersFound
+    deactivate UserRepo
+end
+
+Service --> "usersFoundDto : List<UserDto>" ** : 8 create()
+
+loop for each user found at the list
+    Service -> Mapper : 9 model2Dto(user)
+    activate Mapper
+    Mapper --> "userDto : OutputUserDto" ** : 10 create()
+    Mapper --> Service : 11 userDto
+    deactivate Mapper
+    Service -> "usersFoundDto : List<UserDto>" : 12 add(userDto)
+    activate "usersFoundDto : List<UserDto>"
+    deactivate "usersFoundDto : List<UserDto>"
+end
+
+Service --> Controller : 13 usersFoundDto
+deactivate Service
+
+Controller --> "usersJson : ResponseEntity" ** : 14 create(usersFoundDto)
+
+Controller --> Route : 15 usersJson
+deactivate Controller
+
+Route --> Administrator : 16 Show the list of user found by typed/chosen parameters
+deactivate Route
+deactivate Administrator
+
+@enduml
+```

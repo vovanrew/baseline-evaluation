@@ -1,0 +1,83 @@
+@startuml
+actor Client
+
+participant "RegisterClientUI" as UI
+participant "RegisterClientController" as Controller
+participant "ApplicationPOT" as AppPOT
+participant "app\nApplicationPOT" as AppPOT2
+participant "EncryptPassword" as EncryptPassword
+participant "EmailSender" as EmailSender
+participant "DataHandler" as DataHandler
+
+Client -> UI : 1 Engages the register feature/button
+UI -> Client : Asks for all the information required\nfor the register (i.e. name,nif,email,password,latitude,longitude,altitude,\nstreetName,doorNumber,postalCode,locality,country,creditCardNr,validityDate,\nCCV)
+Client -> UI : 3 Fills all the information required
+UI -> Client : 4 Presents the data and asks for a confirmation
+Client -> UI : 5 Confirms
+
+UI -> Controller : 6 registerNewClient(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+
+Controller -> AppPOT : 7 create()
+
+AppPOT -> AppPOT2 : 8 create()
+
+note right of AppPOT2
+clientService
+ClientService
+end note
+
+note right of AppPOT2
+clientDB
+ClientDB
+end note
+
+AppPOT -> Controller : 9 validateInput(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+
+alt [if all the information given as input has a valid format]
+
+Controller -> AppPOT : 10 newClient(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+
+AppPOT -> AppPOT2 : 11 create(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+
+note right of AppPOT2
+client
+Client
+end note
+
+AppPOT2 -> AppPOT2 : 12 create(email,password,nif,name)
+
+note right of AppPOT2
+user
+:User
+end note
+
+AppPOT2 -> EncryptPassword : 13 encryptPasswordMD5(password)
+
+AppPOT2 -> AppPOT2 : 14 create(latitude,longitude,altitude,streetName,doorNumber,postalCode,locality,country)
+
+note right of AppPOT2 : Address
+
+AppPOT2 -> AppPOT2 : 15 create(creditCardNr,validityDate,CCV)
+
+note right of AppPOT2 : CreditCard
+
+Controller -> AppPOT : 16 registerNewClient(client)
+
+AppPOT -> AppPOT2 : 17 addClientToDB(client)
+
+note over AppPOT2
+ref
+SD_CONNECTIONS
+end note
+
+AppPOT2 -> EmailSender : 18 sendEmail(email,subject,body)
+
+Controller -> Client : 19 Validates and informs about the success of the operation
+
+else [if any information does not have a valid format]
+
+UI -> Client : 20 Informs the User that the operation\nwas not successful
+
+end
+
+@enduml

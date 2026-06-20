@@ -1,0 +1,21 @@
+{
+  "id": "msg_01XyJ6Eo9zKf2rvQTQEadc1n",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle AU2048 Demo Mode Button Sequence Diagram\n\nactor User\nparticipant MainActivity\nparticipant Controller\nparticipant MainActivityFragment\nboundary BoardView\ndatabase Model\n\nUser -> MainActivity : Starts App\nMainActivity -> Controller : onCreate()\nMainActivity -> MainActivityFragment : onCreate()\nMainActivityFragment -> BoardView : onCreateView()\n\nloop [watntsToContinue == true]\n  note left of MainActivity : Press Demo Mode\n  MainActivityFragment -> Controller : ResetClick(View)\n  Controller -> Controller : reset()\n  Controller -> Model : setArr()\n  Controller -> Model : setScore()\n  Model --> Controller : doesWantToContinue()\n  Controller -> MainActivityFragment : setupArrView()\n  Controller -> MainActivityFragment : setArrView()\n  MainActivityFragment -> BoardView : onCreateView()\n  BoardView --> MainActivityFragment : BoardView\n\n  alt [demo == true]\n    alt [button_direction == up]\n      MainActivityFragment -> Controller : UpClick(View)\n      Controller --> MainActivityFragment :\n    else [button_direction == left]\n      MainActivityFragment -> Controller : LeftClick(View)\n      Controller --> MainActivityFragment :\n    else [button_direction == down]\n      MainActivityFragment -> Controller : DownClick(View)\n      Controller --> MainActivityFragment :\n    else [button_direction == right]\n      MainActivityFragment -> Controller : RightClick(View)\n      Controller --> MainActivityFragment :\n    end\n\n    alt [button_direction == up]\n      Controller -> Model : shiftUp()\n      Model --> Controller :\n    else [button_direction == left]\n      Controller -> Model : shiftLeft()\n      Model --> Controller :\n    else [button_direction == down]\n      Controller -> Model : shiftDown()\n      Model --> Controller :\n    else [button_direction == right]\n      Controller -> Model : shiftRight()\n      Model --> Controller :\n    end\n\n    Controller -> Model : setArr()\n    Controller -> Model : setScore()\n    Model --> Controller : doesWantToContinue()\n    Controller -> MainActivityFragment : setupArrView()\n    Controller -> MainActivityFragment : setArrView()\n    MainActivityFragment -> BoardView : onCreateView()\n    BoardView --> MainActivityFragment : BoardView\n\n    alt [noMovesPossible == false]\n      Controller -> Model : checkWin()\n      Controller -> MainActivityFragment : win()\n      Controller -> Controller : reset()\n    else [noMovesPossible == true]\n      Controller -> Model : noMovesPossible()\n      Controller -> MainActivityFragment : gameover()\n      MainActivityFragment -> Controller : Action.DOWN\n      Controller -> Controller : reset()\n    end\n  end\nend\n\nModel -> Model : onDestroy()\nMainActivityFragment ->x MainActivityFragment : onDestroy()\nBoardView ->x BoardView : onDestroy()\n\nUser\nMainActivity\nController\nMainActivityFragment\nBoardView\nModel\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370977,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 691,
+    "prompt_tokens": 1384,
+    "total_tokens": 2075
+  }
+}

@@ -1,0 +1,72 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #808080
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #808080
+  ParticipantBackgroundColor #E6E6FA
+  ActorBorderColor #000000
+  ActorBackgroundColor #FFFFFF
+  BoxBorderColor #000000
+  BoxBackgroundColor #FFFFFF
+}
+
+actor Operator as Op
+participant "«Boundary» MakerUI" as UI
+participant "«Control» Maker" as MK
+participant "«Entity» Request" as REQ
+participant "«Entity» Passport" as PAS
+
+Op -> UI : 1: Login
+activate UI
+UI -> UI : 1.1: Render
+
+UI -> MK : 1.2: Pass Credentials
+activate MK
+MK -> MK : 1.2.1: Evaluate
+
+alt [user exists]
+  MK -> REQ : 1.2.2.1: getRequest()
+  activate REQ
+  REQ --> MK : 1.2.2.2: Got requests
+  deactivate REQ
+
+  MK --> UI : 1.3: Return requests
+  deactivate MK
+  UI --> Op : 2: Render requests
+else [login invalid]
+  MK --> UI : 1.3: Login invalid
+  deactivate MK
+  UI --> Op : 2: Print "Invalid login"
+end
+deactivate UI
+
+loop [n times]
+  alt [do Print Passport]
+    Op -> UI : 3: Print passport
+    activate UI
+    UI -> MK : 3.1: Print passport
+    activate MK
+    ref over MK, PAS : Print passport
+    MK --> UI : Printer State
+    deactivate MK
+    UI --> Op : Printed
+    deactivate UI
+  else [do Edit Passport]
+    Op -> UI : 3: Edit Passport
+    activate UI
+    UI -> MK : 3.1: Get passport data
+    activate MK
+    MK -> PAS : 3.1.1: getPassport()
+    activate PAS
+    PAS --> MK : 3.1.2: Passport
+    deactivate PAS
+    MK --> UI : 3.2: Edit Passport
+    deactivate MK
+    UI --> Op : 4: Password edited
+    deactivate UI
+  end
+end
+@enduml

@@ -1,0 +1,65 @@
+```plantuml
+@startuml
+
+interface CommandInt {
+  Execute() : void
+}
+
+class Commands {
+  shape : string
+  --
+  o Commands(shape:string)
+  o Execute() : void
+  o Undo() : void
+  o Redo() : void
+  o PrintSVG() : void
+  o CreateSVG() : void
+  o «override» ToString() : string
+}
+
+class AddCMD {
+  o shape : string
+  --
+  o AddCMD(shape:String, history:List<string>)
+  o Execute() : void
+}
+
+class UndoCMD {
+  o UndoCMD(history:List<string>, redoList:List<string>)
+  o Execute() : void
+}
+
+class RedoCMD {
+  o RedoCMD(history:List<string>, redoList:List<string>)
+  o Execute() : void
+}
+
+class PrintSVGCMD {
+  o PrintSVGCMD(history:List<string>)
+  o Execute() : void
+}
+
+class CreateSVGCMD {
+  o CreateSVGCMD(history:List<string>)
+  o Execute() : void
+}
+
+class "List`1" {
+}
+
+CommandInt <|.. AddCMD
+CommandInt <|.. UndoCMD
+CommandInt <|.. RedoCMD
+CommandInt <|.. PrintSVGCMD
+CommandInt <|.. CreateSVGCMD
+
+AddCMD --> "List`1" : history<String>
+UndoCMD --> "List`1" : history<String>
+UndoCMD --> "List`1" : redoList<String>
+RedoCMD --> "List`1" : redoList<String>
+RedoCMD --> "List`1" : history<String>
+PrintSVGCMD --> "List`1" : history<String>
+CreateSVGCMD --> "List`1" : history<String>
+
+@enduml
+```

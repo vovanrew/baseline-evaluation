@@ -1,0 +1,34 @@
+@startuml
+actor User
+
+box "DomainModel" #LightGray
+participant UIBFF
+participant CommandBus <<boundary>>
+participant Aggregate
+participant ProcessManager
+participant EventBus <<boundary>>
+participant QueryManager
+participant Projectors
+end box
+
+database ReadModels
+
+User -> UIBFF : http commands
+UIBFF -> CommandBus : commands
+CommandBus -> Aggregate : commands
+Aggregate -> EventBus : events
+EventBus -> ProcessManager : events
+ProcessManager -> CommandBus : commands
+EventBus -> Projectors : events
+Projectors -> ReadModels : write
+CommandBus -> UIBFF : events
+UIBFF -> User : push
+
+User -> UIBFF : http queries
+UIBFF -> QueryManager : queries
+QueryManager -> ReadModels : results
+ReadModels -> QueryManager : results
+QueryManager -> UIBFF : results
+UIBFF -> User : results
+
+@enduml

@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLdPwsHFtsc5XD8JxYyUJcxpx2EE",
+  "object": "chat.completion",
+  "created": 1781368591,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Skava Integration - Order Replaced Completed\n\nhide footbox\nskinparam shadowing false\nskinparam ParticipantPadding 40\nskinparam BoxPadding 20\nskinparam SequenceMessageAlign left\nskinparam NoteBorderColor black\nskinparam NoteBackgroundColor white\n\nbox \"Skava AWS\" #FFFFFF\n  participant \"Skava Event\\nOrchestration\" as SEO1\nend box\n\nbox \"Kafka\" #DFF3F6\n  participant \"Topics\" as KTopics\nend box\n\nbox \"YL Services\" #E9E9FF\n  participant \"Order Sync Service\" as OSS1\nend box\n\ndatabase \"Legacy DB\" as LDB1\n\nSEO1 -> KTopics : 1 Produce OrderReplacedCompleted Message\n\n== Async ==\n\nKTopics -> OSS1 : 2 Consume OrderReplacedCompleted Message\nactivate OSS1\nOSS1 -> LDB1 : 3 Update order status in legacy db\nLDB1 --> OSS1 : 4 Response/Order ID\nOSS1 -> KTopics : 5 Produce OrderReplacedCompletedProcessed Message\ndeactivate OSS1\n\n== Async ==\n\nKTopics -> SEO1 : 6 Consume OrderReplacedCompletedProcessed Message\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1497,
+    "completion_tokens": 265,
+    "total_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

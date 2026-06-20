@@ -1,0 +1,51 @@
+```plantuml
+@startuml
+actor "Webブラウザ" as WebBrowser
+participant "CCM GUI\n(Web)" as CCM_GUI_Web
+participant "CCM GUI\n(WebSocket)" as CCM_GUI_WebSocket
+participant "CCM SDK\n(IPC)" as CCM_SDK_IPC
+
+activate WebBrowser
+activate CCM_GUI_Web
+activate CCM_GUI_WebSocket
+activate CCM_SDK_IPC
+
+CCM_SDK_IPC -> CCM_SDK_IPC : ネットワーク情報変更通知 受信\n(RegistRecieveNetworkInfoHandler)
+
+CCM_SDK_IPC -->> CCM_GUI_WebSocket : ネットワーク情報変更通知 [notify]
+note left of CCM_GUI_WebSocket
+{
+  "command": "NetworkInfo",
+  "type": "notify",
+  "data": {
+    "ID": "xxx",
+    "CellularInfo": [{
+      "SignalStrength": "...",
+      "SignalStrengthUnit": "...",
+      "Operator": "...",
+      "PLMN": "...",
+      "Band": "...",
+      "CellID": "...",
+      "AirInterface": "...",
+      "Manufacture": "...",
+      "ModelName": "...",
+      "IMEI": "..."
+    }],
+    "QosInterfaceType": {
+      "key1": "val1",
+      ...
+    }
+  }
+}
+end note
+
+CCM_GUI_WebSocket -->> WebBrowser : 
+
+WebBrowser -> WebBrowser : 1秒間隔で保持データを画面に表示
+
+deactivate CCM_SDK_IPC
+deactivate CCM_GUI_WebSocket
+deactivate CCM_GUI_Web
+deactivate WebBrowser
+@enduml
+```

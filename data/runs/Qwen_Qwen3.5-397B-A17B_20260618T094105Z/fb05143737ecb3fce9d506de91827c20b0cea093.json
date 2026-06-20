@@ -1,0 +1,22 @@
+{
+  "id": "98dc471f-53f5-4f35-a948-21d577e17b89",
+  "object": "chat.completion",
+  "created": 1781925003,
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Traffic influencing flows between OpenNESS controller and 5G Core\n\nskinparam sequenceMessageAlign center\nskinparam participantStyle rectangle\nskinparam note {\n    BackgroundColor LightYellow\n}\nskinparam lifelineStrategy nosolid\n\nactor \"User/Admin\" as UserAdmin1 at leftmost\nparticipant \"<b>OpenNESS Controller components</b>\" as ONC_Comp_Container <<container>> #LightBlue [0] \nrectangle UI_CLI within ONC_Comp_Container [[UI/CLI]]\nrectangle AF_Microservice within ONC_Comp_Container [[AF Microservice]] \n\nnote right of NEF : <u><font color=black size=\"24\">NEF\\nNetwork Exposure Function </font></u>\\n<color=#38761d>The Network \\nexposure function provides means to expose capabilities\\nto third party applications.</color>\n\n\nbox \"#9ACD32\"<b>5G Core Components</b>#Black [/]<#white>[/]\n   participant NGCP_Functions<<component>>[[NGC CP Functions]][[Next Generation Control Plane functions ]]as NGCFunc  \nend box \n\n\n== Get all subscribed traffic influence info ==\nactivate UserAdmin1\nUserAdmin1 -> UI_CLI++: Request all traffic influence subscribed\ndeactivate UserAdmin1\nUI_CLI->AF_Microservice ++:/af/v1/subscriptions : GET\nAF_Microservice -->ONC_Comp_Container /3gpp-traffic-Influence/v1/{aflId}/subscriptions :GET\non call overline\ngroup{On Call OverLine}{\n\tautonumber \"[0]\" \".\" \"\" hide footbox\n\t\n\tONC_Comp_Container-->NGCFunc:{Open: 3rd party NGC integration with OpenNESS(NEF)}\t\n\tdeactivate ONC_Comp_Container\n\tnote on link #lightgreen:<i>{Open: 3rd party NGC<br/>integration with<br/><b>OpenNESS(NEF)</b>}</i>\n\tend group\n\ton return underline\n\tgroup{return under line }{\n\t\t\n\t\t\thide footbox\n\t\t\t\n\t\t\t\treturn OK: traffic influence info ERROR: {400/500}\n\t\t\t\n\t\t\t\t\n\t\t\t\t\tUI_CLI<-return--OK: traffic influence info ERROR: {400/500}\n\t\t\t\t\t\n\t\t\t\t\t\tUserAdmin1 <- -Traffic influence details\n\t\t\n\t\t\t\t\t\t end group\n\n\n\n==Get subscribed traffic influence info by subscriptionID==\n activate UserAdmin1\n \n useradmin1->ui_cli:request traffic influence using Subscriptionid \n \n ui_cli-> af_microservice:/af/v1/Subscriptions/(Subscriptionld):get\n \n af_mircoservice -- >onc_comp_container/:3gpp_traffic_influencelvl(aft)/subscription(subscription id) get\n \n onc-comp-container --->ngc_func:(open:third-party ngc intergration openness(nef))\n deactivate ong_copm_containerr\n \n autnumber\"[O].\"\"Hide FootBox\n \n Group(on-call-over-line){\n autonumer\"(0)\".\"HIDE FOOTBOX\n  \n Onc-camp-containeer---->Ngc-funcl(open-third-pary-ngc-integration-openess-nef)\n Deactive-onc-compt-conainer-note-right-of-link-light-green(i)(open-thirparty-nge-interaction-with-bold-opennesseef)i-end-group-return-underlined-hiden-foot-box-retur-ok-trafic-infuence-info-error-(four-zero-slash-five-zeros)-ui-cli-left-arrow-dashdash-o-k-t-r-a-i-e-l-u-e-n-c-e i n f o e r r or four zero slash five zeros-user-admin-one dash minus t raic inf lu en ce det ail s de act iv ate us er ad min one footer ProprietaryandConfidential header IntelCorporat ion@end um l"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1958,
+    "completion_tokens": 800,
+    "total_tokens": 2758
+  }
+}

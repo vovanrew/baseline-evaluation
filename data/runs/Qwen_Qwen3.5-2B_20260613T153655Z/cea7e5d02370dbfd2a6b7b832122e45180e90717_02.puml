@@ -1,0 +1,25 @@
+@startuml
+skinparam sequenceDiagram
+
+participant main
+participant OsScheduler
+participant Semaphore
+participant TaskA
+participant TaskB
+participant System
+
+main ->> OsScheduler: startOS
+OsScheduler ->> TaskA: launch
+TaskA ->> Semaphore: waitSemaphore
+Semaphore ->> TaskA: callSystem
+TaskA ->> System: setJump(buf)
+System ->> Semaphore: reportSystemCall
+Semaphore ->> OsScheduler: saveTaskContext
+OsScheduler ->> TaskA: launch
+TaskA ->> TaskB: waitSemaphore
+TaskB ->> Semaphore: callSystem
+Semaphore ->> System: reportSystemCall
+System ->> OsScheduler: saveTaskContext
+OsScheduler ->> TaskA: launch
+
+@enduml

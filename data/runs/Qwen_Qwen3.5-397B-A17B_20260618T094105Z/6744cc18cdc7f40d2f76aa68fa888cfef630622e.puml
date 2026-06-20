@@ -1,0 +1,80 @@
+@startuml
+skinparam sequenceMessageAlign center
+autonumber "<b>" 1 ""
+
+box "Mojaloop Adapter" #LightBlue
+    participant MojalooAdapter as MA
+end box
+
+frame Central-Settlement {
+    rectangle API
+    rectangle api / Handler
+}
+
+rectangle Application Layer\n(domain / service / facade)
+
+
+package Storage{
+   component TigerBeetle Client 
+   
+   package TigerBeetle Cluster
+   
+   database MySQL  
+ }
+
+
+
+note right of MA : Hub operator or \nDFSP interactions 
+
+MA ->>API: JSON <br>(settlement data) 
+
+
+group Update Settlement
+    
+     note over API,ApplicationLayer#domain/service/facade:#NodeJS interface invokes REST API
+     
+     
+      activate API
+      
+       note left of api/Handler:JSON request decoded &\nprocessed via handler
+        
+        API->api/Handler:invoke handler 
+        
+         deactivate API
+         
+          activate api/Handler
+          
+           note right of ApplicationLayer#domain/service/facade:Expose service functions& handle database interactions
+            
+            api/Handler-->ApplicationLayer#domain/service/facade:invoke application layer 
+            
+             deactivate api/Handler
+             
+              activate ApplicationLayer#domain/service/facade
+                
+                alt Retrieve settlement data(excluding accounts)
+                
+                    loop for each Transfer
+                    
+                        ApplicationLayer#domain/service/facade<--MySQL
+                        
+                        
+                         endloop
+                         
+                          else retrieve account for all Transfers for a setlement window
+                          
+                              ApplicationLayer#domain/service/facade<-TigerBeetleClient
+                              
+                               update/settlemntdata excluding acccounts
+                               
+                                ApplicationLayer#domain/service/facade -->MySql:settlemt state processing
+                                
+                                 invoke acount creation based on settelmentstateofeach transfer
+                                  ApplicationLayer#domain/service/facade <-Tigerbeeteclient:create settlemeentaccountsand return result
+                                   Returnsettleresult
+                                    updatfinalsttelmetstatndreturnresult
+                                     Aplicationlayer/domain/servicde/façadepi/handler:returnresutlt
+                                      Api/apihandler:resultwithseletmndata
+                                       Mojolpadapter:Majalppdapter
+                                        groupUpdate Settlmnt
+                                         Majlopadpter-Mjooloapdater:majoloopa adaptermajlop adaptr majola adptermja lop adaptormoja looadapt ermo jala opadapt erm ojala pda ptremo jal oo pad apter mo ja lopo da ptr em oj al po d atper mjo alo pd ate rm joa lp dat per moj ao lad pe rtm ojo alp datepr mjao lapdate prmj oa la dpatermajoalpatepmoa ldapte rom ajlapte ro ma jlpa teromjlpat ero mljatpero lm jat pero ljatpe rolmat epromlat epro mat elrpoam telrpoma etlr pamot ler pa mot le rpmaotle rpmatoelp ramtoeler patolemr pate olrmptaolem ratpole mrtaople ra tmopl ea rt mopela trmpoe latrpm oealt r mpoe altr pm eoatlre pm oatrelr pamoelt rapmotelar apometrlrap metolar ape mtrolae rptem olaerp tamoler aprtem olearp ta molear petamolera t pemolaretp amolet arpemolate repmatoele rpmateloerrampotelearmapotelraepamtolereapatmelorapeamtloreapaemtloramepalotreampaeto lr ampaelotr mapteo larap meotalrep amtloe rarpetmolareap temolarpeat molreaepatmloraep atmleo rapeamloter apaemlot reappatem loreap toelmrape atolmer pea tlomer eatplome ratepol mer aeptomla ereapotlmear apetomlaeeprat omleaertapo mlearetapolmeraepat olmrear tapomlereaatpom leerata pomleeart apo melrat epoalmterea potmale reaoptamelreatpoalemretapo elmrateapo lemtraepeolat mreapo eltmarpe atoelmrarepotlamreeap otmealrerap tomaleeratopolmareeatplomlareaptop mealreateaplomar eetplaore mateplo aretaplom ear eta plmoreatap lomerea tplomore ataploom eraeta plo mare ata polmeer atop lame rata polo mere atatpool meeratat poolmere attapoom leeatta poo meleerta tpoo meleeatt appooo mell eeaa ttppooll mmeeeelllllleeeeeaaaaaaaattttttpooooomm llleeeeeaaaaaaaaattttttooooooooooppmmmmm lleeeee aaa aaatttttoo opp ppmmmmmmllllllee eeea aattooop ppm mmllllleeeea attooppmmllleeeaaattoooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattooppmmllleeeaaattoopp

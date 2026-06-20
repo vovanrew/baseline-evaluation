@@ -1,0 +1,31 @@
+@startuml
+title Policy Authorization flow between Smart Edge Open and 5G core
+
+actor "User/Admin" as user
+
+rectangle "Smart Edge Open Controller Components" as seo {
+  rectangle "CLI" as cli
+  rectangle "Af Microservice" as af
+}
+
+rectangle "5G Core Components" as core {
+  rectangle "NEF" as nef
+  rectangle "NGC CP Function" as ngc
+}
+
+note right of af
+  Smart Edge Open provided
+  Core component with
+  limited functionality
+end note
+
+rectangle "Policy Authorization – Application Session Context GET flow" as flow {
+  user -> cli: Get app session context with appSessionId
+  cli -> af: /af/v1/policy-authorization/app-sessions/{appSessionId}\nGET
+  af -> nef: /npcf-policyauthorization/v1/app-sessions/{appSessionId}\nGET
+  nef --> af: 200 OK: app-session information \ ERROR
+  af --> cli: 200 OK: app-session information \ ERROR
+  cli --> user: Success: app-session information
+}
+
+@enduml

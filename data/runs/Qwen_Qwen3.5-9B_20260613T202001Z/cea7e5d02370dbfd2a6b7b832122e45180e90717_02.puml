@@ -1,0 +1,27 @@
+@startuml
+autonumber
+left to right direction
+skinparam sequenceMessageSize 100
+
+participant "main" as main
+participant "OsScheduler" as OsScheduler
+participant "Semaphore" as Semaphore
+participant "TaskA" as TaskA
+participant "TaskB" as TaskB
+participant "System" as System
+
+main -> OsScheduler: startOS
+OsScheduler -> TaskA: launch
+TaskA -> Semaphore: waitSemaphore
+Semaphore -> System: callSystem
+System -> System: setJump(buf)
+System -> OsScheduler: reportSystemCall
+OsScheduler -> OsScheduler: saveTaskContext
+OsScheduler -> TaskB: launch
+TaskB -> Semaphore: waitSemaphore
+Semaphore -> System: callSystem
+System -> OsScheduler: reportSystemCall
+OsScheduler -> OsScheduler: saveTaskContext
+OsScheduler -> TaskA: launch
+
+@enduml

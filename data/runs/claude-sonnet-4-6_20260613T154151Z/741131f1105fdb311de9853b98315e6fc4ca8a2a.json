@@ -1,0 +1,21 @@
+{
+  "id": "msg_01RJDiUQzhoYCdofhvhm2Aet",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor Client\n\nparticipant \"RegisterClientUI\" as UI\nparticipant \"RegisterClientController\" as Controller\nparticipant \"ApplicationPOT\" as AppPOT\nparticipant \"app\\nApplicationPOT\" as AppPOT2\nparticipant \"EncryptPassword\" as EncryptPassword\nparticipant \"EmailSender\" as EmailSender\nparticipant \"DataHandler\" as DataHandler\n\nClient -> UI : 1 Engages the register feature/button\nUI -> Client : Asks for all the information required\\nfor the register (i.e. name,nif,email,password,latitude,longitude,altitude,\\nstreetName,doorNumber,postalCode,locality,country,creditCardNr,validityDate,\\nCCV)\nClient -> UI : 3 Fills all the information required\nUI -> Client : 4 Presents the data and asks for a confirmation\nClient -> UI : 5 Confirms\n\nUI -> Controller : 6 registerNewClient(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)\n\nController -> AppPOT : 7 create()\n\nAppPOT -> AppPOT2 : 8 create()\n\nnote right of AppPOT2\nclientService\nClientService\nend note\n\nnote right of AppPOT2\nclientDB\nClientDB\nend note\n\nAppPOT -> Controller : 9 validateInput(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)\n\nalt [if all the information given as input has a valid format]\n\nController -> AppPOT : 10 newClient(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)\n\nAppPOT -> AppPOT2 : 11 create(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)\n\nnote right of AppPOT2\nclient\nClient\nend note\n\nAppPOT2 -> AppPOT2 : 12 create(email,password,nif,name)\n\nnote right of AppPOT2\nuser\n:User\nend note\n\nAppPOT2 -> EncryptPassword : 13 encryptPasswordMD5(password)\n\nAppPOT2 -> AppPOT2 : 14 create(latitude,longitude,altitude,streetName,doorNumber,postalCode,locality,country)\n\nnote right of AppPOT2 : Address\n\nAppPOT2 -> AppPOT2 : 15 create(creditCardNr,validityDate,CCV)\n\nnote right of AppPOT2 : CreditCard\n\nController -> AppPOT : 16 registerNewClient(client)\n\nAppPOT -> AppPOT2 : 17 addClientToDB(client)\n\nnote over AppPOT2\nref\nSD_CONNECTIONS\nend note\n\nAppPOT2 -> EmailSender : 18 sendEmail(email,subject,body)\n\nController -> Client : 19 Validates and informs about the success of the operation\n\nelse [if any information does not have a valid format]\n\nUI -> Client : 20 Informs the User that the operation\\nwas not successful\n\nend\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371298,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 856,
+    "prompt_tokens": 1272,
+    "total_tokens": 2128
+  }
+}

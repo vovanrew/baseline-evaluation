@@ -1,0 +1,22 @@
+{
+  "id": "4e5bc77c-500f-4d9f-8c86-6eb7cabb299a",
+  "object": "chat.completion",
+  "created": 1781418317,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"user\" as user\nparticipant \"FindWorkbookUI\" as FindWorkbookUI\nparticipant \"UIController\" as UIController\nparticipant \"FindWorkbooksController\" as FindWorkbooksController\nparticipant \"StartWorkbooksSearch\" as StartWorkbooksSearch\nparticipant \"fw : FindWorkbooks\" as fw\nparticipant \"Paths\" as Paths\nparticipant \"Files\" as Files\nparticipant \"Cleansheets\" as Cleansheets\n\nuser -> FindWorkbookUI: startWorkbooksSearch()\nFindWorkbookUI -> UIController: create()\nUIController -> FindWorkbooksController: create()\n\nalt [adicionar]\n  loop [todas as adicoes]\n    FindWorkbookUI -> FindWorkbooksController: add(path)\n  end\nelse [remover]\n  loop [todas as remocoes]\n    FindWorkbookUI -> FindWorkbooksController: remover(path)\n  end\nend\n\nFindWorkbookUI -> FindWorkbooksController: startWorkbooksSearch()\n\nloop [todas as paths]\n  FindWorkbooksController -> StartWorkbooksSearch: create(path, WorkbooksFoundList)\n  StartWorkbooksSearch -> StartWorkbooksSearch: startWorkbooksSearch()\n  StartWorkbooksSearch -> StartWorkbooksSearch: create()\n  note right of StartWorkbooksSearch\n    this create() call represents\n    the creation of a new thread\n    of this same class\n  end note\n  StartWorkbooksSearch -> StartWorkbooksSearch: start()\n  StartWorkbooksSearch -> StartWorkbooksSearch: run()\n  StartWorkbooksSearch -> fw: create()\n  StartWorkbooksSearch -> Paths: p : get()\n  StartWorkbooksSearch -> Files: walkFileTree(p, fw)\nend\n\nuser -> FindWorkbookUI: openFoundWorkbook()\nFindWorkbookUI -> UIController: app : getApp()\nnote right of FindWorkbookUI\n  f represents a file that is created when\n  the user selects a workbook to open from\n  the list of found workbooks\nend\nFindWorkbookUI -> Cleansheets: w : getWorkbook(f)\nFindWorkbookUI -> UIController: setActiveWorkbook(w)\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2105,
+    "completion_tokens": 467,
+    "total_tokens": 2572
+  }
+}

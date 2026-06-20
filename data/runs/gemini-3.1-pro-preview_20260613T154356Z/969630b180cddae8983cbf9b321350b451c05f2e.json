@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle Skava Integration - Order Replaced Completed\n\nbox \"Skava AWS\" #F5F5F5\nparticipant \"Skava Event\\nOrchestration\" as SEO\nend box\n\nbox \"Kafka\" #E0F2F1\ncollections \"Topics\" as Topics\nend box\n\nbox \"YL Services\" #E8EAF6\nparticipant \"Order Sync Service\" as OSS\nend box\n\ndatabase \"Legacy DB\" as LDB\n\nSEO -> Topics : 1 Produce OrderReplacedCompleted Message\nactivate Topics\n\n== Async ==\n\nTopics -> OSS : 2 Consume OrderReplacedCompleted Message\ndeactivate Topics\nactivate OSS\n\nOSS -> LDB : 3 Update order status in legacy db\nactivate LDB\nLDB --> OSS : 4 Response/Order ID\ndeactivate LDB\n\nOSS -> Topics : 5 Produce OrderReplacedCompletedProcessed Message\ndeactivate OSS\nactivate Topics\n\n== Async ==\n\nTopics -> SEO : 6 Consume OrderReplacedCompletedProcessed Message\ndeactivate Topics\nactivate SEO\ndeactivate SEO\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHJ45Cau1UzkOwj5L5+id3TYD7pDr7Zi94kJXdnET+22gjak9rZPbARmxL4KBa"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1184,
+    "candidatesTokenCount": 234,
+    "totalTokenCount": 1418,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1104
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "oF0xatbaDaHusAL7i86QCQ"
+}

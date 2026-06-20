@@ -1,0 +1,100 @@
+```plantuml
+@startuml
+skinparam class {
+  BackgroundColor White
+  BorderColor Black
+  ArrowColor Black
+}
+
+class CreateClinicalAnalysisLaboratoryUI {
+    <<C>>
+}
+
+class CreateClinicalController {
+    <<C>>
+    + createClinical(idLaboratory, name, address, phoneNumber, tin, testTypes) : void
+    + saveClinical() : void
+}
+
+class TestTypeMapper {
+    <<C>>
+    + List<TestTypeDTO> toDTO(List<TestType> list) : List<TestTypeDTO>
+    + TestTypeDTO toDTO(TestType obj) : TestTypeDTO
+}
+
+class TestTypeDTO {
+    - type : String
+    - collectingMethods : String
+    + TestTypeDTO(type, collectingMethods) : void
+}
+
+class TestTypeStore {
+    <<C>>
+    + createTestType(type, collectingMethods) : void
+    + validateTestType(tt) : boolean
+    + saveTestType(tt) : void
+    + addTestType(tt) : void
+    + getTestType(tt) : TestType
+}
+
+class Administrator {
+    <<C>>
+    + createClinical(idLaboratory, name, address, phoneNumber, tin, testTypes) : Clinical
+    + saveClinical(clinical) : void
+    - validate(clinical) : boolean
+}
+
+class Clinical {
+    <<C>>
+    - idLaboratory : String
+    - name : String
+    - address : String
+    - phoneNumber : String
+    - tin : String
+    - testTypes : String[]
+    + Client(idLaboratory, name, address, phoneNumber, tin, testTypes) : void
+}
+
+class Employee {
+    <<C>>
+    - idEmployee : String
+    - name : String
+    - function : String
+    - phoneNumber : String
+    - email : String
+    - address : String
+    - soc : String
+}
+
+class TestType {
+    <<C>>
+    - type : String
+    - collectingMethods : String
+    + getTestType() : TestType
+}
+
+class Platform {
+    <<C>>
+    + getClinicals() : List<Clinical>
+    + addClinical(clinical) : void
+}
+
+class ClinicalStore {
+    <<C>>
+    + getClinicals() : List<Clinical>
+    + addClinicals() : void
+}
+
+CreateClinicalAnalysisLaboratoryUI ..> CreateClinicalController : uses
+CreateClinicalController ..> TestTypeMapper : uses
+CreateClinicalController ..> TestTypeDTO : uses
+CreateClinicalController ..> TestTypeStore : uses
+CreateClinicalController ..> Administrator : uses
+Administrator "1" -- "*" Clinical : create
+Administrator "1" -- "1" Employee : is
+Clinical "1" -- "*" TestType : conducts
+Employee "1" -- "*" Platform : uses
+Platform ..> ClinicalStore : uses
+
+@enduml
+```

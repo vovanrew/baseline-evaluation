@@ -1,0 +1,41 @@
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 30
+skinparam BoxPadding 10
+
+actor "Team Member" as TM
+participant ":CreateTaskUI" as UI
+participant ":CreateTaskController" as C
+participant ":DataManagement" as DM
+participant "projectStore : ProjectStore" as PS
+participant "project : Project" as P
+
+TM -> UI : 1 Starts the Task creation in User Story
+UI --> TM : 2 request the project code
+TM -> UI : 3 Inserts the project code
+UI --> TM : 4 request sprint id
+TM -> UI : 5 Inserts the sprint id
+UI --> TM : 6 request user story id
+TM -> UI : 7 Inserts the user story id
+UI --> TM : 8 request the task information: name, description, type, startDate, endDate
+TM -> UI : 9 Inserts request the task information: name, description, type, startDate, endDate
+
+UI -> C : 10 createTaskInUserStory(code, sprintID, userStoryID, name, description, type, startDate, endDate)
+
+C -> DM : 11 projectStore = getProjectStore()
+DM --> C : 12 projectStore
+
+C -> PS : 13 project = getProjectByCode(code)
+PS --> C : 14 project
+
+C -> P : 15 getSprintByID(sprintID)
+
+ref over P
+TaskCreationInUserStory
+end ref
+
+P --> C : 16 true
+C --> UI : 17 true
+UI --> TM : 18 Task created successfully
+@enduml

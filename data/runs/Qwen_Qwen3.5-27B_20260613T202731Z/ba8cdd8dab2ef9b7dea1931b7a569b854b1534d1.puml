@@ -1,0 +1,36 @@
+```plantuml
+@startuml
+skinparam shadowing false
+
+actor "Admin\nSAV Manager\nSAV Technician\nScooter Owner" as actor1
+interface verifyEmail
+circle VerificationController
+circle User
+
+activate actor1
+actor1 -> verifyEmail : FillVerifyEmailForm(email,token)
+deactivate actor1
+verifyEmail --> actor1 : FormFilled
+activate verifyEmail
+verifyEmail -> verifyEmail : VerifyVerifyEmailForm(email,token)
+deactivate verifyEmail
+verifyEmail --> verifyEmail : FormVerified
+deactivate verifyEmail
+alt [FormVerified is true]
+    activate verifyEmail
+    verifyEmail -> VerificationController : verifyUser(email,code)
+    activate VerificationController
+    VerificationController -> User : verifyUser(email,code)
+    deactivate VerificationController
+    User --> VerificationController : user enabled
+    deactivate User
+    VerificationController --> verifyEmail : user enabled
+    deactivate VerificationController
+    deactivate verifyEmail
+    verifyEmail --> actor1 : user enabled
+    activate actor1
+else [FormVerified is false]
+    verifyEmail --> actor1 : showErrorMessage
+end
+@enduml
+```

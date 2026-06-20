@@ -1,0 +1,78 @@
+@startuml
+class "TeleAlgo" as TeleAlgo {
+  -abonoMensual : float
+  -llamadas : Llamada
+  -tarifaInternacional : float
+  +conAbonoMensual(abono : float)
+  -abonoMensual(unAbono : Float)
+  -aplicarTarifaPorMinutoALlamadaInternacional(tarifa : float)
+  -calcularGastoFinal() : float
+  -consultarPorLlamadaEfectuadaMasCostosa() : str
+  -registrarLlamadaNacional(duracion : int, horario : int)
+  -registrarLlamadaInternacional(duracion : int, horario : int, destino : str)
+}
+
+class "Llamada" as Llamada {
+  #duracion: int
+  #horario: int
+  #tarifa : Tarifa
+  +costoTotal() : float
+  +descripcion() : str
+  #duracion(unaDuracion : int)
+  #esDeLargaDuracion() : bool
+  #horario(horario : int)
+  #montoDescuento(montoBruto : float) : float
+  #tarifa(tarifa : float)
+}
+
+class "Tarifa" as Tarifa {
+  -monto : float
+  +conMontoEnBaseAHorario(horario : int)
+  +conMontoFijo(monto : int)
+  -monto() : float
+  -monto(monto : float)
+}
+
+class "LlamadaNacional" as LlamadaNacional {
+  +conDuracionYHorario(duracion : int, horario : int)
+  +descripcion() : str
+}
+
+class "LlamadaInternacional" as LlamadaInternacional {
+  -destino : str
+  +conDuracionHorarioTarifaYDestino(
+    duracion : int,
+    horario : int,
+    tarifa : float,
+    destino: str
+  )
+  +descripcion() : str
+  -destino(destino : str)
+}
+
+TeleAlgo *-- Llamada : 1 *
+Llamada --|> LlamadaNacional
+Llamada --|> LlamadaInternacional
+Llamada --> Tarifa : 1 1
+
+note left of TeleAlgo
+  C
+end note
+
+note left of Llamada
+  A
+end note
+
+note left of Tarifa
+  C
+end note
+
+note left of LlamadaNacional
+  C
+end note
+
+note left of LlamadaInternacional
+  C
+end note
+
+@enduml

@@ -1,0 +1,22 @@
+{
+  "id": "dc1b3ad2-29e0-42f7-892d-2babd931c085",
+  "object": "chat.completion",
+  "created": 1781413514,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"sidetree-core-go\" as actor1\nparticipant \"Instance 1\" as instance1\nparticipant \"Operation Queue\" as opq1\nparticipant \"orb.operation\" as orb1\nparticipant \"op-queue DB\" as db1\nparticipant \"Instance 2\" as instance2\nparticipant \"Operation Queue\" as opq2\n\nactor \"sidetree-core-go\" as actor2\n\nopq1 -> orb1: Subscribe\nactivate orb1\norb1 --> opq1: ok\ndeactivate orb1\n\nopq2 <-..> orb1: Subscribe\nactivate orb1\norb1 --> opq2: ok\ndeactivate orb1\n\nactor1 -> opq1: Add(op1)\nactivate opq1\nopq1 -> orb1: Publish(op1)\nactivate orb1\norb1 --> opq1: ok\ndeactivate orb1\nopq1 --> actor1: ok\ndeactivate opq1\n\nactor1 -> opq1: Add(op2)\nactivate opq1\nopq1 -> opq2: Publish(op2)\nactivate opq2\nopq2 --> opq1: ok\ndeactivate opq2\nopq1 --> actor1: ok\ndeactivate opq1\n\nopq1 <-..> opq2: op2\nactivate opq2\nopq2 --> opq1: ok\ndeactivate opq2\n\nopq1 -> db1: Put(op2,handler1ID,expiry)\nactivate db1\ndb1 --> opq1: ok\ndeactivate db1\n\nopq1 -> orb1: Ack(op2)\nactivate orb1\norb1 --> opq1: ok\ndeactivate orb1\n\nopq1 -> opq2: op1\nactivate opq2\nopq2 --> opq1: ok\ndeactivate opq2\n\nopq2 -> db1: Put(op1,handler2ID,expiry)\nactivate db1\ndb1 --> opq2: ok\ndeactivate db1\n\nopq2 -> orb1: Ack(op1)\nactivate orb1\norb1 --> opq2: ok\ndeactivate orb1\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1811,
+    "completion_tokens": 478,
+    "total_tokens": 2289
+  }
+}

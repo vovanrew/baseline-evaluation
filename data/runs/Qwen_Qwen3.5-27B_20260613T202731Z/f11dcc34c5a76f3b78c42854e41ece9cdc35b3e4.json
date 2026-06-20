@@ -1,0 +1,22 @@
+{
+  "id": "f0e5c1b9-36cb-4e8d-be48-535bd7f3c611",
+  "object": "chat.completion",
+  "created": 1781481168,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam classAttributeIconSize 0\n\npackage \"Zhinahan Classes\" {\n    package \"Zhinahan\" {\n        package \"Parser\" {\n            class Parser {\n                C\n                - matchers : Array<AbstractLineMatcher>\n                - appendix_detector : AppendixDetector\n                - context : Context\n                + parse(file : string) : Dictionary\n                # per_line(line : string, index : int)\n                # parse_line(line : string, index : int)\n            }\n\n            class LineParser {\n                C\n                + parse(context : Context)\n            }\n\n            class Context {\n                C\n                - while_appendix : bool\n                - line : string?\n                - index : int?\n                + within_appendix()? : bool\n                + enter_appendix() : void\n                + leave_appendix() : void\n                + update_position(line : string, index : int) : void\n            }\n\n            class AppendixDetector {\n                C\n                + starts_appendix_section?(line : string) : bool\n                + has_leaved_appendix_section?(line : string) : bool\n            }\n\n            package \"LineMatchers\" {\n                abstract class AbstractLineMatcher {\n                    A\n                    + match(context : Context) : MatchResult?\n                    + pattern(context : Context) : RexExp\n                    + type() : Symbol\n                }\n\n                class RadicalLineMatcher {\n                    C\n                }\n\n                class ExplanationLineMatcher {\n                    C\n                }\n\n                class PronunciationLineMatcher {\n                    C\n                }\n\n                class CharacterLineMatcher {\n                    C\n                }\n\n                class MatchResult {\n                    C\n                    - matched : MatchData\n                    ~ type : String\n                    + matched() : Hash<String, String>\n                }\n            }\n        }\n\n        package \"Core\" {\n            class Dictionary {\n                C\n                - characters : Array<Character>\n                + find(character : string) : Character?\n            }\n\n            class Character {\n                C\n                - radical : Radical\n                - char : string\n                + is?(character : string) : bool\n            }\n\n            class Description {\n                C\n            }\n\n            class Explanation {\n                C\n            }\n\n            class Pronunciation {\n                C\n            }\n\n            class Radical {\n                C\n            }\n        }\n    }\n}\n\nParser --> Dictionary\nParser *-- AppendixDetector\nParser *-- Context\nParser *-- LineParser\nLineParser *-- Context\nLineParser *-- AbstractLineMatcher\nLineParser *-- MatchResult\nAbstractLineMatcher <|-- RadicalLineMatcher\nAbstractLineMatcher <|-- ExplanationLineMatcher\nAbstractLineMatcher <|-- PronunciationLineMatcher\nAbstractLineMatcher <|-- CharacterLineMatcher\nDictionary \"1\" o-- \"*\" Character\nCharacter \"1\" *-- \"1..*\" Description\nCharacter \"1\" *-- \"0..*\" Explanation\nCharacter \"1\" *-- \"0..1\" Pronunciation\nCharacter \"1\" *-- \"1\" Radical\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1566,
+    "completion_tokens": 665,
+    "total_tokens": 2231
+  }
+}

@@ -1,0 +1,74 @@
+```plantuml
+@startuml
+
+class HomeViewController {
+  □ emailTextField : UITextField!
+  □ passwordTextField : UITextField!
+  □ displayNameTextField : UITextField!
+  ■ onSubmitButtonTapped(_:)
+  ■ attemptRegister()
+  ■ attemptLogin()
+}
+
+class "«extension»\nHomeViewController" as HomeViewControllerExt << (X,orchid) >> {
+  displayError(_:)
+  displayMessage(_:)
+  loginDidSucceed()
+  registerDidSucceed()
+}
+
+class FirebaseAuthProvider {
+  □ fbUser : User?
+  △ user : DTUser?
+  △ init()
+  △ signUp(email:password:displayName:)
+  △ login(email:password:)
+  ■ setUserDisplayName(_:)
+}
+
+class DTAuth {
+  △ user : DTUser?
+  △ signUp(email:password:displayName:)
+  △ login(email:password:)
+}
+
+protocol DTAuthDelegate << (P,orange) protocol >> {
+  △ displayError(_:)
+  △ displayMessage(_:)
+  △ loginDidSucceed()
+  △ registerDidSucceed()
+}
+
+class "«extension»\nUser" as UserExt << (X,orchid) >> {
+  toDTUser()
+}
+
+protocol DTAbstractAuthProvider << (P,orange) protocol >> {
+  △ user : DTUser?
+  △ signUp(email:password:displayName:)
+  △ login(email:password:)
+}
+
+struct DTUser << (S,dodgerblue) struct >> {
+  ○ uid : String
+  ○ displayName : String
+  ○ email : String
+}
+
+HomeViewController --> FirebaseAuthProvider
+HomeViewController --> DTAuth : sends auth events to
+
+HomeViewControllerExt <.. HomeViewController
+
+FirebaseAuthProvider --> DTAuthDelegate : sends events
+FirebaseAuthProvider --> UserExt : converts to DTUser using
+FirebaseAuthProvider --|> DTAbstractAuthProvider : 1
+
+DTAuth --|> DTAbstractAuthProvider : 1
+
+DTAbstractAuthProvider --> DTUser : 1
+
+HomeViewControllerExt ..|> DTAuthDelegate
+
+@enduml
+```

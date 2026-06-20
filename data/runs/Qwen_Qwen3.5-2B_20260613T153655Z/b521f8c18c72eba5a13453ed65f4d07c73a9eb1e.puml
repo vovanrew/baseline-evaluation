@@ -1,0 +1,47 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "Admin" as Admin
+participant "OpenNESS Controller Components" as OpenNESS
+participant "5G Core Components" as 5G_Core
+
+OpenNESS <- UI/CLI
+OpenNESS <- Af Microservice
+5G_Core <- NEF
+5G_Core <- NGC CP Function
+
+Note over OpenNESS, 5G_Core: OpenNESS provided Core component with limited functionality
+
+actor Admin
+
+rectangle "Get all transactions with PFD" {
+    Admin->>OpenNESS: Request all PFD transactions
+    OpenNESS->>Af Microservice: af/v1/pfd/transaction GET
+    Af Microservice->>5G_Core: 3gpp-pfd-management/v1/{scsAsId}/transactions/GET
+    5G_Core->>NEF: NGC_STUB (UDR SMF)
+    NEF-->>Af Microservice: OK: PFD information \\ ERROR
+    Af Microservice-->>OpenNESS: OK: PFD information \\ ERROR
+    OpenNESS-->>Admin: PFD details
+}
+
+rectangle "Get transactions with transactionId" {
+    Admin->>OpenNESS: Request transaction with transactionId
+    OpenNESS->>Af Microservice: af/v1/pfd/transactions/{transactionId} GET
+    Af Microservice->>5G_Core: 3gpp-pfd-management/v1/{scsAsId}/transactions/{transactionId} GET
+    5G_Core->>NEF: NGC_STUB (UDR SMF)
+    NEF-->>Af Microservice: OK: PFD information \\ ERROR
+    Af Microservice-->>OpenNESS: OK: PFD information \\ ERROR
+    OpenNESS-->>Admin: PFD details
+}
+
+rectangle "Get transactions with applicationId" {
+    Admin->>OpenNESS: Request transactions with applicationId
+    OpenNESS->>Af Microservice: af/v1/pfd/transactions/{transactionId}/applications/{appId} GET
+    Af Microservice->>5G_Core: 3gpp-pfd-management/v1/{scsAsId}/transactions/{transactionId}/applications/{appId} GET
+    5G_Core->>NEF: NGC_STUB (UDR SMF)
+    NEF-->>Af Microservice: OK: PFD information \\ ERROR
+    Af Microservice-->>OpenNESS: OK: PFD information \\ ERROR
+    OpenNESS-->>Admin: PFD details
+}
+
+@enduml

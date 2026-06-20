@@ -1,0 +1,187 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+' ===== Interfaces =====
+interface BeanPostProcessor {
+  +Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception
+  +Object postProcessAfterInitialization(Object bean, String beanName) throws Exception
+}
+
+interface BeanFactoryAware {
+  +void setBeanFactory(BeanFactory beanFactory) throws Exception
+}
+
+interface AopProxy
+interface InvocationHandler
+interface MethodMatcher
+interface MethodInterceptor
+interface Pointcut
+interface ClassFilter
+interface Advice
+
+' ===== Classes =====
+class AspectJAutoProxyCreator {
+  AbstractBeanFactory beanFactory
+}
+
+class AbstractBeanFactory {
+  +List getBeansForType(Class type) throws Exception
+}
+
+class JdkDynamicAopProxy {
+  AdvisedSupport advised
+  +Object getProxy()
+  +Object invoke(Object proxy, final Method method, final Object[] args)
+}
+
+class ReflectiveMethodInvocation
+
+class AdvisedSupport {
+  MethodInterceptor methodInterceptor
+  TargetSource targetSource
+  -MethodMatcher methodMatcher
+}
+
+class TargetSource {
+  Class targetClass
+  Object target
+}
+
+class AspectJExpressionPointcutAdvisor {
+  -Advice advice
+  -AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut()
+}
+
+class AspectJExpressionPointcut {
+  -PointcutParser pointcutParser
+  -String expression
+  -PointcutExpression pointcutExpression
+  +boolean matches(Class targetClass)
+  +boolean matches(Method method, Class targetClass)
+}
+
+class PointcutAdvisor
+class ApplicationContextTest
+
+' ===== Notes (code blocks) =====
+note top of AspectJAutoProxyCreator
+@Override
+public Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
+    if (bean instanceof AspectJExpressionPointcutAdvisor) {
+        return bean;
+    }
+    if (bean instanceof MethodInterceptor) {
+        return bean;
+    }
+    List<AspectJExpressionPointcutAdvisor> advisors = beanFactory
+            .getBeansForType(AspectJExpressionPointcutAdvisor.class);
+    for (AspectJExpressionPointcutAdvisor advisor : advisors) {
+        if (advisor.getPointcut().matches(bean.getClass())) {
+            AdvisedSupport advisedSupport = new AdvisedSupport();
+            advisedSupport.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());
+            advisedSupport.setMethodMatcher(advisor.getPointcut());
+            TargetSource targetSource = new TargetSource(bean, bean.getClass().getInterfaces());
+            advisedSupport.setTargetSource(targetSource);
+            return new JdkDynamicAopProxy(advisedSupport).getProxy();
+        }
+    }
+    return bean;
+}
+end note
+
+note left of JdkDynamicAopProxy
+@Override
+public Object getProxy() {
+    return Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] { advised.getTargetSource()
+            .getTargetClass() }, this);
+}
+
+@Override
+public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable {
+    MethodInterceptor methodInterceptor = advised.getMethodInterceptor();
+    if (advised.getMethodMatcher().matches(method, advised.getTargetSource().getTarget().getClass())) {
+        return methodInterceptor.invoke(new ReflectiveMethodInvocation(advised.getTargetSource().getTarget(), method, args));
+    }
+    return method.invoke(advised.getTargetSource().getTarget(), args);
+}
+end note
+
+note right of AbstractBeanFactory
+构造注入时调用：
+beanDefinition.getBean(bean);
+
+@Override
+public Object getBean(String name) throws Exception {
+    BeanDefinition beanDefinition = beanDefinitionMap.get(name);
+    if (beanDefinition == null) {
+        throw new RuntimeException("No bean named '" + name + "' is defined");
+    }
+    Object bean = beanDefinition.getBean();
+    if (bean == null) {
+        bean = doCreateBean(beanDefinition);
+        beanDefinition.setBean(bean);
+    }
+    return bean;
+}
+end note
+
+note top right of ApplicationContextTest
+@Test
+public void test() throws Exception {
+    ApplicationContext applicationContext = new ClassPathXmlApplicationContext("tinyioc.xml");
+    HelloWorldService helloWorldService = (HelloWorldService) applicationContext.getBean("helloWorldService");
+    helloWorldService.helloWorld();
+}
+
+tinyioc.xml:
+<bean id="outputService" class="us.codecraft.tinyioc.OutputServiceImpl">
+</bean>
+<bean id="helloWorldService" class="us.codecraft.tinyioc.HelloWorldServiceImpl">
+    <property name="text" value="Hello World!"></property>
+    <property name="outputService" ref="outputService"></property>
+</bean>
+<bean id="timeInterceptor" class="us.codecraft.tinyioc.aop.TimerInterceptor"></bean>
+<bean id="autoProxyCreator" class="us.codecraft.tinyioc.aop.AspectJAutoProxyCreator"></bean>
+<bean id="aspectJPointcut" class="us.codecraft.tinyioc.aop.AspectJExpressionPointcutAdvisor">
+    <property name="advice" ref="timeInterceptor"></property>
+    <property name="expression" value="execution(* us.codecraft.tinyioc.*.*(..))"></property>
+</bean>
+end note
+
+' ===== Relationships =====
+AspectJAutoProxyCreator ..|> BeanPostProcessor
+AspectJAutoProxyCreator ..|> BeanFactoryAware
+AspectJAutoProxyCreator --> AbstractBeanFactory : beanFactory
+
+JdkDynamicAopProxy ..|> AopProxy
+JdkDynamicAopProxy ..|> InvocationHandler
+JdkDynamicAopProxy --> AdvisedSupport : advised
+JdkDynamicAopProxy --> ReflectiveMethodInvocation
+
+AdvisedSupport --> MethodInterceptor : methodInterceptor
+AdvisedSupport --> TargetSource : targetSource
+AdvisedSupport --> MethodMatcher : methodMatcher
+
+TargetSource --> "Class" : targetClass
+TargetSource --> "Object" : target
+
+AspectJExpressionPointcutAdvisor --> Advice : advice
+AspectJExpressionPointcutAdvisor --> AspectJExpressionPointcut : pointcut
+
+AspectJExpressionPointcut ..|> Pointcut
+AspectJExpressionPointcut ..|> ClassFilter
+
+PointcutAdvisor ..> AspectJExpressionPointcutAdvisor
+ApplicationContextTest ..> AspectJExpressionPointcutAdvisor
+
+' Layout hints (approximate)
+AspectJAutoProxyCreator -down-> JdkDynamicAopProxy
+JdkDynamicAopProxy -down-> AdvisedSupport
+AdvisedSupport -right-> TargetSource
+AspectJExpressionPointcutAdvisor -down-> Advice
+AspectJExpressionPointcutAdvisor -down-> AspectJExpressionPointcut
+
+@enduml

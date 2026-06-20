@@ -1,0 +1,69 @@
+@startuml
+title PB-428 UC12 View fund details
+
+actor "Next Customer" as customer
+
+rectangle "Next Platform" as platform {
+  rectangle "Core Next" as coreNext
+  database "Next Database" as db
+}
+
+rectangle "Core Bradesco" as bradesco
+
+note top of customer
+  **Abstract:**
+  This use case will return fund details for a single fund. This is an existing endpoint and we will add additional response fields to this endpoint. They include:
+  1. FundCategory (new)
+  2. RequireFundTC (new)
+  3. RiskScore (existing field in table, but needs to be added in response)
+  4. IncomeValue (new)
+  5. IncomeDescription (new)
+  6. isNextSimples (new)
+end note
+
+customer -> coreNext: 1 HTTP GET /investments/funds/completeDetails
+
+note right of customer
+  The App will make a call to Core Next to get all the details for a fund. It will pass required input:
+  - Fund ID
+end note
+
+note left of coreNext
+  **Note to Dev**
+  Please check if the input parameter Fund ID is the Product ID or the External_Core_Product_ID. From what I can see, there are two product records with the same External_Core_Product_ID (Next Simples) and this may create issues.
+end note
+
+coreNext --> coreNext: ref
+note right of coreNext
+  Use existing methodology to get complete details for a fund.
+end note
+
+coreNext -> db: 2 GET additional fields from Product table
+
+db --> coreNext: 3 Response
+
+note right of coreNext
+  Core Next will retrieve additional data from the PRODUCT table and return them to the App:
+  1. FundCategory (new)
+  2. RequireFundTC (new)
+  3. RiskScore (existing field in table, but needs to be added in response)
+  4. IncomeValue (new)
+  5. IncomeDescription (new)
+  6. isNextSimples (new)
+end note
+
+coreNext --> customer: 4 Response
+
+note left of customer
+  Core Next will return all existing fields in the response + the following new response fields:
+  1. FundCategory (new)
+  2. RequireFundTC (new)
+  3. RiskScore (existing field in table, but needs to be added in response)
+  4. IncomeValue (new)
+  5. IncomeDescription (new)
+  6. isNextSimples (new)
+
+  All of these fields will come from the PRODUCT table.
+end note
+
+@enduml

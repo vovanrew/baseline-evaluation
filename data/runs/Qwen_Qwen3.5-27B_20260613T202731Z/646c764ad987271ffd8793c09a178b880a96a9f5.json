@@ -1,0 +1,22 @@
+{
+  "id": "cd5a4424-e6e3-49f9-b4ec-6275a1c0f12f",
+  "object": "chat.completion",
+  "created": 1781433184,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\nactor \"User\" as User\nrectangle \"Backend Environment\" {\n  participant \"Server\" as Server\n  participant \"SuperHeroApi\" as SuperHeroApi\n}\n\nalt [user search]\n    User -> Server: GET /search?q=<queryValue>\n    activate Server\n    Server -> Server: getFromCache(queryValue) ?\n    note right of Server: binarySearch(query)\n    \n    alt [has in cache]\n        Server --> User: 200: queryValue\n    else [not has in cache: request to API]\n        Server -> SuperHeroApi: GET queryValue\n        activate SuperHeroApi\n        SuperHeroApi --> Server: 200: queryValue\n        deactivate SuperHeroApi\n        Server -> Server: updateCache(queryValue)\n        Server --> User: 200: queryValue\n    end\n    \n    deactivate Server\nend\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2350,
+    "completion_tokens": 209,
+    "total_tokens": 2559
+  }
+}

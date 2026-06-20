@@ -1,0 +1,73 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #888
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #222
+  ParticipantBackgroundColor #FFFFFF
+  BoxBorderColor #222
+  BoxBackgroundColor #FFFFFF
+  NoteBackgroundColor #FFFED6
+  NoteBorderColor #888
+  ArrowColor #222
+}
+
+actor Admin
+participant "Sqoop" as Sqoop
+database "Metastore DB" as MetastoreDB
+artifact "HDFS" as HDFS
+participant "Hive SQL" as HiveSQL
+database "Hive" as Hive
+participant "Hive Table" as HiveTable
+participant "Ambari" as Ambari
+
+== Pre Upgrade Planning Setup ==
+Admin -> Sqoop : Run "Collect the Metadata"
+Sqoop -> MetastoreDB : Extracts from
+Sqoop -> HDFS : Saves to
+Admin -> Hive : Run "Build Supporting Tables"
+
+== Pre Upgrade Planning ==
+Admin -> HiveSQL : Run "Distinct Serdes"
+Admin -> HiveTable : Fix Tables with Serde Issues
+Admin -> HiveSQL : Run "Check Partition Location"
+Admin -> HiveSQL : Run "Non-Managed Table Locations"
+Admin -> HiveSQL : Run "Managed Table Locations"
+Admin -> HiveSQL : Run "Missing HDFS Directories Check"
+Admin -> HiveSQL : Correct "Missing Directories"
+Admin -> HiveSQL : Run "Table Migration Check"
+Admin -> HiveSQL : Run "Acid Table Conversions"
+Admin -> HiveSQL : Run "Conversion Table Directories"
+
+== Pre Upgrade Compaction ==
+note left of Admin
+This process should be run several days
+BEFORE the actual upgrade to reduce the downtime
+of the upgrade.
+
+And should be run just BEFORE the upgrade and
+AFTER all users have been cleared from the system
+to ensure no tables are modified after this runs.
+end note
+
+Admin -> HiveSQL : Run "Acid Table Compaction Check"
+Admin -> HiveSQL : Run "Acid Table Compaction Required"
+Admin -> Hive : TUNE THE COMPACTOR for estimated compaction needs
+Admin -> HiveSQL : Run the compaction script.  Break it apart if needed.
+
+== Post Upgrade Planning ==
+Admin -> HiveSQL : Run "Acid Table Locations".  Save artifact for Upgrade.
+
+== Upgrade ==
+Admin -> Admin : Review and Run ALL previous steps\nand collect details.
+Admin -> Admin : Decision to intervene with Ambari Process\nbased on volumes indicated through research
+Admin -> Ambari : Hack Pre/Post Processes
+Admin -> Admin : Run Compaction Routine one last time.
+Admin -> Admin : Start Upgrade
+Admin -> Admin : Run the Post Upgrade Planning Output to convert tables.
+Admin -> Ambari : Complete Upgrade
+
+@enduml
+```

@@ -1,0 +1,43 @@
+```plantuml
+@startuml
+skinparam componentStyle rectangle
+
+package "Application Layer" {
+    component SubscriptionController as SC <<Controller>>
+}
+
+package "Domain Model Layer" {
+    component SubscriptionServiceImpl as SSI <<Bean>>
+}
+
+package "Infrastructure Layer" {
+    component JpaSubscriptionRepository as JSR <<Bean>>
+    component SubscriptionPersistenceJpaRepository as SPJR <<Repository>>
+}
+
+participant User
+database Datastore
+
+User -> SC : Request
+activate SC
+SC -> SSI : via SubscriptionService
+activate SSI
+SSI -> JSR : via SubscriptionRepository
+activate JSR
+JSR -> SPJR : via Spring data repository
+activate SPJR
+SPJR -> Datastore : Query
+activate Datastore
+Datastore --> SPJR : Result
+deactivate Datastore
+SPJR --> JSR : Result
+deactivate SPJR
+JSR --> SSI : Result
+deactivate JSR
+SSI --> SC : Response
+deactivate SSI
+SC --> User : Response
+deactivate SC
+
+@enduml
+```

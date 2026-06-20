@@ -1,0 +1,37 @@
+@startuml
+!define CLASS_BODY "C"
+!define INTERFACE_BODY "C"
+!define READONLY_FIELD "«readonly»"
+!define ASYNC_METHOD "«async»"
+!define CONSTRUCTOR "constructor"
+
+class IFileHelperService {
+  <<interface>>
+}
+
+class FileHelperService {
+  <<class>>
+  [readonly] dirPath : string
+  constructor(environment:IHostEnvironment, uow:IUnitOfWork)
+  [async] GetSingleFileAsync(documentId:long) : Task<(string, byte[])>
+  [async] GetSingleFileAsync(arquivo:DocumentoAula) : Task<byte[]>
+  [async] SaveFileAsync(fileDTO:FileDTO) : Task<string>
+  GetFullPath() : string
+  [async] DeleteFile(documentId:long) : Task
+  DeleteFile(caminhoArquivo:string) : void
+  [async] GetDocumentoAula(aulaId:long) : Task<DocumentoAulaDTO>
+}
+
+class IHostEnvironment {
+  <<interface>>
+}
+
+class IUnitOfWork {
+  <<interface>>
+}
+
+FileHelperService --|> IFileHelperService
+FileHelperService --> IHostEnvironment : _environment
+FileHelperService --> IUnitOfWork : _uow
+
+@enduml

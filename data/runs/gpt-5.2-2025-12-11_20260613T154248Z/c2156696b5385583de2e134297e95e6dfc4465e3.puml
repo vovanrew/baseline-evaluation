@@ -1,0 +1,89 @@
+```plantuml
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 25
+  BoxPadding 15
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor transparent
+  MessageAlign center
+}
+skinparam BoxBackgroundColor #e6e6e6
+skinparam BoxBorderColor #b0b0b0
+
+participant Client as Client
+
+box "Master" #e6e6e6
+  participant Dispatcher as Dispatcher
+  database Database as Database
+  participant RSyncServer as RSyncServer
+  participant Arbiter as Arbiter
+end box
+
+box "Worker" #e6e6e6
+  participant Worker as Worker
+  participant Slave as Slave
+end box
+
+Client -> Dispatcher : Create a taskset
+Client -> Dispatcher : Enqueue tasks
+Client -> Dispatcher : Taskset request
+
+Dispatcher -> Worker : Taskset dispatch
+Worker -> Database : Log the worker participation
+
+== RSync ==
+RSyncServer -> Worker : RSync
+
+== Setup ==
+RSyncServer -> Worker : Setup
+Worker -> Worker : Worker setup
+Worker -> Database : Add a worker setup log
+
+alt [setup failed]
+  Worker -> Arbiter : Fail request
+  Arbiter -> Database : Mark the taskset as failed
+  Arbiter -> Worker : Notify the taskset is marked as failed
+end
+
+== Testing ==
+Worker -> Slave : Spawn slaves
+Slave -> Slave : Slave setup
+
+Database -> Worker : Dequeue a task
+Database --> Worker : Return a task
+Worker -> Database : Add a trial
+Worker -> Slave : Execute a task
+Worker -> Database : Add a trial result
+Worker -> Arbiter : Notify the trial result
+Arbiter -> Database : Query the trial result
+Database --> Arbiter : Respond to the query
+
+alt [passed or pending]
+  Arbiter -> Database : Mark the task as finished
+else [retry needed]
+  Arbiter -> Database : Enqueue the task
+else [no more retries]
+  Arbiter -> Database : Mark the task as failed
+end
+
+Database -> Worker : Dequeue a task
+Database --> Worker : No tasks left
+Worker -> Arbiter : Check request
+Arbiter -> Arbiter : Check whether all tasks are finished
+
+alt [some tasks are left]
+  Arbiter -> Database : Enqueue the tasks
+end
+
+Arbiter -> Database : Mark the taskset as finished
+Arbiter -> Worker : Notify the taskset is marked as finished
+Worker -> Database : Add slave logs
+Worker -> Slave : Kill slaves
+
+Client -> Dispatcher : Query the status of the taskset
+Dispatcher --> Client : Respond to the query
+
+@enduml
+```

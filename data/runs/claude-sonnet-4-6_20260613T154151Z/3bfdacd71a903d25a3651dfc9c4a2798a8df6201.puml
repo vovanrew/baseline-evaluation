@@ -1,0 +1,211 @@
+```plantuml
+@startuml
+
+package "javafx" {
+  abstract class Application {
+    + start(stage : Stage)
+  }
+}
+
+package "java" {
+  package "util" {
+    class Observable <<Subject>> {
+      + addObserver(Observer o)
+      + deleteObserver(Observer o)
+      + notifyObservers()
+      + notifyObservers(arg: Object)
+      + setChanged()
+    }
+    interface Observer {
+      + update(obs : java.util.Observable, arg : Object)
+    }
+  }
+}
+
+class Main {
+  + main(args : String[])
+}
+
+class App {
+  + main(args : String[])
+  + ^start(stage : Stage)
+}
+
+class ConnexionView
+class HomeView
+class FolderView
+
+class ConnexionController {
+  - username : TextField
+  - password : PasswordField
+  + login()
+}
+
+class HomeController {
+  + loadFolder()
+  + logout()
+}
+
+class FolderController <<ConcretSubject>> {
+  + addAntecedent()
+  + addVisit()
+  + restoreFolder()
+  + saveFolder()
+}
+
+class Session <<Director>> {
+  + login(user: String, pass: String) : boolean
+  + downloadFolder() : boolean
+  + resetFolder() : boolean
+  + getCurrentFolder(): Folder
+  + getVisits(): Set<Visit>
+  + getAntecedents(): Set<Antecedent>
+  + getDoctor(): Doctor
+  + «construct()» createNewVisit(treatment: String, diagnostic: String , ...)
+}
+
+interface Authenticable {
+  + login(user: String, pass: String) : boolean
+}
+
+class DataSource {
+  + ^findById(id : String) : Folder
+  + ^findbyUsernameAndPassword(username : String, password: String) : User
+  + ^update(f : Folder) : boolean
+  - archiveModification(f : Folder) : boolean
+  - encryptPasswordToSHA1(pass: String) : String
+}
+
+class User {
+  - username : String
+  - password : String
+}
+
+class VisiBuilder <<ConcreteBuilder>> {
+  + «buildPart()» setTreatment(designation : String)
+  + «buildPart()» setTreatment(designation : String)
+  + «result()» build(): Visit
+}
+
+class Folder <<Prototype>> <<ConcretObserver>> {
+  + addVisit(v: Visit)
+  + addAntecedent(a: Antecedent)
+  + getVisits() : List<Visit>
+  + getAntecedents() : List<Antecedent>
+  + «clone» duplicate(): Folder
+  + update()
+}
+
+interface Editable {
+  + update(f : Folder)
+}
+
+interface Searchable {
+  + findbyId(id : String) : Folder
+  + findbyUsernameAndPassword(username : String, password: String) : User
+}
+
+class Visit <<Product>> {
+  - date : Date
+  - summary : String
+  - notes : String
+}
+
+class Antecedent {
+  - beginning : Date
+  - end : Date
+}
+
+class Doctor {
+  - lastname : String
+  - firstname : String
+  - permit : String
+  - speciality : String
+}
+
+class Treatment <<ProductPart>> {
+  - designation : String
+}
+
+class Diagnostic <<ProductPart>> {
+  - designation : String
+}
+
+class Patient {
+  - lastname : String
+  - firstname : String
+  - dateOfBirth : Date
+  - birthCity : String
+  - insuranceNumber : String
+  - father : String
+  - mother : String
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+class Contact {
+  - address : String
+  - phone : String
+  - email : String
+}
+
+class Establishment {
+  - identification : String
+  - designation : String
+}
+
+Main --> App
+App --|> Application
+App --> ConnexionView
+App --> ConnexionController
+
+ConnexionView --> ConnexionController
+HomeView --> HomeController
+FolderView --> FolderController
+
+ConnexionController --> Session
+HomeController --> Session
+FolderController --> Session
+
+Session ..|> Authenticable
+Session --> DataSource
+
+Observable "1" --> "0..n" Observer
+
+FolderController --|> Observable
+
+Session "0..1\noriginalFolder" --> Folder
+Session "0..1\ncurrentFolder" --> Folder
+
+Session --> VisiBuilder
+
+DataSource ..|> Searchable
+DataSource ..|> Editable
+
+User "0..1\nuser" --* Session
+
+VisiBuilder "0..1\nnewVisit" --> Visit
+
+Folder "visits" *-- "*" Visit
+Folder "antecedents" *-- "*" Antecedent
+
+Visit --> "1\ndoctor" Doctor
+Visit --> "1\ndoctor prescriber" Doctor
+Visit --> "0..1\ntreatement" Treatment
+Visit --> "0..1\ntreatement" Diagnostic
+Visit --> "1\diagnostic" Diagnostic
+
+Doctor "1\nestablishment" --> Establishment
+
+Patient "1\nowner" --> Folder
+Patient "gender" --> Gender
+Patient "1\contact" --> Contact
+
+FolderController ..|> Observer
+
+@enduml
+```

@@ -1,0 +1,57 @@
+@startuml
+participant "Admin" as Admin1
+participant "Employees Module" as EmployeeModule1
+participant "Search Index" as SearchIndex1
+participant "Database" as Database1
+
+participant "Admin" as Admin2
+participant "Employees Module" as EmployeeModule2
+participant "Search Index" as SearchIndex2
+participant "Database" as Database2
+
+Actor Admin1 as Admin
+Actor Admin2 as Admin
+
+rectangle EmployeesModule1
+    EmployeesModule1
+end rectangle
+
+rectangle EmployeesModule2
+    EmployeesModule2
+end rectangle
+
+rectangle SearchIndex1
+    SearchIndex1
+end rectangle
+
+rectangle Database1
+    Database1
+end rectangle
+
+rectangle SearchIndex2
+    SearchIndex2
+end rectangle
+
+rectangle Database2
+    Database2
+end rectangle
+
+Admin1 ..> EmployeeModule1 : trigger task
+
+EmployeeModule1 ..> SearchIndex1 : reset index (delete + create)
+
+EmployeeModule1 ..> Database1 : stream all employees
+
+EmployeeModule2 ..> SearchIndex2 : index employee
+
+EmployeeModule2 ..> Database2 : stream all employees
+
+EmployeeModule2 ..> SearchIndex2 : index employee
+
+EmployeeModule2 ..> Database2 : stream all employees
+
+EmployeeModule2 ..> EmployeeModule1 : reset index (delete + create)
+
+EmployeeModule2 ..> Admin2 : stream all employees
+
+@enduml

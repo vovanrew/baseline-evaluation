@@ -1,0 +1,99 @@
+@startuml
+participant "Directory" as Dir
+
+Dir <<Directory>>
+    Directory表示一些扁平(没有子目录)文件的集合,这些文件都只能在创建时写入一次.
+    写入之后,就只能读或者删除,不可修改.
+
+    // 返回目录下所有文件
+    String[] listAll()
+
+    void deleteFile(String name)
+
+    long fileSize(String name)
+    // 创建一个新文件
+
+    IndexOutput createOutput(String name, IOContext context)
+    // 确保对这些文件所有的写入都被转移到稳定的存储介质上去.
+
+    IndexOutput createTempOutput(String prefix, String suffix, IOContext context)
+    // 创建临时文件
+
+    void sync(Collection<String> names)
+    // 重命名文件
+
+    void syncMetaData()
+    // 持久化Directory的元数据
+
+    void rename(String source, String dest)
+    // 打开一个文件
+
+    IndexInput openInput(String name, IOContext context)
+    // 获取锁
+
+    Lock obtainLock(String name)
+
+    Dir <<Interface>>
+
+    participant "FileSwitchDirectory" as FSWD
+    //  ??????
+
+    participant "RAMDirectory" as RAMD
+    //  在内存中的实现
+
+    participant "NRTCachingDirectory" as NRTC
+    //  缓存目录
+
+    participant "LockValidatingDirectoryWrapper" as LVDW
+    //  在一些操作进行之前,提供锁的校验
+
+    participant "TrackingDirectoryWrapper" as TDW
+    //  可以记录创建了哪些文件
+    Set<String> getCreatedFiles()
+
+    participant "SleepingLockWrapper" as SLW
+    //  如果获取锁失败,则休眠一段时间后重试.
+
+    participant "FilterDirectory" as FD
+    //  装饰
+
+    FD <<Interface>>
+
+    participant "BaseDirectory" as BDir
+    //  Directory具体实现的基类,使用LockFactory来获取锁
+    LockFactory lockFactory
+
+    BDir <<Interface>>
+
+    participant "FSDirectory" as FSD
+    //  在文件系统上的实现
+    //  根据当前的环境来选择使用哪一种实现.
+    FSDirectory open(Path path, LockFactory lockFactory)
+
+    FSDirectory <<Interface>>
+
+    participant "SimpleFSDirectory" as SFS
+    //  //
+
+    participant "MMapDirectory" as MM
+    //  <<Important>>
+    //  使用mmap来读取数据
+
+    participant "NIOFSDirectory" as NIOF
+    //  //
+
+    Dir ..> BDir
+    BDir ..> FSD
+    FSD ..> SFS
+    FSD ..> MM
+    FSD ..> NIOF
+
+    Dir ..> FSWD
+    Dir ..> RAMD
+    Dir ..> NRTC
+    Dir ..> LVDW
+    Dir ..> TDW
+    Dir ..> SLW
+    Dir ..> FD
+
+@enduml

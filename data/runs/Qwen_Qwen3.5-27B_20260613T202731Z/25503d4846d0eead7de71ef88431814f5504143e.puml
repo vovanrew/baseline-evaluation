@@ -1,0 +1,34 @@
+```plantuml
+@startuml
+title SendMessage Sequence Diagram
+
+participant "SendMessageController" as Controller
+participant "SendMessageEngine" as Engine
+participant "SendMessageSender" as Sender
+participant "Socket" as Socket
+participant "ObjectOutputStream" as Stream
+
+activate Controller
+activate Engine
+
+Controller -> Engine: sendMessage(message)
+activate Sender
+Engine -> Sender: create(message, port)
+activate Socket
+Sender -> Socket: create(message.getInetAddress(), port)
+deactivate Socket
+Engine -> Sender: sendMessage()
+activate Stream
+Sender -> Stream: create(socket.getOutputStream())
+Sender -> Stream: writeObject(message.getSheetTalkMessage())
+Sender -> Stream: flush()
+Sender -> Stream: close()
+deactivate Stream
+Sender -> Socket: close()
+deactivate Socket
+deactivate Sender
+deactivate Engine
+deactivate Controller
+
+@enduml
+```

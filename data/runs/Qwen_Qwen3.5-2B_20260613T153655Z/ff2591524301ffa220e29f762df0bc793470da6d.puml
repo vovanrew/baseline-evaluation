@@ -1,0 +1,38 @@
+@startuml
+title Mojaloop transaction: Discovery
+
+actor Alice
+interface DFSP A (Payer)
+interface Switch
+interface ALS
+interface DFSP B (Payee)
+
+Alice --> DFSP A : "I'd like to send $100 to Bob@Somewhere"
+
+DFSP A --> Switch : "Which DFSP owns Bob@Somewhere? (GET /parties)"
+
+Switch --> DFSP A : "202 I'll get back to you"
+
+Switch --> ALS : "Which DFSP owns Bob@Somewhere?"
+
+ALS --> Switch : "It's DFSP B"
+
+Switch --> DFSP B : "Do you speak for Bob@Somewhere?"
+
+DFSP B --> Switch : "202: I'll get back to you"
+
+DFSP B --> Switch : "Retrieve customer information for Bob"
+
+DFSP B --> Switch : "Here's Bob's personal information"
+
+Switch --> DFSP B : "200: OK, got it"
+
+DFSP A --> Switch : "DFSP A speaks for Bob@Somewhere\nThe customer is Bob."
+
+Switch --> DFSP A : "200: OK, got it"
+
+DFSP A --> Alice : "System reports customer name is Bob.\nIs this right?"
+
+Alice --> DFSP A : "Yes, it is."
+
+@enduml

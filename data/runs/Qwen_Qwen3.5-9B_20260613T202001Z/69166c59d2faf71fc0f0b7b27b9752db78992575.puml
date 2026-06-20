@@ -1,0 +1,25 @@
+@startuml
+actor "Caller" as Caller
+participant ":RoomTransactionService" as RoomTransactionService
+participant ":RoomTransactionCommand" as RoomTransactionCommand
+participant ":Nats Streaming" as NatsStreaming
+
+Caller -> RoomTransactionService : Create(context, payload)
+activate RoomTransactionService
+RoomTransactionService -> RoomTransactionService : Validate()
+deactivate RoomTransactionService
+
+alt "Data Not Valid"
+  RoomTransactionService -> Caller : UnprocessableEntity
+else
+  loop "For each shift"
+    RoomTransactionService -> RoomTransactionService : rt := RoomTransactionModel()
+    RoomTransactionService -> RoomTransactionCommand : Create(context, rt)
+    RoomTransactionCommand -> RoomTransactionService : uuid
+  end
+  RoomTransactionService -> NatsStreaming : publishTransactionCreated(context, []uuid)
+  NatsStreaming -> RoomTransactionService : published
+  RoomTransactionService -> Caller : created
+end
+
+@enduml

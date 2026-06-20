@@ -1,0 +1,41 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #b00000
+  ParticipantBackgroundColor #FFFFFF
+  ActorBorderColor #b00000
+  ActorBackgroundColor #FFFFFF
+  NoteBorderColor #888888
+  NoteBackgroundColor #ffffe6
+  ArrowColor #000000
+}
+
+actor Main as Main
+
+participant "YAMLConfiguration" as YAMLConfiguration
+participant "BufrParser" as BufrParser
+participant "DataContainer" as DataContainer
+participant "IodaEncoder" as IodaEncoder
+
+Main -> YAMLConfiguration : YAMLConfiguration(confPath)
+Main -> BufrParser : BufrParser(conf)
+Main -> BufrParser : parse
+activate BufrParser
+note right of BufrParser
+  See Query Collecting Data sequence.
+end note
+BufrParser -> DataContainer : DataContainer()
+Main <-- BufrParser : dataContainer
+deactivate BufrParser
+
+Main -> IodaEncoder : IodaEncoder(conf)
+Main -> IodaEncoder : encode(dataContainer)
+activate IodaEncoder
+note right of IodaEncoder
+  See Query Getting Data sequence.
+end note
+deactivate IodaEncoder
+@enduml

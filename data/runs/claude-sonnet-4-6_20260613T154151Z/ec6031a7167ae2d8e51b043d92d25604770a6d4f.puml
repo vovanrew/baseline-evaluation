@@ -1,0 +1,36 @@
+@startuml
+actor User
+participant Frontend
+participant Backend
+database Database
+
+box "Login"
+end box
+
+group Login
+  User -> Frontend : Presses the "Login"-button
+  Frontend -> Backend : Request to open new window
+  Frontend <-- Backend : Opens new window
+  User -> Frontend : Enters login information
+  User -> Frontend : Presses "Confirm"-button
+  Frontend -> Backend : Request to validate input
+  Backend -> Database : Validates login input
+
+  alt [Successful case]
+    Backend <-- Database : Validation successful
+    Frontend <-- Backend : Allows user to proceed
+    User <-- Frontend : Proceeds to next window
+  else [Validation failed]
+    Backend <--x Database : Validation failed
+    Frontend <-- Backend : Displays alert of type ERROR
+    User <-- Frontend : Lists up fields with errors
+  end
+end
+
+group Cancel
+  User -> Frontend : Presses the "Cancel"-button
+  Frontend -> Backend : Request to close process
+  Frontend <-- Backend : Closes window
+end
+
+@enduml

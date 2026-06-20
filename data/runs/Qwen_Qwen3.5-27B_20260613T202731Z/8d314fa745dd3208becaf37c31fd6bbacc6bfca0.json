@@ -1,0 +1,22 @@
+{
+  "id": "10479d27-cdd7-4d1a-914f-6f16ae8867ad",
+  "object": "chat.completion",
+  "created": 1781437975,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam componentStyle uml2\nskinparam databaseStyle uml2\n\nactor \"Teams\" as Teams\nparticipant \"API\" as API\nparticipant \"BuildService\" as BuildService\nparticipant \"CommandParser\" as CommandParser\nparticipant \"BuildCommand\" as BuildCommand\nparticipant \"BuildSystem\" as BuildSystem\nparticipant \"BuildFactory\" as BuildFactory\ndatabase \"BuildDb\" as BuildDb\nparticipant \"BuildMonitor\" as BuildMonitor\nparticipant \"NotificationService\" as NotificationService\ndatabase \"NotificationDb\" as NotificationDb\n\nTeams -> API: /api/messages\nactivate API\nAPI -> BuildService: ProcessCommandAsync\nactivate BuildService\nBuildService -> CommandParser: ParseCommand\nactivate CommandParser\nCommandParser --> BuildService: BuildCommand\ndeactivate CommandParser\nBuildService -> BuildCommand: Execute\nactivate BuildCommand\nBuildCommand -> BuildSystem: CreateBuildAsync\nactivate BuildSystem\n\nrectangle \"BuildSystem Library\" {\n    BuildSystem -> BuildFactory: CreateBuildAsync\n    activate BuildFactory\n    BuildFactory -> BuildDb: Save build\n    deactivate BuildFactory\n    BuildFactory --> BuildSystem: Build\n    BuildSystem -> BuildMonitor: AddBuildAsync\n    activate BuildMonitor\n    deactivate BuildMonitor\n}\n\nBuildSystem --> BuildCommand: Build\ndeactivate BuildSystem\nBuildCommand -> NotificationService: AddNotificationAsync\nactivate NotificationService\nNotificationService -> NotificationDb: Save notification\ndeactivate NotificationService\ndeactivate NotificationService\ndeactivate BuildCommand\ndeactivate BuildService\nAPI --> Teams\ndeactivate API\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1272,
+    "completion_tokens": 336,
+    "total_tokens": 1608
+  }
+}

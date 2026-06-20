@@ -1,0 +1,64 @@
+```plantuml
+@startuml
+interface IBasicStats {
+  getMin(): double
+  getMax(): double
+  getSum(): double
+  getMean(): double
+}
+
+class DataAnalysisCLI {
+  - data: DataFrame
+  - reader: KeyboardReader
+  + DataAnalysisCLI()
+  + run(): void
+  + {static} main(args: String[]): void
+}
+
+class DataFrame {
+  - fileName: String
+  - headerNames: String[]
+  - numOfRows: int
+  - numOfCols: int
+  - csvData: double[][]
+  + DataFrame(fileName: String)
+  + toString(): String
+  + getColumnByIndex(index: int): DataSeries
+  + getHeaderNames(): String[]
+  + getNumOfRows(): int
+  + getNumOfCols(): int
+}
+
+class KeyboardReader {
+  - reader: BufferedReader
+  + KeyboardReader()
+  + getKeyboardInput(): String
+  + getKeyboardInteger(): int
+  + getKeyboardDouble(): double
+  + prompt(s: String): void
+  + display(s: String): void
+  - readKeyboard(): String
+}
+
+class DataSeries {
+  - label: String
+  - data: double[]
+  - count: int
+  + DataSeries(label: String)
+  + size(): int
+  + add(val: double): void
+  + getMin(): double
+  + getMax(): double
+  + getSum(): double
+  + getMean(): double
+  + toString(): String
+}
+
+DataAnalysisCLI *-- "1" DataFrame
+DataAnalysisCLI *-- "1" KeyboardReader
+DataAnalysisCLI *-- "1" DataSeries
+DataFrame *-- "1" DataSeries
+DataSeries ..|> IBasicStats
+
+@enduml
+```

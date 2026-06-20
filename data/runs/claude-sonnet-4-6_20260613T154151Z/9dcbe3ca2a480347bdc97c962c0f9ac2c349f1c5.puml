@@ -1,0 +1,42 @@
+@startuml
+actor "did:...:GS1" as GS1
+actor "did:...:Manufacturer" as Manufacturer
+
+box "Ausstellungsprozess der GCP" #white
+  GS1 -> GS1
+  Manufacturer -> GS1 : GCP Anfrage
+  GS1 -> Manufacturer : Berechtigung Prüfen
+  GS1 -> Manufacturer : ISSUE
+  note over GS1 #lightyellow
+    **GCP Credential**
+    gcp: 4047111
+  end note
+  Manufacturer -> Manufacturer : ISSUE
+  note over GS1 #lightyellow
+    **Party GLN Credential**
+    urn:epc:id:pgln:4047111.00000
+  end note
+end box
+
+box "Ausstellungsprozess zertifizierter Stammdaten" #white
+  Manufacturer -> GS1 : PRESENT GCP
+  Manufacturer -> GS1 : Anfrage + Nachweis der Stammdaten
+  note over GS1 #white
+    Prüfung der Stammdaten basierend auf
+    Dokumenten oder eigener Recherche
+  end note
+  GS1 -> GS1
+  GS1 -> Manufacturer : ISSUE
+  note over GS1 #lightyellow
+    **Stammdaten Credential (e.g.)**
+    name: European EPC Competence Center,
+    legal_form: GmbH,
+    trade_register_number: Köln HBR 61026,
+    . . .
+  end note
+end box
+
+actor "did:...:GS1" as GS1b
+actor "did:...:Manufacturer" as Manufacturerb
+
+@enduml

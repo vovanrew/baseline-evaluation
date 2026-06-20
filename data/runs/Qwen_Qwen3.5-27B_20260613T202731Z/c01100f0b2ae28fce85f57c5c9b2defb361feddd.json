@@ -1,0 +1,22 @@
+{
+  "id": "5a4f58bb-d92a-4c04-beca-1b8ea89272b3",
+  "object": "chat.completion",
+  "created": 1781491291,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nactor Customer\nparticipant \"Device\" as Device\nparticipant \"DeviceProvisioningService\" as DPS #aaf\nparticipant \"ProductIoT Hub\" as IoT_Hub #0ff\nparticipant \"FW Provider\" as FW_Provider #f0f\n\nnote over Device, IoT_Hub: Device was registered for this product before\n\n== First start ==\n\nCustomer -> Device : 1 Switch On/Power Up\nactivate Device\nnote right of Device: Booting up\nDevice -> DPS : 2 registerDevice(callback)\nactivate DPS\nDPS --> Device : 3 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)\ndeactivate DPS\nDevice -> IoT_Hub : 4 setProperties\nactivate IoT_Hub\nDevice -> IoT_Hub : 5 iamNewToYou(deviceId, firmwareversion)\n\nopt Firmware needs to be updated\n    IoT_Hub -> Device : 6 updateFWMandatory(URL)\n    activate Device\n    Device -> FW_Provider : 7 URL.get(OLDFW)\n    activate FW_Provider\n    note right of Device: Downloading\n    FW_Provider --> Device : 8 FW, Checksum\n    deactivate FW_Provider\n    Device -> Device : 9 CheckChecksum\n    Device -> Device : 10 update\n    note right of Device: Installing\n    Device -> Device : 11 restart\n    note right of Device: Booting up\n    deactivate Device\nend opt\n\nDevice -> IoT_Hub : 12 iamNewToYou(deviceId, firmwareversion)\nIoT_Hub -> Device : 13 youMayStartSending()\nDevice -> IoT_Hub : 14 sendData(Data)\nnote right of Device: Working\ndeactivate IoT_Hub\ndeactivate Device\n\n== Claim/Remove ==\n\nIoT_Hub -> Device : 15 youMustRetire()\nactivate Device\nDevice -> Device : 16 waits\ndeactivate Device\n\nopt if Device was not reached\n    Device -> IoT_Hub : 17 sendData(Data)\n    IoT_Hub --> Device : 18 Not registered\nend opt\n\nDevice -> DPS : 19 registerDevice(callback)\nactivate DPS\nDPS --> Device : 20 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ERROR, null, null)\ndeactivate DPS\nDevice -> Device : 21 NobodyLovesMeMode()\n\nloop once a day\n    Device -> DPS : 22 registerDevice(callback)\nend loop\n\n== IoT Hub not available ==\n\nloop several times\n    Device -> IoT_Hub : 23 sendData(Data)\n    IoT_Hub --> Device : 24 NotAvailable/Network Error\nend loop\n\nDevice -> DPS : 25 registerDevice(callback)\nactivate DPS\nDPS --> Device : 26 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)\ndeactivate DPS\nDevice -> Device : 27 compare IoTHub and change if necessary\n\nnote over Device, IoT_Hub: if connection is now successfull, go on. If not and IoT Hub has not changed\\nrepeat with low frequency. Also if DPS is not available.\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1860,
+    "completion_tokens": 685,
+    "total_tokens": 2545
+  }
+}

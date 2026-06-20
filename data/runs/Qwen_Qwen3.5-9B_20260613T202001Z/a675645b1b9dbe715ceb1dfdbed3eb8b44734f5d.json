@@ -1,0 +1,22 @@
+{
+  "id": "ea26c759-a98f-4eac-91e3-8c0d0cb760fb",
+  "object": "chat.completion",
+  "created": 1781585130,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nautonumber\nskinparam sequenceMessageAlign center\n\nparticipant \"Client\" as Client\nparticipant \"Oauth\" as Oauth\nparticipant \"Login Endpoint\" as LoginEndpoint\nparticipant \"Consent Endpoint\" as ConsentEndpoint\n\nrectangle \"Open page\" {\n    Client -> Oauth: Initiate authorize code or implicit flow\n    activate Oauth\n    Oauth --> Client: No user session (not authenticated)\n    Oauth --> LoginEndpoint: Redirect to login endpoint with <login_challenge>\n    activate LoginEndpoint\n    LoginEndpoint --> Client: GET https://<LOGIN_ENDPOINT>/login?login_challenge=7bb518c4eec2454dbb289f5fdb4c0ee2\n    deactivate LoginEndpoint\n}\n\nrectangle \"Login\" {\n    Client -> LoginEndpoint: Input user/password\n    activate LoginEndpoint\n    LoginEndpoint --> LoginEndpoint: Verify user/password\n    deactivate LoginEndpoint\n    LoginEndpoint --> Oauth: Fetch login request info with <login_challenge>\n    activate Oauth\n    Oauth --> LoginEndpoint: GET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login?login_challenge=<challenge>\n    deactivate Oauth\n    LoginEndpoint --> Oauth: PUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login/accept?login_challenge=<challenge>\n    activate Oauth\n    Oauth --> Client: Accept login\n    deactivate Oauth\n    Oauth --> LoginEndpoint: Return redirect url\n    activate LoginEndpoint\n    LoginEndpoint --> Client: Redirect\n    deactivate LoginEndpoint\n}\n\nrectangle \"Consent\" {\n    Client --> Oauth: First time that client asks user for permission\n    activate Oauth\n    Oauth --> Client: Redirect with <consent_challenge>\n    deactivate Oauth\n    Client --> ConsentEndpoint: Asking users permission to grant application access\n    activate ConsentEndpoint\n    ConsentEndpoint --> Oauth: Fetch consent info\n    activate Oauth\n    Oauth --> ConsentEndpoint: GET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent?consent_challenge=<challenge>\n    deactivate Oauth\n    ConsentEndpoint --> Oauth: PUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent/accept?consent_challenge=<challenge>\n    activate Oauth\n    Oauth --> Client: Accept\n    deactivate Oauth\n    Oauth --> ConsentEndpoint: Return redirect url\n    activate ConsentEndpoint\n    ConsentEndpoint --> Client: Redirect page\n    deactivate ConsentEndpoint\n}\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1762,
+    "completion_tokens": 555,
+    "total_tokens": 2317
+  }
+}

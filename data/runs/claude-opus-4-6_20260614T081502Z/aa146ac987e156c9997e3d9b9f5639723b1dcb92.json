@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Hop5c5VoNFHfoL5gN4eGkQ",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle SignUp Flow\n\nactor Client\nparticipant \"Mobile\" as Mobile\nparticipant \"SMS Gateway\" as SMSGateway\nparticipant \"Push Gateway\" as PushGateway\nparticipant \"DigitalDB\" as DigitalDB\nparticipant \"Keycloak + Extension\" as Keycloak\n\nClient -> Mobile: 1 Enter PhoneNumber, Birthday\nClient -> Mobile: 2 Enter Password\nMobile -> Keycloak: 3 POST /auth/signup (PhoneNumber, Birthday)\nKeycloak -> DigitalDB: 4 findClientRecord(PhoneNumber, Birthday): ClientRecord\nDigitalDB --> Keycloak: 5 ClientRecord\n\nalt ClientRecord is NOT found\n    Keycloak --> Mobile: 6 HTTP 202\nend\n\nKeycloak -> Keycloak: 7 saveInOTPContext(ClientRecord.id)\nKeycloak -> Keycloak: 8 generateAndSaveOTP(): OTP\nKeycloak --> Mobile: 9 HTTP 202\nKeycloak -> SMSGateway: 10 sendSMS(phone=PhoneNumber, data=OTP)\nSMSGateway -> Client: 11 SMS with OTP\nMobile -> PushGateway: 12 getPushToken(): Push Token\nPushGateway --> Mobile: 13 Push Token\nMobile -> Mobile: 14 generateKeys(): [PublicKey, PrivateKey]\nClient -> Mobile: 15 Enter OTP\nMobile -> Keycloak: 16 POST /auth/signup/complete (OTP, Password, Push Token, PublicKey)\nKeycloak -> Keycloak: 17 validateOTP(OTP)\nKeycloak -> DigitalDB: 18 updateUser(ClientId, KeycloackUserId)\nDigitalDB --> Keycloak: 19\nKeycloak -> DigitalDB: 20 createMobileDevice(ClientId, Push Token, PublicKey)\nDigitalDB --> Keycloak: 21\nKeycloak -> Keycloak: 22 generateJWT(scope=\"regular_user\"): JWT\nKeycloak --> Mobile: 23 HTTP 200 {jwt: JWT}\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432129,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 551,
+    "prompt_tokens": 1632,
+    "total_tokens": 2183
+  }
+}

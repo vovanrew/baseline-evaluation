@@ -1,0 +1,51 @@
+```plantuml
+@startuml
+skinparam class {
+    BackgroundColor #FFFFE0
+    BorderColor #A9D08E
+    ArrowColor #004080
+}
+skinparam package {
+    BorderColor black
+    BorderThickness 2
+}
+
+package "OpenAI-Baseline" {
+    class RLImplementation
+}
+
+package "OpenAI-Gym" {
+    class Env
+    note left of Env
+        Generic interface between RL
+        algorithms and simulation
+        environments
+    end note
+}
+
+package "atc-reinforcement-learning" {
+    class AtcGym
+    class Airspace
+    class Runway
+    class Airplane
+    class MinimumVectoringAltitude
+    class Corridor
+    class SimParameters
+
+    AtcGym *-left- Airspace
+    AtcGym *-- "1\n\nmany" Airplane
+    AtcGym *-right- SimParameters
+    
+    Airspace *-right- Runway
+    Airspace *-- "1\n\nmany" MinimumVectoringAltitude
+    
+    Runway *-- Corridor
+    
+    Airplane --> SimParameters
+}
+
+RLImplementation --> Env
+Env <|-- AtcGym
+
+@enduml
+```

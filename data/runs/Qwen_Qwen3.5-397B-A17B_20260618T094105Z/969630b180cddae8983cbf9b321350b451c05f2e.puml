@@ -1,0 +1,44 @@
+@startuml
+title Skava Integration – Order Replaced Completed
+
+participant "Skava AWS" as skawa {
+  participant "Skava Event\nOrchestration" as seo1
+}
+
+database "Legacy DB" as ldb1
+
+rectangle Kafka #LightBlue250-#White/70%{
+    rectangle Topics <<queue>> 
+}
+
+
+seo1 ->>Topics : <b><color:black>1</color></b>\nProduce OrderReplacedCompleted Message 
+
+==<font color=black>**Async**</font> ==
+
+
+
+Kafka->YL Services:<b><color:black>2</color></b>\nConsume OrderReplacedCompleted Message 
+
+
+activate YL Services::Order Sync Service  
+YL Services ::Order Sync Service -->ldb1:3 Update order status in legacy db   
+deactivate YL Services::Order Sync Service  
+
+return **4 Response/**\n<b><u>Order ID </u></b>  
+
+
+YLServices-->kafka:**5 Produce OrderReplacedCompletedProcessed Message**   
+
+==<font color=black>**Async**</font> ==
+
+
+
+
+skawa <- kafka :**6 Consume OrderReplacedCompletedProcessed Message**  
+
+
+
+
+
+@enduml

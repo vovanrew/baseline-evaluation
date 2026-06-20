@@ -1,0 +1,22 @@
+{
+  "id": "55cb6737-1e7a-4326-97ff-d5581f5a8873",
+  "object": "chat.completion",
+  "created": 1781911450,
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceMessageAlign center\nautonumber \"<b>[0]\"\n\nbox \"Upstream\" #LightBlue2\n    participant \":Producer\\nC\" as Producer1\n    participant \":Adapter\\nE\" as Adapter1\nend box\n\nparticipant \":Transport\\nS\" as Transport1\n\nbox \"\" #WhiteSmoke\n    participant \":Adapter\\nE\" as Adapter3\n    participant \":Consumer\\nG\" as Consumer4\n    \n    rect \"#D5F6FF\" \n        note over GatewayJobHandler : JobExecution\n        \n        participant \":GatewayJobHandler\\nG\" as GatewayJobHandler\n    endrect\nend box\n\n\nbox \"\" #WhiteSmoke    \n    participant \":Gateway\\nG\" as Gateway7\n    participant \":Producer\\nE\" as Producer8\n    participant \":Adapter\\nE\" as Adapter9\nend box \n\nparticipant \":Transport\\nS\" as Transport10 \n\n\nbox \"Downstream\" #LightBlue2\n  participant \":Adapter\\nE\" as Adapter11  \n  participant \":Consumer\\nG\" as Consumer12\n  \n   rect \"#D5F6FF\"   \n      note over DownStreamJobHandler : JobExecution\n      \n       participant \":DownStreamJobHandler\\nG\" as DownStreamJobHandler       \n   endrect\n   \nend box  \n\nparticipant \":Lower Layer\\nS\" as LowerLayer\n\n\n\n== ==\n\nactivate Producer1\nProducer1 ->> Adapter1: publish(command)\ndeactivate Producer1\n\nactivate Adapter1\nAdapter1->> Transport1:publish(command)\\nresolve()\ndeactivate Adapter1\n\nactivate Transport1\nTransport1->> Adapter3: execute(command) \\nhandler(command, done)\ndeactivate Transport1\n\nactivate Adapter3\nadapter3 --> adapter3: subscribe(\"done\")\\nemit(\"command\",\\ngatewayjobhandler)\nAdapter3--> gatewayjobhandler: emit(\"response\"\\,response)\ngatewayjobhandler -x transport1:getDelay(command)\ntransport1-x producer1: getdelay(command)\nproducer1-]producer1: resolve()\\subscribe(handler)\nproducer1--]adapter1:subcribe(response')\nadapter1 --]consumer4: handler('respones'\\ndone())\nconsumer4 ]]> consumer4: subscibe(done)\\nemit command,\\ngatewaay job hander\nconsumer4]]downstreamjobhandeler:emmit response , resposne\ndownstreamjobhandler ]] lowerlayer: done ()\nlower layer >> downstreamjobhander: emitt 'donw'\ndowmstremjohandker>>consumr12:hander(comman,dond )\nconsume r12 > adpater11:dones(respons e)\nadaptr11>]transpotrt10:gtdelay(ommand)dnoeresponse\ntranportt10<]<[adaptre9:susbsciber(esoponse)\nadaoter9 <][produceR8:pulish(coammdo))\nproducre8<>gatway7:publissh(cmmnad)\ngatawy7 <> gtaewayjoobhanlder: don(e)\ngateawyjbahnder<<consuer4:eit(doen)\nconseru4 << adapte3;doen(repsosne)\naapter3><trasnpot1;dons(rspose)\ntnasprot1 >< adatper1 ;emi(respns',respse)\nadatpr1 ][ producr1: hader(rspeoe)\nprodcue1 [)[ adaote1:onTmeout(getDealyi()))unsucrsber(i)\n\n\n\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1027,
+    "completion_tokens": 762,
+    "total_tokens": 1789
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "70b62b72-b1c6-4a12-8242-615074df3b08",
+  "object": "chat.completion",
+  "created": 1781394120,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n!theme plain\n\npackage \"rugged\" as rugged {\n  package \"raster\" as raster {\n    interface Tile {\n      + interpolateElevation(\u03c6, \u03bb)\n      + pixelIntersection(NormalizedGeodeticPoint, los, \u03c6 index, \u03bb index)\n    }\n  }\n\n  package \"intersection\" as intersection {\n    interface IntersectionAlgorithm {\n      + intersection(ellipsoid, position, los)\n      + refineIntersection(ellipsoid, position, los, closeGuess)\n    }\n  }\n\n  package \"utils\" as utils {\n    class ExtendedEllipsoid {\n      + pointAtLatitude(position, los, \u03c6, closereference)\n      + pointAtLongitude(position, los, \u03bb)\n      + pointAtAltitude(position, los, h)\n      + pointOnGround(position, los)\n    }\n\n    class SpacecraftToObservedBody {\n    }\n  }\n\n  package \"api\" as api {\n    class Rugged {\n      + directLocation(sensorName, line)\n    }\n  }\n\n  package \"linesensor\" as linesensor {\n    class LineSensor {\n    }\n  }\n}\n\npackage \"mission\" as mission {\n  package \"specific\" as specific {\n    class UserMain {\n    }\n  }\n}\n\nrugged -> raster : evaluate DEM\nrugged -> intersection : compute grid points crossings\nrugged -> utils : convert geodetic points\nrugged -> utils : convert positions/directions\nrugged -> linesensor : getLOS(date, pixel)\nrugged -> linesensor : getDate(line)\nrugged -> intersection : delegate DEM intersection\nUserMain -> Rugged : directLocation(sensorName, line)\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2203,
+    "completion_tokens": 381,
+    "total_tokens": 2584
+  }
+}

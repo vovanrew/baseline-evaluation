@@ -1,0 +1,81 @@
+@startuml
+actor Customer
+participant Frontend
+participant Backend
+database Database
+
+frame "Make Event" {
+    Customer ->> Frontend : Presses the \"Make new Event\"-button
+    activate Frontend
+    
+    Frontend ->> Backend : Request to open new window
+    activate Backend
+    
+    Backend <-< Backend : Generates empty event-object
+    deactivate Backend
+    
+    Backend --> Frontend : Opens new window
+    deactivate Frontend
+    
+    Customer ->> Frontend : Enters event information
+    activate Frontend
+    
+    Customer ->> Frontend : Presses \"Create\"-button
+    Frontend ->> Backend : Request to validate input
+    activate Backend
+    
+    alt Successful case [Validation successful]
+        Backend <-< Backend : Validation successful
+        
+        Backend ->> Database : Adds event to database
+        activate Database
+        
+        Database -->> Backend : Adds event to list
+        deactivate Database
+        
+        Backend --> Frontend : Closes window
+        deactivate Backend
+        
+        Frontend <--<< Frontend : Selects newly added event from list
+        Frontend <<-- Customer : Displays eventinformation to user
+        deactivate Frontend
+        
+    else Failed validation [Validation failed]
+        
+        Backend x-x Backend : Validation failed
+        
+        Backend --> Frontend : Displays alert of type ERROR
+        deactivate Backend
+        
+        Frontend <<- Customer : Lists up fields with errors
+        Customer <-> Frontend : Closes alertbox
+        deactivate Frontend
+    end
+}
+
+
+frame Cancel {
+    
+Customer->Frontend:Presses the  “Cancel” - button 
+activate Frontend 
+
+Frontend-->Backend:request to close process  
+Activate backend  
+
+backend<- < backEnd deletes eve nt object deactivat e bac kend  
+
+
+Backen d---- >fron ten dc los es w ind ow  
+
+
+
+Fron tend <<< f ront en ds elect s first ev ent in lis t 
+
+
+Fr ont edn --- >> cu stom er dis pla ys li st o fe ve nts   
+De acti vate fr onte nd }
+
+
+
+
+@end um l

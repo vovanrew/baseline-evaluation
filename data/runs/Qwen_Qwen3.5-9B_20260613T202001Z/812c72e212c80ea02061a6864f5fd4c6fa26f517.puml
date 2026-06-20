@@ -1,0 +1,147 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+  FontColor Black
+}
+
+class "CreateClinicalAnalysisLaboratoryUI" as UI {
+  <<C>>
+}
+
+class "CreateClinicalController" as Controller {
+  <<C>>
+  +createClinical(idLaboratory, name, address, phoneNumber, tin, testTypes)
+  +saveClinical()
+}
+
+class "TestTypeMapper" as Mapper {
+  <<C>>
+  +List<TestTypeDTO> toDTO(List<TestType> list)
+  +TestTypeDTO toDTO(TestType obj)
+}
+
+class "TestTypeDTO" as DTO {
+  <<C>>
+  -type
+  -collectingMethods
+  +TestTypeDTO(type, collectingMethods)
+}
+
+class "TestTypeStore" as Store {
+  <<C>>
+  +createTestType(type, collectingMethods)
+  +validateTestType(tt)
+  +saveTestType(tt)
+  +addTestType(tt)
+  +getTestType(tt)
+}
+
+class "Administrator" as Admin {
+  <<C>>
+  +createClinical(idLaboratory, name, address, phoneNumber, tin, testTypes)
+  +saveClinical(clinical)
+  -validate(clinical)
+}
+
+class "Clinical" as ClinicalEntity {
+  <<C>>
+  -String idLaboratory
+  -String name
+  -String address
+  -String phoneNumber
+  -String tin
+  -String[] testTypes
+  +Client(idLaboratory, name, address, phoneNumber, tin, testTypes)
+}
+
+class "Employee" as EmployeeEntity {
+  <<C>>
+  -String idEmployee
+  -String name
+  -String function
+  -String phoneNumber
+  -String email
+  -String address
+  -String soc
+}
+
+class "TestType" as TestTypeEntity {
+  <<C>>
+  -String type
+  -String collectingMethods
+  +getTestType()
+}
+
+class "Platform" as PlatformEntity {
+  <<C>>
+  +getClinicals()
+  +addClinical(clinical)
+}
+
+class "ClinicalStore" as ClinicalStoreEntity {
+  <<C>>
+  +getClinicals()
+  +addClinicals()
+}
+
+UI --> Controller
+Controller --> Mapper
+Controller --> Store
+Controller --> DTO
+Controller --> Admin
+Admin --> ClinicalEntity
+Admin --> EmployeeEntity
+Admin --> TestTypeEntity
+ClinicalEntity --> TestTypeEntity
+EmployeeEntity --> PlatformEntity
+PlatformEntity --> ClinicalStoreEntity
+
+note right of UI
+  CreateClinicalAnalysisLaboratoryUI
+end note
+
+note right of Controller
+  CreateClinicalController
+end note
+
+note right of Mapper
+  TestTypeMapper
+end note
+
+note right of DTO
+  TestTypeDTO
+end note
+
+note right of Store
+  TestTypeStore
+end note
+
+note right of Admin
+  Administrator
+end note
+
+note right of ClinicalEntity
+  Clinical
+end note
+
+note right of EmployeeEntity
+  Employee
+end note
+
+note right of TestTypeEntity
+  TestType
+end note
+
+note right of PlatformEntity
+  Platform
+end note
+
+note right of ClinicalStoreEntity
+  ClinicalStore
+end note
+
+@enduml

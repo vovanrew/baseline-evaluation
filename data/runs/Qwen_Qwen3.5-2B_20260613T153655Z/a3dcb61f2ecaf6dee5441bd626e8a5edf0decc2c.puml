@@ -1,0 +1,106 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam actorStyle stickfigure
+skinparam interfaceStyle rectangle
+
+title Interactions between the Control Plane (master node) and the Worker Node
+
+actor Georgina
+participant API-Server
+participant etcd
+participant Controller Manager
+participant Scheduler
+participant Power Operator
+participant Kubelet
+participant Power Node Agent
+participant Power Optimization Library
+participant K8s Objects
+participant Kube-Proxy
+
+subgraph Kubernetes Initialization
+    Kubernetes Initialization
+    1 kubectl create -f pod.yaml
+    2 save new state
+    3 check for changes
+    4 watch for unassigned pods(s)
+    5 notify about pod w nodename=" "
+    6 assign pod to node
+    7 save new state
+    8 look for newly assigned pods(s)
+    9 bind pod to node
+    10 start container
+    11 update pod status
+    12 save new state
+endsubgraph
+
+subgraph Power Manager Initialization
+    Power Manager Initialization
+    1 Ensure correct proxy configuration
+    2 Confirm CPU Manager policy
+    3 Reserve System CPUs
+    4 Create Namespace
+    5 Create RBAC and Service Accounts
+    6 Create CRDs
+    7 Label nodes
+endsubgraph
+
+subgraph Power Manager Deployment
+    Power Manager Deployment
+    1 Deploy Controller Manager
+    2 Deploy the config
+    3 Set Shared Profile
+    4 Deploy th Workload
+    5 Deploy Pod
+endsubgraph
+
+subgraph Power Manager additional functionality
+    Power Manager additional functionality
+    1 Confirm Kernel version
+    2 Set Freq in Die and Pkg
+    3 Deploy Controller Manager
+    4 Deploy the config
+    5 Set Shared Profile
+    6 Deploy th Workload
+    7 Deploy Pod
+    8 Set Time of Day functionality
+endsubgraph
+
+subgraph P-State
+    P-State
+    1 Deploy Controller Manager
+    2 Deploy the config
+    3 Set Shared Profile and configure the P-State governor
+    4 Deploy th Workload
+    5 Deploy Pod
+endsubgraph
+
+subgraph C-State
+    C-State
+    Deploy the config
+    Deploy Controller Manager
+    1 apply config/manager/manager.yaml
+    2 Set Shared Profile
+    3 Deploy th Workload
+    4 Deploy Pod
+    5 Set C-State functionality
+endsubgraph
+
+subgraph Time of Day
+    Time of Day
+    Deploy the config
+    Deploy Controller Manager
+    1 apply config/manager/manager.yaml
+    2 Set Shared Profile
+    3 Deploy th Workload
+    4 Deploy Pod
+    5 Set Time of Day functionality
+endsubgraph
+
+legend "Legend"
+    legend "Control Plane ~ Master Node"
+    legend "Worker Node"
+    legend "Power Manager System Setup"
+    legend "Power Manager Configuration"
+    legend "Power Manager Deployment"
+
+@enduml

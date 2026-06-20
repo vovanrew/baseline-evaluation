@@ -1,0 +1,22 @@
+{
+  "id": "4e217f33-23c8-4da8-9e10-ea312d8b67b5",
+  "object": "chat.completion",
+  "created": 1781435675,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam componentStyle rectangle\n\nactor \"client\" as client\nrectangle \"gateway\" as gateway\nrectangle \"developer-service\" as devService\ndatabase \"devs-db\" as devsDb\ncomponent \"broker\" as broker << (B,blue) >>\nrectangle \"planning-service\" as planService\ndatabase \"planning-db\" as planningDb\n\nclient -> gateway : POST dev\nactivate gateway\ngateway -> devService : POST dev\nactivate devService\ndevService -> devsDb : persist\ndevService --> gateway : response 201\ndeactivate devService\ngateway --> client : 201\ndeactivate gateway\n\ndevService -> broker : emit DevCreated Event\nbroker -> planService : consume Event\nactivate planService\nplanService -> planningDb : persist Dev\ndeactivate planService\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1566,
+    "completion_tokens": 181,
+    "total_tokens": 1747
+  }
+}

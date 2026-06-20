@@ -1,0 +1,90 @@
+```plantuml
+@startuml
+namespace kksffn {
+  namespace player {
+    interface IPlayer {
+        +getCoordinatesOfShips()
+        +getGuess()
+        +getName()
+        +isHuman()
+        +updateGuesseses()
+        +updateGuesses()
+    }
+
+    class APlayer {
+        #coordinatesOfShips : HashMap<ShipName, ArrayList<Integer>>
+        #isHuman : boolean
+        #name : String
+        +getCoordinatesOfShips()
+        +getGuess()
+        +getName()
+        +isHuman()
+        +updateGuesseses()
+        +updateGuesses()
+    }
+
+    class AI {
+        +AI()
+        +getCoordinatesOfShips()
+        +getGuess()
+        +updateGuesseses()
+        +updateGuesses()
+        -setName()
+    }
+
+    class Human {
+        +Human()
+        +getCoordinatesOfShips()
+        +getGuess()
+        -setName()
+        -setShips()
+    }
+
+    interface ISetShips {
+    }
+
+    interface IStrategy {
+        +findCoordinates()
+        +updateGuesseses()
+        +updateGuesses()
+    }
+
+    class Strategy {
+        -allGuesses : ArrayList<Integer>
+        -allHits : ArrayList<Integer>
+        -lastHit : int
+        -lastHits : ArrayList<Integer>
+        -myChances : int
+        -myGuess : int
+        -numberOfNotRandomMoves : int
+        -rand : Random
+        -sunkShips : ArrayList<ShipName>
+        +findCoordinates()
+        +updateGuesseses()
+        +updateGuesses()
+        -addTheRightCells()
+        -addToGuesses()
+        -alreadyGuessed()
+        -doNotGuessFourth()
+        -doNotGuessThird()
+        -isNotOnBottom()
+        -isNotOnLeftEdge()
+        -isNotOnTheRightEdge()
+        -isNotOnTheTop()
+        -shootNextToFirstHitAgain()
+        -thinkOfWhatNotToGuess()
+        -tryNearestCells()
+        -tryToSinkCarrier()
+        -updateGuesses()
+    }
+
+    IPlayer <|.. APlayer
+    APlayer <|-- AI
+    APlayer <|-- Human
+    APlayer o-- "sea" ISetShips
+    AI o-- "think" IStrategy
+    IStrategy <|.. Strategy
+  }
+}
+@enduml
+```

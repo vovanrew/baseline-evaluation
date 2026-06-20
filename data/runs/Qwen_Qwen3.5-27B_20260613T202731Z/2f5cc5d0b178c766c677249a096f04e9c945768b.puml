@@ -1,0 +1,27 @@
+```plantuml
+@startuml
+title public request directly to Gatekeeper
+
+actor "client" as client
+participant "auth_service" as auth_service
+participant "IDP" as IDP
+participant "Gatekeeper" as Gatekeeper
+participant "PASTA_service" as PASTA_service
+database "LDAP" as LDAP
+
+client -> Gatekeeper: "request" as public
+activate Gatekeeper
+Gatekeeper -> Gatekeeper: generate internal (public) token
+Gatekeeper -> PASTA_service: "request" internal (public) token
+activate PASTA_service
+PASTA_service -> PASTA_service: authorize service
+PASTA_service -> PASTA_service: authorize resource
+PASTA_service -> PASTA_service: perform service
+PASTA_service --> Gatekeeper: "response"
+deactivate PASTA_service
+Gatekeeper -> Gatekeeper: drop internal (public) token
+deactivate Gatekeeper
+Gatekeeper --> client: "response"
+
+@enduml
+```

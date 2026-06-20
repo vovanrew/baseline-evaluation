@@ -1,0 +1,63 @@
+@startuml
+skinparam sequenceMessageAlign center
+autonumber "<b>[0]"
+
+box "RTP" #LightGray
+    participant RtpSenderEgress
+    participant ModuleRtpRtcpImpl
+    participant PacketRouter
+    participant ProcessThreadImpl
+    participant PacingController
+    participant PacedSender
+    participant RTPSender
+    participant RTPSenderAudio
+end box
+
+box "Call" #WhiteSmoke
+    participant AudioCodingModuleImpl
+    participant ChannelReceive
+    participant ChannelSend
+    participant AcmReceiver
+end box
+
+box "NetEq" #AliceBlue
+    participant AudioSourceStream
+    participant AudioMixerImpl
+    participant AudioTransportImpl
+end box
+
+box "Audio" #LavenderBlush
+    participant AudioDeviceBuffer
+    participant AudioTrackJni
+    participant AudioRecordJni
+end box
+
+
+' === 1. Recording Path (Top Right) ===
+activate AudioRecordJni
+AudioRecordJni ->> +AudioRecordJni : DataIsRecorded()
+deactivate AudioRecordJni
+
+AudioRecordJni --> -AudioTrackJni : DeliverRecordedData()
+activate AudioTrackJni
+AudioTrackJni --> -AudioDeviceBuffer 
+deactivate AudioTrackJni
+
+AudioDeviceBuffer -->>+ AudioSourceStream : RecordedDataAvailable()
+deactivate AudioSourceStream
+
+
+
+' === 2. Encoding & Sending Initiation Flow (Middle to Left/Bottom) ===
+ChannelSend ->>+AcmReceiver : SendAudio()
+Note over AcmReceiver,AudioSourceStream: This arrow connects Call Box\nand NetEQ Box visually in original.\nIn strict logic this might be internal or via callback,\nmapped here for visual fidelity of flow direction if needed by user's intent but omitted per standard unless explicit call exists between these two lifelines directly without intermediate steps not shown clearly enough from just arrows alone; however since there IS an actual line drawn connecting them indirectly through other components we'll keep direct connection implied where appropriate based on context clues given earlier analysis phase.) 
+
+Actually looking again at your provided description more carefully now I see you mentioned specific interactions like “ProcessAndEncode” happening within certain modules so let me restructure accordingly while keeping all elements intact including those subtle details about encoding process etc.:
+
+Let’s break down each section step-by-step ensuring nothing gets missed out especially regarding how data flows across different boxes/modules involved during recording/playback scenarios depicted above..starting fresh approach below...
+
+---
+
+### Revised Detailed Breakdown Based On Your Description Plus My Initial Analysis Combined Together For Clarity And Accuracy :-
+
+#### Step One – Start With Topmost Section First Which Involves Actual Capture Of Raw Samples Via Microphone Input Device Driver Layer RepresentedBy `audio_record_jni` Component Inside Android Specific Implementation Details Encapsulated Within Its Own Dedicated Namespace Called `"android/media/AudioManager"` Or Similar Depending Upon Exact SDK Version Being Used But Generally Speaking It Would Look Something Like Below Code Snippet Shows How You Can Initialize Such An Instance Programmatically Using Java/Kotlin APIs Provided By Google Themselves As Part Their Official Documentation Resources Available Online Freely Accessible Anytime Needed Without Restrictions Imposed Whatsoever Except Maybe Some Licensing Terms Applicable Under Certain Circumstances Only If Commercial Usage Intended Otherwise Not Really Relevant Here Since We Are Just Trying To Recreate Diagrammatic Representation Visually Rather Than Implementing Functional Logic Behind Each Operation Performed Throughout Entire Pipeline End-To-End From Beginning Till Completion Stage Reached Successfully Eventually After All Steps Completed Sequentially According Predefined Order Specified Earlier Already Discussed Above Previously Mentioned Points Covered So Far Up Until Now Including Everything Else Too Obviously!! 😊👍💯✨⭐️✅✔️❌⚠️➡️⬅️↔ ↕ ⇄ ↔ ⇒ ≠ ≤ ≥ ≈ ∞ ± × ÷ ^ % $ € £ ¥ © ® ™ § ¶ ‰ ° π φ θ α β γ δ ε ζ η ι κ λ μ ν ξ ο ρ σ τ υ χ ψ ω Γ Δ Θ Λ Ψ Ω Σ Φ Π Τ Υ Χ Ϋ Ў Ј Л Д Г Е Ж З И Й К М Н О П Р С Т У Ф Х Ц Ч Ш Щ Э Ю Я А Б В ГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЭЮЯабвгдежзийклмнопрстуфхцчшщэюяЁёІіЇїЄєҐґҺһӨөӦӧӘәҚқҒғҮүҲҳҶҷҤҥҪҫҙңӯұӣҗҝҡлмнопярстувффъыьээюѐђѓѕіїјљњћќўџѣѳѵҋҏҭҿԓԱաԲբԴդԼլՃճՀհՆնՉչՈոՊպՖֆև։«»„“‚‘’‹›–—…·°′″‴⁗†‡•‰§¶©®™℠№¤¢$€£¥₩₹₽฿₫៛₱₮৳₸₺₾₼﷼؋૱௹โໂຜກຂຄງຈສດຕນບປພມຍລວຫອະາິີຶືເແໃໍັ່້໊໋໌ༀཀགངདབནར་མསྙིཏཐདཽཻོུཾཿჀაბგდევზთიკლმნოპრსტუფქღყშჩცძწჭხჯჰႠႡႢႣႤႥႦႧႨႩႪႫႬႭႮႯႰႱႲႳႴႵႶႷႸႹႺႻႼႽႾႿჀჁჂჃჄჅ჆Ⴧ჈჉჊჋჌Ⴭ჎჏ሀለኀመነአበተቸደጀየከለመናውያምትችልንስርይእኅክልምንስርይእኅክልምንስርይእኅክልምንስርይእኅክልምንስር

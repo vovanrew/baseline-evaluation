@@ -1,0 +1,134 @@
+@startuml
+title Interactions between the Control Plane (master node) and the Worker Node
+
+actor Georgina as Georgina
+
+participant "API-Server" as API-Server
+participant "etcd" as etcd
+participant "Controller Manager" as Controller Manager
+participant "Scheduler" as Scheduler
+participant "Power Operator" as Power Operator
+participant "Kubelet" as Kubelet
+participant "Power Node Agent" as Power Node Agent
+participant "Power Optimization Library" as Power Optimization Library
+participant "K8s Objects" as K8s Objects
+participant "Kube-Proxy" as Kube-Proxy
+
+legend right
+Control Plane ~ Master Node
+Worker Node
+Power Manager System Setup
+Power Manager Configuration
+Power Manager Deployment
+endlegend
+
+rectangle "Kubernetes Initialization" {
+  Georgina -> API-Server: 1 kubectl create -f pod.yaml
+  API-Server -> etcd: 2 save new state
+  etcd --> API-Server: 3 check for changes
+  API-Server -> Scheduler: 4 watch for unassigned pods(s)
+  Scheduler --> API-Server: 5 notify about pod w nodename=""
+  API-Server -> Scheduler: 6 assign pod to node
+  Scheduler --> API-Server: 7 save new state
+  API-Server -> Scheduler: 8 look for newly assigned pod(s)
+  Scheduler --> Kubelet: 9 bind pod to node
+  Kubelet --> Power Node Agent: 10 start container
+  Power Node Agent --> API-Server: 11 update pod status
+  API-Server -> etcd: 12 save new state
+}
+
+rectangle "Power Manager Initialization" {
+  Georgina -> Kube-Proxy: 1 Ensure correct proxy configuration
+  Georgina -> Power Operator: 2 Confirm CPU Manager policy
+  Power Operator -> Power Operator: cpuManagerPolicy = "static"
+  Georgina -> Power Operator: 3 Reserve System CPUs
+  Power Operator -> Power Operator: reservedSystemCPUs = "0"
+  Power Operator -> K8s Objects: 4 Create Namespace
+  K8s Objects -> Power Operator: apply config/rbac/namespace.yaml
+  Power Operator -> K8s Objects: 5 Create RBAC and Service Accounts
+  K8s Objects -> Power Operator: apply config/rbac/rbac.yaml
+  Power Operator -> K8s Objects: 6 Create CRDs
+  K8s Objects -> Power Operator: make
+  Power Operator -> Kube-Proxy: 7 Label nodes
+  Kube-Proxy -> Power Operator: label node <NODE_NAME> feature.node.kubernetes.io/power-node="true"
+}
+
+rectangle "Power Manager Deployment" {
+  Georgina -> Power Operator: 1 Deploy Controller Manager
+  Power Operator -> Power Operator: apply config/manager/manager.yaml
+  Georgina -> Power Operator: 2 Deploy the config
+  Power Operator -> Power Optimization Library: examples/example-powerconfig.yaml
+  Power Operator -> Power Optimization Library: examples/example-shared-profile.yaml
+  Power Operator -> Power Optimization Library: examples/example-shared-workload.yaml
+  Power Operator -> Power Optimization Library: examples/example-pod.yaml
+}
+
+rectangle "Power Manager additional functionality" {
+  Georgina -> Power Operator: 1 Confirm Kernel version
+  Power Operator -> Power Operator: kernel 5.6+ required for uncore
+  Georgina -> Power Operator: 2 Set Freq in Die and Pkg
+  Power Operator -> Power Operator: 3 Deploy Controller Manager
+  Power Operator -> Power Operator: apply config/manager/manager.yaml
+  Georgina -> Power Operator: 4 Deploy the config
+  Power Operator -> Power Optimization Library: examples/example-powerconfig.yaml
+  Power Operator -> Power Optimization Library: examples/example-shared-profile.yaml
+  Power Operator -> Power Optimization Library: examples/example-shared-workload.yaml
+  Power Operator -> Power Optimization Library: examples/example-pod.yaml
+  Power Operator -> Power Optimization Library: examples/example-timeofday.yaml
+}
+
+rectangle "Uncore" {
+  Georgina -> Power Operator: 1 Confirm Kernel version
+  Power Operator -> Power Operator: kernel 5.6+ required for uncore
+  Georgina -> Power Operator: 2 Set Freq in Die and Pkg
+  Power Operator -> Power Operator: 3 Deploy Controller Manager
+  Power Operator -> Power Operator: apply config/manager/manager.yaml
+  Georgina -> Power Operator: 4 Deploy the config
+  Power Operator -> Power Optimization Library: examples/example-powerconfig.yaml
+  Power Operator -> Power Optimization Library: examples/example-shared-profile.yaml
+  Power Operator -> Power Optimization Library: examples/example-shared-workload.yaml
+  Power Operator -> Power Optimization Library: examples/example-pod.yaml
+  Power Operator -> Power Optimization Library: examples/example-timeofday.yaml
+}
+
+rectangle "P-State" {
+  Georgina -> Power Operator: 1 Deploy Controller Manager
+  Power Operator -> Power Operator: apply config/manager/manager.yaml
+  Georgina -> Power Operator: 2 Deploy the config
+  Power Operator -> Power Optimization Library: examples/example-powerconfig.yaml
+  Power Operator -> Power Optimization Library: examples/example-shared-profile.yaml
+  Power Operator -> Power Optimization Library: examples/example-shared-workload.yaml
+  Power Operator -> Power Optimization Library: examples/example-pod.yaml
+}
+
+rectangle "C-State" {
+  Georgina -> Power Operator: Deploy Controller Manager
+  Power Operator -> Power Operator: apply config/manager/manager.yaml
+  Georgina -> Power Operator: Deploy the config
+  Power Operator -> Power Optimization Library: examples/example-powerconfig.yaml
+  Power Operator -> Power Optimization Library: examples/example-shared-profile.yaml
+  Power Operator -> Power Optimization Library: examples/example-shared-workload.yaml
+  Power Operator -> Power Optimization Library: examples/example-pod.yaml
+  Power Operator -> Power Optimization Library: examples/example-cstates.yaml
+}
+
+rectangle "Time of Day" {
+  Georgina -> Power Operator: Deploy Controller Manager
+  Power Operator -> Power Operator: apply config/manager/manager.yaml
+  Georgina -> Power Operator: Deploy the config
+  Power Operator -> Power Optimization Library: examples/example-powerconfig.yaml
+  Power Operator -> Power Optimization Library: examples/example-shared-profile.yaml
+  Power Operator -> Power Optimization Library: examples/example-shared-workload.yaml
+  Power Operator -> Power Optimization Library: examples/example-pod.yaml
+  Power Operator -> Power Optimization Library: examples/example-timeofday.yaml
+}
+
+note right of Georgina
+  Georgina
+endnote
+
+note left of Georgina
+  Georgina
+endnote
+
+@enduml

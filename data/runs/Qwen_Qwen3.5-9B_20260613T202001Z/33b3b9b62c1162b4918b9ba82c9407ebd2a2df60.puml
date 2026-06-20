@@ -1,0 +1,37 @@
+@startuml
+left to right direction
+actor browser
+participant "G_Shield" as GShield
+participant "grabPay" as GrabPay
+
+rectangle "deduction authorization and charge" {
+  browser -> GShield: insure
+  alt [authorization]
+    GShield -> GrabPay: deduction authorization
+    GrabPay --> browser: authorization page
+    browser -> GrabPay: confirm authorization
+    GrabPay --> browser: authorization result
+    GrabPay --> GShield: authorization result
+  end
+  loop [charge]
+    GShield -> GrabPay: silently charge
+    GrabPay --> GShield: charge result
+    GShield --> GrabPay: confirm receive
+    activate GShield
+    GShield --> GShield: underwriting
+    deactivate GShield
+  end
+}
+
+rectangle "refund" {
+  browser -> GShield: withdrawal
+  activate GShield
+  GShield --> GShield: withdrawal
+  GShield -> GrabPay: cancel authorization
+  GrabPay --> GShield: authorization result
+  GShield -> GrabPay: refund
+  GrabPay --> GShield: refund result
+  GShield --> browser: withdrawal result
+  deactivate GShield
+}
+@enduml

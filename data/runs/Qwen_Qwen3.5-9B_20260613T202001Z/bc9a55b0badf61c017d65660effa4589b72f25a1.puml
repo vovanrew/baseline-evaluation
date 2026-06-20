@@ -1,0 +1,74 @@
+@startuml
+title Secure Map Reduce 2 – Shuffle Service Token Flow
+
+participant "Client (c)" as c
+participant "Resource Manager (rm)" as rm
+participant "Node Manager (nm)" as nm
+participant "Shuffle Handler (ss)" as ss
+participant "File System (fs)" as fs
+
+autonumber
+
+rectangle "Bootstrap" {
+  c -> rm: createJob [...] ()
+  rm -> c: : job-id
+  rm -> c: createShuffleToken
+  c -> rm: 2 ( shfl-tkn-mk )
+  rm -> c: : shfl-tkn
+  rm -> c: serializeTokens
+  c -> rm: 3 ( shfl-tkn, ... )
+  rm -> c: : c-tokens{shfl-tkn,...}
+}
+
+rectangle "Job Submission" {
+  c -> rm: submitApplication
+  c -> rm: 4 [...]
+  c -> rm: ( job-id, c-tokens{shfl-tkn}, ... )
+  rm -> c: : app-rpt{clnt-tkn}
+}
+
+rectangle "Job Initiation" {
+  rm -> nm: startContainer
+  rm -> nm: 5 [...]
+  rm -> nm: ( c-tokens{shfl-tkn},svc-tokens{shfl-tkn}, ... )
+  nm -> Application Master (am): initApp
+  nm -> Application Master (am): 6 ( job-id, shfl-tkn )
+  nm -> Application Master (am): exec
+  nm -> Application Master (am): 7 exec
+  Application Master (am) -> Application Container (ac): startContainer
+  Application Master (am) -> Application Container (ac): 8 [...]
+  Application Master (am) -> Application Container (ac): ( svc-tokens{shfl-tkn}, ... )
+  Application Master (am) -> Application Container (ac): exec
+  Application Master (am) -> Application Container (ac): 9 exec
+  Application Container (ac) -> Task (t): exec
+  Application Container (ac) -> Task (t): 10 exec
+}
+
+rectangle "Map Task Execution" {
+  Task (t) -> File System (fs): writeShuffleData[]()
+  Task (t) -> File System (fs): 11 writeShuffleData[]()
+}
+
+rectangle "Reduce Task Execution" {
+  Shuffle Handler (ss) -> File System (fs): readShuffleData [SDT:shfl-tkn] (...)
+  Shuffle Handler (ss) -> File System (fs): 12 readShuffleData
+  File System (fs) -> Shuffle Handler (ss): 13 readShuffleData
+  File System (fs) -> Shuffle Handler (ss): 14 shfl-data
+}
+
+rectangle "Job Completion" {
+}
+
+note right of Application Master (am)
+  Application Master (am)
+end note
+
+note right of Application Container (ac)
+  Application Container (ac)
+end note
+
+note right of Task (t)
+  Task (t)
+end note
+
+@enduml

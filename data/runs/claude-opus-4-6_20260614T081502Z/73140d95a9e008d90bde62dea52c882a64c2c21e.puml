@@ -1,0 +1,97 @@
+```plantuml
+@startuml
+
+interface "Dungeon" as Dungeon {
+  + newBokoblin() : Bokoblin
+  + newMoblin() : Moblin
+}
+
+interface "Bokoblin" as Bokoblin {
+  + bludgeon()
+  + defend()
+}
+
+interface "Moblin" as Moblin {
+  + stab()
+  + kick()
+}
+
+interface "Monster" as Monster {
+  + announce()
+  + move()
+}
+
+class "MediumDungeon" {
+  + newBokoblin() : Bokoblin
+  + newMoblin() : Moblin
+}
+
+class "EasyDungeon" {
+  + newBokoblin() : Bokoblin
+  + newMoblin() : Moblin
+}
+
+class "Encounter" {
+  ~ enemies : [Monster]
+  ~ dungeon : Dungeon
+  + announceEnemies()
+  + moveEnemies()
+}
+
+class "BlueBokoblin" {
+  + announce()
+  + move()
+  + bludgeon()
+  + defend()
+}
+
+class "BlueMoblin" {
+  + announce()
+  + move()
+  + stab()
+  + kick()
+}
+
+class "NormalBokoblin" {
+  + announce()
+  + move()
+  + bludgeon()
+  + defend()
+}
+
+class "NormalMoblin" {
+  + announce()
+  + move()
+  + stab()
+  + kick()
+}
+
+Bokoblin --|> Monster
+Moblin --|> Monster
+
+MediumDungeon ..|> Dungeon
+EasyDungeon ..|> Dungeon
+
+BlueBokoblin ..|> Bokoblin
+NormalBokoblin ..|> Bokoblin
+BlueMoblin ..|> Moblin
+NormalMoblin ..|> Moblin
+
+BlueBokoblin ..|> Monster
+BlueMoblin ..|> Monster
+NormalBokoblin ..|> Monster
+NormalMoblin ..|> Monster
+
+MediumDungeon ..> BlueBokoblin : <<creates>>
+MediumDungeon ..> BlueMoblin : <<creates>>
+EasyDungeon ..> NormalBokoblin : <<creates>>
+EasyDungeon ..> NormalMoblin : <<creates>>
+
+Encounter o-- Dungeon
+Encounter --> Monster
+
+Dungeon ..> Bokoblin
+Dungeon ..> Moblin
+
+@enduml
+```

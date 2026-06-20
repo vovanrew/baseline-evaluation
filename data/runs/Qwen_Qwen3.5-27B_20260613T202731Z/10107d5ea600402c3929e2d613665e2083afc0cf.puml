@@ -1,0 +1,41 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+participant "client" as client
+participant "fastAPI" as fastAPI
+participant "JobsCollection" as JobsCollection
+participant "Poller" as Poller
+participant "IngestService" as IngestService
+participant "MappingIngester" as MappingIngester
+participant "MongoSerializer" as MongoSerializer
+participant "DatabrokerCollections" as DatabrokerCollections
+participant "SciCatIngester" as SciCatIngester
+participant "Catamel" as Catamel
+
+client --> fastAPI : file ready to ingest
+activate fastAPI
+fastAPI --> JobsCollection : create Job
+deactivate fastAPI
+activate JobsCollection
+JobsCollection <.. Poller : poll for job
+deactivate JobsCollection
+activate Poller
+Poller --> IngestService : ingest
+deactivate Poller
+activate IngestService
+IngestService ..> MappingIngester : ingest
+activate MappingIngester
+MappingIngester ..> MongoSerializer : send docs
+deactivate MappingIngester
+activate MongoSerializer
+MongoSerializer ..> DatabrokerCollections : Persist docstream
+deactivate MongoSerializer
+IngestService ..> SciCatIngester : ingest
+activate SciCatIngester
+SciCatIngester ..> Catamel : many messages
+deactivate SciCatIngester
+deactivate IngestService
+
+@enduml
+```

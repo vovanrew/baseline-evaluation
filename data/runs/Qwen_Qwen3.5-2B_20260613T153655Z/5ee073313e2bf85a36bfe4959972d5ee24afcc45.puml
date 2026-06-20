@@ -1,0 +1,34 @@
+@startuml
+participant "Customer" as C
+participant "Cashier" as K
+participant ":Inventory System" as I
+participant ":Order" as O
+participant ":Product" as P
+participant ":Stock" as S
+participant ":Invoice" as Inv
+participant ":Transaction" as T
+
+C ..> K :1. Request order product
+K ..> C :2. Receive order
+K ..> I :3. requestCreateOrder()
+
+I ..> P :3.1 selectProduct()
+P ..> S :3.2 checkStock()
+S ..> P :3.3 return stock
+P ..> I :3.4 return product
+
+alt [F (stock.qty > order.qty)]
+    I ..> O :3.5 createOrder(order)
+    O ..> S :3.6 updateStock()
+    S ..> I :3.7 return update stock
+    O ..> Inv :3.8 systemCreateInvoice()
+    Inv ..> O :3.9 printInvoice()
+    O ..> I :3.10 return invoice
+    I ..> K :3.11 return order
+    [ELSE]
+    I ..> K :3.12 can't create order
+    K ..> I :4. response create order status
+    I ..> K :5. Invoice
+end
+
+@enduml

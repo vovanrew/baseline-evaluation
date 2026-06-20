@@ -1,0 +1,65 @@
+```plantuml
+@startuml
+
+database "tuple" as tuple
+actor "Upper\nlayer" as upper
+
+box "IP Layer" #LightGray
+participant "IPv4\nlayer" as ipv4layer
+database "Routing\ntable" as routing
+end box
+
+box "IPv4 Ineterface" #LightGray
+participant "IPv4\ninterface" as ipv4if
+participant "ARP" as arp
+end box
+
+actor "Lower\nlayer" as lower
+
+note left of upper #LightYellow
+IPv4.dst=192.0.2.1
+IPv4.src=198.51.100.2
+end note
+
+upper -> ipv4layer : IPdata
+
+note over ipv4layer #LightYellow
+Allocate
+IPv4
+header
+end note
+
+ipv4layer -> routing : dst=192.0.2.1
+routing ..> ipv4layer
+
+ipv4layer ..> tuple
+
+note left of ipv4layer #LightYellow
+IPv4.oif=ifp1
+IPv4.gw=198.51.100.1
+end note
+
+ipv4layer -> ipv4if
+
+ipv4if -> arp : gw=198.51.100.1
+
+note right of arp #LightYellow
+enqueue
+packet
+end note
+
+arp <.. lower : ARP request
+arp -> lower : ARP request
+
+lower -> arp : ARP response
+arp <- lower : ARP response
+
+arp ..> ipv4if : resolved\npackets
+
+ipv4if -> ipv4if : send as\nsend\nthread
+
+ipv4if <- lower
+ipv4if -> lower
+
+@enduml
+```

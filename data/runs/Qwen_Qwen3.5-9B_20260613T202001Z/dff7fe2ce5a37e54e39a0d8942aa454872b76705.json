@@ -1,0 +1,22 @@
+{
+  "id": "51a643da-9e2e-443d-9a0e-a96d93806daf",
+  "object": "chat.completion",
+  "created": 1781425893,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle SDP Initiated Request/Response Pattern with Correlation ID\n\nskinparam sequence {\n  backgroundColor #F5F5DC\n  actorBorderColor #000000\n  actorBackgroundColor #FFA500\n  actorFontColor #000000\n  lifelineBorderColor #000000\n  lifelineBackgroundColor #E0E0E0\n  lifelineFontColor #000000\n  messageFontColor #000000\n  messageFontName \"Arial\"\n  messageFontSize 12\n  noteFontColor #000000\n  noteFontName \"Arial\"\n  noteFontSize 12\n}\n\nparticipant \"SERVER NODE 1\" as SN1\nparticipant \"SERVER NODE 2\" as SN2\nparticipant \"STATE CACHE\" as SC\nparticipant \"BROKER\" as BR\nparticipant \"APP\" as APP\n\nSN1 -> SN1 : new request/response interaction\nactivate SN1\nSN1 -> SN1 : create interaction context\ndeactivate SN1\n\nSN1 -> SC : newMessageID = nextMessageID()\nactivate SN1\nSN1 -> SC : put(newMessageID, interaction context)\ndeactivate SN1\n\nSN1 -> SN1 : create message\nactivate SN1\nSN1 -> SN1 : message.messageID = newMessageID\ndeactivate SN1\n\nSN1 -> BR : publish message\nactivate SN1\ndeactivate SN1\n\nBR -> APP : read message\nactivate BR\nactivate APP\nAPP -> APP : create response\ndeactivate APP\nAPP -> APP : response.correlationID = message.messageID\ndeactivate APP\n\nAPP -> BR : publish response\nactivate APP\ndeactivate APP\n\nBR -> SN2 : read response\nactivate BR\nactivate SN2\nSN2 -> SC : interaction context = get(response.correlationID)\ndeactivate SN2\nSN2 -> SN2 : process response\ndeactivate SN2\nSN2 -> SC : delete(response.correlationID)\ndeactivate SN2\n\ndeactivate BR\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2399,
+    "completion_tokens": 449,
+    "total_tokens": 2848
+  }
+}

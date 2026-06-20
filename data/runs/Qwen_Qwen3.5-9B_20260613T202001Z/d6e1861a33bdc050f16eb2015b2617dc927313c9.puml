@@ -1,0 +1,118 @@
+@startuml
+left to right direction
+skinparam sequenceMessageAlign center
+skinparam note {
+  BackgroundColor #FFFFE0
+  BorderColor #999999
+}
+
+participant "AbstractApplicationContext" as AbstractApplicationContext
+participant "GenericApplicationContext" as GenericApplicationContext
+participant "ApplicationContextAwareProcessor" as ApplicationContextAwareProcessor
+participant "AbstractAutowireCapableBeanFactory" as AbstractAutowireCapableBeanFactory
+participant "DefaultListableBeanFactory" as DefaultListableBeanFactory
+
+note over AbstractApplicationContext
+  以下流程都在refresh()方法内部
+end note
+
+note over AbstractApplicationContext
+  第1步
+end note
+
+AbstractApplicationContext->AbstractApplicationContext: 1 prepareRefresh
+AbstractApplicationContext->AbstractApplicationContext: initPropertySources()
+note right of AbstractApplicationContext
+  空方法,留给子类重写
+end note
+AbstractApplicationContext->AbstractApplicationContext: getEnvironment()
+AbstractApplicationContext->AbstractApplicationContext: validateRequiredProperties()
+AbstractApplicationContext->AbstractApplicationContext: new LinkedHashMap<>()
+note right of AbstractApplicationContext
+  泛型ApplicationEvent
+end note
+
+note over AbstractApplicationContext
+  第2步
+end note
+
+AbstractApplicationContext->GenericApplicationContext: 2 obtainFreshBeanFactory()
+AbstractApplicationContext->GenericApplicationContext: refreshBeanFactory()
+GenericApplicationContext->GenericApplicationContext: new DefaultListableBeanFactory()
+GenericApplicationContext->GenericApplicationContext: setSerializationId(getId())
+GenericApplicationContext->AbstractApplicationContext: 未定义变量接收返回值
+AbstractApplicationContext->GenericApplicationContext: getBeanFactory
+GenericApplicationContext->AbstractApplicationContext: 返回 DefaultListableBeanFactory
+
+note over AbstractApplicationContext
+  第3步
+end note
+
+AbstractApplicationContext->AbstractApplicationContext: 3 prepareBeanFactory
+note right of AbstractApplicationContext
+  设置BeanFactory的类加载器、支持表达式解析器
+end note
+
+note over AbstractApplicationContext
+  添加Bean后置处理器 例如
+end note
+
+AbstractApplicationContext->ApplicationContextAwareProcessor: addBeanPostProcessor(new ApplicationContextAwareProcessor(this))
+note right of ApplicationContextAwareProcessor
+  构造器
+end note
+ApplicationContextAwareProcessor->AbstractApplicationContext: 返回 ApplicationContextAwareProcessor
+
+note over AbstractApplicationContext
+  设置忽略的自动装配的接口 例如
+end note
+
+AbstractApplicationContext->AbstractAutowireCapableBeanFactory: ignoreDependencyInterface(ApplicationEventPublisherAware.class)
+AbstractAutowireCapableBeanFactory->AbstractAutowireCapableBeanFactory: ignoredDependencyInterfaces.add(ifc)
+AbstractAutowireCapableBeanFactory->AbstractApplicationContext: 未定义变量接收返回值
+
+note over AbstractApplicationContext
+  注册可以解析的自动装配 例如
+end note
+
+AbstractApplicationContext->DefaultListableBeanFactory: registerResolvableDependency(BeanFactory.class, beanFactory)
+note right of DefaultListableBeanFactory
+  params { dependencyType, autowiredValue }
+end note
+DefaultListableBeanFactory->DefaultListableBeanFactory: resolvableDependencies.put()
+DefaultListableBeanFactory->AbstractApplicationContext: 未定义变量接收返回值
+
+note over AbstractApplicationContext
+  添加ApplicationListenerDetector的Bean后置处理器
+end note
+
+note over AbstractApplicationContext
+  添加编译时的AspectJ；
+end note
+
+note over AbstractApplicationContext
+  给BeanFactory中注册一些能用的组件
+end note
+
+AbstractApplicationContext->DefaultListableBeanFactory: registerSingleton(ENVIRONMENT_BEAN_NAME / SYSTEM_PROPERTIES_BEAN_NAME / SYSTEM_ENVIRONMENT_BEAN_NAME)
+note right of DefaultListableBeanFactory
+  params{beanName, singletonObject}
+end note
+DefaultListableBeanFactory->DefaultListableBeanFactory: addSingleton()
+DefaultListableBeanFactory->AbstractApplicationContext: 未定义变量接收返回值
+
+note over AbstractApplicationContext
+  第4步
+end note
+
+note over AbstractApplicationContext
+  在应用程序上下文的标准初始化之后修改其内部bean工厂
+end note
+
+note right of AbstractApplicationContext
+  空方法 留给子类重写
+end note
+
+AbstractApplicationContext->AbstractApplicationContext: postProcessBeanFactory(beanFactory);
+
+@enduml

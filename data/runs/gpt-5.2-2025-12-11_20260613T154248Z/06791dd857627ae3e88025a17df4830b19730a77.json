@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLZBjdTEDhzEIt0GJz0qao2QsolA",
+  "object": "chat.completion",
+  "created": 1781368329,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  ParticipantPadding 30\n  BoxPadding 20\n  LifeLineBorderColor #888888\n  LifeLineBackgroundColor transparent\n  BoxBorderColor #888888\n  BoxBackgroundColor #E6E6E6\n  ParticipantBorderColor #888888\n  ParticipantBackgroundColor #E6E6FF\n  ActorBorderColor #888888\n  ActorBackgroundColor #E6E6FF\n}\n\nactor User\nparticipant Frontend\n\nactor \"API Gateway\" as APIGW\n\nbox \"Matching Service\" #E6E6E6\n  participant Controller\n  participant Service\nend box\n\nbox \"Matching Database\" #E6E6E6\n  participant Questions\n  participant MatchRequests\nend box\n\nUser -> Frontend : PUT /api/find/match\\npayload: {requestId}\nFrontend -> APIGW : PUT /api/find/match\\npayload: {requestId}\nAPIGW -> Controller : PUT /api/find/match\\npayload: {requestId}\n\nController -> Service : checkForMatch(requestId)\n\nService -> MatchRequests : find user's MatchRequest with requestId\nMatchRequests --> Service : user's MatchRequest\n\nService -> MatchRequests : find another MatchRequest\nMatchRequests --> Service : another MatchRequest\n\nService -> Questions : get a random question\nQuestions --> Service : Question\n\nService -> Service : create sessionInfo and attach to each MatchRequest\n\nService -> MatchRequests : update the 2 MatchRequests\nMatchRequests --> Service\n\nService --> Controller : user's MatchRequest\n\nController --> APIGW : 200 OK\\npayload: {user's MatchRequest}\nAPIGW --> Frontend : 200 OK\\npayload: {user's MatchRequest}\nFrontend --> User : 200 OK\\npayload: {user's MatchRequest}\n\nFrontend -> Frontend : switch to session page\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1791,
+    "completion_tokens": 400,
+    "total_tokens": 2191,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

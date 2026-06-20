@@ -1,0 +1,46 @@
+@startuml
+title フィールド選択シーケンス図
+
+actor "ユーザ" as User
+participant "Manager" as Manager
+participant "FieldModel" as FieldModel
+participant "FieldSelectPresenter" as Presenter
+participant "FieldSelectView" as View
+
+User -> Manager
+
+Manager -> FieldModel : (Child Component)
+Manager -> Presenter : Instantiate()
+
+Manager -> Presenter : Initialized()
+activate Presenter
+
+Presenter -> FieldModel : Fields
+activate FieldModel
+FieldModel --> Presenter
+deactivate FieldModel
+
+Presenter -> View : Initialized()
+activate View
+View --> Presenter
+deactivate View
+deactivate Presenter
+
+opt [フィールド選択時]\nフィールド選択
+  Manager -> View
+  View -> Presenter : OnSelectedField()
+  activate Presenter
+  Presenter --> View
+  deactivate Presenter
+end
+
+opt [ランダムボタン押下時]\nランダムボタン押下
+  Manager -> View
+  View -> Presenter : OnSelectedRundom()
+  activate Presenter
+  Presenter -> Presenter
+  Presenter --> View
+  deactivate Presenter
+end
+
+@enduml

@@ -1,0 +1,22 @@
+{
+  "id": "6a54ed6d-f0c0-43f7-ae58-8451c97fa282",
+  "object": "chat.completion",
+  "created": 1781906264,
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceMessageAlign center\nautonumber \"<b>[0]\"\n\nbox \"Resident\" #LightBlue2\n    participant Resident\nend box\n\nbox \"\" #WhiteSmoke\n    participant WeResident\nend box\n\nbox \"\" #WhiteSmoke\n    participant WeiD\nend box\n\nbox \"\" #WhiteSkyBlue\n    participant Weservice\nend box\n\n\n== Provider Login Into Provider App == \nactivate Resident\n->>WeResident : Send username:password /login\\n \n\nalt [Provider already exist]   \n   ->WeiD:Get Token by  \\nusername:password \\n/oauth/authorize  \n   -->>WeResident:Return Token to WeResident\n   \nelse\n    \n end\n \n-->>Resident: Return {\"token\": \"jwt-token\"}\\n \n\n\ndeactivate Resident\n\n\n\n== Provider Query/Search Service =  \n\nnote right of WeResident:<u><font color=black size=\"14\">Query services including token</color></size>\\n/weservices/services </u>\\nHeader <i>\"Authorization:Bear {jwt-token}\"</i>  \n\n\n-->Weservice:\\n \n\n\n\n note left of WeResident:#Yellow;__<u>Query Service schema</u>#Black;\\n{\"query\":\"string\",\"status\":12}#white;/\n\n\n\n\n alt[above token is valid ]    \n     <--WeiD:verify token\n     \n      -->WeiD:200\n      \n       <-Resident:Response services data\n        \n        Note over Residnet,Weservice:#yellow;<u>Service Data Array Schema:</u>{[{\\\"id\\\":\\\"String\\\",\\\"company\\\": \\\"string\\\", \\\"name\\\": \\\"string\\\",\\r\\r\\\"rate\\\": 4.2,\\\"image\\\": \\\"Image.png\\\"},{},{}],{\\\"total\\\":10,\\r\\r\\\"currentPage\\\":1,\\\"perPage\\\":5}}#/ \n        \n else[Token expired or invalid]\\n     \n      \n         <--WeiD: verify token\n         \n          -->WeiD:400\n          \n           -<<Resident: Response status(401)       \n           \n           \n            \n            \n        \n    \n    \n    \n    \n    \n    \n\nendif\n\n\n\n\n\n== Create Order(Request)= \n\n\n\n\ncreate order service POST:/weservices/service/{serviceID}/order --->Weservice :\\n \n\nNote Over weResident,weservice:#lightgreen ;Order Request Schema:{resident:$userID,service:$serviceId,PricingModel:{},\"notedetail:string\",address:\"string,schedule:Time}\\n#/\n\n\n<-weiD:Verify token\n\n weiD-:>weResident:200 \n \n <<---resdient:response serivceData(JSON)\\n\n  \n comment(chat in order )POST:weserices/order{orderId}/comment ----> weservice:\\n \n  \n note over resident ,wesevice:#pink|Comment Data(content:\\\"string\\\")#\\n\n \n <->weiD: Verify token\n \n weiD---->:weresident:200\n \n weresident------>:resident:200\n\n\n\n\n\n\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1419,
+    "completion_tokens": 614,
+    "total_tokens": 2033
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "b7133251-5d79-490d-b088-ebff8337e46a",
+  "object": "chat.completion",
+  "created": 1781493553,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Capture Credit Card Payment\n\nparticipant \"Client\" as Client\nparticipant \"Shop\" as Shop\nparticipant \"PAYONE\" as Payone\n\n== Initial Request ==\nClient -> Shop: POST prepare.php\nactivate Shop\nShop -->> Client: 302 capture.php\ndeactivate Shop\n\nClient -> Shop: GET capture.php\nactivate Shop\n\n== No Pseudo Card PAN present ==\nalt [No Pseudo Card PAN present]\n    Shop -> Client: 200 Credit Card Form\n    deactivate Shop\n    \n    Client -> Payone: POST Card PAN\n    activate Payone\n    Payone -->> Client: 200 Pseudo Card PAN\n    deactivate Payone\n    \n    Client -> Shop: POST capture.php\n    activate Shop\nend\n\n== Authorization Request ==\nShop -> Payone: POST request=authorization\nactivate Payone\n\n== 3-D Secure Flow ==\nalt [With 3-D Secure]\n    Payone -->> Shop: 302 3-D Secure Form\n    Shop -->> Client: 302 3-D Secure Form\n    Client -> Payone: POST 3-D Secure Password\n    Payone -> Shop: POST notify.php txaction=appointed\n    activate Shop\n    Shop -> Shop: Set Payment Status to \"captured\"\n    Shop -->> Payone: 200 TSOK\n    deactivate Shop\n    Payone -->> Client: 302 done.php\n    deactivate Payone\nelse [No 3-D Secure]\n    Payone -->> Shop: 200 status=APPROVED\n    activate Shop\n    Shop -> Shop: Set Payment Status to \"pending\"\n    Shop -->> Client: 302 done.php\n    deactivate Shop\n    deactivate Payone\nend\n\n== Completion ==\nClient -> Shop: GET done.php\nactivate Shop\nShop -->> Client: 200 Thanks\ndeactivate Shop\n\n== Asynchronous Notifications ==\nalt [No 3-D Secure]\n    note right of Shop: some time later\n    Payone -> Shop: POST notify.php txaction=appointed transaction_status=completed\n    activate Shop\n    Shop -> Shop: Set Payment Status to \"captured\"\n    Shop -->> Payone: 200 TSOK\n    deactivate Shop\nend\n\nnote right of Shop: some time later\nPayone -> Shop: POST notify.php txaction=paid\nactivate Shop\nShop -->> Payone: 200 TSOK\ndeactivate Shop\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1664,
+    "completion_tokens": 543,
+    "total_tokens": 2207
+  }
+}

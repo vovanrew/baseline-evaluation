@@ -1,0 +1,57 @@
+@startuml
+skinparam UMLSequenceDiagram arrowStyle solid
+skinparam ActorActorStyle circle
+
+title "Scheduled Events"
+
+participant "Recording Staff" as RecordingStaff
+participant "Coach" as Coach
+participant "IP/Mobile Cams" as IPMobileCams
+participant "Consumer Apps" as ConsumerApps
+participant "Security Gateway" as SecurityGateway
+participant "Control Domain (win10/linux)" as ControlDomain
+participant "Streaming Service (encoder)" as StreamingService
+participant "Media (medialID)" as Media
+participant "Transfer Service" as TransferService
+
+actor RecordingStaff
+actor Coach
+
+participant IPMobileCams
+participant ConsumerApps
+participant SecurityGateway
+participant ControlDomain
+participant StreamingService
+participant Media
+participant TransferService
+
+RecordingStaff ->> ControlDomain : authenticate(ID)
+ControlDomain -- ConsumerApps : return(token)
+
+ConsumerApps ->> SecurityGateway : register(endpoint)
+SecurityGateway ->> ControlDomain : register(token, priority)
+ControlDomain ->> StreamingService : host(sources{endpoints})
+StreamingService ->> ControlDomain : create(newEvent)
+
+ControlDomain ->> RecordingStaff : start(newEvent)
+RecordingStaff ->> ControlDomain : stop(newEvent)
+
+ControlDomain ->> StreamingService : encode()
+StreamingService ->> ControlDomain : notify(recording)
+
+ControlDomain ->> StreamingService : saveAs(medialID)
+StreamingService ->> Media : save(medialID)
+Media -- ControlDomain : host(medialID, consumers{token, priority})
+ControlDomain ->> TransferService : host(medialID, consumers{token, priority})
+TransferService ->> ControlDomain : notify(newMediaAvailable, medialID, transferServiceEndpoint)
+
+ControlDomain alt [auto-download enabled]
+ControlDomain ->> TransferService : fetchMedia(token, medialID)
+TransferService ->> ControlDomain : returnByPriority(mediaStream)
+ControlDomain else [manual-download enabled]
+ControlDomain ->> ConsumerApps : showMedia(token)
+ConsumerApps ->> ControlDomain : fetchMedia(token, medialID)
+ControlDomain ->> StreamingService : returnByPriority(mediaStream)
+@endalt
+
+@enduml

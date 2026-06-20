@@ -1,0 +1,80 @@
+```plantuml
+@startuml
+
+abstract class KindleNotes <<abstract>> {
+  o title: String
+  o author: String
+  o notes: «List» NoteElement
+  --
+  o parse()
+}
+
+class NoteElement {
+  o section
+  o heading
+  o text
+}
+
+class KindleNotesMarkdown {
+  o convert(notes: KindleNotes)
+}
+
+class KindleNotesHtml <<KindleNotes>> {
+  - _html
+  - _selector: «Enum»Selector
+  --
+  - _extract_notes()
+}
+
+enum Selector {
+  o TITLE
+  o AUTHOR
+  o SECTIONS
+  o S_HEADING
+  o S_NOTE_HEADING
+  o S_NOTE_TEXT
+}
+
+class KindleNotesCsv <<KindleNotes>> {
+  - _csv
+  --
+  - _extract_notes()
+}
+
+class KindleNotesText <<KindleNotes>> {
+  - _text
+  --
+  - _extract_notes()
+}
+
+class KindleNotesHtml_1_21 {
+  selector
+}
+
+class KindleNotesHtml_1_23 {
+  selector
+}
+
+enum MarkdownFormatter {
+  o TITLE
+  o AUTHOR
+  o SECTION
+  o S_HEADING
+  o S_TEXT
+}
+
+KindleNotes "1" o-- "n" NoteElement : has n notes
+
+KindleNotesHtml ..|> KindleNotes
+KindleNotesCsv ..|> KindleNotes
+KindleNotesText ..|> KindleNotes
+
+KindleNotesHtml -- Selector
+
+KindleNotesHtml_1_21 --|> KindleNotesHtml
+KindleNotesHtml_1_23 --|> KindleNotesHtml
+
+KindleNotesMarkdown -- MarkdownFormatter
+
+@enduml
+```

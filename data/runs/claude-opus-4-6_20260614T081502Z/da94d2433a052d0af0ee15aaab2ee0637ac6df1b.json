@@ -1,0 +1,21 @@
+{
+  "id": "msg_017WVTMTT4sduYyfWPQmXV9v",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nparticipant Test\nparticipant GrpcClient\nparticipant Front\nparticipant Edge\nparticipant HttpToGrpcMock\n\nTest ->> Front : POST /send/post\nTest ..>> GrpcClient : instruct to wait for /external/call\n\nFront -> Edge : Internal communication\nEdge -> HttpToGrpcMock : http\n\nnote right of Edge\nThinks is calling actual\nexternal service\nend note\n\nGrpcClient <<- HttpToGrpcMock : grpc\n\nnote right of HttpToGrpcMock\nInfo about received request\nis forwarded to tests\nend note\n\nTest <<- GrpcClient : Assert request\nTest <<- Test : Assert request\n\nTest ->> GrpcClient : Mocked response\nGrpcClient ->> HttpToGrpcMock\n\nHttpToGrpcMock -> Edge : http\nEdge ..>> Front : http\n\nnote right of Front\nResponding back front may not be necessary in most cases.\nMaybe it would be database update or something like that\nend note\n\nTest <<.. Front : Resolve /send/post promise\nTest <<- Test : Assert response\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781430945,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 268,
+    "prompt_tokens": 1660,
+    "total_tokens": 1928
+  }
+}

@@ -1,0 +1,83 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 100
+
+participant "VideoSink" as VideoSink
+participant "VideoDecoder" as VideoDecoder
+participant "VideoReceiver" as VideoReceiver
+participant "RTPReceiver" as RTPReceiver
+participant "Transceiver" as Transceiver
+participant "DTLS" as DTLS
+
+== Receive RTP ==
+
+DTLS -> DTLS : AsyncUDPSocket
+DTLS -> DTLS : RecvFrom\nPacketReceived
+DTLS -> DTLS : read\nssl
+
+DTLS -> DTLS : SignalReadEvent
+DTLS -> Transceiver : OnReadPacket()
+Transceiver -> Transceiver : ProcessConnection\nUDPPort\nPossibleIncomingPacket()
+
+Transceiver -> Transceiver : webrtc::DtlsTransport::OnReadPacket()
+Transceiver -> Transceiver : [RtpTransportInternal]\n[RtpTransport]\nDtpTransport\nOnPacket
+Transceiver -> Transceiver : RtpTransport::OnReadPacket()
+Transceiver -> Transceiver : SrtpTransport::OnRtpPacketReceived()
+
+Transceiver -> RTPReceiver : RtpDemuxer\nOnRtpPacket()
+
+== Receive Video ==
+
+RTPReceiver -> Transceiver : OnRtpPacket()
+Transceiver -> Transceiver : StreamsInterface\nWebRtcVideoStream\nWebRtcVideoChannel\nWebRtcVideoStream
+
+Transceiver -> Transceiver : JsepIceCall\nstream()
+
+Transceiver -> RTPReceiver : DeliverPacket()
+RTPReceiver -> RTPReceiver : OnRtpPacket()
+
+RTPReceiver -> RTPReceiver : RtpVideoStreamReceiver\nOnRtpPacket()
+RTPReceiver -> RTPReceiver : ReceivePacket()
+RTPReceiver -> RTPReceiver : OnReceivedPayloadData()
+RTPReceiver -> RTPReceiver : OnReceivedVideoFrame()
+RTPReceiver -> RTPReceiver : OnDecodedFrame()
+RTPReceiver -> RTPReceiver : OnCompleteFrame()
+
+RTPReceiver -> VideoReceiver : VideoReceiveStream\nOnCompleteFrame()
+VideoReceiver -> VideoReceiver : FrameBuffer
+VideoReceiver -> VideoReceiver : InsertFrame()
+
+note over VideoReceiver : RESUME
+
+VideoReceiver -> VideoReceiver : HandleEncodedFrame()
+VideoReceiver -> VideoReceiver : Decode()
+
+VideoReceiver -> VideoDecoder : VCMGenericDecoder\nDecode()
+VideoDecoder -> VideoDecoder : Decode()
+
+VideoDecoder -> VideoDecoder : VideoDecodeDecoderFrameCallbackWrapper\nDecode()
+VideoDecoder -> VideoDecoder : AndroidVideoDecoder\nDecode()
+
+VideoDecoder -> VideoDecoder : VideoDecoder.Callback
+VideoDecoder -> VideoDecoder : OnDecodedFrame()
+
+VideoDecoder -> VideoDecoder : VCMDecodedFrameCallback\nDecoded()
+VideoDecoder -> VideoDecoder : FrameToRender()
+
+VideoDecoder -> VideoDecoder : VideoStreamDecoder\nFrameToRender()
+VideoDecoder -> VideoDecoder : OnFrame()
+
+VideoDecoder -> VideoDecoder : IncomingVideoStream\nOnFrame()
+VideoDecoder -> VideoDecoder : OnFrame()
+VideoDecoder -> VideoDecoder : OnFrame()
+
+VideoDecoder -> VideoDecoder : WebRtcVideoReceiveStream\nOnFrame()
+VideoDecoder -> VideoDecoder : OnFrame()
+
+VideoDecoder -> VideoSink : VideoSinkWrapper\nOnFrame()
+VideoSink -> VideoSink : OnFrame()
+
+VideoSink -> VideoSink : ProxyVideoSink\nOnFrame()
+VideoSink -> VideoSink : SurfaceViewRenderer\nOnFrame()
+
+@enduml

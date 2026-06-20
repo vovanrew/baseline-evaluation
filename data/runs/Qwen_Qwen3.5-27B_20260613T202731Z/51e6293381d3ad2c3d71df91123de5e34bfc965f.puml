@@ -1,0 +1,64 @@
+```plantuml
+@startuml
+class KinematicModelClient {
+    +updateKinematics(): void
+}
+
+class RoutePlanningClient {
+    +updateRoute(): void
+}
+
+class PositionSensor {
+    +position: Position
+    +resourceID: int = 1
+    +getPosition(): struct Position
+    +setPosition(p: struct Position): void
+    +lockDyadic(): int
+    +releaseDyadic(): void
+}
+
+class VelocitySensor {
+    +velocity: Velocity
+    +resourceID: int = 2
+    +getVelocity(): struct Position
+    +setVelocity(p: struct Position): void
+    +lockDyadic(): int
+    +releaseDyadic(): void
+}
+
+class AltitudeSensor {
+    +altitude: Altitude
+    +resourceID: int = 2
+    +getAltitude(): struct Position
+    +setAltitude(p: struct Position): void
+    +lockDyadic(): int
+    +releaseDyadic(): void
+}
+
+class ResourceList {
+    +rIDList: int rIDList[20]
+    +nIDs: int = 0
+    +isInOrder(rID: int): char
+    +addLock(rID: int): int
+    +removeLock(rID: int): void
+}
+
+class Mutex {
+}
+
+KinematicModelClient --> PositionSensor
+KinematicModelClient --> VelocitySensor
+KinematicModelClient --> AltitudeSensor
+RoutePlanningClient --> PositionSensor
+RoutePlanningClient --> VelocitySensor
+RoutePlanningClient --> AltitudeSensor
+PositionSensor --> ResourceList
+VelocitySensor --> ResourceList
+AltitudeSensor --> ResourceList
+ResourceList --> Mutex
+PositionSensor --> Mutex
+VelocitySensor --> Mutex
+AltitudeSensor --> Mutex
+
+@enduml
+```

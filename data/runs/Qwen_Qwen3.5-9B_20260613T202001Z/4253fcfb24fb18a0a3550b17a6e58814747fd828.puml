@@ -1,0 +1,48 @@
+@startuml
+!theme plain
+
+package "de" {
+  package "thro" {
+    package "inf" {
+      package "prg3" {
+        package "a13" {
+          package "tweets" {
+            package "generators" {
+              interface TweetStreamGenerator {
+                getTweetStream(): Stream<Tweet>
+              }
+
+              class TweetStreamFactory {
+                - instance: TweetStreamFactory
+                + getInstance(): TweetStreamFactory
+                + isOnlineAvailable(): boolean
+                + getTweetsStream(tweetSource: TweetSource): Stream<Tweet>
+              }
+
+              class OnlineTweetStreamGenerator {
+                <<C>>
+              }
+
+              class OfflineTweetStreamGenerator {
+                <<C>>
+              }
+
+              class TweetSource {
+                <<E>>
+                ONLINE,
+                OFFLINE
+              }
+
+              TweetStreamFactory --> OnlineTweetStreamGenerator : Instantiates and returns
+              TweetStreamFactory --> OfflineTweetStreamGenerator : Instantiates and returns
+              OnlineTweetStreamGenerator ..|> TweetStreamGenerator
+              OfflineTweetStreamGenerator ..|> TweetStreamGenerator
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@enduml

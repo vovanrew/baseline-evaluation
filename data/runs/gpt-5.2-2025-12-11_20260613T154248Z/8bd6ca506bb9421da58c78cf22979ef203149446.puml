@@ -1,0 +1,148 @@
+@startuml
+title CONTROLADORES's Class Diagram
+
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "javafx" {
+  package "event" {
+    interface "EventHandler" as javafx_event_EventHandler
+  }
+}
+
+package "edu" {
+  package "fiuba" {
+    package "algoChess" {
+      package "interfaz" {
+
+        package "controladores" {
+
+          class "AceptarNombresHandler" as AceptarNombresHandler {
+            - TFNombreJugador1 : TextField
+            - TFNombreJugador2 : TextField
+            - popupNombres : Popup
+            - stage : Stage
+            --
+            + AceptarNombresHandler()
+            + handle()
+          }
+
+          class "AtacarPiezaHandler" as AtacarPiezaHandler {
+            - stage : Stage
+            - tFX : TextField
+            - tFY : TextField
+            --
+            + AtacarPiezaHandler()
+            + handle()
+          }
+
+          class "CancelarNombresHandler" as CancelarNombresHandler {
+            - popupNombres : Popup
+            - stage : Stage
+            --
+            + CancelarNombresHandler()
+            + handle()
+          }
+
+          class "CrearPiezaHandler" as CrearPiezaHandler {
+            - head : HBox
+            - nombrePieza : String
+            - stageUbicar : Stage
+            - x : TextField
+            - y : TextField
+            --
+            + CrearPiezaHandler()
+            + handle()
+          }
+
+          class "CurarPiezaHandler" as CurarPiezaHandler {
+            - stage : Stage
+            - tFX : TextField
+            - tFY : TextField
+            --
+            + CurarPiezaHandler()
+            + handle()
+          }
+
+          class "IniciarJuegoHandler" as IniciarJuegoHandler
+
+          class "JugarHandler" as JugarHandler {
+            - stage : Stage
+            --
+            + JugarHandler()
+            + handle()
+          }
+
+          class "SalirHandler" as SalirHandler {
+            --
+            + handle()
+          }
+
+          class "UbicarPiezaHandler" as UbicarPiezaHandler {
+            - head : HBox
+            - listaPieza : HashMap<String, Class>
+            - nombrePieza : String
+            - stagePrincipal : Stage
+            - stageUbicar : Stage
+            - x : TextField
+            - y : TextField
+            --
+            + UbicarPiezaHandler()
+            + alerta3seg()
+            + handle()
+          }
+        }
+
+        package "vista" {
+          class "SegundaEtapa" as SegundaEtapa
+          class "PantallaPrincipal" as PantallaPrincipal
+          class "VistaTablero" as VistaTablero
+          class "VistaPieza" as VistaPieza
+        }
+
+        package "modelo" {
+          package "entidades" {
+            class "Pieza" as Pieza
+            class "Curandero" as Curandero
+          }
+          package "juego" {
+            class "Juego" as Juego
+          }
+          package "bandos" {
+            class "Bando" as Bando
+          }
+        }
+      }
+    }
+  }
+}
+
+' Implements EventHandler (dashed realization)
+AceptarNombresHandler ..|> javafx_event_EventHandler
+AtacarPiezaHandler ..|> javafx_event_EventHandler
+CancelarNombresHandler ..|> javafx_event_EventHandler
+CrearPiezaHandler ..|> javafx_event_EventHandler
+CurarPiezaHandler ..|> javafx_event_EventHandler
+IniciarJuegoHandler ..|> javafx_event_EventHandler
+JugarHandler ..|> javafx_event_EventHandler
+SalirHandler ..|> javafx_event_EventHandler
+UbicarPiezaHandler ..|> javafx_event_EventHandler
+
+' Associations to views (solid)
+AtacarPiezaHandler --> SegundaEtapa : segundaEtapa
+CrearPiezaHandler --> PantallaPrincipal : pantallaPrincipal
+CurarPiezaHandler --> SegundaEtapa : segundaEtapa
+JugarHandler --> PantallaPrincipal : pantallaPrincipal
+
+UbicarPiezaHandler --> VistaTablero : mapView
+UbicarPiezaHandler --> VistaPieza : pieceView
+
+' Associations to model (solid)
+UbicarPiezaHandler --> Pieza : juego
+UbicarPiezaHandler --> Juego : juego
+UbicarPiezaHandler --> Curandero : emisor
+UbicarPiezaHandler --> Bando : bandoPieza
+
+@enduml

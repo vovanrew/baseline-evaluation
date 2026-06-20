@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle RqP - Request Resource\n\nactor \"Requesting Party\\n(RqP)\" as RqP\n\nbox \"Client Application (CA)\\n<<Custom Application>>\" #LightGreen\nparticipant \"User Interface\" as UI\nend box\n\nbox \"Resource Server (RS)\\n<<Custom Application>>\" #Bisque\nparticipant \"REST API\" as RS_REST\ndatabase \"Resource\" as RS_Resource\ndatabase \"Credential\" as RS_Credential\nend box\n\nbox \"Authorization Server (AS)\\nForgeRock Access Manager\" #AntiqueWhite\nparticipant \"AM API\" as AS_AM\nparticipant \"UMA API\" as AS_UMA\nparticipant \"OAuth API\" as AS_OAuth\nend box\n\nbox \"Content Server (CS)\\n<<Custom Application>>\" #PaleTurquoise\nparticipant \"REST API\" as CS_REST\ndatabase \"Data\" as CS_Data\nend box\n\nRqP -> AS_AM : Authenticate\nactivate AS_AM\nAS_AM --> RqP : Authenticated\ndeactivate AS_AM\n\nRqP -> UI : Access Interface\nactivate UI\n\nUI -> UI : Obtain Resource Id\\n(maybe from Discover Resources)\nUI -> RS_REST : GET /share/resources/{resourceId}\\nscopes (no valid RPT)\nactivate RS_REST\n\nRS_REST -> RS_Resource : Get _id\nactivate RS_Resource\nRS_Resource --> RS_REST : meta data\ndeactivate RS_Resource\n\nRS_REST -> AS_AM : Get PAT\nactivate AS_AM\nAS_AM --> RS_REST : PAT\ndeactivate AS_AM\n\nnote left of RS_REST : Get permission ticket for the\\nresource and scope\nRS_REST -> AS_UMA : POST /am/uma/permission_request\\nresource_id + scopes\nactivate AS_UMA\nAS_UMA --> RS_REST : permission ticket\ndeactivate AS_UMA\n\nRS_REST --> UI : permission ticket + AS URI\ndeactivate RS_REST\n\nUI -> UI : Get client auth basic\n\nnote left of UI : Get claim token for the\\nRequesting Party (RqP)\nUI -> AS_OAuth : POST /am/oauth2/access_token\\nscope=openid\\nSSO session\nactivate AS_OAuth\n\nAS_OAuth -> AS_OAuth : Validate SSO session\nAS_OAuth --> UI : claim token\ndeactivate AS_OAuth\n\nnote left of UI : Get Requesting Party Token (RPT)\\nusing the permission ticket\\nand claim token\nUI -> AS_OAuth : POST /am/oauth2/access_token\\ngrant_type=urn:ietf:params:oauth:grant-type:uma-ticket\\nscope=..., ticket=..., claim_token=..., claim_token_format=...\nactivate AS_OAuth\n\nAS_OAuth -> AS_AM : Check Access\nactivate AS_AM\nAS_AM -> AS_AM : No Policy for RqP + Resource + scopes\\nCreate Access Request for Resource Owner\nAS_AM --> AS_OAuth : No Access, request Submitted\ndeactivate AS_AM\n\nAS_OAuth --> UI : Error: Request Submitted\ndeactivate AS_OAuth\n\nUI --> RqP\ndeactivate UI\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHkNKKjRrfNLp19usNCLsPn60CUbrtloUVvX8CuvviEkIWq9H23vC5JOVGLfkx"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1160,
+    "candidatesTokenCount": 707,
+    "totalTokenCount": 1867,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1080
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "mWExas7GH5mzxN8Pjq3HgAE"
+}

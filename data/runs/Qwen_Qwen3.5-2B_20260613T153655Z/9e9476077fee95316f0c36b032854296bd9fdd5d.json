@@ -1,0 +1,22 @@
+{
+  "id": "99448474-828a-46df-9c16-44ed58d81cd4",
+  "object": "chat.completion",
+  "created": 1781397289,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Sequence Diagram: Internal state synchronization\nauthor \"pw@zoi.de\"\nversion \"0.1\"\n\nparticipant \"Sender\" as Sender\nparticipant \"IoTClient\" as IoTClient\nparticipant \"ShadowCallback\" as ShadowCallback\nparticipant \"ShadowService\" as ShadowService\n\nrectangle Internal Service {\n    participant IoTClient\n    participant ShadowCallback\n}\n\nrectangle AWS Cloud {\n    participant ShadowService\n}\n\nrectangle \"client connection\" {\n    Sender -> IoTClient: connect()\n    IoTClient -> ShadowCallback: on_conncet_wrapper()\n    IoTClient <- ShadowCallback: subscribe(\"AWS Shadow Topics\")\n    IoTClient -> ShadowCallback: subscribe()\n    IoTClient -> ShadowCallback: on_subscribe_wrapper()\n    IoTClient -> ShadowService: request_desired_state()\n}\n\nrectangle \"state retrieval\" {\n    IoTClient -> ShadowCallback: publish(\"myClient/shadow/get\")\n    ShadowCallback -> IoTClient: on_message(\"myClient/shadow/get/accepted\", state)\n    IoTClient -> ShadowCallback: on_message_wrapper(rawState)\n    ShadowCallback -> ShadowService: on_desired_state_change(rawState)\n}\n\nrectangle \"state synchronization\" {\n    IoTClient -> ShadowCallback: set_state(desiredState)\n    IoTClient -> ShadowCallback: on_set_state_wrapper()\n    ShadowCallback -> IoTClient: publish(\"myClient/shadow/update\", reportedState)\n    ShadowCallback -> ShadowService: publish_new_state()\n    ShadowCallback -> IoTClient: publish(\"myClient/shadow/update\", state)\n}\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2203,
+    "completion_tokens": 335,
+    "total_tokens": 2538
+  }
+}

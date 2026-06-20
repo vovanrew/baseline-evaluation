@@ -1,0 +1,50 @@
+```plantuml
+@startuml
+title PB-749 UC4 – Update a Banner on System Management
+
+actor "System Management" as SM
+rectangle "Next Platform" {
+    participant "Core Next" as CN
+    database "Next Database" as DB
+}
+participant "Core Bradesco" as CB
+
+note over SM,CN:Abstract:\nThis use case will be responsible to update an existing banner on Next.\nThis endpoint is not responsible for deleting a record. To do this, it\nmust use the use case 5 – Delete a Banner on System Management.\nHowever, in this use case, SM may enable or disable Banner.
+
+SM -> CN: 1 PUT /v1/notification/banner/{bannerID}
+activate CN
+note right of SM:System Management will call this new endpoint\npassing all the fields necessary to update an\nexisting Banner. The fields are:\n1. BANNER_ID\n2. BUSINESS_EVENT_TYPE_ID\n3. TEMPLATE_HEADER\n4. TEMPLATE_BODY\n5. ENABLE_IND
+
+CN -> DB: 2 check if this Banner exists on BANNER table
+activate DB
+note right of CN:Core Next will check if this Banner exists on BANNER table
+DB --> CN: 3 response
+deactivate DB
+
+alt [if the Banner exists]
+    CN -> DB: 4 check if exists an enabled Banner associated with that BUSINESS_EVENT_TYPE received on requisition on BANNER table
+    activate DB
+    note orange right of CN:Note to developers\nCore Next will check if exists any Banner linked to a BUSINESS_EVENT_TYPE on BANNER\ntable. We can only have one enabled Banner linked to a BUSINESS_EVENT_TYPE. For this\nrule, we should disregard the records that are with DELETE_FLG enabled and the Card itself.
+    DB --> CN: 5 response
+    deactivate DB
+    
+    alt [if exists an enabled Banner associated with that BUSINESS_EVENT_TYPE]
+        CN --> SM: 6 error
+        note left of SM:#FFCCCC<<HTTP code: 422>>
+    else [if don't exists an enabled Banner associated with that BUSINESS_EVENT_TYPE]
+        note right of CN:If the defensive checks pass, then we will update the register on BANNER table.
+        CN -> DB: 7 update the register on BANNER table
+        activate DB
+        DB --> CN: 8 success
+        deactivate DB
+        CN --> SM: 9 success
+        note left of SM:#ADD8E6<<HTTP code: 200>>
+    end
+else [if the Banner don't exists]
+    CN --> SM: 10 error
+    note left of SM:#FFCCCC<<If the Banner don't exists on BANNER table, then we will throw back an error to SM.\nHTTP code: 404>>
+end
+
+deactivate CN
+@enduml
+```

@@ -1,0 +1,30 @@
+```plantuml
+@startuml
+title Kubectl Request
+
+actor kubectl
+participant "K8s Auth Proxy" as K8sAuthProxy
+participant "K8s API Server" as K8sAPIServer
+participant Hydra
+
+note left of kubectl
+Set the correct cluster with
+server pointing to the k8auth
+in the kubectl config
+end note
+
+kubectl -> K8sAuthProxy : GET: https://k8s.dolittle.cloud/api/pods\nHeader: { Authentication: Bearer <token> }
+K8sAuthProxy -> Hydra : GET: http://hydra.system-auth.svc.cluster.local/userinfo
+
+alt [If good token]
+  Hydra --> K8sAuthProxy : Status 200 { claims... }
+  K8sAuthProxy -> K8sAPIServer : Impersonate: Hydra-User-Info\nGET: https://<local-cluster-url>/api/pods
+  K8sAPIServer --> K8sAuthProxy : Status 200 (results)
+  K8sAuthProxy --> kubectl : Status 200 (results)
+else [If bad/no token]
+  Hydra --> K8sAuthProxy : Status 401
+  K8sAuthProxy --> kubectl : Status 401
+end
+
+@enduml
+```

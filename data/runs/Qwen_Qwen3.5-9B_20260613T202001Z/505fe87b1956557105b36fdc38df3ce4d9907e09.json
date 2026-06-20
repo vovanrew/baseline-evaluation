@@ -1,0 +1,22 @@
+{
+  "id": "bb96092e-3622-4f97-86bd-d19a0b90190d",
+  "object": "chat.completion",
+  "created": 1781415034,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"Freelancer\" as freelancer\nparticipant \":AlterarCandidaturaUI\" as ui\nparticipant \":RegistrarCandidaturaController\" as controller\nparticipant \":Plataforma\" as plataforma\nparticipant \":UsersAPI\" as usersAPI\nparticipant \"cand: Candidatura\" as candidatura\ndatabase \"RepositorioFreelancer\" as repoFreelancer\ndatabase \"RepositorioCandidatura\" as repoCandidatura\n\nfreelancer -> ui: 1 inicia alterar candidatura\nui -> controller: 2 getFreelancerByEmail()\ncontroller -> plataforma: 3 email = getSessionEmail()\nplataforma -> usersAPI: 4 email = getEmail()\nusersAPI --> plataforma: 4\ncontroller -> repoFreelancer: 5 free = find(email)\nrepoFreelancer --> controller: 5\n\nui -> controller: 6 lcand = getCandidaturasDispByFreelancerEmail()\ncontroller -> repoCandidatura: 7 lcand = getAllCandidaturasByFreelancerEmail(email)\nrepoCandidatura --> controller: 7\n\nui --> freelancer: 8 solicita a escolha de uma das candidaturas por si efetuadas e, ainda, em per\u00edodo de candidaturas\nfreelancer -> ui: 9 escolhe a candidatura\nui -> controller: 10 cand = getCandById()\ncontroller -> repoCandidatura: 11 cand = find(id)\nrepoCandidatura --> controller: 11\n\nui --> freelancer: 12 solicita a introdu\u00e7\u00e3o de novos dados (i.e. os que pretende alterar, mantendo os restantes iguais)\nfreelancer -> ui: 13 introduz os dados solicitados (valor,nrDias,txtApresentacao,txtMotivacao)\nui -> controller: 14 alterarCandidatura(valor,nrDias,txtApresentacao,txtMotivacao)\ncontroller -> repoCandidatura: 15 update(cand)\nrepoCandidatura --> controller: 15\n\nui --> freelancer: 16 valida e apresenta os dados ao Freelancer e pede a sua confirma\u00e7\u00e3o\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1223,
+    "completion_tokens": 463,
+    "total_tokens": 1686
+  }
+}

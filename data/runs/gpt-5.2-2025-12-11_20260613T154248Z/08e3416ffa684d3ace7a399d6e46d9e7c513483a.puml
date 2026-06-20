@@ -1,0 +1,56 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+skinparam class {
+  BackgroundColor #F7F7F7
+  BorderColor #333333
+  FontStyle italic
+  AttributeFontStyle italic
+  StereotypeFontStyle italic
+}
+
+skinparam interface {
+  BackgroundColor #F7F7F7
+  BorderColor #333333
+  FontStyle italic
+}
+
+skinparam abstractclass {
+  BackgroundColor #F7F7F7
+  BorderColor #333333
+  FontStyle italic
+}
+
+interface "Publisher" as Publisher <<T>> {
+  {method} void subscribe(Subscriber<? super T> s)
+}
+
+abstract class "Flowable" as Flowable <<T>> {
+  {method} void subscribeActual(Subscriber<? super T> s)
+}
+
+interface "Subscription" as Subscription <<T>> {
+  {method} void request(long n)
+  {method} void cancel()
+}
+
+class "FlowableFilter" as FlowableFilter <<T>>
+class "FlowableMap" as FlowableMap <<T, U>>
+class "FilterSubscriber" as FilterSubscriber <<T>>
+class "MapSubscriber" as MapSubscriber <<T, U>>
+
+Flowable ..|> Publisher
+
+FlowableFilter --|> Flowable
+FlowableMap --|> Flowable
+
+FilterSubscriber ..|> Subscription
+MapSubscriber ..|> Subscription
+
+FlowableFilter o-- FilterSubscriber
+FlowableMap o-- MapSubscriber
+
+@enduml

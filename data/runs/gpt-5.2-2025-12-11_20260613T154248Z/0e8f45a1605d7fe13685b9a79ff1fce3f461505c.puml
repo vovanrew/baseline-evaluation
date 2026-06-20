@@ -1,0 +1,23 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 60
+  BoxPadding 20
+  MessageAlign left
+}
+
+participant LoaderPlugin as LP
+participant ContentServer as CS
+participant FS as FS
+
+LP -> CS : LoadBundleIndexes()
+
+loop [for each index file]
+  CS -> FS : ReadFile()
+  FS --> CS
+  CS -> CS : parse ContentBundleIndex instances,\nfill mountpoint mappings
+end
+
+CS --> LP
+@enduml

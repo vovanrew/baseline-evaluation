@@ -1,0 +1,22 @@
+{
+  "id": "4c8cf47e-a526-4643-afc4-b656d8c41209",
+  "object": "chat.completion",
+  "created": 1781503519,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Project - Staff - Update\n\nparticipant \"Client\" as Client\nparticipant \"ProjectService\" as ProjectService\nparticipant \"RedisCache\" as RedisCache\nparticipant \"Kafka\" as Kafka\nparticipant \"PersisterService\" as PersisterService\nparticipant \"IndexerService\" as IndexerService\nparticipant \"ErrorService\" as ErrorService\nparticipant \"ElasticSearch\" as ElasticSearch\ndatabase \"Database\" as Database\n\n== Request Validation ==\nClient -> ProjectService: /project/staff/v1/_update\nactivate ProjectService\nProjectService -> ProjectService: Validate request body\n\nalt [request validation fails]\n    ProjectService -> ProjectService: Request validation failed\n    ProjectService --> Client: HttpStatus: 400 with appropriate error code\n    note left of Client: Error Code: REQUEST_VALIDATION_FAILED\nelse\n    ProjectService -> ProjectService: Request validation successful\nend\ndeactivate ProjectService\n\n== Record Existence Check ==\nactivate ProjectService\nalt [record doesn't exist]\n    ProjectService -> RedisCache: Search record based on serverGeneratedId\n    activate RedisCache\n    RedisCache --> ProjectService: 0 rows\n    deactivate RedisCache\n    \n    ProjectService -> Database: Search record based on serverGeneratedId\n    activate Database\n    Database --> ProjectService: 0 row\n    deactivate Database\n    \n    ProjectService --> Client: HttpStatus: 400 with appropriate error code\n    note left of Client: Error Code: RECORD_NOT_FOUND\nelse\n    alt [record doesn't exists in cache]\n        ProjectService -> RedisCache: Search record based on serverGeneratedId\n        activate RedisCache\n        RedisCache --> ProjectService: 0 rows\n        deactivate RedisCache\n        \n        ProjectService -> Database: Search record based on serverGeneratedId\n        activate Database\n        Database --> ProjectService: 1 row\n        deactivate Database\n        \n        ProjectService -> RedisCache: 1 record\n        activate RedisCache\n        deactivate RedisCache\n    end\n    \n    ProjectService -> RedisCache: Fetch the existing record\n    activate RedisCache\n    RedisCache --> ProjectService: 1 row\n    deactivate RedisCache\nend\n\n== Version Check and Update ==\nalt [incorrect rowVersion]\n    ProjectService -> ProjectService: Compare rowVersion between request and db\n    ProjectService -> ProjectService: Incorrect rowVersion [request: should be +1 only]\n    ProjectService --> Client: HttpStatus: 400 with appropriate error code\n    note left of Client: Error Code: BAD_REQUEST\nelse\n    ProjectService -> ProjectService: Compare rowVersion between request and db\n    ProjectService -> ProjectService: rowVersion in request = rowVersion in db + 1\n    \n    ProjectService -> Kafka: Project Staff Data /update_topic\n    activate Kafka\n    \n    ProjectService -> RedisCache: Update new record in cache against serverGeneratedId\n    activate RedisCache\n    deactivate RedisCache\n    \n    ProjectService --> Client: HttpStatus: 202 ACCEPTED\n    deactivate ProjectService\n    \n    async\n        Kafka -> PersisterService: Consume Project Staff Data\n        activate PersisterService\n        Kafka -> IndexerService: Consume Project Staff Data\n        activate IndexerService\n        \n        IndexerService -> ElasticSearch: Store Project Staff Data\n        activate ElasticSearch\n        deactivate ElasticSearch\n        \n        PersisterService -> Database: Update Project Staff Data\n        activate Database\n        deactivate Database\n        \n        deactivate IndexerService\n        deactivate PersisterService\n    end\n    deactivate Kafka\nend\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2056,
+    "completion_tokens": 744,
+    "total_tokens": 2800
+  }
+}

@@ -1,0 +1,46 @@
+@startuml
+actor "sidetree-core-go" as scg
+
+box "Instance 1" #LightGray
+participant "Operation\nQueue" as OQ1
+end box
+
+participant "orb.operation" as ORB
+
+database "op-queue\nDB" as DB
+
+box "Instance 2" #LightGray
+participant "Operation\nQueue" as OQ2
+end box
+
+OQ1 -> ORB : Subscribe
+ORB --> OQ1 : ok
+
+OQ2 -> ORB : Subscribe
+ORB --> OQ2 : ok
+
+scg -> OQ1 : Add(op1)
+OQ1 -> ORB : Publish(op1)
+ORB --> OQ1 : ok
+OQ1 --> scg : ok
+
+scg -> OQ2 : Add(op2)
+OQ2 -> ORB : Publish(op2)
+ORB --> OQ2 : ok
+OQ2 --> scg : ok
+
+ORB -> OQ1 : op2
+OQ1 --> ORB : ok
+OQ1 -> DB : Put(op2,handler1ID,expiry)
+DB --> OQ1 : ok
+OQ1 -> ORB : Ack(op2)
+ORB --> OQ1 : ok
+
+ORB -> OQ2 : op1
+OQ2 --> ORB : ok
+OQ2 -> DB : Put(op1,handler2ID,expiry)
+DB --> OQ2 : ok
+OQ2 -> ORB : Ack(op1)
+ORB --> OQ2 : ok
+
+@enduml

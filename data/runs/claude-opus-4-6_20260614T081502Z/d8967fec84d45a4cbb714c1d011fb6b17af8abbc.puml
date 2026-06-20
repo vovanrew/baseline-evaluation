@@ -1,0 +1,93 @@
+```plantuml
+@startuml
+
+title US016 - As Director/PM/PO/SM, I want to view status of activities in a project
+
+class TaskUI {
+}
+
+package "Controller" {
+    class TaskController {
+        + getStatusOfActivitiesInProject(String projectID)
+    }
+}
+
+package "Service" {
+    class TaskService {
+        + getStatusOfActivities(String projectID)
+        - getCurrentSprintID(projectID)
+        - getSbiIDs(projectID, sprintID)
+        - getTasks(sbiIDs)
+    }
+}
+
+package "Repository" {
+    class SprintRepository {
+        + findCurrentSprintInProject(String projectID)
+    }
+
+    class SprintBacklogItemRepository {
+        + findSprintBacklogItemsInSprint(String projID, String sprintID)
+    }
+
+    class TaskRepository {
+        + findAllByContainerID(SprintBacklogItemID sbiID)
+    }
+}
+
+package "Mapper" {
+    class TaskMapper {
+        + statusListToDTO(List<Task> tasks)
+        - statusToDTO(Task task)
+    }
+}
+
+package "Domain" {
+    class Task {
+        ~ taskID : TaskID
+        ~ taskContainerID : TaskContainerID
+        ~ status: TaskStatus
+        ~ percentageOfExecution : Percentage
+        ~ taskDescription : TaskDescription
+        + getTaskID()
+        + getTaskContID()
+        + getStatus()
+        + getPercentageOfExecution()
+    }
+
+    class SprintBacklogItemID {
+        ~ sbiID : UUID
+        + getID()
+    }
+
+    interface TaskContainerID {
+        ~ taskContainerID : UUID
+        + getID()
+    }
+}
+
+package "DTO" {
+    class TaskDTO {
+        ~ taskID : String
+        ~ taskContainerID : String
+        ~ status : String
+        ~ percentageOfExecution : int
+        + setTaskID()
+        + setTaskContainerID()
+        + setStatus()
+        + setPercentageOfExecution()
+    }
+}
+
+TaskUI ..> TaskController
+TaskController ..> TaskService
+TaskService ..> SprintRepository
+TaskService ..> SprintBacklogItemRepository
+TaskService ..> TaskRepository
+TaskService ..> TaskMapper
+TaskMapper ..> TaskDTO
+Task ..> TaskContainerID : uses >
+SprintBacklogItemID ..|> TaskContainerID
+
+@enduml
+```

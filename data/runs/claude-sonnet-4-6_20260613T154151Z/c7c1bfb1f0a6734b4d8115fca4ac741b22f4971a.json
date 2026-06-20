@@ -1,0 +1,21 @@
+{
+  "id": "msg_01WBPdDsJmTSMpwUNWHbwFY8",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle 2 assignData\n\nactor Actor\n\nparticipant \"CatERingAppManager.eventManager:EventManager\" as EventManager\nparticipant \"eventManager.currentEvent:Event\" as CurrentEvent\nparticipant \"r:EventReceiver\" as EventReceiver\n\nActor -> EventManager : assignData(name,date,location,numberOfParticipants,serviceType,tipologyNote)\n\nalt [currentEvent == null]\n  EventManager --> Actor : Throw UseCaseLogicException\nelse\n  EventManager -> CurrentEvent : setName(name)\n  EventManager -> CurrentEvent : setDate(date)\n  EventManager -> CurrentEvent : setLocation(location)\n  EventManager -> CurrentEvent : setNumberOfParticipants(numberOfParticipants)\n  EventManager -> CurrentEvent : setServiceType(serviceType)\n  EventManager -> CurrentEvent : setTipologyNote(tipologyNote)\n  loop for each r in receivers\n    EventManager -> EventReceiver : notifyDataAssigned(currentEvent)\n  end\n  EventManager --> Actor :\nend\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370549,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 253,
+    "prompt_tokens": 1664,
+    "total_tokens": 1917
+  }
+}

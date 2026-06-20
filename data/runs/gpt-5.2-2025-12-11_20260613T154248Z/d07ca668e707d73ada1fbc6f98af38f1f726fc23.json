@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLsMiMg47QyoIumVRHXr2q3XkLaO",
+  "object": "chat.completion",
+  "created": 1781369518,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequenceMessageAlign left\nskinparam responseMessageBelowArrow true\n\nparticipant \"IntegrationTest\" as IT\nparticipant \"Spring\\nApplication\" as SPR\nparticipant \"De /nSerializer\" as SER\nparticipant \"ctrl:AddMember\\nToGroupController\" as CTRL\nparticipant \"AddMember\\nRequestAssembler\" as REQASM\nparticipant \"AddMemberResponse\\nDTOAssembler\" as RESPASM\nparticipant \"srv:AddMember\\nToGroupService\" as SRV\n\nnote right of SRV\nContinues through\nnext Diagram\nend note\n\nIT -> SPR : POST\\n1 /groups/\"Family\"/\\nmembers/\"ana@gmail.com\"\nSPR -> SER : 1.1 deserialize(\"groupDesc\":\"Family\",\\n\"personEmail\":\"ana@gmail.com\")\ncreate participant \"info:AddMember\\nRequestInfoDTO\" as INFO\nSER -> INFO : 1.1.1 create (groupDesc,\\nPersonEmail)\n\nSPR -> CTRL : 1.2 addMember(info)\n\nCTRL -> REQASM : 1.2.1\\naddMemberMapToDto\\n(info.getGroupDescription(),\\ninfo.getPersonEmail())\ncreate participant \"requestDTO:\\nAddMemberRequestDTO\" as REQDTO\nREQASM -> REQDTO : 1.2.1.1 create\n\nCTRL -> SRV : 1.2.2 addMember(requestDTO)\nSRV --> CTRL : 1.2.3 groupDTO\n\nCTRL -> RESPASM : 1.2.4 mapToGroupResponseDTO(groupDTO)\ncreate participant \"groupRespDTO:\\nGroupResponseDTO\" as GROUPRESP\nRESPASM -> GROUPRESP : 1.2.4.1 create\nRESPASM --> CTRL : 1.2.5 groupRespDTO\n\nCTRL --> SPR : 1.2.6 ResponseEntity(groupRespDTO,\\nHttpStatus.OK)\nSPR -> SER : 1.3 serialize(ResponseEntity(groupRespDTO,\\nHttpStatus.OK))\nSPR --> IT : 1.4 HttpResponse\nIT --> IT : 1.5 HttpResponse\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1203,
+    "completion_tokens": 450,
+    "total_tokens": 1653,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

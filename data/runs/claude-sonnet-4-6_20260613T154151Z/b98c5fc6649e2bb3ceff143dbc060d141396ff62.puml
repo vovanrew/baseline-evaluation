@@ -1,0 +1,126 @@
+@startuml
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 200
+
+actor "用户" as user
+participant "mc-trade" as mc_trade
+participant "subscribe-service" as subscribe_service
+participant "ots" as ots
+participant "payment-service" as payment_service
+participant "cpe" as cpe
+participant "payment" as payment
+participant "opm" as opm
+participant "public-service" as public_service
+participant "product" as product
+participant "subscribe" as subscribe
+participant "charging" as charging
+participant "order" as order
+participant "proxy" as proxy
+participant "campaign" as campaign
+
+user -> mc_trade: eapPurchase 点播用户
+mc_trade -> mc_trade: purchaseOtp 点播用户
+
+group 连续包月
+  mc_trade -> mc_trade: isContinuousTokenFromCache 查询缓存订购Token/Status
+  mc_trade -> mc_trade: isContinuousTokenFromCache 查询缓存订购Token/Status(失败时)
+  mc_trade -> mc_trade: insertContinuousTokenIntoCache 查询缓存订购Token/Status
+  mc_trade -> mc_trade: updateContinuousTokenIntoCache 查询缓存订购Token/Status(失败时)
+  mc_trade -> payment_service: paymentService.getPaymentAccountInfo 查询支付方
+  payment_service --> mc_trade: paymentService.getPaymentAccountInfo 查询支付方式
+  payment_service --> mc_trade: paymentService.getPaymentAccountInfo 查询支付方式(失败时)
+  mc_trade -> payment_service: paymentService.getPaymentAccountInfo 返回支付方式可用性验证
+end
+
+group 订购(用户账号验证)
+  mc_trade -> mc_trade: iOrderService.getAccountInfo 查询账号信息及状态
+  mc_trade -> ots: iUserService.getAccountInfo 查询账号信息及状态
+  mc_trade -> mc_trade: matchMemberSegment 查询支持支付方式匹配规则
+  mc_trade -> payment_service: paymentService.paymentAccountManagement 返回支付方
+  payment_service --> mc_trade: paymentService.getPaymentAccountInfo 查询支付方式
+  payment_service --> mc_trade: paymentService.getPaymentAccountInfo 查询支付方式(失败时)
+  payment_service --> mc_trade: paymentService.createPaymentAccount 返回是否支付账号创建
+  mc_trade -> mc_trade: paymentService.paymentAccountManagement 返回支付方
+  mc_trade -> mc_trade: iUserWhitelist 返回账号产品是否是高产用户组
+  mc_trade -> mc_trade: iUserWhitelist 返回账号产品是否是高产用户组
+end
+
+group 获取用户是否是连续包月订购(订购前校验)
+  mc_trade -> mc_trade: matchMemberSegment 查询支持支付方式匹配规则
+  mc_trade -> mc_trade: matchMemberSegment 查询支持支付方式匹配规则(失败时)
+  mc_trade -> mc_trade: emailFromQueryService.batchSends 返回是否产品发送
+  mc_trade -> mc_trade: emailFromQueryService.batchSends 返回是否产品发送(失败时)
+end
+
+group 获取连续包月订购及连续包月订购前校验(订购前校验)
+  mc_trade -> mc_trade: purchaseOtp 点播用户订购(4000)
+end
+
+group 订购(订购)
+  mc_trade -> subscribe_service: ioemService.fetchMemberSubscription 查询订购订阅数据
+  mc_trade -> subscribe_service: ioemService.subscribe 查询订购订阅数据
+  mc_trade -> mc_trade: 初始化
+  mc_trade -> mc_trade: purchaseOtp 点播用户订购(Null)
+  mc_trade -> cpe: iemService.authenticate 内容验证授权查询(订购)
+  cpe --> mc_trade: iemService.authenticate 返回授权数据
+end
+
+group 连续包月(订购前校验)
+  mc_trade -> mc_trade: purchaseOtp 点播用户订购(4000)
+  mc_trade -> mc_trade: iventCalculatorService.calculatePrice 查询支持订购价
+  mc_trade -> mc_trade: iventCalculatorService.calculatePrice 返回订购价格
+  group 连续包月支付渠道验证
+    mc_trade -> mc_trade: 查询可用支付渠道及状态
+    mc_trade -> payment_service: paymentServices.autoAdaptedPayChannels 返回支付方式
+    mc_trade -> mc_trade: ←订购
+  end
+  group 连续包月支付渠道验证(失败)
+    mc_trade -> payment_service: paymentServices.autoAdaptedPayChannels 返回支付方式
+    mc_trade -> mc_trade: 根据账号和数据支持支付方式及状态,根据,用户支付方式与PayPageId对比,完成数据支持上面只有一次订购
+    mc_trade -> mc_trade: ←订购
+  end
+  mc_trade -> order: orderManagementService.createOrder 创建订单
+  mc_trade -> order: orderManagementService.createOrder 返回订单订单号数据
+end
+
+group 评审(订购)
+  mc_trade -> cpe: iemService.authenticate 内容验证授权查询(订购)
+  cpe --> mc_trade: iemService.authenticate 返回授权数据
+end
+
+group 连续包月(订购前校验)
+  mc_trade -> mc_trade: purchaseOtp 点播用户订购(4000)
+  mc_trade -> mc_trade: iventCalculatorService.calculatePrice 查询支持订购价
+  mc_trade -> mc_trade: iventCalculatorService.calculatePrice 返回订购价格
+  group 连续包月支付渠道验证
+    mc_trade -> mc_trade: 查询可用支付渠道及状态
+    mc_trade -> payment_service: paymentServices.autoAdaptedPayChannels 返回支付方式
+    mc_trade -> mc_trade: ←订购
+  end
+  group 连续包月支付渠道验证(失败)
+    mc_trade -> payment_service: paymentServices.autoAdaptedPayChannels 返回支付方式
+    mc_trade -> mc_trade: 根据账号和数据支持支付方式及状态,根据,用户支付方式与PayPageId对比,完成数据支持上面只有一次订购
+    mc_trade -> mc_trade: ←订购
+  end
+  mc_trade -> order: orderManagementService.createOrder 创建订单
+  mc_trade -> order: orderManagementService.createOrder 返回订单订单号数据
+  mc_trade -> order: orderManagementService.submitOrder 提交订单
+  mc_trade -> order: orderManagementService.submitOrder 返回订单
+end
+
+group 支付(支付)
+  mc_trade -> mc_trade: orderPaymentService.payOrder 支付订单
+  group 连续包月支付渠道验证
+    mc_trade -> subscribe: fanService.batchSubscribe 查看订购
+    mc_trade -> subscribe: fanService.batchSubscribe 返回订购订阅数据
+    mc_trade -> payment_service: paymentServices.directPayment 支付
+    mc_trade -> payment_service: paymentServices.directPayment 返回订购数据
+    group 连续包月支付渠道验证
+      mc_trade -> mc_trade: 查询可用支付渠道及状态
+      mc_trade -> mc_trade: windows.distribute 查询订单支付渠道订购订阅数据(失败时)
+      mc_trade -> mc_trade: ←订购
+      mc_trade -> mc_trade: if (msg.topic==clientFunc).logic=Main
+      mc_trade -> mc_trade: if (msg.topic==fulfillInfo).logic = Main
+    end
+    group 订购(失败)
+      mc_trade -> mc_trade: if (msg.topic==clientFunc).logic=Main, 调用查询订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订购订单订

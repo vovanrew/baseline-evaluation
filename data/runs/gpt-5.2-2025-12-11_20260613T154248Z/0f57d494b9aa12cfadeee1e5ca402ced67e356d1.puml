@@ -1,0 +1,101 @@
+```plantuml
+@startuml
+title Find all a vaccination documents in EPD
+
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #000000
+  ParticipantBackgroundColor #FFFFFF
+  BoxBorderColor #999999
+  BoxBackgroundColor #E6E6E6
+  ActorBorderColor #000000
+  ActorBackgroundColor #FFFFFF
+}
+
+actor HCP as HCP
+
+box "Community A" #E6E6E6
+participant "GFPP/PIS" as GFPP_A #00CC00
+participant "Aggregator" as AGG_A #00CC00
+participant "CO-Registry" as COREG_A #00CC00
+participant "CO-Repository" as COREP_A #00CC00
+participant "CO-IGW" as COIGW_A #00CC00
+end box
+
+box "Community X" #E6E6E6
+participant "OC-RGW" as OCRGW_X #33AADD
+participant "OC-Registry" as OCREG_X #33AADD
+participant "OC-Repository" as OCREP_X #33AADD
+end box
+
+HCP -> GFPP_A : [01] Get all immunization data
+activate GFPP_A
+
+GFPP_A -> GFPP_A : [02] query all registries
+
+GFPP_A -> COIGW_A : [03] Registry Stored Query Request [ITI-18]
+activate COIGW_A
+
+COIGW_A -> COREG_A : [04] Registry Stored Query Request [ITI-18]
+activate COREG_A
+COREG_A -> COREG_A : [05] Lookup Data
+COREG_A --> COIGW_A : [06] Registry Stored Query Response [ITI-18]
+deactivate COREG_A
+
+COIGW_A -> COIGW_A : [07] request all communities
+
+COIGW_A -> OCRGW_X : [08] Registry Stored Query Request [ITI-38]
+activate OCRGW_X
+OCRGW_X -> OCREG_X : [09] Registry Stored Query Request [ITI-18]
+activate OCREG_X
+OCREG_X -> OCREG_X : [10] Lookup Data
+OCREG_X --> OCRGW_X : [11] Registry Stored Query Response [ITI-18]
+deactivate OCREG_X
+OCRGW_X --> COIGW_A : [12] Registry Stored Query Response [ITI-38]
+deactivate OCRGW_X
+
+COIGW_A -> COIGW_A : [13] end loop
+COIGW_A -> COIGW_A : [14] Assemble Query Responses
+
+COIGW_A --> GFPP_A : [15] Registry Stored Query Response [ITI-18]
+deactivate COIGW_A
+
+GFPP_A -> GFPP_A : [16] list of document info
+GFPP_A -> GFPP_A : [17] retrieve all documents
+
+GFPP_A -> COIGW_A : [18] Retrieve Document Request [ITI-43]
+activate COIGW_A
+
+COIGW_A -> COREP_A : [19] Retrieve Document Request [ITI-43]
+activate COREP_A
+COREP_A -> COREP_A : [20] allocate document data
+COREP_A --> COIGW_A : [21] Retrieve Document Response [ITI-43]
+deactivate COREP_A
+
+COIGW_A -> OCRGW_X : [22] Retrieve Document Request [ITI-39]
+activate OCRGW_X
+OCRGW_X -> OCREP_X : [23] Retrieve Document Request [ITI-43]
+activate OCREP_X
+OCREP_X -> OCREP_X : [24] allocate document data
+OCREP_X --> OCRGW_X : [25] Retrieve Document Response [ITI-43]
+deactivate OCREP_X
+OCRGW_X --> COIGW_A : [26] Retrieve Document Response [ITI-39]
+deactivate OCRGW_X
+
+COIGW_A -> COIGW_A : [27] Assemble Retrieve Responses
+
+COIGW_A --> GFPP_A : [28] Retrieve Document Response [ITI-43]
+deactivate COIGW_A
+
+GFPP_A -> GFPP_A : [29] Aggregate documents
+GFPP_A -> GFPP_A : [30] one FHIR ch-vacd document
+
+HCP <-- GFPP_A : [31] Show immunization data
+deactivate GFPP_A
+
+@enduml
+```

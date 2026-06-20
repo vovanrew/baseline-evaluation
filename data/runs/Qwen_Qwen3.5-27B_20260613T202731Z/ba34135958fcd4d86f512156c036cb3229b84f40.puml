@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Actor" as Actor
+participant "WizardAction" as WizardAction
+participant "frame : WizardFrame" as WizardFrame
+participant "controller : WizardController" as WizardController
+participant "Language" as Language
+participant "UIController" as UIController
+participant "FromulaCompiler" as FromulaCompiler
+
+note over Actor,WizardAction: Extention loading and integration with main UI can be found on Example Extention diagrams
+
+Actor -> WizardAction: starts use case
+WizardAction -> WizardFrame: new(UIController)
+WizardFrame -> WizardController: new(UIController)
+WizardFrame -> WizardController: getFunctions()
+WizardController -> Language: getInstance()
+WizardController -> Language: getFunctions()
+
+activate WizardFrame
+loop 
+WizardFrame -> WizardFrame: displayInformation()
+end
+deactivate WizardFrame
+
+Actor -> WizardFrame: Select Function
+WizardFrame -> WizardController: getExpression(function)
+
+activate WizardFrame
+loop 
+WizardFrame -> WizardFrame: loadTextFields()
+end
+deactivate WizardFrame
+
+WizardFrame -> Actor: show the expression to user
+Actor -> WizardFrame: Sets parameters and selects ok
+WizardFrame -> WizardController: getResult(String expression)
+WizardController -> UIController: cell=getActiveCell()
+WizardController -> FromulaCompiler: getInstance()
+WizardController -> FromulaCompiler: compile(cell,expression)
+WizardController -> WizardFrame: return result
+
+@enduml
+```

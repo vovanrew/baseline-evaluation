@@ -1,0 +1,32 @@
+@startuml
+left to right direction
+actor "User" as User
+rectangle "Application" as Application
+rectangle "«engine»\nAuto SDK Engine" as AutoSDKEngine
+rectangle "«avs»\nAlexa" as Alexa
+
+alt ["Activating Trial"]
+  note right of User
+    clicks `Activate Trial` button\non screen to activate\ntrial up-sell.
+  end note
+  User -> Application: Publish SendConnectivityEvent message specifying ACTIVATE_TRIAL event
+  Application -> AutoSDKEngine: Publish SendConnectivityEvent message specifying ACTIVATE_TRIAL event
+  activate AutoSDKEngine
+  alt ["Activating Paid Plan"]
+    note right of User
+      clicks `Activate Paid Plan` button\non screen to activate\npaid plan up-sell.
+    end note
+    User -> Application: Publish SendConnectivityEvent message specifying ACTIVATE_PAID_PLAN event
+    Application -> AutoSDKEngine: Publish SendConnectivityEvent message specifying ACTIVATE_PAID_PLAN event
+    activate AutoSDKEngine
+  end
+  AutoSDKEngine -> Alexa: InitiateDataPlanSubscription event
+  alt ["Successful in sending event to Alexa"]
+    Alexa -> Application: Receive SendConnectivityEventReply message with SUCCESS status
+  else ["on failure"]
+    Alexa -> Application: Receive SendConnectivityEventReply message with FAIL status
+  end
+  deactivate AutoSDKEngine
+end
+
+@enduml

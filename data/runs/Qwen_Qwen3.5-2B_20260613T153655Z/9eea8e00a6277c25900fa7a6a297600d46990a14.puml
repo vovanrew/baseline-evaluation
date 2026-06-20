@@ -1,0 +1,27 @@
+@startuml
+participant "Actor" as Actor
+
+participant ":Chantier" as :Chantier
+
+participant "jmb:Artisan" as jmb:Artisan
+
+participant "q:Qualif" as q:Qualif
+
+participant "real : Realiser" as real : Realiser
+
+Actor -> :Chantier : getPayeArtisan(jmb)
+
+:Chantier -> jmb:Artisan : q : getQualif()
+
+:Chantier -> q:Qualif : tauxH getTauxH()
+
+loop [ForEach real]
+    :Chantier -> real : a = getArtisan()
+    opt [a == jmb]
+        :Chantier -> real : d = getDuree()
+        :Chantier -> :Chantier : duree += d
+    end
+    :Chantier -> Actor : duree*tauxH
+end
+
+@enduml

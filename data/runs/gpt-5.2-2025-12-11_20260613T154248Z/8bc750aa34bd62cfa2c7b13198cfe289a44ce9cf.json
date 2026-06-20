@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLnecbGkRG2yhytGfbhgClZcppuc",
+  "object": "chat.completion",
+  "created": 1781369226,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #000000\n  LifeLineBorderColor #888888\n  LifeLineBackgroundColor transparent\n  ParticipantBorderColor #000000\n  ParticipantBackgroundColor #FFFFFF\n  BoxBorderColor #000000\n  BoxBackgroundColor #FFFFFF\n  NoteBackgroundColor #FFFDE7\n  NoteBorderColor #B0B0B0\n}\n\nactor mobile as Mobile\nparticipant \"www\" as WWW\nparticipant endpoint as Endpoint\nparticipant haproxy as HAProxy\nparticipant ipfs as IPFS\nparticipant postgraphile as Postgraphile\nparticipant \"CITY Custom Net\" as CityNet\nparticipant logstash as Logstash\nparticipant dApp as DApp\ndatabase postgres as Postgres\ndatabase elastic as Elastic\nparticipant promethues as Prometheus\nparticipant kibana as Kibana\n\nbox \"webUI\" #FFFFFF\n  Mobile -> WWW : sign & send events\n  note over WWW\n    browser ext or mobile wallet\n  end note\n\n  WWW -> Endpoint : HTTPS gateway & peer tcp/4001\n  Endpoint -> IPFS : /ipfs/{CID}\n  WWW -> HAProxy : HTTPS (oauth by EC Address)\n  note over WWW\n    User makes deposit / signs entry to trigger events.\n  end note\nend box\n\nbox \"api - Admin/Write api\" #FFFFFF\n  HAProxy -> CityNet : /v2 - read/write factom api\n  HAProxy -> IPFS : /ipfs/{CID} - readonly gateway\n  HAProxy -> Postgraphile : /graphql - readonly graphql queries\n\n  Postgraphile -> CityNet : Query/Sign\n  CityNet -> Logstash : livefeed log\n  Logstash -> Elastic : index event logs\n  CityNet -> Postgres : dApp specific events\n  CityNet -> DApp : sign and dispatch requests\n  DApp -> CityNet : read/write signed factom entries\nend box\n\nbox \"dashboard\" #FFFFFF\n  Elastic -> Prometheus : dashboard query\n  Prometheus -> Prometheus : poll()\n  Prometheus -> Kibana : metrics query\n  Kibana -> Elastic : dApp specific rollup\n\n  Prometheus -> CityNet : Monitor(FA2XXXXXXXXXX) Balance changes\n  Prometheus -> CityNet : HTTP GET /metrics\n  Prometheus -> IPFS : HTTP GET /metrics\nend box\n\nbox \"dApp - controller\" #FFFFFF\n  DApp -> IPFS : pin entry content on IPFS\n  DApp -> Logstash : dApp specific logging\n  DApp -> CityNet : dispatch on-chain event\nend box\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1791,
+    "completion_tokens": 564,
+    "total_tokens": 2355,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

@@ -1,0 +1,40 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #000000
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #000000
+  ParticipantBackgroundColor #D9D9E8
+  ActorBorderColor #000000
+  ActorBackgroundColor #D9D9E8
+  NoteBorderColor #000000
+  NoteBackgroundColor #FFF9C4
+}
+
+actor Customer
+participant TripFinder
+participant Trip
+participant Bicycle
+
+Customer -> TripFinder : suitable_trips(\n  on_date,\n  difficulty,\n  need_bike)
+activate TripFinder
+
+TripFinder -> Trip : suitable_trips(\n  on_date,\n  on_difficulty)
+activate Trip
+Trip --> TripFinder
+deactivate Trip
+
+note over TripFinder
+for each trips
+end note
+
+TripFinder -> Bicycle : suitable_bicycle(\n  trip_date,\n  route_type)
+activate Bicycle
+Bicycle --> TripFinder
+deactivate Bicycle
+
+TripFinder --> Customer : result
+deactivate TripFinder
+@enduml

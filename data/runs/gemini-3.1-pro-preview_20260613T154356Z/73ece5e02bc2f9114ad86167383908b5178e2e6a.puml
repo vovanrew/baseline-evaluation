@@ -1,0 +1,66 @@
+```plantuml
+@startuml
+skinparam backgroundColor black
+skinparam defaultFontColor white
+skinparam sequence {
+    ArrowColor white
+    LifeLineBorderColor white
+    LifeLineBackgroundColor white
+    ParticipantBorderColor white
+    ParticipantBackgroundColor lightblue
+}
+
+actor "" as User
+
+participant "<<boundary>>\nZMDomačaStran" as ZMDomačaStran
+participant "<<control>>\nKrmilnikNovica" as KrmilnikNovica
+participant "<<control>>\nKrmilnikPredloga" as KrmilnikPredloga
+participant "<<control>>\nKrmilnikDogodek" as KrmilnikDogodek
+participant "<<entity>>\nPredlogProjekta" as PredlogProjekta <<entity>> #lightyellow
+participant "<<entity>>\nNovica" as Novica <<entity>> #lightyellow
+participant "<<boundary>>\nSVGoogleCalendar\nAPI" as SVGoogleCalendarAPI
+
+activate KrmilnikDogodek
+KrmilnikDogodek -> SVGoogleCalendarAPI : pridobiDogodke()
+activate SVGoogleCalendarAPI
+SVGoogleCalendarAPI --> KrmilnikDogodek : dogodki
+deactivate SVGoogleCalendarAPI
+deactivate KrmilnikDogodek
+
+activate KrmilnikNovica
+KrmilnikNovica -> Novica : pridobiNovice()
+activate Novica
+Novica --> KrmilnikNovica : novice
+deactivate Novica
+deactivate KrmilnikNovica
+
+activate KrmilnikPredloga
+KrmilnikPredloga -> PredlogProjekta : pridobiPredloge()
+activate PredlogProjekta
+PredlogProjekta --> KrmilnikPredloga : predlogi
+deactivate PredlogProjekta
+deactivate KrmilnikPredloga
+
+User -> ZMDomačaStran : prikažiDomačoStran()
+activate ZMDomačaStran
+
+ZMDomačaStran -> KrmilnikDogodek : pridobiDogodke()
+activate KrmilnikDogodek
+KrmilnikDogodek -> SVGoogleCalendarAPI : pridobiDogodke()
+activate SVGoogleCalendarAPI
+SVGoogleCalendarAPI --> KrmilnikDogodek : dogodki
+deactivate SVGoogleCalendarAPI
+KrmilnikDogodek --> ZMDomačaStran : dogodki
+deactivate KrmilnikDogodek
+
+ZMDomačaStran -> KrmilnikDogodek : prikažiDogodke()
+activate ZMDomačaStran
+activate KrmilnikDogodek
+KrmilnikDogodek --> ZMDomačaStran : prikazani dogodki
+deactivate KrmilnikDogodek
+deactivate ZMDomačaStran
+
+deactivate ZMDomačaStran
+
+@enduml
+```

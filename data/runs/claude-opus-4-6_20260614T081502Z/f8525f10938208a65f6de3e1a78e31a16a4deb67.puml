@@ -1,0 +1,82 @@
+```plantuml
+@startuml
+title US029 - As Project Manager, I want to start a sprint.
+
+actor "Project Manager" as PM
+
+participant ": StartSprintRoute" as Route
+participant ": StartSprintController" as Controller
+participant ": StartSprintService" as Service
+participant "dto : SprintDTO" as DTO
+participant ": Project" as Project
+participant ": SprintDomainService" as DomainService
+participant ": SprintStore" as SprintStore
+participant ": ResourceStore" as ResourceStore
+
+PM -> Route : Asks to start a Sprint
+activate Route
+Route -> Controller : startSprint(sprintDTO)
+activate Controller
+Controller -> Service : startSprint(sprintDTO)
+activate Service
+
+Service -> Project : getProjectTeam()
+activate Project
+Service <-- Project : projectTeam
+deactivate Project
+
+Service -> DTO : getSprintDuration()
+activate DTO
+Service <-- DTO : sprintDuration
+deactivate DTO
+
+Service -> DomainService : startSprint(dto.projectID, dto.sprintID, dto.startDate,\n projectTeam, sprintDuration)
+activate DomainService
+
+DomainService -> SprintStore : findAllSprintByProjectID (projectID)
+activate SprintStore
+DomainService <-- SprintStore
+deactivate SprintStore
+
+DomainService -> SprintStore : findSprintByID (sprintID)
+activate SprintStore
+DomainService <-- SprintStore
+deactivate SprintStore
+
+DomainService -> DomainService : validateStartDate(startDate)
+activate DomainService
+DomainService --> DomainService : true
+deactivate DomainService
+
+DomainService -> ResourceStore : validateProjectTeam(startDate, sprintDuration)
+activate ResourceStore
+
+ResourceStore -> ResourceStore : getProductOwnerByStartDate(startDate, sprintDuration)
+activate ResourceStore
+deactivate ResourceStore
+
+ResourceStore -> ResourceStore : getScrumMasterByStartDate(startDate, sprintDuration)
+activate ResourceStore
+deactivate ResourceStore
+
+DomainService <-- ResourceStore : true
+deactivate ResourceStore
+
+DomainService -> SprintStore : setStartDate(startDate)
+activate SprintStore
+deactivate SprintStore
+
+Service <-- DomainService : true
+deactivate DomainService
+
+Controller <-- Service : true
+deactivate Service
+
+Route <-- Controller : true
+deactivate Controller
+
+PM <-- Route : Informs Operation Success
+deactivate Route
+
+@enduml
+```

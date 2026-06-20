@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLrn9gfRr5QqCKoJ6RINCEkNiDGT",
+  "object": "chat.completion",
+  "created": 1781369483,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle User getUsers\n\nactor API_Gateway\nparticipant UserRouter\nparticipant Middleware\nparticipant UserController\ndatabase UserDB\n\nAPI_Gateway -> UserRouter : getUsers(token)\nactivate UserRouter\nUserRouter -> Middleware : withAuth(token)\nactivate Middleware\n\nalt [!token]\n  Middleware --> UserRouter : 'Unauthorized: No token provided (401)'\n  UserRouter --> API_Gateway : 'Unauthorized: No token provided (401)'\nelse\n  Middleware -> Middleware : jwt.verify(token)\n\n  alt [token != valid]\n    Middleware --> UserRouter : 'Unauthorized: Invalid token (401)'\n    UserRouter --> API_Gateway : 'Unauthorized: Invalid token (401)'\n  else\n    Middleware --> UserRouter : Token Valid\n    Middleware -> UserController : getUsers()\n    activate UserController\n    UserController -> UserDB : find()\n    activate UserDB\n    UserDB --> UserController : users[]\n    deactivate UserDB\n\n    alt [users.length == 0]\n      UserController --> Middleware : 'User not found 404'\n      Middleware --> API_Gateway : 'User not found 404'\n    else\n      UserController --> Middleware : return(res.status(200), users)\n      Middleware --> API_Gateway : return(res.status(200), users)\n    end\n\n    deactivate UserController\n  end\nend\n\ndeactivate Middleware\ndeactivate UserRouter\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2346,
+    "completion_tokens": 290,
+    "total_tokens": 2636,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

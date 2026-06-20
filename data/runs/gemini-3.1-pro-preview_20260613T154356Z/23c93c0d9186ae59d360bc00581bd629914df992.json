@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nautonumber\nactor Nurse as N\nparticipant \": RecordAdverseReactionUI\" as UI\nparticipant \": RecordAdverseReactionController\" as CTRL\nparticipant \": Company\" as COMP\nparticipant \": AdverseReactionStore\" as ARS\nparticipant \": AdverseReactionDTO\" as DTO\nparticipant \": AdverseReactionMapper\" as MAP\nparticipant \": WaitingRoomStore\" as WRS\nparticipant \": AdverseReaction\" as AR\n\nactivate N\nN -> UI : Starts recording adverse reaction\nactivate UI\nUI --> N : asks for data(SNS Number, Adverse Reaction Text)\ndeactivate UI\n\nN -> UI : types requested data\nactivate UI\nUI -> CTRL : createAdverseReaction(SNSNumber, advReact)\nactivate CTRL\n\nCTRL -> COMP : wstore = getWaitingRoomStore()\nCTRL -> COMP : store = getRecordAdverseReactionStore()\nCTRL -> WRS : snsu = getSNSUserInTheWaitingRoomByItsSNSNumber(snsuserNumber)\nCTRL -> WRS : vc = getVaccinationCenterBySNSNumber(snsuserNumber)\n\nCTRL -> ARS : ar = createAdverseReaction(snsu, advReact, vc)\nactivate ARS\nARS --> AR ** : create(snsu,advReact,vc)\ndeactivate ARS\n\nCTRL -> ARS : validateAdverseReaction(ar)\nactivate ARS\ndeactivate ARS\n\nCTRL -> MAP : toDTO(ar)\nactivate MAP\nref over MAP : SD_AdverseReactionMapper_toDTO\nMAP --> CTRL : arDTO\ndeactivate MAP\n\nCTRL --> UI : arDTO\ndeactivate CTRL\n\nUI --> N : shows SNS User correspondent to the SNS Number\\nand adverse reaction waiting for approval\ndeactivate UI\n\nN -> UI : confirms action\nactivate UI\nUI -> CTRL : saveAdverseReaction()\nactivate CTRL\n\nCTRL -> ARS : saveAdverseReaction(ar)\nactivate ARS\nARS -> ARS : validateAdverseReaction(ar)\nactivate ARS\ndeactivate ARS\nARS -> ARS : addAdverseReaction(ar)\nactivate ARS\ndeactivate ARS\ndeactivate ARS\n\nCTRL --> UI\ndeactivate CTRL\n\nUI --> N : informs oppertion success\ndeactivate UI\ndeactivate N\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHFZheJwE6keSqh9AWI8OyczbDMRpoIMlsQyTQKYRk0NSSJUkdfEm7L9gwuqOl"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1161,
+    "candidatesTokenCount": 492,
+    "totalTokenCount": 1653,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1081
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "D18xasyXLbW_xN8P8-OFiA8"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "90df4fd0-cc9c-4a74-a39d-126605d21f1d",
+  "object": "chat.completion",
+  "created": 1781485038,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nleft to right direction\nskinparam packageStyle rectangle\n\nactor \"Freelancer\" as Freelancer\nparticipant \":AlterarCandidaturaUI\" as UI\nparticipant \":RegistrarCandidaturaController\" as Controller\nparticipant \":Plataforma\" as Plataforma\nparticipant \":UsersAPI\" as UsersAPI\nparticipant \"cand: Candidatura\" as Candidatura\ndatabase \"RepositorioFreelancer\" as RepoFreelancer\ndatabase \"RepositorioCandidatura\" as RepoCandidatura\n\nFreelancer -> UI : 1 inicia alterar candidatura\nactivate UI\nUI -> Controller : 2 getFreelancerByEmail()\nactivate Controller\nController -> Plataforma : 3 email = getSessionEmail()\nactivate Plataforma\nPlataforma -> UsersAPI : 4 email = getEmail()\nactivate UsersAPI\ndeactivate UsersAPI\ndeactivate Plataforma\nController -> RepoFreelancer : 5 free = find(email)\nactivate RepoFreelancer\ndeactivate RepoFreelancer\ndeactivate Controller\nUI -> Controller : 6 lcand = getCandidaturasDispByFreelancerEmail()\nactivate Controller\nController -> RepoCandidatura : 7 lcand = getAllCandidaturasByFreelancerEmail(email)\nactivate RepoCandidatura\ndeactivate RepoCandidatura\ndeactivate Controller\nUI --> Freelancer : 8 solicita a escolha de uma das candidaturas por si efetuadas e, ainda, em per\u00edodo de candidaturas\nFreelancer -> UI : 9 escolhe a candidatura\nactivate UI\nUI -> Controller : 10 cand = getCandById()\nactivate Controller\nController -> RepoCandidatura : 11 cand = find(id)\nactivate RepoCandidatura\ndeactivate RepoCandidatura\ndeactivate Controller\nUI --> Freelancer : 12 solicita a introdu\u00e7\u00e3o de novos dados (i.e. os que pretende alterar, mantendo os restantes iguais)\nFreelancer -> UI : 13 introduz os dados solicitados (valor,nrDias,txtApresentacao,txtMotivacao)\nactivate UI\nUI -> Controller : 14 alterarCandidatura(valor,nrDias,txtApresentacao,txtMotivacao)\nactivate Controller\nController -> RepoCandidatura : 15 update(cand)\nactivate RepoCandidatura\ndeactivate RepoCandidatura\ndeactivate Controller\nUI --> Freelancer : 16 valida e apresenta os dados ao Freelancer e pede a sua confirma\u00e7\u00e3o\ndeactivate UI\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1223,
+    "completion_tokens": 539,
+    "total_tokens": 1762
+  }
+}

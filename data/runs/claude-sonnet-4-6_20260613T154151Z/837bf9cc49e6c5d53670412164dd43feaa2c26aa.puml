@@ -1,0 +1,72 @@
+@startuml
+skinparam sequenceMessageAlign left
+skinparam backgroundColor white
+skinparam participantBackgroundColor #E8E8E8
+skinparam participantBorderColor #888888
+skinparam sequenceLifeLineBorderColor #888888
+skinparam sequenceLifeLineBorderStyle dashed
+skinparam boxBackgroundColor #D8D8D8
+skinparam boxBorderColor #888888
+
+participant "tuple" as tuple <<database>>
+actor "Upper\nlayer" as upper
+box "IP Layer" #D8D8D8
+participant "IPv4\nlayer" as ipv4layer <<database>>
+participant "Routing\ntable" as routing <<database>>
+end box
+box "IPv4 Ineterface" #D8D8D8
+participant "IPv4\ninterface" as ipv4if <<database>>
+participant "ARP" as arp <<database>>
+end box
+actor "Lower\nlayer" as lower
+
+note left of tuple
+IPv4.dst=192.0.2.1
+IPv4.src=198.51.100.2
+end note
+
+upper -> ipv4layer : IPdata
+
+note over ipv4layer
+Allocate
+IPv4
+header
+end note
+
+ipv4layer -> routing : dst=192.0.2.1
+routing --> ipv4layer :
+
+ipv4layer --> upper :
+
+note left of upper
+IPv4.oif=ifp1
+IPv4.gw=198.51.100.1
+end note
+
+ipv4layer -> ipv4if :
+
+ipv4if -> arp : gw=198.51.100.1
+
+note over arp
+enqueue
+packet
+end note
+
+arp --> ipv4if : ARP request
+ipv4if -> lower :
+
+lower -> ipv4if : ARP response
+ipv4if -> arp :
+
+arp --> ipv4if : resolved\npackets
+
+note over ipv4if
+send as
+send
+thread
+end note
+
+ipv4if -> ipv4if :
+ipv4if -> lower :
+
+@enduml

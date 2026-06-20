@@ -1,0 +1,22 @@
+{
+  "id": "41080781-77c5-42c6-b6be-084ace80272b",
+  "object": "chat.completion",
+  "created": 1781396393,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n\nparticipant Client\nparticipant TEAPServer\nparticipant MASA\n\nClient ->> TEAPServer: EAP-Request/\nType=Identity\n\nClient ->> TEAPServer: EAP-Response/\nType=Identity\n\nnote right of Client\n(1)\nend note\n\nClient ->> TEAPServer: EAP-Request/\nType=TEAP,\nTEAP Start,\nAuthority-ID TLV\n\nTEAPServer ->> Client: EAP-Response/\nType=TEAP,\nTLS(ClientHello)\n\nClient ->> TEAPServer: EAP-Request/\nType=TEAP,\nTLS(ServerHello,\nCertificate,\nServerKeyExchange,\nCertificateRequest,\nServerHelloDone)\n\nTEAPServer ->> Client: EAP-Response/\nType=TEAP,\nTLS(Certificate\nClientKeyExchange,\nCertificateVerify,\nChangeCipherSpec,\nFinished)\n\nClient ->> TEAPServer: EAP-Request/\nType=TEAP,\nTLS(ChangeCipherSpec,\nFinished),\n{Crypto-Binding TLV,\nResult TLV=Success}\n\nTEAPServer ->> Client: EAP-Response/\nType=TEAP,\n{Crypto-Binding TLV,\nResult TLV=Success}\n\nnote box\nAt this stage the outer TLS tunnel is established\nThe following message exchanges are for BRSKI\nend note\n\nClient ->> TEAPServer: EAP-Request/\nType=TEAP,\n{Request-Action TLV:\nStatus=Failure,\nAction=Process-TLV,\nTLV=Request-Voucher,\nTLV=Trusted-Server-Root,\nTLV=CSR-Attributes,\nTLV=PKCS#10}\n\nTEAPServer ->> Client: EAP-Response/\nType=TEAP,\n{Request-Voucher TLV}\n\nClient ->> TEAPServer: RequestVoucher\n\nTEAPServer ->> MASA: Voucher\n\nClient ->> TEAPServer: EAP-Request/\nType=TEAP,\n{Voucher TLV}\n\nTEAPServer ->> Client: EAP-Response/\nType=TEAP,{Trusted-Server-Root TLV}\n\nClient ->> TEAPServer: EAP-Request/\nType=TEAP,\n{Trusted-Server-Root TLV}\n\nTEAPServer ->> Client: EAP-Response/\nType=TEAP,{CSR-Attributes TLV}\n\nClient ->> TEAPServer: EAP-Request/\nType=TEAP,\n{CSR-Attributes TLV}\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 929,
+    "completion_tokens": 569,
+    "total_tokens": 1498
+  }
+}

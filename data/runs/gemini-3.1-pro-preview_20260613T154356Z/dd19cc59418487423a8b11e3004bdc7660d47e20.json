@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nparticipant UI\nparticipant sessionRoute\ncontrol passport\nentity SessionController\ndatabase innoDB\n\nUI -> sessionRoute : GET() \"/session\"\\nAuth: Bearer token\\n{userID, DASS21_SCORES, sessionDetails}\nsessionRoute -> passport : \"/save\", authenticate(\"jwt\")\nactivate passport\n\nalt Success: Authenticated\n    passport -> sessionRoute : done(null, user)\n    sessionRoute -> SessionController : Request Products\n    activate SessionController\n    SessionController -> SessionController : Validate info\n    \n    alt Success: Required info provided\n        SessionController -> innoDB : saveSession()\n        activate innoDB\n        innoDB -> SessionController : session\n        deactivate innoDB\n        SessionController -> sessionRoute : httpResponse(200)\\nsession\n        sessionRoute -> UI : httpResponse(200)\\nallProducts\n    else Failure: missing information\n        SessionController --> sessionRoute : {\"msg\":\"missing required\\ninformation\"}(400)\n        deactivate SessionController\n        sessionRoute --> UI : http Response(400)\\n{\"msg\":\"missing required information\"}\n    end\nelse Failure: Unauthorized\n    passport --> sessionRoute : done(null,false)\n    deactivate passport\n    sessionRoute --> UI : http Response(401)\\nUnauthorized\nend\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHP/52OjBw59sWkwY+E92xzRlsd/+3BrQWkGr0XzyLki0+c1M+kCRRwc2gEJ8u"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1165,
+    "candidatesTokenCount": 300,
+    "totalTokenCount": 1465,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1085
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "Z14xauvLEPeSvdIP_9Ck0A0"
+}

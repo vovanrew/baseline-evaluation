@@ -1,0 +1,41 @@
+@startuml
+autonumber
+left to right direction
+skinparam sequenceMessageSize 100
+
+participant "client application" as client
+participant "kong" as kong
+participant "resource service" as resource
+
+activate client
+activate kong
+
+client -> kong : Post (provision_key etc.)
+kong --> client : return redirect url and token
+
+deactivate client
+deactivate kong
+
+activate client
+activate kong
+
+client -> kong : Post (sending Host and Token)
+activate kong
+kong --> kong : verify token
+kong --> resource : Proxy, load balance...
+resource --> kong
+kong --> client
+
+deactivate client
+deactivate kong
+
+activate client
+activate kong
+
+client -> kong : send refresh token and other info
+kong --> client : return token and refresh token
+
+deactivate client
+deactivate kong
+
+@enduml

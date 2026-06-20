@@ -1,0 +1,46 @@
+```plantuml
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 25
+skinparam BoxPadding 10
+
+actor DefaultMQProducerImpl as D
+participant Validators as V
+participant MQClientManager as M
+participant MQClientInstance as I
+participant MQClientAPIImpl as A
+participant PullMessageService as P
+participant RebalanceService as R
+
+D -> V : checkConfig
+V --> D : result
+
+activate D
+D -> M : getInstance
+activate M
+M -> M : getAndCreateMQClientInstance
+create I
+M -> I : new
+M --> D : mQClientFactory: MQClientInstance
+deactivate M
+
+D -> I : registerProducer
+D -> I : start
+activate I
+
+I -> A : start
+I -> I : startScheduledTask
+I -> P : start
+I -> R : start
+
+I --> D : start
+D -> I : sendHeartbeatToAllBrokerWithLock
+
+deactivate I
+deactivate D
+
+== start 结束 ==
+
+@enduml
+```

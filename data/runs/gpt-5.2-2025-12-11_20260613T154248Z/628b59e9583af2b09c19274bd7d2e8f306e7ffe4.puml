@@ -1,0 +1,39 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 20
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor transparent
+  ActorBorderColor #666666
+  ActorBackgroundColor #DDDDDD
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6FA
+  BoxBorderColor #666666
+  BoxBackgroundColor #D9D9D9
+  ArrowColor #333333
+  MessageAlign left
+}
+
+actor Player as P
+
+box "Portal Service" #D9D9D9
+participant "Telnet Server" as TS
+participant "Connection Manager" as CM
+participant "Middleware" as MW
+end box
+
+participant "World Service" as WS
+
+P -> TS : 1. connects to server
+TS -> CM : 2. passes connection to manager
+
+activate CM
+CM -> CM : 3. calls configured OnConnect callbacks
+CM -> MW : 4. calls all Middleware OnConnect callbacks
+CM -> CM : 5. start main Connection loop
+CM -> WS : 6. initialize World session
+deactivate CM
+
+@enduml

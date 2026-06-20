@@ -1,0 +1,42 @@
+@startuml
+title Mengubah SubMenu
+
+actor Administrator
+
+boundary Dashboard_V
+boundary Submenu_V
+boundary EditSubmenu_V
+control Admin_C
+control Menu_C
+entity Submenu_E
+
+Dashboard_V -> Administrator : 1 load->view()
+Administrator <-- Dashboard_V : 2 Halaman Dashboard
+Administrator -> Dashboard_V : 3 klik menu Submenu management
+Dashboard_V -> Admin_C : 4 Submenu()
+Admin_C -> Menu_C : 5
+Menu_C -> Admin_C : 6
+Admin_C -> Submenu_V : 7 load->view()
+Administrator <-- Submenu_V : 8 Halaman Submenu management
+Administrator -> Submenu_V : 9 klik tombol EditSubmenu
+Submenu_V -> Admin_C : 10 EditSubmenu()
+Admin_C -> EditSubmenu_V : 11 load->view()
+Administrator <-- EditSubmenu_V : 12 Halaman EditSubmenu
+Administrator -> EditSubmenu_V : 13 Mengisi Inputan dan klik tombol edit
+
+note left of Administrator : Inputan Submenu
+
+EditSubmenu_V -> Admin_C : 14 EditSubmenu()
+Admin_C -> Submenu_E : 15
+
+alt [isValid() case]
+    Submenu_E -> Admin_C : 16 isValid()
+    Admin_C -> Submenu_V : 17 load->view()
+    Administrator <-- Submenu_V : 18 Halaman Submenu
+else [isInvalid() case]
+    Submenu_E -> Admin_C : 19 isInValid()
+    Admin_C -> EditSubmenu_V : 20 load->view()
+    Administrator <-- EditSubmenu_V : 21 Halaman Edit Submenu
+end
+
+@enduml

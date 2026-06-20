@@ -1,0 +1,80 @@
+```plantuml
+@startuml
+
+package "persistence" {
+
+    package "server" {
+        package "entity" as server_entity {
+            class Server {
+                seq : Integer
+                name : String
+                ip : String
+            }
+        }
+    }
+
+    package "author" {
+        package "entity" as author_entity {
+            class Author {
+                seq : Integer
+                name : String
+                regDate : Date
+            }
+        }
+    }
+
+    package "member" {
+        package "entity" as member_entity {
+            class Member {
+                seq : Integer
+                id : String
+                password : String
+                name : String
+                type : MemberType
+            }
+
+            enum MemberType {
+                USER,ADMIN
+            }
+        }
+    }
+
+    package "book" {
+        package "entity" as book_entity {
+            abstract class Book {
+                seq : Integer
+                title : String
+                author : Author
+                regDate : Date
+                expireDate : Date
+                register : Member
+                descriptionUrl : String
+                tags : List<Tag>
+            }
+
+            class Tag {
+                seq : Integer
+                value : String
+            }
+
+            class ScanBook {
+                fileName : String
+                fileHash : String
+                path : String
+                server : Server
+                size : Integer
+            }
+
+            class RidiBook {
+                url : String
+                ridiUserId : String
+            }
+
+            ScanBook --|> Book
+            RidiBook --|> Book
+        }
+    }
+}
+
+@enduml
+```

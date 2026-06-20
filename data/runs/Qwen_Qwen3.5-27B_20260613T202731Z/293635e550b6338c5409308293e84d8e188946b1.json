@@ -1,0 +1,22 @@
+{
+  "id": "777e5bdc-3f69-43ff-8c63-d268a0f47a6a",
+  "object": "chat.completion",
+  "created": 1781441715,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam sequence {\n    ArrowColor gray\n    ActorBorderColor black\n    ActorBackgroundColor white\n    ParticipantBorderColor black\n    ParticipantBackgroundColor white\n}\n\nactor Admin as admin\nparticipant \"Sqoop\" as sqoop\ndatabase \"Metastore DB\" as metastore\nrectangle \"HDFS\" as hdfs\nboundary \"Hive SQL\" as hive_sql\ndatabase \"Hive\" as hive\ncircle \"Hive Table\" as hive_table\ncircle \"Ambari\" as ambari\n\n== Pre Upgrade Planning Setup ==\nadmin -> sqoop : Run \"Collect the Metadata\"\nsqoop -> metastore : Extracts from\nsqoop -> hdfs : Saves to\nadmin -> hive : Run \"Build Supporting Tables\"\n\n== Pre Upgrade Planning ==\nadmin -> hive_sql : Run \"Distinct Serdes\"\nadmin -> hive_table : Fix Tables with Serde Issues\nadmin -> hive_sql : Run \"Check Partition Location\"\nadmin -> hive_sql : Run \"Non-Managed Table Locations\"\nadmin -> hive_sql : Run \"Managed Table Locations\"\nadmin -> hive_sql : Run \"Missing HDFS Directories Check\"\nadmin -> hive_sql : Correct \"Missing Directories\"\nadmin -> hive_sql : Run \"Table Migration Check\"\nadmin -> hive_sql : Run \"Acid Table Conversions\"\nadmin -> hive_sql : Run \"Conversion Table Directories\"\n\n== Pre Upgrade Compaction ==\nnote left of admin: This process should be run several days BEFORE the actual upgrade to reduce the downtime of the upgrade.\\nAnd should be run just BEFORE the upgrade and AFTER all users have been cleared from the system to ensure no tables are modified after this runs.\nadmin -> hive_sql : Run \"Acid Table Compaction Check\"\nadmin -> hive_sql : Run \"Acid Table Compaction Required\"\nadmin -> hive : TUNE THE COMPACTOR for estimated compaction needs\nadmin -> hive_sql : Run the compaction script. Break it apart if needed.\n\n== Post Upgrade Planning ==\nadmin -> hive_sql : Run \"Acid Table Locations\". Save artifact for Upgrade.\n\n== Upgrade ==\nadmin -> admin : Review and Run ALL previous steps and collect details.\nadmin -> admin : Decision to intervene with Ambari Process based on volumes indicated through research\nadmin -> ambari : Hack Pre/Post Processes\nadmin -> admin : Run Compaction Routine one last time.\nadmin -> ambari : Start Upgrade\nadmin -> admin : Run the Post Upgrade Planning Output to convert tables.\nadmin -> ambari : Complete Upgrade\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2301,
+    "completion_tokens": 546,
+    "total_tokens": 2847
+  }
+}

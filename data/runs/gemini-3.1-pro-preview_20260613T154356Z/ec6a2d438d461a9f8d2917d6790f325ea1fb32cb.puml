@@ -1,0 +1,56 @@
+```plantuml
+@startuml
+actor "任务开始 nsq 消息" as Actor
+participant GuideTaskStartListener
+participant GuideTaskStartProcessor
+participant GuideTaskStartDomainService
+participant GuideTaskStartStrategy
+participant ShoppingGuideReadApi
+participant GuideTaskRepository
+participant GuideTaskDataRepository
+
+Actor -> GuideTaskStartListener : 1 监听任务开始消息
+activate GuideTaskStartListener
+
+GuideTaskStartListener -> GuideTaskStartProcessor : 2 开始处理
+activate GuideTaskStartProcessor
+
+GuideTaskStartProcessor -> GuideTaskRepository : 3 查询任务
+activate GuideTaskRepository
+deactivate GuideTaskRepository
+
+GuideTaskStartProcessor -> GuideTaskStartDomainService : 4 开始任务
+activate GuideTaskStartDomainService
+
+GuideTaskStartDomainService -> GuideTaskStartStrategy : 5 构建任务
+activate GuideTaskStartStrategy
+
+GuideTaskStartStrategy -> ShoppingGuideReadApi : 6 根据部门查询导购
+activate ShoppingGuideReadApi
+deactivate ShoppingGuideReadApi
+
+GuideTaskStartStrategy -> GuideTaskStartStrategy : 7 根据导购进行任务分配
+activate GuideTaskStartStrategy
+deactivate GuideTaskStartStrategy
+
+group Transaction
+    GuideTaskStartDomainService -> GuideTaskDataRepository : 8 保存分配给导购的任务
+    activate GuideTaskDataRepository
+    deactivate GuideTaskDataRepository
+
+    GuideTaskStartDomainService -> GuideTaskRepository : 9 status flow 任务状态流转至 已启动
+    activate GuideTaskRepository
+    deactivate GuideTaskRepository
+
+    GuideTaskStartDomainService -> GuideTaskDataRepository : 10 任务流转为执行中
+    activate GuideTaskDataRepository
+    deactivate GuideTaskDataRepository
+end
+
+deactivate GuideTaskStartStrategy
+deactivate GuideTaskStartDomainService
+deactivate GuideTaskStartProcessor
+deactivate GuideTaskStartListener
+
+@enduml
+```

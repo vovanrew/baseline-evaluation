@@ -1,0 +1,22 @@
+{
+  "id": "64fe266a-3c30-4d8f-b1e6-33284eeab9c6",
+  "object": "chat.completion",
+  "created": 1781876568,
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle public request directly to Gatekeeper\n\nactor client\nparticipant \"auth_service\" as auth_service\nbox \"\" #LightBlue2\n  participant IDP\nend box\nparticipant \"Gatekeeper\" as gatekeeper\nparticipant PASTA_service\ndatabase LDAP\n\n\nclient ->gatekeeper : \"request\" as public \nactivate gatekeeper \n\nnote right of gatekeeper: generate internal (public) token  \nautonumber \"<b>[0]\"  \n\ngatekeeper->PASTA_service :\"request\" internal (public) token   \ndeactivate gatekeeper \n\n\nloop authorize service    \n    note over PASTA_service,PASTA_service#Bottom\n    \n        loop authorize resource     \n            activate PASTA_service       \n            \n                alt perform service      \n                    deactivate PASTA_service        \n                    \n                        else drop internal (public) token\n                        \n                            end if\n            \n             return response\n        \n         end loop\n     \n     end note\n   \n   end loop\n  \nreturn response\n\n\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2105,
+    "completion_tokens": 194,
+    "total_tokens": 2299
+  }
+}

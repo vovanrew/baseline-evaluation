@@ -1,0 +1,63 @@
+@startuml
+participant "タスク管理" as TaskMgr
+box "メモリ管理" #LightGray
+participant "ページング\n管理" as PageMgr
+participant "物理メモリ\n領域管理" as PhysMgr
+end box
+participant "MLIB" as MLIB
+
+TaskMgr -> PageMgr : ページディレクトリ解放\n（ページディレクトリID）
+
+PageMgr -> MLIB : 管理情報取得
+note right of MLIB
+  **ref**
+  動的配列
+end note
+
+MLIB --> PageMgr : ページディレクトリ操作領域マッピング設定
+
+PageMgr -> PageMgr : 
+note left of PageMgr
+  **ref**
+  マッピング設定
+end note
+
+loop [カーネル領域以外の全有効エントリ毎]
+  PageMgr -> PageMgr : ページテーブル操作領域マッピング設定
+  PageMgr -> PageMgr :
+  note left of PageMgr
+    **ref**
+    マッピング設定
+  end note
+
+  PageMgr -> PageMgr : ページテーブル０初期化
+  PageMgr <- PageMgr :
+
+  PageMgr -> PhysMgr : ページテーブル解放
+  note right of PhysMgr
+    **ref**
+    物理メモリ領域解放
+  end note
+  PhysMgr --> PageMgr :
+end loop
+
+PageMgr -> PageMgr : ページディレクトリ０初期化
+PageMgr <- PageMgr :
+
+PageMgr -> PhysMgr : ページディレクトリ解放
+note right of PhysMgr
+  **ref**
+  物理メモリ領域割当
+end note
+PhysMgr --> PageMgr :
+
+PageMgr -> MLIB : 管理情報解放
+note right of MLIB
+  **ref**
+  動的配列
+end note
+
+MLIB --> PageMgr :
+PageMgr --> TaskMgr :
+
+@enduml

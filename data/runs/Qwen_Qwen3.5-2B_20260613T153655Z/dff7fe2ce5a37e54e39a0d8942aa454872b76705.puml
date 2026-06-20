@@ -1,0 +1,29 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "SERVER NODE 1" as S1
+participant "SERVER NODE 2" as S2
+participant "STATE CACHE" as SC
+participant "BROKER" as B
+participant "TBM/HU" as TBM
+participant "APP" as APP
+
+S1..>S1 : new request/response interaction
+S1..>S1 : create interaction context
+S1..>S1 : newMessageID = nextMessageID()
+S1..>SC : put(newMessageID, interaction context)
+S1..>S1 : create message
+S1..>S1 : message.messageID = newMessageID
+S1..>B : publish message
+
+B..>TBM : read message
+TBM..>TBM : create response
+TBM..>TBM : response.correlationID = message.messageID
+TBM..>B : publish response
+
+B..>S2 : read response
+S2..>SC : interaction context = get(response.correlationID)
+S2..>SC : process response
+S2..>SC : delete(response.correlationID)
+
+@enduml

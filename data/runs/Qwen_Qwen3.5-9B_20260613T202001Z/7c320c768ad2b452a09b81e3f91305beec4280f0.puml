@@ -1,0 +1,44 @@
+@startuml
+actor "图书管理员" as librarian
+participant "读者" as reader
+participant "图书目录" as catalog
+participant "图书信息" as bookInfo
+participant "借书记录" as borrowRecord
+
+librarian -> reader: 验证读者信息
+activate reader
+deactivate reader
+
+librarian -> reader: 获取读者借书数量
+activate reader
+deactivate reader
+
+opt [超出借书数量]
+  reader --> librarian: 借书失败
+else
+  librarian -> catalog: 获取图书目录
+  activate catalog
+  catalog -> bookInfo: 查询图书信息
+  activate bookInfo
+  bookInfo --> catalog: 返回信息
+  deactivate bookInfo
+  catalog --> librarian: 返回信息
+  deactivate catalog
+
+  librarian -> borrowRecord: 存储借书记录
+  activate borrowRecord
+  deactivate borrowRecord
+
+  librarian -> catalog: 借出图书
+  activate catalog
+  catalog -> bookInfo: 减少图书数量
+  activate bookInfo
+  deactivate bookInfo
+  deactivate catalog
+
+  librarian -> reader: 减少读者可借数量
+  activate reader
+  deactivate reader
+end
+
+@enduml

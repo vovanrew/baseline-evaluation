@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle SignUp Flow\n\nactor Client\nparticipant Mobile\nparticipant \"SMS Gateway\" as SMSGateway\nparticipant \"Push Gateway\" as PushGateway\nparticipant DigitalDB\nparticipant \"Keycloak + Extension\" as Keycloak\n\nactivate Client\nClient -> Mobile: 1 Enter PhoneNumber, Birthday\nactivate Mobile\nClient -> Mobile: 2 Enter Password\nMobile -> Keycloak: 3 POST /auth/signup (PhoneNumber, Birthday)\nactivate Keycloak\nKeycloak -> DigitalDB: 4 findClientRecord(PhoneNumber, Birthday): ClientRecord\nactivate DigitalDB\nDigitalDB --> Keycloak: 5 ClientRecord\ndeactivate DigitalDB\n\nalt ClientRecord is NOT found\n    Keycloak --> Mobile: 6 HTTP 202\nend\n\nKeycloak -> Keycloak: 7 saveInOTPContext(ClientRecord.id)\nKeycloak -> Keycloak: 8 generateAndSaveOTP(): OTP\nKeycloak --> Mobile: 9 HTTP 202\ndeactivate Mobile\n\nKeycloak -> SMSGateway: 10 sendSMS(phone=PhoneNumber, data=OTP)\nactivate SMSGateway\nSMSGateway -> Mobile: 11 SMS with OTP\ndeactivate SMSGateway\nactivate Mobile\n\nMobile -> PushGateway: 12 getPushToken(): Push Token\nactivate PushGateway\nPushGateway --> Mobile: 13 Push Token\ndeactivate PushGateway\n\nMobile -> Mobile: 14 generateKeys(): [PublicKey, PrivateKey]\n\nClient -> Mobile: 15 Enter OTP\nMobile -> Keycloak: 16 POST /auth/signup/complete (OTP, Password, Push Token, PublicKey)\nactivate Keycloak\n\nKeycloak -> Keycloak: 17 validateOTP(OTP)\n\nKeycloak -> DigitalDB: 18 updateUser(ClientId, KeycloakUserId)\nactivate DigitalDB\nDigitalDB --> Keycloak: 19\ndeactivate DigitalDB\n\nKeycloak -> DigitalDB: 20 createMobileDevice(ClientId, Push Token, PublicKey)\nactivate DigitalDB\nDigitalDB --> Keycloak: 21\ndeactivate DigitalDB\n\nKeycloak -> Keycloak: 22 generateJWT(scope=\"regular_user\"): JWT\nKeycloak --> Mobile: 23 HTTP 200 {jwt: JWT}\ndeactivate Keycloak\ndeactivate Mobile\ndeactivate Client\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHMkQdLHzC823gQXGx73w4DgtTRXZWJ5UEXnOKx5YwX2t9PeFev0/gsFIEXZKk"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1160,
+    "candidatesTokenCount": 498,
+    "totalTokenCount": 1658,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1080
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "wmAxatSYMfHn7M8PjOv34AQ"
+}

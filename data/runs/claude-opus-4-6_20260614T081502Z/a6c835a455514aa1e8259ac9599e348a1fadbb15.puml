@@ -1,0 +1,86 @@
+```plantuml
+@startuml
+title End Screen Action Sequences
+
+actor User
+
+box "Views" #LightBlue
+participant "Game" as Game
+participant "End" as End
+participant "HighScore" as HighScore
+participant "Start" as Start
+end box
+
+box "User Interface Control" #LightBlue
+participant "Navigation" as Navigation
+end box
+
+box "Back End" #Plum
+participant "Settings" as Settings
+participant "JoggleCube" as JoggleCube
+participant "HighScores" as HighScores
+participant "Score" as Score
+participant "Cube" as Cube
+participant "Block" as Block
+end box
+
+== High Score button clicked ==
+
+User -> End : btnHighScoreClicked()
+End -> Navigation : show(ScreenType.HighScore)
+Navigation -> HighScore : prepView()
+HighScore -> JoggleCube : getOverallHighScores()
+JoggleCube -> HighScores : getScores()
+HighScores --> JoggleCube : scores
+JoggleCube --> HighScore : scores
+HighScore -> JoggleCube : getCurrentCubeHighScores()
+JoggleCube -> HighScores : getScores()
+HighScores --> JoggleCube : scores
+JoggleCube --> HighScore : scores
+HighScore --> End
+End -> Navigation : hideOverlay(ScreenType.End)
+Navigation --> End
+
+== Menu Clicked ==
+
+User -> End : btnMenuClicked()
+End -> Navigation : show(ScreenType.Start)
+Navigation -> Start : prepView()
+Start -> Settings : getCurrLang()
+Settings --> Start : English
+Start --> End
+End -> Navigation : hideOverlay(ScreenType.End)
+Navigation --> End
+
+== Replay clicked ==
+
+User -> End : replayGrid()
+End -> Navigation : show(ScreenType.GAME)
+Navigation -> Game : prepView()
+Game -> JoggleCube : getCubeData()
+JoggleCube -> Cube : getCube()
+Cube --> JoggleCube : cube[3][3][3]
+JoggleCube --> Game : cube[3][3][3]
+Game --> End
+End -> Navigation : hideOverlay(ScreenType.End)
+Navigation --> End
+
+== Save Clicked ==
+
+User -> End : btnSaveClicked()
+End -> JoggleCube : savGrid(filename)
+JoggleCube -> Cube : saveCube(outfile)
+loop [foreach Block]
+Cube -> Block : getLetter()
+Block --> Cube
+end
+Cube --> JoggleCube
+JoggleCube -> HighScores : saveScore(outfile)
+loop [foreach score]
+HighScores -> Score : save(outfile)
+Score --> HighScores
+end
+HighScores --> JoggleCube
+
+@enduml
+```

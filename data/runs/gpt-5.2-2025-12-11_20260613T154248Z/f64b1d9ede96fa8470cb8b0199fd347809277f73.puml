@@ -1,0 +1,65 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F6
+  ActorBorderColor #666666
+  ActorBackgroundColor #E9E9F6
+  NoteBackgroundColor #FFF9C4
+  NoteBorderColor #666666
+  BoxBorderColor #000000
+  BoxBackgroundColor transparent
+}
+
+actor Client
+participant Service1
+participant Service2
+
+note right of Service1
+SessionFactory
+one per node
+end note
+
+note right of Service2
+Session
+one per request
+end note
+
+box "model check"
+  Client -> Service1 : register(Class<Pojo>)
+  activate Service1
+
+  Service1 -> Service1 : checkModel
+  Service1 -> Service1 : createModelForPojo
+
+  alt mode="create"
+    alt model exists
+      Service1 --> Service1 : throw exception
+    else
+      Service1 -> Service1 : createModelInDB
+    end
+  else mode="drop-create"
+    Service1 -> Service1 : dropModelInDB
+    Service1 -> Service1 : createModelInDB
+  else mode="update"
+    Service1 -> Service1 : getModelDeltaInDB
+    Service1 -> Service1 : updateModelInDB
+  else mode="none"
+    Service1 -> Service1 : checkModelInDB
+    alt model differs
+      Service1 --> Service1 : throw exception
+    end
+  end
+
+  deactivate Service1
+end box
+
+Client -> Service2 : store(pojo)
+activate Service2
+Service2 -> Service2 : getDelta(pojo)
+deactivate Service2
+
+@enduml

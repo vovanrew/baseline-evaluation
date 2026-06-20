@@ -1,0 +1,29 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "User" as User
+rectangle "MyBackupService" as MyBackupService
+rectangle "TaskFactory" as TaskFactory
+rectangle "TaskDispatcher" as TaskDispatcher
+rectangle "SimpleTask" as SimpleTask
+
+User -> MyBackupService : SimpleBackup()
+activate MyBackupService
+MyBackupService ..> TaskDispatcher : New
+activate TaskDispatcher
+TaskDispatcher ..> MyBackupService : TaskDispatcher
+MyBackupService -> TaskDispatcher : SimpleTask()
+TaskDispatcher -> TaskFactory : Create()
+activate TaskFactory
+TaskFactory ..> SimpleTask : new
+activate SimpleTask
+SimpleTask ..> TaskDispatcher : Task
+TaskDispatcher -> SimpleTask : Execute()
+deactivate SimpleTask
+deactivate TaskFactory
+deactivate TaskDispatcher
+deactivate MyBackupService
+
+@enduml
+```

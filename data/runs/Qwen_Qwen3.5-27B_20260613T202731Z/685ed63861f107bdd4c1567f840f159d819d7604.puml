@@ -1,0 +1,29 @@
+```plantuml
+@startuml
+skinparam participantStyle rectangle
+
+participant "AppUser" as AppUser
+participant "Webserver" as Webserver
+participant "OrderController" as OrderController
+participant "OrderService" as OrderService
+participant "OrderDao" as OrderDao
+
+AppUser -> Webserver : Get https://xxx/orders?uuid=123
+activate Webserver
+Webserver --x> OrderController : uuid
+activate OrderController
+OrderController --x> OrderService : uuid
+activate OrderService
+OrderService --x> OrderDao : uuid
+activate OrderDao
+OrderDao --x> OrderService : List<OrderPO>
+deactivate OrderDao
+OrderService --x> OrderController : List<OrderVO>
+deactivate OrderService
+OrderController --x> Webserver : List<OrderVO>
+deactivate OrderController
+Webserver --x> AppUser
+deactivate Webserver
+
+@enduml
+```

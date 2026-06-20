@@ -1,0 +1,18 @@
+@startuml
+title Send file to inbox
+
+actor User
+participant REST
+participant "Lookup Service" as LS
+participant "VFS Service" as VFS
+participant "Storage Service" as SS
+participant S3
+
+User -> REST : get User2 inbox info 🔑(login/password)
+REST --> User : User2 🔑**public key** and /**inbox** access creds
+User -> SS : encrypt and save file to user's inbox location
+SS -> S3 : persistence
+S3 --> SS : success
+SS --> User : success
+
+@enduml

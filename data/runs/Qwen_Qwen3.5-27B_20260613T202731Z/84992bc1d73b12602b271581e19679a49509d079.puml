@@ -1,0 +1,49 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+package "diagram" {
+    package "visitor" {
+        interface IDiagramVisitor {
+            +visit(ClassDiagram visitor) : void
+            +visit(SequenceDiagram visitor) : void
+            +visit(UseCaseDiagram visitor) : void
+            +visit(DiagramManager visitor) : void
+        }
+        class ToViewVisitor {
+            +getDiagramMenu() : IDiagramMenu
+            +getDiagramEditor() : IDiagramEditor
+        }
+    }
+}
+
+class UmlReverseApp
+class MainController
+interface IDiagramMenu
+interface IDiagramEditor
+
+package "javafx" {
+    class Stage
+    class Scene
+    class BorderPane
+    class MenuBar
+    class MenuItem
+    class TabPane
+    class TreeFileManagerView
+}
+
+UmlReverseApp o-- MainController : controller
+UmlReverseApp o-- Stage : stage
+Stage o-- Scene : scene
+Scene o-- BorderPane : borderpane
+BorderPane o-- MenuBar : north
+MenuBar o-- MenuItem : items
+BorderPane o-- TabPane : center
+TabPane o-- IDiagramEditor : editors
+BorderPane o-- TreeFileManagerView : fileManagerView
+BorderPane o-- IDiagramMenu : est
+ToViewVisitor ..|> IDiagramVisitor
+IDiagramVisitor <|.. UmlReverseApp
+
+@enduml
+```

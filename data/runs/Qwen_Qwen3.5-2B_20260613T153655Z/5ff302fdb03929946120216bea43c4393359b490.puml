@@ -1,0 +1,91 @@
+@startuml
+participant "User" as User
+participant "Frontend" as Frontend
+participant "ReservationService" as ReservationService
+participant "TicketRepository" as TicketRepository
+participant "EventBus" as EventBus
+participant "TicketMasterService" as TicketMasterService
+participant "TicketMasterRepository" as TicketMasterRepository
+participant "OrderManager" as OrderManager
+participant "DB" as DB
+
+actor User
+participant Frontend
+
+note right of Frontend
+POST /reservations
+{
+  tickets: [
+    {
+      programId: 1,
+      sectorId: 1,
+      seatId: 5
+    },
+    {
+      programId: 1,
+      sectorId: 1,
+      seatId: 6
+    }
+  ]
+}
+note right of ReservationService
+CreateReservation
+{
+  reservation: {
+    reservationId: "abc123"
+    tickets: [
+      {
+        programId: 1,
+        sectorId: 1,
+        seatId: 5
+      },
+      {
+        programId: 1,
+        sectorId: 1,
+        seatId: 6
+      }
+    ]
+  }
+}
+note right of TicketMasterService
+handle CreateReservation
+check if all tickets are FREE
+alt [ticket status = FREE]
+  set status of tickets to RESERVED
+  publish ReservationAccepted
+alt [ticket status != FREE]
+  publish ReservationRejected
+end
+note right of ReservationService
+handle ReservationEvent
+alt [ReservationAccepted]
+  set status of tickets to RESERVED
+alt [ReservationRejected]
+  Noop
+end
+note right of Frontend
+alt [ReservationAccepted]
+  redirect user to Order page
+alt [ReservationRejected]
+  show error msg
+end
+
+User -> Frontend: reserve button
+Frontend -> ReservationService: POST /reservations
+ReservationService -> TicketRepository: validate tickets
+ReservationService -> TicketRepository: createReservationCommand
+ReservationService -> EventBus: publish CreateReservation
+EventBus -> TicketMasterService: handle CreateReservation
+TicketMasterService -> TicketMasterRepository: check if all tickets are FREE
+TicketMasterService -> TicketMasterRepository: set status of tickets to RESERVED
+TicketMasterService -> TicketMasterRepository: publish ReservationAccepted
+ReservationService -> TicketMasterService: handle ReservationEvent
+ReservationService -> TicketMasterRepository: Noop
+ReservationService -> Frontend: publish ReservationEvent on websocket
+Frontend -> User: redirect user to Order page
+Frontend -> User: show error msg
+
+TicketMasterService -> OrderManager: handle ReservationAccepted
+OrderManager -> DB: save ReservedTicket object for each ticket
+
+@enduml

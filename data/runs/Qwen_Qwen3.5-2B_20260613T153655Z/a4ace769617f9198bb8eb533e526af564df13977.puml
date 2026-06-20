@@ -1,0 +1,26 @@
+@startuml
+participant "接入平台的前端页" as FrontendPage
+participant "权限中心登录页" as LoginPage
+participant "starter-auth(权限中心)" as AuthService
+participant "auth数据库" as AuthDB
+participant "redis" as RedisDB
+
+FrontendPage ..> LoginPage : 未登录的请求自动重定向
+
+LoginPage ..> AuthService : 获取用户登录授权码接口
+
+AuthService ..> AuthDB : 查询用户信息
+
+AuthService ..> RedisDB : 异步：缓存授权码关联的用户信息60s
+
+AuthService ..> AuthDB : 验证用户密码
+AuthDB ..> AuthService : 不匹配则响应：登陆失败
+AuthService ..> AuthDB : 创建授权码
+
+AuthService ..> LoginPage : 响应授权码和重定向页面
+
+LoginPage ..> FrontendPage : 重定向到接入服务指定的前端页
+LoginPage ..> FrontendPage : 在请求路径中带上用户登录授权码
+LoginPage ..> FrontendPage : 路径如：https://www.xxx.com/?aucoCode=xxxxxxxxxxxxxx
+
+@enduml

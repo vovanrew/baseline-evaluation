@@ -1,0 +1,29 @@
+```plantuml
+@startuml
+skinparam participantStyle rectangle
+
+participant "AppUser" as AppUser
+participant "Webserver" as Webserver
+participant "OrderController" as OrderController
+participant "OrderService" as OrderService
+participant "OrderDao" as OrderDao
+
+AppUser -> Webserver : Update https://xxx/orders/{OrderId}?uuid=123
+activate Webserver
+Webserver --x> OrderController : OrderId
+activate OrderController
+OrderController --x> OrderService : OrderId
+activate OrderService
+OrderService --x> OrderDao : OrderId
+activate OrderDao
+OrderDao --x> OrderService : OrderPO
+deactivate OrderDao
+OrderService --x> OrderController : OrderVO
+deactivate OrderService
+OrderController --x> Webserver : OrderVO
+deactivate OrderController
+Webserver --x> AppUser : 
+deactivate Webserver
+
+@enduml
+```

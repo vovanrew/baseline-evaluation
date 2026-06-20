@@ -1,0 +1,63 @@
+```plantuml
+@startuml
+
+package "simpy" {
+  class container {
+    capacity: Union[int, float]
+    init: Union[int, float]
+  }
+
+  class environment {
+  }
+}
+
+enum Component {
+  C1
+  C2
+  C3
+}
+
+class Buffer {
+  id: int
+  accepts: Component
+  --
+  will_accept(): bool
+}
+
+class Inspector {
+  id: int
+  env: environment
+  buffers: List[Buffer]
+  components: List[Component]
+  --
+  get_random_component(): Component
+  get_inspection_time(): int
+  inspect_component: Generator
+  add_component_to_buffer(): Generator
+  main_loop(): None
+}
+
+class Workstation {
+  id: int
+  env: environment
+  buffers: List[Buffer]
+  --
+  get_assembly_time(): int
+  get_components(): Generator
+  assemble(): Generator
+  main_loop(): None
+}
+
+Inspector --> container
+Inspector --> environment
+Inspector --> Component
+Inspector --> Buffer
+
+Workstation --> container
+Workstation --> environment
+Workstation --> Buffer
+
+Buffer --> Component
+
+@enduml
+```

@@ -1,0 +1,22 @@
+@startuml
+left to right direction
+skinparam sequenceMessageAlign center
+
+participant "ListingController" as LC
+participant "FixPriceListingMapper" as FPLM
+participant "Database" as DB
+participant "allListings: ArrayList<FixPriceListing>" as AL
+
+activate LC
+LC -> FPLM : readList()
+activate FPLM
+FPLM -> DB : SELECT * FROM fixed_price_listing
+activate DB
+DB --> FPLM : resultSet
+deactivate DB
+FPLM --> AL : create(title=resultSet.getString("title"), ...)
+deactivate FPLM
+AL --> LC : allListings
+deactivate LC
+
+@enduml

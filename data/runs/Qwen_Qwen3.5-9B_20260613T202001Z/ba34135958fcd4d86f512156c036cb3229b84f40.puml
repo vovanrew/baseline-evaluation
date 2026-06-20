@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+actor Actor
+participant "WizardAction" as WizardAction
+participant "Language" as Language
+participant "UIController" as UIController
+participant "FromulaCompiler" as FromulaCompiler
+
+note right of Actor
+  Extention loading and integration with main UI can be found on Example Extention diagrams
+end note
+
+Actor -> WizardAction: starts use case
+WizardAction -> frame : WizardFrame: new(UIController)
+frame : WizardFrame -> controller : WizardController: new(UIController)
+controller : WizardController -> Language: getFunctions()
+Language -> controller : getInstance()
+controller : WizardController -> Language: getFunctions()
+
+loop
+  frame : WizardFrame -> frame : WizardFrame: displayInformation()
+end
+
+Actor -> frame : WizardFrame: Select Function
+frame : WizardFrame -> controller : WizardController: getExpression(function)
+
+loop
+  frame : WizardFrame -> frame : WizardFrame: loadTextFields()
+end
+
+frame : WizardFrame -> Actor: show the expression to user
+Actor -> frame : WizardFrame: Sets parameters and selects ok
+frame : WizardFrame -> controller : WizardController: getResult(String expression)
+controller : WizardController -> UIController: cell=getActiveCell()
+controller : WizardController -> FromulaCompiler: getInstance()
+controller : WizardController -> FromulaCompiler: compile(cell,expression)
+FromulaCompiler -> controller : WizardController: return result
+
+@enduml

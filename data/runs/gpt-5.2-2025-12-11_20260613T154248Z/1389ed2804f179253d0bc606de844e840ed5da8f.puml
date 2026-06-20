@@ -1,0 +1,71 @@
+```plantuml
+@startuml
+skinparam shadowing false
+skinparam sequenceMessageAlign left
+skinparam responseMessageBelowArrow true
+skinparam ParticipantPadding 30
+skinparam BoxPadding 10
+
+actor User
+
+participant "«main»\nAdministration" as Admin
+participant "«JFrame»\nMain Menu" as MainMenu
+participant "«dialog»\nView Products" as ViewProducts
+participant "«DAO»\nProductManagerdao" as PMDao
+participant "«DAO»\nDbConnection" as DbConn
+
+Admin -> MainMenu : construct
+activate MainMenu
+
+User -> MainMenu : click "view products" button
+MainMenu -> ViewProducts : construct
+activate ViewProducts
+
+ViewProducts -> PMDao : construct
+activate PMDao
+
+ViewProducts -> PMDao : getProducts()
+PMDao -> DbConn : getConnection(uri);
+activate DbConn
+DbConn --> PMDao : connection
+deactivate DbConn
+
+PMDao -> PMDao : prepareStatement(sql)
+PMDao -> PMDao : executeQuery()
+PMDao -> PMDao : getters retrieve product details
+PMDao -> PMDao : setters set product details
+
+PMDao --> ViewProducts : product
+deactivate PMDao
+
+ViewProducts -> ViewProducts : setModel(displayProducts)
+
+User -> ViewProducts : enter a product ID in search bar
+User -> ViewProducts : user clicks "search" button
+
+ViewProducts -> ViewProducts : searchbyIDTxt.getText()
+ViewProducts -> PMDao : searchProduct(searchID)
+activate PMDao
+
+PMDao -> DbConn : getConnection(uri);
+activate DbConn
+DbConn --> PMDao : connection
+deactivate DbConn
+
+PMDao -> PMDao : perpareStatement(sql)
+PMDao -> PMDao : setString(1, searchProdID)
+PMDao -> PMDao : executeQuery()
+PMDao -> PMDao : getters retrieve product details
+PMDao -> PMDao : setters set product details
+
+PMDao --> ViewProducts : product searched for (p)
+deactivate PMDao
+
+ViewProducts -> ViewProducts : updateItems(returnedProduct)
+
+User <- ViewProducts : waiting for further user action
+
+deactivate ViewProducts
+deactivate MainMenu
+@enduml
+```

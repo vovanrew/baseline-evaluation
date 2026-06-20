@@ -1,0 +1,21 @@
+{
+  "id": "msg_01UsUopw4U7ZPq3auqwyvESC",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Toggle Switch\n\nparticipant Ctc\nparticipant TrackController\n\nbox #LightGray\nparticipant TrackModel\nparticipant Block\nparticipant Switch\nend box\n\nCtc -> Ctc : Select Block\nCtc -> TrackController : setSwitchStatus(Block,direction)\nTrackController -> TrackModel : setSwitchStatus(Block,direction)\n\nTrackModel -> TrackModel : getBlock()\nTrackModel -> Block : getSwitch()\nBlock -> Switch : setSwitchState(\"normal\" or \"alternate\")\n\nSwitch -->] \n[<-- TrackController : new switch status\nTrackController -> TrackController : updateSwitchStatus(Block,status)\n\nTrackController -->] \n[<-- Ctc : new switch status\nCtc <- TrackController : updateSwitchStatus(Block,status)\n@enduml\n```\n\nWait, let me redo this more carefully:\n\n```plantuml\n@startuml\ntitle Toggle Switch\n\nparticipant Ctc\nparticipant TrackController\n\nbox #LightGray\nparticipant TrackModel\nparticipant Block\nparticipant Switch\nend box\n\nCtc -> Ctc : Select Block\nCtc -> TrackController : setSwitchStatus(Block,direction)\nTrackController -> TrackModel : setSwitchStatus(Block,direction)\n\nactivate TrackModel\nTrackModel -> TrackModel : getBlock()\nTrackModel -> Block : getSwitch()\nactivate Block\nBlock -> Switch : setSwitchState(\"normal\" or \"alternate\")\nactivate Switch\ndeactivate Block\n\nSwitch -->> TrackController : new switch status\ndeactivate Switch\ndeactivate TrackModel\n\nTrackController -> TrackController : updateSwitchStatus(Block,status)\n\nTrackController -->> Ctc : new switch status\nCtc <- TrackController : updateSwitchStatus(Block,status)\n\n@enduml\n```\n\nHmm, let me be more precise:\n\n```plantuml\n@startuml\ntitle Toggle Switch\n\nparticipant Ctc\nparticipant TrackController\n\nbox #LightGray\nparticipant TrackModel\nparticipant Block\nparticipant Switch\nend box\n\nCtc -> Ctc : Select Block\nCtc -> TrackController : setSwitchStatus(Block,direction)\nTrackController -> TrackModel : setSwitchStatus(Block,direction)\nactivate TrackModel\nTrackModel -> TrackModel : getBlock()\nTrackModel -> Block : getSwitch()\nactivate Block\nBlock -> Switch : setSwitchState(\"normal\" or \"alternate\")\nactivate Switch\ndeactivate Block\nSwitch ..> TrackController : new switch status\ndeactivate Switch\ndeactivate TrackModel\nTrackController -> TrackController : updateSwitchStatus(Block,status)\nTrackController ..> Ctc : new switch status\nCtc <- TrackController : updateSwitchStatus(Block,status)\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781430446,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 690,
+    "prompt_tokens": 1656,
+    "total_tokens": 2346
+  }
+}

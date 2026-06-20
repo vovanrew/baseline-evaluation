@@ -1,0 +1,22 @@
+{
+  "id": "abbc63da-5ed2-45d8-a8ab-ec7b64ef845a",
+  "object": "chat.completion",
+  "created": 1781426316,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nskinparam sequenceMessageAlign center\n\nparticipant \"browser\" as browser\nparticipant \"proxy\" as proxy\nparticipant \"backend\" as backend\nparticipant \"component_config\" as component_config\nparticipant \"subscription_map\" as subscription_map\nparticipant \"normalized_object_map\" as normalized_object_map\nparticipant \"normalized_object\" as normalized_object\n\nactivate browser\nactivate proxy\nactivate backend\n\nbrowser -> proxy: get_state(\\nconfiguration_name,\\ngeo_bounding_box)\nproxy -> backend: +TENANT_HEADER\n\nbackend -> component_config: component_config[configuration_name]\\n.subscription_usages\ncomponent_config --> backend: [ subscription_usage_config ]\n\nbackend -> subscription_map: forEach subscription_usage_config.subscription_id\nsubscription_map --> backend: subscription_map[subscription_id] (= normalized_object_map)\n\nbackend -> normalized_object_map: forEach key\nnormalized_object_map --> backend: normalized_object\n\nbackend -> normalized_object: forEach normalized_object:\\nif object.in(geo_bounding_box):\\n  object.to_dto(\\n    subscription_usage_config\\n  )\nnormalized_object --> backend: object_dto\n\nbackend --> proxy: [ object_dto ]\nproxy --> browser:\n\ndeactivate browser\ndeactivate proxy\ndeactivate backend\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1174,
+    "completion_tokens": 259,
+    "total_tokens": 1433
+  }
+}

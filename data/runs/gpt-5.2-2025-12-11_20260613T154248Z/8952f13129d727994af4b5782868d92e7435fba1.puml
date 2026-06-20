@@ -1,0 +1,119 @@
+```plantuml
+@startuml
+title Shared memory receiver behaviour
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #333333
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #EFEFEF
+  BoxBorderColor #999999
+  BoxBackgroundColor #E6E6E6
+  NoteBackgroundColor #FFF9C4
+  NoteBorderColor #BDB76B
+}
+
+participant "Shared memory receiver" as SMR
+participant "Semaphore coord" as SEMC
+box "Coordination struct" #E6E6E6
+  participant "Reader count var" as RC
+  participant "locks_active" as LA
+  participant "locks_leaving" as LL
+  participant "Semaphore copy" as SC
+end box
+participant "Copy buff" as CB
+
+== create ==
+alt ["Coordination semaphore doesn't exist"]
+  SMR -> SEMC : Create semaphore
+end
+SMR -> SEMC : wait
+note over SEMC,CB
+Writer sets up sharedmemory
+Writer is ready
+Writer inits it with the required number
+end note
+SMR -> RC : ok
+SMR -> RC : reincrease
+SMR -> SEMC : MMap coordination struct
+SMR -> SC : Trylock copy semaphore
+
+alt [fail]
+  SMR <-- SC : Fail
+  SMR -> SMR : Can't lock
+else [success]
+  SMR <-- SC : Success
+  SMR -> CB : MMap copy buffer
+  SMR -> SMR : read_flag to true
+  SMR -> LL : Lock leaving[1]
+  SMR -> RC : Signal reader ready
+end
+SMR -> SEMC : Close coordination semaphore file
+SMR <-- SEMC : Success
+
+== ready ==
+SMR -> SMR : ready?
+alt [finished flag set]
+  SMR <-- SMR : False
+else [has read current chunk]
+  SMR -> LA : lock next chunk (reading)
+  note over LA
+Blocks until next
+chunk is written
+end note
+  SMR -> LL : Release previous leaving
+  SMR -> LA : Change active
+  SMR -> SMR : reset read flag
+  SMR -> CB : get chunk size
+  SMR <-- CB : c_size
+  SMR <-- SMR : c_size > 0
+  SMR <-- SMR : True
+end
+
+alt [finished]
+  note left of SMR
+This is done before
+actually returning
+end note
+  SMR -> SMR : set finished flag
+  SMR -> LA : Release lock
+end
+
+== buff size ==
+SMR -> SEMC : get buff_size from coord
+SMR <-- SEMC : buff_size
+
+== receive ==
+note left of SMR
+This is called after ready so I am already on the correct
+chunk and it has data to read
+end note
+alt [read_flag_set or finished flag set]
+  SMR <-- SMR : Fail
+else
+  SMR -> CB : Read data in current chunk
+  SMR <-- CB : vector
+  SMR -> SMR : set read flag
+  SMR -> LL : lock leaving
+  SMR -> LA : release active
+  SMR <-- SMR : vector
+end
+
+== destructor ==
+SMR -> SMR : Destroy
+alt [not finished]
+  alt [read_flag set]
+    SMR -> LA : unlock
+  else [read_flag false]
+    SMR -> LL : unlock
+  end
+end
+SMR -> RC : Notify left
+SMR -> SMR : Unmap memory
+SMR -> SMR : Close files
+
+@enduml
+```

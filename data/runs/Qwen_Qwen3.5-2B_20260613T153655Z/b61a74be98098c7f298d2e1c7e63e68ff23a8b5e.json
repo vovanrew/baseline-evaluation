@@ -1,0 +1,22 @@
+{
+  "id": "86127bdc-1767-4e45-ab11-c043252353b3",
+  "object": "chat.completion",
+  "created": 1781402394,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant Actor as Admin\nparticipant Actor as User\nparticipant Interface as AccountManagement\nparticipant Interface as Broker\nparticipant Interface as Notifications\nparticipant Interface as UAA\nparticipant Interface as EmailSender\n\nActor Admin\nActor User\n\nInterface AccountManagement\nInterface Broker\nInterface Notifications\nInterface UAA\nInterface EmailSender\n\nAdmin -> AccountManagement : WorkspaceInvitation\nAccountManagement -> AccountManagement : save data to db\nAccountManagement -> Admin : 200 response\nAccountManagement -> Broker : create event \"new user invited event\"\nBroker -> Notifications : read event\nNotifications -> Notifications : with email and senderId\nNotifications -> EmailSender : read info about sender\nNotifications -> EmailSender : generate email\nEmailSender -> Broker : create \"new email event\"\nEmailSender -> Broker : read \"new email event\"\nEmailSender -> Admin : send email\n\nalt [user accepts invitation]\n    AccountManagement -> AccountManagement : WorkspaceEmailValidation\n    AccountManagement -> AccountManagement : check email\n    AccountManagement -> Admin : WorkspaceEmailValidationResult\n    alt [email valid]\n        AccountManagement -> AccountManagement : generate access code\n        AccountManagement -> Broker : create event \"new access code\"\n        Broker -> Notifications : read event\n        Notifications -> Notifications : with email and access code\n        Notifications -> EmailSender : generate email\n        EmailSender -> Broker : create \"new email event\"\n        EmailSender -> Broker : read \"new email event\"\n        EmailSender -> Admin : send email\n    end\n    alt [access code valid]\n        AccountManagement -> AccountManagement : change state\n        AccountManagement -> UAA : WorkspaceRegistration\n        UAA -> AccountManagement : check state by email\n        UAA -> Broker : create new event \"user created event\"\n        Broker -> Notifications : read event \"user created event\"\n        Notifications -> Notifications : create user with email\n    end\nend\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2497,
+    "completion_tokens": 401,
+    "total_tokens": 2898
+  }
+}

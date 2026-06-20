@@ -1,0 +1,76 @@
+```plantuml
+@startuml
+title Update Relationship Event Handler UML
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #333333
+  ParticipantBackgroundColor #EEEEEE
+  ActorBorderColor #333333
+  ActorBackgroundColor #EEEEEE
+  BoxBorderColor #333333
+  BoxPadding 10
+  ArrowColor #222222
+  MessageAlign left
+}
+
+box "SNS" #d97a96
+participant "Event Dispatcher Topic" as SNS
+end box
+
+box "Lambda" #f39c12
+participant "Update Relationship Event Handler" as L
+end box
+
+box "DynamoDB" #3b6bdc
+database "Relationship Owner Table" as ROT
+database "Relationship Commitment Table" as RCT
+end box
+
+SNS -> L : filter on\nRelationship::Update Event
+activate L
+
+L -> L : [SessionDecorator.puml]
+L -> L : [TrackEventHandlerWrapper.puml]
+L -> L : extract Message from Event
+L -> L : validate Message
+L -> L : validate event-name
+L -> L : validate event-version
+L -> L : validate stage
+
+L -> ROT : Get Existing Relationship
+ROT --> L
+
+L -> L : Generate Relationship Dict
+L -> L : Combine Existing Relationship\nAttributes With New Changes
+
+opt [if missing required schema key]
+  L -> L : <color:red>Error Handling</color>
+end
+
+L -> L : Get AdditionalAttributes
+
+alt [if Relationship contains description and AdditionalAttributes\ndoesn't contain completed signal]
+  L -> ROT : update Relationship
+  ROT --> L
+  L -> L : <color:red>Error Handling</color>
+end
+
+L -> L : Generate commitments to add or delete
+
+alt [if Commitment Operations Exist]
+  L -> L : Generate starting indexes based on AdditionalAttributes
+  L -> RCT : Batch_Write() RelationshipCommitments
+  RCT --> L
+  L -> L : <color:red>Error Handling</color>
+end
+
+L -> L : Track Event Handler Wrapper
+L -> L : Error Handler Wrapper
+
+deactivate L
+@enduml
+```

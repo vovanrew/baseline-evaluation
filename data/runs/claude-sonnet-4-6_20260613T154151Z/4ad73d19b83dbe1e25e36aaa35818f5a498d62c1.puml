@@ -1,0 +1,28 @@
+```plantuml
+@startuml
+title Удаление объекта недвижимости
+
+actor user
+boundary MobileApp
+database "DB MobileApp" as DBMobileApp
+control BACK
+database "DB BACK" as DBBack
+
+user -> MobileApp : Инициация удаления объекта(ов) недвижимости
+MobileApp -> BACK : request: deleteAddress (userId, [addressId])
+
+loop [для каждого элемента [addressId]]
+    BACK -> DBBack : request: deleteAddress (userId, addressId)
+    DBBack --> BACK : response: deleteAddress (success)
+end
+
+BACK -> DBBack : request: getAllUserData (userId)
+DBBack --> BACK : response: getAllUserData (userId, userData)
+
+BACK --> MobileApp : response: getAllUserData (userData)
+MobileApp -> DBMobileApp : [обновление временных данных userData]
+MobileApp -> MobileApp : обновление представления клиента
+MobileApp --> user : Обновлённый экран
+
+@enduml
+```

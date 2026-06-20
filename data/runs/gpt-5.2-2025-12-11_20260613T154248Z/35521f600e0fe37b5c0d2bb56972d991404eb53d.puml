@@ -1,0 +1,34 @@
+```plantuml
+@startuml
+hide footbox
+
+actor User as U
+control server as S
+database user as DB
+
+U -> S : 1 POST /sign-up with body: email and password
+activate S
+S -> DB : 2 Check email existence
+activate DB
+
+alt [Email existed]
+DB --> S : 3 Error code
+deactivate DB
+S --> U : 4 Error message
+else [Email is new]
+DB --> S : 5 Email is available
+deactivate DB
+
+S -> S : 6 Hash password
+
+S -> DB : 7 Store email and hashed password
+activate DB
+DB --> S : 8 Store complete
+deactivate DB
+
+S --> U : 9 Success message
+end
+
+deactivate S
+@enduml
+```

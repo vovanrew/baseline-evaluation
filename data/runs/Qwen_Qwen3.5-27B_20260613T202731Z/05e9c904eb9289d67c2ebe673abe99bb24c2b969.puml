@@ -1,0 +1,58 @@
+```plantuml
+@startuml
+title Sequence Diagram
+
+participant "Cache" as Cache
+participant "DiskLruCache" as DiskLruCache
+participant "JournalFile" as JournalFile
+participant "DiskLruCache.Entry" as Entry
+participant "LinkedHashMap" as LinkedHashMap
+participant "Snapshot" as Snapshot
+participant "Cache.Entry" as CacheEntry
+participant "Response" as Response
+participant "CacheResponseBody" as CacheResponseBody
+
+activate Cache
+activate DiskLruCache
+
+Cache -> DiskLruCache: get()
+activate DiskLruCache
+DiskLruCache -> DiskLruCache: initialize
+DiskLruCache -> JournalFile: read
+activate JournalFile
+JournalFile -> Entry: 
+activate Entry
+Entry --> DiskLruCache: 
+deactivate Entry
+deactivate JournalFile
+DiskLruCache -> LinkedHashMap: put()
+activate LinkedHashMap
+LinkedHashMap --> DiskLruCache: 
+deactivate LinkedHashMap
+DiskLruCache -> LinkedHashMap: get()
+activate LinkedHashMap
+LinkedHashMap --> Entry: 
+activate Entry
+Entry --> DiskLruCache: 
+deactivate Entry
+deactivate LinkedHashMap
+DiskLruCache -> Snapshot: 
+activate Snapshot
+Snapshot --> Cache: 
+deactivate Snapshot
+deactivate DiskLruCache
+
+Cache -> CacheEntry: response()
+activate CacheEntry
+CacheEntry -> Response: 
+activate Response
+Response -> CacheResponseBody: 
+activate CacheResponseBody
+CacheResponseBody --> Cache: 
+deactivate CacheResponseBody
+deactivate Response
+deactivate CacheEntry
+deactivate Cache
+
+@enduml
+```

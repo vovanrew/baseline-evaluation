@@ -1,0 +1,57 @@
+```plantuml
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Freelancer" as Freelancer
+participant ":AlterarCandidaturaUI" as UI
+participant ":RegistrarCandidaturaController" as Controller
+participant ":Plataforma" as Plataforma
+participant ":UsersAPI" as UsersAPI
+participant "cand: Candidatura" as Candidatura
+database "RepositorioFreelancer" as RepoFreelancer
+database "RepositorioCandidatura" as RepoCandidatura
+
+Freelancer -> UI : 1 inicia alterar candidatura
+activate UI
+UI -> Controller : 2 getFreelancerByEmail()
+activate Controller
+Controller -> Plataforma : 3 email = getSessionEmail()
+activate Plataforma
+Plataforma -> UsersAPI : 4 email = getEmail()
+activate UsersAPI
+deactivate UsersAPI
+deactivate Plataforma
+Controller -> RepoFreelancer : 5 free = find(email)
+activate RepoFreelancer
+deactivate RepoFreelancer
+deactivate Controller
+UI -> Controller : 6 lcand = getCandidaturasDispByFreelancerEmail()
+activate Controller
+Controller -> RepoCandidatura : 7 lcand = getAllCandidaturasByFreelancerEmail(email)
+activate RepoCandidatura
+deactivate RepoCandidatura
+deactivate Controller
+UI --> Freelancer : 8 solicita a escolha de uma das candidaturas por si efetuadas e, ainda, em período de candidaturas
+Freelancer -> UI : 9 escolhe a candidatura
+activate UI
+UI -> Controller : 10 cand = getCandById()
+activate Controller
+Controller -> RepoCandidatura : 11 cand = find(id)
+activate RepoCandidatura
+deactivate RepoCandidatura
+deactivate Controller
+UI --> Freelancer : 12 solicita a introdução de novos dados (i.e. os que pretende alterar, mantendo os restantes iguais)
+Freelancer -> UI : 13 introduz os dados solicitados (valor,nrDias,txtApresentacao,txtMotivacao)
+activate UI
+UI -> Controller : 14 alterarCandidatura(valor,nrDias,txtApresentacao,txtMotivacao)
+activate Controller
+Controller -> RepoCandidatura : 15 update(cand)
+activate RepoCandidatura
+deactivate RepoCandidatura
+deactivate Controller
+UI --> Freelancer : 16 valida e apresenta os dados ao Freelancer e pede a sua confirmação
+deactivate UI
+
+@enduml
+```

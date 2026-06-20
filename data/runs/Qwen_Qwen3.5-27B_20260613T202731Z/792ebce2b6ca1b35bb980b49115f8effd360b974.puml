@@ -1,0 +1,67 @@
+```plantuml
+@startuml
+skinparam sequence {
+  ArrowColor DarkSlateGray
+  LifeLineBorderColor DarkSlateGray
+  LifeLineShadowColor none
+  ActorBorderColor DarkSlateGray
+  ParticipantBorderColor DarkSlateGray
+}
+
+actor sdx_downstream as SDX
+actor downstream_quarantine as DQ
+participant "Downstream" as Downstream
+participant "Store" as Store
+participant "TransformCS" as TransformCS
+participant "Sequence" as Sequence
+database Postgres
+node FTP
+
+SDX -> Downstream: Consume tx_id
+activate Downstream
+Downstream -> Store: GET /responses/{tx_id}
+activate Store
+Store ..> Postgres: 
+Store --> Downstream: return response json
+deactivate Store
+box [error]
+  break
+    Downstream <- DQ: 
+  endbreak
+endbox
+Downstream -> Sequence: GET /sequence
+activate Sequence
+Sequence ..> Postgres: 
+Sequence --> Downstream: return number
+deactivate Sequence
+box [error]
+  break
+    Downstream <- DQ: 
+  endbreak
+endbox
+alt [common-software]
+  Downstream -> TransformCS: POST /common-software/{sequence_no}
+  activate TransformCS
+else [cora]
+  Downstream -> TransformCS: POST /cora/{sequence_no}
+else [cord]
+  Downstream -> TransformCS: POST /cord/{sequence_no}
+end
+TransformCS -> Sequence: GET /image-sequence?n
+activate Sequence
+Sequence ..> Postgres: 
+Sequence --> TransformCS: return list
+deactivate Sequence
+TransformCS --> Downstream: Return Zip
+deactivate TransformCS
+box [error]
+  break
+    Downstream <- DQ: 
+  endbreak
+endbox
+Downstream -> Downstream: Unzip
+Downstream ..> FTP: Send files
+deactivate Downstream
+
+@enduml
+```

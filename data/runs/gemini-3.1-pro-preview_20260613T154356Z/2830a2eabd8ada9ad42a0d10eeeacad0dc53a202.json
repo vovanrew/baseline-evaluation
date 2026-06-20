@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nbox \"Upstream\" #F0F8FF\nparticipant Producer as UP << (C,#ADD8E6) >>\nparticipant Adapter as UA << (C,#ADD8E6) >>\nend box\n\nparticipant Transport as UT << (S,#ADD8E6) >>\n\nbox \"Gateway\" #F0F8FF\nparticipant Adapter as GA << (C,#ADD8E6) >>\nparticipant Consumer as GC << (C,#ADD8E6) >>\nbox \"JobExecution\" #E0FFFF\nparticipant GatewayJobHandler as GJH << (C,#ADD8E6) >>\nend box\nparticipant Gateway as G << (C,#ADD8E6) >>\nparticipant Producer as GP << (C,#ADD8E6) >>\nparticipant Adapter as GPA << (C,#ADD8E6) >>\nend box\n\nparticipant Transport as GT << (S,#ADD8E6) >>\n\nbox \"Downstream\" #F0F8FF\nparticipant Adapter as DA << (C,#ADD8E6) >>\nparticipant Consumer as DC << (C,#ADD8E6) >>\nend box\n\nbox \"JobExecution\" #E0FFFF\nparticipant DownstreamJobHandler as DJH << (C,#ADD8E6) >>\nend box\n\nparticipant \"Lower Layer\" as LL << (S,#ADD8E6) >>\n\nactivate UP\nUP -> UA : publish(command)\nactivate UA\nUA -> UT : publish(command)\nUT -> GA : execute(command)\nactivate GA\nGA -> GC : handler(command, done)\nactivate GC\nGC -> GJH : subscribe(\"done\")\nactivate GJH\nGC -> GJH : emit(\"command\",\\nGatewayJobHandler)\nGJH --> G : \nactivate G\nG -> GP : publish(command)\nactivate GP\nGP -> GPA : publish(command)\nactivate GPA\nGPA -> GT : publish(command)\nGT -> DA : execute(command)\nactivate DA\nDA -> DC : handler(command, done)\nactivate DC\nDC -> DJH : subscribe(\"done\")\nactivate DJH\nDC -> DJH : emit(\"command\",\\nGatewayJobHandler)\nDJH --> LL : \nactivate LL\nLL -> DJH : done()\ndeactivate LL\nDJH --> DC : emit(\"done\")\ndeactivate DJH\nDC -> DA : done(response)\ndeactivate DC\nDA -> GT : done(response)\ndeactivate DA\nGT -> GPA : getDelay(command)\nGPA <-> GT : \nGPA --> GP : emit(\"response\", response)\nGP -> GP : handler(\"response\")\nGP -> GP : onTimeOut(getDelay())\nGP -> GPA : unsubscribe()\ndeactivate GPA\nGP -> G : resolve(responses)\ndeactivate GP\nG -> GJH : done()\ndeactivate G\nGJH --> GC : emit(\"done\")\ndeactivate GJH\nGC -> GA : done(response)\ndeactivate GC\nGA -> UT : done(response)\ndeactivate GA\nUT -> UA : getDelay(command)\nUA <-> UT : \nUA --> UP : emit(\"response\", response)\nUP -> UP : handler(\"response\")\nUA --> UP : emit(\"response\", response)\nUP -> UP : handler(\"response\")\nUP -> UP : onTimeOut(getDelay())\nUP -> UA : unsubscribe()\ndeactivate UA\ndeactivate UP\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHIJ2Qr6OJAyK9f/rXgsy1eamOXfjCgYbbLR/YUG102Vha2iGTyegEiun9wkTZ"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1140,
+    "candidatesTokenCount": 755,
+    "totalTokenCount": 1895,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1060
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "FV8xar_7INTxxN8PzvqC6Ao"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "36de7977-643b-4227-8d2a-fdfa30630e55",
+  "object": "chat.completion",
+  "created": 1781399320,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n\nparticipant ListPrivateImpl\nparticipant ProfileRetrievalService\nparticipant DFSBasedProfileStorageImpl\nparticipant DFSSystem\nparticipant DFSConnectionService\nparticipant DFSConnectionServiceImpl\nparticipant GsonSerde\nparticipant BucketAccessService\nparticipant BucketAccessServiceImpl\nparticipant DFSCredentialsService\nparticipant DFSCredentialsServiceImpl\nparticipant DocumentListService\nparticipant ListPathDecryptingServiceImpl\nparticipant ListPathNonDecryptingServiceImpl\n\nactor User\n\nUser ->> ListPrivateImpl: resolvePrivateLocation\nListPrivateImpl ->> ProfileRetrievalService: privateProfile\nProfileRetrievalService ->> DFSBasedProfileStorageImpl: privateProfile\nDFSBasedProfileStorageImpl ->> DFSSystem: systemDFSs\nDFSSystem ->> DFSConnectionService: obtain\nDFSConnectionService ->> DFSConnectionServiceImpl: obtain\nDFSConnectionServiceImpl ->> ListPathNonDecryptingServiceImpl: obtain\nListPathNonDecryptingServiceImpl ->> ListPathDecryptingServiceImpl: obtain\nListPathDecryptingServiceImpl ->> ListPathNonDecryptingServiceImpl: obtain\n\nUser ->> ListPrivateImpl: locatePrivateProfile\nListPrivateImpl ->> BucketAccessService: BucketPath\nBucketAccessService ->> GsonSerde: getBlob\nGsonSerde ->> ListPathNonDecryptingServiceImpl: Payload\nListPathNonDecryptingServiceImpl ->> ListPathDecryptingServiceImpl: fromjson\nListPathDecryptingServiceImpl ->> ListPathNonDecryptingServiceImpl: T\nListPathNonDecryptingServiceImpl ->> ListPrivateImpl: UserPrivateProfile\nListPrivateImpl ->> User: UserPrivateProfile\n\nUser ->> ListPrivateImpl: privateAccessFor\nListPrivateImpl ->> DFSBasedProfileStorageImpl: privateAccessFor\nDFSBasedProfileStorageImpl ->> DFSSystem: systemDFSs\nDFSSystem ->> DFSConnectionService: DFSAccess\nDFSConnectionService ->> DFSConnectionServiceImpl: DFSAccess\nDFSConnectionServiceImpl ->> ListPathNonDecryptingServiceImpl: privateUserCredentials\nListPathNonDecryptingServiceImpl ->> ListPathDecryptingServiceImpl: privateUserCredentials\nListPathDecryptingServiceImpl ->> ListPathNonDecryptingServiceImpl: DFSCredentials\nListPathNonDecryptingServiceImpl ->> DFSConnectionService: DFSCredentials\nDFSConnectionService ->> DFSBasedProfileStorageImpl: DFSAccess\nDFSBasedProfileStorageImpl ->> ListPrivateImpl: list\nListPrivateImpl ->> ListPathDecryptingServiceImpl: list\nListPathDecryptingServiceImpl ->> ListPathNonDecryptingServiceImpl: Stream\nListPathNonDecryptingServiceImpl ->> ListPathDecryptingServiceImpl: Stream\nListPathDecryptingServiceImpl ->> ListPathNonDecryptingServiceImpl: Stream\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1223,
+    "completion_tokens": 544,
+    "total_tokens": 1767
+  }
+}

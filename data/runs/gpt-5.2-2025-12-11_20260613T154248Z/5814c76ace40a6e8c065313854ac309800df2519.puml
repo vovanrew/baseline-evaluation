@@ -1,0 +1,27 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6F2
+  ActorBorderColor #666666
+  ActorBackgroundColor #FFFFFF
+}
+
+actor User
+boundary UI
+participant Main_Thread
+participant Worker_Thread
+
+User -> UI : Push the button
+UI -> Main_Thread : Trigger 'postToWorkerThread'
+Main_Thread -> UI : Get textarea value
+Main_Thread -> Worker_Thread : postMessage
+Worker_Thread -> Main_Thread : postMessage with ACK (*1)
+Main_Thread -> UI : Set textarea value with ACK message
+
+@enduml
+```

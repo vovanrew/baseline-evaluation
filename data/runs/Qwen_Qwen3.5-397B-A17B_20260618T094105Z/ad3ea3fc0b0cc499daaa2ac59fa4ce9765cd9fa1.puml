@@ -1,0 +1,64 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class TicTacToe {
+    - turn : Turn
+    - board : Board
+    - players : Player[] [0..*]
+    
+    + TicTacToe()
+    + Play()
+}
+
+class Board {
+    # Color : char[,] [0..*] = {'x', 'o'}
+    - tokens : char[,] [0..*]
+    
+    + Board()
+    
+    + IsTicTacToe() : bool
+    - IsTicTacTo(token : char) : bool
+    + IsComplete() : bool
+    - IsTileEmpty(row : int, column: int) : bool
+    - IsTileFull(row : int, column: int) : bool
+    
+    + ToString() : string
+}
+
+class IO <<static>> {
+    + ReadString(title : string) : string
+    + ReadInt(title : string) : int
+    
+    + Write(title : string)
+    + WriteLine()
+    + WriteError(format : string)
+}
+
+class Player {
+    ^ color : char
+    
+    + Player(i: int)
+    + Put(board : Board)
+    + Move(board : Board)
+    + Win()
+}
+
+class Turn {
+    ^ value : int = 0
+    
+    + Turn()
+    + Current() «"Take"» 
+    + Next() «"Not Take"» 
+    + Change()
+}
+
+
+' Relationships from main controller to components
+TicTacToe --> "1" Board
+TicTacToe --> "*" Player  
+TicTacToe --> "1" Turn 
+
+Board ..> IO : uses via static methods
+Player .down.> IO : calls for input/output operations  
+
+@enduml

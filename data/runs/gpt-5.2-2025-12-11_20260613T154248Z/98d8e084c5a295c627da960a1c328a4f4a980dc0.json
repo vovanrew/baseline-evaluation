@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLoa8ol6ws1NHHZWWvqBsoSAKCC8",
+  "object": "chat.completion",
+  "created": 1781369284,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle PB-158 UC8 SQD: Get campaigns customer is eligible for\n\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #000000\n  LifeLineBorderColor #808080\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #808080\n  ParticipantBackgroundColor #EDEDED\n  BoxBorderColor #808080\n  BoxBackgroundColor #DDDDDD\n  NoteBorderColor #808080\n  NoteBackgroundColor #FFF9C4\n}\n\nactor \"Next Customer\" as NC\n\nnote top\n<b>Abstract:</b>\nThis use cases describes the changes being made to an existing endpoint.\nThe endpoint will be modified so that it can be called by the user and\nwill return a list of campaigns that the customer is eligible for. A campaign\nlogo version number will be returned, as well as a campaign logo\nimage (if requested).\nend note\n\nnote left of NC #E6A6E6\n<b>Endpoint:</b>\nGET /campaigns\n\n<b>Current implementation:</b>\nCurrently only called by system management, returns a list of all campaigns\nwith the option to specify:\n\u2022 NAME\n\u2022 PARTNER_ID\n\u2022 OFFER_ID\n\n<b>Required implementation:</b>\nEither through extension of existing API or new, enable the user\nto call the endpoint. When a user calls the endpoint return a list of campaigns\nthat the user is eligible for. As part of the request, include an optional\nfield for whether or not to return the offer logo.\n\nAs part of the CAMPAIGN_RETRIEVAL response include:\n\u2022 Campaign logo version number\n\u2022 Campaign logo (optional)\n\n<b>ENSURE BACKWARDS COMPATIBILITY IS MAINTAINED</b>\nend note\n\nbox \"Next Platform\" #DDDDDD\nparticipant \"P&O\\n(Core Next)\" as PO\ndatabase \"P&O DB\" as PODB\nend box\n\nparticipant \"Core Bradesco\" as CB\n\nNC -> PO : 1 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})\n\ngroup filter on {NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}\n  PO -> PODB : 2 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})\n  note right of PODB\n  Note:\n  Read P&O tables:\n  \u2022 ELLIGIBLE_USER\n  \u2022 CAMPAIGN\n  end note\n  PODB -> PODB : 3 Read campaigns user is eligible for\n  PODB --> PO : 4 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)\nend group\n\nalt if user has been or is eligible for at least one campaign\n  PO --> NC : 5 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)\nelse if user is not eligible for any active campaigns\n  PO --> NC : 6 Return error (MESSAGE)\nend alt\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1957,
+    "completion_tokens": 647,
+    "total_tokens": 2604,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

@@ -1,0 +1,27 @@
+@startuml
+left to right direction
+actor "Web User" as user
+participant "index" as index
+participant "Main.view" as main_view
+participant "Image.View" as image_view
+participant "ImageController" as controller
+participant "DB" as db
+participant "DBE" as db_e
+participant "ImageModel" as model
+participant "images" as images_db
+participant "Images" as images_table
+
+user -> index : 1:Need to see some Pictures
+index -> controller : 1:1 new ImageController( new DB ( DBE ) )
+controller -> db : new DB ( BDE::MySQL )
+db --> controller : getDNS(); getUser(); getPass()
+controller -> images_db : ImageController->fetchAll() : $stmt = $this->pdo->prepare(SELECT id,filename,title,description FROM images)
+images_db --> controller : ImageController->fetchAll() : $stmt ->execute()
+controller -> images_table : $results = $stmt->fetchAll(PDO::FETCH_CLASS, ImageModel::class)
+controller -> index : 1:0|1* $images array
+index -> image_view : render ()
+image_view -> main_view : + layout
+main_view -> index : 
+index -> user : he/she dont know how many work it was ;-)
+
+@enduml

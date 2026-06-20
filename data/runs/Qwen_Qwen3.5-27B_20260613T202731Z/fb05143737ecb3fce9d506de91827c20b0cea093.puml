@@ -1,0 +1,66 @@
+```plantuml
+@startuml
+title Traffic influencing flows between OpenNESS controller and 5G Core
+
+actor "User/Admin" as User
+package "OpenNESS Controller components" #LightBlue {
+    participant "UI/CLI" as UI
+    participant "AF Microservice" as AF
+}
+
+package "5G Core components" #LightGreen {
+    participant "NEF" as NEF
+    participant "NGC CP Functions" as NGC
+}
+
+note right of NEF: OpenNESS provided\nCore component with\nlimited functionality
+
+rectangle "Get all subscribed traffic influence info" as Frame1 {
+    User -> UI : Request all traffic influence subscribed
+    activate UI
+    UI -> AF : /af/v1/subscriptions : GET
+    activate AF
+    AF -> NEF : /3gpp-traffic-Influence/v1/{afId}/subscriptions : GET
+    activate NEF
+    
+    note right of NEF: NGC_STUB(PCF, UDR, BSF)\n{Open: 3rd party NGC\nintegration with\nOpenNESS(NEF)}
+    
+    NEF --> NGC
+    NGC --> NEF : OK: traffic influence info\nERROR: {400/500}
+    deactivate NEF
+    
+    AF <-- NEF : OK: traffic influence info\nERROR: {400/500}
+    deactivate AF
+    
+    UI <-- AF : OK: traffic influence info\nERROR: {400/500}
+    deactivate UI
+    
+    User <-- UI : Traffic influence details
+}
+
+rectangle "Get subscribed traffic influence info by subscriptionId" as Frame2 {
+    User -> UI : Request traffic influence using subscriptionId
+    activate UI
+    UI -> AF : /af/v1/subscriptions/{subscriptionId} : GET
+    activate AF
+    AF -> NEF : /3gpp-traffic-Influence/v1/{afId}/subscriptions/{subscriptionId} : GET
+    activate NEF
+    
+    note right of NEF: NGC_STUB(PCF, UDR, BSF)\n{Open: 3rd party NGC\nintegration with\nOpenNESS(NEF)}
+    
+    NEF --> NGC
+    NGC --> NEF : OK: traffic influence info\nERROR: {400/500}
+    deactivate NEF
+    
+    AF <-- NEF : OK: traffic influence info\nERROR: {400/500}
+    deactivate AF
+    
+    UI <-- AF : OK: traffic influence info\nERROR: {400/500}
+    deactivate UI
+    
+    User <-- UI : Traffic influence details
+}
+
+footer Proprietary and Confidential
+@enduml
+```

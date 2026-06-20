@@ -1,0 +1,184 @@
+@startuml
+title 蓝牙配网-搜索流程
+
+skinparam backgroundColor white
+skinparam sequence {
+  ArrowColor #333333
+  LifeLineBorderColor #999999
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #999999
+  ParticipantBackgroundColor #F7F7F7
+  BoxBorderColor #999999
+  BoxBackgroundColor #EFEFEF
+  GroupBorderColor #999999
+  GroupBackgroundColor #F3F3F3
+  NoteBackgroundColor #FFF9C4
+  NoteBorderColor #999999
+}
+
+actor "调用" as Caller
+
+box "sdk_client" #EDEDED
+participant "IotRecorderManager" as IotRecorderManager
+participant "DevicesManagerMachine" as DevicesManagerMachine
+participant "BlueDiscoveryControl" as BlueDiscoveryControl
+participant "BlueBondControl" as BlueBondControl
+participant "BleScanControl" as BleScanControl
+participant "BluetoothGattConfig" as BluetoothGattConfig
+end box
+
+participant "WifiManagerMachine" as WifiManagerMachine
+participant "BluetoothPanConfig" as BluetoothPanConfig
+participant "WifiPortalControl" as WifiPortalControl
+
+box "" #FFFFFF
+participant "BluetoothAdapter" as BluetoothAdapter
+participant "BluetoothDevice" as BluetoothDevice
+participant "BluetoothGatt" as BluetoothGatt
+participant "WifiList" as WifiList
+end box
+
+== 初始化 ==
+DevicesManagerMachine -> DevicesManagerMachine : InitState.enter
+note left of DevicesManagerMachine
+InitState
+end note
+DevicesManagerMachine -> BlueDiscoveryControl : registerReceiver
+
+== 搜索设备 ==
+Caller -> DevicesManagerMachine : startDiscoveryDevice
+DevicesManagerMachine -> DevicesManagerMachine : startDiscoveryDevice
+DevicesManagerMachine -> DevicesManagerMachine : InitState --> DiscoveryState
+note left of DevicesManagerMachine
+InitState --> DiscoveryState
+end note
+DevicesManagerMachine -> DevicesManagerMachine : CMD_DISCOVERY_START
+DevicesManagerMachine -> DevicesManagerMachine : DiscoveryState.enter
+DevicesManagerMachine -> BlueDiscoveryControl : registerReceiver
+BlueDiscoveryControl -> BlueDiscoveryControl : new DiscoveryBroadcastReceiver
+DevicesManagerMachine -> BlueDiscoveryControl : startDiscovery
+BlueDiscoveryControl -> BluetoothAdapter : startDiscovery
+
+BlueDiscoveryControl -> BlueDiscoveryControl : DiscoveryBroadcastReceiver
+BlueDiscoveryControl -> DevicesManagerMachine : sendMessage
+note left of DevicesManagerMachine
+BluetoothDevice.ACTION_FOUND
+MSG_DISCOVERY_FOUND
+end note
+DevicesManagerMachine -> Caller : MSG_DISCOVERY_FOUND\n<返回扫描到的蓝牙设备：BluetoothDevice>
+
+== 绑定设备 ==
+Caller -> DevicesManagerMachine : BondDevice
+DevicesManagerMachine -> DevicesManagerMachine : BondDevice
+DevicesManagerMachine -> DevicesManagerMachine : CMD_BOND_DEVICE
+DevicesManagerMachine -> BlueDiscoveryControl : cancelDiscovery
+BlueDiscoveryControl -> BluetoothAdapter : cancelDiscovery
+DevicesManagerMachine -> BlueBondControl : bondDevice
+BlueBondControl -> BluetoothDevice : createBond
+BlueBondControl -> BlueBondControl : BondBroadcastReceiver
+
+DevicesManagerMachine -> DevicesManagerMachine : DiscoveryState --> BondedState
+note left of DevicesManagerMachine
+DiscoveryState --> BondedState
+end note
+DevicesManagerMachine -> DevicesManagerMachine : MSG_BOND_SUCCESS
+DevicesManagerMachine -> DevicesManagerMachine : BondedState.enter
+DevicesManagerMachine -> Caller : MSG_BOND_SUCCESS\n<返回绑定成功>
+
+== 建立GATT连接 ==
+Caller -> DevicesManagerMachine : connectGatt
+DevicesManagerMachine -> DevicesManagerMachine : connectGatt
+DevicesManagerMachine -> DevicesManagerMachine : CMD_CONNECT_GATT
+DevicesManagerMachine -> DevicesManagerMachine : BondedState --> BleScanState
+note left of DevicesManagerMachine
+BondedState --> BleScanState
+end note
+DevicesManagerMachine -> DevicesManagerMachine : BleScanState.enter
+DevicesManagerMachine -> BleScanControl : StartLeScan
+BleScanControl -> BluetoothAdapter : getBluetoothLeScanner.startScan
+BleScanControl -> BleScanControl : ScanCallback.onScanResult
+BleScanControl -> BluetoothAdapter : getBluetoothLeScanner.stopScan
+
+BleScanControl -> BluetoothGattConfig : connect
+BluetoothGattConfig -> BluetoothDevice : connectGatt
+BluetoothDevice -> BluetoothGatt : bluetoothGattCallback.onConnectionStateChange
+BluetoothGattConfig -> BluetoothGatt : discoverServices
+note right of BluetoothGattConfig
+发现服务后会回调onServicesDiscovered，
+以及之后订阅的特征值变化通知
+end note
+BluetoothGatt -> BluetoothGattConfig : onServicesDiscovered
+BluetoothGattConfig -> BluetoothGatt : setCharacteristicNotification
+note right of BluetoothGattConfig
+拿到需要的服务和特征
+end note
+
+DevicesManagerMachine -> DevicesManagerMachine : MSG_GATT_CONNECTED
+DevicesManagerMachine -> DevicesManagerMachine : MSG_GATT_GETSERVICE_SUCCEED
+DevicesManagerMachine -> DevicesManagerMachine : BleScanState --> GattConnectedState
+note left of DevicesManagerMachine
+BleScanState --> GattConnectedState
+end note
+DevicesManagerMachine -> DevicesManagerMachine : GattConnectedState.enter
+DevicesManagerMachine -> Caller : MSG_GATT_CONNECTED
+DevicesManagerMachine -> Caller : MSG_GATT_GETSERVICE_SUCCEED
+
+== 启动WiFi配置 ==
+DevicesManagerMachine -> WifiManagerMachine : new
+WifiManagerMachine -> BluetoothPanConfig : new
+WifiManagerMachine -> WifiPortalControl : new
+WifiManagerMachine -> WifiManagerMachine : start
+WifiManagerMachine -> WifiManagerMachine : IdleState --> WifiConfigState
+note left of WifiManagerMachine
+IdleState --> WifiConfigState
+end note
+WifiManagerMachine -> WifiManagerMachine : CMD_START
+
+== 同步wifi状态 ==
+Caller -> WifiManagerMachine : syncWifiState
+WifiManagerMachine -> WifiManagerMachine : syncWifiState
+WifiManagerMachine -> WifiManagerMachine : CMD_SYNC_WIFI_STATE
+WifiManagerMachine -> WifiManagerMachine : syncWifiState
+WifiManagerMachine -> BluetoothGattConfig : setCharacteristic  CMD_GET_WIFI_STATE
+BluetoothGattConfig -> BluetoothGatt : writeCharacteristic
+note right of BluetoothGattConfig
+向服务端写入请求
+end note
+
+BluetoothGatt -> BluetoothGattConfig : onCharacteristicChanged\n_UUID_WIFI_STATE
+note right of BluetoothGattConfig
+message.what = DevicesManagerMachine.MSG_WIFI_STATE\nmessage.arg1 = WifiManagerMachine.WIFI_STATE\nmessage.arg2 = WifiManagerMachine.MSG_WIFI_ON\nmessage.obj = new String(characteristic.getValue())
+end note
+BluetoothGattConfig -> DevicesManagerMachine : processMessage
+DevicesManagerMachine -> WifiManagerMachine : processMessage
+
+note right of WifiManagerMachine
+message.what = IotRecorderManager.WIFI_STATE\nmessage.arg1 = IotRecorderManager.WIFI_STATE_ON\nmClientHandler.sendMessage(message)
+end note
+
+== 打开wifi开关 ==
+Caller -> WifiManagerMachine : setWifiState
+WifiManagerMachine -> WifiManagerMachine : setWifiState
+WifiManagerMachine -> WifiManagerMachine : CMD_ENABLE_WIFI
+WifiManagerMachine -> WifiManagerMachine : SetWifiState
+WifiManagerMachine -> BluetoothGattConfig : setCharacteristic  CMD_ENABLE_WIFI
+BluetoothGattConfig -> BluetoothGatt : writeCharacteristic
+note right of BluetoothGattConfig
+向服务端写入请求
+end note
+
+== wifiScan ==
+Caller -> WifiManagerMachine : wifiScan
+WifiManagerMachine -> WifiManagerMachine : wifiScan
+WifiManagerMachine -> WifiManagerMachine : CMD_SCAN_WIFI_LIST
+WifiManagerMachine -> WifiManagerMachine : setUuidRequestScan
+WifiManagerMachine -> BluetoothGattConfig : setCharacteristic  CMD_GET_SCAN_WIFILIST
+BluetoothGattConfig -> BluetoothGatt : writeCharacteristic
+note right of BluetoothGattConfig
+向服务端写入请求
+end note
+
+BluetoothGatt -> BluetoothGattConfig : _UUID_WIFI_ACCESSPOINT\n<sendwifilist <- SCAN_RESULTS_AVAILABLE_ACTION>
+BluetoothGattConfig -> WifiList : updateAccessPoints
+
+@enduml

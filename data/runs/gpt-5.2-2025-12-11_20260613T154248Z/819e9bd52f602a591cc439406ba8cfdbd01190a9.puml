@@ -1,0 +1,53 @@
+@startuml
+title Toggle Switch
+
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #b9a7ff
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #2aa198
+  ParticipantBackgroundColor #d9ffd9
+  ActorBorderColor #2aa198
+  ActorBackgroundColor #d9ffd9
+  BoxBorderColor #808080
+  BoxBackgroundColor #d9d9d9
+  ArrowColor #2aa198
+  ArrowThickness 2
+  MessageAlign left
+}
+
+actor Ctc as Ctc
+participant TrackController as TrackController
+
+box "Toggle Switch" #d9d9d9
+  participant TrackModel as TrackModel
+  participant Block as Block
+  participant Switch as Switch
+end box
+
+Ctc -> Ctc : Select Block
+Ctc -> TrackController : setSwitchStatus(Block,direction)
+activate TrackController
+
+TrackController -> TrackModel : setSwitchStatus(Block,direction)
+activate TrackModel
+
+TrackModel -> TrackModel : getBlock()
+TrackModel -> Block : getSwitch()
+activate Block
+
+Block -> Switch : setSwitchState("normal" or "alternate")
+activate Switch
+deactivate Switch
+
+deactivate Block
+deactivate TrackModel
+
+Switch --> TrackController : new switch status
+TrackController -> TrackController : updateSwitchStatus(Block,status)
+deactivate TrackController
+
+TrackController --> Ctc : new switch status
+Ctc -> Ctc : updateSwitchStatus(Block,status)
+
+@enduml

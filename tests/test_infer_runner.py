@@ -1,9 +1,12 @@
 """Tests for the inference-harness hardening logic (infer_runner.py).
 
 Covers the pure decision layer — transient-HTTP retry, per-cell outcome
-classification (ok / image_dropped / timeout / http_error / network_error),
-and endpoint warmup — with injected fake call thunks; no network involved.
+classification (ok / image_dropped / timeout / http_error / network_error /
+bad_response), and endpoint warmup — with injected fake call thunks; no
+network involved.
 """
+import http.client
+import json
 import urllib.error
 
 import pytest
@@ -71,6 +74,61 @@ def test_retry_does_not_retry_timeouts():
     assert len(thunk.calls) == 1
 
 
+def test_retry_recovers_from_connection_reset():
+    # a reset during resp.read() surfaces as a raw ConnectionError, not a URLError
+    thunk = seq(ConnectionResetError(54, "Connection reset by peer"), ok_response())
+    resp, _ = ir.call_with_retry(thunk, sleep=lambda _: None, log=lambda *_: None)
+    assert resp["usage"]["prompt_tokens"] == 500
+    assert len(thunk.calls) == 2
+
+
+def test_retry_gives_up_on_persistent_connection_reset():
+    thunk = seq(*[ConnectionResetError("reset")] * 4)
+    with pytest.raises(ConnectionError):
+        ir.call_with_retry(thunk, retries=3, sleep=lambda _: None, log=lambda *_: None)
+    assert len(thunk.calls) == 4
+
+
+def _bad_json():
+    # a truncated/garbled response body: resp.read() returned partial bytes and
+    # json.loads choked mid-structure (clean early close, not a raised socket error)
+    return json.JSONDecodeError("Expecting ',' delimiter", "{...", 3425)
+
+
+def test_retry_recovers_from_bad_json():
+    thunk = seq(_bad_json(), ok_response())
+    resp, _ = ir.call_with_retry(thunk, sleep=lambda _: None, log=lambda *_: None)
+    assert resp["usage"]["prompt_tokens"] == 500
+    assert len(thunk.calls) == 2
+
+
+def test_retry_gives_up_on_persistent_bad_json():
+    thunk = seq(*[_bad_json() for _ in range(4)])
+    with pytest.raises(json.JSONDecodeError):
+        ir.call_with_retry(thunk, retries=3, sleep=lambda _: None, log=lambda *_: None)
+    assert len(thunk.calls) == 4
+
+
+def _incomplete_read():
+    # a cut chunked stream: resp.read() raises before any parsing (the next
+    # chunk-size line came back empty). IncompleteRead subclasses HTTPException.
+    return http.client.IncompleteRead(b"1298 partial bytes")
+
+
+def test_retry_recovers_from_incomplete_read():
+    thunk = seq(_incomplete_read(), ok_response())
+    resp, _ = ir.call_with_retry(thunk, sleep=lambda _: None, log=lambda *_: None)
+    assert resp["usage"]["prompt_tokens"] == 500
+    assert len(thunk.calls) == 2
+
+
+def test_retry_gives_up_on_persistent_incomplete_read():
+    thunk = seq(*[_incomplete_read() for _ in range(4)])
+    with pytest.raises(http.client.HTTPException):
+        ir.call_with_retry(thunk, retries=3, sleep=lambda _: None, log=lambda *_: None)
+    assert len(thunk.calls) == 4
+
+
 # --- infer_cell: per-diagram outcome classification ---
 
 def test_cell_ok_first_attempt():
@@ -118,6 +176,28 @@ def test_cell_network_error_recorded():
     out = ir.infer_cell(seq(urllib.error.URLError("dns")), baseline=100,
                         log=lambda *_: None)
     assert out["status"] == "network_error"
+
+
+def test_cell_connection_reset_recorded_as_network_error():
+    # a persistent reset (re-raised by call_with_retry) becomes a failure cell,
+    # never an uncaught crash of the batch
+    out = ir.infer_cell(seq(ConnectionResetError(54, "Connection reset by peer")),
+                        baseline=100, log=lambda *_: None)
+    assert out["status"] == "network_error"
+
+
+def test_cell_bad_json_recorded_as_bad_response():
+    # a persistent truncated/garbled body (re-raised by call_with_retry) becomes a
+    # recoverable failure cell, never an uncaught JSONDecodeError that kills the batch
+    out = ir.infer_cell(seq(_bad_json()), baseline=100, log=lambda *_: None)
+    assert out["status"] == "bad_response"
+
+
+def test_cell_incomplete_read_recorded_as_bad_response():
+    # a persistent cut chunked stream (HTTPException) is the same transport
+    # failure as a truncated body — recorded, never an uncaught crash
+    out = ir.infer_cell(seq(_incomplete_read()), baseline=100, log=lambda *_: None)
+    assert out["status"] == "bad_response"
 
 
 # --- warmup ---
@@ -274,3 +354,33 @@ def test_reasoning_leak_case_insensitive():
 
 def test_reasoning_leak_false_on_clean_output():
     assert not ir.reasoning_leak("@startuml\nclass Thinker\nA -> B: rethink()\n@enduml")
+
+
+# --- format_progress: operator-facing rolling status line (stdout only) ---
+
+def test_format_progress_basic_no_eta():
+    line = ir.format_progress(123, 1000, {"ok": 110, "timeout": 11, "skipped": 2})
+    assert line == "[123/1000] ok=110 timeout=11 skipped=2"
+
+
+def test_format_progress_renders_tally_in_insertion_order():
+    # tally dict order is preserved (insertion order = order outcomes first seen)
+    assert ir.format_progress(3, 10, {"timeout": 1, "ok": 2}) == "[3/10] timeout=1 ok=2"
+
+
+def test_format_progress_empty_tally_has_no_trailing_space():
+    assert ir.format_progress(1, 1000, {}) == "[1/1000]"
+
+
+def test_format_progress_appends_eta_minutes():
+    # rate 6s/cell over 100 done -> 900 remaining -> 5400s -> ~90m
+    assert ir.format_progress(100, 1000, {"ok": 100}, elapsed=600.0) == "[100/1000] ok=100 ~90m"
+
+
+def test_format_progress_eta_zero_at_completion():
+    # last cell: no work remains -> ~0m (no division surprises)
+    assert ir.format_progress(10, 10, {"ok": 10}, elapsed=120.0) == "[10/10] ok=10 ~0m"
+
+
+def test_format_progress_no_eta_when_elapsed_omitted():
+    assert ir.format_progress(5, 10, {"ok": 5}) == "[5/10] ok=5"

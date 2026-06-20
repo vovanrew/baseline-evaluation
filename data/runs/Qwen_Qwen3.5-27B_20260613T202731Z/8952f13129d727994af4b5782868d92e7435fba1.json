@@ -1,0 +1,22 @@
+{
+  "id": "84e906ff-f2c4-4515-88f1-27181404c3a1",
+  "object": "chat.completion",
+  "created": 1781487747,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Shared memory receiver behaviour\n\nparticipant \"Shared memory receiver\" as Receiver\npackage \"Coordination struct\" {\n    participant \"Reader count var\" as ReaderCount\n    participant \"locks_active\" as LocksActive\n    participant \"locks_leaving\" as LocksLeaving\n    participant \"Semaphore copy\" as SemCopy\n}\nparticipant \"Copy buff\" as CopyBuff\n\nrectangle create {\n    alt \"Coordination semaphore doesn't exist\"\n        Receiver -> SemCopy: Create semaphore\n    end\n    \n    Receiver -> Receiver: wait\n    note right of Receiver: Writer sets up sharedmemory\n    Receiver <- CopyBuff: Writer is ready\n    note right of CopyBuff: Writer inits it with the required number\n    \n    Receiver -> Receiver: ok\n    Receiver -> ReaderCount: reincrease\n    note right of ReaderCount: this way all readers access the memory,\\nthey will fail on the copy sem\n    \n    Receiver -> Receiver: MMap coordination struct\n    Receiver -> SemCopy: Trylock copy semaphore\n    \n    alt\n        :Fail;\n        note right of Receiver: Can't lock\n    else\n        :Success;\n        Receiver -> Receiver: MMap copy buffer\n        Receiver -> Receiver: read_flag to true\n        Receiver -> LocksLeaving: Lock leaving[1]\n        Receiver -> ReaderCount: Signal reader ready\n    end\n    \n    Receiver -> Receiver: Close coordination semaphore file\n    Receiver -> Receiver: Success\n}\n\nrectangle ready {\n    Receiver -> Receiver: ready?\n    \n    alt [finished flag set]\n        :False;\n        note left of Receiver: [has read current chunk]\n        Receiver -> LocksActive: lock next chunk (reading)\n        note right of LocksActive: Blocks until next\\nchunk is written\n        Receiver -> Receiver: Release previous leaving\n        Receiver -> Receiver: Change active\n        Receiver -> Receiver: reset read flag\n        Receiver -> Receiver: get chunk size\n        Receiver -> CopyBuff: c_size\n        Receiver -> Receiver: c_size > 0\n        note left of Receiver: [Yet to read current and no finished flag]\n        :True;\n        \n        alt [finished]\n            note left of Receiver: This is done before\\nactually returning\n            Receiver -> Receiver: Set finished flag\n            Receiver -> Receiver: Release lock\n        end\n    end\n    \n    rectangle buff_size {\n        Receiver -> ReaderCount: get buff_size from coord\n        Receiver -> Receiver: buff_size\n    }\n}\n\nrectangle receive {\n    note right of Receiver: This is called after ready so I am already on the correct\\nchunk and it has data to read\n    \n    alt [read_flag_set or finished flag set]\n        :Fail;\n        Receiver -> CopyBuff: Read data in current chunk\n        Receiver -> Receiver: vector\n        Receiver -> Receiver: set read flag\n        Receiver -> LocksLeaving: lock leaving\n        Receiver -> LocksActive: release active\n        Receiver -> Receiver: vector\n    end\n}\n\nrectangle destructor {\n    Receiver -> Receiver: Destroy\n    \n    alt [not finished]\n        alt [read_flag set]\n            Receiver -> LocksActive: unlock\n        else [read_flag false]\n            Receiver -> LocksLeaving: unlock\n        end\n        \n        Receiver -> ReaderCount: Notify left\n        Receiver -> Receiver: Unmap memory\n        Receiver -> Receiver: Close files\n    end\n}\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1223,
+    "completion_tokens": 734,
+    "total_tokens": 1957
+  }
+}

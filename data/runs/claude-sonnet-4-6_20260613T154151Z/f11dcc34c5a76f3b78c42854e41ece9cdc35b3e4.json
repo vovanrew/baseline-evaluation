@@ -1,0 +1,21 @@
+{
+  "id": "msg_01RrYeUeemVKRus7N7ovZ6YA",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Zhinahan Classes\n\npackage \"Zhinahan\" {\n\n  package \"Parser\" {\n\n    class Parser <<C>> {\n      -matchers : Array<AbstractLineMatcher>\n      -appendix_detector : AppendixDetector\n      -context : Context\n      --\n      +parse(file : string) : Dictionary\n      --\n      -per_line(line : string, index : int)\n      -parse_line(line : string, index : int)\n    }\n\n    class AppendixDetector <<C>> {\n      +starts_appendix_section?(line : string) : bool\n      +has_leaved_appendix_section?(line : string) : bool\n    }\n\n    class Context <<C>> {\n      -while_appendix : bool\n      -line : string?\n      -index : int?\n      --\n      +within_appendix?() : bool\n      +enter_appendix() : void\n      +leave_appendix() : void\n      +update_position(line : string, index : int) : void\n    }\n\n    class LineParser <<C>> {\n      +parse(context : Context)\n    }\n\n    package \"LineMatchers\" {\n\n      abstract class AbstractLineMatcher <<A>> {\n        +match(context : Context) : MatchResult?\n        +pattern(context : Context) : RexExp\n        +type() : Symbol\n      }\n\n      class RadicalLineMatcher <<C>> {\n      }\n\n      class ExplanationLineMatcher <<C>> {\n      }\n\n      class PronunciationLineMatcher <<C>> {\n      }\n\n      class CharacterLineMatcher <<C>> {\n      }\n\n      class MatchResult <<C>> {\n        -matched : MatchData\n        --\n        +type : String\n        +matched() : Hash<String, String>\n      }\n\n    }\n\n  }\n\n  package \"Core\" {\n\n    class Dictionary <<C>> {\n      -characters : Array<Character>\n      --\n      +find(character : string) : Character?\n    }\n\n    class Character <<C>> {\n      -radical : Radical\n      -char : string\n      --\n      +is?(character : string) : bool\n    }\n\n    class Description <<C>> {\n    }\n\n    class Explanation <<C>> {\n    }\n\n    class Pronunciation <<C>> {\n    }\n\n    class Radical <<C>> {\n    }\n\n  }\n\n}\n\n' Parser relationships\nParser --> AppendixDetector\nParser --> Context\nParser --> LineParser\nParser --> Dictionary\n\nLineParser --> AbstractLineMatcher\n\nRadicalLineMatcher --|> AbstractLineMatcher\nExplanationLineMatcher --|> AbstractLineMatcher\nPronunciationLineMatcher --|> AbstractLineMatcher\nCharacterLineMatcher --|> AbstractLineMatcher\n\nAbstractLineMatcher --> MatchResult\nCharacterLineMatcher --> MatchResult\n\n' Core relationships\nDictionary \"1\" o-- \"*\" Character : characters\nCharacter \"1\" *-- \"1..*\" Description\nDescription \"1\" --> \"1\" Radical\nDescription \"1\" *-- \"0..*\" Explanation\nDescription \"1\" *-- \"0..1\" Pronunciation\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781368616,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 757,
+    "prompt_tokens": 1646,
+    "total_tokens": 2403
+  }
+}

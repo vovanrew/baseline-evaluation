@@ -1,0 +1,116 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+package "oop" {
+    package "exercises" {
+        class "Application" as Application {
+            + websiteGenerator : WebsiteGenerator
+            + main(String[] args) : void
+        }
+        
+        class "WebsiteGenerator" as WebsiteGenerator {
+            - reader : DataReader
+            - loader : FileLoader
+            - siteName : String
+            - authorName : String
+            - jsFile : boolean
+            - cssFile : boolean
+            
+            --
+            Constructors
+            + WebsiteGenerator() : WebsiteGenerator
+            + WebsiteGenerator(siteName: String, authorName: String, jsFile: boolean, cssFile: boolean) : WebsiteGenerator
+            
+            --
+            Accessors/Mutators
+            + getSiteName() : String
+            + setSiteName(siteName: String) : void
+            + getAuthorName() : String
+            + setAuthorName(authorName: String) : void
+            + getJsSetting() : boolean
+            + setJsSetting(jsFile: boolean) : void
+            + getCssSetting() : boolean
+            + setCssSetting(cssFile: boolean) : void
+            + setSettingsThroughConsole() : void
+            
+            --
+            Data Input
+            # promptSiteName() : String
+            # promptAuthor() : String
+            # promptJsFolder() : boolean
+            # promptCssFolder() : boolean
+            
+            --
+            Methods
+            + generate() : String
+            # makeWebsiteDirectory() : void
+            # makeSiteNameDirectory() : String
+            # makeHtmlFile() : String
+            # makeJsFile() : String
+            # makeCssFile() : String
+            # buildHtmlString() : String
+        }
+    }
+    
+    package "util" {
+        class "ConsoleDataReader" as ConsoleDataReader {
+            - in : Scanner
+            
+            --
+            Methods
+            + readString(prompt: String) : String
+            + readInt(prompt: String) : int
+            + readIntValidated(prompt: String) : int
+            + readIntValidated(prompt: String, errorMessage: String) : int
+            + readDouble(prompt: String) : double
+            + readDoubleValidated(prompt: String) : double
+            + readDoubleValidated(prompt: String, errorMessage: String) : double
+            + readNDoubles(prompt: String, n: int) : double[]
+            + readNDoublesValidated(prompt: String, n: int) : double[]
+            + readNDoublesValidated(prompt: String, errorMessage: String, n: int) : double[]
+            + readIntValidatedWithCondition(prompt: String, errorMessage: String, condition: IntPredicate) : int
+        }
+        
+        class "FileLoader" as FileLoader {
+            - searchDir : File
+            
+            --
+            Constructors
+            + FileLoader() : FileLoader
+            + FileLoader(dir: String) : FileLoader
+            + FileLoader(dir: File) : FileLoader
+            
+            --
+            Accessors/Mutators
+            + getSearchDir() : File
+            
+            --
+            Methods
+            + getFile(fileName: String) : File
+            + getFile(file: File) : File
+            + getPath(fileName: String) : Path
+            + getPath(file: File) : Path
+            + getBufferedReader(fileName: String) : BufferedReader
+            + getBufferedReader(file: File) : BufferedReader
+            + getBufferedWriter(fileName: String) : BufferedWriter
+            + getBufferedWriter(file: File) : BufferedWriter
+            + getBufferedWriter(fileName: String, append: boolean) : BufferedWriter
+            + getBufferedWriter(file: File, append: boolean) : BufferedWriter
+            + getLines(fileName: String) : Stream<String>
+            + getLines(file: File) : Stream<String>
+            + toString() : String
+        }
+    }
+}
+
+Application --> WebsiteGenerator : composition
+WebsiteGenerator --> ConsoleDataReader : composition
+WebsiteGenerator --> FileLoader : composition
+
+note right of FileLoader
+    No-args constructor uses\nSystem.getProperty("user.dir")
+end note
+
+@enduml
+```

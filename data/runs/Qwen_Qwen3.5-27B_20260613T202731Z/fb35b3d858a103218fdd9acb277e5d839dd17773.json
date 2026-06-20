@@ -1,0 +1,22 @@
+{
+  "id": "91f17711-2cec-42fb-86c0-0be9f81fda92",
+  "object": "chat.completion",
+  "created": 1781431600,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nautonumber\n\nparticipant \"MobileApp\" as MobileApp\nparticipant \"Apollo\" as Apollo\nparticipant \"Storage\" as Storage\nparticipant \"Ironclad\" as Ironclad\nparticipant \"Onfido\" as Onfido\n\nMobileApp -> Apollo: Any proof of XYZ or document related call that could result in a call to Onfido\nactivate Apollo\nApollo -> Storage: GetLocalApplicant(sub)\nactivate Storage\nalt [when the user was previously provisioned as an onfido applicant]\n    Storage --> Apollo: Applicant { Id = sub; ApplicantId = OnfidoApplicantId; }\nelse [when the user was not previously provisioned]\n    Storage --> Apollo: null\n    deactivate Storage\n    Apollo -> Ironclad: GetUserInfo(sub)\n    activate Ironclad\n    Ironclad --> Apollo: Claims[] { ... }\n    deactivate Ironclad\n    Apollo -> Onfido: POST https://api.onfido.com/v2/applicants\n    activate Onfido\n    Onfido --> Apollo: 200 Applicant { Id = applicantId; [...]}\n    deactivate Onfido\n    Apollo -> Storage: Applicant { Id = sub, ApplicantId = onfidoApplicantId}\n    activate Storage\nend\ndeactivate Apollo\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 929,
+    "completion_tokens": 288,
+    "total_tokens": 1217
+  }
+}

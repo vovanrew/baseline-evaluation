@@ -1,0 +1,43 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "ブラウザ" as Browser
+participant "ContextProvider" as ContextProvider
+participant "_app" as _app
+participant "Login" as Login
+participant "バックエンド" as Backend
+participant "DB" as DB
+
+note over Browser, ContextProvider, _app, Login, Backend, DB
+認証のシーケンス
+end note
+
+Browser -> ContextProvider: ログイン要求(email, password)
+ContextProvider -> _app: コンポーネントとして呼び出し
+note right of ContextProvider
+※ログイン時はとくに<br>なにもしていない。
+end note
+
+note right of _app
+(フレームワークの<br>振る舞い)
+end note
+
+_app -> Login: ログイン要求(email, password)
+Login -> Backend: select(email, password)
+Backend -> Login: ユーザー情報
+note right of Login
+ユーザー ID をもとに<br>JWT を生成。<br>response の cookie に<br>{token: JWT} を載せる。
+end note
+
+Login -> _app: ログイン結果(結果, cookie, ユーザー情報)
+_app -> ContextProvider: dispatch
+note right of ContextProvider
+(必要あれば)<br>取得したユーザー情報を<br>state に保持。
+end note
+
+ContextProvider -> Browser: ログイン結果(結果, cookie)
+note left of Browser
+ブラウザの cookie に<br>{token: JWT} が保存される。<br>今後のリクエストには<br>この情報が付与される。
+end note
+
+@enduml

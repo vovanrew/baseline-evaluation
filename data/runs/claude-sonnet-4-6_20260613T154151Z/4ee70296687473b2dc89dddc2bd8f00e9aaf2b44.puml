@@ -1,0 +1,30 @@
+@startuml
+title Sequence diagram for the whole CCX (external) data pipeline
+
+participant "Smart\nProxy" as SP
+participant "3Scale" as 3S
+box "Insights operator" #lightgreen
+participant "Control logic" as CL
+participant "IO memory cache" as IMC
+end box
+participant "CRD" as CRD
+participant "OCP\nWebConsole" as OCP
+
+== Pulling data from Smart Proxy ==
+
+CL -> 3S : Get\nrecommendations\norg ID\ncluster ID
+3S -> SP : Get\nrecommendations\norg ID\ncluster ID
+SP --> 3S : Recommendations\nfor cluster
+3S --> CL : Recommendations\nfor cluster
+
+== Exposing recommendations ==
+
+CL -> IMC : Store\nrecommendations
+IMC -> CRD : Expose\nrecommendations
+
+== Pulling from OCP WebConsole ==
+
+OCP -> CRD : Read\nrecommendations
+CRD --> OCP : Here are\nrequired data
+
+@enduml

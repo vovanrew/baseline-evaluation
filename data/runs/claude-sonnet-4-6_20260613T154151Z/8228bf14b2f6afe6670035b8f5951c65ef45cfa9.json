@@ -1,0 +1,21 @@
+{
+  "id": "msg_01BRLBv4UGWz3jakCtsM7QY6",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nparticipant \"FragmentVideoChat\" as FVC\nparticipant \"LicodeConnector\" as LC\nparticipant \"PeerConnectionFactory\" as PCF\nparticipant \"RoomObserver\" as RO\nparticipant \"MediaStream\" as MS\nparticipant \"PeerConnection\" as PC\nparticipant \"StreamDescription\" as SD\nparticipant \"LicodeSdpObserver\" as LSO\nparticipant \"LicodeServer\" as LS\nparticipant \"SocketIOClient\" as SIO\n\n== Init ==\nFVC -> LC : configureConnector\nFVC <- LC\nFVC -> LC : init\nLC -> PCF : initializeAndroidGlobals\nFVC -> LC : addObserver(RoomObserver)\n\n== Publish ==\nFVC -> FVC : startCastView.onClick\nFVC -> LC : requestPublish\nLC -> LC : triggerPublishAllowed\nFVC <- LC : onPublishAllowed\nFVC -> LC : startPublish\nFVC -> FVC : makeVideoView\nFVC <- FVC\nFVC -> LC : publish(VideoStreamsView)\nFVC <- LC : doPublish\n\n== Publish-create media ==\nLC -> PCF : createLocalMediaStream\nLC -> PCF : createMediaConstraints\nLC <- PCF : getVideoCapturer\nLC -> PCF : createVideoSource(VideoCapturer, MediaConstraints)\nLC <- PCF\nLC -> MS : createVideoTrack(String, VideoSource)\nLC -> MS : addTrack\nLC -> PCF : createAudioSource(MediaConstraints)\nLC -> PCF : createAudioTrack(String, AudioSource)\nLC -> MS : addTrack\n\n== Publish-create offer ==\nLC -> LC : makePcConstraints\nLC <- LC\nLC -> LC : create MyPcObserver\nLC <- LC\nLC -> PCF : createPeerConnection(List<IceServer>, MediaConstraints, Observer)\nLC <- PCF\nLC -> PC : addStream(MediaStream, MediaConstraints)\nLC -> PC : setMedia\nLC -> PC : attachRenderer\nLC -> PC : initLocalPeerConnection, SdpObserver)\nPC -> LSO : createOffer\nPC <- LSO : onCreateSuccess\nPC -> SD : setLocalDescription\nPC <- SD : onSetSuccess\nSD -> LS : sendLocalDescription\nSD <- LS\nSD -> SIO : sendSDPSocket('publish')\nSD <- SIO : publish\nLC <- SIO : publish success\nLC -> PC : setRemoteDescription\n\n== Subscribe ==\n== Subscribe-token ==\nFVC -> FVC : startVideoChat\nFVC -> LC : createToken\nLC -> LC : http\nLC -> LC : Load Balance\nFVC <- LC : createToken success\nFVC -> LC : connect\nLC -> LC : createToken\nLC <- LC\nLC -> LC : decodeToken\nLC <- LC\nLC -> SIO : connect to server\nLC -> SIO : socket\nLC <- SIO : onConnectCompleted\n\n== Subscribe-listen socket events ==\nLC -> SIO : listen evnets\nLC -> SIO : onAddStream\nLC -> SIO : onSubscribeP2P\nLC -> SIO : onPublishP2P\nLC -> SIO : onDataStream\nLC -> SIO : onRemoveStream\nLC -> SIO : disconnect\nLC -> SIO : sendMessageSocket('token')\nFVC <- SIO : token success\nFVC -> FVC : onRoomConnected\nFVC -> FVC : setBandwidthLimits\n\nalt [has streams]\nLC -> LC : triggerStreamAdded\nFVC <- LC\nFVC -> FVC : mOnAddStream\nFVC -> LC : triggerStreamAdded\nFVC <- LC\nend\n\nFVC -> FVC : onStreamAdded\nFVC -> LC : subscribe\nLC -> LC : doSubscribe\nFVC <- LC\nLC -> LC : triggerMediaAvailable\nFVC <- LC\nFVC -> FVC : onStreamMediaAvailable\nFVC -> FVC : makeVideoView\nFVC <- FVC\nFVC -> LC : attachRenderer\nLC -> PC : attachRenderer\nLC -> LC : create MyPcObserver\nLC <- LC\nLC -> PCF : createPeerConnection\nLC -> PC : initRemote(PeerConnection, SdpObserver)\nPC -> LSO : createOffer\nPC <- LSO : onCreateSuccess\nPC -> SD : setLocalDescription\nPC <- SD : onSetSuccess\nSD -> LS : sendLocalDescription\nSD <- LS\nSD -> SIO : sendSDPSocket('subscribe')\nSD <- SIO : subscribe success\nLC <- SIO\nLC -> PC : setRemoteDescription\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781371396,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 1094,
+    "prompt_tokens": 1646,
+    "total_tokens": 2740
+  }
+}

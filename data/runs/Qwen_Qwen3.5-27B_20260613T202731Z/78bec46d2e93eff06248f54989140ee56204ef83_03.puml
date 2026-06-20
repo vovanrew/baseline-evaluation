@@ -1,0 +1,31 @@
+```plantuml
+@startuml
+title 通行证二维码
+
+participant "巡查app" as App
+participant "小程序或app或管理平台" as Platform
+participant "lgm_community" as Community
+participant "用户中心" as UserCenter
+participant "lgm_auth_apps" as AuthApps
+participant "lgm_certauth" as CertAuth
+
+== 产生二维码 ==
+
+Platform -> Community: 1 获取通行证二维码
+Community -> Community: 2 根据用户找到实名信息，根据实名信息找到卡号
+Community -> AuthApps: 3 获取二维码（实名信息，卡号）
+AuthApps -->> Community: 4 返回（二维码）
+Community -->> Platform: 5 返回
+
+== 校验二维码 ==
+
+App -> Community: 6 扫一扫
+Community -> Community: 7 参考北京通二维码认证流程
+Community -> CertAuth: 8 校验二维码（二维码）
+CertAuth -->> Community: 9 校验结果
+Community -> Community: 10 查询客户信息
+Community -> Community: 11 查询登记信息，按照业主优先级排序后取一条
+Community -->> App: 12 返回（登记信息）
+
+@enduml
+```

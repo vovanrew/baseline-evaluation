@@ -1,0 +1,60 @@
+```plantuml
+@startuml
+title Creature Control System (a.k.a. Dungeon Master) Class Diagram
+
+class Level_master {
+    + update(vector<player_input>* inputs)
+    - move_creatures(vector<player_input>* inputs)
+    - resolve_combat(Creature* attacker, Creature* defender)
+    - interact(Creature* creature, Interactable* tgt)
+}
+
+class Level_map {
+    - tiles : matrix<2, Tile*>
+    - creatures : vector<Creature*>
+    - get_creature(size_t x, size_t y) -> Creature*
+    - get_tile(size_t x, size_t y) -> const Tile*
+    - get_interactable(size_t x, size_t y) -> Interactable*
+}
+
+class Creature {
+    - ai_type : creature_ai_ref
+}
+
+class Creature_AI {}
+
+class Simple_AI extends Creature_AI
+class Ground_melee_AI extends Creature_AI
+class Ground_ranged_AI extends Creature_AI
+class Flying_melee_AI extends Creature_AI
+class Flying_ranged_AI extends Creature_AI
+
+class Tile {}
+class Interactable {}
+
+Level_master --> Level_map
+Creature --> Level_map
+Tile --> Level_map
+Interactable --> Level_map
+Creature --|> Creature_AI
+Creature ..> Creature_AI : indirect ref.
+Level_master ..> Creature_AI
+
+note left of Level_master
+    Level_master is responsible for handling the logic of gameplay interactions between level objects e.g. creatures, interactibles, etc.
+    
+    Level_master serves to separate concerns between gameplay interaction logic and tile data handling e.g. map generation, bounds checks etc.
+    
+    That said, having "friend" classes is often an indication of bad design, so this is likely not the final solution. Will think some more on alternative solutions.
+end note
+
+note right of Creature
+    Storing a behaviour type reference will allow cretures to have different behaviours e.g. depending on creature type and modifiers, etc.
+    
+    Would like to avoid the complexity caused by indirection if possible.
+end note
+
+Level_master ..> Level_map : friend to
+
+@enduml
+```

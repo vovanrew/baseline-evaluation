@@ -1,0 +1,38 @@
+@startuml
+skinparam sequenceDiagram
+
+participant API_Gateway
+participant UserRouter
+participant Middleware
+participant UserController
+participant UserDB
+
+actor User
+
+User->>API_Gateway: getUsers(token)
+API_Gateway->>UserRouter: withAuth(token)
+UserRouter->>Middleware: jwt.verify(token)
+Middleware-->>UserRouter: Token Valid
+
+alt [token]
+    UserRouter-->>API_Gateway: 'Unauthorized: No token provided (401)'
+    API_Gateway-->>UserRouter: 'Unauthorized: No token provided (401)'
+end
+
+alt [token != valid]
+    UserRouter-->>API_Gateway: 'Unauthorized: Invalid token (401)'
+    API_Gateway-->>UserRouter: 'Unauthorized: Invalid token (401)'
+end
+
+alt [users.length == 0]
+    UserRouter-->>API_Gateway: 'User not found 404'
+    API_Gateway-->>UserRouter: 'User not found 404'
+end
+
+UserRouter->>UserController: getUsers()
+UserController->>UserDB: find()
+UserDB-->>UserController: users[]
+UserController-->>UserRouter: return(res.status(200), users)
+UserRouter-->>API_Gateway: return(res.status(200), users)
+
+@enduml

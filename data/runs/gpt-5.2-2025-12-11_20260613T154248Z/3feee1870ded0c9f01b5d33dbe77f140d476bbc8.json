@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLamezgAVg2pS00B2g0oxt7hynxB",
+  "object": "chat.completion",
+  "created": 1781368428,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam sequenceMessageAlign left\nskinparam ParticipantPadding 40\nskinparam BoxPadding 10\n\nactor User\nparticipant \"BileMo API\" as API\ndatabase \"BileMo Database\" as DB\n\nUser -> API : 1 Authentication Request (email, plain password)\nAPI -> DB : 2 Find user with matching email & password combination\n\nalt [invalid credentials]\nDB --> API : 3 null\nAPI --> User : 4 JSON Authentication response: 401 Invalid credentials\nelse [valid credentials]\nDB --> API : 5 User object\nAPI --> User : 6 JSON Authentication Response: 200 JWT token\nUser -> API : 7 Show products list (JWT token)\nAPI -> API : 8 Check route & query parameters are valid\n\nalt [Route does not exist]\nAPI --> User : 9 404 Route not found\nelse [Route found]\nAPI -> API : 10 Security firewall: check token is valid & user permissions\n\nalt [Access denied]\nAPI --> User : 11 403 Forbidden\nelse [Token expired]\nAPI --> User : 12 401 Unauthorized\nelse [Token valid & permission granted]\nAPI -> DB : 13 Get products results\nDB --> API : 14 Results query response (Products object)\nAPI -> API : 15 Serialize(normalize+encode) results object to JSON\nAPI --> User : 16 Response 200 Serialized JSON results\nend\n\nend\nend\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2586,
+    "completion_tokens": 308,
+    "total_tokens": 2894,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

@@ -1,0 +1,45 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam noteStyle rectangle
+skinparam sequenceStyle rectangle
+
+package "finest level" as finest {
+  note U(k,2) -> F(U(k,2))
+  note U(k',2) -> F(U(k',2))
+  note U(k'',2) = U(k',2) + P*c(1)
+  note U(k+,2) -> F(U(k+,2))
+}
+
+package "intermediate level(s)" as intermediate {
+  note U(k,1) -> F(U(k,1))
+  note U(k',1) -> F(U(k',1))
+  note U(k'',1) = U(k',1) + P*c(0)
+  note U(k+,1) -> F(U(k+,1))
+}
+
+package "base level" as base {
+  note U(k,0) -> F(U(k,0))
+  note U(k+,0) -> F(U(k+,0))
+  note c(0) = U(k+,0) - R*U(k',1)
+  note c(1) = U(k+,1) - R*U(k',2)
+}
+
+finest -> intermediate : restrict
+intermediate -> base : restrict
+base -> intermediate : prolongate
+intermediate -> finest : prolongate
+
+finest -> finest : SDC
+intermediate -> intermediate : FAS
+intermediate -> intermediate : SDC with FAS
+base -> base : FAS
+base -> base : SDC with FAS
+base -> base : coarse correction
+intermediate -> intermediate : coarse correction
+intermediate -> intermediate : correct
+finest -> finest : correct
+
+note tau = Q(1)*F(U(k,1)) - R*Q(2)*F(U(k',2))
+note tau = Q(0)*F(U(k,0)) - R*Q(1)*F(U(k',1))
+
+@enduml

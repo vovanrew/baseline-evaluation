@@ -1,0 +1,47 @@
+@startuml
+left to right direction
+skinparam sequenceMessageAlign center
+
+actor "arm_io_storage" as arm_io_storage
+actor "io_storage" as io_storage
+actor "io_fip" as io_fip
+actor "io_memmap" as io_memmap
+
+activate arm_io_storage
+activate io_storage
+activate io_fip
+activate io_memmap
+
+note right of arm_io_storage: arm_io_setup()
+note right of io_storage: io dev registration
+
+arm_io_storage -> io_storage: register_io_dev_fip(&fip_dev_con)
+io_storage -> io_fip: io_register_device(&dev_info_pool[])
+note right of io_storage: devices[dev_count] = (fip_)dev_info_pool\n dev_count++
+
+arm_io_storage -> io_memmap: register_io_dev_memmap(&memmap_dev_con)
+io_memmap -> io_storage: io_register_device(&memmap_dev_info)
+note right of io_storage: devices[dev_count] = memmap_dev_info\n dev_count++
+
+arm_io_storage -> io_storage: io_dev_open(fip_dev_con, NULL, fip_dev_handle)
+io_storage -> io_storage: dev_open(dev_con, dev_spec, handle)
+
+opt [dev_open() on fip device]
+io_storage -> io_fip: fip_dev_open(dev_spec, dev_info)
+note right of io_fip: dev_info = one of the\n"fip_dev_info" from\n dev_info_pool[]
+end
+
+arm_io_storage -> io_storage: io_dev_open(memmap_dev_con, NULL, memmap_dev_handle)
+io_storage -> io_storage: dev_open(dev_con, dev_spec, handle)
+
+opt [dev_open() on memmap device]
+io_storage -> io_memmap: memmap_dev_open(dev_spec, dev_info)
+note right of io_memmap: dev_info = memmap_dev_info
+end
+
+deactivate arm_io_storage
+deactivate io_storage
+deactivate io_fip
+deactivate io_memmap
+
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+participant "Organization Employee" as Employee
+
+interface :CreateTaskUI
+
+interface :CreateTaskController
+
+interface ApplicationPOT
+
+interface :Platform
+
+interface org :Organization
+
+interface cat :Category
+
+interface Ic :List<Category>
+
+participant "task :Task" as Task
+
+participant "cat :Category" as Category
+
+participant "Ic :List<Category>" as Ic
+
+Employee -> :CreateTaskUI :asks to create a new task
+:CreateTaskUI -> Employee :requests data (reference, designation, informal description, technical description, duration, cost)
+:CreateTaskUI -> Employee :3 types requested data
+:CreateTaskUI -> :CreateTaskController :Ic=getTaskCategories()
+:CreateTaskController -> :Platform :Ic=getTaskCategories()
+:Platform -> :Category :Ic=getTaskCategories()
+:CreateTaskUI -> :CreateTaskController :6 shows task categories list and ask to select one
+:CreateTaskController -> :Category :cat=getCategoryById(categoryId)
+:CreateTaskController -> :org :org=getOrganizationByUserEmail(email)
+:org -> :Task :create(ref.designation,informalDesc,technicalDesc,duration,cost,cat)
+:Task -> :org :validateTask(task)
+:org -> :CreateTaskController :17 result
+:CreateTaskController -> :org :19 confirms the data
+:org -> :CreateTaskController :20 saveTask()
+:CreateTaskController -> :org :21 saveTask(task)
+:org -> :org :22 validateTask(task)
+:org -> :org :23 addTask(task)
+:org -> :CreateTaskController :24 result
+:CreateTaskController -> :Employee :25 informs operation success
+
+@enduml

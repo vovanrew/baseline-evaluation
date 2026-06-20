@@ -1,0 +1,24 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "tuple" as T
+participant "Upper layer" as U
+participant "IPv4 layer" as I4L
+participant "Routing table" as RT
+participant "IPv4 interface" as I4I
+participant "ARP" as AR
+participant "Lower layer" as L
+
+T -- U : IPdata
+U --> I4L : Allocate IPv4 header
+I4L --> RT : dst=192.0.2.1
+I4L --> T : IPv4.oif=ifp1
+I4L --> T : IPv4.gw=198.51.100.1
+I4I --> L : gw=198.51.100.1
+I4I --> AR : ARP request
+I4I --> L : ARP response
+I4I --> AR : resolved packets
+I4I --> L : send as send thread
+L --> I4I : send packet
+
+@enduml

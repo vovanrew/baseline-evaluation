@@ -1,0 +1,146 @@
+```plantuml
+@startuml
+' version: 1.20201107.1
+' encoding: UTF-8
+skinparam classAttributeIconSize 0
+
+package "Module" {
+    package "TrainModel" {
+        class "Train" as Train {
+            C << (C,#FFD700)>>
+            - id : String
+            - weight : double
+            - height : double
+            - length : double
+            - width : double
+            - numCars : int
+            - capacity : int
+            - lineColor : String
+            - grade : double
+            - gpsStatus : boolean
+            - mboStatus : boolean
+            - engineFailureStatus : boolean
+            - signalFailureStatus : boolean
+            - brakeFailureStatus : boolean
+            - nextStationID : String
+            - timeOfArrival : double
+            - arrivalStatus : boolean
+            - numPassengers : int
+            - currentSpeed : double
+            - CTCSpeed : double
+            - CTCAuthority : double
+            - powerOut : double
+            - leftDoorStatus : boolean
+            - rightDoorStatus : boolean
+            - lightsStatus : boolean
+            - temperature : int
+            - serviceBrake : boolean
+            - emerBrake : boolean
+            - trainActive : boolean
+            - force : double
+            - normalForce : double
+            - downwardForce : double
+            - totalForce : double
+            - friction : double
+            - slope : double
+            - finalSpeed : double
+            - trainAcceleration : double
+            - gpsSignal : Gps
+            + trainModelGUI : TrainModelNewGUI
+            + trainList : TrainModel[]
+            # showTrainGUI()
+            # updateTrainValues()
+            + CreateNewGUI(TrainModel)
+            + activateFailureModeTest()
+            + endFailureModeTest()
+            + getTrainController()
+            + updateTrainList()
+            + updateArrivalStatus()
+            + setPos(double)
+            + getPos()
+            + getGrade(Block)
+            + getSetpointSpeed()
+            + setSetpointSpeed()
+            + getAuthority()
+            + setAuthority(double)
+            + setLightStatus(boolean)
+            + setLeftDoorStatus(boolean)
+            + setRightDoorStatus(boolean)
+            + setTemperature(int)
+            + truncateTo(double,int)
+        }
+
+        class "Gps" as Gps {
+            C << (C,#FFD700)>>
+            - line : String
+            - currPos : double[2]
+            # setGpsPos(double[2])
+            # getGpsPos()
+        }
+
+        class "TrainModel" as TrainModel {
+            C << (C,#FFD700)>>
+            - trainID : String
+            - trainModel : TrainModel
+            ~ time : SimTime
+            ~ trnctrl : TrainController
+            ~ trkmdl : TrackModel
+            # calcDeltaTime(SimTime, SimTime) : integer
+            # updateList()
+            # timeUpdate(SimTime)
+            # getTrainAtBlock(Block)
+            # setBeacon(trainID,int)
+            # dispatchTrainToBlock(String, String, int, String[])
+            # transmitCtcAuthority(String, double)
+            # suggestSetpointSpeed(String, double)
+            # setEmergencyBrake(String, boolean)
+            # setSchedule(String, String[])
+            # setBeacon(String, int_32)
+            # getPosition(String) : String[2]
+            # setPower(String, double)
+            # setLeft(String, boolean)
+            # setRight(String, boolean)
+            # setService(String, boolean)
+            # setEmergency(String, boolean)
+            # setLights(String, boolean)
+            # setTemperature(String, int)
+            # setTrainPosition(String) : String[2]
+            # setTrainActualSpeed(String) : double
+        }
+
+        class "TrainModelNewGUI" as TrainModelNewGUI {
+            C << (C,#FFD700)>>
+            ~ trainModel : TrainModel
+            # setValuesForDisplay(TrainModel)
+            # setEmerBrakeButtonPressed()
+        }
+    }
+
+    package "Shared" {
+        interface "Module" as Module {
+            I << (I,#94BFFF)>>
+            + timeUpdate(SimTime) : Boolean
+        }
+
+        class "SimTime" as SimTime {
+            C << (C,#FFD700)>>
+            ~ hr : int
+            ~ min : int
+            ~ sec : int
+            + toString() : String
+        }
+    }
+}
+
+class "TrainModel" as TrainModelInterface {
+    C << (C,#FFD700)>>
+}
+
+Train --|> TrainModel : contains
+Train o-- TrainModelNewGUI : instantiates
+TrainModel ..|> TrainModelInterface : implements
+TrainModel --o SimTime : imports
+TrainModel --o Module : instantiates
+
+@enduml
+```

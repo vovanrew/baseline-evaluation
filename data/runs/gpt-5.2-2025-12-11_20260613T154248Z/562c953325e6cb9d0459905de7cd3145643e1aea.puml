@@ -1,0 +1,59 @@
+@startuml
+skinparam backgroundColor white
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 20
+  LifeLineBorderColor #666666
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor transparent
+  ActorBorderColor #666666
+  ActorFontColor black
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6F2
+  BoxBorderColor #666666
+  BoxFontColor black
+  BoxBackgroundColor #9ACD32
+  ArrowColor black
+  MessageAlign left
+}
+hide footbox
+
+actor Service as S
+participant "Access token guard" as G
+
+box "Auth microservice" #9ACD32
+  participant "Session module" as SM
+  participant "Auth module" as AM
+end box
+
+S -> G : request
+
+activate G
+G -> G : get headers
+G -> G : check authentication header existence
+
+alt [Authentication header is undefined]
+  G --> S : 401
+end
+
+G -> G : get access token from header
+G -> AM : validate access token
+AM --> G : result of validation
+
+alt [Access token is Invalid]
+  G --> S : 401
+end
+
+G -> AM : get embedded client id from access token
+AM -> AM : extract id
+
+alt [Client id is missing]
+  AM --> G : error
+  G --> S : 401
+end
+
+AM --> G : client id
+G -> G : modify request with client id
+G --> S : modified request
+deactivate G
+@enduml

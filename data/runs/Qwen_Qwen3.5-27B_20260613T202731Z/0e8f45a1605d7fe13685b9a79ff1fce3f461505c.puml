@@ -1,0 +1,27 @@
+```plantuml
+@startuml
+autonumber off
+
+participant "LoaderPlugin" as LoaderPlugin
+participant "ContentServer" as ContentServer
+participant "FS" as FS
+
+LoaderPlugin -> ContentServer : LoadBundleIndexes()
+activate ContentServer
+
+rectangle [for each index file] {
+  rectangle loop {
+    ContentServer -> FS : ReadFile()
+    activate FS
+    FS --> ContentServer
+    deactivate FS
+    note right of ContentServer: parse ContentBundleIndex instances,\nfill mountpoint mappings
+    ContentServer <- ContentServer
+  }
+}
+
+deactivate ContentServer
+ContentServer --> LoaderPlugin
+
+@enduml
+```

@@ -1,0 +1,78 @@
+@startuml
+' Define custom styles to match the original diagram's appearance
+skinparam classAttributeIconSize 0
+skinparam noteBackgroundColor #FFFFCC
+skinparam rectangle {
+    BackgroundColor<<Thread>> LightGreen
+}
+hide circle
+
+class "Airport" <<C Thread>> as Airport {
+list<Runway> lst_runways
+list<AirportOperation> lst_operations
+bool permission_to_take_off(Airplane)
+bool permission_to_land(Airplane)
+void start_thread()
+}
+
+note right of Airport : Iterate through lst_operations\nif it matches the criteria that airplane is already flying\nrelease runway\nupdate airplane status and related info\norder lst_operations to update next events
+
+class "AirplaneState" <<E>> as AirplaneStateEnum {
+Stopped
+AskingPermissionToTakeOff
+TakingOff
+Flying
+AskingPermissionToLand
+Landing
+Crashed
+}
+
+enum EnumAirportOperation {
+WaitingToTakeOff
+AuthorizedToTakeOff
+WaitingToLand
+AuthorizedToLand
+}
+
+class RunwayState <<E>> {
+Free
+InUse
+}
+
+class "Runway" <<C>> as RunwayClass {
+uint32_t id
+RunwayState state
+}
+
+class "AirportOperation" <<C>> as OperationClass {
+Runway run_way
+Airplane airplane
+uint32_t time_request
+uint32_t time_last_update
+EnumAirportOperation operation_state
+void free_runway()
+}
+
+class "Airplane" <<C Thread>> as PlaneClass {
+uint32_t id
+uint32_t fuel
+uint32_t fuel_consumption_rate
+uint32_t airport_answer_timeout
+AirplaneState state
+void start_thread()
+void take_off_authorized()
+void take_off_denied()
+void land_authorized()
+void land_denied()
+}
+
+' Relationships based on composition/aggregation diamonds in source image
+Airport *-- RunwayClass
+Airport *-- OperationClass
+OperationClass o-- RunwayClass
+OperationClass --o PlaneClass
+PlaneClass --> AirplaneStateEnum
+RunwayClass --> RunwayState
+OperationClass --> EnumAirportOperation
+
+@enduml

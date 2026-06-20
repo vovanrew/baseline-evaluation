@@ -1,0 +1,22 @@
+{
+  "id": "2d71adc9-d14d-433b-9436-a1f23bbb7c1c",
+  "object": "chat.completion",
+  "created": 1781396567,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"Service\" as Service\nparticipant \"Access token guard\" as AccessTokenGuard\n\nsubgraph Auth_microservice\n    participant \"Session module\" as SessionModule\n    participant \"Auth module\" as AuthModule\nendsubgraph\n\nService -> AccessTokenGuard: request\nAccessTokenGuard -> SessionModule: get headers\nAccessTokenGuard -> AuthModule: check authentication header existence\n\nalt [Authentication header is undefined]\n    AccessTokenGuard -> Service: 401\nend\n\nAccessTokenGuard -> AuthModule: get access token from header\nAuthModule -> AccessTokenGuard: validate access token\nAccessTokenGuard -> AuthModule: result of validation\n\nalt [Access token is Invalid]\n    AccessTokenGuard -> Service: 401\nend\n\nAccessTokenGuard -> AuthModule: get embedded client id from access token\nAuthModule -> AuthModule: extract id\n\nalt [Client id is missing]\n    AccessTokenGuard -> AuthModule: error\n    AuthModule -> AccessTokenGuard: 401\nend\n\nAccessTokenGuard -> AuthModule: client id\nAuthModule -> AccessTokenGuard: modify request with client id\nAccessTokenGuard -> Service: modified request\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2007,
+    "completion_tokens": 253,
+    "total_tokens": 2260
+  }
+}

@@ -1,0 +1,57 @@
+```plantuml
+@startuml
+title orderList表示
+
+actor "配達員" as CourierActor
+participant "Courieridform.jsp" as CourierIdForm
+participant "OrderListServlet" as OrderListServlet
+participant "CourierDAO" as CourierDAO
+participant "Courier" as Courier
+participant "Session" as Session
+participant "OrderDAO" as OrderDAO
+participant "Order" as Order
+participant "DetailDAO" as DetailDAO
+participant "Detail" as Detail
+participant "Request" as Request
+participant "orderedlist.jsp" as OrderedListJsp
+
+CourierActor -> CourierIdForm: courierID入力
+activate CourierIdForm
+CourierIdForm -> OrderListServlet: リンク
+deactivate CourierIdForm
+activate OrderListServlet
+
+OrderListServlet -> CourierDAO: findByCourierid()
+activate CourierDAO
+CourierDAO -> Courier: 生成
+activate Courier
+Courier -->> OrderListServlet: Courier
+deactivate Courier
+deactivate CourierDAO
+
+OrderListServlet -> Session: Courier
+OrderListServlet -> OrderDAO: findAll()
+activate OrderDAO
+OrderDAO -> Order: 生成
+activate Order
+Order -> DetailDAO: findByOrderid()
+activate DetailDAO
+DetailDAO -> Detail: リスト生成
+activate Detail
+Detail -->> OrderDAO: ArrayList<Detail>
+deactivate Detail
+deactivate DetailDAO
+OrderDAO -> Order: setDetail (ArrayList<Detail>)
+Order -->> OrderListServlet: ArrayLisr<Order>
+deactivate Order
+deactivate OrderDAO
+
+OrderListServlet -> Request: setAttribute(ArrayList<Order>)
+OrderListServlet -> OrderedListJsp: フォワード
+deactivate OrderListServlet
+activate OrderedListJsp
+OrderedListJsp --> CourierActor: 表示
+deactivate OrderedListJsp
+
+@enduml
+```

@@ -1,0 +1,30 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 10
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #333333
+  ParticipantBackgroundColor #E6E6F2
+  ActorBorderColor #333333
+  ActorBackgroundColor #E6E6F2
+}
+
+actor User
+participant MyBackupService
+participant TaskDispatcher
+participant TaskFactory
+participant SimpleTask
+
+User -> MyBackupService : SimpleBackup()
+MyBackupService ..> TaskDispatcher : New
+TaskDispatcher ..> MyBackupService : TaskDispatcher
+MyBackupService -> TaskDispatcher : SimpleTask()
+TaskDispatcher -> TaskFactory : Create()
+TaskFactory ..> SimpleTask : new
+SimpleTask ..> TaskDispatcher : Task
+TaskDispatcher -> SimpleTask : Execute()
+
+@enduml

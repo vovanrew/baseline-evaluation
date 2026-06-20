@@ -1,0 +1,22 @@
+{
+  "id": "643374c2-d9fa-4cb3-acdc-82addf429248",
+  "object": "chat.completion",
+  "created": 1781491109,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nleft to right direction\nskinparam packageStyle rectangle\n\nactor \"user\" as User\n\nrectangle \"FindWorkbookUI\" as UI {\n}\n\nrectangle \"UIController\" as Controller {\n}\n\nrectangle \"FindWorkbooksController\" as FindController {\n}\n\nrectangle \"StartWorkbooksSearch\" as Search {\n}\n\nrectangle \"fw : FindWorkbooks\" as FW {\n}\n\nrectangle \"Paths\" as Paths {\n}\n\nrectangle \"Files\" as Files {\n}\n\nrectangle \"Cleansheets\" as Cleansheets {\n}\n\nUser -> UI : startWorkbooksSearch()\nactivate UI\nUI -> FindController : create()\nactivate FindController\n\nalt adicionar\n    loop todas as adicoes\n        UI -> FindController : add(path)\n    end\nelse remover\n    loop todas as remocoes\n        UI -> FindController : remover(path)\n    end\nend\n\ndeactivate FindController\nUI -> FindController : startWorkbooksSearch()\nactivate FindController\n\nloop todas as paths\n    FindController -> Search : create(path, WorkbooksFoundList)\n    activate Search\n    Search -> Search : startWorkbooksSearch()\n    \n    Search -> Search : create()\n    note right of Search: this create() call represents\\nthe creation of a new thread\\nof this same class\n    \n    Search -> Search : start()\n    Search -> Search : run()\n    \n    Search -> FW : create()\n    activate FW\n    \n    Search -> Paths : p : get()\n    Search -> Files : walkFileTree(p, fw)\n    \n    deactivate FW\n    deactivate Search\nend\n\ndeactivate FindController\n\nUser -> UI : openFoundWorkbook()\nactivate UI\nUI -> Controller : app : getApp()\nnote right of UI: f represents a file that is created when\\nthe user selects a workbook to open from\\nthe list of found workbooks\nUI -> Cleansheets : w : getWorkbook(f)\nUI -> Controller : setActiveWorkbook(w)\ndeactivate UI\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2105,
+    "completion_tokens": 435,
+    "total_tokens": 2540
+  }
+}

@@ -1,0 +1,41 @@
+@startuml
+participant "ebiz-salesman" as ES
+participant "guide-event" as GE
+participant "retail-sales" as RS
+participant "tsp" as TSP
+
+ES -> GE : 1 监听账号合并消息，执行合并
+ES -> ES : 2 返回
+ES -> GE : 3 定时器扫表[扫描过滤出还未执行完成的明细任务], 并调用相应 processor 执行
+
+alt [未完成]
+    loop [tsp 回调执行]
+        ES -> GE : 4 返回，等待其他 processor 任务执行
+        GE -> ES : 5 返回
+    end
+
+    ES -> GE : 6 发送账号合并完成消息[一个导购可能在 N 多家店有身份，那么将发送出 N 条消息]
+    GE -> ES : 7 ebiz-salesman 所有流程结束
+
+    ES -> GE : 8 开始消息处理流程
+    GE -> GE : 9 检查 apollo 是否开启帐号合并开关
+    GE -> GE : 10 检查 shopping_guide_event_task 表是否已经存在此任务
+    GE -> GE : 11 创建帐号合并任务，将任务写入表
+    GE -> GE : 12 创建 30 分钟延时任务，30分钟后检查并执行该任务
+    GE -> TSP : 15 创建 30 分钟延时任务，30分钟后检查并执行该任务
+    TSP -> GE : 16 返回
+    GE -> GE : 17 结束
+
+    note right of GE
+        以 task_id 作为幂等键, task_id = SG:AM-rootKdtId-fromUid-toUid
+    endnote
+
+    note left of GE
+        1.shopping_guide_event_task
+        2.shopping_guide_event_detail_task
+        3.shopping_guide_event_exec_task
+    endnote
+
+endalt
+
+@enduml

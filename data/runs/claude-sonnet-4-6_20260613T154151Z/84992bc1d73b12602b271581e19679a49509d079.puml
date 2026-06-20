@@ -1,0 +1,55 @@
+@startuml
+
+class UmlReverseApp <<C>>
+
+class MainController <<C>>
+
+package "javafx" {
+  class Stage <<C>>
+  class Scene <<C>>
+  class BorderPane <<C>>
+  class MenuBar <<C>>
+  class TabPane <<C>>
+  class MenuItem <<C>>
+}
+
+class TreeFileManagerView <<C>>
+
+package "diagram" {
+  package "visitor" {
+    interface IDiagramVisitor <<I>> {
+      + visit(ClassDiagram visitor) : void
+      + visit(SequenceDiagram visitor) : void
+      + visit(UseCaseDiagram visitor) : void
+      + visit(DiagramManager visitor) : void
+    }
+
+    class ToViewVisitor <<C>> {
+      + getDiagramMenu() : IDiagramMenu
+      + getDiagramEditor() : IDiagramEditor
+    }
+  }
+}
+
+interface IDiagramMenu <<I>>
+interface IDiagramEditor <<I>>
+
+UmlReverseApp "1" o-- "1" MainController : controller
+UmlReverseApp "1" o-- "1" Stage : stage
+UmlReverseApp ..> Stage
+
+Stage "1" o-- "1" Scene : scene
+Scene "1" o-- "1" BorderPane : borderpane
+
+BorderPane "1" o-- "1" MenuBar : north
+BorderPane "1" o-- "1" TabPane : center
+BorderPane "1" o-- "1" TreeFileManagerView : fileManagerView
+BorderPane "1" o-- "1" IDiagramMenu : est
+
+MenuBar "1..n" o-- "0..n" MenuItem : items
+
+TabPane "1" o-- "0..*" IDiagramEditor : editors
+
+ToViewVisitor ..|> IDiagramVisitor
+
+@enduml

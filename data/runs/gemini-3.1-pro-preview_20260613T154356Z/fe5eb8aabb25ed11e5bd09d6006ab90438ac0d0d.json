@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nparticipant \"Line of Business\" as LOB\nparticipant ESB\n\nbox \"Compliance IT\" #LightGreen\nparticipant Scoring\nparticipant Recertification\nend box\n\ngroup Customer On-Boarding: Open a New Account\n    LOB -> ESB : UpdatePartyKYC\\nincludeScore=true\n    alt Recertification completed\n        LOB -> ESB : UpdatePartyKYC\\nincludeScore=true\\nrecertificationStatus=completed\\nactor=<userid>\\nreason=<one of client-initiated trigger codes>\n    end\nend\n\nESB -> Scoring : 1 score\nnote left\nSchedule a new recertification and calculate its due date\nOR retrieve due date of an existing recertification if\none has been previously scheduled and not yet\ncompleted or cancelled\nend note\n\nScoring -> Recertification : 2 recertify\nactivate Recertification\n\nRecertification -> Recertification : 3 evaluate rules\n\ngroup Recertification\n    alt Recertification is Needed\n        group Establish a Recertification\n            Recertification -> Recertification : 4 schedule a new recertification\n            alt Existing Recertification\n                Recertification -> Recertification : retrieve a previously\\n5 scheduled recertification\\nthat hasn't been completed or cancelled\n            end\n        end\n        alt Complete a Recertification\n            Recertification -> Recertification : 6 complete an established recertification\n            note right\n            Immediately complete the\n            recertification if the LOB\n            told us it was already done\n            end note\n        end\n        Recertification --> Scoring : 7 recertification details\n        note left: Due date, status, recert id\n        Scoring --> LOB : 8 score + recertification\n    end\n    alt Recertification is Not Needed\n        Recertification --> Scoring : 9 no recertification\n        Scoring --> LOB : 10 score\n    end\nend\ndeactivate Recertification\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHp+Wvq68YW24HVwAqhJCSrGgS9B6pcaTGwALK4gWbFtXM41VBWi7vLzWZOIMi"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1172,
+    "candidatesTokenCount": 447,
+    "totalTokenCount": 1619,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1092
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "jWIxavSaDJbaxs0P8tyDkAo"
+}

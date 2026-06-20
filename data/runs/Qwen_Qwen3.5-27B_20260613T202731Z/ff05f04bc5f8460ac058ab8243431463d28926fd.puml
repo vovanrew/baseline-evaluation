@@ -1,0 +1,32 @@
+```plantuml
+@startuml
+autonumber
+
+participant "beerocks_cli" as beerocks_cli
+participant "bml_internal" as bml_internal
+participant "controller" as controller
+participant "controller_db" as controller_db
+
+activate beerocks_cli
+note left of beerocks_cli: beerocks_cli -c\n"bml_clear_wifi_credentials <al-mac>"
+beerocks_cli -> beerocks_cli : cli_bml::clear_wifi_credentials_caller(args)
+beerocks_cli --> beerocks_cli
+beerocks_cli -> beerocks_cli : cli_bml::clear_wifi_credentials(\nargs.stringArgs[0])
+beerocks_cli --> beerocks_cli
+beerocks_cli -> beerocks_cli : bml_clear_wifi_credentials(\nctx,\nal-mac.c_str())
+beerocks_cli --> beerocks_cli
+beerocks_cli -> bml_internal : clear_wifi_credentials(\nconst sMacAddr &al_mac)
+activate bml_internal
+bml_internal -> controller : message_com::send_cmdu(\nm_sockMaster,\nACTION_BML_WIFI_CREDENTIALS_CLEAR_REQUEST)
+activate controller
+controller -> controller_db : clear_bss_info_configuration(\nconst sMacAddr &al_mac)
+activate controller_db
+controller_db --> controller
+deactivate controller_db
+controller --> bml_internal : message_com::send_cmdu(\nm_sockMaster,\nACTION_BML_WIFI_CREDENTIALS_CLEAR_RESPONSE)
+deactivate controller
+deactivate bml_internal
+deactivate beerocks_cli
+
+@enduml
+```

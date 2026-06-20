@@ -1,0 +1,64 @@
+@startuml
+left to right direction
+actor "Operator" as Operator
+participant "«Boundary» MakerUI" as MakerUI
+participant "«Control» Maker" as Maker
+participant "«Entity» Request" as Request
+participant "«Entity» Passport" as Passport
+
+Operator -> MakerUI: 1: Login
+activate MakerUI
+MakerUI -> MakerUI: 1.1: Render
+deactivate MakerUI
+
+MakerUI -> Maker: 1.2: Pass Credentials
+activate Maker
+Maker -> Maker: 1.2.1: Evaluate
+deactivate Maker
+
+alt [user exists]
+  Maker -> Request: 1.2.2.1: getRequest()
+  activate Request
+  Request -> Maker: 1.2.2.2: Got requests
+  deactivate Request
+
+  Maker -> MakerUI: 1.3: Return requests
+  deactivate Maker
+  MakerUI -> Operator: 2: Render requests
+  deactivate MakerUI
+else [login invalid]
+  Maker -> MakerUI: 1.3: Login invalid
+  deactivate Maker
+  MakerUI -> Operator: 2: Print "Invalid login"
+  deactivate MakerUI
+  Operator -> Operator: <<cancel>>
+end
+
+loop [n times]
+  alt [do Print Passport]
+    Operator -> MakerUI: 3: Print passport
+    activate MakerUI
+    MakerUI -> Maker: 3.1: Print passport
+    activate Maker
+    ref Print passport
+    Maker -> MakerUI: Printer State
+    deactivate Maker
+    MakerUI -> Operator: Printed
+    deactivate MakerUI
+  else [do Edit Passport]
+    Operator -> MakerUI: 3: Edit Passport
+    activate MakerUI
+    MakerUI -> Maker: 3.1: Get passport data
+    activate Maker
+    Maker -> Passport: 3.1.1: getPassport()
+    activate Passport
+    Passport -> Maker: 3.1.2: Passport
+    deactivate Passport
+    Maker -> MakerUI: 3.2: Edit Passport
+    deactivate Maker
+    MakerUI -> Operator: 4: Password edited
+    deactivate MakerUI
+  end
+end
+
+@enduml

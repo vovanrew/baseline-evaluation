@@ -1,0 +1,21 @@
+{
+  "id": "msg_012uwPiBaJGcrgVMaPqMgiQm",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor sdx_downstream\nactor downstream_quarantine\nparticipant Downstream\nparticipant Store\nparticipant TransformCS\nparticipant Sequence\ndatabase Postgres\nparticipant FTP #lightgreen\n\nsdx_downstream -> Downstream : Consume tx_id\n\nDownstream -> Store : GET /responses/{tx_id}\nStore --> Downstream : return response json\n\nbreak [error]\n    Downstream ..> downstream_quarantine\nend\n\nDownstream -> Sequence : GET /sequence\nSequence -> Postgres\nPostgres --> Sequence\nSequence --> Downstream : return number\n\nbreak [error]\n    Downstream ..> downstream_quarantine\nend\n\nalt [common-software]\n    Downstream -> TransformCS : POST /common-software/{sequence_no}\nelse [cora]\n    Downstream -> TransformCS : POST /cora/{sequence_no}\nelse [cord]\n    Downstream -> TransformCS : POST /cord/{sequence_no}\nend\n\nTransformCS -> Postgres : GET /image-sequence?n\nPostgres --> TransformCS : return list\n\nTransformCS --> Downstream : Return Zip\n\nbreak [error]\n    Downstream ..> downstream_quarantine\nend\n\nDownstream -> Downstream : Unzip\nDownstream -> FTP : Send files\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431766,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 306,
+    "prompt_tokens": 1636,
+    "total_tokens": 1942
+  }
+}

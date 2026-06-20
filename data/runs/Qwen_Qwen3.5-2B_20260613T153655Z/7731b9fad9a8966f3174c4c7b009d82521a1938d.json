@@ -1,0 +1,22 @@
+{
+  "id": "404f10d9-f884-45a7-874d-a422ae5bd2af",
+  "object": "chat.completion",
+  "created": 1781396731,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"User\" as User\nparticipant \"JobManager\" as JobManager\nparticipant \"Nodes\" as Nodes\nparticipant \"ESDM\" as ESDM\nparticipant \"Post Processing Library\" as PostProcessingLibrary\nparticipant \"Storage\" as Storage\n\nUser -> JobManager: submit job(IN, OUT)\nJobManager -> Nodes: compute\nNodes -> ESDM: write async OUT=y\nESDM -> Storage: write snapshot (async)\nESDM -> PostProcessingLibrary: trigger post processing if region effected\nPostProcessingLibrary -> Storage: perform post processing\nPostProcessingLibrary -> ESDM: (could write result directly)\nESDM -> PostProcessingLibrary: return\nPostProcessingLibrary -> Storage: write post processing result\nNodes -> ESDM: return\nESDM -> Nodes: OUT files become visible\nStorage -> User: All OUT files become visible to subsequent users.\n\nESDM -> Nodes: read IN=x\nNodes -> Storage: return\nStorage -> ESDM: return\n\nloop multiple iterations\nESDM -> Nodes: compute\nNodes -> ESDM: write async OUT=y\nESDM -> Storage: write snapshot (async)\nESDM -> PostProcessingLibrary: trigger post processing if region effected\nPostProcessingLibrary -> Storage: perform post processing\nPostProcessingLibrary -> ESDM: (could write result directly)\nESDM -> PostProcessingLibrary: return\nPostProcessingLibrary -> Storage: write post processing result\nNodes -> ESDM: return\nESDM -> Nodes: OUT files become visible\nStorage -> User: All OUT files become visible to subsequent users.\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2301,
+    "completion_tokens": 337,
+    "total_tokens": 2638
+  }
+}

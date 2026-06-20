@@ -1,0 +1,34 @@
+```plantuml
+@startuml
+title Inhalasjonsveiledning
+
+actor Farmasøyt
+participant "Kjedesystem" as Kjedesystem
+participant "DIFA" as DIFA
+participant "HELFO" as HELFO
+
+group Dialog med Kjede Kjedesystem
+    Farmasøyt -> Kjedesystem : Velger Inhalasjonsveiledning
+    Farmasøyt <.. Kjedesystem : Redirect
+end
+
+group Dialog med DIFA
+    Farmasøyt -> DIFA : Vis Personsøk skjema
+    Farmasøyt -> DIFA : Angi person (fødselsnummer eller navn + fødselsdato)
+    Farmasøyt <.. DIFA : Vis instrukser for behandlingen
+    Farmasøyt -> DIFA : Angi informasjon om behandlingen (eks: antall repetisjoner)
+    Farmasøyt -> DIFA : Fullfør behandling
+    DIFA -> DIFA : Journalføre behandling
+    DIFA -> DIFA : Beregne refusjon og egenandel
+    DIFA -> HELFO : Refusjonskrav
+    Farmasøyt <.. DIFA : Redirect med varenummer og egenandel
+end
+
+group Dialog med Kjede Kjedesystem
+    Farmasøyt -> Kjedesystem : Legg til egenandel i handlekurv
+    Farmasøyt <-- Kjedesystem : Vis oppgjørsgrunnlag
+    Farmasøyt <-- Kjedesystem : Fullfør salg
+end
+
+@enduml
+```

@@ -1,0 +1,118 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+package UI {
+  class RegisterPharmacyUI {
+  }
+}
+
+package Controller {
+  class RegisterPharmacyController {
+    +newPharmacy(managerName,email,password, nif, name,latitude,longitude,\nstreetName,doorNumber,postalCode,locality,country)
+    +registerPharmacy()
+  }
+}
+
+package Data {
+  class DataHandler {
+    +openConnection()
+    +closeAll()
+  }
+  class PharmacyDB {
+    +PharmacyDB()
+    +registerPharmacy()
+  }
+}
+
+package Model {
+  package Service {
+    class PharmacyService {
+      +PharmacyService()
+      +addPharmacy(name, pharmacyManager,latitude,longitude,\nstreetName,doorNumber,postalCode,locality,country)
+      +registerPharmacy()
+    }
+  }
+
+  class Pharmacy {
+    -int id
+    -String name
+    -String email
+  }
+
+  class Address {
+    -String streetName
+    -String doorNumber
+    -String postalCode
+    -String locality
+    -String country
+    -float longitude
+    -float latitude
+  }
+
+  class ScooterPark {
+    -int maxSlotsNumber
+  }
+
+  class DronePark {
+    -int maxSlotsNumber
+  }
+
+  class ScooterChargingSlot {
+    -int id
+    -float outputPower
+  }
+
+  class ScooterParkingSlot {
+    -int id
+  }
+
+  class DroneChargingSlot {
+    -int id
+    -float outputPower
+  }
+
+  class DroneParkingSlot {
+    -int id
+  }
+}
+
+class DataHandler_top as "DataHandler" {
+}
+
+class PharmacyDB_top as "PharmacyDB" {
+}
+
+database Database {
+}
+
+RegisterPharmacyUI ..> RegisterPharmacyController
+RegisterPharmacyController ..> PharmacyService
+
+PharmacyService "1" -right-> "1" PharmacyDB_top : uses >
+PharmacyService "1" --> "*" Pharmacy : manages services of >
+
+Pharmacy "1" --> "1" Address : has >
+Pharmacy "1" --> "1" ScooterPark : has >
+Pharmacy "1" --> "1" DronePark : has >
+
+ScooterPark "1" --> "*" ScooterChargingSlot : has >
+ScooterPark "1" --> "*" ScooterParkingSlot : has >
+
+DronePark "1" --> "*" DroneChargingSlot : has >
+DronePark "1" --> "*" DroneParkingSlot : has >
+
+DataHandler_top <|-- PharmacyDB_top
+PharmacyDB_top --> Database : manages >
+
+Pharmacy "*" -right- "1" Database : < has registered
+Address "*" -right- "1" Database : < has registered
+ScooterPark "*" -right- "1" Database : < has registered
+DronePark "*" -right- "1" Database : < has registered
+ScooterChargingSlot "*" -right- "1" Database : < has registered
+ScooterParkingSlot "*" -right- "1" Database : < has registered
+DroneChargingSlot "*" -right- "1" Database : < has registered
+DroneParkingSlot "*" -right- "1" Database : < has registered
+
+@enduml
+```

@@ -1,0 +1,36 @@
+@startuml
+hide footbox
+skinparam sequenceParticipant underline false
+skinparam ParticipantPadding 25
+skinparam BoxPadding 10
+
+actor Administrator as Admin
+participant ":Main UI" as MainUI
+participant ":importReadingsFromFileUI" as ImportUI
+participant ":ImportReadingsFromFileController" as Controller
+participant ":ListOfGeographicArea" as GeoList
+participant "reader:XmlReader" as Reader
+
+Admin <- ImportUI : Request file path
+Admin --> ImportUI : file path
+
+ImportUI -> Controller : addReadingsToSensors(reader,path)
+activate Controller
+
+Controller -> Reader : importReadingsOfSensor(path)
+activate Reader
+Reader --> Controller : listOfReadingsDto
+deactivate Reader
+
+Controller -> GeoList : getAllSensors( )
+activate GeoList
+GeoList --> Controller : listOfAreaSensors
+deactivate GeoList
+
+Controller -> Controller : setReadingsBySensorIDescription( )
+
+Controller --> ImportUI : number of lines added
+deactivate Controller
+
+ImportUI --> Admin : number of lines added
+@enduml

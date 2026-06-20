@@ -1,0 +1,44 @@
+```plantuml
+@startuml
+title 运单推送与轨迹更新流程
+
+actor "Time" as Time
+participant "tradecenter" as TC
+participant "wms" as WMS
+boundary "合作商仓储系统" as PartnerWMS
+boundary "Aftership" as Aftership
+
+== 发货信息回传 ==
+PartnerWMS ->> WMS: [010] 回传发货信息imei运单号等
+
+== 运单生成与推送 ==
+activate WMS
+WMS ->> WMS: [020] 生成运单信息
+deactivate WMS
+
+activate Time
+Time -x> WMS: [030] 定时推送运单
+deactivate Time
+
+activate WMS
+WMS -x> Aftership: [040] 推送运单至aftership
+deactivate WMS
+
+== 轨迹信息处理 ==
+activate Aftership
+Aftership -x> WMS: [050] 推送路由轨迹信息
+deactivate Aftership
+
+activate WMS
+WMS ->> WMS: [060] 轨迹处理和封装
+WMS ->> WMS: [070] 记录运单信息更新状态
+deactivate WMS
+
+== 状态通知 ==
+alt 路由最终状态
+    WMS -x> TC: [080] 通知订单发货单的路由状态
+else 非最终状态
+end alt
+
+@enduml
+```

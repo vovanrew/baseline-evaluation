@@ -1,0 +1,50 @@
+```plantuml
+@startuml
+
+interface Account <<I>> {
+    {abstract} applyMonthlyChange()
+}
+
+class CreditAccount <<C>> {
+    ...someAttribute
+    applyMonthlyInterest()
+    applyMonthlyChange()
+    ...someOtherMethod()
+}
+
+class DebitAccount <<C>> {
+    ...someAttribute
+    applyMonthlyInterest()
+    deactivateIfUnderBalanced()
+    applyMonthlyChange()
+    ...someOtherMethod()
+}
+
+class PayrollAccount <<C>> {
+    ...someAttribute
+    applyMonthlyChange()
+    ...someMethod()
+}
+
+class Bank <<C>> {
+    accounts:[Account]
+    applyAllMonthlyChanges()
+}
+
+CreditAccount ..|> Account
+DebitAccount ..|> Account
+PayrollAccount ..|> Account
+
+Bank o-- Account
+
+note right of Bank::applyAllMonthlyChanges
+    applyAllMonthlyChanges(){
+    ...
+        for every account a in accounts{
+            a.applyMonthlyChange
+        }
+    }
+end note
+
+@enduml
+```

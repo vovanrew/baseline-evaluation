@@ -1,0 +1,22 @@
+{
+  "id": "ab39a8af-dbfa-4966-8735-b0f6f8aceb2b",
+  "object": "chat.completion",
+  "created": 1781438113,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle OAuth2 Authorization Code Grant Workflow\\nwith SAML2 Post Binding for user provisioning\n\nskinparam componentStyle rectangle\nskinparam participant {\n  BackgroundColor<<HealthCloud>> #008000\n  BackgroundColor<<Embedded Browser>> #008000\n  BackgroundColor<<Apigee Edge>> #FFD700\n  BackgroundColor<<Orion Health Platform>> #FFD700\n}\n\nparticipant \"HealthCloud\" as HC <<HealthCloud>>\nparticipant \"Embedded Browser\" as EB <<Embedded Browser>>\nrectangle \"HealthSphere\" {\n  participant \"Apigee Edge\" as AE <<Apigee Edge>>\n  participant \"Orion Health Platform\" as OHP <<Orion Health Platform>>\n}\n\n== Initial Authorization Request ==\nEB -> AE: GET /authorize?response_type=code\nactivate AE\nAE --> EB: 302 https://<redirect_url> (SAML OR token)\ndeactivate AE\n\n== SAML Authentication Flow ==\nrectangle \"SAML Authentication\" {\n  EB -> AE: POST /oauth2/saml\n  activate AE\n  AE -> OHP: POST /login-auth/saml?path=/actor/current\n  activate OHP\n  OHP -> OHP: Verify SAMLResponse\n  OHP --> AE: \n  deactivate OHP\n  AE -> AE: Generate authorization code\n  AE --> EB: 302 https://<redirect_url>?code=<code>\n  deactivate AE\n}\n\n== Token Exchange ==\nHC -> AE: POST /token?code=<code>\nactivate AE\nAE --> HC: 200 access_token + refresh_token\ndeactivate AE\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1272,
+    "completion_tokens": 373,
+    "total_tokens": 1645
+  }
+}

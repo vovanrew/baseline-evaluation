@@ -1,0 +1,36 @@
+@startuml
+title Inhalasjonsveiledning
+
+actor "Farmasøyt" as F
+participant "Kjedesystem" as K
+participant "DIFA" as D
+participant "HELFO" as H
+
+group "Dialog med Kjede Kjedesystem"
+  F -> K : Velger Inhalasjonsveiledning
+  K --> F : Redirect
+end
+
+group "Dialog med DIFA"
+  F -> D : Vis Personsøk skjema
+  F -> D : Angi person (fødselsnummer eller navn + fødselsdato)
+  D --> F : Vis instrukser for behandlingen
+  F -> D : Angi informasjon om behandlingen (eks: antall repetisjoner)
+  F -> D : Fullfør behandling
+
+  activate D
+  D -> D : Journalføre behandling
+  D -> D : Beregne refusjon og egenandel
+  D -> H : Refusjonskrav
+  deactivate D
+
+  D --> F : Redirect med varenummer og egenandel
+end
+
+group "Dialog med Kjede Kjedesystem"
+  F -> K : Legg til egenandel i handlekurv
+  K -> F : Vis oppgjørsgrunnlag
+  K -> F : Fullfør salg
+end
+
+@enduml

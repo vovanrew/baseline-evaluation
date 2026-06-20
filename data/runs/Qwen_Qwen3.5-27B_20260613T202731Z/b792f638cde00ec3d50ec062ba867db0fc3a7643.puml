@@ -1,0 +1,36 @@
+```plantuml
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "User" as User
+rectangle "UpdateUserServlet" as Servlet
+rectangle "userDto:UserDto" as Dto
+rectangle "userDao:UserDao" as Dao
+rectangle "users" as DB
+
+User -> Servlet : 生成
+activate Servlet
+activate Dto
+Servlet -> Dto : setId(id)
+Servlet -> Dto : setUserId(user_id)
+Servlet -> Dto : setUserPass(User_password)
+Servlet -> Dto : setUserName(user_name)
+Servlet -> Dto : setAddress(address)
+Servlet -> Dto : setSubAddress(address_sub)
+Servlet -> Dto : setTel(tel)
+Servlet -> Dto : setGender(gender)
+deactivate Dto
+
+activate Dao
+Servlet -> Dao : updateUser(userDto)
+activate DB
+Dao -> DB : UPDATE文実行
+DB --> Dao : true/false
+deactivate DB
+Dao --> Servlet : true/false
+deactivate Dao
+deactivate Servlet
+
+@enduml
+```

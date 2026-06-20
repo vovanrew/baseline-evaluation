@@ -1,0 +1,27 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+participant "Администратор" as Admin
+participant "Сервис автoмасштабирования" as AutoScaleService
+participant "Платформы облачных вычислений" as CloudPlatforms
+
+== Начальная конфигурация ==
+
+Admin -> AutoScaleService : группа ВМ G, шаблон ВМ T,\nлогин L, пароль P...
+Admin -> AutoScaleService : namespace N, deployment D, kubeconfig C...
+
+== Осуществление масштабирования OpenNebula ==
+
+AutoScaleService -> CloudPlatforms : подключиться с логином L, паролем P...
+CloudPlatforms --> AutoScaleService : соединение установлено
+AutoScaleService -> CloudPlatforms : создать ВМ в группе G по шаблону T...
+
+== Осуществление масштабирования Kubernetes ==
+
+AutoScaleService -> CloudPlatforms : подключиться с kubeconfig C...
+CloudPlatforms --> AutoScaleService : соединение установлено
+AutoScaleService -> CloudPlatforms : масштабировать deployment D в namespace N на 2
+
+@enduml
+```

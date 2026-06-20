@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLhhvMLsApRiknA3SYK1lWPoTUWz",
+  "object": "chat.completion",
+  "created": 1781368857,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #000000\n  LifeLineBorderColor #808080\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #808080\n  ParticipantBackgroundColor #E6E6FA\n  BoxBorderColor #808080\n  BoxBackgroundColor #FFFFFF\n}\n\nparticipant \"InstallInstalling\" as InstallInstalling\nparticipant \"PackageInstaller\" as PackageInstaller\nparticipant \"PackageInstallerService\" as PackageInstallerService\nparticipant \"InstallingAsyncTask\" as InstallingAsyncTask\nparticipant \"PackageInstallerSession\" as PackageInstallerSession\nparticipant \"Handler\" as Handler\nparticipant \"mHandlerCallback\" as mHandlerCallback\nparticipant \"PkMS\" as PkMS\nparticipant \"PkMS.PackageHandler\" as PkMS_PackageHandler\nparticipant \"PkMS.HandlerParams\" as PkMS_HandlerParams\nparticipant \"PkMS.InstallParams\" as PkMS_InstallParams\n\nInstallInstalling -> InstallInstalling : onCreate()\nInstallInstalling -> PackageInstaller : createSession()\nPackageInstaller -> PackageInstallerService : createSession()\nPackageInstallerService --> PackageInstaller : sessionId\nPackageInstaller --> InstallInstalling : sessionId\nInstallInstalling -> InstallInstalling : onResume()\nInstallInstalling -> InstallingAsyncTask : execute()\n\nactivate InstallingAsyncTask\nInstallingAsyncTask -> InstallingAsyncTask : doInBackground()\n\nInstallingAsyncTask -> PackageInstaller : openSession(sessionId)\nPackageInstaller --> InstallingAsyncTask : Session\n\nInstallingAsyncTask -> PackageInstallerSession : openWrite()\nInstallingAsyncTask -> InstallingAsyncTask : doPostExecute()\nInstallingAsyncTask -> PackageInstallerSession : commit()\n\nPackageInstallerSession -> Handler : sendToTarget(MSG_COMMIT)\nHandler -> mHandlerCallback : handleMessage(MSG_COMMIT)\n\nmHandlerCallback -> PackageInstallerSession : handleCommit()\nPackageInstallerSession -> PackageInstallerSession : commitNonStagedLocked()\nPackageInstallerSession -> PkMS : installStage()\n\nPkMS -> PkMS_PackageHandler : sendMessage(INIT_COPY)\nPkMS_PackageHandler -> PkMS_HandlerParams : startCopy()\nPkMS_HandlerParams -> PkMS_InstallParams : handleStartCopy()\nPkMS_HandlerParams -> PkMS_InstallParams : handleReturnCode()\n\nPkMS -> PkMS : processPendingInstall()\nPkMS -> PkMS : processInstallRequestsAsync()\nPkMS -> PkMS : installPackagesTracedLI()\nPkMS -> PkMS : installPackagesLI()\nPkMS -> PkMS : preparePackageLI()\nPkMS -> PkMS : scanPackageTracedLI()\nPkMS -> PkMS : commitPackagesLocked()\nPkMS -> PkMS : commitReconciledScanResultLocked()\nPkMS -> PkMS : commitPackageSettings()\n\ndeactivate InstallingAsyncTask\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1908,
+    "completion_tokens": 579,
+    "total_tokens": 2487,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

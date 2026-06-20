@@ -1,0 +1,62 @@
+@startuml
+package model {
+    class generator {
+        class GenerateHttpTagInfo {
+            + fun generateTagInfo() : Array<TagInfo>
+            + fun generateOneTagInfo() : TagInfo()
+        }
+        class GenerateSQLiteTagInfo {
+            + fun generateTagInfo() : Array<TagInfo>
+            + fun generateOneTagInfo() : TagInfo()
+        }
+        class IGenerateTagInfo {
+            + fun generateTagInfo() : Array<TagInfo>
+            + fun generateOneTagInfo() : TagInfo()
+        }
+    }
+
+    class converter {
+        class TagInfoConverter {
+            + jsonTagInfos : jsonArray
+            + fun getFollowersCount() : Int
+            + fun getIconUrl() : String?
+            + fun getTagId() : String
+            + fun getItemsCount() : Int
+        }
+    }
+
+    class sqlite {
+        class SQLiteDao {
+            + fun insertTagInfo()
+            + fun selectRegesteTag()
+            + fun deleteTagInfo()
+        }
+        class TagInfoDto {
+            + followers_count : Int
+            + icon_url : String
+            + tagId : String
+            + items_count : Int
+        }
+    }
+
+    class viewModel {
+        class TagInfoListViewHolder {
+            + followersCount : Int
+            + icon : Icon
+            + tagId : String
+            + itemCount : Int
+        }
+        class TagInnfoListViewAdapter {
+            + onBindViewHolder()
+            + getItemCount() : Int
+        }
+    }
+}
+
+generator --> IGenerateTagInfo : 値を取得
+converter --> IGenerateTagInfo : 値を取得
+sqlite --> IGenerateTagInfo : 値を取得
+converter --> TagInfoDto : 設定ファイルを読み込む
+sqlite --> TagInfoDto : 値を設定
+TagInfoListViewHolder --> TagInnfoListViewAdapter : 設定を設定
+@enduml

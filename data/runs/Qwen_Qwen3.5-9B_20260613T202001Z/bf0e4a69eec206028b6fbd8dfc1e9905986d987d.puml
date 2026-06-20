@@ -1,0 +1,448 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam noteFontColor black
+skinparam noteBackgroundColor white
+skinparam noteBorderColor black
+skinparam classFontColor black
+skinparam classBackgroundColor white
+skinparam classBorderColor black
+skinparam associationFontColor black
+skinparam associationBackgroundColor white
+skinparam associationLineColor black
+skinparam relationshipFontColor black
+skinparam relationshipBackgroundColor white
+skinparam relationshipLineColor black
+skinparam extenderFontColor black
+skinparam extenderBackgroundColor white
+skinparam extenderBorderColor black
+skinparam extenderLineStyle solid
+
+class "Membre" {
+  numeroMembre : int{key}
+  nom : string
+  prenom : string
+  adresse : string
+  dateDeNaissance : date
+  tel : int(10)
+  createNumMembre()
+  membreActif()
+}
+
+class "Inscription" {
+  date : timestamp
+  montantPayé : int
+  statutInscription : {a,p}
+  fraisIns()
+  solde()
+  setMontantPayé()
+}
+
+class "Comité" {
+  nom : string {key}
+}
+
+class "Amateur" {
+}
+
+class "Professionnel" {
+}
+
+class "Activité" {
+  numéroActivité : string {key}
+  titre : string
+}
+
+class "Financement" {
+  date : timestamp
+  adresse : string
+}
+
+class "Compétition" {
+  heure : timestamp
+  adresse : string
+}
+
+class "CompétitionInterne" {
+}
+
+class "CompétitionExterne" {
+  nomClub : varchar
+  responsableClub : varchar
+  tel : int(10)
+}
+
+class "Epreuve" {
+  date : timestamp
+}
+
+class "Discipline" {
+  nom : string {key}
+}
+
+class "Spécialité" {
+  nom : string {key}
+}
+
+class "RésultatInterne" {
+  résultat : int
+}
+
+class "RésultatExterne" {
+  résultat : int
+}
+
+class "Participant" {
+  numéro : int {local key}
+  nom : string
+  prénom : string
+  createNuméro()
+}
+
+note of "Membre"
+  La méthode membreActif fonctionnera comme suit :
+  - si le membre est actif en tant que professionnel, alors la méthode retournera "p" ;
+  - si le membre est actif en tant qu'amateur, alors la méthode retournera "a" ;
+  - sinon, si le membre n'est pas actif, la méthode retournera NULL.
+  
+  Un membre est considéré comme actif s'il existe une inscription datant de moins d'un an rattachée à ce membre, et pour laquelle Inscription.solde = 0.
+end note
+
+note of "Comité"
+  Sauf indication contraire, les héritages de cette MLD sont exclusifs, et les attributs doivent tous être non nuls.
+end note
+
+note of "Amateur"
+  L'héritage n'est pas exclusif, un membre ayant pu être professionnel par le passé peut ensuite être amateur, et vice-versa.
+end note
+
+note of "Epreuve"
+  Si l'épreuve est externe, alors elle est composée de participants ; si elle est interne, elle est composée de membres du club.
+end note
+
+note of "Professionnel"
+  Un professionnel ne peut s'inscrire à une épreuve que s'il est inscrit à la spécialité de cette épreuve.
+end note
+
+"Membre" --|> "Amateur"
+"Membre" --|> "Professionnel"
+"Membre" --|> "Comité"
+"Membre" -- "Inscription" : 11..*
+"Inscription" -- "Membre" : correspond à
+"Comité" -- "Activité" : organise
+"Activité" --|> "Financement"
+"Activité" --|> "Compétition"
+"Compétition" --|> "CompétitionInterne"
+"Compétition" --|> "CompétitionExterne"
+"Compétition" -- "Participant" : 1..*
+"Participant" -- "Epreuve" : participe
+"Epreuve" -- "Discipline" : 1..*
+"Epreuve" -- "Spécialité" : 1
+"Spécialité" -- "Discipline" : 1..*
+"Epreuve" -- "RésultatInterne" : *
+"Epreuve" -- "RésultatExterne" : *
+"Epreuve" -- "Participant" : 1..*
+"Participant" -- "CompétitionExterne" : 1..*
+"CompétitionExterne" -- "Participant" : 1..*
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *
+"Compétition" -- "Activité" : *
+"Compétition" -- "Financement" : *
+"Compétition" -- "CompétitionInterne" : *
+"Compétition" -- "CompétitionExterne" : *
+"Compétition" -- "Participant" : 1..*
+"Compétition" -- "Epreuve" : *

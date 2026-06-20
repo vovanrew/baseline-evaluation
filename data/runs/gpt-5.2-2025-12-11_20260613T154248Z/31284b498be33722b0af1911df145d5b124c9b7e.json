@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLjS87Vn15tw1P4OSXdachDBC3wx",
+  "object": "chat.completion",
+  "created": 1781368966,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Gestion de la cin\u00e9matique de connexion et de navigation entre les applications\n\nactor User\nparticipant Portal\nparticipant \"IAM Cognito\" as Cognito\nparticipant SSO\nparticipant \"Manager Backend\" as Manager\nparticipant \"Reality Backend\" as RBackend\nparticipant \"Reality Frontend\" as RFrontend\n\n== \"S'inscrire\" ==\nnote over SSO,Manager\nQuestion:\nValidation de l'utilisateur dans la plateforme Cognito cr\u00e9\u00e9 par l'administrateur ?\nR\u00e9ponse:\nD\u00e9sactiv\u00e9 dans Cognito, la validation de l'utilisateur par l'administrateur\nend note\n\nPortal -> Portal : S'enregistrer sur la plateforme\n\ngroup \"Cr\u00e9ation de l'utilisateur\"\nSSO -> SSO : Remplir le formulaire\nnote right of SSO\nemail\nnom, pr\u00e9nom\nend note\nSSO -> Manager : Cr\u00e9er l'utilisateur\nManager -> Manager : Enregistre l'utilisateur\\ndans la base de donn\u00e9es\nManager -> Cognito : Enregistre l'utilisateur\\nCognito avec un mot\\nde passe temporaire\nCognito --> Manager : ok\n\nalt [success]\nManager --> SSO : Retour de l'id de l'utilisateur\nnote right of SSO\nSuggestion:\nEmail de confirmation ?\nChanger le mot de passe lors de sa premi\u00e8re connexion\nend note\nelse [failure]\nManager --> SSO : Retour de l'erreur\nnote right of SSO\n- utilisateur existe d\u00e9j\u00e0\n- formulaire non valide\nend note\nend\nend\n\n== \"Login cognito\" ==\nPortal -> Portal : Se connecte\nPortal -> SSO : est redirig\u00e9 vers le SSO\nSSO -> SSO : Redirection\nSSO -> Cognito : est redirig\u00e9 via Passport\nCognito -> Cognito : Redirection\nCognito -> Cognito : Page d'authentification\nPortal -> Cognito : Saisi ses identifiants\n\nalt [success]\nCognito --> SSO : Utilisateur authentifi\u00e9\\navec le token Cognito\nSSO -> SSO : Demande de d\u00e9coder\nSSO -> SSO : Decode le token Cognito (Passport.js)\\npour r\u00e9cup\u00e9rer l'email et l'identifiant\nSSO -> Manager : V\u00e9rification de l'utilisateur grace\\n\u00e0 son email et son/ses identifiant(s) (identities)\n\nalt [success]\nManager --> SSO : Utilisateur est authoris\u00e9\nSSO -> SSO : Cr\u00e9ation du token plateforme\nnote right of SSO\nemail\nfirstname\nlastname\napplication ?\nend note\nSSO -> SSO : Utiliser un token SSO au lieu du JWT\nSSO -> SSO : Stocke le token plateforme en session\\ndu navigateur\nSSO -> Manager : Stocke le token plateforme en BDD (PG)\n\nPortal <- SSO : Redirige vers l'application\\net transmet le token plateforme au frontend\nPortal -> Portal : Stocke le token sur sa session\nPortal -> Portal : Acc\u00e8de \u00e0 l'application\\navec son token plateforme\n\nnote left of Portal\nQuestion:\nDoit-on aussi envoyer le token Cognito ?\nend note\n\nSSO -> Manager : Appel Manager pour r\u00e9cup\u00e9rer les droits\\nhauts pour l'utilisateur\n\nalt [success]\nManager --> SSO : Renvoie les droits hauts (applications disponibles)\nSSO --> Portal : Renvoie la page \u00e0 l'utilisateur\nelse [failure]\nnote left of Portal\nQuestion:\nPeut-on avoir un utilisateur sans droits hauts ?\nend note\nSSO --> Portal : Retour vers la page de login du SSO\nend\n\nPortal -> Portal : Rien n'est encore affich\u00e9\nnote left of Portal\nQuestion:\nGestion des droits haut niveau de mani\u00e8re automatique ?\nend note\nPortal -> Portal : Met \u00e0 disposition les applications\\nauxquelles l'utilisateur \u00e0 acc\u00e8s\nPortal -> Portal : L'utilisateur peut naviguer\\nentre les applications\n\nelse [failure]\nManager --> SSO : Utilisateur non authoris\u00e9\nSSO --> Portal : Redirige vers la page d'accueil du portail avec un message (non authoris\u00e9, pas de droits suffisant)\nnote left of Portal\nQuestion:\nDoit-on cr\u00e9er son compte sur la plateforme ?\nend note\nend\n\nelse [failure]\nCognito --> SSO : Utilisateur non authentifi\u00e9\nSSO --> Portal : Erreur de connexion sur la page Cognito\nend\n\n== \"Naviguer entre les applications\" ==\nPortal -> Portal : Aller vers l'application\nPortal -> RFrontend : Redirection route d'authentification\nRFrontend -> SSO : Redirection vers le SSO\nSSO -> SSO : Check du token en session (navigateur)\n\nalt [success]\nSSO -> RFrontend : Redirection avec le token en query (pour le r\u00e9cup\u00e9rer avec l'URL)\nRFrontend -> RFrontend : Redirection sur le callback de login avec\\nle token en query\nRFrontend -> RFrontend : Stocke le token plateforme en local storage\nRFrontend -> RBackend : Demande de r\u00e9cup\u00e9ration des droits fins\\n de l'utilisateur (appel simple)\nRBackend -> RBackend : R\u00e9cup\u00e9ration des droits fins\\ndans sa propre BDD\nRBackend --> RFrontend : Retour des droits utilisateur\nRFrontend -> RFrontend : Stockage des droits utilisateur\\nen session\nRFrontend -> RFrontend : Redirection vers la page\\nprincipale de l'application\nelse [failure]\nnote over SSO,RBackend\nQuestion:\nla dur\u00e9e du token Cognito de l'utilisateur ?\n30 min pour le token\n\nComment faire la gestion du refresh du token ?\n- Tous les temps ?\n\nPas connect\u00e9 (token expir\u00e9 ?) ou pas autoris\u00e9\nend note\nSSO -> RFrontend : Eject de la connexion\nRFrontend --> Portal : Redirection vers la page de connexion du portail\nend\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1849,
+    "completion_tokens": 1197,
+    "total_tokens": 3046,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

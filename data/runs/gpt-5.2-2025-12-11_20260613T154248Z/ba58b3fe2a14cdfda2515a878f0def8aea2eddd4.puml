@@ -1,0 +1,62 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #DDDDDD
+  ArrowColor #000000
+  NoteBackgroundColor #FFFED6
+  NoteBorderColor #666666
+}
+
+participant "客户端" as Client
+participant "AMS" as AMS
+participant "UserControl" as UC
+
+Client -> AMS : registerUserSwitchObserver\n(IUserSwitchObserver)
+note left of Client
+注册回调接口
+end note
+
+AMS -> UC : registerUserSwitchObserver\n(IUserSwitchObserver)
+
+Client -> AMS : switchUser()
+AMS --> UC : startUser()
+
+note right of AMS
+执行切换用户动作，发送REPORT_USER_SWITCH_MSG
+end note
+
+UC -> UC : dispatchUserSwitch
+
+UC -> Client : IUserSwitchObserver.\nonUserSwitching(newUserId,callback)
+
+note left of Client
+通知客户端处理完用户切换后回调传递的callback来通知AMS
+end note
+
+Client --> UC : IRemoteCallback.sendResult()
+
+note left of Client
+等待所有客户端处理完成之后继续进行切换用户的工作
+end note
+
+UC -> UC : continueUserSwitch()
+
+note left of UC
+结束冻屏，并停止在后台的访客用户
+end note
+
+UC -> UC : dispatchUserSwitchComplete()
+
+note left of UC
+通过回调方法通知客户端进行用户切换的收尾工作
+end note
+
+UC -> Client : IUserSwitchObserver.\nonUserSwitchComplete(userId)
+
+@enduml
+```

@@ -1,0 +1,22 @@
+{
+  "id": "9c37422c-79cd-4542-bfcf-c6590602e386",
+  "object": "chat.completion",
+  "created": 1781401837,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam UMLClassDiagram fontName \"Helvetica\"\n\ntitle PB-158 UC8 SQD: Get campaigns customer is eligible for\n\nactor Next Customer\ninterface P&O (Core Next)\ninterface Core Bradesco\ndatabase P&O DB\n\nrectangle Next Platform\n    database P&O DB\n    interface P&O (Core Next)\n    interface Core Bradesco\nend rectangle\n\nrectangle Endpoint\n    title Endpoint: GET /campaigns\n    section Current implementation\n        Currently only called by system management, returns a list of all campaigns with the option to specify:\n        - NAME\n        - PARTNER_ID\n        - OFFER_ID\n    section Required implementation\n        Either through extension of existing API or new, enable the user to call the endpoint. When a user calls the endpoint return a list of campaigns that the user is eligible for. As part of the request, include an optional field for whether or not to return the offer logo.\n    section As part of the CAMPAIGN_RETRIEVAL response include:\n        - Campaign logo version number\n        - Campaign logo (optional)\n    section ENSURE BACKWARDS COMPATIBILITY IS MAINTAINED\nend rectangle\n\nrectangle filter on {NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}\n    section 1 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})\n    section 2 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})\n    section 3 Read campaigns user is eligible for\n        Note: Read P&O tables:\n        - ELLIGIBLE_USER\n        - CAMPAIGN\n    section 4 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)\nend rectangle\n\nrectangle if user has been or is eligible for at least one campaign\n    section 5 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)\nend rectangle\n\nrectangle if user is not eligible for any active campaigns\n    section 6 Return error (MESSAGE)\nend rectangle\n\nNext Customer ..> P&O (Core Next) : 1 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})\n\nNext Platform ..> P&O (Core Next) : 2 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})\n\nNext Platform ..> P&O DB : 3 Read campaigns user is eligible for\n\nNext Platform ..> P&O (Core Next) : 4 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)\n\nNext Platform ..> Next Customer : 5 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)\n\nNext Platform ..> Next Customer : 6 Return error (MESSAGE)\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1615,
+    "completion_tokens": 633,
+    "total_tokens": 2248
+  }
+}

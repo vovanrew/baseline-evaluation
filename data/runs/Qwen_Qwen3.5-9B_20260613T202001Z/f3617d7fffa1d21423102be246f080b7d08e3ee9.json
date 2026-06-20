@@ -1,0 +1,22 @@
+{
+  "id": "b66b1ba7-b5a1-4139-989f-8a4f23419664",
+  "object": "chat.completion",
+  "created": 1781412957,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nskinparam packageStyle rectangle\nskinparam actorStyle circle\nskinparam databaseStyle cylinder\n\npackage \"Kjede\" {\n  actor \"Bruker\"\n  participant \"Kjedesystem\"\n  participant \"Identity Provider\"\n}\n\npackage \"DIFA\" {\n  participant \"DifaGUI\"\n  participant \"Tilgangskontroll\"\n  database \"HPR-DB\"\n  participant \"HDIR\"\n}\n\nnote right of \"Identity Provider\" : token er en signert JSON payload\n\n\"Kjedesystem\" as kjedesystem\n\"Identity Provider\" as identityProvider\n\"DifaGUI\" as difaGUI\n\"Tilgangskontroll\" as tilgangskontroll\n\"HPR-DB\" as hprDB\n\"HDIR\" as hdir\n\n\"Bruker\" as bruker\n\nrel bruker -> kjedesystem : Velg DIFA operasjon fra meny\nrel kjedesystem --> bruker : Redirect\nrel bruker -> difaGUI : Utf\u00f8r operasjon\nrel difaGUI --> bruker : Krever p\u00e5logging \u2013 redirect\nrel bruker -> identityProvider : Logg p\u00e5\nrel identityProvider --> bruker : Access token\nrel identityProvider --> difaGUI : Access token\nrel difaGUI --> tilgangskontroll : Autoriser bruker\nrel tilgangskontroll --> identityProvider : Access token\nrel tilgangskontroll --> identityProvider : JWT\nrel tilgangskontroll --> kjedesystem : \u00abcached\u00bb Hent kjedesertifikat\nrel tilgangskontroll --> tilgangskontroll : Verifiser token signatur\nrel tilgangskontroll --> tilgangskontroll : Hent HPR nr fra token (+ roller)\nrel tilgangskontroll --> hprDB : HPR nummer\nrel hprDB --> tilgangskontroll : Autorisasjon (eks \"farmas\u00f8yt\")\nrel tilgangskontroll --> tilgangskontroll : Avgj\u00f8r tilgang\nrel tilgangskontroll --> difaGUI : utf\u00f8r operasjon\nrel difaGUI --> bruker : \n\nnote right of \"HPR-DB\" : Oppdatert helsepersonellregister\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2203,
+    "completion_tokens": 475,
+    "total_tokens": 2678
+  }
+}

@@ -1,0 +1,180 @@
+@startuml
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "Hugobot" {
+
+  package "time_intervals_adapter" {
+    class TimeIntervalsAdapter {
+      +max_gap
+      +connect_timestamps(df, epsilon=1)
+      +create_time_intervals(symbolic_time_series)
+    }
+  }
+
+  package "temporal_abstraction" {
+
+    interface TemporalAbstraction {
+      +discretize_property(prop, df)
+      +discretize_to_bins(datapoints, values)
+      +create_symbolic_time_series(states, time_point_series)
+      +extract_cutpoints_from_states(states)
+    }
+
+    class Gradient <<node>> {
+      +window_size
+      +states
+      +discretize_property(prop, df)
+      +gradient_window_size_states
+      +derivative(df, gradient_window_size)
+    }
+
+    class KnowledgeBased <<node>> {
+      +states
+      +discretize_property(prop, df)
+      +knowledge_based_states_prop
+    }
+
+    TemporalAbstraction <|.. Gradient
+    TemporalAbstraction <|.. KnowledgeBased
+
+    package "discretization" {
+
+      interface Discretization {
+        +n_bins
+        +generate_cutpoints(prop, df)
+        +discretize_property(prop, df)
+        +create_two_states_from_cutpoints(scores)
+      }
+
+      class Unsupervised
+      class Supervised {
+        +entity_class_relations
+      }
+
+      Discretization <|.. Unsupervised
+      Discretization <|.. Supervised
+
+      package "methods" {
+
+        class "Equal Width" {
+          +generate_cutpoints(...) : List[cutpoints]
+          +equal_width(...)
+        }
+
+        class "Equal Frequency" {
+          +generate_cutpoints(...) : List[cutpoints]
+          +equal_frequency(...)
+        }
+
+        class KMeans {
+          +generate_cutpoints(...) : List[cutpoints]
+          +kmeans_adapter(...)
+        }
+
+        class SAX {
+          +generate_cutpoints(...) : List[cutpoints]
+          +sax(...)
+        }
+
+        Unsupervised --> "Equal Width"
+        Unsupervised --> "Equal Frequency"
+        Unsupervised --> KMeans
+        Unsupervised --> SAX
+
+        package "td4c_persist" {
+
+          class Persist {
+            +persist()
+            +all_states_persistence()
+            +single_state_persistence()
+            +calc_state_probability()
+            +calc_marginal_probs()
+          }
+
+          class shared_functions {
+            +candidate_selection()
+            +generate_candidate_cutpoints()
+            +asymmetric_kullback_leibler()
+          }
+
+          interface TD4C {
+            +DDM_scoring_function(df, cutoffs, entity_class_relations)
+            +distance_measure(p, q)
+          }
+
+          class "TD4C Cosine" {
+            +distance_measure(p, q)
+          }
+          class "TD4C Kullback-Leibler" {
+            +distance_measure(p, q)
+          }
+          class "TD4C Entropy" {
+            +distance_measure(p, q)
+          }
+          class "TD4C Entropy IG" {
+            +distance_measure(p, q)
+          }
+
+          TD4C <|.. "TD4C Cosine"
+          TD4C <|.. "TD4C Kullback-Leibler"
+          TD4C <|.. "TD4C Entropy"
+          TD4C <|.. "TD4C Entropy IG"
+
+          Supervised --> Persist
+          Supervised --> shared_functions
+          Supervised --> TD4C
+        }
+      }
+
+      TemporalAbstraction --> Discretization
+    }
+  }
+
+  package "abstraction_per_property" {
+    class AbstractionPerProperty {
+      +preprocessing_params_df
+      +temporal_abstraction_params_df
+      +preprocess_per_property(dataset)
+      +temporal_abstraction_per_property(dataset, entity_class_relations=None, states=None)
+      +intervalization_per_property(symbolic_time_series)
+      +generate_abstraction_by_name(params_row)
+      +generate_abstraction_by_name(params_row, entity_class_relations=None, states=None)
+    }
+  }
+
+  package "kfold" {
+    class KFold {
+      +n_folds
+      +entity_class_relations
+      +divide_dataset(dataset)
+    }
+  }
+
+  package "preprocessing" {
+    interface Transformation {
+      +transform(dataset)
+    }
+
+    class PAA {
+      +window_size
+      +transform(dataset)
+    }
+
+    class OutliersRemover {
+      +std_coef
+      +transform(dataset)
+    }
+
+    Transformation <|.. PAA
+    Transformation <|.. OutliersRemover
+  }
+
+  TimeIntervalsAdapter --> TemporalAbstraction
+  AbstractionPerProperty --> TemporalAbstraction
+  AbstractionPerProperty --> KFold
+  AbstractionPerProperty --> Transformation
+}
+@enduml

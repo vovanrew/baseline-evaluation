@@ -1,0 +1,81 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+  FontColor Black
+}
+
+class "CheckTestUI" as CheckTestUI {
+  <<C>>
+}
+
+class "CheckTestController" as CheckTestController {
+  <<C>>
+  - TestStore testStore
+  - ClientStore clientStore
+  - AuthFacade authFacade
+  - List<Test> clientTestList
+  - Client client
+  + getClientTests()
+  + getTestReport(String idTest)
+}
+
+class "Company" as Company {
+  <<C>>
+  - TestStore testStore
+  - ClientStore clientStore
+  + getTestStore()
+  + getClientStore()
+}
+
+class "ClientStore" as ClientStore {
+  <<C>>
+  - List<Client> clientList
+  + getClientFromEmail(String email)
+}
+
+class "Client" as Client {
+  <<C>>
+  - String tin
+  + getTin()
+}
+
+class "TestStore" as TestStore {
+  <<C>>
+  - List<Test> testList
+  + getTestList()
+}
+
+class "Test" as Test {
+  <<C>>
+  - String idTest
+  - TestReport testReport
+  + getTestReport()
+}
+
+class "TestMapper" as TestMapper {
+  <<C>>
+  + toDto(testList, client)
+}
+
+class "TestDTO" as TestDTO {
+  <<C>>
+  + toDto(testList, client)
+}
+
+CheckTestUI ..> CheckTestController :
+CheckTestController ..> Company :
+Company "1" *-- "*" ClientStore : uses
+Company "1" *-- "*" TestStore : uses
+ClientStore "1" *-- "*" Client : knows
+TestStore "1" *-- "*" Test : knows
+CheckTestController ..> ClientStore :
+CheckTestController ..> TestStore :
+CheckTestController ..> TestMapper :
+CheckTestController ..> TestDTO :
+TestMapper ..> TestDTO :
+
+@enduml

@@ -1,0 +1,23 @@
+@startuml
+left to right direction
+actor "did:...:GS1" as GS1
+actor "did:...:Manufacturer" as Manufacturer
+
+rectangle "Ausstellungsprozess der GCP" {
+  GS1 -> Manufacturer: GCP Anfrage
+  Manufacturer -> GS1: Berechtigung Prüfen
+  GS1 -> Manufacturer: ISSUE
+  note right of GS1: GCP Credential\ngcp: 4047111
+  Manufacturer -> Manufacturer: ISSUE
+  note right of Manufacturer: Party GLN Credential\nurn:epc:id:pgln:4047111.00000
+}
+
+rectangle "Ausstellungsprozess zertifizierter Stammdaten" {
+  GS1 -> Manufacturer: PRESENT GCP
+  Manufacturer -> GS1: Anfrage + Nachweis der Stammdaten
+  note right of GS1: Prüfung der Stammdaten basierend auf\nDokumenten oder eigener Recherche
+  GS1 -> Manufacturer: ISSUE
+  note right of Manufacturer: Stammdaten Credential (e.g.)\nname: European EPC Competence Center,\nlegal_form: GmbH,\ntrade_register_number: Köln HBR 61026,\n...
+}
+
+@enduml

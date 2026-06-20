@@ -1,0 +1,21 @@
+{
+  "id": "msg_01XcyiAW1Hvard8ArKFayVcq",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nbox \"RTP\"\nparticipant RtpSenderEgress\nparticipant ModuleRtpRtcpImpl\nparticipant PacketRouter\nparticipant ProcessThreadImpl\nparticipant PacingController\nparticipant PacedSender\nparticipant RTPSender\nparticipant RTPSenderAudio\nend box\n\nbox \"Call\"\nparticipant AudioCodingModuleImpl\nparticipant ChannelReceive\nparticipant ChannelSend\nparticipant AcmReceiver\nend box\n\nbox \"NetEq\"\nparticipant AudioSendStream\nparticipant AudioMixerImpl\nparticipant AudioTransportImpl\nend box\n\nbox \"Audio\"\nparticipant AudioDeviceBuffer\nparticipant AudioTrackJni\nparticipant AudioRecordJni\nend box\n\nAudioRecordJni -> AudioRecordJni : DataIsRecorded()\nAudioRecordJni -> AudioTrackJni : DeliverRecordedData()\nAudioTrackJni -> AudioDeviceBuffer : RecordedDataIsAvailable()\nAudioDeviceBuffer -> AudioTransportImpl : SendAudioData()\nAudioTransportImpl -> AudioSendStream : ProcessAndEncodeAudio()\nAudioSendStream -> AudioCodingModuleImpl : Add10MsData()\nAudioCodingModuleImpl -> AudioCodingModuleImpl : Encode()\nAudioCodingModuleImpl -> ChannelReceive : SendData()\nChannelReceive -> ChannelSend : SendRtpAudio()\nChannelSend -> RTPSenderAudio : SendAudio()\nRTPSenderAudio -> RTPSender : SendToNetwork()\nRTPSender -> PacedSender : EnqueuePackets()\nProcessThreadImpl -> ProcessThreadImpl : Process()\nProcessThreadImpl -> PacingController : Process()\nPacingController -> PacingController : ProcessPackets()\nPacingController -> PacingController : SendRtpPacket()\nPacingController -> PacketRouter : SendPacket()\nPacketRouter -> ModuleRtpRtcpImpl : TrySendPacket()\nModuleRtpRtcpImpl -> RtpSenderEgress : SendPacket()\nRtpSenderEgress -> RtpSenderEgress : SendPacketToNetwork()\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431776,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 550,
+    "prompt_tokens": 992,
+    "total_tokens": 1542
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLbSARmJaX2kO7EICCKcCHmMBp6l",
+  "object": "chat.completion",
+  "created": 1781368470,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam backgroundColor white\nskinparam sequence {\n  ParticipantPadding 40\n  BoxPadding 20\n  LifeLineBorderColor #666666\n  LifeLineBorderThickness 1\n  LifeLineBackgroundColor transparent\n  ActorBorderColor #666666\n  ActorFontColor black\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #E6E6F2\n  BoxBorderColor #666666\n  BoxFontColor black\n  BoxBackgroundColor #9ACD32\n  ArrowColor black\n  MessageAlign left\n}\nhide footbox\n\nactor Service as S\nparticipant \"Access token guard\" as G\n\nbox \"Auth microservice\" #9ACD32\n  participant \"Session module\" as SM\n  participant \"Auth module\" as AM\nend box\n\nS -> G : request\n\nactivate G\nG -> G : get headers\nG -> G : check authentication header existence\n\nalt [Authentication header is undefined]\n  G --> S : 401\nend\n\nG -> G : get access token from header\nG -> AM : validate access token\nAM --> G : result of validation\n\nalt [Access token is Invalid]\n  G --> S : 401\nend\n\nG -> AM : get embedded client id from access token\nAM -> AM : extract id\n\nalt [Client id is missing]\n  AM --> G : error\n  G --> S : 401\nend\n\nAM --> G : client id\nG -> G : modify request with client id\nG --> S : modified request\ndeactivate G\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2346,
+    "completion_tokens": 331,
+    "total_tokens": 2677,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

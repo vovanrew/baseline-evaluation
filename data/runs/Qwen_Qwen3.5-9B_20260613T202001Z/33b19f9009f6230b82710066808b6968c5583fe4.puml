@@ -1,0 +1,49 @@
+@startuml
+!theme base
+
+package "common" as common {
+  package "domain" as domain {
+    package "repository" as repository {
+      interface FeatureConfigRepository {
+        + fetch(): Future<FeatureConfig>
+      }
+    }
+
+    package "entities" as entities {
+      class FeatureConfig {
+        - isPasswordSignInOptionEnabled: bool
+        - isDebugMenuEnabled: bool
+      }
+    }
+
+    package "usecases" as usecases {
+      class FetchFeatureConfigUseCase {
+        + call(params: FeatureConfigParam): Future<FeatureConfig>
+      }
+    }
+
+    package "parameters" as parameters {
+      class FeatureConfigParam {
+        - isPasswordSignInOptionEnabled: bool
+        - isDebugMenuEnabled: bool
+      }
+    }
+  }
+}
+
+package "base" as base {
+  package "domain" as base_domain {
+    package "usecases" as base_usecases {
+      interface UseCase {
+        + call(): Type
+      }
+    }
+  }
+}
+
+FeatureConfigRepository <|-- FetchFeatureConfigUseCase : uses
+FeatureConfigRepository <|-- FeatureConfig : uses
+FetchFeatureConfigUseCase ..> UseCase : Type, Params
+FeatureConfigParam ..> FetchFeatureConfigUseCase : uses
+
+@enduml

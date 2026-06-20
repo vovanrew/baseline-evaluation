@@ -1,0 +1,21 @@
+{
+  "id": "msg_01RqFmMKj5BRJCxiC67JoC6p",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant arm_io_storage\nparticipant io_storage\nparticipant io_fip\nparticipant io_memmap\n\narm_io_storage -> arm_io_storage : arm_io_setup()\n\nbox \"io dev registration\"\n  arm_io_storage -> io_fip : register_io_dev_fip(&fip_dev_con)\n  io_fip -> io_storage : io_register_device(&dev_info_pool[])\n  note over io_storage : devices[dev_count] = (fip_)dev_info_pool\\ndev_count++\n\n  arm_io_storage -> io_memmap : register_io_dev_memmap(&memmap_dev_con)\n  io_memmap -> io_storage : io_register_device(&memmap_dev_info)\n  note over io_storage : devices[dev_count] = memmap_dev_info\\ndev_count++\n\n  arm_io_storage -> io_storage : io_dev_open(fip_dev_con, NULL, fip_dev_handle)\n  io_storage -> io_storage : dev_open(dev_con, dev_spec, handle)\n\n  opt [dev_open() on fip device]\n    io_storage -> io_fip : fip_dev_open(dev_spec, dev_info)\n    note over io_fip : dev_info = one of the\\n\"fip_dev_info\" from\\ndev_info_pool[]\n  end\n\n  arm_io_storage -> io_storage : io_dev_open(memmap_dev_con, NULL, memmap_dev_handle)\n  io_storage -> io_storage : dev_open(dev_con, dev_spec, handle)\n\n  opt [dev_open() on memmap device]\n    io_storage -> io_memmap : memmap_dev_open(dev_spec, dev_info)\n    note over io_memmap : dev_info = memmap_dev_info\n  end\nend box\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371896,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 483,
+    "prompt_tokens": 1660,
+    "total_tokens": 2143
+  }
+}

@@ -1,0 +1,52 @@
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 25
+skinparam BoxPadding 10
+
+actor Administrator
+
+participant ":SpecifyNewVaccineUI" as UI
+participant ":SpecifyNewVaccineController" as C
+participant ":Company" as Company
+participant ":VaccineStore" as Store
+participant "v:Vaccine" as V
+participant "admPro:AdministrationProcess" as AdmPro
+participant ":VaccineTypeStore" as VTS
+participant ":VaccineType" as VT
+
+Administrator -> UI : 1 starts specifying a new vaccine and its administration process
+UI -> UI : 2 createVaccine()
+UI -> C : 3 typeList = getVaccineTypeList()
+C -> Company : 4 getVaccineTypeList()
+
+loop for all known vaccineTypes
+  Company -> VTS : 5 v:VaccineType(code,name)
+  VTS -> VT : 6 v:VaccineType(code,name)
+end
+
+UI -> Administrator : 6 requests data (name, manufacturer, type, age groups,doses,elapsing interval, dosage and show vaccineType list)
+Administrator -> UI : 7 types requested data
+
+UI -> UI : 8 createVaccine(id,name,manufacturer,type,administrationProcess)
+UI -> C : 9 createVaccine(id,name,manufacturer,type,administrationProcess)
+C -> Company : 10 createVaccine(id,name,manufacturer,type,administrationProcess)
+Company -> Store : 11 v = createVaccine(id,name,manufacturer,type,administrationProcess)
+
+loop for all age groups
+  Store -> V : 12 administrationProcess(minAge,maxAge,numberOfDoses,dosage,timeElapsed)
+  V -> AdmPro : 13 validateVaccine()
+end
+
+Store -> Store : 14 validateVaccine()
+
+UI -> Administrator : 15 shows data and request confirmation
+Administrator -> UI : 16 confirms data
+
+UI -> UI : 17 saveVaccine()
+UI -> C : 18 saveVaccine()
+C -> Company : 19 saveVaccine()
+Company -> Store : 20 addVaccine(v)
+
+UI -> Administrator : 21 informs operation (in)success
+@enduml

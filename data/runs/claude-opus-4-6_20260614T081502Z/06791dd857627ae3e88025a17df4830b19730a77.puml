@@ -1,0 +1,42 @@
+```plantuml
+@startuml
+
+actor User
+participant Frontend
+participant "API Gateway" as APIGateway
+
+box "Matching Service" #LightGray
+participant Controller
+participant Service
+end box
+
+box "Matching Database" #LightGray
+participant Questions
+participant MatchRequests
+end box
+
+User -> Frontend : PUT /api/find/match\npayload: {requestId}
+Frontend -> APIGateway : PUT /api/find/match\npayload: {requestId}
+APIGateway -> Controller : PUT /api/find/match\npayload: {requestId}
+Controller -> Service : checkForMatch(requestId)
+
+Service -> MatchRequests : find user's MatchRequest with requestId
+MatchRequests --> Service : user's MatchRequest
+
+Service -> MatchRequests : find another MatchRequest
+MatchRequests --> Service : another MatchRequest
+
+Service -> Questions : get a random question
+Questions --> Service : Question
+
+Service -> Service : create sessionInfo and attach to each MatchRequest
+
+Service -> MatchRequests : update the 2 MatchRequests
+
+Service --> Controller : user's MatchRequest
+Controller --> APIGateway : 200 OK\npayload: {user's MatchRequest}
+APIGateway --> Frontend : 200 OK\npayload: {user's MatchRequest}
+Frontend -> Frontend : switch to session page
+
+@enduml
+```

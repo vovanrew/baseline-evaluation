@@ -1,0 +1,71 @@
+```plantuml
+@startuml
+title US029 - As Project Manager, I want to start a sprint.
+
+actor "Project Manager" as PM
+
+participant ": StartSprintRoute" as Route
+participant ": StartSprintController" as Controller
+participant ": StartSprintService" as Service
+participant "dto : SprintDTO" as DTO
+participant ": Project" as Project
+participant ": SprintDomainService" as Domain
+participant ": SprintStore" as SprintStore
+participant ": ResourceStore" as ResourceStore
+
+PM -> Route : Asks to start a Sprint
+activate Route
+Route -> Controller : startSprint(sprintDTO)
+activate Controller
+Controller -> Service : startSprint(sprintDTO)
+activate Service
+
+Service -> Project : getProjectTeam()
+activate Project
+Project --> Service : projectTeam
+deactivate Project
+
+Service -> Project : getSprintDuration()
+activate Project
+Project --> Service : sprintDuration
+deactivate Project
+
+Service -> SprintStore : startSprint(dto.projectID, dto.sprintID, dto.startDate,\nprojectTeam, sprintDuration)
+activate SprintStore
+
+SprintStore -> ResourceStore : findAllSprintByProjectID (projectID)
+activate ResourceStore
+deactivate ResourceStore
+
+SprintStore -> ResourceStore : findSprintByID (sprintID)
+activate ResourceStore
+deactivate ResourceStore
+
+SprintStore -> Domain : validateStartDate(startDate)
+activate Domain
+Domain --> SprintStore : true
+
+SprintStore -> Domain : validateProjectTeam(startDate, sprintDuration)
+
+Domain -> Domain : getProductOwnerByStartDate(startDate, sprintDuration)
+Domain -> Domain : getScrumMasterByStartDate(startDate, sprintDuration)
+
+Domain --> SprintStore : true
+deactivate Domain
+
+SprintStore -> SprintStore : setStartDate(startDate)
+
+SprintStore --> Service : true
+deactivate SprintStore
+
+Service --> Controller : true
+deactivate Service
+
+Controller --> Route : true
+deactivate Controller
+
+Route --> PM : Informs Operation Success
+deactivate Route
+
+@enduml
+```

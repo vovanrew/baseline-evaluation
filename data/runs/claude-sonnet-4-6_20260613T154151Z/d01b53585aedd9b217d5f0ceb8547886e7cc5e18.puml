@@ -1,0 +1,70 @@
+@startuml
+title RqP – Request Resource
+
+actor "Requesting Party\n(RqP)" as RqP
+
+box "Client Application (CA)\n«Custom Application»" #lightgreen
+participant "User Interface" as UI
+end box
+
+box "Resource Server (RS)\n«Custom Application»" #moccasin
+participant "REST API" as RS_API
+database "Resource" as Resource
+database "Credential" as Credential
+end box
+
+box "Authorization Server (AS)\nForgeRock Access Manager" #moccasin
+participant "AM API" as AM_API
+participant "UMA API" as UMA_API
+participant "OAuth API" as OAuth_API
+end box
+
+box "Content Server (CS)\n«Custom Application»" #lightcyan
+participant "REST API" as CS_API
+database "Data" as Data
+end box
+
+RqP -> AM_API : Authenticate
+AM_API --> RqP : Authenticated
+
+RqP -> UI : Access Interface
+UI -> UI : Obtain Resource Id\n(maybe from Discover Resources)
+
+UI -> RS_API : GET /share/resources/{resourceId}\nscopes (no valid RPT)
+
+RS_API -> Resource : Get _id
+Resource --> RS_API : meta data
+
+RS_API -> Credential : Get PAT
+Credential --> RS_API : PAT
+
+note over RS_API : Get permission ticket for the\nresource and scope
+
+RS_API -> UMA_API : POST /am/uma/permission_request\nresource_id + scopes
+UMA_API --> RS_API : permission ticket
+
+RS_API --> UI : permission ticket + AS URI
+
+UI -> Credential : Get client auth basic
+Credential --> UI
+
+note over RqP : Get claim token for the\nRequesting Party (RqP)
+
+UI -> OAuth_API : POST /am/oauth2/access_token\nscope=openid\nSSO session
+OAuth_API -> AM_API : Validate SSO session
+AM_API --> OAuth_API
+OAuth_API --> UI : claim token
+
+note over RqP : Get Requesting Party Token (RPT)\nusing the permission ticket\nand claim token
+
+UI -> OAuth_API : POST /am/oauth2/access_token\ngrant_type=urn:ietf:params:oauth:grant-type:uma-ticket\nscope=..., ticket=..., claim_token=..., claim_token_format=...
+
+OAuth_API -> UMA_API : Check Access
+
+note over UMA_API : No Policy for RqP + Resource + scopes\nCreate Access Request for Resource Owner
+UMA_API --> OAuth_API : No Access, request Submitted
+
+OAuth_API --> UI : Error: Request Submitted
+UI --> RqP
+
+@enduml

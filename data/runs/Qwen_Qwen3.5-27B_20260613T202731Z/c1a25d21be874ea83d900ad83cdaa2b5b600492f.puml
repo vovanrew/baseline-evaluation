@@ -1,0 +1,54 @@
+```plantuml
+@startuml
+autonumber 0
+
+title Circuit Breaker Pattern
+
+participant "A" as A
+participant "CircuitBreaker" as CB
+participant "B" as B
+
+rectangle {
+    alt [no errors]
+        A -> CB: call()
+        activate CB
+        CB -> B: call()
+        activate B
+        B --> CB: response
+        deactivate B
+        CB --> A: response
+        deactivate CB
+    else [errors]
+        A -> CB: call()
+        activate CB
+        
+        loop while err_count < max_errors
+            CB -> B: call()
+            destroy B
+            
+            CB -> CB: err_count ++
+            activate CB
+            deactivate CB
+        end
+        
+        CB -> CB: sleep(timeout)
+        activate CB
+        deactivate CB
+        
+        CB -> B: call()
+        destroy B
+        
+        CB -> CB: sleep(timeout*2)
+        activate CB
+        deactivate CB
+        
+        CB -> B: call()
+        destroy B
+        
+        CB --> A: error
+        deactivate CB
+    end
+}
+
+@enduml
+```

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01CGTx372rQNeW4VGkFfYGkn",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor Service\nparticipant \"Access token guard\" as Guard\nbox \"Auth microservice\" #GreenYellow\nparticipant \"Session module\" as Session\nparticipant \"Auth module\" as Auth\nend box\n\nService -> Guard : request\nGuard -> Guard : get headers\nGuard -> Guard : check authentication header existence\n\nalt [Authentication header is undefined]\n  Guard --> Service : 401\nend\n\nGuard -> Guard : get access token from header\nGuard -> Auth : validate access token\nAuth --> Guard : result of validation\n\nalt [Access token is Invalid]\n  Guard --> Service : 401\nend\n\nGuard -> Auth : get embedded client id from access token\nAuth -> Auth : extract id\n\nalt [Client id is missing]\n  Auth --> Guard : error\n  Guard --> Service : 401\nend\n\nAuth --> Guard : client id\nGuard -> Guard : modify request with client id\nGuard --> Service : modified request\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370081,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 207,
+    "prompt_tokens": 1636,
+    "total_tokens": 1843
+  }
+}

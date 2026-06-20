@@ -1,0 +1,61 @@
+```plantuml
+@startuml
+package github {
+    package weichware10 {
+        package util {
+            package gui {
+                class AbsScene {
+                    + initialize(URL fxml) : InitResult
+                    + setMenuBar(MenuBar menuBar, Parent root) : void
+                    + start(Stage primaryStage, URL fxml, Parent root, AbsSceneController controller, String title, MenuBar menuBar, Integer width, Integer height, String icon) : InitResult
+                }
+
+                class "AbsScene$InitResult" {
+                    - Parent root
+                    - AbsSceneController controller
+                    + InitResult(Parent root, AbsSceneController controller)
+                }
+
+                class Log {
+                    - Stage logStage
+                    - Parent root
+                    - SimpleBooleanProperty visibleProperty
+                    - ObservableBooleanValue visible
+                    + start(String icon) : void
+                    + isVisible() : boolean
+                    + show() : void
+                    + hide() : void
+                    + close() : void
+                    + log(String content, String type) : void
+                }
+
+                class AbsSceneController {
+                    - ResourceBundle resources
+                    - URL location
+                    + initialize() : void
+                }
+
+                class LogController {
+                    - ResourceBundle resources
+                    - URL location
+                    - TextField logInput
+                    - TextArea logArea
+                    - Pane logPane
+                    - MenuButton logMenuButton
+                    + initialize() : void
+                    + setLogType(ActionEvent event) : void
+                    + inputKeyPress(KeyEvent event) : void
+                    + log() : void
+                }
+
+                AbsScene o-- AbsScene$InitResult
+                AbsScene <|-- Log
+                AbsScene$InitResult *-- AbsSceneController
+                AbsSceneController <|-- LogController
+                Log ..> LogController : Verbindung über Bindings
+            }
+        }
+    }
+}
+@enduml
+```

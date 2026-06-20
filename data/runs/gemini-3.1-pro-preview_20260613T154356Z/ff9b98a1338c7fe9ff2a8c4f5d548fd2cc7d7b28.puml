@@ -1,0 +1,72 @@
+```plantuml
+@startuml
+class CheckTestUI {
+}
+
+class CheckTestController {
+  - TestStore testStore
+  - ClientStore clientStore
+  - AuthFacade authFacade
+  - List<Test> clientTestList
+  - Client client
+  + getClientTests()
+  + getTestReport(String idTest)
+}
+
+class Company {
+  - TestStore testStore
+  - ClientStore clientStore
+  + getTestStore()
+  + getClientStore()
+}
+
+class TestMapper {
+  + toDto(testList, client)
+}
+
+class ClientStore {
+  - List<Client> clientList
+  + getClientFromEmail(String email)
+}
+
+class TestStore {
+  List<Test> testList
+  + getTestList()
+}
+
+class TestDTO {
+  + toDto(testList, client)
+}
+
+class Client {
+  - String tin
+  + getTin()
+}
+
+class Test {
+  - String idTest
+  - TestReport testReport
+  + getTestReport()
+}
+
+CheckTestUI ..> CheckTestController
+CheckTestUI ..> TestDTO
+
+CheckTestController ..> Company
+CheckTestController ..> ClientStore
+CheckTestController ..> TestStore
+CheckTestController ..> Test
+CheckTestController ..> TestDTO
+CheckTestController ..> TestMapper
+
+Company "1" --> "*" ClientStore : uses
+Company "1" --> "*" TestStore : uses
+
+TestMapper ..> TestDTO
+
+ClientStore "1" --> "*" Client : knows
+
+TestStore "1" --> "*" Test : knows
+
+@enduml
+```

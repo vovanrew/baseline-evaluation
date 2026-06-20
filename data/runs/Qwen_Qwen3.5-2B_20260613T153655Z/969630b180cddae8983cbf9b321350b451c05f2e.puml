@@ -1,0 +1,38 @@
+@startuml
+skinparam UMLSequenceDiagram {
+    fontName 'Courier New'
+    fontColor 'black'
+    participantStyle 'fill: #f0f0f0; stroke: #666; stroke-width: 2px'
+}
+
+participant "Skava AWS" as skava
+participant "Kafka" as kafka
+participant "YL Services" as yl
+
+subgraph "Skava AWS"
+    skava
+    participant "Skava Event Orchestration" as skava_event
+end
+
+subgraph "Kafka"
+    kafka
+    participant "Topics" as topics
+end
+
+subgraph "YL Services"
+    yl
+    participant "Order Sync Service" as order_sync
+end
+
+subgraph "Legacy DB"
+    database "Legacy DB" as legacy_db
+end
+
+skava_event ..> kafka : 1 Produce OrderReplacedCompleted Message
+kafka ..> order_sync : 2 Consume OrderReplacedCompleted Message
+order_sync ..> legacy_db : 3 Update order status in legacy db
+order_sync ..> legacy_db : 4 Response/Order ID
+order_sync ..> kafka : 5 Produce OrderReplacedCompletedProcessed Message
+kafka ..> skava_event : 6 Consume OrderReplacedCompletedProcessed Message
+
+@enduml

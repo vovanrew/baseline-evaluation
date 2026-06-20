@@ -1,0 +1,44 @@
+@startuml
+title Sequence Diagram: Internal state synchronization
+author "pw@zoi.de"
+version "0.1"
+
+participant "Sender" as Sender
+participant "IoTClient" as IoTClient
+participant "ShadowCallback" as ShadowCallback
+participant "ShadowService" as ShadowService
+
+rectangle Internal Service {
+    participant IoTClient
+    participant ShadowCallback
+}
+
+rectangle AWS Cloud {
+    participant ShadowService
+}
+
+rectangle "client connection" {
+    Sender -> IoTClient: connect()
+    IoTClient -> ShadowCallback: on_conncet_wrapper()
+    IoTClient <- ShadowCallback: subscribe("AWS Shadow Topics")
+    IoTClient -> ShadowCallback: subscribe()
+    IoTClient -> ShadowCallback: on_subscribe_wrapper()
+    IoTClient -> ShadowService: request_desired_state()
+}
+
+rectangle "state retrieval" {
+    IoTClient -> ShadowCallback: publish("myClient/shadow/get")
+    ShadowCallback -> IoTClient: on_message("myClient/shadow/get/accepted", state)
+    IoTClient -> ShadowCallback: on_message_wrapper(rawState)
+    ShadowCallback -> ShadowService: on_desired_state_change(rawState)
+}
+
+rectangle "state synchronization" {
+    IoTClient -> ShadowCallback: set_state(desiredState)
+    IoTClient -> ShadowCallback: on_set_state_wrapper()
+    ShadowCallback -> IoTClient: publish("myClient/shadow/update", reportedState)
+    ShadowCallback -> ShadowService: publish_new_state()
+    ShadowCallback -> IoTClient: publish("myClient/shadow/update", state)
+}
+
+@enduml

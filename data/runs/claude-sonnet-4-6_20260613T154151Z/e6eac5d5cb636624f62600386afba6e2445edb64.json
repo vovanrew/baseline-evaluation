@@ -1,0 +1,21 @@
+{
+  "id": "msg_01FrVk7aSbj593XK2kn5FpR6",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nclass HomeViewController <<C>> {\n  ~emailTextField : UITextField!\n  ~passwordTextField : UITextField!\n  ~displayNameTextField : UITextField!\n  --\n  -onSubmitButtonTapped(_:)\n  -attemptRegister()\n  -attemptLogin()\n}\n\nclass \"HomeViewController\" as HomeViewControllerExt <<X>> {\n  displayError(_:)\n  displayMessage(_:)\n  loginDidSucceed()\n  registerDidSucceed()\n}\nnote top of HomeViewControllerExt : \u00abextension\u00bb\n\nclass FirebaseAuthProvider <<C>> {\n  ~fbUser : User?\n  ~user : DTUser?\n  --\n  +init()\n  +signUp(email:password:displayName:)\n  +login(email:password:)\n  -setUserDisplayName(_:)\n}\n\nclass DTAuth <<C>> {\n  {static} ~user : DTUser?\n  --\n  {static} +signUp(email:password:displayName:)\n  {static} +login(email:password:)\n}\n\ninterface DTAuthDelegate <<protocol>> <<P>> {\n  +displayError(_:)\n  +displayMessage(_:)\n  +loginDidSucceed()\n  +registerDidSucceed()\n}\n\nclass \"User\" as UserExt <<X>> {\n  toDTUser()\n}\nnote top of UserExt : \u00abextension\u00bb\n\ninterface DTAbstractAuthProvider <<protocol>> <<P>> {\n  ~user : DTUser?\n  --\n  +signUp(email:password:displayName:)\n  +login(email:password:)\n}\n\nclass DTUser <<struct>> <<S>> {\n  +uid : String\n  +displayName : String\n  +email : String\n}\n\nHomeViewController --> FirebaseAuthProvider\nHomeViewController --> HomeViewControllerExt\nHomeViewController --> DTAuth : sends auth events to\n\nHomeViewControllerExt ..|> DTAuthDelegate : <<realizes>>\n\nFirebaseAuthProvider --> DTAuthDelegate : sends events\nFirebaseAuthProvider --> UserExt : converts to DTUser using\n\nDTAuth ..|> DTAbstractAuthProvider\nDTAuth \"1\" --> DTUser\nDTAbstractAuthProvider --> DTUser : 1\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781368588,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 539,
+    "prompt_tokens": 1646,
+    "total_tokens": 2185
+  }
+}

@@ -1,0 +1,34 @@
+```plantuml
+@startuml
+actor User
+participant Application
+participant "Auto SDK Engine" as Engine <<engine>> #LightSkyBlue
+participant Alexa <<avs>> #LightGreen
+
+alt "Activating Trial"
+    note over User, Application
+        clicks `Activate Trial` button
+        on screen to activate
+        trial up-sell.
+    end note
+    Application -> Engine: Publish SendConnectivityEvent message specifying **ACTIVATE_TRIAL** event
+    activate Engine #LightSkyBlue
+else "Activating Paid Plan"
+    note over User, Application
+        clicks `Activate Paid Plan` button
+        on screen to activate
+        paid plan up-sell.
+    end note
+    Application -> Engine: Publish SendConnectivityEvent message specifying **ACTIVATE_PAID_PLAN** event
+end
+
+Engine -> Alexa: InitiateDataPlanSubscription event
+
+alt "Successful in sending event to Alexa"
+    Engine -> Application: Receive SendConnectivityEventReply message with **SUCCESS** status
+else "on failure"
+    Engine -> Application: Receive SendConnectivityEventReply message with **FAIL** status
+    deactivate Engine
+end
+@enduml
+```

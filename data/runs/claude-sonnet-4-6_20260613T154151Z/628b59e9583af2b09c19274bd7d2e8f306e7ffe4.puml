@@ -1,0 +1,21 @@
+@startuml
+actor Player
+
+box "Portal Service" #LightGray
+participant "Telnet Server" as TS
+participant "Connection Manager" as CM
+participant "Middleware" as MW
+end box
+
+participant "World Service" as WS
+
+Player -> TS : 1. connects to server
+TS -> CM : 2. passes connection to manager
+activate CM
+CM -> CM : 3. calls configured OnConnect callbacks
+CM -> MW : 4. calls all Middleware OnConnect callbacks
+CM -> CM : 5. start main Connection loop
+CM -> WS : 6. initialize World session
+deactivate CM
+
+@enduml

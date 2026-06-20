@@ -1,0 +1,62 @@
+@startuml
+actor mobile
+participant "www" as www
+participant "endpoint" as endpoint
+participant "haproxy" as haproxy
+participant "ipfs" as ipfs
+participant "postgraphile" as postgraphile
+participant "CITY Custom Net" as cityCustomNet
+participant "logstash" as logstash
+participant "dApp" as dApp
+database "postgres" as postgres
+database "elastic" as elastic
+participant "prometheus" as prometheus
+participant "kibana" as kibana
+
+box "webUI"
+  participant mobile
+  participant www
+end box
+
+mobile -> www : sign & send events
+note over www : browser ext or mobile wallet
+www -> haproxy : HTTPS gateway & peer tcp/4001
+haproxy -> ipfs : /ipfs/{CID}
+haproxy -> haproxy : HTTPS (oauth by EC Address)
+note over www : User makes deposit / signs entry to trigger events.
+
+box "api - Admin/Write api"
+  participant endpoint
+end box
+
+endpoint -> ipfs : /v2 - read/write factom api
+endpoint -> ipfs : /ipfs/{CID} - readonly gateway
+endpoint -> postgraphile : /graphql - readonly graphql queries
+endpoint -> cityCustomNet : livefeed log
+endpoint -> elastic : index event logs
+endpoint -> elastic : dApp specific events
+postgraphile -> dApp : Query/Sign
+dApp -> cityCustomNet : sign and dispatch requests
+endpoint -> cityCustomNet : read/write signed factom entries
+
+box "dashboard"
+  participant logstash
+end box
+
+prometheus -> kibana : dashboard query
+prometheus -> prometheus : poll()
+dApp -> cityCustomNet : Monitor(FA2XXXXXXXXX) Balance changes
+dApp -> prometheus : HTTP GET /metrics
+endpoint -> prometheus : HTTP GET /metrics
+prometheus -> kibana : metrics_query
+dApp -> logstash : dApp specific rollup
+
+box "dApp - controller"
+  participant dApp
+end box
+
+dApp -> cityCustomNet : dispatch on-chain event
+dApp -> logstash : dApp specific logging
+dApp -> ipfs : pin entry content on IPFS
+
+@enduml

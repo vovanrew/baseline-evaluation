@@ -1,0 +1,96 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+  FontColor Black
+}
+
+class "Kategorie" {
+  id: int
+  bezeichnung: String
+}
+
+class "Hotelzimmer" {
+  nummer: int
+  personen: int
+}
+
+class "HotelzimmerKategorie" {
+  hotelzimmer: Hotelzimmer
+  kategorie: Kategorie
+}
+
+class "Buchung" {
+  hotelzimmer: Hotelzimmer
+  gast: Gast
+  anreiseDatum: LocalDate
+  abreiseDatum: LocalDate
+}
+
+class "Gast" {
+  kundenNr: int
+  name: String
+  adresse: Adresse
+}
+
+class "Mitarbeiter" {
+  svn: String
+  name: String
+  adresse: String
+}
+
+class "Betreuer" {
+  mitarbeiter: Mitarbeiter
+  fach: String
+}
+
+class "Leistungspaket" {
+  bezeichnung: String
+  preis: BigDecimal
+}
+
+class "Luxuspakketpaket" {
+  bezeichnung: String
+  leistungspaket: Leistungspaket
+}
+
+class "LeistungspaketBuchung" {
+  leistungspaket: Leistungspaket
+  buchung: Buchung
+  anzahl: int
+}
+
+class "LeistungspaketBetreuer" {
+  leistungspaket: Leistungspaket
+  betreuer: Betreuer
+}
+
+class "HotelzimmerMitarbeiter" {
+  hotelzimmer: Hotelzimmer
+  mitarbeiter: Mitarbeiter
+  mitarbeiter: Mitarbeiter
+  datum: LocalDate
+}
+
+"Kategorie" --o "HotelzimmerKategorie"
+"HotelzimmerKategorie" --o "Hotelzimmer"
+"Hotelzimmer" --o "Buchung"
+"Buchung" --o "Gast"
+"Gast" --o "Mitarbeiter"
+"Mitarbeiter" --|> "Betreuer"
+"Leistungspaket" --o "Luxuspakketpaket"
+"Leistungspaket" --o "LeistungspaketBuchung"
+"Leistungspaket" --o "LeistungspaketBetreuer"
+"LeistungspaketBuchung" --o "Buchung"
+"LeistungspaketBetreuer" --o "Betreuer"
+"Hotelzimmer" --o "HotelzimmerMitarbeiter"
+"HotelzimmerMitarbeiter" --o "Mitarbeiter"
+
+note right of "Buchung"
+ein Luxuspakketpaket hat mehrere Einträge mit der gleichen Bezeichnung
+end note
+
+@enduml

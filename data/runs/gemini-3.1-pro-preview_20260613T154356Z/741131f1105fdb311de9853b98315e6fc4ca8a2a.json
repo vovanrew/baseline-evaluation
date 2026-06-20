@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nactor Client\nparticipant RegisterClientUI\nparticipant RegisterClientController\nparticipant ApplicationPOT\nparticipant \"app\\n:ApplicationPOT\" as app\nparticipant \"clientService\\n:ClientService\" as clientService\nparticipant \"clientDB\\n:ClientDB\" as clientDB\nparticipant \"client\\n:Client\" as client\nparticipant \"user\\n:User\" as user\nparticipant EncryptPassword\nparticipant Address\nparticipant CreditCard\nparticipant EmailSender\nparticipant DataHandler\n\nactivate Client\nClient -> RegisterClientUI : 1 Engages the register feature/button\nactivate RegisterClientUI\nRegisterClientUI --> Client : 2 Asks for all the information required\\nfor the register (i.e. name,nif,email,password,latitude,longitude,altitude,\\nstreetName,doorNumber,postalCode,locality,country,creditCardNr,validityDate,\\nCCV)\nClient -> RegisterClientUI : 3 Fills all the information required\nRegisterClientUI --> Client : 4 Presents the data and asks for a confirmation\nClient -> RegisterClientUI : 5 Confirms\nRegisterClientUI -> RegisterClientController : 6 registerNewClient(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)\nactivate RegisterClientController\nRegisterClientController -> clientService ** : 7 create()\nactivate clientService\nclientService -> clientDB ** : 8 create()\nactivate clientDB\nRegisterClientController -> clientDB : 9 validateInput(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)\n\nalt if all the information given as input has a valid format\n    RegisterClientController -> clientService : 10 newClient(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)\n    clientService -> client ** : 11 create(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)\n    activate client\n    client -> user ** : 12 create(email,password,nif,name)\n    activate user\n    user -> EncryptPassword : 13 encryptPasswordMD5(password)\n    activate EncryptPassword\n    EncryptPassword --> user\n    deactivate EncryptPassword\n    deactivate user\n    client -> Address ** : 14 create(latitude,longitude,altitude,streetName,doorNumber,postalCode,locality,country)\n    client -> CreditCard ** : 15 create(creditCardNr,validityDate,CCV)\n    deactivate client\n    RegisterClientController -> clientService : 16 registerNewClient(client)\n    clientService -> clientDB : 17 addClientToDB(client)\n    activate clientDB\n    ref over clientDB : SD_CONNECTIONS\n    deactivate clientDB\n    clientService -> EmailSender : 18 sendEmail(email,subject,body)\n    activate EmailSender\n    EmailSender --> clientService\n    deactivate EmailSender\n    RegisterClientController --> RegisterClientUI : 19 Validates and informs about the success of the operation\nelse if any information does not have a valid format\n    RegisterClientController --> RegisterClientUI : 20 Informs the User that the operation\\nwas not successful\nend\n\ndeactivate RegisterClientController\ndeactivate RegisterClientUI\ndeactivate Client\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbH4yWy8tRwFdMUh2y+UmG99Sh3IYxDRHPwkJILDHOZLPc2gE62tqhTce3R9oOz"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1180,
+    "candidatesTokenCount": 817,
+    "totalTokenCount": 1997,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1100
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "8F8xaqXvJMTdxs0P8v2OkA0"
+}

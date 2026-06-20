@@ -1,0 +1,48 @@
+@startuml
+left to right direction
+actor "Team Member" as TM
+participant ":CreateTaskUI" as CTUI
+participant ":CreateTaskController" as CTC
+participant ":DataManagement" as DM
+participant "projectStore : ProjectStore" as PS
+participant "project : Project" as P
+
+TM -> CTUI: 1 Starts the Task creation in User Story
+activate CTUI
+CTUI --> TM: 2 request the project code
+TM -> CTUI: 3 Inserts the project code
+activate CTUI
+CTUI --> TM: 4 request sprint id
+TM -> CTUI: 5 Inserts the sprint id
+activate CTUI
+CTUI --> TM: 6 request user story id
+TM -> CTUI: 7 Inserts the user story id
+activate CTUI
+CTUI --> TM: 8 request the task information: name, description, type, startDate, endDate
+TM -> CTUI: 9 Inserts request the task information: name, description, type, startDate, endDate
+activate CTUI
+CTUI -> CTC: 10 createTaskInUserStory(code, sprintID, userStoryID, name, description, type, startDate, endDate)
+activate CTC
+CTC -> DM: 11 projectStore = getProjectStore()
+activate DM
+DM --> CTC: 12 projectStore
+deactivate DM
+CTC -> PS: 13 project = getProjectByCode(code)
+activate PS
+PS --> CTC: 14 project
+deactivate PS
+CTC -> P: 15 getSprintByID(sprintID)
+activate P
+P --> CTC: 16 true
+deactivate P
+CTC --> TM: 17 true
+deactivate CTC
+CTUI --> TM: 18 Task created successfully
+deactivate CTUI
+
+note right of P
+ref
+TaskCreationInUserStory
+end note
+
+@enduml

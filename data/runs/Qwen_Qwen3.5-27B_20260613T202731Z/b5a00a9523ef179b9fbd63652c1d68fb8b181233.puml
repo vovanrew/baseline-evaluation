@@ -1,0 +1,27 @@
+```plantuml
+@startuml
+title Create User Profile
+
+actor "User" as user
+participant "API Gateway" as api_gateway
+participant "Auth-Service" as auth_service
+participant "User-Service" as user_service
+
+user -> api_gateway: POST /api/users
+activate api_gateway
+
+api_gateway -> auth_service: check authorization
+activate auth_service
+auth_service --> api_gateway: http_status: 200
+deactivate auth_service
+
+api_gateway -> user_service: POST /api/users
+activate user_service
+user_service --> api_gateway: http_status: 200
+deactivate user_service
+
+api_gateway --> user: profile created..
+deactivate api_gateway
+
+@enduml
+```

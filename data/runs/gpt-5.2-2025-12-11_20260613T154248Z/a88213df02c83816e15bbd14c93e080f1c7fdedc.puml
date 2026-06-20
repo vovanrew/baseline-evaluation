@@ -1,0 +1,37 @@
+@startuml
+skinparam handwritten true
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 25
+  BoxPadding 15
+}
+
+actor User
+
+box "NSheets Client" #DDDDDD
+  boundary HomeView
+  control HomePresenter
+end box
+
+box "Server" #DDDDDD
+  control NoteServices
+  control ListNoteController
+  control NoteService
+  entity NoteRepository
+end box
+
+box "Database" #DDDDDD
+  database Database
+end box
+
+User -> HomePresenter : onReveal() / navigate to page
+HomePresenter -> NoteServices : getNotes()
+NoteServices -> ListNoteController : listNotes()
+ListNoteController -> NoteService : allNotes()
+NoteService -> NoteRepository : findAll()
+NoteRepository -> Database : fetch
+
+NoteServices --> HomePresenter : onSuccess()
+HomePresenter --> HomeView : setContents()
+
+@enduml

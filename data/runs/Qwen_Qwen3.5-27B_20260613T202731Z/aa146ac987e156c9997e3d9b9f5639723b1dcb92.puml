@@ -1,0 +1,61 @@
+```plantuml
+@startuml SignUp Flow
+
+actor "Client" as Client
+participant "Mobile" as Mobile
+participant "SMS Gateway" as SMSGateway
+participant "Push Gateway" as PushGateway
+database "DigitalDB" as DigitalDB
+participant "Keycloak + Extension" as Keycloak
+
+== Initial Sign-Up ==
+Client -> Mobile: 1 Enter PhoneNumber, Birthday
+Client -> Mobile: 2 Enter Password
+Mobile -> Keycloak: 3 POST /auth/signup (PhoneNumber, Birthday)
+activate Keycloak
+    Keycloak -> DigitalDB: 4 findClientRecord(PhoneNumber, Birthday): ClientRecord
+    activate DigitalDB
+    DigitalDB --> Keycloak: 5 ClientRecord
+    deactivate DigitalDB
+    
+    alt [ClientRecord is NOT found]
+        Keycloak --> Mobile: 6 HTTP 202
+    end
+    
+    Keycloak -> Keycloak: 7 saveInOTPContext(ClientRecord.id)
+    Keycloak -> Keycloak: 8 generateAndSaveOTP(): OTP
+    Keycloak --> Mobile: 9 HTTP 202
+    Keycloak -> SMSGateway: 10 sendSMS(phone=PhoneNumber, data=OTP)
+    activate SMSGateway
+    SMSGateway --> Mobile: 11 SMS with OTP
+    deactivate SMSGateway
+deactivate Keycloak
+
+== Preparing for Completion ==
+Mobile -> PushGateway: 12 getPushToken(): Push Token
+activate PushGateway
+PushGateway --> Mobile: 13 Push Token
+deactivate PushGateway
+Mobile -> Mobile: 14 generateKeys(): [PublicKey, PrivateKey]
+
+== Completing Sign-Up ==
+Client -> Mobile: 15 Enter OTP
+Mobile -> Keycloak: 16 POST /auth/signup/complete (OTP, Password, Push Token, PublicKey)
+activate Keycloak
+    Keycloak -> Keycloak: 17 validateOTP(OTP)
+    Keycloak -> DigitalDB: 18 updateUser(ClientId, KeycloakUserId)
+    activate DigitalDB
+    DigitalDB --> Keycloak: 19
+    deactivate DigitalDB
+    
+    Keycloak -> DigitalDB: 20 createMobileDevice(ClientId, Push Token, PublicKey)
+    activate DigitalDB
+    DigitalDB --> Keycloak: 21
+    deactivate DigitalDB
+    
+    Keycloak -> Keycloak: 22 generateJWT(scope="regular_user"): JWT
+    Keycloak --> Mobile: 23 HTTP 200 {jwt: JWT}
+deactivate Keycloak
+
+@enduml
+```

@@ -1,0 +1,39 @@
+@startuml
+actor User
+
+participant "UpdateUserServlet" as servlet
+participant "userDto:UserDto" as dto
+participant "userDao:UserDao" as dao
+participant "users" as users
+
+User -> servlet
+activate servlet
+
+servlet -> dto : 生成
+activate dto
+
+servlet -> dto : setId(id)
+servlet -> dto : setUserId(user_id)
+servlet -> dto : setUserPass(User_password)
+servlet -> dto : setUserName(user_name)
+servlet -> dto : setAddress(address)
+servlet -> dto : setSubAddress(address_sub)
+servlet -> dto : setTel(tel)
+servlet -> dto : setGender(gender)
+
+servlet -> dao : 生成
+activate dao
+
+servlet -> dao : updateUser(userDto)
+
+dao -> users : UPDATE文実行
+activate users
+users --> dao : true/false
+deactivate users
+
+dao --> servlet : true/false
+deactivate dao
+deactivate dto
+deactivate servlet
+
+@enduml

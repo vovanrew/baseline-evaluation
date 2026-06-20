@@ -1,0 +1,56 @@
+@startuml
+title Project - Staff - Update
+
+participant "Client" as Client
+participant "ProjectService" as ProjectService
+participant "RedisCache" as RedisCache
+participant "Kafka" as Kafka
+participant "PersisterService" as PersisterService
+participant "IndexerService" as IndexerService
+participant "ErrorService" as ErrorService
+participant "ElasticSearch" as Elasticsearch
+participant "Database" as Database
+
+Client ..> ProjectService : /project/staff/v1/_update
+
+alt request validation fails
+    ProjectService -> Client : Request validation failed
+    ProjectService -> Client : HttpStatus: 400 with appropriate error code
+else
+    alt record doesn't exist
+        ProjectService -> RedisCache : Search record based on serverGeneratedId
+        RedisCache -> ProjectService : 0 rows
+        ProjectService -> RedisCache : Search record based on serverGeneratedId
+        RedisCache -> ProjectService : 0 row
+        ProjectService -> Client : Error Code: RECORD_NOT_FOUND
+        ProjectService -> Client : HttpStatus: 400 with appropriate error code
+    else
+        alt record doesn't exists in cache
+            ProjectService -> RedisCache : Search record based on serverGeneratedId
+            RedisCache -> ProjectService : 0 rows
+            ProjectService -> RedisCache : Search record based on serverGeneratedId
+            RedisCache -> ProjectService : 1 row
+            ProjectService -> RedisCache : 1 record
+        else
+            alt incorrect rowVersion
+                ProjectService -> RedisCache : Compare rowVersion between request and db
+                RedisCache -> ProjectService : Incorrect rowVersion [request: should be +1 only]
+                ProjectService -> Client : Error Code: BAD_REQUEST
+                ProjectService -> Client : HttpStatus: 400 with appropriate error code
+            else
+                ProjectService -> RedisCache : Compare rowVersion between request and db
+                RedisCache -> ProjectService : rowVersion in request = rowVersion in db + 1
+                ProjectService -> RedisCache : Project Staff Data /update_topic
+                ProjectService -> Kafka : Update new record in cache against serverGeneratedId
+                ProjectService -> Client : HttpStatus: 202 ACCEPTED
+            end
+        end
+    end
+end
+
+async
+    ProjectService -> RedisCache : Consume Project Staff Data
+    RedisCache -> ProjectService : Consume Project Staff Data
+    ProjectService -> PersisterService : Store Project Staff Data
+    PersisterService -> Elasticsearch : Update Project Staff Data
+@enduml

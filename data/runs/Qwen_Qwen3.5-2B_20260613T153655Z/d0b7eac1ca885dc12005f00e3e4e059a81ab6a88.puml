@@ -1,0 +1,74 @@
+@startuml
+actor Admin as Admin
+
+interface :RemoveScooterUI as RemoveScooterUI
+
+interface :RemoveScooterScooterController as RemoveScooterScooterController
+
+interface :PharmacyService as pharmServ
+
+interface :PharmacyDB as pharmDB
+
+interface :ScooterService as scootServ
+
+interface :ScooterDB as scootDB
+
+rectangle RemoveScooterUI
+    1 Sends a request regarding the update of an electric scooter's data
+    2 showPharmacies()
+    3 create()
+    4 create()
+    5 IstPharmacies = getPharmacies()
+    6 IstPharmacies = getPharmacies()
+    7 Shows the list of pharmacies and asks to choose one
+    8 Chooses the pharmacy
+    9 showScooterList(pharmacyId)
+    10 create()
+    11 create()
+    12 IstScooters = getScootersList(pharmacyId)
+    13 IstScooters = getScootersList(pharmacyId)
+    14 Shows the list of electric scooters and asks to choose one
+    15 Chooses the electric scooter
+    16 Shows the information about the scooter, asking to update
+    17 Updates the information
+    18 updateScooter(batteryPerc, chargingStatus, potency, weight, batteryCapacity, maxPayload, pharmacyId)
+    21 Validates all the information, informing of the success of the operation
+endrectangle
+
+rectangle RemoveScooterScooterController
+    19 updateScooter(batteryPerc, chargingStatus, potency, weight, batteryCapacity, maxPayload, pharmacyId)
+    20 updateScooterFromDB(batteryPerc, chargingStatus, potency, weight, batteryCapacity, maxPayload, pharmacyId)
+endrectangle
+
+rectangle pharmServ
+endrectangle
+
+rectangle pharmDB
+endrectangle
+
+rectangle scootServ
+endrectangle
+
+rectangle scootDB
+endrectangle
+
+rectangle ref
+    SD_CONNECTIONS
+endrectangle
+
+Admin -> RemoveScooterUI: 1
+RemoveScooterUI -> RemoveScooterScooterController: 2
+RemoveScooterScooterController -> pharmServ: 3
+pharmServ -> pharmDB: 4
+pharmDB -> RemoveScooterScooterController: 5
+RemoveScooterScooterController -> pharmServ: 6
+pharmServ -> pharmDB: 6
+pharmDB -> scootServ: 11
+scootServ -> scootDB: 13
+scootDB -> RemoveScooterScooterController: 19
+RemoveScooterScooterController -> scootServ: 20
+scootServ -> scootDB: 20
+scootDB -> RemoveScooterScooterController: 21
+RemoveScooterScooterController -> Admin: 21
+
+@enduml

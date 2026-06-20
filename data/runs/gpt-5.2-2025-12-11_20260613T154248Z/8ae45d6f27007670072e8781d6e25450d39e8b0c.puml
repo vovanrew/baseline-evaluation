@@ -1,0 +1,49 @@
+@startuml
+actor PowerUser
+
+participant ":EnergyConsumptionInPeriodUI" as UI
+participant ":EnergyConsumptionInPeriodCTRL" as CTRL
+participant ":RoomList" as RoomList
+participant ":Room" as Room
+participant ":Device" as Device
+participant ":ReadConfigFile" as ReadConfigFile
+participant ":ReadingList" as ReadingList
+participant ":Reading" as Reading
+
+PowerUser -> UI : 1 Get Total Metered\nEnergy Consumption
+UI --> PowerUser : 2 Show Options: Device,Room,Grid
+PowerUser -> UI : 3 Choose Room option
+
+UI -> CTRL : 4 rLs=showRoomListInStr()
+activate CTRL
+CTRL -> RoomList : 5 rLs=showRoomListInStr()
+activate RoomList
+deactivate RoomList
+
+UI --> PowerUser : 6 Show Room List
+PowerUser -> UI : 7 Choose a Room
+UI --> PowerUser : 8 Ask for the time interval
+PowerUser -> UI : 9 Input the time interval
+
+UI -> CTRL : 10 tMe=getEnergyConsumption\nInPeriod(index, start, end)
+CTRL -> RoomList : 11 tMe=getEnergyConsumption\nInPeriod(index, start, end)
+activate Room
+RoomList -> Room : 12 tMe = getEnergyConsumption\nInPeriod(start, end)
+activate Device
+Room -> Device : 13 i=getDevicesMeteringPeriod()
+activate ReadConfigFile
+Device -> ReadConfigFile : 13 i=getDevicesMeteringPeriod()
+deactivate ReadConfigFile
+
+Device -> ReadingList : 14 tMe=getValueOfReadings\nInTimeInterval(start, end)
+activate ReadingList
+ReadingList -> Reading : 15 v=returnValueOfReading
+activate Reading
+deactivate Reading
+deactivate ReadingList
+deactivate Device
+deactivate Room
+deactivate CTRL
+
+UI --> PowerUser : 16 Show Total Metered Energy\nConsumption in the Room
+@enduml

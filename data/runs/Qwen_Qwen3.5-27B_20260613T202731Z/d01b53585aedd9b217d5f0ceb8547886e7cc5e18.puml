@@ -1,0 +1,74 @@
+```plantuml
+@startuml
+title RqP – Request Resource
+
+actor "Requesting Party\n(RqP)" as RqP
+package "Client Application (CA)\n«Custom Application»" as CA {
+    box "User Interface" as UI
+}
+package "Resource Server (RS)\n«Custom Application»" as RS {
+    box "REST API" as REST_API
+    database "Resource" as ResourceDB
+    database "Credential" as CredentialDB
+}
+package "Authorization Server (AS)\nForgeRock Access Manager" as AS {
+    box "AM API" as AM_API
+    box "UMA API" as UMA_API
+    box "OAuth API" as OAuth_API
+}
+package "Content Server (CS)\n«Custom Application»" as CS {
+    box "REST API" as CS_REST_API
+    database "Data" as DataDB
+}
+
+RqP -> AM_API: Authenticate
+activate AM_API
+AM_API --> RqP: Authenticated
+deactivate AM_API
+
+RqP -> UI: Access Interface
+activate UI
+UI -> UI: Obtain Resource Id\n(maybe from Discover Resources)
+UI -> REST_API: GET /share/resources/{resourceId}\nscopes (no valid RPT)
+activate REST_API
+REST_API -> ResourceDB: Get_id
+activate ResourceDB
+ResourceDB --> REST_API: meta data
+deactivate ResourceDB
+REST_API -> CredentialDB: Get PAT
+activate CredentialDB
+CredentialDB --> REST_API: PAT
+deactivate CredentialDB
+deactivate REST_API
+
+note right of UI: Get permission ticket for the\nresource and scope
+REST_API -> UMA_API: POST /am/uma/permission_request\nresource_id + scopes
+activate UMA_API
+UMA_API --> REST_API: permission ticket
+deactivate UMA_API
+REST_API --> UI: permission ticket + AS URI
+deactivate UI
+
+UI -> UI: Get client auth basic
+note left of UI: Get claim token for the\nRequesting Party (RqP)
+UI -> OAuth_API: POST /am/oauth2/access_token\nscope=openid\nSSO session
+activate OAuth_API
+OAuth_API -> OAuth_API: Validate SSO session
+OAuth_API --> UI: claim token
+deactivate OAuth_API
+
+note left of UI: Get Requesting Party Token (RPT)\nusing the permission ticket\nand claim token
+UI -> OAuth_API: POST /am/oauth2/access_token\ngrant_type=urn:ietf:params:oauth:grant-type:uma-ticket\nscope=..., ticket=..., claim_token=..., claim_token_format=...
+activate OAuth_API
+OAuth_API -> AM_API: Check Access
+activate AM_API
+AM_API -> AM_API: No Policy for RqP + Resource + scopes\nCreate Access Request for Resource Owner
+AM_API --> OAuth_API: No Access, request Submitted
+deactivate AM_API
+deactivate OAuth_API
+OAuth_API --> UI: Error: Request Submitted
+deactivate UI
+UI --> RqP
+
+@enduml
+```

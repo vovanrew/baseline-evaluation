@@ -1,0 +1,41 @@
+```plantuml
+@startuml
+autonumber
+
+title Test Agent
+
+participant "Agent" as agent
+participant "VirtualCoffeeMachine" as vcm
+participant "TestThing" as testthing
+
+top:wait()
+
+rectangle strict {
+  rectangle par {
+    agent -> vcm : subscribeEvent: "maintenance"
+    activate vcm
+    vcm -->> agent : confirmation
+    deactivate vcm
+    vcm -> agent : data-pushed
+  }
+  rectangle par {
+    agent -> testthing : writeProperty: "string"
+  }
+}
+
+wait 500ms
+
+rectangle strict {
+  rectangle par {
+    agent -> vcm : readProperty: "state"
+    activate vcm
+    vcm -->> agent : response
+    deactivate vcm
+  }
+  rectangle par {
+    agent -> testthing : writeProperty: "string"
+  }
+}
+
+@enduml
+```

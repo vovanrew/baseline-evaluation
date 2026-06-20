@@ -1,0 +1,42 @@
+@startuml
+skinparam sequenceDiagram
+
+participant RemoteServiceServlet as RemoteServiceServlet
+participant HttpSessionCollector as HttpSessionCollector
+participant SysLog as SysLog
+participant Validation_User as Validation_User
+
+RemoteServiceServlet->>RemoteServiceServlet: Data Request
+RemoteServiceServlet->>HttpSessionCollector: Get Session ID_client
+HttpSessionCollector-->>RemoteServiceServlet: Get Session by ID_client
+HttpSessionCollector-->>RemoteServiceServlet: Session
+
+note right of RemoteServiceServlet
+Validation Tockens
+True
+end note
+
+note right of RemoteServiceServlet
+Validation Tockens
+False
+end note
+
+note right of RemoteServiceServlet
+Access success
+end note
+
+RemoteServiceServlet->>Validation_User: Access success
+
+note right of RemoteServiceServlet
+Validation Tockens
+False
+end note
+
+note right of RemoteServiceServlet
+Tocken Failure (Name, Time)
+end note
+
+RemoteServiceServlet->>SysLog: Tocken Failure (Name, Time)
+SysLog-->>RemoteServiceServlet: Access denied
+
+@enduml

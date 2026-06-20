@@ -1,0 +1,56 @@
+```plantuml
+@startuml
+title Find all a vaccination documents in EPD
+
+actor HCP
+
+box "Community A" #LightGray
+  participant "GFPP/PIS" as GFPP #Green
+  participant "Aggregator" as AGG #Green
+  participant "CO-Registry" as COREG #Green
+  participant "CO-Repository" as COREPO #Green
+  participant "CO-IGW" as COIGW #Green
+end box
+
+box "Community X" #LightGray
+  participant "OC-RGW" as OCRGW #Cyan
+  participant "OC-Registry" as OCREG #Cyan
+  participant "OC-Repository" as OCREPO #Cyan
+end box
+
+HCP -> GFPP : [01] Get all immunization data
+GFPP -> AGG : [02] query all registries
+AGG -> COREG : [03] Registry Stored Query Request [ITI-18]
+COREG -> COREPO : [04] Registry Stored Query Request [ITI-18]
+COREPO -> COREG : [05] Lookup Data
+COREG -> AGG : [06] Registry Stored Query Response [ITI-18]
+AGG -> COIGW : [07] request all communities
+COIGW -> OCRGW : [08] Registry Stored Query Request [ITI-38]
+OCRGW -> OCREG : [09] Registry Stored Query Request [ITI-18]
+OCREG -> OCREPO : [10] Lookup Data
+OCREPO -> OCREG : [10] Lookup Data
+OCREG -> OCRGW : [11] Registry Stored Query Response [ITI-18]
+OCRGW -> COIGW : [12] Registry Stored Query Response [ITI-38]
+COIGW -> AGG : [13] end loop
+AGG -> AGG : [14] Assemble Query Responses
+AGG -> GFPP : [15] Registry Stored Query Response [ITI-18]
+GFPP -> GFPP : [16] list of document info
+GFPP -> AGG : [17] retrieve all documents
+AGG -> COREPO : [18] Retrieve Document Request [ITI-43]
+COREPO -> COREG : [19] Retrieve Document Request [ITI-43]
+COREG -> COREPO : [20] allocate document data
+COREPO -> AGG : [21] Retrieve Document Response [ITI-43]
+AGG -> COIGW : [22] Retrieve Document Request [ITI-39]
+COIGW -> OCRGW : [23] Retrieve Document Request [ITI-43]
+OCRGW -> OCREPO : [24] allocate document data
+OCREPO -> OCRGW : [24] allocate document data
+OCRGW -> COIGW : [25] Retrieve Document Response [ITI-43]
+COIGW -> AGG : [26] Retrieve Document Response [ITI-39]
+AGG -> AGG : [27] Assemble Retrieve Responses
+AGG -> GFPP : [28] Retrieve Document Response [ITI-43]
+GFPP -> AGG : [29] Aggregate documents
+AGG -> GFPP : [30] one FHIR ch-vacd document
+GFPP -> HCP : [31] Show immunization data
+
+@enduml
+```

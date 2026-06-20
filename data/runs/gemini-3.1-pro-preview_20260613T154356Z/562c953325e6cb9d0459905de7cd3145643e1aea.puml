@@ -1,0 +1,40 @@
+```plantuml
+@startuml
+actor Service
+participant "Access token guard" as Guard
+
+box "Auth microservice" #YellowGreen
+participant "Session module" as Session
+participant "Auth module" as Auth
+end box
+
+Service -> Guard : request
+Guard -> Guard : get headers
+Guard -> Guard : check authentication header existence
+
+alt Authentication header is undefined
+    Guard --> Service : 401
+end
+
+Guard -> Guard : get access token from header
+Guard -> Auth : validate access token
+Auth -> Guard : result of validation
+
+alt Access token is Invalid
+    Guard --> Service : 401
+end
+
+Guard -> Auth : get embedded client id from access token
+Auth -> Auth : extract id
+
+alt Client id is missing
+    Auth -> Guard : error
+    Guard --> Service : 401
+end
+
+Auth -> Guard : client id
+Guard -> Guard : modify request with client id
+Guard --> Service : modified request
+
+@enduml
+```

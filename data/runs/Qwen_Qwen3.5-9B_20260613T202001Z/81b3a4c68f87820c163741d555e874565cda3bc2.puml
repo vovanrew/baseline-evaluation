@@ -1,0 +1,105 @@
+@startuml
+title Authorization token with auth_code
+
+package "K8S_ZONE" as K8S_ZONE {
+  participant "bff_web_api" as bff_web_api
+  participant "authorization_api" as authorization_api
+  database "k8s_redis" as k8s_redis
+}
+
+participant "web" as web
+
+note left of web
+  Reuquest header
+  Content-Type: application/json
+  Request body
+  - auth_code: xxxxxx
+end note
+
+web -> bff_web_api: /api/v1/auth/token
+activate bff_web_api
+
+note left of bff_web_api
+  Request header
+  Content-Type: application/x-www-form-urlencoded
+  Request body
+  - auth_code
+  note:
+  - handler late limit (brute force attack)
+end note
+
+bff_web_api -> bff_web_api: validate request
+activate bff_web_api
+
+bff_web_api -> authorization_api: /api/v1/oauth/token
+activate authorization_api
+
+authorization_api -> authorization_api: validate request
+activate authorization_api
+
+authorization_api -> k8s_redis: check auth_code from k8s_redis
+activate k8s_redis
+
+note right of k8s_redis
+  Key:
+  - auth_code
+  Redis object
+  - user_id
+  - scope
+end note
+
+k8s_redis --> authorization_api: return redis object
+deactivate k8s_redis
+
+authorization_api -> authorization_api: generate JWT Token with private key
+activate authorization_api
+
+note right of authorization_api
+  Access token:
+  {
+    header
+    - alg: rsa256
+    - typ: JWT
+    payload
+    - iss
+    - jti
+    - user_id
+    - iat
+    - exp
+    - roles
+    signature
+  }
+end note
+
+authorization_api -> k8s_redis: put user session into k8s_redis
+activate k8s_redis
+
+note right of authorization_api
+  ttl: 300000 milliseconds (5 min)
+  Key: user_id:xxxxx
+  Redis object value:
+  - access_token
+  - refrech_token
+end note
+
+k8s_redis -> k8s_redis: save data
+activate k8s_redis
+
+k8s_redis --> authorization_api: return
+deactivate k8s_redis
+
+authorization_api --> bff_web_api: return
+deactivate authorization_api
+
+bff_web_api --> web: return
+deactivate bff_web_api
+
+note right of bff_web_api
+  Response header
+  Content-Type: application/json
+  Response body
+  - accessToken
+  - RefreshToken
+end note
+
+@enduml

@@ -1,0 +1,35 @@
+```plantuml
+@startuml
+hide footbox
+
+participant "Patient\nDemographics\nConsumer" as PDC1
+
+box "PDQm Implementation\ngrouped as a façade" #E0E0E0
+participant "Patient\nDemographics\nSupplier" as PDS1
+participant "Patient\nDemographics\nConsumer" as PDC2
+end box
+
+participant "Patient\nDemographics\nSupplier" as PDS2
+
+activate PDC1
+PDC1 -> PDS1 : Mobile Patient\nDemographics\nQuery [ITI-78]
+activate PDS1
+
+PDS1 --> PDC2 : Internal processing
+activate PDC2
+
+PDC2 -> PDS2 : Patient Demographics\nQuery [ITI-21]\nor Patient Demographics\nQuery for HL7v3 [ITI-47]
+activate PDS2
+
+PDS2 -> PDC2 : [ITI-21] or [ITI-47] Response
+deactivate PDS2
+
+PDC2 --> PDS1 : Internal processing
+deactivate PDC2
+
+PDS1 -> PDC1 : [ITI-78] Response
+deactivate PDS1
+deactivate PDC1
+
+@enduml
+```

@@ -1,0 +1,22 @@
+{
+  "id": "37a69ca7-329b-46ee-a03e-146ea981f4b1",
+  "object": "chat.completion",
+  "created": 1781404131,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n    participant Client\n    participant BnodeApi\n    participant Blockchain\n    participant Cloud\n\n    Note over Client, BnodeApi: Request\n    Note over Client: Request:\n    multipart-formdata\n    file (binary)\n    privatekey_wif (string)\n    public_key_hex (string)\n    on_chain (boolean)\n\n    Note over Client, BnodeApi: Response:\n    code (int)\n    file_id (string)\n    encrypt_hex (string, encrypt random index list to hex)\n    tx_id_list (string of array)\n\n    Note over BnodeApi:\n    1.divid upload file.\n    2.get divided file array.\n    3.genarate random index array.\n    4.divided file array is numbering random index.\n    5.encrypt genarate random index array to string.\n    6.save No.5 string in server.\n\n    Client ->> BnodeApi: uploadFile\n\n    alt [upload to BlockChain]\n        loop [divided file array]\n            BnodeApi -> Blockchain: upload Divided File(Max 100kb)\n            Blockchain <- BnodeApi: (response)\n        end\n    end\n\n    alt [upload to Cloud]\n        loop [divided file array]\n            BnodeApi -> Cloud: upload Divided File(Max File size on Config file)\n            Cloud <- BnodeApi: (response)\n        end\n    end\n\n    BnodeApi -> Blockchain: 6.save No.5 string in server.\n    Blockchain -> BnodeApi: (response)\n\n    alt [upload to BlockChain]\n        Blockchain -> Cloud: 7.calculate file hash and write hash on Blockchain.\n        Cloud <- Blockchain: (response)\n    end\n\n    BnodeApi -> Client: txid\n    Client <- BnodeApi: (response)\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2301,
+    "completion_tokens": 414,
+    "total_tokens": 2715
+  }
+}

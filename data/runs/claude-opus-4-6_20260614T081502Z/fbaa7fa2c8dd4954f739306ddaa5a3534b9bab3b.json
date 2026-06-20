@@ -1,0 +1,21 @@
+{
+  "id": "msg_0191Z821amfEx3ogs8H81VQ2",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Project \u2013 Staff \u2013 Update\n\nparticipant Client #FF6347\nparticipant ProjectService #FF6347\nparticipant RedisCache #FF6347\nparticipant Kafka #FF6347\nparticipant PersisterService #FF6347\nparticipant IndexerService #FF6347\nparticipant ErrorService #FF6347\nparticipant ElasticSearch #FF6347\ndatabase Database #00FFFF\n\nClient -> ProjectService : /project/staff/v1/_update\nProjectService -> ProjectService : Validate request body\n\nalt request validation fails\n    ProjectService -> ProjectService : Request validation failed\n    Client <-- ProjectService : HttpStatus: 400 with appropriate error code\n    note left of Client #FF6347 : Error Code: REQUEST_VALIDATION_FAILED\nend\n\nProjectService -> ProjectService : Request validation successful\n\nalt record doesn't exist\n    ProjectService -> RedisCache : Search record based on serverGeneratedId\n    RedisCache --> ProjectService : 0 rows\n    ProjectService -> Database : Search record based on serverGeneratedId\n    Database --> ProjectService : 0 row\n    Client <-- ProjectService : HttpStatus: 400 with appropriate error code\n    note left of Client #FF6347 : Error Code: RECORD_NOT_FOUND\nend\n\nalt record doesn't exists in cache\n    ProjectService -> RedisCache : Search record based on serverGeneratedId\n    RedisCache --> ProjectService : 0 rows\n    ProjectService -> Database : Search record based on serverGeneratedId\n    Database --> ProjectService : 1 row\n    ProjectService -> ProjectService : 1 record\nend\n\nProjectService -> Database : Fetch the existing record\nDatabase --> ProjectService : 1 row\n\nalt incorrect rowVersion\n    ProjectService -> ProjectService : Compare rowVersion between request and db\n    ProjectService -> ProjectService : Incorrect rowVersion [request: should be +1 only]\n    Client <-- ProjectService : HttpStatus: 400 with appropriate error code\n    note left of Client #FF6347 : Error Code: BAD_REQUEST\nend\n\nProjectService -> ProjectService : Compare rowVersion between request and db\nProjectService -> ProjectService : rowVersion in request = rowVersion in db + 1\nProjectService -> Kafka : Project Staff Data /update_topic\nProjectService -> RedisCache : Update new record in cache against serverGeneratedId\nClient <-- ProjectService : HttpStatus: 202 ACCEPTED\n\ngroup async\n    Kafka -> PersisterService : Consume Project Staff Data\n    Kafka -> IndexerService : Consume Project Staff Data\n    PersisterService -> Database : Store Project Staff Data\n    IndexerService -> ElasticSearch : Update Project Staff Data\nend\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432893,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 623,
+    "prompt_tokens": 1636,
+    "total_tokens": 2259
+  }
+}

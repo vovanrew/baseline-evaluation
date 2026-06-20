@@ -1,0 +1,33 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "User" as User
+participant "<<analysis>>\nEditVariablesUI" as EditVariablesUI
+participant "<<analysis>>\nUIController" as UIController
+participant "<<analysis>>\nw: Workbook" as Workbook
+participant "<<analysis>>\nlist: List<Variable>" as VariableList
+participant "<<analysis>>\nVariable" as Variable
+
+User -> EditVariablesUI : Edit variables
+activate EditVariablesUI
+EditVariablesUI -> UIController : w = getActiveWorkbook()
+activate UIController
+UIController -> Workbook : list = getVariables()
+activate Workbook
+deactivate Workbook
+loop 
+    VariableList -> EditVariablesUI : addItem(Variable)
+end
+deactivate UIController
+deactivate EditVariablesUI
+
+User -> EditVariablesUI : Selects a variable and changes the value
+activate EditVariablesUI
+EditVariablesUI -> Variable : setValue(newValue)
+activate Variable
+deactivate Variable
+deactivate EditVariablesUI
+
+@enduml
+```

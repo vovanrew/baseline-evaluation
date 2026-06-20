@@ -1,0 +1,22 @@
+{
+  "id": "465ae395-39ad-4be9-afde-2b59a130d059",
+  "object": "chat.completion",
+  "created": 1781502523,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle DutchPay Sequence Diagram\n\nactor \"User\" as User\nparticipant \"Web Client\" as WebClient\nparticipant \"DutchPay Server\" as Server\ndatabase \"Group\" as GroupDB\n\n== Initial Request ==\nUser -> WebClient: GET /\nactivate WebClient\nWebClient -> Server: static asset \uc694\uccad(HTML/CSS \ub4f1)\nactivate Server\nServer --> WebClient: HTML/CSS \ub4f1 \uc751\ub2f5\ndeactivate Server\nWebClient -> WebClient: \uadf8\ub8f9 \uc785\ub825 \ud398\uc774\uc9c0\ub85c redirection\nWebClient --> User: \uadf8\ub8f9 \uc785\ub825 \ud398\uc774\uc9c0\ndeactivate WebClient\n\n== 1. Create Group ==\nUser -> WebClient: 1. \uadf8\ub8f9 \uc774\ub984 \uc785\ub825 & \uc800\uc7a5\nactivate WebClient\nWebClient -> Server: POST groups/\nactivate Server\nServer -> Server: GUID \uc0dd\uc131\nServer -> GroupDB: Item \uc0dd\uc131(groupName, guid)\nactivate GroupDB\nGroupDB --> Server: created\ndeactivate GroupDB\nServer --> WebClient: guid\ndeactivate Server\nWebClient -> WebClient: store\uc5d0 \uadf8\ub8f9 \uc774\ub984, guid \uc800\uc7a5\nWebClient -> WebClient: \uadf8\ub8f9 \uba64\ubc84 \ucd94\uac00 \ud398\uc774\uc9c0\ub85c redirection\nWebClient --> User: \uadf8\ub8f9 \uba64\ubc84 \ucd94\uac00 \ud398\uc774\uc9c0\ndeactivate WebClient\n\n== 2. Add Members ==\nUser -> WebClient: 2. \uadf8\ub8f9 \uba64\ubc84 \uc774\ub984 \uc785\ub825 & \uc800\uc7a5\nactivate WebClient\nWebClient -> Server: PUT groups/{guid}/members\nactivate Server\nServer -> GroupDB: Item \uc5c5\ub370\uc774\ud2b8(members)\nactivate GroupDB\nGroupDB --> Server: updated\ndeactivate GroupDB\nServer --> WebClient: success\ndeactivate Server\nWebClient -> WebClient: store\uc5d0 \uadf8\ub8f9 \uba64\ubc84 \uc774\ub984 \uc800\uc7a5\nWebClient -> WebClient: \ube44\uc6a9 \uad00\ub9ac \ud398\uc774\uc9c0\ub85c redirection\nWebClient --> User: \ube44\uc6a9 \uad00\ub9ac \ud398\uc774\uc9c0\ndeactivate WebClient\n\n== 3. Manage Expenses (Loop) ==\nloop 3. \ube44\uc6a9 \uc815\ubcf4 \uc785\ub825 & \ucd94\uac00\n    User -> WebClient: \n    activate WebClient\n    WebClient -> Server: PUT groups/{guid}/expenses\n    activate Server\n    Server -> GroupDB: Item \uc5c5\ub370\uc774\ud2b8(expense)\n    activate GroupDB\n    GroupDB --> Server: updated\n    deactivate GroupDB\n    Server --> WebClient: success\n    deactivate Server\n    WebClient -> WebClient: store\uc5d0 \ube44\uc6a9 \uc815\ubcf4 \uc800\uc7a5\n    WebClient -> WebClient: \uc815\uc0b0 \uacb0\uacfc \uacc4\uc0b0\n    WebClient --> User: \uc815\uc0b0 \uacb0\uacfc \ub178\ucd9c\n    deactivate WebClient\nend\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1517,
+    "completion_tokens": 510,
+    "total_tokens": 2027
+  }
+}

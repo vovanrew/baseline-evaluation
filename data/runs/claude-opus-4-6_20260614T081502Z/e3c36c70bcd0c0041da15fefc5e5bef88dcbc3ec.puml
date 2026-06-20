@@ -1,0 +1,21 @@
+```plantuml
+@startuml
+
+participant "uic : UIController" as uic
+participant "ExtensionManager" as em
+participant "extension : NetworkWorkbookSearchExtension" as ext
+
+uic -> em : extensions=getExtensions();
+
+loop [for Extension ext : extensions]
+    uic -> ext : uiExtension=getUIExtension(this);
+    create participant "uiExtension : UIExtensionNetworkWorkbookSearch" as uiExt
+    ext -> uiExt : new(extension, uic)
+    uiExt -> uiExt : getSideBar();
+    create participant "NetworkWorkbookSearchPanel : JPanel" as panel
+    uiExt -> panel : new (uic)
+    ext --> uic : uiExtensions.add(uiExtension);
+end
+
+@enduml
+```

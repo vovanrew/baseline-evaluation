@@ -1,0 +1,42 @@
+@startuml
+title Update PractitionerRole
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor white
+  ParticipantBorderColor #2f4f7f
+  ParticipantBackgroundColor #6f97e6
+  ActorBorderColor #333333
+  ActorBackgroundColor #6f97e6
+  ArrowColor #000000
+  ArrowThickness 2
+  MessageAlign left
+}
+
+actor "Integrating application user" as User
+participant "Integrating application" as App
+participant "<FHIR API> HPI" as API
+database "HPI Practitioner Role database" as DB
+
+User -> App : Update PractitionerRole\nusing\nhpi-practitionerrole-id
+activate App
+
+App -> API : PUT <Endpoint>/PractitionerRole/[hpi-practitionerrole-id]
+activate API
+
+API -> API : Validate[]
+
+API -> DB : Request
+activate DB
+DB --> API
+deactivate DB
+
+API --> App : HTTP 200 reponse
+deactivate API
+
+App -> User
+deactivate App
+
+@enduml

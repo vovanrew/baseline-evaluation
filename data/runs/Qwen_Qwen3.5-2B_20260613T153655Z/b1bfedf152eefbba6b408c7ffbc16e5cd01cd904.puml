@@ -1,0 +1,65 @@
+@startuml
+participant "Resident" as R
+participant "WeResident" as WRes
+participant "WeID" as WID
+participant "WeService" as WService
+
+title Provider Login Into Provider App =
+
+R ->> WRes : Send username:password /login
+
+alt [Provider already exist]
+    WRes ->> WID : Get Token by username:password /oauth/authorize
+    WID -->> WRes : Return Token to WeResident
+    WRes -- R : Return {"token": "jwt-token"}
+end
+
+title Provider Query/Search Service =
+
+Query services including token
+/weservices/services
+Header
+Authorization: Bear {jwt-token}
+
+Query Service schema
+{"query":"string","status":12}
+
+alt [above token is valid]
+    WID -- R : verify token
+    WID -- WRes : 200
+    WRes -- WService : Response services data
+
+    note right of WRes
+    Service Data Array schema
+    {"id":"string","company":"string","name":"string","rate":4.2,"image":"image.png"}
+    "total":10,"currentPage":1,"perPage":5
+    endnote
+
+    [Token is expired/invalid]
+    WID -- R : verify token
+    WID -- WRes : 400
+    WRes -- WService : Response 401 status
+
+title Create Order(Request) =
+
+Create Service
+POST: /weservices/service/{serviceID}/order
+
+Order Request schema
+{"resident":"$userId","service":"$serviceID","pricingModel":{},"noteDetail":"string","address":"string","schedule":Time}
+
+WID -- R : verify token
+WID -- WRes : 200
+WRes -- WService : Response Service Data(JSON)
+
+Comment(chat) in Order
+POST: /weservices/order/{orderID}/comment
+
+Comment Data
+{"content":"string"}
+
+WID -- R : verify token
+WID -- WRes : 200
+R -- WRes : 200
+
+@enduml

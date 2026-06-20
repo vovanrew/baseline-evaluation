@@ -1,0 +1,75 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "참가자" as Participant
+participant "깃헙 리포지토리" as GitHubRepo
+participant "깃헙 액션" as GitHubAction
+actor "운영자" as Operator
+participant "파워 오토메이트" as PowerAutomate
+database "데이터베이스" as Database
+
+rectangle "PR" {
+    note right of Participant: GHA 챌린지 완료 인증샷
+    Participant -> GitHubRepo: PR 생성
+    activate GitHubRepo
+    GitHubRepo -> GitHubAction: 이벤트 생성
+    activate GitHubAction
+    GitHubAction -> GitHubRepo: 라벨 추가: review-required
+    deactivate GitHubAction
+    deactivate GitHubRepo
+}
+
+rectangle "REVIEW" {
+    Operator -> Operator: 리뷰
+    activate Operator
+    Operator -> GitHubRepo: 라벨 추가: review-completed
+    Operator -> GitHubRepo: 라벨 삭제: review-required
+    Operator -> GitHubRepo: 코멘트: /ghasignoff
+    GitHubRepo -> GitHubAction: 이벤트 생성
+    activate GitHubAction
+    
+    note left of GitHubAction: 지정된 사용자만\n이벤트 생성 가능
+    
+    GitHubAction -> PowerAutomate: 호출
+    activate PowerAutomate
+    
+    note right of GitHubAction: GitHub ID\nPR 본문\n제출시간
+    
+    PowerAutomate -> Database: 레코드 조회
+    activate Database
+    Database --> PowerAutomate: GitHub ID
+    deactivate Database
+    
+    alt [레코드 있음]
+        PowerAutomate -> Database: 레코드 업데이트
+        Database --> PowerAutomate: PR ID
+        PowerAutomate -> GitHubAction: 호출
+        deactivate PowerAutomate
+        
+        GitHubAction -> GitHubRepo: 라벨 추가: record-updated
+        GitHubAction -> GitHubRepo: 라벨 추가: completed-gha
+        GitHubAction -> GitHubRepo: 라벨 삭제: review-completed
+        GitHubAction -> GitHubRepo: PR 머지
+        deactivate GitHubAction
+        
+        note right of PowerAutomate: 업데이트 완료
+        PowerAutomate -> Participant: 확인 이메일
+    else [레코드 없음]
+        PowerAutomate -> GitHubAction: 호출
+        deactivate PowerAutomate
+        
+        note right of PowerAutomate: PR ID
+        note right of PowerAutomate: 레코드 없음
+        
+        GitHubAction -> GitHubRepo: 라벨 추가: review-required
+        GitHubAction -> GitHubRepo: 라벨 삭제: review-completed
+        deactivate GitHubAction
+        
+        PowerAutomate -> Participant: 확인 이메일
+    end
+    deactivate Operator
+}
+
+@enduml
+```

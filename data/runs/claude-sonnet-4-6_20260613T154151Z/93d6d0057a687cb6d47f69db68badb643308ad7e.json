@@ -1,0 +1,21 @@
+{
+  "id": "msg_01UguMdwehGbLNanXGhCzZmj",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle \"OAuth2 Authorization Code Grant Workflow\\n<i>with SAML2 Post Binding for user provisioning</i>\"\n\nparticipant \"HealthCloud\" as HC #green\nparticipant \"Embedded Browser\" as EB #green\n\nbox \"HealthSphere\" #lightblue\nparticipant \"Apigee Edge\" as AE #gold\nparticipant \"Orion Health Platform\" as OHP #gold\nend box\n\nHC -> EB\nEB -> AE : GET /authorize?response_type=code\nAE --> EB : <i>302 https://<b><redirect_url></b> (SAML OR <b>token</b>)</i>\n\ngroup SAML Authentication\n  EB -> AE : POST /oauth2/saml\n  AE -> OHP : POST /login-auth/saml?path=/actor/current\n  OHP -> OHP : Verify SAMLResponse\n  OHP --> AE : Generate authorization code\n  AE --> EB : <i>302 https://<b><redirect_url></b>?code=<code></i>\nend\n\nHC -> AE : POST /token?code=<code>\nAE --> HC : 200 access_token + refresh_token\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370256,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 301,
+    "prompt_tokens": 1664,
+    "total_tokens": 1965
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nactor Customer\nparticipant Device\nparticipant DeviceProvisioningService #Cyan\nparticipant ProductIoTHub #Cyan\nparticipant FWProvider #Magenta\n\nnote over Device, ProductIoTHub: Device was registered for this product before\n\n== First start ==\n\nCustomer -> Device: 1 Switch On/Power Up\nactivate Customer\nactivate Device\n\n... Booting up ...\n\nDevice -> DeviceProvisioningService: 2 registerDevice(callback)\nDeviceProvisioningService --> Device: 3 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)\n\nDevice -> ProductIoTHub: 4 setProperties\nDevice -> ProductIoTHub: 5 iamNewToYou(deviceId, firmwareversion)\n\nopt Firmware needs to be updated\n    ProductIoTHub -> Device: 6 updateFWMandantory(URL)\n    Device -> FWProvider: 7 URL.get(OLDFW)\n    FWProvider --> Device: 8 FW, Checksum\n    \n    ... Downloading ...\n    \n    Device -> Device: 9 CheckChecksum\n    Device -> Device: 10 update\n    \n    ... Installing ...\n    \n    Device -> Device: 11 restart\n    \n    ... Booting up ...\n    \n    Device -> ProductIoTHub: 12 iamNewToYou(deviceId, firmwareversion)\nend\n\nProductIoTHub -> Device: 13 youMayStartSending()\nDevice -> ProductIoTHub: 14 sendData(Data)\n\n... Working ...\n\n== Claim/Remove ==\n\nProductIoTHub -> Device: 15 youMustRetire()\nDevice -> Device: 16 waits\n\nopt if Device was not reached\n    Device -> ProductIoTHub: 17 sendData(Data)\n    ProductIoTHub --> Device: 18 Not registered\nend\n\nDevice -> DeviceProvisioningService: 19 registerDevice(callback)\nDeviceProvisioningService --> Device: 20 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ERROR, null, null)\nDevice -> Device: 21 NobodyLovesMeMode()\n\nloop once a day\n    Device -> DeviceProvisioningService: 22 registerDevice(callback)\nend\n\n== IoT Hub not available ==\n\nloop several times\n    Device -> ProductIoTHub: 23 sendData(Data)\n    ProductIoTHub --> Device: 24 NotAvailable/Network Error\nend\n\nDevice -> DeviceProvisioningService: 25 registerDevice(callback)\nDeviceProvisioningService --> Device: 26 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)\nDevice -> Device: 27 compare IoTHub and change if necessary\n\nnote over Device, ProductIoTHub: if connection is now successfull, go on. If not and IoT Hub has not changed\\nrepeat with low frequence. Also if DPS is not available.\n\ndeactivate Device\ndeactivate Customer\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHV4LqqY4ExqwP+qlpySkORgGFwaXj4nEE10oTNp+anQfJ2t4rUgqYTYtfJTTb"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1144,
+    "candidatesTokenCount": 664,
+    "totalTokenCount": 1808,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1064
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "SmExap_NBsTdxs0P8v2OkA0"
+}

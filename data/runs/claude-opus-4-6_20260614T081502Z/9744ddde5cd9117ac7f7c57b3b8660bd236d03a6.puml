@@ -1,0 +1,77 @@
+```plantuml
+@startuml
+
+actor "User Agent" as UA
+
+box "Wallet"
+participant "Frontend" as WF
+participant "Backend" as WB
+end box
+
+box "Issuer"
+participant "Metadata" as IM
+participant "Web Site" as IW
+participant "Token Endpoint" as ITE
+participant "Credential Endpoint" as ICE
+end box
+
+UA -> ICE : get credential
+
+hnote over UA, ICE #FFFFE0
+prepare credential issuance
+end note
+
+UA <-- ICE : Issuance Initiation Request\n(pre-authz-code, credential_type, expected_key_types, issuer)
+
+UA -> WF : Issuance Initiation Request\n(pre-authz-code, credential_type, expected_key_types, issuer)
+
+WF -> WF : gen DPoP key
+
+WF -> WF : gen DPoP proof for issuer token endpoint
+
+WF -> WB : get nonce (for app attestation)
+
+WF <-- WB : nonce
+
+WF -> WF : obtain app attestation (nonce)
+
+WF -> WB : get assertion for code exchange\n(hash(pre-authz-code), app attestation)
+
+WB -> WB : check app_attestation
+
+WB -> WB : generate assertion\n(iss=wallet backend, pre_authz_code_hash, client_id)
+
+WF <-- WB : assertion
+
+WF -> IM : get issuer metadata
+
+WF -> ITE : token request\n(pre-authz-code, pin, client_id, assertion, dpop_proof)
+
+hnote over WF, ITE #FFFFE0
+wallet authenticates with issuer as OAuth Client using the assertion issued by its backend (RFC 7523)
+issuer checks wallet backend id and key against trust registry
+end note
+
+hnote over WF, ITE #FFFFE0
+Token Endpoint validates pre-authorized code and creates corresponding access token
+end note
+
+WF <-- ITE : token response\n(access_token, c_nonce)
+
+WF -> WF : gen key : key, key_attestation
+
+WF -> WF : create proof of posssion (c_nonce)
+
+WF -> WF : create DPoP proof for issuance request
+
+WF -> ICE : issue credential\n(access_token, credential_type, format, proof, key_policy, dpop_proof)
+
+hnote over WF, ICE #FFFFE0
+Credential Endpoint Token checks whether the access token is good for requested credential type and
+whether the proof of possession is valid
+end note
+
+WF <-- ICE : credential response (credential, format)
+
+@enduml
+```

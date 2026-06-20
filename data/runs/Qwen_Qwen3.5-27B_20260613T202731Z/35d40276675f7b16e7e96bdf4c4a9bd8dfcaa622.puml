@@ -1,0 +1,98 @@
+```plantuml
+@startuml
+title Update Relationship Event Handler UML
+
+participant "SNS" as SNS
+    participant "Event Dispatcher Topic" as EDTopic
+participant "Lambda" as Lambda
+    participant "Update Relationship Event Handler" as Handler
+participant "DynamoDB" as DynamoDB
+    participant "Relationship Owner Table" as OwnerTable
+    participant "Relationship Commitment Table" as CommitmentTable
+
+EDTopic -> Handler: filter on Relationship::Update Event
+
+activate Handler
+Handler -> Handler: [SessionDecorator.puml]
+deactivate Handler
+activate Handler
+Handler -> Handler: [TrackEventHandlerWrapper.puml]
+deactivate Handler
+activate Handler
+Handler -> Handler: extract Message from Event
+deactivate Handler
+activate Handler
+Handler -> Handler: validate Message
+deactivate Handler
+activate Handler
+Handler -> Handler: validate event-name
+deactivate Handler
+activate Handler
+Handler -> Handler: validate event-version
+deactivate Handler
+activate Handler
+Handler -> Handler: validate stage
+deactivate Handler
+activate Handler
+Handler -> OwnerTable: Get Existing Relationship
+activate OwnerTable
+OwnerTable --> Handler
+deactivate OwnerTable
+deactivate Handler
+activate Handler
+Handler -> Handler: Generate Relationship Dict
+deactivate Handler
+activate Handler
+Handler -> Handler: Combine Existing Relationship Attributes With New Changes
+deactivate Handler
+
+opt if missing required schema key
+    activate Handler
+    Handler -> Handler: Error Handling
+    deactivate Handler
+end
+
+activate Handler
+Handler -> Handler: Get AdditionalAttributes
+deactivate Handler
+
+alt if Relationship contains description and AdditionalAttributes doesn't contain completed signal
+    activate Handler
+    Handler -> OwnerTable: update Relationship
+    activate OwnerTable
+    OwnerTable --> Handler
+    deactivate OwnerTable
+    deactivate Handler
+    activate Handler
+    Handler -> Handler: Error Handling
+    deactivate Handler
+end
+
+activate Handler
+Handler -> Handler: Generate commitments to add or delete
+deactivate Handler
+
+alt if Commitment Operations Exist
+    activate Handler
+    Handler -> Handler: Generate starting indexes based on AdditionalAttributes
+    deactivate Handler
+    activate Handler
+    Handler -> CommitmentTable: Batch_Write() RelationshipCommitments
+    activate CommitmentTable
+    CommitmentTable --> Handler
+    deactivate CommitmentTable
+    deactivate Handler
+    activate Handler
+    Handler -> Handler: Error Handling
+    deactivate Handler
+end
+
+activate Handler
+Handler -> Handler: Track Event Handler Wrapper
+deactivate Handler
+activate Handler
+Handler -> Handler: Error Handler Wrapper
+deactivate Handler
+
+@enduml
+```

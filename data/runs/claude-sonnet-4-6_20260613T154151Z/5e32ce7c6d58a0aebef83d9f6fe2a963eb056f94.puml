@@ -1,0 +1,42 @@
+@startuml
+actor "Project Manager" as PM
+
+participant ":ProjectManagerUI" as PMUI
+participant "AGVServer" as AGVServer
+participant "AGVServerThread" as AGVServerThread
+participant "AVGManagerController" as AVGManagerController
+participant "AGVDigitalTwinServer" as AGVDigitalTwinServer
+participant "AGVDigitalTwinThread" as AGVDigitalTwinThread
+participant "AGVDigitalTwinController" as AGVDigitalTwinController
+participant "CodingAndDecoding2" as CodingAndDecoding2
+
+PM -> PMUI : Wants to assign ready to go Orders to an AGV
+PMUI -> AGVServer : message
+AGVServer -> AGVServerThread : accept
+AGVServer -> AGVServerThread : start
+AGVServerThread -> CodingAndDecoding2 : Decoding(r)
+AGVServerThread -> AVGManagerController : Message
+AVGManagerController -> AVGManagerController : FifoAGV()
+AVGManagerController -> AVGManagerController : findavailableOrder()
+
+loop [until orderList is empty]
+    AVGManagerController -> AVGManagerController : findavailableAGV(weight,volume)
+    AVGManagerController -> AVGManagerController : createTaskandSave(description,order,agv)
+    AVGManagerController -> AVGManagerController : doTask()
+    AVGManagerController -> AGVDigitalTwinServer : message
+    AGVDigitalTwinServer -> AGVDigitalTwinThread : accept
+    AGVServerThread -> AGVDigitalTwinServer : start
+    AGVDigitalTwinThread -> CodingAndDecoding2 : Decoding(r)
+    AGVDigitalTwinThread -> AGVDigitalTwinController : message
+    AGVDigitalTwinController -> AGVDigitalTwinController : doTask(taskPerform)
+    AGVDigitalTwinController -> AGVDigitalTwinThread : TaskReportMessage
+    AGVDigitalTwinThread -> AGVDigitalTwinServer : TaskReportMessage
+    AGVDigitalTwinServer -> AVGManagerController : TaskReportMessage
+    AVGManagerController -> AGVServerThread : ResponseMessage
+end
+
+AGVServerThread -> AGVServer : ResponseMessage
+AGVServer -> PMUI : ResponseMessage
+PMUI -> PM : Informs operation success
+
+@enduml

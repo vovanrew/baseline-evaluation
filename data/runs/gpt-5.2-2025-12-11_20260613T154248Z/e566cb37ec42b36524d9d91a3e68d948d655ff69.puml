@@ -1,0 +1,78 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 15
+  LifeLineBorderColor #777777
+  LifeLineBackgroundColor transparent
+  ActorBorderColor #333333
+  ParticipantBorderColor #333333
+  ParticipantBackgroundColor #E6E6F2
+  DatabaseBorderColor #333333
+  DatabaseBackgroundColor #E6E6F2
+  GroupBorderColor #333333
+  GroupBackgroundColor transparent
+  AltBorderColor #333333
+  AltBackgroundColor transparent
+  ArrowColor #333333
+  MessageAlign left
+}
+
+actor User
+participant Frontend
+participant API
+database Database
+
+group Log in with token
+  User -> Frontend : Request token
+
+  alt Token found
+    Frontend -> API : Validate token
+    activate API
+    API -> Database : Find token
+    activate Database
+    Database --> API : Return matching user
+    deactivate Database
+    API --> Frontend : Open main page
+    deactivate API
+  else Token not in database
+    Frontend -> API : Validate token
+    activate API
+    API -> Database : Find token
+    activate Database
+    Database --> API : Return error
+    deactivate Database
+    destroy API
+    API --> Frontend : Return error
+    Frontend --> Frontend : Open loginpage
+  end
+end
+
+group Log in without token
+  User -> Frontend : Enter login information
+  User -> Frontend : Accept to be remembered
+  User -> Frontend : Press "Log in"
+
+  Frontend -> API : Request validation
+  activate API
+  API -> Database : Validate login information
+  activate Database
+
+  alt validation successful
+    Database --> API : Validation successful
+    API --> Frontend : Move to main page
+    Frontend --> User : Add token to user
+  else validation failure
+    Database --> API : Validation failed
+    deactivate Database
+    destroy API
+    API --> Frontend : Validation failed
+    Frontend --> Frontend : Show error message
+    Frontend --> Frontend : Retry login page
+  end
+end
+
+@enduml
+```

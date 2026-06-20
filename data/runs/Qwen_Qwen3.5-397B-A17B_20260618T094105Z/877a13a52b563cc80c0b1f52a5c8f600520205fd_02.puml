@@ -1,0 +1,35 @@
+@startuml
+actor ElementModel as EM1
+participant CardModel as CM1
+box "Publish" #LightBlue
+  participant Publish
+end box
+participant StringCard as SC1
+participant ElementView as EV1
+participant DeckView as DV1
+database IOTech as IO1
+rectangle DeckTechView as DTV1
+
+EM1 ->> CM1 : encode each CardModel\ncreate
+CM1 --> SC1 
+SC1 -->> CM1 
+CM1 -left-> EM1 : return \nStringCardCollection 
+
+activate EM1
+note left of EM1 **encode**
+deactivate EM1
+
+
+activate EM1
+note left of EM1 send
+EM1 right--> Publish :send StringCardCollection  
+EV1 <-right- Publish :send StringCardCollection   
+IO1 <-- EV1 :Store StringCardCollection    
+deactivate EM1
+
+
+
+show...>DV1:GetDeckView\ create
+DTV1<--IO1:return Show(StringCardCollection)  
+
+@enduml

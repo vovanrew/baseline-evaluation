@@ -1,0 +1,105 @@
+```plantuml
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #888888
+  ParticipantBackgroundColor #E9E9F6
+  ActorBorderColor #888888
+  ActorBackgroundColor #FFFFFF
+  BoxBorderColor #000000
+  BoxBackgroundColor #FFFFFF
+  NoteBackgroundColor #FFF9C4
+  NoteBorderColor #888888
+}
+
+actor "참가자" as A
+participant "깃헙 리포지토리" as R
+participant "깃헙 액션" as G
+actor "운영자" as O
+participant "파워 오토메이트" as P
+database "데이터베이스" as D
+
+box "PR" #FFFFFF
+  note left of R
+    GHA 챌린지 완료 인증샷
+  end note
+
+  A -> R : PR 생성
+  activate R
+  R -> G : 이벤트 생성
+  activate G
+  G --> R : 라벨 추가: review-required
+  deactivate G
+  deactivate R
+end box
+
+box "REVIEW" #FFFFFF
+  O -> R : 리뷰
+  activate R
+  R <-- O : 라벨 추가: review-completed
+  R <-- O : 라벨 삭제: review-required
+  R <-- O : 코멘트: /ghasignoff
+  R -> G : 이벤트 생성
+  activate G
+
+  note left of R
+    지정된 사용자만\n이벤트 생성 가능
+  end note
+
+  note over G
+    GitHub ID\nPR 본문\n제출시간
+  end note
+
+  G -> P : 호출
+  activate P
+  P -> D : 레코드 조회
+  activate D
+  deactivate D
+
+  note over P
+    GitHub ID
+  end note
+
+  alt [레코드 있음]
+    P -> D : 레코드 업데이트
+    activate D
+    note over D
+      PR ID
+    end note
+    note over D
+      업데이트 완료
+    end note
+    deactivate D
+
+    P --> G : 호출
+    deactivate P
+
+    R <-- O : 라벨 추가: record-updated
+    R <-- O : 라벨 추가: completed-gha
+    R <-- O : 라벨 삭제: review-completed
+    R <-- O : PR 머지
+    A <-- R : 확인 이메일
+  else [레코드 없음]
+    P --> G : 호출
+    note over D
+      PR ID
+    end note
+    note over D
+      레코드 없음
+    end note
+    deactivate P
+
+    R <-- O : 라벨 추가: review-required
+    R <-- O : 라벨 삭제: review-completed
+    A <-- R : 확인 이메일
+  end
+
+  deactivate G
+  deactivate R
+end box
+@enduml
+```

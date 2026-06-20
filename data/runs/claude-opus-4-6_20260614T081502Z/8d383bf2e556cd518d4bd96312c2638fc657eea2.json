@@ -1,0 +1,21 @@
+{
+  "id": "msg_0195ijCiusNUWujomPaZv1vq",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nparticipant \"browser\" as browser\nparticipant \"proxy\" as proxy\nactor \"backend\" as backend\ndatabase \"component_config\" as component_config\ndatabase \"subscription_map\" as subscription_map\ndatabase \"normalized_object_map\" as normalized_object_map\ndatabase \"normalized_object\" as normalized_object\n\nbrowser -> browser : **1** get_state(\\n\\tconfiguration_name,\\n\\tgeo_bounding_box\\n)\nbrowser -> proxy :\nproxy -> backend : **2** +TENANT_HEADER\nbackend -> component_config : **3** component_config[configuration_name]\\n.subscription_usages\ncomponent_config --> backend : **4** [ subscription_usage_config ]\nbackend -> subscription_map : **5** forEach subscription_usage_config.subscription_id\nsubscription_map --> backend : **6** subscription_map[subscription_id] (= normalized_object_map)\nbackend -> normalized_object_map : **7** forEach key\nnormalized_object_map --> backend : **8** normalized_object\nbackend -> backend : **9** forEach normalized_object:\\n\\tif object.in(geo_bounding_box):\\n\\t\\tobject.to_dto(\\n\\t\\t\\tsubscription_usage_config\\n\\t\\t)\nbackend -> normalized_object : **10** object_dto\nnormalized_object --> backend\nbackend --> proxy : **11** [ object_dto ]\nproxy --> browser : **12**\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781430526,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 358,
+    "prompt_tokens": 1552,
+    "total_tokens": 1910
+  }
+}

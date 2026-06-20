@@ -1,0 +1,68 @@
+```plantuml
+@startuml
+title Customer On-Boarding: Open a New Account
+
+participant "Line of Business" as LOB
+participant "ESB" as ESB
+rectangle "Compliance IT" {
+    participant "Scoring" as Scoring
+    participant "Recertification" as Recert
+}
+
+== Customer On-Boarding: Open a New Account ==
+note right of LOB
+    UpdatePartyKYC\nincludeScore=true
+end note
+LOB ->> ESB : UpdatePartyKYC\nincludeScore=true
+
+alt Recertification completed
+    note right of LOB
+        UpdatePartyKYC\nincludeScore=true\nrecertificationStatus=completed\nactor=<userid>\nreason=<one of client-initiated trigger codes>
+    end note
+    LOB ->> ESB : UpdatePartyKYC\nincludeScore=true\nrecertificationStatus=completed\nactor=<userid>\nreason=<one of client-initiated trigger codes>
+end
+
+== Recertification ==
+activate Scoring
+activate Recert
+
+note left of Scoring
+    Schedule a new recertification and calculate its due date\nOR retrieve due date of an existing recertification if\none has been previously scheduled and not yet\ncompleted or cancelled
+end note
+
+Scoring -> Recert : 1 score
+Scoring -> Recert : 2 recertify
+
+Recert -> Recert : 3 evaluate rules
+
+alt Recertification is Needed
+    rectangle Establish a Recertification {
+        alt Existing Recertification
+            Recert -> Recert : 4 schedule a new recertification
+        else
+            Recert -> Recert : 5 retrieve a previously\nscheduled recertification\nthat hasn't been completed or cancelled
+        end
+    }
+
+    alt Complete a Recertification
+        note right of Recert
+            Immediately complete the recertification if the LOB\ntold us it was already done
+        end note
+        Recert -> Recert : 6 complete an established recertification
+    end
+
+    Recert --> Scoring : 7 recertification details
+    note left of Scoring
+        Due date, status, recert id
+    end note
+    Scoring --> LOB : 8 score + recertification
+else Recertification is Not Needed
+    Recert --> Scoring : 9 no recertification
+    Scoring --> LOB : 10 score
+end
+
+deactivate Recert
+deactivate Scoring
+
+@enduml
+```

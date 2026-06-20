@@ -1,0 +1,24 @@
+```plantuml
+@startuml
+title Digital Public Goods Backlog\nBasic architecture
+
+actor "User" as user
+rectangle "backlog.dpg.net" as backlog
+rectangle "api.backlog.dpg.net" as api
+database "Database" as db
+
+user -> backlog : HTTP GET /projects
+activate backlog
+backlog -> api : HTTP GET /projects
+activate api
+api -> db : Query the projects table
+activate db
+db --> api : Return the results
+deactivate db
+api --> backlog : JSON response
+deactivate api
+backlog --> user : HTML response
+deactivate backlog
+
+@enduml
+```

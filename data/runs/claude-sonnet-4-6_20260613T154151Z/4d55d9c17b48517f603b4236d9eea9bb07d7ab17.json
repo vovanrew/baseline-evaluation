@@ -1,0 +1,21 @@
+{
+  "id": "msg_0181pCFd44kvv7AD8nWun26o",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor User\nparticipant LoginPartialView\nparticipant MicrosoftIdentityLibrary\nparticipant HomeController\ndatabase StudieTipsDB\n\nUser -> LoginPartialView : clicks on \"Register\"\nLoginPartialView -> MicrosoftIdentityLibrary : sends action\nMicrosoftIdentityLibrary --> LoginPartialView : Creates RegisterView\n\nloop [While user not registered]\n  User -> LoginPartialView : inputs e-mail, password and password confirmation\n  alt [E-mail is invalid]\n    MicrosoftIdentityLibrary --> LoginPartialView : Display 'The Email field is not a valid e-mail address'.\n  else [Password is less than 6 or greater than 100 characters]\n    MicrosoftIdentityLibrary --> LoginPartialView : Display 'The password must be at least 6 and at max 100 chracters long.'\n  else [Password and confirmation password do not match]\n    MicrosoftIdentityLibrary --> LoginPartialView : Display 'The password and confirmation password do not match'\n  end\n\n  User -> MicrosoftIdentityLibrary : User clicks register button\n  alt [Password does not contain at least one symbol]\n    MicrosoftIdentityLibrary --> LoginPartialView : Display 'Passwords must have at least one non alphanumeric character'.\n  else [Passord does not contain at least one digit]\n    MicrosoftIdentityLibrary --> LoginPartialView : Display 'Passwords must have at least one digit ('0'-'9')'.\n  else [Password does not contain uppercase letters]\n    MicrosoftIdentityLibrary --> LoginPartialView : Display 'Passwords must have at least one uppercase ('A'-'Z').'.\n  else [Password does not contain 4 different characters]\n    MicrosoftIdentityLibrary --> LoginPartialView : Display 'Passwords must use at least 4 different characters.'\n  else [E-mail is already in use]\n    MicrosoftIdentityLibrary --> LoginPartialView : Display 'Username 'E-mail' is already taken.'\n  end\n\n  MicrosoftIdentityLibrary -> StudieTipsDB : Creates user with e-mail and password\nend\n\nMicrosoftIdentityLibrary -> HomeController : returns action\nHomeController --> HomeController : Create home view\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370066,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 556,
+    "prompt_tokens": 1650,
+    "total_tokens": 2206
+  }
+}

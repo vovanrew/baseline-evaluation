@@ -1,0 +1,133 @@
+@startuml
+title Interactions between the Control Plane (master node) and the Worker Node
+
+legend right
+  |= Legend |
+  |<#lightgreen> Control Plane - Master Node |
+  |<#orange> Worker Node |
+  |<#cyan> Power Manager System Setup |
+  |<#yellow> Power Manager Configuration |
+  |<#gray> Power Manager Deployment |
+endlegend
+
+actor Georgina
+participant "API-Server" as API #lightgreen
+participant "etcd" as etcd #lightgreen
+participant "Controller Manager" as CM #lightgreen
+participant "Scheduler" as Sched #lightgreen
+participant "Power Operator" as PO #lightgreen
+participant "Kubelet" as Kubelet #orange
+participant "Power Node Agent" as PNA #orange
+participant "Power Optimization Library" as POL #orange
+participant "K8s Objects" as K8s #orange
+participant "Kube-Proxy" as KP #orange
+
+== Kubernetes Initialization ==
+
+Georgina -> API : 1 kubectl create -f pod.yaml
+API -> etcd : 2 save new state
+etcd -> API : 3 check for changes
+API -> Sched : 4 watch for unassigned pods(s)
+Sched -> API : 5 notify about pod w nodename=""
+Sched -> API : 6 assign pod to node
+API -> etcd : 7 save new state
+API -> Kubelet : 8 look for newly assigned pod(s)
+Sched -> API : 9 bind pod to node
+Kubelet -> Kubelet : 10 start container
+API -> Georgina : 11 update pod status
+API -> etcd : 12 save new state
+
+== Power Manager Initialization ==
+
+Georgina -> KP : 1 Ensure correct proxy configuration
+Georgina -> PO : 2 Confirm CPU Manager policy
+note right of PO #yellow : cpuManagerPolicy = "static"
+Georgina -> PO : 3 Reserve System CPUs
+note right of PO #yellow : reservedSystemCPUs = "0"
+PO -> K8s : 4 Create Namespace
+note right of K8s #orange : apply config/rbac/namespace.yaml
+PO -> K8s : 5 Create RBAC and Service Accounts
+note right of K8s #orange : apply config/rbac/rbac.yaml
+PO -> KP : 6 Create CRDs
+note right of KP #orange : make
+PO -> K8s : 7 Label nodes
+note right of K8s #orange : label node <NODE_NAME> feature.node.kubernetes.io/power-node="true"
+
+== Power Manager Deployment ==
+
+PO -> K8s : 1 Deploy Controller Manager
+note right of K8s #orange : apply config/manager/manager.yaml
+PO -> KP : 2 Deploy the config
+note right of KP #orange : examples/example-powerconfig.yaml
+K8s -> KP : 3 Set Shared Profile
+note right of KP #orange : examples/example-shared-profile.yaml
+K8s -> KP : 4 Deploy th Workload
+note right of KP #orange : examples/example-shared-workload.yaml
+K8s -> KP : 5 Deploy Pod
+note right of KP #orange : examples/example-pod.yaml
+
+== Power Manager additional functionality ==
+
+=== Uncore ===
+
+Georgina -> PO : 1 Confirm Kernel verson
+note right of PO #yellow : kernel 5.6+ required for uncore
+PO -> KP : 2 Set Freq in Die and Pkg
+note right of KP #orange : examples/example-uncore
+PO -> K8s : 3 Deploy Controller Manager
+note right of K8s #orange : apply config/manager/manager.yaml
+PO -> KP : 4 Deploy the config
+note right of KP #orange : examples/example-powerconfig.yaml
+K8s -> KP : 5 Set Shared Profile
+note right of KP #orange : examples/example-shared-profile.yaml
+K8s -> KP : 6 Deploy th Workload
+note right of KP #orange : examples/example-shared-workload.yaml
+K8s -> KP : 7 Deploy Pod
+note right of KP #orange : examples/example-pod.yaml
+K8s -> KP : 8 Set Time of Day functionality
+note right of KP #orange : examples/example-timeofday
+
+=== P-State ===
+
+PO -> K8s : 1 Deploy Controller Manager
+note right of K8s #orange : apply config/manager/manager.yaml
+PO -> KP : 2 Deploy the config
+note right of KP #orange : examples/example-powerconfig.yaml
+K8s -> KP : 3 Set Shared Profile\nand configure the P-State governor
+note right of KP #orange : examples/example-shared-profile.yaml
+K8s -> KP : 4 Deploy th Workload
+note right of KP #orange : examples/example-shared-workload.yaml
+K8s -> KP : 5 Deploy Pod
+note right of KP #orange : examples/example-pod.yaml
+
+=== C-State ===
+
+PO -> K8s : Deploy Controller Manager
+note right of K8s #orange : apply config/manager/manager.yaml
+PO -> KP : Deploy the config
+note right of KP #orange : examples/example-powerconfig.yaml
+K8s -> KP : Set Shared Profile
+note right of KP #orange : examples/example-shared-profile.yaml
+K8s -> KP : Deploy th Workload
+note right of KP #orange : examples/example-shared-workload.yaml
+K8s -> KP : Deploy Pod
+note right of KP #orange : examples/example-pod.yaml
+K8s -> KP : Set C-State functionality
+note right of KP #orange : examples/example-cstates
+
+=== Time of Day ===
+
+PO -> K8s : Deploy Controller Manager
+note right of K8s #orange : apply config/manager/manager.yaml
+PO -> KP : Deploy the config
+note right of KP #orange : examples/example-powerconfig.yaml
+K8s -> KP : Set Shared Profile
+note right of KP #orange : examples/example-shared-profile.yaml
+K8s -> KP : Deploy th Workload
+note right of KP #orange : examples/example-shared-workload.yaml
+K8s -> KP : Deploy Pod
+note right of KP #orange : examples/example-pod.yaml
+K8s -> KP : Set Time of Day functionality
+note right of KP #orange : examples/example-timeofday
+
+@enduml

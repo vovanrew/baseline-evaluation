@@ -1,0 +1,53 @@
+@startuml
+
+package "billing" {
+  package "discount" {
+    class DiscountFee
+    class DiscountService
+    class ContractForDiscount
+  }
+
+  package "contract" {
+    class ContractFee
+    class ContractForCharge {
+      DataMax5GPLan
+    }
+  }
+
+  class TotalFee
+}
+
+package "otherservice" {
+  class SmartValueTargetServiceContracts
+}
+
+package "contractmanage" {
+  class FamilyContracts
+  class Contract
+  interface ContractRepository
+}
+
+package "plan" {
+  class Plan
+}
+
+TotalFee --> DiscountFee
+TotalFee --> ContractFee
+
+DiscountService --> DiscountFee
+DiscountService --> ContractForDiscount
+ContractForDiscount --> DiscountFee
+
+DiscountService --> SmartValueTargetServiceContracts
+
+ContractForCharge --> ContractFee
+
+ContractForDiscount --> FamilyContracts
+ContractForDiscount --> Contract
+ContractForCharge --> Contract
+ContractForCharge --> Plan
+
+ContractRepository --> FamilyContracts
+ContractRepository --> Contract
+
+@enduml

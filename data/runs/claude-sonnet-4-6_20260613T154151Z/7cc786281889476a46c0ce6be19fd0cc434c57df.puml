@@ -1,0 +1,107 @@
+```plantuml
+@startuml
+
+actor アクター
+actor ユーザ
+
+box "画面"
+participant "ホーム画面" as Home
+participant "ログイン画面" as Login
+participant "タスク一覧画面" as TaskList
+participant "メンテナンス作業画面" as Maintenance
+participant "タスク情報画面" as TaskInfo
+participant "作業内容登録画面" as WorkReg
+participant "交換部品登録画面" as PartsReg
+end box
+
+participant システム as System
+
+note left of ユーザ: ユースケース
+
+== 起動する ==
+ユーザ -> Home : アイコンを押下する
+Home -> Login : 生成
+ユーザ <- Home : ログイン画面に遷移する
+
+== ログインする ==
+ユーザ -> Login : IDを入力する(id)
+ユーザ -> Login : パスワードを入力する(パスワード)
+ユーザ -> Login : ログインボタンを押下する
+Login -> System : 認証情報を送信する(id, パスワード)
+Login <- System : 認証OK
+Login -> TaskList : 生成
+ユーザ <- Login : タスク一覧画面に遷移する
+TaskList -> System : 顧客名一覧を取得する(id)
+TaskList <- System : 顧客名一覧
+
+== タスクを選択する ==
+ユーザ -> TaskList : 該当する項目を押下する
+TaskList -> Maintenance : 生成
+ユーザ <- TaskList : メンテナンス作業画面に遷移する
+
+== タスク情報を取得する ==
+ユーザ -> Maintenance : タスク情報ボタンを押下する
+Maintenance -> TaskInfo : 生成
+ユーザ <- Maintenance : タスク情報画面に遷移する
+TaskInfo -> System : タスク情報を取得する(タスクID)
+TaskInfo <- System : タスク情報
+ユーザ <- TaskInfo : タスク情報を取得する
+ユーザ -> TaskInfo : タスク情報
+ユーザ -> TaskInfo : 戻るボタンを押下する
+TaskInfo -> Maintenance : 生成
+ユーザ <- TaskInfo : メンテナンス作業画面に遷移する
+
+== 作業内容を登録する ==
+ユーザ -> Maintenance : 作業内容登録ボタンを押下する
+Maintenance -> WorkReg : 生成
+ユーザ <- Maintenance : 作業内容登録画面に遷移する
+WorkReg -> System : タスク情報を取得する(タスクID)
+WorkReg <- System : タスク情報
+ユーザ -> WorkReg : 作業内容を入力する
+ユーザ -> WorkReg : 戻るボタンを押下する
+WorkReg -> System : タスク情報を更新する(タスクID)
+WorkReg -> Maintenance : 生成
+ユーザ <- WorkReg : メンテナンス作業画面に遷移する
+
+== 交換部品を登録する ==
+ユーザ -> Maintenance : 交換部品登録ボタンを押下する
+Maintenance -> PartsReg : 生成
+ユーザ <- Maintenance : 交換部品登録画面に遷移する
+PartsReg -> System : タスク情報を取得する(タスクID)
+PartsReg <- System : タスク情報
+ユーザ -> PartsReg : 交換部品を登録する
+ユーザ -> PartsReg : 戻るボタンを押下する
+PartsReg -> System : タスク情報を更新する(タスクID)
+PartsReg -> Maintenance : 生成
+ユーザ <- PartsReg : メンテナンス作業画面に遷移する
+
+== 作業内容を取得する ==
+ユーザ -> Maintenance : 作業内容登録ボタンを押下する
+Maintenance -> WorkReg : 生成
+ユーザ <- Maintenance : 作業内容登録画面に遷移する
+WorkReg -> System : タスク情報を取得する(タスクID)
+WorkReg <- System : タスク情報
+ユーザ <- WorkReg : 作業内容を取得する
+ユーザ -> WorkReg : 戻るボタンを押下する
+WorkReg -> Maintenance : 生成
+ユーザ <- WorkReg : メンテナンス作業画面に遷移する
+
+== 交換部品を取得する ==
+ユーザ -> Maintenance : 交換部品登録ボタンを押下する
+Maintenance -> PartsReg : 生成
+ユーザ <- Maintenance : 交換部品登録画面に遷移する
+PartsReg -> System : タスク情報を取得する(タスクID)
+PartsReg <- System : タスク情報
+ユーザ <- PartsReg : 登録済み交換部品集合を取得する
+ユーザ -> PartsReg : 戻るボタンを押下する
+PartsReg -> Maintenance : 生成
+ユーザ <- PartsReg : メンテナンス作業画面に遷移する
+
+== 作業結果を送信する ==
+ユーザ -> Maintenance : 作業結果送信ボタンを押下する
+Maintenance -> System : タスク情報を送信する(タスクID)
+Maintenance -> TaskList : 生成
+ユーザ <- Maintenance : タスク一覧画面に遷移する
+
+@enduml
+```

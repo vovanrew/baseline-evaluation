@@ -1,0 +1,21 @@
+{
+  "id": "msg_013J4bcGATwqXDkmjcCYKe8G",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nparticipant ListPrivateImpl\nparticipant ProfileRetrievalService\nparticipant DFSBasedProfileStorageImpl\nparticipant DFSSystem\nparticipant DFSConnectionService\nparticipant DFSConnectionServiceImpl\nparticipant DFSConnection\nparticipant GsonSerde\nparticipant BucketAccessService\nparticipant BucketAccessServiceImpl\nparticipant DFSCredentialsService\nparticipant DFSCredentialsServiceImpl\nparticipant DocumentListService\nparticipant ListPathDecryptingServiceImpl\nparticipant ListPathNonDecryptingServiceImpl\n\nListPrivateImpl -> ListPrivateImpl : resolvePrivateLocation\nListPrivateImpl -> ProfileRetrievalService : privateProfile\nProfileRetrievalService -> DFSBasedProfileStorageImpl : privateProfile\nDFSBasedProfileStorageImpl -> DFSSystem : systemDfs\nDFSBasedProfileStorageImpl <.. DFSSystem : DFSAccess\nDFSBasedProfileStorageImpl -> DFSConnectionService : obtain\nDFSConnectionService -> DFSConnectionServiceImpl : obtain\nDFSConnectionServiceImpl --> DFSConnectionService : DFSConnection\nDFSBasedProfileStorageImpl <.. DFSConnectionService : DFSConnection\nDFSBasedProfileStorageImpl -> DFSBasedProfileStorageImpl : locatePrivateProfile\nDFSBasedProfileStorageImpl <.. DFSBasedProfileStorageImpl : BucketPath\nDFSBasedProfileStorageImpl -> DFSConnection : getBlob\nDFSBasedProfileStorageImpl <.. DFSConnection : Payload\nDFSBasedProfileStorageImpl -> GsonSerde : fromJson\nDFSBasedProfileStorageImpl <.. GsonSerde : T\nProfileRetrievalService <.. DFSBasedProfileStorageImpl : UserPrivateProfile\nListPrivateImpl <.. ProfileRetrievalService : UserPrivateProfile\n\n== ==\n\nListPrivateImpl -> BucketAccessService : privateAccessFor\nBucketAccessService -> BucketAccessServiceImpl : privateAccessFor\nBucketAccessServiceImpl -> DFSCredentialsService : privateUserCredentials\nDFSCredentialsService -> DFSCredentialsServiceImpl : privateUserCredentials\nDFSCredentialsServiceImpl --> DFSCredentialsService : DFSCredentials\nBucketAccessServiceImpl <.. DFSCredentialsService : DFSCredentials\nBucketAccessServiceImpl -> BucketAccessServiceImpl : systemDfs\nBucketAccessServiceImpl <.. BucketAccessServiceImpl : DFSAccess\nBucketAccessServiceImpl <.. BucketAccessServiceImpl : DFSAccess\nListPrivateImpl <.. BucketAccessService : DFSAccess\n\n== ==\n\nListPrivateImpl -> DocumentListService : list\nListPrivateImpl -> ListPathDecryptingServiceImpl : obtain\nListPathDecryptingServiceImpl -> DFSConnectionService : obtain\nDFSConnectionService --> ListPathDecryptingServiceImpl : DFSConnection\nListPathDecryptingServiceImpl <.. DFSConnectionService : DFSConnection\nListPathDecryptingServiceImpl -> ListPathDecryptingServiceImpl : list\nListPathDecryptingServiceImpl -> ListPathNonDecryptingServiceImpl : list\nListPathNonDecryptingServiceImpl --> ListPathDecryptingServiceImpl : List\nListPathDecryptingServiceImpl --> ListPathDecryptingServiceImpl : Stream\nListPathNonDecryptingServiceImpl --> ListPathNonDecryptingServiceImpl : Stream\nListPrivateImpl <.. ListPrivateImpl : Stream\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781431234,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 856,
+    "prompt_tokens": 1608,
+    "total_tokens": 2464
+  }
+}

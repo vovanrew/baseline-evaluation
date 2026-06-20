@@ -1,0 +1,31 @@
+```plantuml
+@startuml
+
+box "host"
+participant "MultiDisplayService" as host_mds
+end box
+
+box "rcv"
+participant "IMultipleDisplaysUiController" as rcv_ctrl
+participant "IMultipleDisplaysDelegate" as rcv_del
+end box
+
+box "controller"
+participant "DisplaysSwapViewController" as ctrl_vc
+participant "DisplaysSwapPresenter" as ctrl_pres
+end box
+
+host_mds -> host_mds : onDisplayAdded
+host_mds -> rcv_ctrl : updateDisplayInfos
+host_mds -> host_mds : onDisplayRemoved
+host_mds -> rcv_ctrl : updateDisplayInfos
+
+rcv_ctrl <-- ctrl_vc : swap()
+ctrl_vc -> ctrl_pres : swap()
+ctrl_pres -> ctrl_pres : onUpdateDisplayInfo(IMultipleDisplaysUiController var1, EMultipleDisplaysAction var2)
+ctrl_pres -> ctrl_pres : loadMonitorsIndicator()
+host_mds <- ctrl_pres : onUpdateDisplayInfo(IMultipleDisplaysUiController var1, EMultipleDisplaysAction var2)
+host_mds -> host_mds : notifyMultiDisplayChanged(type: MultiDisplayChangeType,displayId: Int)
+
+@enduml
+```

@@ -1,0 +1,35 @@
+```plantuml
+@startuml
+skinparam handwritten true
+
+interface Aggregate {
+    + Iterator iterator()
+}
+
+interface Iterator<T> {
+    + boolean hasNext()
+    + T next()
+}
+
+class BookShelf {
+    + BookIterator iterator()
+}
+
+class BookIterator {
+    - BookShelf bookShelf
+    + boolean hasNext()
+    + Book next()
+}
+
+Aggregate <|-- BookShelf
+Iterator <|-- BookIterator
+BookShelf o-- BookIterator
+Aggregate --> Iterator : Creates
+
+note top of Aggregate: 集合，用于创建Iterator迭代器接口
+note bottom of BookShelf: 会创建出具体的Iterator角色
+note bottom of BookIterator: 具体的迭代器，\n包含了遍历集合所必须的信息（bookShelf）
+
+title 迭代器模式
+@enduml
+```

@@ -1,0 +1,22 @@
+{
+  "id": "5569abd3-d89e-439d-8a50-82d056084dde",
+  "object": "chat.completion",
+  "created": 1781492195,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle RqP \u2013 Request Resource\n\nactor \"Requesting Party\\n(RqP)\" as RqP\npackage \"Client Application (CA)\\n\u00abCustom Application\u00bb\" as CA {\n    box \"User Interface\" as UI\n}\npackage \"Resource Server (RS)\\n\u00abCustom Application\u00bb\" as RS {\n    box \"REST API\" as REST_API\n    database \"Resource\" as ResourceDB\n    database \"Credential\" as CredentialDB\n}\npackage \"Authorization Server (AS)\\nForgeRock Access Manager\" as AS {\n    box \"AM API\" as AM_API\n    box \"UMA API\" as UMA_API\n    box \"OAuth API\" as OAuth_API\n}\npackage \"Content Server (CS)\\n\u00abCustom Application\u00bb\" as CS {\n    box \"REST API\" as CS_REST_API\n    database \"Data\" as DataDB\n}\n\nRqP -> AM_API: Authenticate\nactivate AM_API\nAM_API --> RqP: Authenticated\ndeactivate AM_API\n\nRqP -> UI: Access Interface\nactivate UI\nUI -> UI: Obtain Resource Id\\n(maybe from Discover Resources)\nUI -> REST_API: GET /share/resources/{resourceId}\\nscopes (no valid RPT)\nactivate REST_API\nREST_API -> ResourceDB: Get_id\nactivate ResourceDB\nResourceDB --> REST_API: meta data\ndeactivate ResourceDB\nREST_API -> CredentialDB: Get PAT\nactivate CredentialDB\nCredentialDB --> REST_API: PAT\ndeactivate CredentialDB\ndeactivate REST_API\n\nnote right of UI: Get permission ticket for the\\nresource and scope\nREST_API -> UMA_API: POST /am/uma/permission_request\\nresource_id + scopes\nactivate UMA_API\nUMA_API --> REST_API: permission ticket\ndeactivate UMA_API\nREST_API --> UI: permission ticket + AS URI\ndeactivate UI\n\nUI -> UI: Get client auth basic\nnote left of UI: Get claim token for the\\nRequesting Party (RqP)\nUI -> OAuth_API: POST /am/oauth2/access_token\\nscope=openid\\nSSO session\nactivate OAuth_API\nOAuth_API -> OAuth_API: Validate SSO session\nOAuth_API --> UI: claim token\ndeactivate OAuth_API\n\nnote left of UI: Get Requesting Party Token (RPT)\\nusing the permission ticket\\nand claim token\nUI -> OAuth_API: POST /am/oauth2/access_token\\ngrant_type=urn:ietf:params:oauth:grant-type:uma-ticket\\nscope=..., ticket=..., claim_token=..., claim_token_format=...\nactivate OAuth_API\nOAuth_API -> AM_API: Check Access\nactivate AM_API\nAM_API -> AM_API: No Policy for RqP + Resource + scopes\\nCreate Access Request for Resource Owner\nAM_API --> OAuth_API: No Access, request Submitted\ndeactivate AM_API\ndeactivate OAuth_API\nOAuth_API --> UI: Error: Request Submitted\ndeactivate UI\nUI --> RqP\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1713,
+    "completion_tokens": 636,
+    "total_tokens": 2349
+  }
+}

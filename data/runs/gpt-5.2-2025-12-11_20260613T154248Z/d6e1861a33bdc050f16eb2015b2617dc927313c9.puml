@@ -1,0 +1,149 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #9a9a9a
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #7f7f7f
+  ParticipantBackgroundColor #d9d9e6
+  ParticipantFontColor black
+  ActorBorderColor #7f7f7f
+  ActorBackgroundColor #d9d9e6
+  ArrowColor #333333
+  MessageAlign left
+  BoxBorderColor #bfbfbf
+  BoxBackgroundColor #ffffff
+  NoteBorderColor #bfbf8a
+  NoteBackgroundColor #ffffe0
+}
+hide footbox
+
+participant "AbstractApplicationContext" as AAC
+participant "GenericApplicationContext" as GAC
+participant "ApplicationContextAwareProcessor" as ACAP
+participant "AbstractAutowireCapableBeanFactory" as AABF
+participant "DefaultListableBeanFactory" as DLBF
+
+note left of AAC
+以下流程都在refresh()方法内部
+end note
+
+note left of AAC
+第1步
+end note
+
+AAC -> AAC : 1 prepareRefresh
+activate AAC
+AAC -> AAC : initPropertySources()
+note left of AAC
+空方法 留给子类重写
+end note
+AAC -> AAC : getEnvironment()
+AAC -> AAC : validateRequiredProperties()
+AAC -> AAC : new LinkedHashSet<>()
+note left of AAC
+泛型ApplicationEvent
+end note
+deactivate AAC
+
+note left of AAC
+第2步
+end note
+
+AAC -> AAC : 2 obtainFreshBeanFactory()
+activate AAC
+AAC -> GAC : refreshBeanFactory()
+activate GAC
+GAC -> DLBF : new DefaultListableBeanFactory()
+activate DLBF
+DLBF -> DLBF : setSerializationId(getId())
+deactivate DLBF
+deactivate GAC
+
+AAC <-- GAC : 未定义变量接收返回值
+AAC -> GAC : getBeanFactory
+GAC --> AAC : 返回 DefaultListableBeanFactory
+deactivate AAC
+
+note left of AAC
+第3步
+end note
+
+AAC -> AAC : 3 prepareBeanFactory
+activate AAC
+
+note left of AAC
+设置BeanFactory的类加载器、支持表达式解析器
+end note
+
+note left of AAC
+添加Bean后置处理器 例如
+end note
+
+AAC -> AABF : addBeanPostProcessor(new ApplicationContextAwareProcessor(this))
+activate AABF
+AABF -> ACAP : 构造器
+activate ACAP
+deactivate ACAP
+AABF --> AAC : 返回 ApplicationContextAwareProcessor
+deactivate AABF
+
+note left of AAC
+设置忽略的自动装配的接口 例如
+end note
+
+AAC -> AABF : ignoreDependencyInterface(ApplicationEventPublisherAware.class)
+activate AABF
+AABF -> AABF : ignoredDependencyInterfaces.add(ifc)
+deactivate AABF
+AAC <-- AABF : 未定义变量接收返回值
+
+note left of AAC
+注册可以解析的自动装配 例如
+end note
+
+AAC -> DLBF : registerResolvableDependency(BeanFactory.class, beanFactory)
+activate DLBF
+note left of DLBF
+params { dependencyType, autowiredValue }
+end note
+DLBF -> DLBF : resolvableDependencies.put();
+deactivate DLBF
+AAC <-- DLBF : 未定义变量接收返回值
+
+note left of AAC
+添加ApplicationListenerDetector的Bean后置处理器
+end note
+note left of AAC
+添加编译时的AspectJ；
+end note
+note left of AAC
+给BeanFactory中注册一些能用的组件
+end note
+
+AAC -> DLBF : registerSingleton(ENVIRONMENT_BEAN_NAME / SYSTEM_PROPERTIES_BEAN_NAME / SYSTEM_ENVIRONMENT_BEAN_NAME)
+activate DLBF
+note left of DLBF
+params{beanName, singletonObject}
+end note
+DLBF -> DLBF : addSingleton();
+deactivate DLBF
+AAC <-- DLBF : 未定义变量接收返回值
+
+deactivate AAC
+
+note left of AAC
+第4步
+end note
+
+note left of AAC
+在应用程序上下文的标准初始化之后修改其内部bean工厂
+end note
+
+AAC -> AAC : postProcessBeanFactory(beanFactory);
+note left of AAC
+空方法 留给子类重写
+end note
+
+@enduml

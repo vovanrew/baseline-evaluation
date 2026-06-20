@@ -1,0 +1,43 @@
+```plantuml
+@startuml
+
+skinparam classAttributeIconSize 0
+
+interface Invoker <<(I,#7B68EE)>> {
+}
+
+interface Command <<(I,#7B68EE)>> {
+    execute()
+    undo()
+}
+
+interface Client <<(I,#7B68EE)>> {
+}
+
+class ConcreteCommand <<(C,#90EE90)>> {
+    execute()
+    undo()
+}
+
+interface Receiver <<(I,#7B68EE)>> {
+    action()
+}
+
+Invoker --> Command
+ConcreteCommand ..|> Command
+Client --> ConcreteCommand
+Client --> Receiver
+ConcreteCommand --> Receiver
+
+note top of Invoker : 调用者持有命令对象，\n并在某刻调用execute()
+
+note top of Command : 调用命令对象的execute()\n就可以让接收者进行动作
+
+note right of Client : 这个客户负责创建一个\nConcreteCommand，并\n设置其接受者
+
+note left of ConcreteCommand : 定义了动作和接收者之间\n的绑定关系，调用者只需\n要调用execute()就可以\n发出请求
+
+note bottom of Receiver : 接收者知道如何实现这个请求
+
+@enduml
+```

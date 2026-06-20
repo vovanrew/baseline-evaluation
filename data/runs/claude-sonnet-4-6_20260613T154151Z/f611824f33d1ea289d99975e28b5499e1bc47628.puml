@@ -1,0 +1,46 @@
+@startuml
+title Retrieve Part value
+
+actor User
+
+box "driftd service" #lightblue
+participant "libdrift" as libdrift
+participant "Advertisement channel" as advchan
+participant "Control channel" as ctrlchan
+participant "driftd" as driftd
+end box
+
+participant "Neo4j" as neo4j
+participant "MongoDB" as mongodb
+
+User -> libdrift : get Part value
+
+note left of libdrift
+Retrieval message contains
+index specifier
+index value
+end note
+
+libdrift -> advchan : send retrieval message
+libdrift <-- advchan : ACK
+
+advchan -> driftd : get Part value
+
+driftd -> driftd : Lookup Part UUID in index
+driftd -> neo4j : Get Part info
+
+alt [Composite Part]
+  loop [foreach Part]
+    driftd -> neo4j : Get Part metadata with UUID
+    driftd -> mongodb : Get Part values
+  end
+else [Simple Part]
+  driftd -> neo4j : Get Part metadata with UUID
+  driftd -> mongodb : Get Part values
+end
+
+driftd -> driftd : build update message
+advchan <-- driftd : Update messages for Part values
+libdrift <-- advchan : receive update message
+
+@enduml

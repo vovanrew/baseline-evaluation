@@ -1,0 +1,55 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F6
+  ActorBorderColor #666666
+  ActorBackgroundColor #E9E9F6
+}
+
+actor ScooterOwner as SO
+boundary Dashboard as DB
+control BikeService as BS
+control ClaimsService as CS
+entity bike as BI
+entity Claim as CL
+
+SO -> DB : lockBike
+activate SO
+activate DB
+
+DB -> BS : lockBike(bike)
+activate BS
+
+BS -> BI : lockBike(bike)
+activate BI
+BI --> BS : bike
+deactivate BI
+
+BS --> DB : bike
+deactivate BS
+
+DB --> SO : bike
+deactivate DB
+
+SO -> DB : unlockBike
+activate DB
+
+DB -> BS : unlockBike(bike)
+activate BS
+
+BS -> BI : unlockBike(bike)
+activate BI
+BI --> BS : bike
+deactivate BI
+
+BS --> DB : bike
+deactivate BS
+
+DB --> SO : bike
+deactivate DB
+deactivate SO
+@enduml

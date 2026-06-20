@@ -1,0 +1,70 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #777777
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6F2
+  ActorBorderColor #666666
+  ActorBackgroundColor #FFFFFF
+  BoxBorderColor #000000
+  BoxBackgroundColor #FFFFFF
+  DividerBorderColor #000000
+  DividerBackgroundColor #FFFFFF
+  DividerFontStyle bold
+  MessageFontColor #000000
+}
+
+actor "Пользователь" as User
+participant "СиловойМодуль" as Power
+participant "РелеПитания" as Relay
+participant "МодульСетевогоУправления" as Net
+
+' initial state note-like self message
+Power -[#red]> Power : Выключен
+
+User -> Power : Нажатие кнопки
+activate Power
+
+Power -[#green]> Relay : Включение
+activate Relay
+Relay -[#green]> Power : Включение
+deactivate Relay
+
+Power -> User : Светодиод на кнопке моргает
+
+== Модули производят начальную настройку ==
+
+Power -[#blue]> Net : {"action": "found_module", "meta":{...}}
+activate Net
+Net -[#green]> Power : {"status": "ok"}
+deactivate Net
+
+Power -> User : Светодиод на кнопке включён
+Power -[#green]> Power : Включён
+
+== Нормальная работа робота ==
+
+User -> Power : Нажатие кнопки
+Power -> User : Светодиод на кнопке моргает
+
+Power -[#blue]> Net : {"action": "shutdown"}
+activate Net
+Net -[#green]> Power : {"timeout": N}
+deactivate Net
+
+Power -[#red]> Power : Выключение
+
+== Модули производят процедуры по безопасному выключению ==
+
+== Проходит N секунд ==
+
+Power -> User : Светодиод на кнопке выключен
+Power -[#red]> Relay : Выключение
+activate Relay
+deactivate Relay
+Power -[#red]> Power : Выключен
+
+deactivate Power
+@enduml

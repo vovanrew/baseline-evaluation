@@ -1,0 +1,54 @@
+@startuml
+left to right direction
+actor Admin
+actor User
+participant "AccountManagement" as AM
+participant "Broker" as Broker
+participant "Notifications" as Notifications
+participant "UAA" as UAA
+participant "EmailSender" as EmailSender
+
+Admin -> AM: WorkspaceInvitation
+note right of AM: with email
+AM -> AM: save data to db
+AM --> Admin: 200 response
+AM -> Broker: create event "new user invited event"
+Broker -> Notifications: read event
+note right of Notifications: with email and senderId
+Notifications -> UAA: read info about sender
+Notifications -> Notifications: generate email
+Broker -> Notifications: create "new email event"
+Broker -> EmailSender: read "new email event"
+EmailSender --> Admin: send email
+
+alt [user accepts invitation]
+  User -> AM: WorkspaceEmailValidation
+  AM -> AM: check email
+  AM --> User: WorkspaceEmailValidationResult
+  alt [email valid]
+    AM -> AM: generate access code
+    AM -> Broker: create event "new access code"
+    Broker -> Notifications: read event
+    note right of Notifications: with email and access code
+    Notifications -> Notifications: generate email
+    Broker -> Notifications: create "new email event"
+    Broker -> EmailSender: read "new email event"
+    EmailSender --> User: send email
+  end
+  User -> User: get access code from email
+  User -> AM: WorkspaceAccessCodeValidation
+  AM --> User: WorkspaceAccessCodeValidationResult
+  note right of AM: with email, access code
+  alt [access code valid]
+    AM -> AM: change state
+    User -> UAA: WorkspaceRegistration
+    note right of UAA: with email, username, password and code
+    UAA -> AM: check state by email
+    note right of AM: with userId and email
+    AM -> Broker: create new event "user created event"
+    Broker -> Notifications: read event "user created event"
+    Notifications -> Notifications: create user with email
+  end
+end
+
+@enduml

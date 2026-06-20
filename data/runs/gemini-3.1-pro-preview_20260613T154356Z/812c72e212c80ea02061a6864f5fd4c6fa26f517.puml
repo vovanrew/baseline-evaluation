@@ -1,0 +1,95 @@
+```plantuml
+@startuml
+class CreateClinicalAnalysisLaboratoryUI {
+}
+
+class CreateClinicalController {
+  + createClinical(idLaboratory, name, address, phoneNumber, tin, testTypes)
+  + saveClinical()
+}
+
+class TestTypeMapper {
+  + List<TestTypeDTO> toDTO(List<TestType> list)
+  + TestTypeDTO toDTO(TestType obj)
+}
+
+class TestTypeStore {
+  + createTestType(type, collectingMethods)
+  + validateTestType(tt)
+  + saveTestType(tt)
+  + addTestType(tt)
+  + getTestType(tt)
+}
+
+class TestTypeDTO {
+  - type
+  - collectingMethods
+  + TestTypeDTO(type, collectingMethods)
+}
+
+class Administrator {
+  + createClinical(idLaboratory, name, address, phoneNumber, tin, testTypes)
+  + saveClinical(clinical)
+  - validate(clinical)
+}
+
+class Clinical {
+  - String idLaboratory
+  - String name
+  - String address
+  - String phoneNumber
+  - String tin
+  - String[] testTypes
+  + Client(idLaboratory, name, address, phoneNumber, tin, testTypes)
+}
+
+class Employee {
+  - String idEmployee
+  - String name
+  - String function
+  - String phoneNumber
+  - String email
+  - String address
+  - String soc
+}
+
+class TestType {
+  - String type
+  - String collectingMethods
+  + getTestType()
+}
+
+class Platform {
+  + getClinicals()
+  + addClinical(clinical)
+}
+
+class ClinicalStore {
+  + getClinicals()
+  + addClinicals()
+}
+
+CreateClinicalAnalysisLaboratoryUI ..> CreateClinicalController
+CreateClinicalAnalysisLaboratoryUI ..> TestTypeDTO
+
+CreateClinicalController ..> TestTypeMapper
+CreateClinicalController ..> TestTypeStore
+CreateClinicalController ..> TestTypeDTO
+CreateClinicalController ..> Administrator
+CreateClinicalController ..> Platform
+
+TestTypeMapper ..> TestTypeDTO
+TestTypeMapper ..> TestTypeStore
+
+Administrator "1" --> "*" Clinical : create
+Administrator "1" --> "*" TestType : create
+Administrator "1" --> "*" Employee : is
+
+Clinical "1" --> "1" TestType : conducts
+
+Employee --> Platform : uses
+
+Platform ..> ClinicalStore
+
+@enduml
+```

@@ -1,0 +1,61 @@
+@startuml
+title 票据签发
+
+autonumber
+
+participant "web" as web
+participant "供票服务" as service
+participant "文件系统" as fileSystem
+participant "贸易背景" as tradeBackground
+participant "工作流" as workflow
+participant "短信服务" as smsService
+
+web -> service: 1 点击票据签发
+service --> web: 2 填写出票人信息
+web -> service: 3 填写承兑人信息
+service --> web: 4 填写收票人信息
+web -> service: 5 填写保证人信息（非必须）
+service --> web: 6 填写票据信息
+web -> service: 7 点击下一步
+service --> web: 8 请求保存第一步数据
+
+service -> service: 9 入参校验
+service -> service: 10 创建交易单（trade表,交易状态 1-初始）
+service -> service: 11 创建交易单记录（trade_detail表,预生成bill_id和bill_code）
+service -> service: 12 添加资产记录（assert表,资产状态=0初始）
+service -> service: 13 添加开票拓展记录,绑定资产id(trade_issue_ext表)
+service --> web: 14 返回trade_code
+
+web -> service: 15 上传贸易背景资料
+service -> fileSystem: 16 上传贸易背景资料
+fileSystem --> service: 17 贸易背景文件id
+service --> web: 18 贸易背景文件id
+
+web -> service: 19 请求发票清单
+service -> tradeBackground: 20 请求发票列表
+tradeBackground --> service: 21 可用的发票列表
+service --> web: 22 可用的发票资料
+
+web -> service: 23 点击下一步
+service -> service: 24 入参校验,若有上传发票,则校验发票金额和开票金额大小<br/>反之则不校验
+service -> tradeBackground: 25 发送选定的发票id和文件id
+tradeBackground -> tradeBackground: 26 校验发票是否可用
+
+alt [发票不可用]
+  service -> smsService: 27 发送短信通知开票人发票不可用
+else [发票可用]
+  tradeBackground --> service: 28 贸易背景id
+  service -> service: 29 绑定贸易背景id（trade_issue_ext表）
+end
+
+service --> web: 30 展示票面核对信息
+web -> service: 31 确认提交
+service -> service: 32 动态密码器挑战码校验
+service -> service: 33 修改trade状态,1初始->2待审核
+service -> workflow: 34 请求开启工作流
+workflow --> service: 35 返回工作流id
+service -> service: 36 保存工作流id
+service -> smsService: 37 发送短信通知下一审批人
+service --> web: 38 完成
+
+@enduml

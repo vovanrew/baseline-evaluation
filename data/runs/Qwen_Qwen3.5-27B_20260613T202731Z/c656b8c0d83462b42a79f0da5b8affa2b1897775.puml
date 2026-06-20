@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "Customer" as Customer
+rectangle "Frontend" as Frontend
+rectangle "Backend" as Backend
+database "Database" as Database
+
+box "Make Event" #LightBlue
+    Customer -> Frontend : Presses the "Make new Event"-button
+    Frontend -> Backend : Request to open new window
+    activate Backend
+    Backend -> Backend : Generates empty event-object
+    deactivate Backend
+    Backend -->> Frontend : Opens new window
+    Customer -> Frontend : Enters event information
+    Customer -> Frontend : Presses "Create"-button
+    Frontend -> Backend : Request to validate input
+    alt [Successful case]
+        Backend -> Backend : Validation successful
+        Backend -> Database : Adds event to database
+        Database -->> Backend : Adds event to list
+        Backend -> Frontend : Closes window
+        Frontend -> Frontend : Selects newly added event from list
+        Frontend -> Customer : Displays eventinformation to user
+    else [Validation failed]
+        Backend -x Backend : Validation failed
+        Backend -> Frontend : Displays alert of type ERROR
+        Frontend -> Customer : Lists up fields with errors
+        Customer -> Frontend : Closes alertbox
+    end
+end box
+
+box "Cancel" #LightBlue
+    Customer -> Frontend : Presses the "Cancel"-button
+    Frontend -> Backend : Request to close process
+    activate Backend
+    Backend -> Backend : Deletes event-object
+    deactivate Backend
+    Backend -> Frontend : Closes window
+    Frontend -> Frontend : Selects first event in list
+    Frontend -> Customer : Displays list of events
+end box
+
+@enduml
+```

@@ -1,0 +1,22 @@
+{
+  "id": "2b5f541a-0085-4b05-95b6-10877a85ab3f",
+  "object": "chat.completion",
+  "created": 1781425927,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Compass Sequence Diagram\n\nactor \"User\" as User\nparticipant \"HubSpot\" as HubSpot\nparticipant \"TypeForm\" as TypeForm\nparticipant \"TypeForm API\" as TypeFormAPI\nparticipant \"Node App\" as NodeApp\nparticipant \"S3 Bucket\" as S3Bucket\nparticipant \"SES\" as SES\n\nrectangle AWS {\n  participant \"S3 Bucket\" as S3BucketAWS\n  participant \"SES\" as SESAWS\n}\n\nUser -> HubSpot: Loads Compass\nactivate HubSpot\nHubSpot --> HubSpot: Generate UUID to identify user\nHubSpot -> TypeForm: Load embedded TypeForm survery\ndeactivate HubSpot\n\nUser -> HubSpot: Completes survey\nactivate HubSpot\nHubSpot -> TypeForm: Redirects to HubSpot Landing Page Submission Form\\nhttps://info.codurance.com/en/compass-details-submission\ndeactivate HubSpot\n\nUser -> HubSpot: Completes submission form\nactivate HubSpot\nHubSpot --> HubSpot: Save submission info & contact in Hubspot\nHubSpot -> NodeApp: Redirects to /report/submit/:uuid (to generate report)\ndeactivate HubSpot\n\nactivate NodeApp\nNodeApp --> NodeApp: Start report generation\nNodeApp -> TypeFormAPI: Gets survery questions & answers\nTypeFormAPI --> NodeApp: Gets survery questions & answers\nNodeApp -> HubSpot: Get user details\nHubSpot --> NodeApp: Get user details\nNodeApp --> NodeApp: Build report and render with jsreport\nNodeApp -> S3BucketAWS: Upload report to AWS S3 bucket\nS3BucketAWS --> NodeApp: Query report link\nNodeApp --> NodeApp: Compose email data with report pdf link\nNodeApp -> SESAWS: Queue email for sending\ndeactivate NodeApp\n\nNodeApp -> User: Send email to user\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1664,
+    "completion_tokens": 392,
+    "total_tokens": 2056
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "45d57527-e74c-4696-8051-ead0a87364e0",
+  "object": "chat.completion",
+  "created": 1781432030,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Kubectl Request\n\nactor \"kubectl\" as kubectl\nparticipant \"K8s Auth Proxy\" as authProxy\nparticipant \"K8s API Server\" as apiServer\nparticipant \"Hydra\" as hydra\n\nnote left of kubectl: Set the correct cluster with\\nserver pointing to the k8auth\\nin the kubectl config\n\nkubectl -> authProxy: GET: https://k8s.dolittle.cloud/api/pods\\nHeader: { Authentication: Bearer <token> }\nactivate authProxy\n\nauthProxy -> hydra: GET: http://hydra.system-auth.svc.cluster.local/userinfo\nactivate hydra\n\nalt [If good token]\n    hydra --> authProxy: Status 200 { claims... }\n    deactivate hydra\n    \n    authProxy -> apiServer: Impersonate: Hydra-User-Info\\nGET: https://<local-cluster-url>/api/pods\n    activate apiServer\n    \n    apiServer --> authProxy: Status 200 (results)\n    deactivate apiServer\n    \n    authProxy --> kubectl: Status 200 (results)\n    \nelse [If bad/no token]\n    hydra --> authProxy: Status 401\n    deactivate hydra\n    \n    authProxy --> kubectl: Status 401\nend\n\ndeactivate authProxy\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1811,
+    "completion_tokens": 294,
+    "total_tokens": 2105
+  }
+}

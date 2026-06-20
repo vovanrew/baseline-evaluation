@@ -1,0 +1,65 @@
+```plantuml
+@startuml
+title Update States
+
+participant Simulator
+box "Wayside Controller" #E2E2E2
+participant TrackControllers
+participant WaysideController
+participant PLC
+participant WaysideControllerGUI
+end box
+participant TrackModel
+
+activate Simulator
+Simulator -> TrackControllers : timeUpdate(SimTime)
+deactivate Simulator
+activate TrackControllers
+
+loop waysideControllers
+    TrackControllers -> WaysideController : updateStates()
+    activate WaysideController
+
+    loop associatedBlocks
+        WaysideController -> TrackControllers : receiveBlockInfo(line, blockId)
+        TrackControllers -> TrackModel : getBlockInfo(line, blockId)
+        activate TrackModel
+        TrackModel --> TrackControllers : Block
+        deactivate TrackModel
+        TrackControllers --> WaysideController : Block
+
+        WaysideController -> WaysideController : runPLC(occupancy)
+        WaysideController -> PLC : getLogic()
+        activate PLC
+        PLC --> WaysideController : String logic
+        deactivate PLC
+    end
+
+    alt if(newState != currentState)
+        WaysideController -> TrackControllers : transmitState(line, blockId, state)
+        TrackControllers -> TrackModel : setState(line, blockId, state)
+        activate TrackModel
+        TrackModel --> TrackControllers : Success
+        deactivate TrackModel
+    end
+
+    alt if(Wayside Controller Selected)
+        WaysideController -> WaysideControllerGUI : displayInfo()
+        activate WaysideControllerGUI
+        WaysideControllerGUI -> WaysideController : receiveBlockInfo(line, blockId)
+        WaysideController -> TrackControllers : receiveBlockInfo(line, blockId)
+        TrackControllers -> TrackModel : getBlockInfo(line, blockId)
+        activate TrackModel
+        TrackModel --> TrackControllers : Block
+        deactivate TrackModel
+        TrackControllers --> WaysideController : Block
+        WaysideController --> WaysideControllerGUI : Block
+        deactivate WaysideControllerGUI
+    end
+    deactivate WaysideController
+end
+
+deactivate TrackControllers
+
+@enduml
+```

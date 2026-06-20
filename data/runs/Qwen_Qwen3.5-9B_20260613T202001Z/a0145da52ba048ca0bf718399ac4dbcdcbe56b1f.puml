@@ -1,0 +1,72 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+  FontColor Black
+}
+
+class "Matrícula" as Matrícula {
+  -id: Int
+  -cliente: Client
+  -tempo: Int
+  -quadra: Turma
+  +registraMatrícula(): Int
+}
+
+class "Aluno" as Aluno {
+  -id: Int
+  -nome: String
+  -locação: List<Matrícula>
+}
+
+class "ControleNúmeroMatrícula" as ControleNúmeroMatrícula {
+  <<interface>>
+  #quantidadeDeMatrícula: Int
+  +registraMatrícula(): Int
+}
+
+class "Turma" as Turma {
+  -numero: Int
+  -aluguel: Matrícula
+  -ginasio: Curso
+  +getcontroleNúmeroMatrícula()
+}
+
+class "Curso" as Curso {
+  -nome: String
+  -professor: String
+  -quadra: List<Turma>
+}
+
+Matrícula --|> ControleNúmeroMatrícula : realização
+Matrícula --* Turma : composição >
+Turma --* Curso : composição
+Aluno --* Matrícula : composição 1
+Matrícula -- Turma : composição 1..*
+
+Matrícula ..> ControleNúmeroMatrícula : dependência
+
+note top of "Matrícula"
+  C
+end note
+
+note top of "Aluno"
+  C
+end note
+
+note top of "ControleNúmeroMatrícula"
+  I
+end note
+
+note top of "Turma"
+  C
+end note
+
+note top of "Curso"
+  C
+end note
+
+@enduml

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01WAJGBk1KzfwvonWDxSZXmy",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle US029 - As Project Manager, I want to start a sprint.\n\nactor \"Project Manager\" as PM\nparticipant \": StartSprintRoute\" as Route\nparticipant \": StartSprintController\" as Controller\nparticipant \": StartSprintService\" as Service\nparticipant \"dto : SprintDTO\" as DTO\nparticipant \": Project\" as Project\nparticipant \": SprintDomainService\" as DomainService\nparticipant \": SprintStore\" as SprintStore\nparticipant \": ResourceStore\" as ResourceStore\n\nPM -> Route : Asks to start a Sprint\nRoute -> Controller : startSprint(sprintDTO)\nController -> Service : startSprint(sprintDTO)\nService -> DTO : getProjectTeam()\nDTO --> Service : projectTeam\nService -> DTO : getSprintDuration()\nDTO --> Service : sprintDuration\nService -> DomainService : startSprint(dto.projectID, dto.sprintID, dto.startDate,\\nprojectTeam, sprintDuration)\nDomainService -> SprintStore : findAllSprintByProjectID (projectID)\nSprintStore --> DomainService :\nDomainService -> SprintStore : findSprintByID (sprintID)\nSprintStore --> DomainService :\nDomainService -> DomainService : validateStartDate(startDate)\nDomainService --> DomainService : true\nDomainService -> DomainService : validateProjectTeam(startDate, sprintDuration)\nDomainService -> ResourceStore : getProductOwnerByStartDate(startDate, sprintDuration)\nResourceStore --> DomainService :\nDomainService -> ResourceStore : getScrumMasterByStartDate(startDate, sprintDuration)\nResourceStore --> DomainService :\nDomainService --> DomainService : true\nDomainService -> SprintStore : setStartDate(startDate)\nSprintStore --> DomainService :\nDomainService --> Service : true\nService --> Controller : true\nController --> Route : true\nRoute --> PM : Informs Operation Success\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370711,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 501,
+    "prompt_tokens": 1664,
+    "total_tokens": 2165
+  }
+}

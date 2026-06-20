@@ -1,0 +1,49 @@
+@startuml
+hide footbox
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 20
+  LifeLineBorderColor #666666
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor transparent
+  ArrowColor #000000
+  ArrowThickness 2
+  MessageAlign left
+}
+skinparam actor {
+  BackgroundColor #E9E9FF
+  BorderColor #000000
+}
+skinparam participant {
+  BackgroundColor #E9E9FF
+  BorderColor #000000
+  FontSize 26
+}
+skinparam box {
+  BackgroundColor #DDDDDD
+  BorderColor #000000
+  FontSize 30
+  FontStyle bold
+}
+
+actor "Customer" as C
+
+box "Shopware Platform" #DDDDDD
+  participant "Checkout" as CO
+  participant "Asynchronous\nPayment Handler" as APH
+end box
+
+box "External System" #DDDDDD
+  actor "Payment Platform" as PP
+end box
+
+C -[#000000,dashed,thickness=2]> CO : pay
+CO -[#000000,dashed,thickness=2]> APH : pay
+APH -[#000000,dashed,thickness=2]> C : redirect
+C -[#000000,dashed,thickness=2]> PP : pay
+PP -[#000000,dashed,thickness=2]> CO : redirect
+CO -[#000000,dashed,thickness=2]> APH : finalize
+
+@enduml

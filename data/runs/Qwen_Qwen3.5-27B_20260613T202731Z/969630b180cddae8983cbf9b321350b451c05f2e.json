@@ -1,0 +1,22 @@
+{
+  "id": "63cc641a-d1c1-4652-857b-0934f4c0689f",
+  "object": "chat.completion",
+  "created": 1781438266,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Skava Integration \u2013 Order Replaced Completed\n\nparticipant \"Skava AWS\" as skava_aws\n    participant \"Skava Event Orchestration\" as skava_event_orchestrator\nparticipant \"Kafka\" as kafka\n    participant \"Topics\" as topics\nparticipant \"YL Services\" as yl_services\n    participant \"Order Sync Service\" as order_sync_service\ndatabase \"Legacy DB\" as legacy_db\n\nskava_event_orchestrator -> topics: 1 Produce OrderReplacedCompleted Message\nactivate topics\ndeactivate topics\n\nnote right of topics: Async\n\ntopics -> order_sync_service: 2 Consume OrderReplacedCompleted Message\nactivate order_sync_service\n\norder_sync_service -> legacy_db: 3 Update order status in legacy db\nactivate legacy_db\nlegacy_db --> order_sync_service: 4 Response/Order ID\ndeactivate legacy_db\n\norder_sync_service -> topics: 5 Produce OrderReplacedCompletedProcessed Message\ndeactivate order_sync_service\nactivate topics\ndeactivate topics\n\nnote right of topics: Async\n\ntopics -> skava_event_orchestrator: 6 Consume OrderReplacedCompletedProcessed Message\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1223,
+    "completion_tokens": 250,
+    "total_tokens": 1473
+  }
+}

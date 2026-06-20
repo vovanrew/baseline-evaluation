@@ -1,0 +1,22 @@
+{
+  "id": "e934fb8e-9b20-4692-a645-471694c63f3a",
+  "object": "chat.completion",
+  "created": 1781887456,
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle GameEnginePluginLifecycle\n\nparticipant \"Host Application\" as HA #LightBlue2\nparticipant \"Host Application Interop\" as HAI #LightBlue2\nparticipant \"Game Engine Plugin\" as GEP #LightBlue2\n\nHA ->> HA : Initialization\nactivate HA\nHAI <-[new] HA \ndeactivate HA\ncreate participant HAI \n\nnote over HAI,GEP: Load GE Plugin(s)\nGEP <-- HAI : load into memory\nactivate HAI\nactivate GEP\nHAI --> GEP : GEP_Initialize\nreturn initialization_ok = 0\n\n\nloop Repeat Every Frame Period\n    \n    note right of HAI : delays\n    activate HAI\n    HAI->GEP : GEP_HandleSimulationReponseMessages\n    return handled_ok = 0\n   \n    \n   ' alt [if response message had error]\\nerror handling\\nelse \\ndelays\\nend \n    \n   \n     HAI-->GEP : GEP_HandleSimulationControlMessages\n     \n     \n      deactivate HAI\n      \n      \n       loop while not shutdown signal from host application\n        \n        end \n        \n         return handled_ok = 0\n    \n    \n    \n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2350,
+    "completion_tokens": 240,
+    "total_tokens": 2590
+  }
+}

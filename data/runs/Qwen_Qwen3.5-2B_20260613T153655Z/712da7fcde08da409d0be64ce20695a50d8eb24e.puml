@@ -1,0 +1,29 @@
+@startuml
+skinparam UMLSequenceDiagram {
+    fontName "Helvetica"
+    fontColor "black"
+    participantStyle "fill: #f0f0f0; stroke: #666; stroke-width: 2px"
+}
+
+participant "Customer" as C1
+participant "Customer" as C2
+
+participant "Shopware Platform" as SP
+    participant "Checkout" as CH
+    participant "Asynchronous Payment Handler" as AHP
+
+participant "External System" as ES
+    participant "Payment Platform" as EP
+
+C1 -->|pay| CH
+CH -->|pay| AHP
+AHP -->|redirect| C2
+C2 -->|pay| CH
+CH -->|finalize| AHP
+
+ES -->|redirect| CH
+CH -->|pay| EP
+EP -->|redirect| CH
+CH -->|pay| C2
+
+@enduml

@@ -1,0 +1,22 @@
+{
+  "id": "b3999551-fa4c-4131-b806-4a7638b8b4df",
+  "object": "chat.completion",
+  "created": 1781483084,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Find all a vaccination documents in EPD\n\nactor \"HCP\" as HCP\n\nrectangle \"Community A\" {\n    participant \"GFPP/PIS\" as GFPP_PIS\n    participant \"Aggregator\" as Aggregator\n    participant \"CO-Registry\" as CO_Registry\n    participant \"CO-Repository\" as CO_Repository\n    participant \"CO-IGW\" as CO_IGW\n}\n\nrectangle \"Community X\" {\n    participant \"OC-RGW\" as OC_RGW\n    participant \"OC-Registry\" as OC_Registry\n    participant \"OC-Repository\" as OC_Repository\n}\n\nactivate HCP\nHCP -> GFPP_PIS: [01] Get all immunization data\nactivate GFPP_PIS\n\nGFPP_PIS -> GFPP_PIS: [02] query all registries\nGFPP_PIS -> CO_IGW: [03] Registry Stored Query Request [ITI-18]\nactivate CO_IGW\n\nCO_IGW -> CO_Registry: [04] Registry Stored Query Request [ITI-18]\nactivate CO_Registry\nCO_Registry -> CO_Registry: [05] Lookup Data\nCO_Registry -> CO_IGW: [06] Registry Stored Query Response [ITI-18]\ndeactivate CO_Registry\n\nCO_IGW -> CO_IGW: [07] request all communities\nCO_IGW -> OC_RGW: [08] Registry Stored Query Request [ITI-38]\nactivate OC_RGW\n\nOC_RGW -> OC_Registry: [09] Registry Stored Query Request [ITI-18]\nactivate OC_Registry\nOC_Registry -> OC_Registry: [10] Lookup Data\nOC_Registry -> OC_RGW: [11] Registry Stored Query Response [ITI-18]\ndeactivate OC_Registry\n\nOC_RGW -> CO_IGW: [12] Registry Stored Query Response [ITI-38]\ndeactivate OC_RGW\n\nCO_IGW -> CO_IGW: [13] end loop\nCO_IGW -> CO_IGW: [14] Assemble Query Responses\nCO_IGW -> GFPP_PIS: [15] Registry Stored Query Response [ITI-18]\ndeactivate CO_IGW\n\nGFPP_PIS -> GFPP_PIS: [16] list of document info\nGFPP_PIS -> GFPP_PIS: [17] retrieve all documents\nGFPP_PIS -> CO_IGW: [18] Retrieve Document Request [ITI-43]\nactivate CO_IGW\n\nCO_IGW -> CO_Repository: [19] Retrieve Document Request [ITI-43]\nactivate CO_Repository\nCO_Repository -> CO_Repository: [20] allocate document data\nCO_Repository -> CO_IGW: [21] Retrieve Document Response [ITI-43]\ndeactivate CO_Repository\n\nCO_IGW -> OC_RGW: [22] Retrieve Document Request [ITI-39]\nactivate OC_RGW\n\nOC_RGW -> OC_Repository: [23] Retrieve Document Request [ITI-43]\nactivate OC_Repository\nOC_Repository -> OC_Repository: [24] allocate document data\nOC_Repository -> OC_RGW: [25] Retrieve Document Response [ITI-43]\ndeactivate OC_Repository\n\nOC_RGW -> CO_IGW: [26] Retrieve Document Response [ITI-39]\ndeactivate OC_RGW\n\nCO_IGW -> CO_IGW: [27] Assemble Retrieve Responses\nCO_IGW -> GFPP_PIS: [28] Retrieve Document Response [ITI-43]\ndeactivate CO_IGW\n\nGFPP_PIS -> Aggregator: [29] Aggregate documents\nactivate Aggregator\nAggregator -> GFPP_PIS: [30] one FHIR ch-vacd document\ndeactivate Aggregator\n\nGFPP_PIS -> HCP: [31] Show immunization data\ndeactivate GFPP_PIS\ndeactivate HCP\n\nnote bottom: Version 1.0\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1664,
+    "completion_tokens": 915,
+    "total_tokens": 2579
+  }
+}

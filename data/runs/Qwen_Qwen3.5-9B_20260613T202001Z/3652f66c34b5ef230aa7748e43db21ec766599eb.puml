@@ -1,0 +1,49 @@
+@startuml
+left to right direction
+actor User
+actor JobManager
+rectangle "Process/Application" as Process
+rectangle "ESDM" as ESDM
+rectangle "Post Processing" as PostProcessing
+rectangle "Storage System" as StorageSystem
+actor Observer
+
+activate Observer
+Observer -> Observer : collects observations
+StorageSystem <- Observer : (may write directly)
+Observer -> ESDM : write observation t
+ESDM -> ESDM : (transform for efficiency)
+ESDM -> StorageSystem : write container for observation t
+
+deactivate Observer
+
+activate ESDM
+JobManager -> JobManager : periodically submit job(IN=t, OUT)
+JobManager -> Process : allocates resources and calls
+Process -> ESDM : read IN=x
+ESDM -> StorageSystem : read
+StorageSystem -> ESDM : return
+ESDM -> Process : return
+Process -> Process : compute
+Process -> ESDM : write async OUT=y
+
+deactivate ESDM
+
+activate ESDM
+ESDM -> PostProcessing : make available
+PostProcessing -> PostProcessing : perform analysis
+PostProcessing -> StorageSystem : (may write directly)
+PostProcessing -> ESDM : return result
+ESDM -> Process : return
+
+deactivate ESDM
+
+Process -> Process : multiple iterations
+
+activate ESDM
+ESDM -> ESDM : Finalise
+Process -> User : OUT files become visible
+
+deactivate ESDM
+
+@enduml

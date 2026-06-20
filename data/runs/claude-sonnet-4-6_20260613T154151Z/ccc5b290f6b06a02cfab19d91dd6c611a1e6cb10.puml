@@ -1,0 +1,96 @@
+@startuml
+actor CenterCoordinator
+
+participant DataFromLegacySystemUI
+participant DataFromLegacySystemController
+participant ReadLegacyDataFile
+participant Company
+participant SNSUserStore
+participant App
+participant VaccinationCenter
+participant Arrival
+participant Departure
+participant vaccinationCentersStore
+
+CenterCoordinator -> DataFromLegacySystemUI : 1 Asks to load a CSV file with legacy data
+DataFromLegacySystemUI -> DataFromLegacySystemController : 2 DataFromLegacySystemController()
+DataFromLegacySystemController -> App : 3 getVaccinationCentersStore()
+App --> DataFromLegacySystemController : 4 returns the store
+DataFromLegacySystemController -> vaccinationCentersStore : 5 getVaccinationCenterAssociatedToCoordinatorId()
+vaccinationCentersStore --> DataFromLegacySystemController : 6 returns the vaccination center
+DataFromLegacySystemController -> ReadLegacyDataFile : 7 ReadLegacyDataFile(center)
+DataFromLegacySystemUI --> CenterCoordinator : 8 request path of the CSV file
+CenterCoordinator -> DataFromLegacySystemUI : 9 types path
+DataFromLegacySystemUI -> DataFromLegacySystemController : 10 readFile(path)
+DataFromLegacySystemController -> ReadLegacyDataFile : 11 readFile(String path)
+
+loop while csv has new lines
+    ReadLegacyDataFile -> ReadLegacyDataFile : 12 validateFile(LegacySNSUserNumber,\nfirstDate,secondDate,thirdDate,fourthDate)
+    ReadLegacyDataFile -> ReadLegacyDataFile : 13 Saves data into an ArrayList<String> called\nlegacyDataList
+end
+
+ReadLegacyDataFile -> SNSUserStore : 14 getSNSUserList()
+SNSUserStore -> SNSUserStore : 15 getSNSUserList()
+SNSUserStore --> ReadLegacyDataFile : 16 returns list
+ReadLegacyDataFile --> DataFromLegacySystemController : 17 returns list
+ReadLegacyDataFile -> VaccinationCenter : 18 getVaccineList()
+VaccinationCenter --> ReadLegacyDataFile : 19 returns list
+
+loop while legacyDataList has new lines
+    ReadLegacyDataFile -> ReadLegacyDataFile : 20 findPoOfSNSUser(snsUsersList,\nvalues,positionInSNSUserList)
+    ReadLegacyDataFile -> ReadLegacyDataFile : 21 findPosOfVaccine(vaccineList,values,positionInVaccinesList)
+    ReadLegacyDataFile -> ReadLegacyDataFile : 22 checksDuplicates(updatedList,snsUsersList,vaccineList,positionInSnsUserList,positionInVaccinesList,lineOfTheData)
+    ReadLegacyDataFile -> ReadLegacyDataFile : 23 Saves data into an ArrayList<String> called updatedList
+    ReadLegacyDataFile -> ReadLegacyDataFile : 24 createArrival()
+end
+
+ReadLegacyDataFile -> Arrival : 25 createArrival()
+Arrival --> ReadLegacyDataFile : 26 returns Arrival
+ReadLegacyDataFile -> ReadLegacyDataFile : 27 Saves arrival into List<Arrival> called arrivalsList
+ReadLegacyDataFile -> ReadLegacyDataFile : 28 generics.Arrivals.binaryFileWrite(Constants.FILE_PATH_ARRIVALS, arrivalsList)
+ReadLegacyDataFile -> ReadLegacyDataFile : 29 createDeparture()
+ReadLegacyDataFile -> Departure : 30 createDeparture()
+Departure --> ReadLegacyDataFile : 31 returns departure
+ReadLegacyDataFile -> ReadLegacyDataFile : 32 Saves departure into List<Departure> called departuresList
+ReadLegacyDataFile -> ReadLegacyDataFile : 33 generics.Departure.binaryFileWrite(Constants.FILE_PATH_DEPARTURES, departuresList)
+ReadLegacyDataFile --> DataFromLegacySystemController : 34 returns updatedList
+DataFromLegacySystemController --> DataFromLegacySystemUI : 35 returns updatedList
+DataFromLegacySystemUI --> CenterCoordinator : 36 requests the option to sort
+CenterCoordinator -> DataFromLegacySystemUI : 37 selects option
+DataFromLegacySystemUI -> DataFromLegacySystemController : 38 chooseCriteriaToSort(option)
+DataFromLegacySystemController -> ReadLegacyDataFile : 39 setListOption()
+
+loop while updatedList has new lines
+    ReadLegacyDataFile -> ReadLegacyDataFile : 40 Saves dates to a\nList<LocalDateTime>\ncalled listToSort
+end
+
+DataFromLegacySystemUI --> CenterCoordinator : 41 requests the order of the sort
+
+note over DataFromLegacySystemUI : {algorithmToBeUsed = "InsertionSort", option = "0" - Ascending"}
+CenterCoordinator -> DataFromLegacySystemUI : 42 selects order
+DataFromLegacySystemUI -> DataFromLegacySystemController : 43 getAlgorithm()
+DataFromLegacySystemController -> App : 44 getSortingAlgorithm()
+App --> DataFromLegacySystemController : 45 returns algorithm
+DataFromLegacySystemController --> DataFromLegacySystemUI : 46 returns algorithm
+DataFromLegacySystemUI -> DataFromLegacySystemController : 47 sortListWithAlgo(algorithmToBeUsed,option)
+
+note over DataFromLegacySystemController : algorithmToBeUsed can be InsertionSort or HeapSort, both have methods that\ncan sort in ascending/descending order, here we are just representing\nthe InsertionSort algorithm because HeapSort functions in a similar way.
+
+DataFromLegacySystemController -> ReadLegacyDataFile : 48 insertionSortAscending()
+ReadLegacyDataFile --> DataFromLegacySystemController : 49 returns sortedList
+DataFromLegacySystemController --> DataFromLegacySystemUI : 50 returns sortedList
+DataFromLegacySystemUI --> CenterCoordinator : 53 prints sortedList
+
+note over DataFromLegacySystemUI : {algorithmToBeUsed = "InsertionSort", option = "1" - Descending"}
+CenterCoordinator -> DataFromLegacySystemUI : 52 selects order
+DataFromLegacySystemUI -> DataFromLegacySystemController : 53 getAlgorithm()
+DataFromLegacySystemController -> App : 54 getSortingAlgorithm()
+App --> DataFromLegacySystemController : 55 returns algorithm
+DataFromLegacySystemController --> DataFromLegacySystemUI : 56 returns algorithm
+DataFromLegacySystemUI -> DataFromLegacySystemController : 57 sortListWithAlgo(algorithmToBeUsed,option)
+DataFromLegacySystemController -> ReadLegacyDataFile : 58 insertionSortDescending()
+ReadLegacyDataFile --> DataFromLegacySystemController : 59 returns sortedList
+DataFromLegacySystemController --> DataFromLegacySystemUI : 60 returns sortedList
+DataFromLegacySystemUI --> CenterCoordinator : 61 prints sortedList
+
+@enduml

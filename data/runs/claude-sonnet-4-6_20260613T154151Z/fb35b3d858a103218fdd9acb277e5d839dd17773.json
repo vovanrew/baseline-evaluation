@@ -1,0 +1,21 @@
+{
+  "id": "msg_01PzrKuXdCtwxjw1E47mrYRo",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant MobileApp\nparticipant Apollo\nparticipant Storage\nparticipant Ironclad\nparticipant Onfido\n\nMobileApp -> Apollo : Any proof of XYZ or document related call that could result in a call to Onfido\nApollo -> Storage : GetLocalApplicant(sub)\n\nalt [when the user was previously provisioned as an onfido applicant]\n    Storage --> Apollo : Applicant { Id = sub; ApplicantId = OnfidoApplicantId; }\nelse [when the user was not previously provisioned]\n    Storage --> Apollo : null\n    Apollo -> Ironclad : GetUserInfo(sub)\n    Ironclad --> Apollo : Claims[] { ... }\n    Apollo -> Onfido : POST https://api.onfido.com/v2/applicants\n    Onfido --> Apollo : 200 Applicant { Id = applicantId; [...]}\n    Apollo -> Storage : Applicant { Id = sub, ApplicantId = onfidoApplicantId}\nend\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781369150,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 250,
+    "prompt_tokens": 1216,
+    "total_tokens": 1466
+  }
+}

@@ -1,0 +1,60 @@
+@startuml
+!theme plain
+
+class "Expression" as Expression {
+  <<abstract>>
+}
+
+class "Value" as Value {
+  <<concrete>>
+  int value
+}
+
+class "Addition" as Addition {
+  <<concrete>>
+  Expression& lhs
+  Expression& rhs
+}
+
+class "Multiplication" as Multiplication {
+  <<concrete>>
+  Expression& lhs
+  Expression& rhs
+}
+
+class "Visitor" as Visitor {
+  <<abstract>>
+  visit(Expression& expr)
+}
+
+class "Printer" as Printer {
+  <<concrete>>
+  stringstream oss
+  visit(Expression& expr)
+  if (auto de = dynamic_cast<Value&>(e))
+    oss << de.value
+  else if (auto ae = dynamic_cast<Addition&>(e))
+    visit(ae.left)
+    oss << "+"
+    visit(ae.right)
+  else if...
+}
+
+class "Evaluator" as Evaluator {
+  <<concrete>>
+  int total
+  visit(Expression& expr)
+}
+
+Expression <|-- Value
+Expression <|-- Addition
+Expression <|-- Multiplication
+
+Visitor <|-- Printer
+Visitor <|-- Evaluator
+
+Printer ..> Value : dynamic_cast
+Printer ..> Addition : dynamic_cast
+Printer ..> Multiplication : dynamic_cast
+
+@enduml

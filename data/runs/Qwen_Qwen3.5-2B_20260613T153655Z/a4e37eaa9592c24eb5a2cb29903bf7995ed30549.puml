@@ -1,0 +1,22 @@
+@startuml
+title 分页查询运单时序图
+
+participant "Query Request" as Q
+participant "TradeBillController" as TC
+participant "TradeBillService" as TS
+participant "TradeBillGoodsService" as TGS
+participant "LossesService" as LS
+
+Q --> TC : 1 发送 分页查询条件
+TC --> TC : 2 checkPageQueryParams() 校验分页查询参数
+TC --> TS : 3 pageData() 调用运单分页查询方法
+TS --> TC : 4 返回运单分页数据
+TC --> TGS : 5 countByTradeBillId() 统计单条交易单的商品信息集合
+TGS --> TGS : 5 countByTradeBillId() 统计单条交易单的商品信息集合
+TC --> LS : 6 countByTradeBillId() 统计单条交易单的挂账信息集合
+LS --> LS : 6 countByTradeBillId() 统计单条交易单的挂账信息集合
+TC --> TS : 7 generateTradeBillData() 将查询数据整合
+TS --> TC : 7 generateTradeBillData() 将查询数据整合
+TC --> Q : 8 返回查询结果
+
+@enduml

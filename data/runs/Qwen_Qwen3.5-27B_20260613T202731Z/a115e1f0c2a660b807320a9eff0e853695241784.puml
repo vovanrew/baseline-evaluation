@@ -1,0 +1,36 @@
+```plantuml
+@startuml
+title New User Workflow
+
+actor "User" as user
+rectangle "uFR Nano" {
+    participant "NFC" as nfc
+}
+rectangle "Raspberry Pi" {
+    participant "WebInterface" as web
+    participant "PiPass" as pipass
+    database "DB" as db
+}
+
+alt [Tap First Example]
+    user -> nfc : 1 Tap
+    pipass -> nfc : 2 Polling Service
+    nfc -> pipass : 3 Ack Tap
+    pipass -> db : 4 User Lookup
+    db -> pipass : 5 Zero Results
+    pipass -> pipass : 6 Set user state to new.\nAwait WebInterface interaction.
+    user -> web : 7 Complete Registration Workflow
+else [Web Create]
+    user -> web : 8 Start Registration Workflow
+    web -> pipass : 9 Save registration.\nAwait next unassigned tap.
+    nfc -> pipass : 10 Ack Tap
+    pipass -> db : 11 User Lookup
+    db -> pipass : 12 Zero Results
+    pipass -> pipass : 13 Complete Registration
+    pipass -> db : 14 Save user details
+    pipass -> web : 15 Ack user registration
+    web -> user : 16 Confirm
+end
+
+@enduml
+```

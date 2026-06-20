@@ -1,0 +1,35 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+title PDQm Implementation grouped as a façade
+
+participant "Patient\nDemographics\nConsumer" as Consumer1
+package "PDQm Implementation\ngrouped as a façade" {
+    participant "Patient\nDemographics\nSupplier" as Supplier1
+    participant "Patient\nDemographics\nConsumer" as Consumer2
+}
+participant "Patient\nDemographics\nSupplier" as Supplier2
+
+Consumer1 -> Supplier1: Mobile Patient Demographics Query [ITI-78]
+activate Supplier1
+activate Consumer1
+
+Supplier1 -[dotted]-> Consumer2: Internal processing
+activate Consumer2
+
+Consumer2 -> Supplier2: Patient Demographics Query [ITI-21]\nor Patient Demographics Query for HL7v3 [ITI-47]
+activate Supplier2
+
+Supplier2 --> Consumer2: [ITI-21] or [ITI-47] Response
+deactivate Supplier2
+
+Consumer2 -[dotted]-> Supplier1: Internal processing
+deactivate Consumer2
+
+Supplier1 --> Consumer1: [ITI-78] Response
+deactivate Supplier1
+deactivate Consumer1
+
+@enduml
+```

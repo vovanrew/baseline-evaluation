@@ -1,0 +1,214 @@
+```plantuml
+@startuml US031 - As Team Member, I want to create a task in a user story
+
+actor "TeamMember" as TM
+participant "CreateISTaskUI" as UI
+participant "CreateISTaskController" as Controller
+participant "Company" as Company
+participant "taskTypeStore : TaskTypeStore" as TTS
+participant "taskTypeList : List<TaskType>" as TTL
+participant "taskType : TaskType" as TT
+participant "pStore : ProjectStore" as PS
+participant "proj : Project" as P
+participant "sList : SprintList" as SL
+participant "sprint : Sprint" as S
+participant "sprintBacklog" as SB
+participant "UserStoryList" as USL
+participant "Usi" as USI
+participant "UiTaskList : TaskList" as UTL
+participant "taskList : List<Task>" as TL
+participant "task : Task" as T
+participant "projectTeam : ProjectTeam" as PT
+participant "projectTeam : List<Resource>" as PTL
+participant "resource : Resource" as R
+participant "TaskMapper" as Mapper
+participant "createTaskDTO : CreateTaskDTO" as DTO
+participant "newIsTask : Task" as NIT
+
+== 1. Ask to create a task of a user story ==
+TM -> UI: 1 Ask to create a task of a user story
+activate UI
+UI -> Controller: 2 getTaskTypes()
+activate Controller
+Controller -> Company: 3 getTaskTypeStore()
+activate Company
+Company --> Controller: 4 taskTypeStore
+deactivate Company
+Controller -> TTS: 5 getTaskTypesNames()
+activate TTS
+TTS -> TTL: 6 create()
+activate TTL
+TTL ..> TTL: <u>taskTypesNames<br/>: List<String></u>
+loop (for each know task type)
+    TTL -> TTL: 7 get(i)
+    activate TTL
+    TTL -> TT: 8 taskType
+    activate TT
+    TT -> TT: 9 getName()
+    activate TT
+    TT -> T: 10 typeName
+    activate T
+    T -> TTL: 11 add(typeName)
+    deactivate T
+    TTL --> TTL: 12 true
+    deactivate TT
+    deactivate TTL
+end loop
+TTL --> Controller: 13 taskTypesNames
+deactivate TTL
+deactivate TTS
+Controller --> UI: 14 taskTypesNames
+deactivate Controller
+UI --> TM: 15 Show a list of task types
+deactivate UI
+
+== 2. Select task type and get tasks ==
+TM -> UI: 16 Selects task type
+activate UI
+UI -> Controller: 17 getIsTasks(projCode, sprintID, usID)
+activate Controller
+Controller -> PS: 18 getProjectStore()
+activate PS
+PS --> Controller: 19 pStore
+deactivate PS
+Controller -> P: 20 getProjectByCode(store.getCode())
+activate P
+P --> Controller: 21 proj
+deactivate P
+Controller -> SL: 22 getSprintList()
+activate SL
+SL --> Controller: 23 sList
+deactivate SL
+Controller -> S: 24 getSprint(sprintID)
+activate S
+S --> Controller: 25 sprint
+deactivate S
+Controller -> SB: 26 getBacklog
+activate SB
+SB --> Controller: 27 sprintBacklog
+deactivate SB
+Controller -> USL: 28 getUserStoryList
+activate USL
+USL --> Controller: 29 usList
+deactivate USL
+Controller -> USI: 30 getUserStory(ID)
+activate USI
+USI --> Controller: 31 us
+deactivate USI
+Controller -> UTL: 32 getIsTaskList()
+activate UTL
+UTL --> Controller: 33 uiTaskList
+deactivate UTL
+Controller -> TL: 34 getTaskNames()
+activate TL
+TL -> TL: 35 create()
+activate TL
+TL ..> TL: <u>tasksNames<br/>: List<String></u>
+loop (for each know task)
+    TL -> TL: 36 get(i)
+    activate TL
+    TL -> T: 37 task
+    activate T
+    T -> T: 38 getName()
+    activate T
+    T -> T: 39 taskName
+    activate T
+    T -> TL: 40 add(taskName)
+    deactivate T
+    TL --> TL: 41 true
+    deactivate T
+    deactivate TL
+end loop
+TL --> Controller: 42 tasksNames
+deactivate TL
+deactivate Controller
+Controller --> UI: 43 tasksNames
+deactivate Controller
+UI --> TM: 44 Show a list of current tasks\n(no choose a precedence, if want)
+deactivate UI
+
+== 3. Select precedence (optional) ==
+TM -> UI: 45 Selects precedence (optional)
+activate UI
+UI -> Controller: 46 getCurrentProjectTeam()
+activate Controller
+Controller -> P: 47 getProjectTeam()
+activate P
+P --> Controller: 48 projectTeam
+deactivate P
+Controller -> PTL: 49 getCurrentResourcesNames()
+activate PTL
+PTL -> PTL: 50 create()
+activate PTL
+PTL ..> PTL: <u>currentResName<br/>: List<String></u>
+loop (for each know resource)
+    PTL -> PTL: 51 get(i)
+    activate PTL
+    PTL -> R: 52 resource
+    activate R
+    R -> R: 53 isCurrent()
+    activate R
+    R --> PTL: 54 result
+    deactivate R
+    alt (result = true)
+        PTL -> R: 55 getName()
+        activate R
+        R -> R: 56 resourceName
+        activate R
+        R -> PTL: 57 add(resourceName)
+        deactivate R
+        PTL --> PTL: 58 true
+        deactivate R
+    end alt
+    deactivate PTL
+end loop
+PTL --> Controller: 59 currentResourcesNames
+deactivate PTL
+deactivate Controller
+Controller --> UI: 60 currentResourcesNames
+deactivate Controller
+UI --> TM: 61 Shows resource list and request data\n(Show, description, effortEstimate,\ntaskType, responsible)
+deactivate UI
+
+== 4. Choose and typed requested data ==
+TM -> UI: 62 Choose and typed requested data
+activate UI
+UI -> Controller: 63 createIsTask(createIsTaskDTO)
+activate Controller
+Controller -> DTO: 64 createIsTask(createIsTaskDTO)
+activate DTO
+DTO -> Mapper: 65 toModel(createIsTaskDTO)
+activate Mapper
+Mapper -> Mapper: 66 name = getName()
+activate Mapper
+Mapper -> Mapper: 67 description = getDescription()
+activate Mapper
+Mapper -> Mapper: 68 effortEstimate = getEffortEstimate()
+activate Mapper
+Mapper -> Mapper: 69 taskType = getTaskType()
+activate Mapper
+Mapper -> Mapper: 70 responsible = getResponsible()
+activate Mapper
+Mapper -> NIT: 71 createTask(name, description,\neffortEstimate, taskType, responsible)
+activate NIT
+NIT ..> NIT: <u>newIsTask : Task</u>
+deactivate NIT
+deactivate Mapper
+Mapper --> DTO: 72 newIsTask
+deactivate Mapper
+DTO -> DTO: 73 saveTask(newIsTask)
+activate DTO
+DTO -> DTO: 74 validate(newIsTask)
+activate DTO
+DTO --> DTO: 75 add(newIsTask)
+deactivate DTO
+DTO --> Controller: 76 true
+deactivate DTO
+deactivate Controller
+Controller --> UI: 77 created and saved successfully
+deactivate Controller
+UI --> TM: 78 created and saved successfully
+deactivate UI
+
+@enduml
+```

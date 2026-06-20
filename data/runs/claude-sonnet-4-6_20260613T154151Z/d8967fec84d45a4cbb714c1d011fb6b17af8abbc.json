@@ -1,0 +1,21 @@
+{
+  "id": "msg_01G1QUSv7VBqX6pBvwugQ5Ca",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\ntitle US016 - As Director/PM/PO/SM, I want to view status of activities in a project\n\npackage \"Controller\" {\n  class TaskController {\n    + getStatusOfActivitiesInProject(String projectID)\n  }\n}\n\nclass TaskUI <<C>>\n\npackage \"Service\" {\n  class TaskService {\n    + getStatusOfActivities(String projectID)\n    - getCurrentSprintID(projectID)\n    - getSbilDs(projectID, sprintID)\n    - getTasks(sbiIDs)\n  }\n}\n\npackage \"Repository\" {\n  class SprintRepository {\n    + findCurrentSprintInProject(String projectID)\n  }\n\n  class SprintBacklogItemRepository {\n    + findSprintBacklogItemsInSprint(String projID, String sprintID)\n  }\n\n  class TaskRepository {\n    + findAllByContainerID(SprintBacklogItemID sbiID)\n  }\n}\n\npackage \"Mapper\" {\n  class TaskMapper {\n    + statusListToDTO(List<Task> tasks)\n    - statusToDTO(Task task)\n  }\n}\n\npackage \"Domain\" {\n  class Task {\n    - taskID : TaskID\n    - taskContainerID : TaskContainerID\n    - status : TaskStatus\n    - percentageOfExecution : Percentage\n    - taskDescription : TaskDescription\n    + getTaskID()\n    + getTaskContID()\n    + getStatus()\n    + getPercentageOfExecution()\n  }\n\n  class SprintBacklogItemID {\n    - sbiID : UUID\n    + getID()\n  }\n\n  interface TaskContainerID <<I>> {\n    - taskContainerID : UUID\n    + getID()\n  }\n}\n\npackage \"DTO\" {\n  class TaskDTO {\n    - taskID : String\n    - taskContainerID : String\n    - status : String\n    - percentageOfExecution : int\n    + setTaskID()\n    + setTaskContainerID()\n    + setStatus()\n    + setPercentageOfExecution()\n  }\n}\n\nTaskUI ..> TaskController : \nTaskController ..> TaskService : \nTaskService ..> SprintRepository : \nTaskService ..> SprintBacklogItemRepository : \nTaskService ..> TaskRepository : \nTaskService ..> TaskMapper : \nTaskMapper ..> TaskDTO : \nTaskMapper ..> Task : \nTaskRepository ..> Task : \nTask ..> SprintBacklogItemID : \nTask ..> TaskContainerID : uses\nSprintBacklogItemID ..|> TaskContainerID : \n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781368470,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 646,
+    "prompt_tokens": 1636,
+    "total_tokens": 2282
+  }
+}

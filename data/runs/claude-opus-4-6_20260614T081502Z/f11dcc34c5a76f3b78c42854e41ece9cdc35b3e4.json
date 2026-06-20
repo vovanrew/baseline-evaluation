@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Hqiztxt6zkVNVwck86LVtp",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Zhinahan Classes\n\npackage \"Zhinahan\" {\n  package \"Parser\" {\n    class AppendixDetector {\n      + starts_appendix_section?(line : string) : bool\n      + has_leaved_appendix_section?(line : string) : bool\n    }\n\n    class Context {\n      - while_appendix : bool\n      - line : string?\n      - index : int?\n      + within_appendix?() : bool\n      + enter_appendix() : void\n      + leave_appendix() : void\n      + update_position(line : string, index : int) : void\n    }\n\n    class Parser {\n      - matchers : Array<AbstractLineMatcher>\n      - appendix_detector : AppendixDetector\n      - context : Context\n      + parse(file : string) : Dictionary\n      - per_line(line : string, index : int)\n      - parse_line(line : string, index : int)\n    }\n\n    class LineParser {\n      + parse(context : Context)\n    }\n\n    package \"LineMatchers\" {\n      abstract class AbstractLineMatcher {\n        + match(context : Context) : MatchResult?\n        + pattern(context : Context) : RexExp\n        + type() : Symbol\n      }\n\n      class RadicalLineMatcher\n      class ExplanationLineMatcher\n      class PronunciationLineMatcher\n      class CharacterLineMatcher\n\n      class MatchResult {\n        - matched : MatchData\n        ~ type : String\n        + matched() : Hash<String, String>\n      }\n\n      RadicalLineMatcher --|> AbstractLineMatcher\n      ExplanationLineMatcher --|> AbstractLineMatcher\n      PronunciationLineMatcher --|> AbstractLineMatcher\n      CharacterLineMatcher --|> AbstractLineMatcher\n    }\n\n    Parser --> AppendixDetector\n    Parser --> Context\n    Parser --> AbstractLineMatcher\n    LineParser --> Context\n    AbstractLineMatcher --> MatchResult\n    AbstractLineMatcher --> Context\n  }\n\n  package \"Core\" {\n    class Dictionary {\n      - characters : Array<Character>\n      + find(character : string) : Character?\n    }\n\n    class Character {\n      - radical : Radical\n      - char : string\n      + is?(character : string) : bool\n    }\n\n    class Description\n    class Explanation\n    class Radical\n    class Pronunciation\n\n    Dictionary \"1\" -- \"*\" Character\n    Character \"1\" -- \"1..*\" Description\n    Character \"1\" -- \"1\" Radical\n    Description \"1\" -- \"0..*\" Explanation\n    Description \"1\" -- \"0..1\" Pronunciation\n  }\n\n  Parser --> Dictionary\n}\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781428574,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 664,
+    "prompt_tokens": 1646,
+    "total_tokens": 2310
+  }
+}

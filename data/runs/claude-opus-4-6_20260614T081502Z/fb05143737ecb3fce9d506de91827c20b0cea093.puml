@@ -1,0 +1,49 @@
+```plantuml
+@startuml
+
+title Traffic influencing flows between OpenNESS controller and 5G Core
+
+actor "User/Admin" as user
+
+box "OpenNESS Controller components" #lightblue
+participant "UI/CLI" as ui
+participant "AF Microservice" as af
+end box
+
+box "5G Core components" #lightgreen
+participant "NEF" as nef
+participant "NGC\nCP Functions" as ngc
+end box
+
+note over nef : OpenNESS provided\nCore component with\nlimited functionality
+
+group Get all subscribed traffic influence info
+    user -> ui : Request all traffic influence\nsubscribed
+    ui -> af : /af/v1/subscriptions : GET
+    af -> nef : /3gpp-traffic-Influence/v1/{afId}/subscriptions\n: GET
+    note right of nef : NGC_STUB(PCF,UDR,BSF)
+    nef -> ngc
+    note right of nef : {Open: 3rd party NGC\nintegration with\nOpenNESS(NEF)}
+    ngc --> nef
+    nef --> af : OK: traffic influence info\n<font color=red>ERROR: {400/500}</font>
+    af --> ui : OK: traffic influence info\n<font color=red>ERROR: {400/500}</font>
+    ui --> user : Traffic influence details
+end
+
+group Get subscribed traffic influence info by subscriptionId
+    user -> ui : Request traffic influence using\nsubscriptionId
+    ui -> af : /af/v1/subscriptions/{subscriptionId}\n: GET
+    af -> nef : /3gpp-traffic-Influence/v1/{afId}/subscriptions/{subscriptionId}\n: GET
+    note right of nef : NGC_STUB(PCF,UDR,BSF)
+    nef -> ngc
+    note right of nef : {Open: 3rd party NGC\nintegration with\nOpenNESS(NEF)}
+    ngc --> nef
+    nef --> af : OK: traffic influence info\n<font color=red>ERROR: {400/500}</font>
+    af --> ui : OK: traffic influence info\n<font color=red>ERROR: {400/500}</font>
+    ui --> user : Traffic influence details
+end
+
+center footer Proprietary and Confidential
+
+@enduml
+```

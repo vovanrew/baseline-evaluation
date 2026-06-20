@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLgI46TcnWMT2ZoFyIJvnYMH3CDu",
+  "object": "chat.completion",
+  "created": 1781368770,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  LifeLineBorderColor #777777\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #777777\n  ParticipantBackgroundColor #E9E9F2\n  ActorBorderColor #777777\n  ActorBackgroundColor #E9E9F2\n  ArrowColor #333333\n  BoxBorderColor #000000\n  BoxBackgroundColor transparent\n}\n\nactor UI\nparticipant sessionRoute\nparticipant passport\nparticipant SessionController\ndatabase innoDB\n\nUI -> sessionRoute : GET() \"/session\"\\nAuth: Bearer token\\n{userID, DASS21_SCORES, sessionDetails}\nsessionRoute -> passport : \"/save\", authenticate(\"jwt\")\n\nalt Success: Authenticated\n  passport --> sessionRoute : done(null, user)\n  sessionRoute -> SessionController : Request Products\n  SessionController -> SessionController : Validate info\n\n  alt Success: Required info provided\n    SessionController -> innoDB : saveSession()\n    innoDB --> SessionController : session\n    SessionController --> sessionRoute : httpResponse(200)\\nsession\n    sessionRoute --> UI : httpResponse(200)\\nallProducts\n  else Failure: missing information\n    SessionController --> sessionRoute : {\"msg\":\"missing required\\ninformation\"}(400)\n    sessionRoute --> UI : http Response(400)\\n{\"msg\":\"missing required information\"}\n  end\n\nelse Failure: Unauthorized\n  passport --> sessionRoute : done(null,false)\n  sessionRoute --> UI : http Response(401)\\nUnauthorized\nend\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2495,
+    "completion_tokens": 338,
+    "total_tokens": 2833,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

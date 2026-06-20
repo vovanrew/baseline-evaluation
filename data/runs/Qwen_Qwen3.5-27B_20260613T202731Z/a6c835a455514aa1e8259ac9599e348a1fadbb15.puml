@@ -1,0 +1,141 @@
+```plantuml
+@startuml
+title End Screen Action Sequences
+
+actor User
+rectangle "Views" #LightBlue {
+    participant Game
+    participant End
+    participant HighScore
+    participant Start
+}
+rectangle "User Interface Control" #LightBlue {
+    participant Navigation
+}
+rectangle "Back End" #Purple {
+    participant Settings
+    participant JoggleCube
+    participant HighScores
+    participant Score
+    participant Cube
+    participant Block
+}
+
+note over Navigation,Block: High Score button clicked
+User -> Game : btnHighScoreClicked()
+activate Game
+Game -> Navigation : show(ScreenType.HighScore)
+activate Navigation
+Navigation -> End : prepView()
+activate End
+End -> JoggleCube : getOverallHighScores()
+activate JoggleCube
+JoggleCube -> HighScores : getScores()
+activate HighScores
+HighScores --> JoggleCube : scores
+deactivate HighScores
+JoggleCube -> JoggleCube : getScores()
+activate JoggleCube
+JoggleCube --> JoggleCube : scores
+deactivate JoggleCube
+JoggleCube --> End : scores
+deactivate JoggleCube
+End -> JoggleCube : getCurrentCubeHighScores()
+activate JoggleCube
+JoggleCube -> Score : getScores()
+activate Score
+Score --> JoggleCube : scores
+deactivate Score
+JoggleCube --> End : scores
+deactivate JoggleCube
+End --> Navigation : 
+deactivate End
+Navigation -> End : hideOverlay(ScreenType.End)
+activate End
+End --> Navigation : 
+deactivate End
+Navigation --> Game : 
+deactivate Navigation
+Game --> User : 
+deactivate Game
+
+note over Navigation,Block: Menu Clicked
+User -> Game : btnMenuClicked()
+activate Game
+Game -> Navigation : show(ScreenType.Start)
+activate Navigation
+Navigation -> Start : prepView()
+activate Start
+Start -> Settings : getCurrLang()
+activate Settings
+Settings --> Start : English
+deactivate Settings
+Start --> Navigation : 
+deactivate Start
+Navigation -> End : hideOverlay(ScreenType.End)
+activate End
+End --> Navigation : 
+deactivate End
+Navigation --> Game : 
+deactivate Navigation
+Game --> User : 
+deactivate Game
+
+note over Navigation,Block: Replay clicked
+User -> Game : replayGrid()
+activate Game
+Game -> Navigation : show(ScreenType.GAME)
+activate Navigation
+Navigation -> Game : prepView()
+activate Game
+Game -> Cube : getCubeData()
+activate Cube
+Cube -> Cube : getCube()
+activate Cube
+Cube --> Cube : cube[3][3][3]
+deactivate Cube
+Cube --> Game : cube[3][3][3]
+deactivate Cube
+Game --> Navigation : 
+deactivate Game
+Navigation -> End : hideOverlay(ScreenType.End)
+activate End
+End --> Navigation : 
+deactivate End
+Navigation --> Game : 
+deactivate Navigation
+Game --> User : 
+deactivate Game
+
+note over Navigation,Block: Save Clicked
+User -> Game : btnSaveClicked()
+activate Game
+Game -> JoggleCube : savGrid(filename)
+activate JoggleCube
+JoggleCube -> Cube : saveCube(outfile)
+activate Cube
+loop foreach Block
+    Cube -> Block : getLetter()
+    activate Block
+    Block --> Cube : 
+    deactivate Block
+end
+Cube --> JoggleCube : 
+deactivate Cube
+JoggleCube -> HighScores : saveScore(outfile)
+activate HighScores
+loop foreach score
+    HighScores -> HighScores : save(outfile)
+    activate HighScores
+    HighScores --> HighScores : 
+    deactivate HighScores
+end
+HighScores --> JoggleCube : 
+deactivate HighScores
+JoggleCube --> Game : 
+deactivate JoggleCube
+Game --> User : 
+deactivate Game
+
+@enduml
+```

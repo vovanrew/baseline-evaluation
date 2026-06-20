@@ -1,0 +1,157 @@
+```plantuml
+@startuml
+package "temporal_abstraction" {
+    package "time_intervals_adapter" {
+        class TimeIntervalsAdapter {
+            + max_gap
+            - convert_timestamp(df, epsilon=1)
+            - create_time_intervals(symbolic_time_series)
+        }
+    }
+
+    class TemporalAbstraction {
+        + discretize_property(prop, df)
+        - discretize_ts_limit(cutpoints, values)
+        + create_symbolic_time_series(states, time_point_series)
+        + equal_cutpoints_from_states(states)
+    }
+
+    class AbstractionPerProperty {
+        + preprocessing_params_df
+        + temporal_abstraction_params_df
+        + preprocessing_per_property(dataset)
+        + temporal_abstraction_per_property(dataset, entity_class_relations=None, states=None)
+        + intervalization_per_property(symbolic_time_series)
+        + general_preprocessing_by_name(params_row, row)
+        + generate_abstraction_by_name(params_row, row, entity_class_relations=None, states=None)
+    }
+
+    class Discretization {
+        + nb_bins
+        + generate_cutpoints(prop, df)
+        + discretize_property(prop, df)
+        + create_prop_state(row, df, cutpoints, scores)
+    }
+
+    class Unsupervised {
+        <<interface>>
+    }
+
+    class Supervised {
+        + entity_class_relations
+    }
+
+    package "methods" {
+        class EqualWidth {
+            + generate_cutpoints(...): List[cutpoints]
+            + equal_width(...)
+        }
+
+        class EqualFrequency {
+            + generate_cutpoints(...): List[cutpoints]
+            + equal_frequency(...)
+        }
+
+        class KMeans {
+            + generate_cutpoints(...): List[cutpoints]
+            + kmeans_adapted(...)
+        }
+
+        class SAX {
+            + generate_cutpoints(...): List[cutpoints]
+            + sax(...)
+        }
+    }
+
+    package "td4c_persist" {
+        class Persist {
+            + persist(...)
+            + all_states_persistence()
+            + single_state_persistence()
+            + calc_state_probabilities()
+        }
+
+        class shared_functions {
+            + candidate_selection()
+            + generate_candidates_cutpoints()
+            + symmetric_kullback_leibler()
+            + calc_marginal_probabilities()
+        }
+
+        class TD4C {
+            + TD4C_scoring_function(data_cutoffs, entity_class_relations)
+            + distance_measure(qj)
+        }
+
+        class TD4CCosine {
+            + distance_measure(qj)
+        }
+
+        class TD4CKullbackLeibler {
+            + distance_measure(qj)
+        }
+
+        class TD4CEntropy {
+            + distance_measure(qj)
+        }
+
+        class TD4CEntropyIC {
+            + distance_measure(qj)
+        }
+    }
+}
+
+package "preprocessing" {
+    class Transformation {
+        + transform(dataset)
+    }
+
+    class PAA {
+        + window_size
+        + transform(dataset)
+    }
+
+    class OutliersRemover {
+        + std_coeff
+        + transform(dataset)
+    }
+}
+
+package "kfold" {
+    class KFold {
+        + nb_folds
+        + entity_class_relations
+        + divide_dataset(dataset)
+    }
+}
+
+class Gradient {
+    + window_size
+    + states
+    + discretize_property(prop, df)
+    + gradient(df, window_size, states)
+    + derivative(df, gradient, window_size)
+}
+
+class KnowledgeBased {
+    + states
+    + discretize_property(prop, df)
+    + knowledge_based(states, prop, df)
+}
+
+TemporalAbstraction <|-- Gradient
+TemporalAbstraction <|-- KnowledgeBased
+Discretization <|-- Unsupervised
+Unsupervised <|-- EqualWidth
+Unsupervised <|-- EqualFrequency
+Unsupervised <|-- KMeans
+Unsupervised <|-- SAX
+TD4C <|-- TD4CCosine
+TD4C <|-- TD4CKullbackLeibler
+TD4C <|-- TD4CEntropy
+TD4C <|-- TD4CEntropyIC
+Transformation <|-- PAA
+Transformation <|-- OutliersRemover
+
+@enduml
+```

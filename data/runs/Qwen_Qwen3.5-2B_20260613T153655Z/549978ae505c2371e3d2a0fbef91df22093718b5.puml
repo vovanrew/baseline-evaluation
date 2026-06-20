@@ -1,0 +1,87 @@
+@startuml
+class Observer {
+    title "Observer"
+    note right of "Observer"
+    notify(event: ManagerEvent)
+}
+
+class System {
+    title "System"
+    note right of "System"
+    managedTypes: List<ComponentType>
+    filteredEntities: List<Entity>
+    addEntityRef(): Unit
+    removeEntityRef(): Unit
+    update(): Unit
+    checkEntityISCompatible(): Unit
+}
+
+class ComponentType {
+    title "ComponentType"
+    note right of "ComponentType"
+    DIRECTION,
+    POSITION,
+    SPEED,
+    SPAWN,
+    ...
+}
+
+class Entity {
+    title "Entity"
+    note right of "Entity"
+    ID: Int
+    components: Map<ComponentType, Component>
+}
+
+class Component {
+    title "Component"
+    note right of "Component"
+    type: ComponentType
+}
+
+class EntityManager {
+    title "EntityManager"
+    note right of "EntityManager"
+    entities: List<Entity>
+    systems: Set<Observer>
+    subscribe(system: Observer)
+    addEntity(entity: Entity)
+    removeEntity(id: Int)
+    notifySystems(event: ManagerEvent)
+}
+
+class ProductType {
+    title "Product Type"
+}
+
+class Note {
+    title "Note"
+    note right of "Entity"
+    Module + Case Class
+}
+
+class Note2 {
+    title "Note"
+    note right of "Component"
+    Module + Case Class
+}
+
+Observer <|-- System
+System ..> ComponentType
+System ..> Entity
+System ..> Component
+System ..> EntityManager
+EntityManager ..> System
+EntityManager ..> Component
+EntityManager ..> ComponentType
+EntityManager ..> Observer
+EntityManager ..> Entity
+Entity ..> Component
+Component ..> ComponentType
+Component ..> EntityManager
+Component ..> Entity
+Entity ..> ProductType
+Component ..> ProductType
+Entity ..> Note
+Component ..> Note2
+@enduml

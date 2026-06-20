@@ -1,0 +1,68 @@
+@startuml
+actor AntFacadeController as A1
+participant "Soldat" as S2
+participant Ouvriere as O3
+participant Fourmi as F4
+participant Noeud as N5
+participant Fourmilière as Fo6
+participant Grille as G7
+participant Random as R8
+
+A1 ->> A1 : 1 play()
+loop [Fourmiliere f in listeFourmilieres] 
+    loop [Fourmi fi in listefourmis ]  
+        alt [fourmi instanceof Soldat]   
+            activate S2    
+            note right of S2 #D9FFE0:green background\nwhite text#        
+                <b><u>Soldats</u></b>\n- se deplacent aléatoirement\ndans les noeuds libres            
+            endnote     
+            A1->S2: 2 deplacer(Random)      
+            S2-->G7: 3 noeudsLibres       
+            G7-->>S2: 4 ArrayList<Noeud>         
+            S2 -->R8: 5 nextInt ()          
+            R8 -- >>S2: 6 int           
+            S2 ->N5: 7 setPosition(Noeud )             
+            N5 - >S2: 8 void              
+            deactivate S2               
+            return                
+        else fourmi instanceOf ouvrière                 
+            activate O3                  
+            note left of O3                   
+                Les ouvrieres ont un comportement plus complexe que celui des soldats.\nC'est pourquoi il y'a beaucoup d'appels dans cette partie du diagramme.                    
+            endnote                     
+            A1->O3: 10 deplacer(random)                      
+            O3-->G7: 11 noeudslibre                       
+            G7-->>O3: 12 Arraylist<nœud>                        
+            O3-->F4: 13 getNourriture                         
+            F4-->>O3: 14 nourriture                          
+            O3-->Fo6: 15 getPheromones                           
+            Fo6-->>O3: 16 pheromone                            
+            O3-->R8: 17 Nextint                             
+            R8-->>O3: 18 Int                              
+            O3-->N5: 19 setposition(noeud)                               
+            N5-->>O3: 20 Void                                
+            opt transport nouriture                                 
+                O3-->F4: 21 GetNourriture                                  
+                F4-->>O3: 22 Nourriture                                   
+                O3-->F4: 23 SetNourriture(int)                                    
+                F4-->>O3: 24 Void                                     
+            End Opt                                       
+            O3-->Fo6: 25 AjouterPheremones(Int)                                        
+            Fo6-->>O3: 26 Void                                         
+            Deactivate O3                                          
+            Return                                           
+        Else                                             
+            Loop nœud n grille                                               
+                Activate N5                                                 
+                Note Right Of N5                                            
+                    Evaporation Des Phero Monies Sur La Carte                                                
+                EndNote                                                     
+                A1->N5: 28 Évaporer (Entier)                                                      
+                N5-A1>: 29 Vide                                                       
+                Désactiver N5                                                         
+            Fin Boucle                                                           
+        Alt                                                                     
+            Retourner                                                              
+        Fin Alternatif                                                               
+Fin boucle                                                                   
+@enduml

@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLmd6jimyOij5RUWcI0bJyXraur6",
+  "object": "chat.completion",
+  "created": 1781369163,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam sequenceMessageAlign center\nskinparam ParticipantPadding 10\nskinparam BoxPadding 10\n\nparticipant \"RtpSenderEgress\" as RtpSenderEgress\nparticipant \"ModuleRtpRtcpImpl\" as ModuleRtpRtcpImpl\nparticipant \"PacketRouter\" as PacketRouter\nparticipant \"ProcessThreadImpl\" as ProcessThreadImpl\nparticipant \"PacingController\" as PacingController\nparticipant \"PacedSender\" as PacedSender\nparticipant \"RTPSender\" as RTPSender\nparticipant \"RTPSenderAudio\" as RTPSenderAudio\n\nbox \"RTP\" #transparent\nend box\n\nbox \"Call\" #transparent\nparticipant \"AudioCodingModuleImpl\" as AudioCodingModuleImpl\nparticipant \"ChannelReceive\" as ChannelReceive\nparticipant \"ChannelSend\" as ChannelSend\nparticipant \"AcmReceiver\" as AcmReceiver\nend box\n\nbox \"NetEq\" #transparent\nparticipant \"AudioSendStream\" as AudioSendStream\nparticipant \"AudioMixerImpl\" as AudioMixerImpl\nparticipant \"AudioTransportImpl\" as AudioTransportImpl\nend box\n\nbox \"Audio\" #transparent\nparticipant \"AudioDeviceBuffer\" as AudioDeviceBuffer\nparticipant \"AudioTrackJni\" as AudioTrackJni\nparticipant \"AudioRecordJni\" as AudioRecordJni\nend box\n\n== RTP sending ==\nRtpSenderEgress -> ModuleRtpRtcpImpl : SendPacket()\nactivate ModuleRtpRtcpImpl\nModuleRtpRtcpImpl -> ModuleRtpRtcpImpl : SendPacketToNetwork()\ndeactivate ModuleRtpRtcpImpl\n\nModuleRtpRtcpImpl -> PacketRouter : TrySendPacket()\nactivate PacketRouter\n\nPacketRouter -> RTPSender : SendPacket()\nactivate RTPSender\nRTPSender -> RTPSender : ProcessPackets()\nRTPSender -> RTPSender : SendRtpPacket()\ndeactivate RTPSender\n\nPacketRouter -> ProcessThreadImpl : Process()\nactivate ProcessThreadImpl\nProcessThreadImpl -> ProcessThreadImpl : Process()\ndeactivate ProcessThreadImpl\n\nPacketRouter -> PacedSender : EnqueuePackets()\nactivate PacedSender\nPacedSender -> PacingController : SendToNetwork()\nactivate PacingController\nPacingController -> RTPSenderAudio : SendAudio()\nactivate RTPSenderAudio\ndeactivate RTPSenderAudio\ndeactivate PacingController\ndeactivate PacedSender\ndeactivate PacketRouter\n\n== Audio capture / encode / send ==\nAudioCodingModuleImpl -> AudioCodingModuleImpl : Encode()\nAudioCodingModuleImpl -> ChannelReceive : Add10MsData()\nChannelReceive -> ChannelSend : SendData()\nactivate ChannelSend\nChannelSend -> ChannelSend : SendRtpAudio()\ndeactivate ChannelSend\n\nChannelSend -> AudioSendStream : ProcessAndEncodeAudio()\nAudioSendStream -> AudioMixerImpl : SendAudioData()\nAudioMixerImpl -> AudioTransportImpl : RecordedDataIsAvailable()\nAudioTransportImpl -> AudioDeviceBuffer : DeliverRecordedData()\nAudioDeviceBuffer -> AudioRecordJni : DataIsRecorded()\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 909,
+    "completion_tokens": 634,
+    "total_tokens": 1543,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

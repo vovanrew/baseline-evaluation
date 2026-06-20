@@ -1,0 +1,22 @@
+@startuml
+participant "消费者" as consumer
+participant "监管消费者服务端" as server
+participant "db" as db
+participant "数字人民币" as digital
+participant "DB" as DB
+
+consumer -> server : 购买课程
+server -> db : 生成订单号并保存
+server -> digital : 获取付款二维码
+server -> consumer : 返回订单号和付款二维码
+consumer -> digital : 支付
+server -> digital : 轮询查询支付状况
+
+alt [查询到成功支付]
+    server -> DB : 修改订单状态，划拨
+    server -> consumer : 通知页面跳转
+else [到达最大等待时间仍未查询到成功支付]
+    server -> DB : 修改订单状态为关闭
+end
+
+@enduml

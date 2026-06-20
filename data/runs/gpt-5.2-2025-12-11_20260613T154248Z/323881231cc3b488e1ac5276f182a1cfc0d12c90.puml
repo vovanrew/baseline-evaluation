@@ -1,0 +1,63 @@
+@startuml
+title Search Product by ID
+
+actor User
+
+participant "«main»\nMain" as Main
+participant "«frame»\nMainMenu" as MainMenu
+participant "«dialog»\nProductReportDialog" as PRD
+participant "«DAO»\nProductDatabaseDAO" as DAO
+database "Database" as DB
+participant "«domain»\nProduct\n:product" as Product
+participant "SimpleListModel\n:model" as Model
+
+Main -> MainMenu : «create»
+User -> MainMenu : clicks 'View Products'
+activate MainMenu
+
+MainMenu -> PRD : «create»
+activate PRD
+
+PRD -> DAO : «create»
+activate DAO
+
+note over PRD
+as shown in
+'View Products'
+diagram
+end note
+
+PRD --> User : list of products\ndisplayed
+
+User -> PRD : user types productID\ninto field; clicks "Search"
+activate PRD
+
+PRD -> DAO : findProd(productID)
+activate DAO
+
+DAO -> DB : search product by ID
+activate DB
+DB --> DAO : resultSet
+deactivate DB
+
+DAO -> DAO : extract product details\nfrom ResultSet into variables
+
+DAO -> Product : «construct»
+activate Product
+DAO -> Product : set products fields\nfrom variables
+deactivate Product
+
+DAO -> Model : «construct»
+activate Model
+DAO -> Model : updateItems(products)
+deactivate Model
+
+DAO -> DAO : jList.setModel(model)
+
+PRD --> User : product displayed
+
+deactivate DAO
+deactivate PRD
+deactivate MainMenu
+
+@enduml

@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+skinparam maxMessageSize 150
+
+box "FAMPClient"
+participant AudioBundleAssembler
+participant UDPBundleReceiver
+end box
+
+box "FAMPServer"
+participant UDPBundleSender
+participant QUdpSocket
+end box
+
+activate AudioBundleAssembler
+AudioBundleAssembler -> UDPBundleReceiver : rozpocznij watek\nodbierajacy
+activate UDPBundleReceiver
+AudioBundleAssembler -> UDPBundleSender : rozpocznij wysylanie\npaczek
+activate UDPBundleSender
+UDPBundleSender -> QUdpSocket : grupa 50 paczek
+deactivate UDPBundleSender
+
+loop dopoki nie pobrano wszystkich paczek
+    loop dopoki dostepne sa datagramy
+        AudioBundleAssembler -> UDPBundleReceiver : przekaz pobrane\ndotychczas datagramy
+        UDPBundleReceiver --> AudioBundleAssembler : dane
+        AudioBundleAssembler -> AudioBundleAssembler : odczytaj id paczki i zapisz
+    end
+    deactivate UDPBundleReceiver
+
+    alt nie wszystkie paczki wyslane
+        AudioBundleAssembler -> UDPBundleSender : wyslij nastepny zestaw paczek
+        activate UDPBundleSender
+        UDPBundleSender -> QUdpSocket : grupa 50 paczek
+        UDPBundleSender --> AudioBundleAssembler : czy to ostatni zestaw
+    else istnieja paczki do retransmisji
+        UDPBundleSender -> QUdpSocket : wyslij zestaw brakujacych paczek
+        deactivate UDPBundleSender
+    end
+end
+
+AudioBundleAssembler -> AudioBundleAssembler : posortuj paczki
+AudioBundleAssembler -> AudioBundleAssembler : zapisz paczki do pliku
+deactivate AudioBundleAssembler
+
+@enduml
+```

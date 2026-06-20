@@ -1,0 +1,103 @@
+@startuml
+title orderList表示
+
+actor "配送員" as 配送員
+
+interface Courieridform.jsp as Courieridform.jsp
+interface OrderListServlet as OrderListServlet
+interface CourierDAO as CourierDAO
+interface Courier as Courier
+interface Session as Session
+interface OrderDAO as OrderDAO
+interface Order as Order
+interface DetailDAO as DetailDAO
+interface Detail as Detail
+interface Request as Request
+interface orderedlist.jsp as orderedlist.jsp
+
+note right of Courieridform.jsp
+  courierID入力
+end note
+
+note right of Courieridform.jsp
+  リンク
+end note
+
+note right of OrderListServlet
+  findByCourierid()
+end note
+
+note right of CourierDAO
+  生成
+end note
+
+note right of CourierDAO
+  Courier
+end note
+
+note right of OrderListServlet
+  Courier
+end note
+
+note right of Session
+  findAll()
+end note
+
+note right of OrderDAO
+  生成
+end note
+
+note right of OrderDAO
+  findByOrderId()
+end note
+
+note right of DetailDAO
+  リスト生成
+end note
+
+note right of OrderDAO
+  ArrayList<Detail>
+end note
+
+note right of OrderDAO
+  setDetail (ArrayList<Detail>)
+end note
+
+note right of OrderDAO
+  ArrayList<Order>
+end note
+
+note right of OrderListServlet
+  setAttribute(ArrayList<Order>)
+end note
+
+note right of OrderListServlet
+  フォワード
+end note
+
+note right of orderedlist.jsp
+  表示
+end note
+
+note right of Courieridform.jsp
+  表示
+end note
+
+ Courieridform.jsp --> OrderListServlet : リンク
+ OrderListServlet --> CourierDAO : findByCourierid()
+ CourierDAO --> Courier : 生成
+ CourierDAO -. Courier : Courier
+ OrderListServlet --> Session : Courier
+ OrderListServlet --> OrderDAO : findAll()
+ OrderDAO --> Order : 生成
+ OrderDAO --> DetailDAO : findByOrderId()
+ DetailDAO --> Detail : リスト生成
+ OrderDAO -. OrderDAO : ArrayList<Detail>
+ OrderDAO --> OrderDAO : setDetail (ArrayList<Detail>)
+ OrderDAO -. OrderListServlet : ArrayList<Order>
+ OrderListServlet --> Request : setAttribute(ArrayList<Order>)
+ OrderListServlet --> orderedlist.jsp : フォワード
+ orderedlist.jsp --> 配送員 : 表示
+ Courieridform.jsp --> 配送員 : 表示
+
+@enduml

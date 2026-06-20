@@ -1,0 +1,21 @@
+{
+  "id": "msg_01LvHN9h3KkvBBzxV9dQ8Zzv",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nbox \"Kjede\"\nactor Bruker\nparticipant \"Kjedesystem\" as Kjedesystem\nparticipant \"Identity Provider\" as IdP\nend box\n\nbox \"DIFA\"\nparticipant \"DifaGUI\" as DifaGUI\nparticipant \"Tilgangskontroll\" as Tilgangskontroll\nend box\n\ndatabase \"HPR-DB\" as HPRDB\nparticipant \"HDIR\" as HDIR\n\nHDIR --> HPRDB : Oppdatert\\nhelsepersonellregister\n\nBruker -> Kjedesystem : Velg DIFA operasjon fra meny\nKjedesystem --> Bruker : Redirect\nBruker -> DifaGUI : Utf\u00f8r operasjon\nDifaGUI --> Bruker : Krever p\u00e5logging \u2013 redirect\nBruker -> IdP : Logg p\u00e5\nIdP --> Bruker : Access token\nBruker -> DifaGUI : Access token\n\nDifaGUI -> Tilgangskontroll : Autoriser bruker\nTilgangskontroll -> DifaGUI : Access token\nDifaGUI --> Tilgangskontroll : JWT\n\nnote left of Tilgangskontroll : token er en signert JSON payload\n\nTilgangskontroll -> DifaGUI : \u00abcached\u00bb Hent kjedesertifikat\n\nTilgangskontroll -> Tilgangskontroll : Verifiser token signatur\nTilgangskontroll -> Tilgangskontroll : Hent HPR nr fra token (+ roller)\nTilgangskontroll -> HPRDB : HPR nummer\nHPRDB --> Tilgangskontroll : Autorisasjon (eks \"farmas\u00f8yt\")\nTilgangskontroll -> Tilgangskontroll : Avgj\u00f8r tilgang\n\nTilgangskontroll -> DifaGUI : utf\u00f8r operasjon\nDifaGUI --> Bruker\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431052,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 507,
+    "prompt_tokens": 1650,
+    "total_tokens": 2157
+  }
+}

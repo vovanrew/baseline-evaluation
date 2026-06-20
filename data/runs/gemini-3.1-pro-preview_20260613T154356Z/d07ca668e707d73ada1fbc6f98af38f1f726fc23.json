@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nparticipant IntegrationTest\nparticipant \"Spring\\nApplication\" as SpringApp\nparticipant \"De /nSerializer\" as Serializer\nparticipant \"info:AddMember\\nRequestInfoDTO\" as InfoDTO\nparticipant \"ctrl:AddMember\\nToGroupController\" as Controller\nparticipant \"AddMember\\nRequestAssembler\" as RequestAssembler\nparticipant \"requestDTO:\\nAddMemberRequestDTO\" as RequestDTO\nparticipant \"AddMemberResponse\\nDTOAssembler\" as ResponseAssembler\nparticipant \"groupRespDTO:\\nGroupResponseDTO\" as GroupRespDTO\nparticipant \"srv:AddMember\\nToGroupService\" as Service\n\nnote over Service: Continues through\\nnext Diagram\n\nactivate IntegrationTest\nIntegrationTest -> SpringApp : **1** POST\\n/groups/\"Family\"/\\nmembers/\"ana@gmail.com\"\nactivate SpringApp\n\nSpringApp -> Serializer : **1.1** deserialize(\"groupDesc\":\"Family\",\\n\"personEmail\":\"ana@gmail.com\")\nactivate Serializer\nSerializer -> InfoDTO ** : **1.1.1** create (groupDesc,\\nPersonEmail)\ndeactivate Serializer\n\nSpringApp -> Controller : **1.2** addMember(info)\nactivate Controller\n\nController -> RequestAssembler : **1.2.1** addMemberMapToDTO\\n(info.getGroupDescription(),\\ninfo.getPersonEmail())\nactivate RequestAssembler\nRequestAssembler -> RequestDTO ** : **1.2.1.1** create\ndeactivate RequestAssembler\n\nController -> Service : **1.2.2** addMemeber(requestDTO)\nService --> Controller : **1.2.3** groupDTO\n\nController -> ResponseAssembler : **1.2.4** mapToGroupResponseDTO(GroupDTO)\nactivate ResponseAssembler\nResponseAssembler -> GroupRespDTO ** : **1.2.4.1** create\ndeactivate ResponseAssembler\n\nController --> SpringApp : **1.2.5** groupRespDTO\ndeactivate Controller\n\nSpringApp --> SpringApp : **1.2.6** ResponseEntity(groupRespDTO,\\nHttpStatus.OK)\n\nSpringApp -> Serializer : **1.3** serialize(ResponseEntity(groupRespDTO,\\nHttpStatus.OK))\nactivate Serializer\nSerializer --> SpringApp : **1.4** HttpResponse\ndeactivate Serializer\n\nSpringApp --> IntegrationTest : **1.5** HttpResponse\ndeactivate SpringApp\ndeactivate IntegrationTest\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHIcjsZFKwbqUrzVJs0vp8bfCdwi/EtCQWyLrQhiKe/cQhoc9Q05IVI4korzwG"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1160,
+    "candidatesTokenCount": 545,
+    "totalTokenCount": 1705,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1080
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "oWExauaICI--vdIPvtyT2AY"
+}

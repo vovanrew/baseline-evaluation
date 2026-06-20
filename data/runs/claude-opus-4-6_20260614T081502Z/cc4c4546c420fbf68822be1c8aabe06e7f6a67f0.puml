@@ -1,0 +1,28 @@
+```plantuml
+@startuml
+
+actor Admin
+participant "Employees Module" as EM
+database "Search Index" as SI
+database "Database" as DB
+
+Admin -> EM : trigger task
+activate EM
+EM -> SI : reset index (delete + create)
+SI --> EM
+EM -> DB : stream all employees
+activate DB
+
+loop loop
+    EM -> SI : index employee
+    activate SI
+    deactivate SI
+end
+
+DB --> EM
+deactivate DB
+EM --> Admin
+deactivate EM
+
+@enduml
+```

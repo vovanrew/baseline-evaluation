@@ -1,0 +1,79 @@
+@startuml
+participant "CommandInt" as CI
+
+interface CommandInt {
+    Execute() : void
+}
+
+participant "Commands" as Cmds
+
+Cmds
+    shape : string
+    Execute() : void
+    Undo() : void
+    Redo() : void
+    PrintSVG() : void
+    CreateSVG() : void
+    ToString() : void
+    <<override>> ToString() : string
+}
+
+participant "AddCMD" as AddCMD
+AddCMD
+    shape : string
+    AddCMD(shape:String, history:List<string>)
+    Execute() : void
+}
+
+participant "UndoCMD" as UndoCMD
+UndoCMD
+    UndoCMD(history:List<string>, redoList:List<string>)
+    Execute() : void
+}
+
+participant "RedoCMD" as RedoCMD
+RedoCMD
+    RedoCMD(history:List<string>, redoList:List<string>)
+    Execute() : void
+}
+
+participant "PrintSVGCMD" as PrintSVGCMD
+PrintSVGCMD
+    PrintSVGCMD(history:List<string>)
+    Execute() : void
+}
+
+participant "CreateSVGCMD" as CreateSVGCMD
+CreateSVGCMD
+    CreateSVGCMD(history:List<string>)
+    Execute() : void
+}
+
+participant "List 1" as List1
+List1
+    shape : string
+    history: String
+    redoList: List<string>
+    history: String
+    history: String
+}
+
+CI ..> AddCMD
+CI ..> UndoCMD
+CI ..> RedoCMD
+CI ..> PrintSVGCMD
+CI ..> CreateSVGCMD
+
+AddCMD ..> List1
+UndoCMD ..> List1
+RedoCMD ..> List1
+PrintSVGCMD ..> List1
+CreateSVGCMD ..> List1
+
+List1 ..> AddCMD
+List1 ..> UndoCMD
+List1 ..> RedoCMD
+List1 ..> PrintSVGCMD
+List1 ..> CreateSVGCMD
+
+@enduml

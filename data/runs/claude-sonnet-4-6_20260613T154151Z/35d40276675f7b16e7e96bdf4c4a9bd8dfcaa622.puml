@@ -1,0 +1,53 @@
+@startuml
+title Update Relationship Event Handler UML
+
+participant "Event Dispatcher Topic" as EDT #pink
+box "Lambda" #orange
+participant "Update Relationship Event Handler" as UREH
+end box
+box "DynamoDB" #royalblue
+participant "Relationship Owner Table" as ROT
+participant "Relationship Commitment Table" as RCT
+end box
+
+EDT -> UREH : filter on\nRelationship::Update Event
+
+UREH -> UREH : [SessionDecorator.puml]
+UREH -> UREH : [TrackEventHandlerWrapper.puml]
+UREH -> UREH : extract Message from Event
+UREH -> UREH : validate Message
+UREH -> UREH : validate event-name
+UREH -> UREH : validate event-version
+UREH -> UREH : validate stage
+
+UREH -> ROT : Get Existing Relationship
+ROT --> UREH :
+
+UREH -> UREH : Generate Relationship Dict
+UREH -> UREH : Combine Existing Relationship\nAttributes With New Changes
+
+opt [if missing required schema key]
+  UREH -> UREH : <color:red>Error Handling</color>
+end
+
+UREH -> UREH : Get AdditionalAttributes
+
+alt [if Relationship contains description and AdditionalAttributes\ndoesn't contain completed signal]
+  UREH -> ROT : update Relationship
+  ROT --> UREH :
+  UREH -> UREH : <color:red>Error Handling</color>
+end
+
+UREH -> UREH : Generate commitments to add or delete
+
+alt [if Commitment Operations Exist]
+  UREH -> UREH : Generate starting indexes based on AdditionalAttributes
+  UREH -> RCT : Batch_Write() RelationshipCommitments
+  RCT --> UREH :
+  UREH -> UREH : <color:red>Error Handling</color>
+end
+
+UREH -> UREH : Track Event Handler Wrapper
+UREH -> UREH : Error Handler Wrapper
+
+@enduml

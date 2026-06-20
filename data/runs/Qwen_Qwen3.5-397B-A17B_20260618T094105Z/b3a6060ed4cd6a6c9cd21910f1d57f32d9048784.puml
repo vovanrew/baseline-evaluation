@@ -1,0 +1,29 @@
+@startuml
+title Login Sequence GET
+
+actor customer
+participant "Tomcat" as Tomcat #lightgray
+
+box entries (UI) #LightGray
+  participant Index
+  participant BaseServlet
+  participant index.jsp
+  participant Login
+  participant login.jsp
+end box
+
+customer -> Tomcat : <b>1</b> GET /
+activate Tomcat
+Tomcat -> Index : <b>2</b> doGet()
+Index --> BaseServlet : 
+BaseServlet -> index.jsp : <b>3</b> render()
+index.jsp --> BaseServlet : 
+BaseServlet -> index.jsp : <b>4</b> forward()
+index.jsp -> Login : <b>5</b> doGet()
+Login --> index.jsp : 
+index.jsp <-- BaseServlet : <b>6</b> render()
+BaseServlet -> login.jsp : <b>7</b> forward()
+login.jsp ..> customer : <b>8</b> result
+deactivate Tomcat
+
+@enduml

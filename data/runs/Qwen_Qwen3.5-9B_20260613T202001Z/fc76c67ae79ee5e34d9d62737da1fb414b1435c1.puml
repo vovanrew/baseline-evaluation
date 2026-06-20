@@ -1,0 +1,109 @@
+@startuml
+!theme base
+
+class "Directory" {
+  [A] Directory
+  Directory表示一些扁平(没有子目录)文件的集合, 这些文件都只能在创建时写入一次。
+  写入之后, 就只能读或者删除, 不可再修改。
+  <br/>
+  // 返回目录下所有文件
+  String[] listAll()
+  // 删除一个文件
+  void deleteFile(String name)
+  // 获取文件长度
+  long fileLength(String name)
+  // 创建一个新文件
+  IndexOutput createOutput(String name, IOContext context)
+  // 创建一个临时文件
+  IndexOutput createTempOutput(String prefix, String suffix, IOContext context)
+  // 确保对这些文件所有的写入都被转移到稳定的存储介质上去。
+  void sync(Collection<String> names)
+  // 重命名文件
+  void rename(String source, String dest)
+  // 持久化Directory的元数据
+  void syncMetaData()
+  // 打开一个文件
+  IndexInput openInput(String name, IOContext context)
+  // 获取锁
+  Lock obtainLock(String name)
+}
+
+class "BaseDirectory" {
+  [A] BaseDirectory
+  // Directory具体实现的基类, 使用LockFactory来获取锁
+  LockFactory lockFactory
+}
+
+class "FSDirectory" {
+  [A] FSDirectory
+  // 在文件系统上的实现
+  // 根据当前的环境来选择使用哪一种实现。
+  FSDirectory open(Path path, LockFactory lockFactory)
+  Path directory
+}
+
+class "SimpleFSDirectory" {
+  [C] SimpleFSDirectory
+  //
+}
+
+class "NIOFSDirectory" {
+  [C] NIOFSDirectory
+  //
+}
+
+class "MMapDirectory" {
+  [C] MMapDirectory
+  <<Important>>
+  // 使用mmap来读取数据
+}
+
+class "RAMDirectory" {
+  [C] RAMDirectory
+  // 在内存中的实现
+}
+
+class "FileSwitchDirectory" {
+  [C] FileSwitchDirectory
+  // ??????
+}
+
+class "FilterDirectory" {
+  [A] FilterDirectory
+  // 装饰
+}
+
+class "NRTCachingDirectory" {
+  [C] NRTCachingDirectory
+  //
+}
+
+class "LockValidatingDirectoryWrapper" {
+  [C] LockValidatingDirectoryWrapper
+  // 在一些写操作进行之前, 提供锁的校验
+}
+
+class "TrackingDirectoryWrapper" {
+  [C] TrackingDirectoryWrapper
+  // 可以记录创建了哪些文件
+  Set<String> getCreatedFiles()
+}
+
+class "SleepingLockWrapper" {
+  [C] SleepingLockWrapper
+  // 如果获取锁失败, 则休眠一段时间后重试。
+}
+
+"Directory" <|-- "BaseDirectory"
+"BaseDirectory" <|-- "FSDirectory"
+"BaseDirectory" <|-- "RAMDirectory"
+"FSDirectory" <|-- "SimpleFSDirectory"
+"FSDirectory" <|-- "NIOFSDirectory"
+"FSDirectory" <|-- "MMapDirectory"
+"Directory" <|-- "FileSwitchDirectory"
+"FilterDirectory" <|-- "NRTCachingDirectory"
+"FilterDirectory" <|-- "LockValidatingDirectoryWrapper"
+"FilterDirectory" <|-- "TrackingDirectoryWrapper"
+"FilterDirectory" <|-- "SleepingLockWrapper"
+
+@enduml

@@ -1,0 +1,22 @@
+{
+  "id": "cb637646-c79f-4df9-b7bf-5167b2a34442",
+  "object": "chat.completion",
+  "created": 1781491721,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\ntitle IO Device Registration and Opening Sequence Diagram\n\nparticipant \"arm_io_storage\" as arm_io_storage\nparticipant \"io_storage\" as io_storage\nparticipant \"io_fip\" as io_fip\nparticipant \"io_memmap\" as io_memmap\n\nbox \"io dev registration\" #ffffff\n    activate arm_io_storage\n    arm_io_storage ->> arm_io_storage: arm_io_setup()\n    \n    arm_io_storage ->> io_fip: register_io_dev_fip(&fip_dev_con)\n    activate io_fip\n    io_fip ->> io_storage: io_register_device(&dev_info_pool[])\n    activate io_storage\n    note right of io_storage: devices[dev_count] = (fip_)dev_info_pool\\n dev_count++\n    deactivate io_storage\n    deactivate io_fip\n    \n    arm_io_storage ->> io_memmap: register_io_dev_memmap(&memmap_dev_con)\n    activate io_memmap\n    io_memmap ->> io_storage: io_register_device(&memmap_dev_info)\n    activate io_storage\n    note right of io_storage: devices[dev_count] = memmap_dev_info\\n dev_count++\n    deactivate io_storage\n    deactivate io_memmap\n    \n    arm_io_storage ->> io_storage: io_dev_open(fip_dev_con, NULL, fip_dev_handle)\n    activate io_storage\n    io_storage ->> io_storage: dev_open(dev_con, dev_spec, handle)\n    \n    opt [dev_open() on fip device]\n        io_storage ->> io_fip: fip_dev_open(dev_spec, dev_info)\n        activate io_fip\n        note right of io_fip: dev_info = one of the\\n\"fip_dev_info\" from\\ndev_info_pool[]\n        deactivate io_fip\n    endopt\n    \n    deactivate io_storage\n    \n    arm_io_storage ->> io_storage: io_dev_open(memmap_dev_con, NULL, memmap_dev_handle)\n    activate io_storage\n    io_storage ->> io_storage: dev_open(dev_con, dev_spec, handle)\n    \n    opt [dev_open() on memmap device]\n        io_storage ->> io_memmap: memmap_dev_open(dev_spec, dev_info)\n        activate io_memmap\n        note right of io_memmap: dev_info = memmap_dev_info\n        deactivate io_memmap\n    endopt\n    \n    deactivate io_storage\n    deactivate arm_io_storage\nendbox\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1860,
+    "completion_tokens": 532,
+    "total_tokens": 2392
+  }
+}

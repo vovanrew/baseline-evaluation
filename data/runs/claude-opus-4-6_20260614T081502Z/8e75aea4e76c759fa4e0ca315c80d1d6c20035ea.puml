@@ -1,0 +1,37 @@
+```plantuml
+@startuml
+
+actor nsq
+
+participant "GuideTaskCrmVisitAssignListener" as Listener
+participant "guideTaskCrmVisitAssignProcessor" as Processor
+participant "GuideTaskAssignDomainService" as DomainService
+participant "ShoppingGuideReadApi" as ReadApi
+participant "GuideTaskDepartmentAssignStrategy" as Strategy
+participant "GuideTaskAssignFactory" as Factory
+participant "GuideTaskAssignRepository" as AssignRepo
+participant "GuideTaskRepository" as TaskRepo
+participant "NsqProducer" as NsqProducer
+
+nsq -> Listener : 1 下发任务
+Listener -> Processor : 2 开始处理
+Processor -> DomainService : 3 任务分配
+
+note left of DomainService : 下发给所有部门
+
+DomainService -> ReadApi : 4 查询下发对象 department
+DomainService -> Strategy : 5 分配任务
+
+note right of Strategy : 只有任务下发给导购的时候\n才创建导购的任务明细
+
+Strategy -> Factory : 6 创建分配的任务实体
+Factory --> Strategy
+
+group Transaction
+DomainService -> AssignRepo : 7 保存分配状态 status flow 任务流转至 分配完成
+DomainService -> TaskRepo : 8 保存分配状态 status flow 任务流转至 待启动
+DomainService -> NsqProducer : 9 发送下发完成消息，准备启动任务
+end
+
+@enduml
+```

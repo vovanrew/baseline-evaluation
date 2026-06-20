@@ -1,0 +1,29 @@
+@startuml
+!option handwritten true
+
+actor User
+
+box "NSheets Client"
+participant HomeView
+participant HomePresenter
+end box
+
+box "Server"
+participant NoteServices
+participant ListNoteController
+participant NoteService
+participant NoteRepository
+end box
+
+database Database
+
+User -> HomePresenter : onReveal() / navigate to page
+HomePresenter -> NoteServices : getNotes()
+NoteServices -> ListNoteController : listNotes()
+ListNoteController -> NoteService : allNotes()
+NoteService -> NoteRepository : findAll()
+NoteRepository -> Database : fetch
+NoteServices -> HomePresenter : onSuccess()
+HomePresenter -> HomeView : setContents()
+
+@enduml

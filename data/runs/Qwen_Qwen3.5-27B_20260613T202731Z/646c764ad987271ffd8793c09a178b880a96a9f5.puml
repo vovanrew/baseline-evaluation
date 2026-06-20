@@ -1,0 +1,31 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "User" as User
+rectangle "Backend Environment" {
+  participant "Server" as Server
+  participant "SuperHeroApi" as SuperHeroApi
+}
+
+alt [user search]
+    User -> Server: GET /search?q=<queryValue>
+    activate Server
+    Server -> Server: getFromCache(queryValue) ?
+    note right of Server: binarySearch(query)
+    
+    alt [has in cache]
+        Server --> User: 200: queryValue
+    else [not has in cache: request to API]
+        Server -> SuperHeroApi: GET queryValue
+        activate SuperHeroApi
+        SuperHeroApi --> Server: 200: queryValue
+        deactivate SuperHeroApi
+        Server -> Server: updateCache(queryValue)
+        Server --> User: 200: queryValue
+    end
+    
+    deactivate Server
+end
+@enduml
+```

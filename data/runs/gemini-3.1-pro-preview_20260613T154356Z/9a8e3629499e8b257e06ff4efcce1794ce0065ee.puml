@@ -1,0 +1,39 @@
+```plantuml
+@startuml
+actor havenarbeider
+actor "douane en voedselinspectie" as douane
+actor scheepsagent
+participant "Api gateway" as api
+participant kapiteinsdienst
+participant administratie
+participant "containerbeheer en -transport" as container
+
+group per schip
+    scheepsagent -> api : registerVessel
+    api -> kapiteinsdienst : registerVessel
+    kapiteinsdienst -> administratie : requestOffer
+    administratie -> kapiteinsdienst : offerCreated
+    administratie -> container : newContainerList
+
+    opt deleteOffer
+        scheepsagent -> api : offerConfirmation(isConfirmed == false)
+        api -> kapiteinsdienst : offerConfirmation(isConfirmed == false)
+        kapiteinsdienst -> administratie : deleteOffer
+    end
+
+    douane -> api : getDocuments
+    api -> administratie : getDocuments
+    administratie --> api
+    api --> douane
+end
+
+group per havenarbeider
+    havenarbeider -> api : timeBadging
+    api -> administratie : timeBadging
+    havenarbeider -> api : getPayCheck
+    api -> administratie : getPayCheck
+    administratie --> api
+    api --> havenarbeider
+end
+@enduml
+```

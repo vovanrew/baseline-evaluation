@@ -1,0 +1,48 @@
+@startuml
+title 3. 女の子の招待
+
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F2
+  ActorBorderColor #666666
+  ActorBackgroundColor #E9E9F2
+  BoxBorderColor #000000
+  BoxBackgroundColor #FFFFFF
+  ArrowColor #000000
+  ArrowThickness 2
+  ParticipantPadding 30
+  BoxPadding 10
+}
+
+actor "お嬢" as O
+participant "グループスタッフ" as GS
+participant "CABABA" as C
+database "データベース" as DB
+participant "CABABA管理者" as ADM
+
+box "女の子登録" #FFFFFF
+  GS -> C : 設定画面から女の子の参加招待URLを作成
+  activate C
+  C -> DB : SELECT Group.group_id
+  DB --> C
+  C --> GS : 参加招待URLを表示
+  deactivate C
+
+  GS -> O : URLを共有
+  activate O
+  O -> C : URLをクリック, LINEログイン画面へ
+  deactivate O
+
+  activate C
+  C -> DB : UPDATE hostess.groups.add
+  DB --> C
+  deactivate C
+
+  C --> GS : お嬢のグループ登録完了
+end box
+
+@enduml

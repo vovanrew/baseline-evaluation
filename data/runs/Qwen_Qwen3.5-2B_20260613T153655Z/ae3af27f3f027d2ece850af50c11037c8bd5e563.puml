@@ -1,0 +1,61 @@
+@startuml
+participant "main" as main
+participant "bkup.BackupFacade" as bkup
+participant "srcrepo.SourceRepository" as srcrepo
+participant "dstrepo.DestinationRepository" as dstrepo
+participant "metarepo.MetadataRepository" as metarepo
+participant "scanner.AllFileScanner" as scanner
+participant "FileSystem" as FileSystem
+participant "SQLite3" as SQLite3
+
+main -> bkup : execute()
+
+bkup --> Get all files : Get all files
+
+Get all files --> scanner.AllFileScanner : get_all_files()
+scanner.AllFileScanner --> FileSystem : read
+FileSystem --> scanner.AllFileScanner : write
+scanner.AllFileScanner --> FileSystem : read
+FileSystem --> scanner.AllFileScanner : write
+scanner.AllFileScanner --> bkup : all_files
+
+bkup --> Get source files : Get source files
+
+Get source files --> srcrepo.SourceRepository : get_files_matching_criteria(all_files)
+srcrepo.SourceRepository --> bkup : src_files
+
+bkup --> Cleanup of metadata corresponding to already deleted files : Cleanup of metadata corresponding to already deleted files
+
+Cleanup of metadata corresponding to already deleted files --> metarepo.MetadataRepository : get_uncontained_keys(src_files)
+metarepo.MetadataRepository --> SQLite3 : SELECT
+SQLite3 --> metarepo.MetadataRepository : result
+metarepo.MetadataRepository --> bkup : uncontained_keys
+metarepo.MetadataRepository --> srcrepo.SourceRepository : remove_metadatas(uncontained_keys)
+
+loop [until the generator finishes]
+    metarepo.MetadataRepository --> dstrepo.DestinationRepository : DELETE
+    dstrepo.DestinationRepository --> metarepo.MetadataRepository : yield removed_metadata <return value is discarded>
+    metarepo.MetadataRepository --> bkup : yield removed_metadata <return value is discarded>
+
+bkup --> Create backup and update metadata : Create backup and update metadata
+
+Create backup and update metadata --> _get_backup_list(src_files) : _get_backup_list(src_files)
+_create_backup_list(src_files) --> bkup : backup_list
+bkup --> dstrepo.DestinationRepository : create_backups(backup_list)
+dstrepo.DestinationRepository --> bkup : yield backed_up_src_file
+bkup --> metarepo.MetadataRepository : update_metadata(backed_up_src_file)
+metarepo.MetadataRepository --> dstrepo.DestinationRepository : REPLACE INTO
+dstrepo.DestinationRepository --> metarepo.MetadataRepository : REPLACE INTO
+
+bkup --> Discard old backups : Discard old backups
+
+Discard old backups --> srcrepo.SourceRepository : get_discard_list(today, all_files)
+srcrepo.SourceRepository --> bkup : discard_list
+bkup --> dstrepo.DestinationRepository : remove_backups(discard_list)
+dstrepo.DestinationRepository --> bkup : yield removed_file <return value is discarded>
+bkup --> metarepo.MetadataRepository : update_metadata(backed_up_src_file)
+metarepo.MetadataRepository --> dstrepo.DestinationRepository : REPLACE INTO
+dstrepo.DestinationRepository --> bkup : yield removed_file <return value is discarded>
+
+main --> bkup : return
+@enduml

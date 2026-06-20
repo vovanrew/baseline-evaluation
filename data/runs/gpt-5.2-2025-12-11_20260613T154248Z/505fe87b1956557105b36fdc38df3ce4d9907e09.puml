@@ -1,0 +1,73 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 25
+skinparam BoxPadding 10
+
+actor Freelancer
+
+participant ":AlterarCandidaturaUI" as UI
+participant ":RegistarCandidaturaController" as RCC
+participant ":Plataforma" as PLAT
+participant ":UsersAPI" as UAPI
+participant "cand:\nCandidatura" as CAND
+database "RepositorioFreelancer" as RF
+database "RepositorioCandidatura" as RC
+
+Freelancer -> UI : 1 inicia alterar candidatura
+activate UI
+
+UI -> RCC : 2 getFreelancerByEmail()
+activate RCC
+
+RCC -> PLAT : 3 email = getSessionEmail
+activate PLAT
+PLAT -> UAPI : 4 email = getEmail()
+activate UAPI
+UAPI --> PLAT
+deactivate UAPI
+PLAT --> RCC
+deactivate PLAT
+
+RCC -> RF : 5 free = find(email)
+activate RF
+RF --> RCC
+deactivate RF
+
+deactivate RCC
+
+UI -> RCC : 6 lcand = getCandidaturasDispByFreelancerEmail()
+activate RCC
+RCC -> RC : 7 lcand = getAllCandidaturasByFreelancerEmail(email)
+activate RC
+RC --> RCC
+deactivate RC
+deactivate RCC
+
+UI --> Freelancer : 8 solicita a escolha de uma das candidaturas por\nsi efetuadas e, ainda, em período de candidaturas
+Freelancer -> UI : 9 escolhe a candidatura
+
+UI -> RCC : 10 cand = getCandById()
+activate RCC
+RCC -> RC : 11 cand = find(id)
+activate RC
+RC --> RCC
+deactivate RC
+deactivate RCC
+
+UI --> Freelancer : 12 solicita a introdução de novos dados\n(i.e. os que pretende alterar, mantendo os restantes iguais)
+Freelancer -> UI : 13 introduz os dados solicitados\n(valor,nrDias,txtApresentacao,txtMotivacao)
+
+UI -> RCC : 14 alterarCandidatura(valor,nrDias,txtApresentacao,txtMotivacao)
+activate RCC
+RCC -> RC : 15 update(cand)
+activate RC
+RC --> RCC
+deactivate RC
+deactivate RCC
+
+UI --> Freelancer : 16 valida e apresenta os dados ao Freelancer e pede a sua confirmação
+deactivate UI
+
+@enduml

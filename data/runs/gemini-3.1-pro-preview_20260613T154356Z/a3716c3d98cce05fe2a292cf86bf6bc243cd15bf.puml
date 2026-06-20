@@ -1,0 +1,78 @@
+```plantuml
+@startuml
+box "Client"
+participant client
+participant tcpclient
+end box
+
+box "Server"
+participant tcpserver
+participant server
+end box
+
+server -> tcpserver : listen
+activate tcpserver #0077ff
+hnote over tcpserver #0077ff : LISTEN
+
+client -> tcpclient : connect
+activate client
+activate tcpclient #00aaaa
+tcpclient -> tcpserver : SYN
+deactivate tcpserver
+hnote over tcpclient #00aaaa : SYN-SENT
+activate tcpserver #00aaff
+hnote over tcpserver #00aaff : SYN-RECEIVED
+tcpserver -> tcpclient : SYN, ACK
+deactivate tcpclient
+deactivate tcpserver
+
+tcpclient -> tcpserver : ACK
+activate tcpclient #99cc99
+hnote over tcpclient #99cc99 : ESTABLISHED
+activate tcpserver #99cc99
+hnote over tcpserver #99cc99 : ESTABLISHED
+
+tcpserver -> server : EPOLLIN
+activate server
+server -> tcpserver : write
+tcpserver -> tcpclient : PSH, ACK
+tcpclient -> tcpserver : ACK
+tcpclient -> client : EPOLLIN
+deactivate client
+activate client
+client -> tcpclient : read
+deactivate client
+deactivate tcpclient
+deactivate tcpserver
+
+server -> tcpserver : close
+activate tcpserver #bbaadd
+hnote over tcpserver #bbaadd : FIN_WAIT1
+tcpserver -> tcpclient : FIN, ACK
+deactivate tcpserver
+activate tcpclient #ee88ee
+hnote over tcpclient #ee88ee : CLOSE_WAIT
+tcpclient -> tcpserver : ACK
+activate tcpserver #ffaa66
+hnote over tcpserver #ffaa66 : FIN_WAIT2
+tcpclient -> client : EPOLLRDHUP
+deactivate tcpclient
+activate client
+client -> tcpclient : close
+deactivate client
+activate tcpclient #ff00ff
+hnote over tcpclient #ff00ff : LAST_ACK
+tcpclient -> tcpserver : FIN
+deactivate tcpserver
+tcpserver -> tcpclient : ACK
+deactivate tcpclient
+activate tcpserver #ffff66
+hnote over tcpserver #ffff66 : TIMEWAIT
+hnote over tcpclient #ff6666 : CLOSE
+tcpserver --> tcpserver : timer 60s
+deactivate tcpserver
+hnote over tcpserver #ff6666 : CLOSE
+deactivate server
+
+@enduml
+```

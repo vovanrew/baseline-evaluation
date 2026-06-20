@@ -1,0 +1,70 @@
+```plantuml
+@startuml
+
+actor mobile
+participant "www" as www
+participant "endpoint" as endpoint
+participant "haproxy" as haproxy
+participant "ipfs" as ipfs
+participant "postgraphile" as postgraphile
+participant "CITY Custom Net" as citynet
+participant "logstash" as logstash
+participant "dApp" as dapp
+database "postgres" as postgres
+database "elastic" as elastic
+participant "prometheus" as prometheus #khaki
+participant "kibana" as kibana #khaki
+
+== webUI ==
+
+mobile -> www : sign & send events
+note left of www #khaki : browser ext or mobile wallet
+www -> endpoint : HTTPS gateway & peer tcp/4001
+www -> ipfs : /ipfs/{CID}
+www -> endpoint : HTTPS (oauth by EC Address)
+note left of www #khaki : User makes deposit / signs entry to trigger events.
+
+== api – Admin/Write api ==
+
+endpoint -> haproxy : /v2 – read/write factom api
+endpoint -> haproxy : /ipfs/{CID} – readonly gateway
+endpoint -> haproxy : /graphql – readonly graphql queries
+haproxy -> citynet : livefeed log
+haproxy -> logstash : index event logs
+haproxy -> dapp : dApp specific events
+haproxy -> citynet : Query/Sign
+dapp -> haproxy : sign and dispatch requests
+haproxy -> citynet : read/write signed factom entries
+
+== dashboard ==
+
+elastic -> kibana : dashboard query
+prometheus -> prometheus : poll()
+haproxy -> citynet : Monitor(FA2XXXXXXXXX) Balance changes
+haproxy -> citynet : HTTP GET /metrics
+haproxy -> postgraphile : HTTP GET /metrics
+prometheus -> elastic : metrics query
+prometheus -> elastic : dApp specific rollup
+
+== dApp – controller ==
+
+haproxy -> dapp : dispatch on-chain event
+haproxy -> logstash : dApp specific logging
+haproxy -> ipfs : pin entry content on IPFS
+
+actor mobile as mobile2
+participant "www" as www2
+participant "endpoint" as endpoint2
+participant "haproxy" as haproxy2
+participant "ipfs" as ipfs2
+participant "postgraphile" as postgraphile2
+participant "CITY Custom Net" as citynet2
+participant "logstash" as logstash2
+participant "dApp" as dapp2
+database "postgres" as postgres2
+database "elastic" as elastic2
+participant "prometheus" as prometheus2 #khaki
+participant "kibana" as kibana2 #khaki
+
+@enduml
+```

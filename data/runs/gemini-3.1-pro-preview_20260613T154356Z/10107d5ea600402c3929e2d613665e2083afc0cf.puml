@@ -1,0 +1,41 @@
+```plantuml
+@startuml
+participant client
+participant fastAPI
+participant JobsCollection
+participant Poller
+participant IngestService
+participant MappingIngestor
+participant MongoSerializer
+participant DatabrokerCollections
+participant SciCatIngestor
+participant Catamel
+
+client --> fastAPI : file ready to ingest
+activate fastAPI
+fastAPI --> JobsCollection : create Job
+deactivate fastAPI
+
+Poller --> JobsCollection : poll for job
+Poller --> IngestService : ingest
+activate IngestService
+
+IngestService --> MappingIngestor : ingest
+activate MappingIngestor
+
+MappingIngestor --> MongoSerializer : send docs
+activate MongoSerializer
+
+MongoSerializer --> DatabrokerCollections : Persist docstream
+deactivate MongoSerializer
+deactivate MappingIngestor
+
+IngestService --> SciCatIngestor : ingest
+activate SciCatIngestor
+
+SciCatIngestor --> Catamel : many messages
+deactivate SciCatIngestor
+deactivate IngestService
+
+@enduml
+```

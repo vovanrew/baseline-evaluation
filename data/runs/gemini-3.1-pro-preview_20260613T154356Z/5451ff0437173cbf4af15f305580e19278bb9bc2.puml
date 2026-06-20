@@ -1,0 +1,64 @@
+```plantuml
+@startuml
+title 基于GitHub的实验管理平台--选择课程用例的顺序图
+
+actor 教师 as Teacher
+actor 系统 as System
+participant 课程信息 as CourseInfo
+participant 选课信息 as SelectionInfo
+participant 实验信息 as ExperimentInfo
+participant 评分细则信息 as GradingRuleInfo
+participant 实验评分信息 as ExperimentGradingInfo
+
+activate Teacher
+Teacher -> System : 发起评分请求
+activate System
+System -> CourseInfo : 查询本学期当前教师所教授的课程
+activate CourseInfo
+CourseInfo --> System : 返回课程信息
+deactivate CourseInfo
+System --> Teacher : 返回课程信息
+
+Teacher -> System : 选择需要评分的课程
+System -> SelectionInfo : 查询选择本课程的学生信息
+activate SelectionInfo
+SelectionInfo --> System : 返回学生信息
+deactivate SelectionInfo
+System --> Teacher : 返回学生信息
+
+loop
+    Teacher -> System : 选择需要评分的学生
+    System -> ExperimentInfo : 查询当前课程的实验信息
+    activate ExperimentInfo
+    ExperimentInfo --> System : 返回当前课程的实验信息
+    deactivate ExperimentInfo
+    
+    System -> GradingRuleInfo : 查询每个实验的评分细则信息
+    activate GradingRuleInfo
+    GradingRuleInfo --> System : 返回评分细则信息
+    deactivate GradingRuleInfo
+    
+    System -> ExperimentGradingInfo : 查询本学生当前课程已被评分的细则信息
+    activate ExperimentGradingInfo
+    ExperimentGradingInfo --> System : 返回信息
+    
+    System --> Teacher : 返回本学生当前课程的实验信息
+    
+    Teacher -> System : 进行评分
+    System -> ExperimentGradingInfo : 存储评分
+    ExperimentGradingInfo --> System : 存储成功
+    deactivate ExperimentGradingInfo
+    
+    System -> SelectionInfo : 统计课程总分数
+    activate SelectionInfo
+    SelectionInfo --> System : 统计成功
+    deactivate SelectionInfo
+    
+    System --> Teacher : 评分成功
+end
+
+deactivate System
+deactivate Teacher
+
+@enduml
+```

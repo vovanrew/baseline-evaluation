@@ -1,0 +1,21 @@
+{
+  "id": "msg_01PzNbh8L1KD3D1ZZsaCgpHv",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nparticipant \"InstallInstalling\" as II\nparticipant \"PackageInstaller\" as PI\nparticipant \"PackageInstallerService\" as PIS\nparticipant \"InstallingAsyncTask\" as IAT\nparticipant \"PackageInstallerSession\" as PISess\nparticipant \"Handler\" as H\nparticipant \"mHandlerCallback\" as mHC\nparticipant \"PkMS\" as PkMS\nparticipant \"PkMS.PackageHandler\" as PkMSPH\nparticipant \"PkMS.HandlerParams\" as PkMSHP\nparticipant \"PkMS.InstallParams\" as PkMSIP\n\nII -> II : onCreate()\nII -> PI : createSession()\nPI -> PIS : createSession()\nPIS --> PI : sessionId\nPI --> II : sessionId\nII -> II : onResume()\nII -> IAT : execute()\nIAT -> IAT : doInBackground()\nIAT -> PIS : openSession(sessionId)\nPIS --> IAT : Session\nIAT -> PISess : openWrite()\nIAT -> IAT : doPostExecute()\nIAT -> PISess : commit()\nPISess -> H : sendToTarget(MSG_COMMIT)\nH -> mHC : handleMessage(MSG_COMMIT)\nmHC -> PISess : handleCommit()\nPISess -> PISess : commitNonStagedLocked()\nPISess -> PkMS : installStage()\nPkMS -> PkMSPH : sendMessage(INIT_COPY)\nPkMSPH -> PkMSHP : startCopy()\nPkMSHP -> PkMSIP : handleStartCopy()\nPkMSHP -> PkMSIP : handleReturnCode()\nPkMSIP -> PkMS : processPendingInstall()\nPkMS -> PkMS : processInstallRequestsAsync()\nPkMS -> PkMS : installPackagesTracedLI()\nPkMS -> PkMS : installPackagesLI()\nPkMS -> PkMS : preparePackageLI()\nPkMS -> PkMS : scanPackageTracedLI()\nPkMS -> PkMS : commitPackagesLocked()\nPkMS -> PkMS : commitReconciledScanResultLocked()\nPkMS -> PkMS : commitPackageSettings()\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431129,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 580,
+    "prompt_tokens": 1646,
+    "total_tokens": 2226
+  }
+}

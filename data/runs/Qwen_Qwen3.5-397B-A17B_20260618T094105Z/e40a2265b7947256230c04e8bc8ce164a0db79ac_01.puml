@@ -1,0 +1,29 @@
+@startuml
+actor Actor
+participant Boundary #LightBlue2
+entity Entity #LightBlue3
+control Control1 #Pink4
+control Control2 #Green5
+
+Actor -> Boundary : authorization Request\nactivate Boundary
+Boundary->Entity:gson.fromJson(user, User.class);\nactivate Entity
+Boundary-->Control1:userService.userValidation(user)\ndeactivate Entity \n activate Control1 
+Control1 --> Control2:tokenService.createToken(user.getName())\n deactivate  Control1 \n activate Control2  
+Control2 -[#dashed]->> Control1: Token \ndestroy Control2 
+
+deactivate Control1
+
+
+Boundary <-[hidden]-#dotted- Control1: Token 
+
+
+destroy Control1
+
+
+
+Boundary -->> Actor:authorization Response Token \ndestroy Boundary
+
+
+
+
+@enduml

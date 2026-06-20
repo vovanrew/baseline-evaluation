@@ -1,0 +1,65 @@
+```plantuml
+@startuml
+
+box "Main process" #LightBlue
+participant "Hook_StartActivity" as Hook
+participant "VirtualCore" as VC
+participant "VActivityManager" as VAM
+end box
+
+box "Server process" #LightGreen
+participant "VActivityManagerService" as VAMS
+participant "VPackageManagerService" as VPMS
+participant "ProviderCaller" as PC
+end box
+
+box "App Client process" #Gray
+participant "StubContentProvider" as SCP
+end box
+
+participant "VRedirectActRequest" as VRAR
+participant "VActRedirectResult" as VARR
+
+Hook -> Hook : onHook
+Hook -> VC : resolveActivityInfo
+VC --> Hook : 
+
+Hook -> VRAR : new VRedirectActRequest
+VRAR --> Hook : req
+
+Hook -> VAM : redirectTargetActivity
+VAM -> VAMS : redirectTargetActivity
+VAMS -> VAMS : redirectTargetActivityLocked
+VAMS -> VAMS : startProcessLocked
+VAMS -> VAMS : queryFreeStubForProcess
+VAMS -> VAMS : performStartProcessLocked
+
+VAMS -> VPMS : querySharedPackages
+VPMS --> VAMS : sharedPackages : List<String>
+
+VAMS -> VPMS : queryContentProviders
+VPMS --> VAMS : providers : List<ProviderInfo>
+
+VAMS -> VPMS : getSharedLibraries
+VPMS --> VAMS : usesLibraries : List<String>
+
+VAMS -> PC : call(MethodConstants.INIT_PROCESS)
+PC -> SCP : call
+SCP -> SCP : initProcess
+
+note over SCP, VARR
+StubContentProvider.java中定义了20个静态内部类C1到C20，都
+是StubContentProvider的子类。并且在AndroidManifest.xml
+中声明了process字段，与对应的StubActivity一致。
+VA的服务进程取出一个空的stubContentProvider，
+借助Android ContentProvider机制，系统会创建一个新进程出来，
+稍后被作为双开应用的容身之所。这个偷梁换柱的过程由VA服务进程
+完成。
+end note
+
+VAMS -> VAMS : fetchStubActivityInfo
+
+VAMS --> VAM : result = new VActRedirectResult
+
+@enduml
+```

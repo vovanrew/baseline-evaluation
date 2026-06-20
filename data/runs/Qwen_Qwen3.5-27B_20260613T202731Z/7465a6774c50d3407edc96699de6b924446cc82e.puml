@@ -1,0 +1,50 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "User" as User
+participant "index.jsp" as index
+participant "basket.jsp" as basket
+rectangle "Order" as Order
+rectangle "Pay" as Pay
+rectangle "LogicFacade" as LogicFacade
+rectangle "OrderMapper" as OrderMapper
+database "Database" as Database
+
+note right of User: We assume user is logged in
+
+User -> index : user clicks "add to cart"
+activate index
+index -> Order : [for each cupcake] AddToOrder()
+activate Order
+Order --> index : redirect (msg "added to basket")
+deactivate Order
+index --> User : display msg
+deactivate index
+
+User -> index : user clicks "show basket"
+activate index
+index -> basket : ShowBasket()
+activate basket
+basket -> Pay : Pay()
+activate Pay
+Pay -> Pay : Check date
+Pay -> Pay : Check if logged in
+Pay -> Pay : Check balance
+Pay -> LogicFacade : saveOrder()
+activate LogicFacade
+LogicFacade -> OrderMapper : saveOrder()
+activate OrderMapper
+OrderMapper -> Database : saves order
+deactivate OrderMapper
+OrderMapper --> LogicFacade : return
+deactivate LogicFacade
+LogicFacade --> Pay : return
+deactivate Pay
+Pay --> index : redirect (msg "order placed")
+deactivate basket
+index --> User : display msg
+deactivate index
+
+@enduml
+```

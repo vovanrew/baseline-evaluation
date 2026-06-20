@@ -1,0 +1,46 @@
+@startuml
+hide footbox
+skinparam backgroundColor white
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 20
+  LifeLineBorderColor #666666
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor white
+  ActorBorderColor #666666
+  ActorBackgroundColor #E9E9F6
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F6
+  BoxBorderColor #666666
+  BoxBackgroundColor #DDDDDD
+  ArrowColor #333333
+  ArrowThickness 1
+}
+
+participant "Patient\nDemographics\nConsumer" as PDC_left
+box "PDQm Implementation\ngrouped as a façade" #DDDDDD
+  participant "Patient\nDemographics\nSupplier" as PDS_facade
+  participant "Patient\nDemographics\nConsumer" as PDC_facade
+end box
+participant "Patient\nDemographics\nSupplier" as PDS_right
+
+PDC_left -> PDS_facade : Mobile Patient\nDemographics\nQuery [ITI-78]
+activate PDC_left
+activate PDS_facade
+
+PDS_facade ->> PDC_facade : Internal processing
+activate PDC_facade
+
+PDC_facade -> PDS_right : Patient Demographics\nQuery [ITI-21]\nor Patient Demographics\nQuery for HL7v3 [ITI-47]
+activate PDS_right
+PDS_right --> PDC_facade : [ITI-21] or [ITI-47] Response
+deactivate PDS_right
+
+PDC_facade ->> PDS_facade : Internal processing
+deactivate PDC_facade
+
+PDS_facade --> PDC_left : [ITI-78] Response
+deactivate PDS_facade
+deactivate PDC_left
+
+@enduml

@@ -1,0 +1,22 @@
+{
+  "id": "25a9b587-ed74-4c91-a70f-260063eb6996",
+  "object": "chat.completion",
+  "created": 1781404610,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n    participant User/Admin as User\n    participant UI/CLI as UI_CLI\n    participant AF_Microservice as AF_Microservice\n    participant NEF as NEF\n    participant NGC_CP_Functions as NGC_CP_Functions\n\n    Note over UI_CLI, AF_Microservice, NEF, NGC_CP_Functions: OpenNESS Controller components\n    Note over NEF: OpenNESS provided Core component with limited functionality\n\n    Note over UI_CLI, AF_Microservice, NEF, NGC_CP_Functions: 5G Core components\n\n    Note over UI_CLI, AF_Microservice, NEF, NGC_CP_Functions: Get all subscribed traffic influence info\n\n    User->>UI_CLI: Request all traffic influence subscribed\n    UI_CLI->>AF_Microservice: /af/v1/subscriptions : GET\n    AF_Microservice->>NEF: /3gpp-traffic-Influence/v1/{afld}/subscriptions : GET\n    NEF->>NGC_CP_Functions: NGC_STUB(PCF,UDR,BSF)\n    NGC_CP_Functions->>NEF: {Open: 3rd party NGC integration with OpenNESS(NEF)}\n    NEF-->>AF_Microservice: OK: traffic influence info ERROR: {400/500}\n    AF_Microservice-->>UI_CLI: OK: traffic influence info ERROR: {400/500}\n    UI_CLI-->>User: Traffic influence details\n\n    Note over UI_CLI, AF_Microservice, NEF, NGC_CP_Functions: Get subscribed traffic influence info by subscriptionId\n\n    User->>UI_CLI: Request traffic influence using subscriptionId\n    UI_CLI->>AF_Microservice: /af/v1/subscriptions/{subscriptionId} : GET\n    AF_Microservice->>NEF: /3gpp-traffic-Influence/v1/{afld}/subscriptions/{subscriptionId} : GET\n    NEF->>NGC_CP_Functions: NGC_STUB(PCF,UDR,BSF)\n    NGC_CP_Functions->>NEF: {Open: 3rd party NGC integration with OpenNESS(NEF)}\n    NEF-->>AF_Microservice: OK: traffic influence info ERROR: {400/500}\n    AF_Microservice-->>UI_CLI: OK: traffic influence info ERROR: {400/500}\n    UI_CLI-->>User: Traffic influence details\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1958,
+    "completion_tokens": 551,
+    "total_tokens": 2509
+  }
+}

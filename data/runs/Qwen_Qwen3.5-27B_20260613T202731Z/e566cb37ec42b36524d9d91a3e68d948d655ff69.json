@@ -1,0 +1,22 @@
+{
+  "id": "1ca7ef8e-918c-447d-9285-bf6959224567",
+  "object": "chat.completion",
+  "created": 1781503486,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\nactor \"User\" as User\nrectangle \"Frontend\" as Frontend\nrectangle \"API\" as API\ndatabase \"Database\" as Database\n\nbox \"Log in with token\" #LightGrey\n    User -> Frontend: Request token\n    alt Token found\n        Frontend -> API: Validate token\n        activate API\n        API -> Database: Find token\n        activate Database\n        Database --> API: Return matching user\n        deactivate Database\n        API --> Frontend: Open main page\n        deactivate API\n    else Token not in database\n        Database -x API: Return error\n        API --> Frontend: Open loginpage\n    end\nendbox\n\nbox \"Log in without token\" #LightGrey\n    User -> Frontend: Enter login information\n    User -> Frontend: Accept to be remembered\n    User -> Frontend: Press \"Log in\"\n    Frontend -> API: Request validation\n    activate API\n    API -> Database: Validate login information\n    activate Database\n    alt validation successful\n        Database --> API: Validation successful\n        API --> User: Add token to user\n        API --> Frontend: Move to main page\n    else validation failure\n        Database -x API: Validation failed\n        API --> Frontend: Show error message\n        Frontend -> Frontend: Retry login page\n    end\n    deactivate Database\n    deactivate API\nendbox\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1909,
+    "completion_tokens": 311,
+    "total_tokens": 2220
+  }
+}

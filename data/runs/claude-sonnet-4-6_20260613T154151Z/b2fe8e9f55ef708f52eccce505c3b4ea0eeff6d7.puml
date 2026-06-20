@@ -1,0 +1,98 @@
+@startuml
+
+class Team {
+  o name: string
+  o description: string
+  o ownerId: User
+  o participants: Participant[]
+  o topics: Topic[]
+}
+
+class Topic {
+  o name: string
+  o icon: string
+  o isSequential: boolean
+  o subtopics: Subtopic[]
+}
+
+class ChallengeReport {
+  o userId: User
+  o challengeId: Challenge
+  o answer: string[]
+  o answeredCorrectly: boolean
+}
+
+class Participant {
+  o userId: User
+  o points: number
+  o status: ParticipantStatus
+}
+
+class Subtopic {
+  o name: string
+  o description: string
+  o challenges: Challenge[]
+}
+
+class User {
+  o name: string
+  o email: string
+  o educationalInstitution: string
+  o educationalBackground: EducationalBackground
+  o birthDate: Date
+  o points: number
+}
+
+class Challenge {
+  o name: string
+  o body: string
+  o type: ChallengeType
+  o selection: string[]
+  o correct: string[]
+  o points: number
+  o feedback: string
+}
+
+enum ParticipantStatus {
+  PENDING
+  ACCEPTED
+  DISABLED
+}
+
+enum EducationalBackground {
+  MIDDLE_INCOMPLETE
+  MIDDLE_ONGOING
+  MIDDLE_COMPLETE
+  HIGH_INCOMPLETE
+  HIGH_ONGOING
+  HIGH_COMPLETE
+  GRADUATION_INCOMPLETE
+  GRADUATION_ONGOING
+  GRADUATION_COMPLETE
+}
+
+enum ChallengeType {
+  INPUT
+  RADIO
+  CHECKBOX
+}
+
+Team "1" o-- "0..n" Topic
+Team "1" o-- "0..n" Participant
+Team "1" o-- "1" User
+
+Topic "1" o-- "0..n" Subtopic
+
+Subtopic "1" o-- "0..n" Challenge
+
+ChallengeReport "1" --> "1" User : userId
+ChallengeReport "1" --> "1" User : challengeId
+
+Participant "1" --> "1" User : userId
+Participant --> ParticipantStatus : o status
+
+User --> EducationalBackground : o educationalBackground
+
+Challenge --> ChallengeType : o type
+
+@enduml

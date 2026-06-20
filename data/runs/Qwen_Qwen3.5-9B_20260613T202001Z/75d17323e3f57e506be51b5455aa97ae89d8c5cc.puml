@@ -1,0 +1,37 @@
+@startuml
+left to right direction
+skinparam sequenceMessageAlign center
+
+rectangle "PDQm Implementation grouped as a façade" {
+  rectangle "Patient Demographics Supplier"
+  rectangle "Patient Demographics Consumer"
+}
+
+rectangle "Patient Demographics Consumer"
+rectangle "Patient Demographics Supplier"
+
+note right of "Patient Demographics Consumer" : Mobile Patient Demographics Query [ITI-78]
+note left of "Patient Demographics Supplier" : Internal processing
+note right of "Patient Demographics Consumer" : Patient Demographics Query [ITI-21] or Patient Demographics Query for HL7v3 [ITI-47]
+note left of "Patient Demographics Supplier" : [ITI-21] or [ITI-47] Response
+note right of "Patient Demographics Consumer" : Internal processing
+note left of "Patient Demographics Consumer" : [ITI-78] Response
+
+activate "Patient Demographics Consumer"
+activate "Patient Demographics Supplier"
+activate "Patient Demographics Consumer"
+activate "Patient Demographics Supplier"
+
+"Patient Demographics Consumer" -> "Patient Demographics Supplier" : Mobile Patient Demographics Query [ITI-78]
+"Patient Demographics Supplier" --> "Patient Demographics Consumer" : Internal processing
+"Patient Demographics Consumer" -> "Patient Demographics Supplier" : Patient Demographics Query [ITI-21] or Patient Demographics Query for HL7v3 [ITI-47]
+"Patient Demographics Supplier" --> "Patient Demographics Consumer" : [ITI-21] or [ITI-47] Response
+"Patient Demographics Consumer" --> "Patient Demographics Supplier" : Internal processing
+"Patient Demographics Supplier" --> "Patient Demographics Consumer" : [ITI-78] Response
+
+deactivate "Patient Demographics Consumer"
+deactivate "Patient Demographics Supplier"
+deactivate "Patient Demographics Consumer"
+deactivate "Patient Demographics Supplier"
+
+@enduml

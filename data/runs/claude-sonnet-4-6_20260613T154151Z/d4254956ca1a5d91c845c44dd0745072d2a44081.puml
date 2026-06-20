@@ -1,0 +1,77 @@
+```plantuml
+@startuml
+
+class EspecificarCompetenciaTecnicaUI <<C>>
+
+class EspecificarCompetenciaTecnicaController <<C>> {
+  +getAreasAtividade()
+  +getAreaAtividadeById(areaAtividadeId)
+  +addGP(valor, designacao)
+  +registaCompetenciaTecnica()
+}
+
+class Plataforma <<C>> {
+  -String designacao
+  +getRegistoCompetenciaTecnica()
+  +getRegistoAreaAtividade()
+}
+
+class RegistoCompetenciaTecnica <<C>> {
+  +CompetenciaTecnica(String cod, String dsBreve, String dsDet, AreaAtividade areaAtividade, GrauProficiencia gp)
+  +novaCompetenciaTecnica(String cod, String dsBreve, String dsDet, areaAtividade)
+  +validaCompetenciaTecnica(competencia)
+  +registaCompetenciaTecnica(competencia)
+  -addCompetenciaTecnica(CompetenciaTecnica competencia)
+}
+
+class RegistoAreaAtividade <<C>> {
+  +getAreasAtividade()
+  +getAreaAtividadeById(areaAtividadeId)
+}
+
+class CompetenciaTecnica <<C>> {
+  -String codigo
+  -String descBreve
+  -String descDetalhada
+  -AreaAtividade areaAtividade
+  +CompetenciaTecnica(String cod, String dsBreve, String dsDet, AreaAtividade areaAtividade, GrauProficiencia gp)
+  +CompetenciaTecnica(String cod, String dsBreve, AreaAtividade areaAtividade)
+  -addGP(valor, designacao)
+  -validaGP(gp)
+  -addGP(gp)
+}
+
+class GrauProficiencia <<C>> {
+  -String designacao
+  -Int valor
+  +GrauProficiencia(valor,designacao)
+}
+
+class AreaAtividade <<C>> {
+  -String codigo
+  -String descBreve
+  -String descDetalhada
+}
+
+EspecificarCompetenciaTecnicaUI ..> EspecificarCompetenciaTecnicaController
+
+EspecificarCompetenciaTecnicaController ..> Plataforma
+
+Plataforma "1" --> "1" RegistoCompetenciaTecnica : possui
+Plataforma "1" --> "1" RegistoAreaAtividade : possui
+
+RegistoCompetenciaTecnica --> "*" CompetenciaTecnica : possui
+
+RegistoAreaAtividade "1" --> "*" AreaAtividade : possui
+
+CompetenciaTecnica "*" --> "1" AreaAtividade : referente
+
+CompetenciaTecnica "1" --> "0..*" GrauProficiencia : possui
+
+EspecificarCompetenciaTecnicaController ..> RegistoCompetenciaTecnica
+EspecificarCompetenciaTecnicaController ..> RegistoAreaAtividade
+EspecificarCompetenciaTecnicaController ..> CompetenciaTecnica
+EspecificarCompetenciaTecnicaController ..> AreaAtividade
+
+@enduml
+```

@@ -1,0 +1,31 @@
+@startuml
+actor "用户信息正确请求URL" as User1 #9370DB 
+participant UrlFilterSecurityInterceptor  #82B54C  
+database UrlMetadataSourceService   #DAA6BD   
+entity    UrlConfigAttribute        #FADCEA    
+control   UrlAccessDecisionManager  #FFDD44    
+
+User1 ->>UrlFilterSecurityInterceptor : Authentication Request\n 
+
+activate UrlFilterSecurityInterceptor  
+
+UrlFilterSecurityInterceptor->>UrlMetadataSourceService:getAttributes(Object object)
+
+
+create participant UrlConfigAttribute
+
+UrlMetadataSourceService-->UrlConfigAttribute:UrlConfigAttribute(HttpServletRequest httpServletRequest)\n 
+
+
+note right of UrlMetadataSourceService:\n <font color=red><b>注意</b></font>\n根据request中的url获取当前访问需要哪些权限  
+
+
+UrlMetadataSourceService-->>UrlAccessDecisionManager:decide(Authentication authentication,\ Object\ object, Collection<ConfigAttribute>\ configAttributes)\n 
+
+
+
+destroy user1
+
+
+
+@enduml

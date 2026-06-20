@@ -1,0 +1,22 @@
+{
+  "id": "034dbb69-606c-4607-aa66-10051b72b9a7",
+  "object": "chat.completion",
+  "created": 1781414441,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle AU2048 Demo Mode Button Sequence Diagram\n\nactor \"User\" as User\nparticipant \"MainActivity\" as MainActivity\nparticipant \"Controller\" as Controller\nparticipant \"MainActivityFragment\" as MainActivityFragment\nparticipant \"BoardView\" as BoardView\ndatabase \"Model\" as Model\n\nUser -> MainActivity: Starts App\nactivate MainActivity\nMainActivity -> Controller: onCreate()\nactivate Controller\nController -> MainActivityFragment: onCreate()\nactivate MainActivityFragment\nMainActivityFragment -> BoardView: onCreateView()\nactivate BoardView\n\nloop [wantstoContinue == true]\n  User -> MainActivity: Press Demo Mode\n  activate MainActivity\n  MainActivity -> Controller: ResetClick(View)\n  activate Controller\n  Controller -> Controller: reset()\n  Controller -> Model: setArr()\n  Controller -> Model: setScore()\n  Controller -> MainActivityFragment: doesWantToContinue()\n  deactivate Controller\n  MainActivity -> MainActivityFragment: setupArrView()\n  MainActivity -> MainActivityFragment: setArrView()\n  MainActivityFragment -> BoardView: onCreateView()\n  BoardView --> MainActivityFragment: BoardView\n  deactivate BoardView\n\n  alt [demo == true]\n    alt [button_direction == up]\n      Controller -> Controller: UpClick(View)\n    end\n    alt [button_direction == left]\n      Controller -> Controller: LeftClick(View)\n    end\n    alt [button_direction == down]\n      Controller -> Controller: DownClick(View)\n    end\n    alt [button_direction == right]\n      Controller -> Controller: RightClick(View)\n    end\n\n    alt [button_direction == up]\n      Controller -> Controller: shiftUp()\n    end\n    alt [button_direction == left]\n      Controller -> Controller: shiftLeft()\n    end\n    alt [button_direction == down]\n      Controller -> Controller: shiftDown()\n    end\n    alt [button_direction == right]\n      Controller -> Controller: shiftRight()\n    end\n\n    Controller -> Model: setArr()\n    Controller -> Model: setScore()\n    Controller -> MainActivityFragment: doesWantToContinue()\n    MainActivity -> MainActivityFragment: setupArrView()\n    MainActivity -> MainActivityFragment: setArrView()\n    MainActivityFragment -> BoardView: onCreateView()\n    BoardView --> MainActivityFragment: BoardView\n    deactivate BoardView\n\n    alt [noMovesPossible == false]\n      Controller -> Controller: checkWin()\n      Controller -> Controller: win()\n      Controller -> Controller: reset()\n    end\n    alt [noMovesPossible == true]\n      Controller -> Controller: noMovesPossible()\n      Controller -> Controller: gameover()\n      Controller -> MainActivityFragment: Action.DOWN\n      Controller -> Controller: reset()\n    end\n  end\n\n  deactivate MainActivity\n  MainActivity -> MainActivity: onDestroy()\n  MainActivityFragment -> MainActivityFragment: onDestroy()\n  BoardView --> BoardView: X\n  deactivate MainActivityFragment\n  deactivate MainActivity\nend\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1076,
+    "completion_tokens": 624,
+    "total_tokens": 1700
+  }
+}

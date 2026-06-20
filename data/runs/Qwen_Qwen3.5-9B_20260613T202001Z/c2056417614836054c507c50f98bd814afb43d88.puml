@@ -1,0 +1,37 @@
+@startuml
+title 基于GitHub的实验管理平台--删除用户用例的顺序图
+
+actor "sysAdmin" as sysAdmin
+boundary "maintainUsersWindow" as maintainUsersWindow
+control "MaintainUsers" as MaintainUsers
+entity "users" as users
+database "数据库存储" as database
+
+activate sysAdmin
+activate maintainUsersWindow
+activate MaintainUsers
+activate users
+activate database
+
+sysAdmin -> maintainUsersWindow : 删除用户
+maintainUsersWindow -> MaintainUsers : 删除用户请求
+MaintainUsers -> users : 确认删除的用户信息
+users -> database : 数据库存储实验数据
+
+database --> users : 根据系统管理员删除的用户信息返回数据
+users --> MaintainUsers : 根据系统管理员删除的用户信息返回数据
+MaintainUsers --> maintainUsersWindow : 根据系统管理员删除的用户信息返回数据
+maintainUsersWindow --> sysAdmin : 根据系统管理员删除的用户信息返回数据
+
+sysAdmin -> maintainUsersWindow : 退出请求
+activate maintainUsersWindow
+maintainUsersWindow -> maintainUsersWindow : 保存退出
+deactivate maintainUsersWindow
+
+deactivate database
+deactivate users
+deactivate MaintainUsers
+deactivate maintainUsersWindow
+deactivate sysAdmin
+
+@enduml

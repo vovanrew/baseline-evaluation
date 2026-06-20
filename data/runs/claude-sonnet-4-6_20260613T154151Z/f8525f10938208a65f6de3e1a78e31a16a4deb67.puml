@@ -1,0 +1,41 @@
+@startuml
+title US029 - As Project Manager, I want to start a sprint.
+
+actor "Project Manager" as PM
+participant ": StartSprintRoute" as Route
+participant ": StartSprintController" as Controller
+participant ": StartSprintService" as Service
+participant "dto : SprintDTO" as DTO
+participant ": Project" as Project
+participant ": SprintDomainService" as DomainService
+participant ": SprintStore" as SprintStore
+participant ": ResourceStore" as ResourceStore
+
+PM -> Route : Asks to start a Sprint
+Route -> Controller : startSprint(sprintDTO)
+Controller -> Service : startSprint(sprintDTO)
+Service -> DTO : getProjectTeam()
+DTO --> Service : projectTeam
+Service -> DTO : getSprintDuration()
+DTO --> Service : sprintDuration
+Service -> DomainService : startSprint(dto.projectID, dto.sprintID, dto.startDate,\nprojectTeam, sprintDuration)
+DomainService -> SprintStore : findAllSprintByProjectID (projectID)
+SprintStore --> DomainService :
+DomainService -> SprintStore : findSprintByID (sprintID)
+SprintStore --> DomainService :
+DomainService -> DomainService : validateStartDate(startDate)
+DomainService --> DomainService : true
+DomainService -> DomainService : validateProjectTeam(startDate, sprintDuration)
+DomainService -> ResourceStore : getProductOwnerByStartDate(startDate, sprintDuration)
+ResourceStore --> DomainService :
+DomainService -> ResourceStore : getScrumMasterByStartDate(startDate, sprintDuration)
+ResourceStore --> DomainService :
+DomainService --> DomainService : true
+DomainService -> SprintStore : setStartDate(startDate)
+SprintStore --> DomainService :
+DomainService --> Service : true
+Service --> Controller : true
+Controller --> Route : true
+Route --> PM : Informs Operation Success
+
+@enduml

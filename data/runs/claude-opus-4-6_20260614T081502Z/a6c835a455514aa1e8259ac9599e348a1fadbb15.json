@@ -1,0 +1,21 @@
+{
+  "id": "msg_01UQWDKfKktsvwrkQAF2wjdF",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle End Screen Action Sequences\n\nactor User\n\nbox \"Views\" #LightBlue\nparticipant \"Game\" as Game\nparticipant \"End\" as End\nparticipant \"HighScore\" as HighScore\nparticipant \"Start\" as Start\nend box\n\nbox \"User Interface Control\" #LightBlue\nparticipant \"Navigation\" as Navigation\nend box\n\nbox \"Back End\" #Plum\nparticipant \"Settings\" as Settings\nparticipant \"JoggleCube\" as JoggleCube\nparticipant \"HighScores\" as HighScores\nparticipant \"Score\" as Score\nparticipant \"Cube\" as Cube\nparticipant \"Block\" as Block\nend box\n\n== High Score button clicked ==\n\nUser -> End : btnHighScoreClicked()\nEnd -> Navigation : show(ScreenType.HighScore)\nNavigation -> HighScore : prepView()\nHighScore -> JoggleCube : getOverallHighScores()\nJoggleCube -> HighScores : getScores()\nHighScores --> JoggleCube : scores\nJoggleCube --> HighScore : scores\nHighScore -> JoggleCube : getCurrentCubeHighScores()\nJoggleCube -> HighScores : getScores()\nHighScores --> JoggleCube : scores\nJoggleCube --> HighScore : scores\nHighScore --> End\nEnd -> Navigation : hideOverlay(ScreenType.End)\nNavigation --> End\n\n== Menu Clicked ==\n\nUser -> End : btnMenuClicked()\nEnd -> Navigation : show(ScreenType.Start)\nNavigation -> Start : prepView()\nStart -> Settings : getCurrLang()\nSettings --> Start : English\nStart --> End\nEnd -> Navigation : hideOverlay(ScreenType.End)\nNavigation --> End\n\n== Replay clicked ==\n\nUser -> End : replayGrid()\nEnd -> Navigation : show(ScreenType.GAME)\nNavigation -> Game : prepView()\nGame -> JoggleCube : getCubeData()\nJoggleCube -> Cube : getCube()\nCube --> JoggleCube : cube[3][3][3]\nJoggleCube --> Game : cube[3][3][3]\nGame --> End\nEnd -> Navigation : hideOverlay(ScreenType.End)\nNavigation --> End\n\n== Save Clicked ==\n\nUser -> End : btnSaveClicked()\nEnd -> JoggleCube : savGrid(filename)\nJoggleCube -> Cube : saveCube(outfile)\nloop [foreach Block]\nCube -> Block : getLetter()\nBlock --> Cube\nend\nCube --> JoggleCube\nJoggleCube -> HighScores : saveScore(outfile)\nloop [foreach score]\nHighScores -> Score : save(outfile)\nScore --> HighScores\nend\nHighScores --> JoggleCube\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432103,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 689,
+    "prompt_tokens": 1660,
+    "total_tokens": 2349
+  }
+}

@@ -1,0 +1,72 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 30
+  BoxPadding 15
+  MessageAlign left
+}
+skinparam NoteBackgroundColor #ffffe6
+skinparam NoteBorderColor #b3b3b3
+
+participant "User Agent" as UA
+
+box "Wallet" #e6e6e6
+  participant "Frontend" as WF
+  participant "Backend" as WB
+end box
+
+box "Issuer" #e6e6e6
+  participant "Metadata" as IM
+  participant "Web Site" as IWS
+  participant "Token Endpoint" as ITE
+  participant "Credential Endpoint" as ICE
+end box
+
+UA -> IWS : get credential
+
+note over UA, IM
+prepare credential issuance
+end note
+
+UA <- IWS : Issuance Initiation Request\n(pre-authz-code, credential_type, expected_key_types, issuer)
+UA -> WF : Issuance Initiation Request\n(pre-authz-code, credential_type, expected_key_types, issuer)
+
+WF -> WF : gen DPoP key
+WF -> WF : gen DPoP proof for issuer token endpoint
+WF -> WB : get nonce (for app attestation)
+WB --> WF : nonce
+WF -> WF : obtain app attestation (nonce)
+WF -> WB : get assertion for code exchange\n(hash(pre-authz-code), app attestation)
+
+WB -> WB : check app_attestation
+WB -> WB : generate assertion\n(iss=wallet backend, pre_authz_code_hash, client_id)
+WB --> WF : assertion
+
+WF -> IM : get issuer metadata
+WF -> ITE : token request\n(pre-authz-code, pin, client_id, assertion, dpop_proof)
+
+note over WF, ITE
+wallet authenticates with issuer as OAuth Client using the assertion issued by its backend (RFC 7523)\nissuer checks wallet backend id and key against trust registry
+end note
+
+note over WF, ITE
+Token Endpoint validates pre-authorized code and creates corresponding access token
+end note
+
+ITE --> WF : token response\n(access_token, c_nonce)
+
+WF -> WF : gen key : key, key_attestation
+WF -> WF : create proof of possesion (c_nonce)
+WF -> WF : create DPoP proof for issuance request
+WF -> ICE : issue credential\n(access_token, credential_type, format, proof, key_policy, dpop_proof)
+
+note over WF, ICE
+Credential Endpoint Token checks whether the access token is good for requested credential type and\nwhether the proof of possession is valid
+end note
+
+ICE --> WF : credential response (credential, format)
+
+@enduml
+```

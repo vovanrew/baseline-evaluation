@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Livzv7VkJNDSCRbvZmAkbE",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor Administrator\n\nparticipant \":SpecifyNewVaccineUI\" as UI\nparticipant \":SpecifyNewVaccineController\" as Controller\nparticipant \"Company\" as Company\nparticipant \":VaccineStore\" as VaccineStore\nparticipant \"vc:Vaccine\" as vcVaccine\nparticipant \"admPro:AdministrationProcess\" as admPro\nparticipant \":VaccineTypeStore\" as VaccineTypeStore\nparticipant \":VaccineType\" as VaccineType\n\nAdministrator -> UI : 1 starts specifying a new vaccine and its administration process\nactivate UI\n\nUI -> Controller : 2 createVaccine()\nactivate Controller\n\nController -> Controller : 3 typeList = getVaccineTypeList()\n\nController -> VaccineTypeStore : 4 getVaccineTypeList()\nactivate VaccineTypeStore\n\nloop for all known vaccineTypes\n    VaccineTypeStore -> VaccineType : 5 VaccineType(code,name)\n    activate VaccineType\n    deactivate VaccineType\nend\n\ndeactivate VaccineTypeStore\n\ndeactivate Controller\n\nUI -> Administrator : 6 request data (name, manufacturer, type, age groups,doses,elapsing interval, dosage) and show vaccineType list\n\nAdministrator -> UI : 7 types requested data\n\nUI -> Controller : 8 createVaccine(id,name,manufacturer,type,administrationProcess)\nactivate Controller\n\nController -> Company : 9 createVaccine(id,name,manufacturer,type,administrationProcess)\nactivate Company\n\nCompany -> VaccineStore : 10 createVaccine(id,name,manufacturer,type,administrationProcess)\nactivate VaccineStore\n\nVaccineStore -> vcVaccine : 11 vc = createVaccine(id,name,manufacturer,type,administrationProcess)\nactivate vcVaccine\n\nloop for all age groups\n    vcVaccine -> admPro : 12 administrationProcess(minAge,maxAge,numberOfDoses,dosage,timeElapsed)\n    activate admPro\n\n    admPro -> admPro : 13 validateVaccine()\n\n    deactivate admPro\nend\n\nvcVaccine -> vcVaccine : 14 validateVaccine()\n\ndeactivate vcVaccine\ndeactivate VaccineStore\ndeactivate Company\ndeactivate Controller\n\nUI -> Administrator : 15 shows data and request confirmation\n\nAdministrator -> UI : 16 confirms data\n\nUI -> Controller : 17 saveVaccine()\nactivate Controller\n\nController -> Company : 18 saveVaccine()\nactivate Company\n\nCompany -> VaccineStore : 19 saveVaccine()\nactivate VaccineStore\n\nVaccineStore -> vcVaccine : 20 addVaccine(vc)\nactivate vcVaccine\ndeactivate vcVaccine\n\ndeactivate VaccineStore\ndeactivate Company\ndeactivate Controller\n\nUI -> Administrator : 21 informs operation (in)success\n\ndeactivate UI\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431329,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 727,
+    "prompt_tokens": 936,
+    "total_tokens": 1663
+  }
+}

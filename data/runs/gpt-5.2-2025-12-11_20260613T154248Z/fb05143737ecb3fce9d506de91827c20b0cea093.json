@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLvchzuZQvkdybuqPg13sJb1KFt6",
+  "object": "chat.completion",
+  "created": 1781369720,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Traffic influencing flows between OpenNESS controller and 5G Core\n\nskinparam shadowing false\nskinparam roundcorner 12\nskinparam sequence {\n  ParticipantPadding 35\n  BoxPadding 20\n  LifeLineBorderColor #888888\n  LifeLineBackgroundColor transparent\n  ActorBorderColor #666666\n  ActorFontColor #000000\n  ParticipantBorderColor #666666\n  ParticipantFontColor #000000\n  GroupBorderColor #000000\n  GroupBackgroundColor #FFFFFF\n  NoteBorderColor #999999\n  NoteBackgroundColor #FFF9C4\n}\n\nactor \"User/Admin\" as UA\n\nbox \"OpenNESS Controller components\" #BFE3F2\n  participant \"UI/CLI\" as UICLI\n  participant \"AF Microservice\" as AF\nend box\n\nbox \"5G Core components\" #8EF08E\n  participant \"NEF\" as NEF\n  participant \"NGC\\nCP Functions\" as NGC\nend box\n\nnote over NEF\nOpenNESS provided\nCore component with\nlimited functionality\nend note\n\ngroup \"Get all subscribed traffic influence info\"\nUA -> UICLI : Request all traffic influence\\nsubscribed\nactivate UICLI\nUICLI -> AF : /af/v1/subscriptions : GET\nactivate AF\nAF -> NEF : /3gpp-traffic-Influence/v1/{afId}/subscriptions\\n: GET\nactivate NEF\nNEF -> NEF : NGC_STUB(PCF,UDR,BSF)\nNEF -> NGC : {Open: 3rd party NGC\\nintegration with\\nOpenNESS(NEF)}\nNGC --> NEF\nNEF --> AF : OK: traffic influence info\\nERROR: {400/500}\ndeactivate NEF\nAF --> UICLI : OK: traffic influence info\\nERROR: {400/500}\ndeactivate AF\nUICLI --> UA : Traffic influence details\ndeactivate UICLI\nend group\n\ngroup \"Get subscribed traffic influence info by subscriptionId\"\nUA -> UICLI : Request traffic influence using\\nsubscriptionId\nactivate UICLI\nUICLI -> AF : /af/v1/subscriptions/{subscriptionId}\\n: GET\nactivate AF\nAF -> NEF : /3gpp-traffic-Influence/v1/{afId}/subscriptions/{subscriptionId}\\n: GET\nactivate NEF\nNEF -> NEF : NGC_STUB(PCF,UDR,BSF)\nNEF -> NGC : {Open: 3rd party NGC\\nintegration with\\nOpenNESS(NEF)}\nNGC --> NEF\nNEF --> AF : OK: traffic influence info\\nERROR: {400/500}\ndeactivate NEF\nAF --> UICLI : OK: traffic influence info\\nERROR: {400/500}\ndeactivate AF\nUICLI --> UA : Traffic influence details\ndeactivate UICLI\nend group\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2247,
+    "completion_tokens": 628,
+    "total_tokens": 2875,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

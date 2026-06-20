@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLdbmPr8OiyWELpxgQD4psvHt9Jc",
+  "object": "chat.completion",
+  "created": 1781368603,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  ParticipantPadding 30\n  BoxPadding 15\n  MessageAlign left\n}\nskinparam NoteBackgroundColor #ffffe6\nskinparam NoteBorderColor #b3b3b3\n\nparticipant \"User Agent\" as UA\n\nbox \"Wallet\" #e6e6e6\n  participant \"Frontend\" as WF\n  participant \"Backend\" as WB\nend box\n\nbox \"Issuer\" #e6e6e6\n  participant \"Metadata\" as IM\n  participant \"Web Site\" as IWS\n  participant \"Token Endpoint\" as ITE\n  participant \"Credential Endpoint\" as ICE\nend box\n\nUA -> IWS : get credential\n\nnote over UA, IM\nprepare credential issuance\nend note\n\nUA <- IWS : Issuance Initiation Request\\n(pre-authz-code, credential_type, expected_key_types, issuer)\nUA -> WF : Issuance Initiation Request\\n(pre-authz-code, credential_type, expected_key_types, issuer)\n\nWF -> WF : gen DPoP key\nWF -> WF : gen DPoP proof for issuer token endpoint\nWF -> WB : get nonce (for app attestation)\nWB --> WF : nonce\nWF -> WF : obtain app attestation (nonce)\nWF -> WB : get assertion for code exchange\\n(hash(pre-authz-code), app attestation)\n\nWB -> WB : check app_attestation\nWB -> WB : generate assertion\\n(iss=wallet backend, pre_authz_code_hash, client_id)\nWB --> WF : assertion\n\nWF -> IM : get issuer metadata\nWF -> ITE : token request\\n(pre-authz-code, pin, client_id, assertion, dpop_proof)\n\nnote over WF, ITE\nwallet authenticates with issuer as OAuth Client using the assertion issued by its backend (RFC 7523)\\nissuer checks wallet backend id and key against trust registry\nend note\n\nnote over WF, ITE\nToken Endpoint validates pre-authorized code and creates corresponding access token\nend note\n\nITE --> WF : token response\\n(access_token, c_nonce)\n\nWF -> WF : gen key : key, key_attestation\nWF -> WF : create proof of possesion (c_nonce)\nWF -> WF : create DPoP proof for issuance request\nWF -> ICE : issue credential\\n(access_token, credential_type, format, proof, key_policy, dpop_proof)\n\nnote over WF, ICE\nCredential Endpoint Token checks whether the access token is good for requested credential type and\\nwhether the proof of possession is valid\nend note\n\nICE --> WF : credential response (credential, format)\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2153,
+    "completion_tokens": 563,
+    "total_tokens": 2716,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

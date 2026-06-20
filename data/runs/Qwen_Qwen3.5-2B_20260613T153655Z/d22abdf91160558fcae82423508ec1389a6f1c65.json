@@ -1,0 +1,22 @@
+{
+  "id": "f37fd5e6-6a41-421b-9526-1bb9aef72eb7",
+  "object": "chat.completion",
+  "created": 1781403317,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\n\ntitle \"HashedTimelockERC20 contract: normal flow - receiver withdraws with preimage before the timelock expires\"\n\nsubgraph EthereumNetwork\n  <<Account>> Sender\n  <<Account>> Receiver\n  <<Smart Contract>> HashedTimelockERC20\n  <<Smart Contract>> ERC20Contract\n  Events\nendsubgraph\n\nsubgraph HTLCState\n  note over\n    State stored for each HTLC:\n    address sender;\n    address receiver;\n    address tokenContract;\n    uint amount;\n    bytes32 hashlock;\n    uint timelock; // UNIX ts\n    bool withdrawn;\n    bool refunded;\n    bytes32 preimage;\n  end note\nendsubgraph\n\nSender -> ERC20Contract: approve(htlc address, amount)\nERC20Contract -> Sender: newContract(\n  receiver,\n  hashlock,\n  timelock,\n  tokenContract,\n  amount\n)\nSender -> ERC20Contract: )\nERC20Contract -> ERC20Contract: transferFrom(sender, htlc address, amount)\nERC20Contract -> Events: LogHTLCERC20New(contractId, locks, values, etc.)\nERC20Contract -> Sender: contractId\nSender -> Sender: reveals contractId\nSender -> Receiver: knows/obtains secret preimage\n  [sha256(secret preimage) == hashlock]\nReceiver -> ERC20Contract: withdraw(contractId, secret preimage)\nERC20Contract -> ERC20Contract: transfer(receiver, amount)\nERC20Contract -> Events: LogHTLCERC20Withdraw(contractId)\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2252,
+    "completion_tokens": 374,
+    "total_tokens": 2626
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "8384198c-27c6-4e43-8a1e-4ec73c556c95",
+  "object": "chat.completion",
+  "created": 1781398143,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant A as \"A\"\nparticipant CircuitBreaker as \"CircuitBreaker\"\nparticipant B as \"B\"\n\nparticipant A\nparticipant CircuitBreaker\nparticipant B\n\nalt [no errors]\n    A -> CircuitBreaker: call()\n    CircuitBreaker -> B: call()\n    B -> CircuitBreaker: response\n    CircuitBreaker -> A: response\nend\n\nalt [errors]\n    A -> CircuitBreaker: call()\n    loop [while err_count < max_errors]\n        CircuitBreaker -> A: call()\n        A -> CircuitBreaker: error\n        CircuitBreaker -> CircuitBreaker: err_count++\n        CircuitBreaker -> CircuitBreaker: sleep(timeout)\n        CircuitBreaker -> A: call()\n        A -> CircuitBreaker: error\n        CircuitBreaker -> CircuitBreaker: sleep(timeout*2)\n    end\nend\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1321,
+    "completion_tokens": 200,
+    "total_tokens": 1521
+  }
+}

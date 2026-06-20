@@ -1,0 +1,29 @@
+@startuml
+actor User
+participant "Server" as Server
+rectangle "Backend Environment" {
+    participant SuperHeroApi #99CCFF
+    
+}
+
+User ->> Server : GET /search?q=<queryValue>\nalt [user search] 
+activate Server  
+note right of Server  \nbinarySearch(query)   
+end note    
+ref over Server\ngetFromCache(query)?\n end ref 
+
+ alt has in cache     
+   return queryValue      
+else not has in cache request to API       
+     activate SuperHeroApi        
+      Server->SuperHeroAPI:GET Query Value         
+       superHerpapi-->server:return value          
+        deactivate SuperheroApI           
+         updatecache(value)            
+          server --> user:value              
+           else                 
+            stop             
+endif
+
+
+@enduml

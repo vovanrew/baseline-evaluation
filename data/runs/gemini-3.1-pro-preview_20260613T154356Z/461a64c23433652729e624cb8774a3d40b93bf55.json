@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle 3.1.0 Get Participant Callback Details\n\nbox \"ML API Adapter Service\" #LightBlue\n    control \"ML-API-ADAPTER\" as ML_API_ADAPTER\nend box\n\nbox \"Central Services\" #LightYellow\n    boundary \"Central Service API\" as Central_Service_API\n    control \"Participant Handler\" as Participant_Handler\n    entity \"Participant DAO\" as Participant_DAO\n    database \"Central Store\" as Central_Store\nend box\n\ngroup Get Callback Details\n    ML_API_ADAPTER -> Central_Service_API: 1 Request to get callback details - GET - /participants/{name}/endpoints?type={typeValue}\n    activate ML_API_ADAPTER\n    activate Central_Service_API\n\n    Central_Service_API -> Participant_Handler: 2 Fetch Callback details for Participant\n    activate Participant_Handler\n\n    Participant_Handler -> Participant_DAO: 3 Fetch Participant\\n<font color=red>Error code: 3200</font>\n    activate Participant_DAO\n\n    Participant_DAO -> Central_Store: 4 Fetch Participant\n    activate Central_Store\n    note right of Central_Store: participant\n    Central_Store --> Participant_DAO: 5 Retrieved Participant\n    deactivate Central_Store\n\n    Participant_DAO --> Participant_Handler: 6 Return Participant\n    deactivate Participant_DAO\n\n    Participant_Handler -> Participant_Handler: 7 Validate DFSP\n\n    alt Validate participant (success)\n        Participant_Handler -> Participant_Handler: 8 check if \"type\" parameter is sent\n\n        alt Check if \"type\" parameter is sent (Sent)\n            Participant_Handler -> Participant_DAO: 9 Fetch Callback details for Participant and type\\n<font color=red>Error code: 3000</font>\n            activate Participant_DAO\n\n            Participant_DAO -> Central_Store: 10 Fetch Callback details for Participant and type\n            activate Central_Store\n            note right of Participant_DAO\n                Condition:\n                isActive = 1\n                [endpointTypeId = <type>]\n            end note\n            note right of Central_Store: participantEndpoint\n            Central_Store --> Participant_DAO: 11 Retrieved Callback details for Participant and type\n            deactivate Central_Store\n\n            Participant_DAO --> Participant_Handler: 12 Return Callback details for Participant and type\n            deactivate Participant_DAO\n            note right of Participant_Handler #Yellow\n                Message:\n                {\n                  endpoints: {type: <type>, value: <value>}\n                }\n            end note\n\n            Participant_Handler --> Central_Service_API: 13 Return Callback details for Participant\n            Central_Service_API --> ML_API_ADAPTER: 14 Return Callback details for Participant\n\n        else Check if \"type\" parameter is sent (Not Sent)\n            Participant_Handler -> Participant_DAO: 15 Fetch Callback details for Participant\\n<font color=red>Error code: 3000</font>\n            activate Participant_DAO\n\n            Participant_DAO -> Central_Store: 16 Fetch Callback details for Participant\n            activate Central_Store\n            note right of Participant_DAO\n                Condition:\n                isActive = 1\n            end note\n            note right of Central_Store: participantEndpoint\n            Central_Store --> Participant_DAO: 17 Retrieved Callback details for Participant\n            deactivate Central_Store\n\n            Participant_DAO --> Participant_Handler: 18 Return Callback details for Participant\n            deactivate Participant_DAO\n            note right of Participant_Handler #Yellow\n                Message:\n                {\n                  endpoints: [\n                    {type: <type>, value: <value>},\n                    {type: <type>, value: <value>}\n                  ]\n                }\n            end note\n\n            Participant_Handler --> Central_Service_API: 19 Return Callback details for Participant\n            Central_Service_API --> ML_API_ADAPTER: 20 Return Callback details for Participant\n        end\n\n    else Validate participant (failure) / Error\n        note right of Participant_Handler #Red\n            Validation failure/ Error!\n        end note\n        note right of Participant_Handler #Yellow\n            Message:\n            {\n              \"errorInformation\": {\n                \"errorCode\": <errorCode>,\n                \"errorDescription\": <ErrorMessage>,\n              }\n            }\n        end note\n        Participant_Handler --> Central_Service_API: 21 Return <font color=red>Error code: 3000, 3200</font>\n        deactivate Participant_Handler\n        Central_Service_API --> ML_API_ADAPTER: 22 Return <font color=red>Error code: 3000, 3200</font>\n        deactivate Central_Service_API\n        deactivate ML_API_ADAPTER\n    end\nend\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHIxDekfESb1DeXU8r0LIm0Xcdgvt3Zhkx+2PkDNVP60X78MGZwCOop5XrCYZH"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1165,
+    "candidatesTokenCount": 1080,
+    "totalTokenCount": 2245,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1085
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "bF8xatjJLubavdIP8YuJ0Qg"
+}

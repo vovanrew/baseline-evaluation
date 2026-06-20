@@ -1,0 +1,63 @@
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+
+actor "Project Manager" as PM
+participant ":ProjectManagerUI" as UI
+participant "AGVServer" as AGVS
+participant "AGVServerThread" as AGVST
+participant "AVGManagerController" as AMGC
+participant "AGVDigitalTwinServer" as DTServer
+participant "AGVDigitalTwinThread" as DTThread
+participant "AGVDigitalTwinController" as DTController
+participant "CodingAndDecoding2" as Codec
+
+PM -> UI : Wants to assign ready to go Orders to an AGV
+
+UI -> AGVS : message
+activate AGVS
+AGVS -> UI : accept
+AGVS -> AGVST : start
+activate AGVST
+
+AGVST -> Codec : Decoding(r)
+activate Codec
+Codec -> AGVST : Message
+AGVST -> AMGC : FifoAGV()
+activate AMGC
+AMGC -> AMGC : findavailableOrder()
+deactivate AMGC
+
+loop until orderList is empty
+  AMGC -> AMGC : findavailableAGV(weight,volume)
+  AMGC -> AMGC : createTaskandSave(description,order,agv)
+  AMGC -> AMGC : doTask()
+  AMGC -> DTServer : message
+  activate DTServer
+  DTServer -> AMGC : accept
+  DTServer -> DTThread : start
+  activate DTThread
+
+  DTThread -> Codec : Decoding(r)
+  Codec -> DTThread : message
+  DTThread -> DTController : doTask(taskPerform)
+  activate DTController
+  DTController -> DTThread : TaskReportMessage
+  deactivate DTController
+
+  DTThread -> DTServer : TaskReportMessage
+  deactivate DTThread
+  DTServer -> AMGC : TaskReportMessage
+  deactivate DTServer
+
+  AMGC -> AGVST : TaskReportMessage
+end
+
+AGVST -> AGVS : ResponseMessage
+deactivate AGVST
+AGVS -> UI : ResponseMessage
+deactivate AGVS
+UI -> PM : Informs operation success
+@enduml

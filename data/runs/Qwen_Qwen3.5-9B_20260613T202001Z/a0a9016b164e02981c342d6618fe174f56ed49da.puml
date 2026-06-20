@@ -1,0 +1,78 @@
+@startuml
+' Define styles
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor White
+  BorderColor Black
+  ArrowColor Black
+  FontColor Black
+}
+skinparam note {
+  BackgroundColor #FFFFE0
+  BorderColor #999999
+  FontColor Black
+}
+skinparam actor {
+  BackgroundColor #E0E0FF
+  BorderColor #6666CC
+  FontColor Black
+}
+
+' Define classes
+class "Invoker" {
+  <<Interface>>
+}
+class "Command" {
+  <<Interface>>
+  execute()
+  undo()
+}
+class "ConcreteCommand" {
+  <<Class>>
+  execute()
+  undo()
+}
+class "Client" {
+  <<Interface>>
+}
+class "Receiver" {
+  <<Interface>>
+  action()
+}
+
+' Define relationships
+Invoker --> Command : implements
+Command <|.. ConcreteCommand : extends
+Client --> ConcreteCommand : creates
+Client --> Receiver : uses
+ConcreteCommand --> Receiver : uses
+
+' Define notes
+note left of Invoker
+  调用者持有命令对象，
+  并在某刻调用execute()
+end note
+
+note right of Command
+  调用命令对象的execute()
+  就可以让接收者进行动作
+end note
+
+note right of Client
+  这个客户负责创建一个
+  ConcreteCommand，并
+  设置其接受者
+end note
+
+note left of ConcreteCommand
+  定义了动作和接收者之间
+  的绑定关系，调用者只需要
+  调用execute()就可以
+  发出请求
+end note
+
+note right of Receiver
+  接收者知道如何实现这个请求
+end note
+
+@enduml

@@ -1,0 +1,22 @@
+{
+  "id": "afadeede-1303-4a8b-974d-7554c4d5ee03",
+  "object": "chat.completion",
+  "created": 1781411086,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Skava Integration \u2013 Order Replaced Completed\n\npackage \"Skava AWS\" {\n  participant \"Skava Event Orchestration\" as SkavaEventOrchestration\n}\n\npackage \"Kafka\" {\n  participant \"Topics\" as KafkaTopics\n}\n\npackage \"YL Services\" {\n  participant \"Order Sync Service\" as OrderSyncService\n}\n\nparticipant \"Legacy DB\" as LegacyDB\n\nSkavaEventOrchestration -> KafkaTopics: 1 Produce OrderReplacedCompleted Message\nactivate KafkaTopics\nKafkaTopics --> OrderSyncService: 2 Consume OrderReplacedCompleted Message\nactivate OrderSyncService\nOrderSyncService -> LegacyDB: 3 Update order status in legacy db\nactivate LegacyDB\nLegacyDB --> OrderSyncService: 4 Response/Order ID\ndeactivate LegacyDB\nOrderSyncService -> KafkaTopics: 5 Produce OrderReplacedCompletedProcessed Message\ndeactivate OrderSyncService\nKafkaTopics --> SkavaEventOrchestration: 6 Consume OrderReplacedCompletedProcessed Message\ndeactivate KafkaTopics\n\nnote right of KafkaTopics: Async\nnote right of KafkaTopics: Async\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1223,
+    "completion_tokens": 244,
+    "total_tokens": 1467
+  }
+}

@@ -1,0 +1,53 @@
+```plantuml
+@startuml
+skinparam componentStyle rectangle
+
+package "BL1 common code" {
+    component "bl1_main" as bl1_main
+    component "bl_common" as bl_common
+}
+
+package "arm platform code" {
+    component "fvp_bl1_setup" as fvp_bl1_setup
+    component "arm_bl1_setup" as arm_bl1_setup
+    component "arm_io_storage" as arm_io_storage
+}
+
+package "platform common code" {
+    component "plat_bl1_common" as plat_bl1_common
+    component "fconf" as fconf
+}
+
+bl1_main -> fvp_bl1_setup : bl1_platform_setup()
+activate fvp_bl1_setup
+fvp_bl1_setup -> arm_bl1_setup : arm_bl1_platform_setup()
+activate arm_bl1_setup
+arm_bl1_setup -> arm_io_storage : plat_arm_io_setup()
+activate arm_io_storage
+note right of arm_io_storage: register and setup fip
+arm_io_storage -> fconf : fconf_load_config()
+activate fconf
+note right of fconf: create and populate an\nimage_desc_t for FW_CONFIG
+fconf --> bl_common : load_auth_image(FW_CONFIG_ID, &image_info)
+deactivate fconf
+note left of bl_common: load and auth image from fip\nwith info from plat_io_policy
+bl_common -> arm_io_storage : FCONF_GET_PROPERTY(arm, arm_io_policies, tb_fw_cfg)
+note right of arm_io_storage: use statically defined policies in bl1
+arm_io_storage --> bl_common : image_info
+deactivate arm_io_storage
+deactivate arm_bl1_setup
+deactivate fvp_bl1_setup
+
+bl_common -> plat_bl1_common : get tb_fw_config_dtb from image_info
+activate plat_bl1_common
+plat_bl1_common -> fconf : bl1_plat_get_image_desc(BL2_IMAGE_ID)
+activate fconf
+fconf --> plat_bl1_common : BL2_IMAGE_DESC
+note right of fconf: set ep_info.args.arg0 of BL2_IMAGE_DESC\nto FW_CONFIG base address
+deactivate fconf
+deactivate plat_bl1_common
+
+note bottom: load & auth, prepare and jump to BL2
+
+@enduml
+```

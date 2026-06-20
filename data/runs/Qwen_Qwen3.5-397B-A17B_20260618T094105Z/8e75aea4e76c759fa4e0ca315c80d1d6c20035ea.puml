@@ -1,0 +1,5 @@
+@startuml
+actor nsq participant "GuideTaskCrmVisitAssignListener" as listener 
+participant guideTaskCrmVisitAssignProcessor processor GuideTaskAssignDomainService domain ShoppingGuideReadApi api GuideTaskDepartmentAssignStrategy strategy GuideTaskAssignFactory factory GuideTaskAssignRepository assignRepo GuideTaskRepository taskRepo NsqProducer producer 
+
+listener ->>processor : 1下发任务\nactivate processor \nprocessor->domain:2开始处理\ndomain-->strategy:3任务分配\nnote right of domain #palegreen#:\u4E0B\u53D1\u7ED9\u6240\u6709\u90E8\u95E8#\nnote left of strategy:paleyellow:#只有任务下发给导购的时候才创建导购的任务明细#\napi<-domain:4查询下发对象department\ndomain<--factory:5分配任务\nfactory<<-assignRepo:6创建分配的任务实体\nframe Transaction {\n    activate transactionFrame\n   } else { deactivate transactionFrame }\nend frame\ntransactionFrame <- - >taskRepo:7保存分配状态status flow任务流转至分配完成\ntaskRepo < -- >>producer:8发送下发完成消息，准备启动任务\n@enduml

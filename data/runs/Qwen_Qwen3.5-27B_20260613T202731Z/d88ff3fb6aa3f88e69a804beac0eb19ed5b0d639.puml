@@ -1,0 +1,145 @@
+```plantuml
+@startuml
+skinparam sequence {
+  ArrowColor DarkSlateGray
+  ActorBorderColor black
+  ActorBackgroundColor white
+  LifeLineBorderColor gray
+  LifeLineBackgroundColor white
+}
+
+actor Admin as admin
+participant "AddEventPage" as AddEventPage
+participant "AddEventFormContainer" as AddEventFormContainer
+participant "AddClassPopupContainer" as AddClassPopupContainer
+participant "ClassForm" as ClassForm
+participant "ClassService (Frontend)" as ClassServiceFE
+participant "ShiftService (Frontend)" as ShiftServiceFE
+participant "Router" as Router
+participant "ClassHTTPTransport" as ClassHTTPTransport
+participant "ClassEndpoint" as ClassEndpoint
+participant "ClassService" as ClassService
+participant "ClassCommand" as ClassCommand
+participant "ClassQuery" as ClassQuery
+participant "TransactionGRPCTransport" as TransactionGRPCTransport
+participant "StorageGRPC Transport" as StorageGRPCTransport
+participant "MaterialService" as MaterialService
+participant "NatsStreaming" as NatsStreaming
+
+admin -> AddEventPage: Click "Attach New Class" Button
+activate AddEventPage
+AddEventPage -> AddEventFormContainer: attachClass()
+activate AddEventFormContainer
+AddEventFormContainer --> AddEventPage: attach
+deactivate AddEventFormContainer
+AddEventPage --> admin: attach
+deactivate AddEventPage
+
+admin -> AddClassPopupContainer: Render "Add Class Popup" Container
+activate AddClassPopupContainer
+AddClassPopupContainer -> ClassForm: render
+activate ClassForm
+ClassForm --> AddClassPopupContainer: rendered
+deactivate ClassForm
+AddClassPopupContainer --> admin: Rendered
+deactivate AddClassPopupContainer
+
+admin -> AddClassPopupContainer: choose date
+activate AddClassPopupContainer
+AddClassPopupContainer -> AddClassPopupContainer: handleDateChange(value)
+AddClassPopupContainer -> ClassServiceFE: fetchAvailableShifts(date)
+activate ClassServiceFE
+ClassServiceFE -> ShiftServiceFE: 
+activate ShiftServiceFE
+ShiftServiceFE --> ClassServiceFE: shifts
+deactivate ShiftServiceFE
+ClassServiceFE --> AddClassPopupContainer: form data
+deactivate ClassServiceFE
+AddClassPopupContainer --> admin: form data
+deactivate AddClassPopupContainer
+
+admin -> AddClassPopupContainer: choose shift
+activate AddClassPopupContainer
+AddClassPopupContainer -> AddClassPopupContainer: handleShiftChange()
+AddClassPopupContainer -> ClassServiceFE: fetchAvailableShifts(date, [shift])
+activate ClassServiceFE
+ClassServiceFE --> AddClassPopupContainer: rooms
+deactivate ClassServiceFE
+AddClassPopupContainer --> admin: form data
+deactivate AddClassPopupContainer
+
+admin -> AddClassPopupContainer: fill Form
+activate AddClassPopupContainer
+AddClassPopupContainer --> admin: form data
+deactivate AddClassPopupContainer
+
+admin -> AddClassPopupContainer: Click "Create Class" Button
+activate AddClassPopupContainer
+AddClassPopupContainer -> AddClassPopupContainer: handleClassFormSubmitted()
+AddClassPopupContainer -> ClassServiceFE: bookingClass(payload)
+activate ClassServiceFE
+ClassServiceFE -> Router: route("GET", "/v2/booking")
+activate Router
+Router -> ClassHTTPTransport: BookingClass(ClassService, [[ServerOption]])
+activate ClassHTTPTransport
+ClassHTTPTransport -> ClassEndpoint: Booking(ClassService, withPagination)
+activate ClassEndpoint
+ClassEndpoint -> ClassService: Create(context, params)
+activate ClassService
+ClassService -> ClassService: Validate()
+alt "Data Valid"
+    ClassService -> TransactionGRPCTransport: IsValidTransaction(ProtoBuffer)
+    activate TransactionGRPCTransport
+    TransactionGRPCTransport --> ClassService: ProtoResponse
+    deactivate TransactionGRPCTransport
+    alt "% Valid Transaction"
+        ClassService -> ClassService: class := ClassModel()
+        ClassService -> ClassCommand: Create(context, class)
+        activate ClassCommand
+        ClassCommand --> ClassService: uuid
+        deactivate ClassCommand
+        opt "Has materials"
+            ClassService -> StorageGRPCTransport: CommitFile(context, ProtoBuffer)
+            activate StorageGRPCTransport
+            StorageGRPCTransport --> ClassService: link
+            deactivate StorageGRPCTransport
+            ClassService -> MaterialService: Create(context, payload)
+            activate MaterialService
+            MaterialService --> ClassService: isCreated
+            deactivate MaterialService
+        end
+        ClassService -> ClassQuery: Find(context, [[SliceConditions]])
+        activate ClassQuery
+        ClassQuery --> ClassService: classes
+        deactivate ClassQuery
+        ClassService -> NatsStreaming: publishClassCreated(context, data)
+        activate NatsStreaming
+        NatsStreaming --> ClassService: published
+        deactivate NatsStreaming
+    else
+        ClassService --> ClassEndpoint: BadRequest
+    end
+else
+    ClassService --> ClassEndpoint: UnprocessableEntity
+end
+deactivate ClassService
+ClassEndpoint --> ClassHTTPTransport: class
+ClassHTTPTransport --> Router: response := Response(class, nil)
+deactivate ClassHTTPTransport
+Router --> ClassServiceFE: response
+deactivate Router
+ClassServiceFE --> AddClassPopupContainer: response
+deactivate ClassServiceFE
+AddClassPopupContainer --> admin: response
+deactivate AddClassPopupContainer
+
+note right of ClassService: BadRequest\nUnprocessableEntity
+note left of ClassEndpoint: BadRequest\nUnprocessableEntity
+note left of ClassHTTPTransport: BadRequest\nUnprocessableEntity
+note left of Router: BadRequest\nUnprocessableEntity
+note left of ClassServiceFE: BadRequest\nUnprocessableEntity
+note left of AddClassPopupContainer: BadRequest\nUnprocessableEntity
+note left of admin: BadRequest\nUnprocessableEntity
+
+@enduml
+```

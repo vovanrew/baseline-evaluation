@@ -1,0 +1,21 @@
+{
+  "id": "msg_01HeJVKnWTRsmGhoagnkMZFD",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor Actor\nboundary Dashboard\ncontrol DashboardController\ncontrol IssuesDetailController\nentity IssuesService\nentity IssuesEntityService\nentity EntityService\ndatabase IssuesRepository\ndatabase IssueRepository\n\nActor -> Dashboard : /issues\nDashboard -> DashboardController : createIssues()\nDashboardController -> Dashboard : new / redirect\ndestroy DashboardController\ncreate \"Table\" as Table\nDashboardController -> Table : new / redirect\n\npar\n    Dashboard -> IssuesDetailController : getIssues()\n    IssuesDetailController -> IssuesService : createIssuesStatistics()\n    IssuesService -> IssuesEntityService : findAll()\n    IssuesEntityService -> EntityService : selectAllIssues()\n    EntityService -> IssuesRepository : findAll()\n    \n    loop\n        IssuesRepository -> IssuesRepository : new\n        create \"Issues\" as Issues1\n        IssuesRepository -> Issues1 : Issues\n    end\n    \n    loop\n        IssuesRepository -> IssueRepository : findById(id)\n        IssueRepository -> IssueRepository : new\n        create \"Issue\" as Issue1\n        IssueRepository -> Issue1 : Issue\n        IssueRepository --> IssuesRepository : Issue\n    end\n    \n    IssuesRepository --> EntityService : Set<Issues>\n    EntityService --> IssuesEntityService : Set<Issues>\n    IssuesEntityService --> IssuesService : Set<Issues>\n    IssuesService --> IssuesDetailController : IssuesStatistics\n    IssuesDetailController --> Dashboard : IssuesStatistics\nend\n\nActor -> Dashboard : select report\nDashboard -> IssuesDetailController : details\nIssuesDetailController -> Dashboard : new / redirect\ndestroy IssuesDetailController\ncreate \"Details\" as Details\nIssuesDetailController -> Details : new / redirect\n\npar\n    Dashboard -> IssuesDetailController : getCategories(origin, reference)\n    IssuesDetailController -> IssuesService : createDistributionByCategory(origin, reference)\n    IssuesService -> IssuesEntityService : findByPrimaryKey(origin, reference)\n    IssuesEntityService -> EntityService : select(origin, reference)\n    EntityService -> IssuesRepository : findById(origin, reference)\n    \n    IssuesRepository -> IssueRepository : new\n    create \"Issues\" as Issues2\n    IssueRepository -> Issues2 : Issues\n    \n    loop\n        IssuesRepository -> IssueRepository : findById(id)\n        IssueRepository -> IssueRepository : new\n        create \"Issue\" as Issue2\n        IssueRepository -> Issue2 : Issue\n        IssueRepository --> IssuesRepository : Issue\n    end\n    \n    IssuesRepository --> EntityService : Issues\n    EntityService --> IssuesEntityService : Issues\n    IssuesEntityService --> IssuesService : Issues\n    IssuesService --> IssuesDetailController : IssuePropertyDistribution\n    IssuesDetailController --> Dashboard : IssuePropertyDistribution\nend\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431479,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 742,
+    "prompt_tokens": 1644,
+    "total_tokens": 2386
+  }
+}

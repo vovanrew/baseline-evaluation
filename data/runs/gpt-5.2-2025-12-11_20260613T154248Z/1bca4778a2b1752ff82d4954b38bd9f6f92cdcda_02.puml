@@ -1,0 +1,87 @@
+@startuml
+title Ski Championships\nManagement
+caption Ski Championships Management\nClass Diagram\nBertrand C
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+
+package "Scm" {
+
+class Event << (C,#b7d7b7) >> {
+  <color:#cc0000>□</color> id: int
+  <color:#cc0000>□</color> location: string
+  <color:#cc0000>□</color> startDate: Date
+  <color:#cc0000>□</color> endDate: Date
+  --
+  <color:#2e8b57>●</color> create(): Event
+  <color:#2e8b57>●</color> update()
+  <color:#2e8b57>●</color> delete(): bool
+  <color:#2e8b57>●</color> list(): <u>Event</u>[]
+  <color:#2e8b57>●</color> export(): bool
+  <color:#2e8b57>●</color> import(): bool
+}
+
+class Result << (C,#b7d7b7) >> {
+  <color:#cc0000>□</color> time: Time
+  --
+  <color:#2e8b57>●</color> create(): Result
+  <color:#2e8b57>●</color> delete(): bool
+  <color:#2e8b57>●</color> list(): Result[]
+}
+
+class Run << (C,#b7d7b7) >> {
+  <color:#cc0000>□</color> number: int
+  <color:#cc0000>□</color> time: Time
+  --
+  Getters and setters:
+  <color:#2e8b57>●</color> getId()
+  ..Other methods......
+  <color:#2e8b57>●</color> create(): Run
+  <color:#2e8b57>●</color> delete(): bool
+}
+
+class Competitor << (C,#b7d7b7) >> {
+  <color:#cc0000>□</color> id: int
+  <color:#cc0000>□</color> lastName: string
+  <color:#cc0000>□</color> firstName: string
+  <color:#cc0000>□</color> birthDate: Date
+  <color:#cc0000>□</color> bibNumber: int
+  <color:#cc0000>□</color> email: string
+  <color:#cc0000>□</color> photo: resource
+  --
+  <color:#2e8b57>●</color> create(): Competitor
+  <color:#2e8b57>●</color> update()
+  <color:#2e8b57>●</color> delete(): bool
+  <color:#2e8b57>●</color> list(): <u>Competitor</u>[]
+}
+
+abstract class Metadata << (A,#b7d7b7) >> {
+  <color:#caa400>◇</color> id: int
+  <color:#caa400>◇</color> name: string
+  <color:#caa400>◇</color> description: string
+  --
+  <color:#caa400>◇</color> create()
+  <color:#caa400>◇</color> update()
+  <color:#caa400>◇</color> delete(): bool
+  <color:#caa400>◇</color> list(): Metadata
+}
+
+class Category << (C,#b7d7b7) >>
+class Profile  << (C,#b7d7b7) >>
+
+' Central associations
+Event "1" *-- "0..n" Competitor : takes part
+
+Competitor *.. Result : obtains
+Competitor *.. Run : runs
+
+' Bottom associations
+Competitor "0..n" o-- "1" Category : belongs to
+Competitor "0..n" o-- "1" Profile : has
+
+Category -|> Metadata
+Profile  -|> Metadata
+
+}
+
+@enduml

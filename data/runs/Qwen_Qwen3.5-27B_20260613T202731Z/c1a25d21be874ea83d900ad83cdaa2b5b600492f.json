@@ -1,0 +1,22 @@
+{
+  "id": "a30b3413-33d9-479b-8ef1-816dee1ac4ec",
+  "object": "chat.completion",
+  "created": 1781439473,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nautonumber 0\n\ntitle Circuit Breaker Pattern\n\nparticipant \"A\" as A\nparticipant \"CircuitBreaker\" as CB\nparticipant \"B\" as B\n\nrectangle {\n    alt [no errors]\n        A -> CB: call()\n        activate CB\n        CB -> B: call()\n        activate B\n        B --> CB: response\n        deactivate B\n        CB --> A: response\n        deactivate CB\n    else [errors]\n        A -> CB: call()\n        activate CB\n        \n        loop while err_count < max_errors\n            CB -> B: call()\n            destroy B\n            \n            CB -> CB: err_count ++\n            activate CB\n            deactivate CB\n        end\n        \n        CB -> CB: sleep(timeout)\n        activate CB\n        deactivate CB\n        \n        CB -> B: call()\n        destroy B\n        \n        CB -> CB: sleep(timeout*2)\n        activate CB\n        deactivate CB\n        \n        CB -> B: call()\n        destroy B\n        \n        CB --> A: error\n        deactivate CB\n    end\n}\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1321,
+    "completion_tokens": 240,
+    "total_tokens": 1561
+  }
+}

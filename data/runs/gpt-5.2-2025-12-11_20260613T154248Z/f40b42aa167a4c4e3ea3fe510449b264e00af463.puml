@@ -1,0 +1,55 @@
+@startuml
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+
+package "auto" {
+  package "entity" {
+
+    interface "AutoData" as AutoData <<entity>> {
+      +_id?: string
+      +__v?: number
+      +createdAt?: number
+      +updatedAt?: number
+      +modell: string
+      +klimabilanz?: number
+      +typ?: AutoTyp
+      +marke: Marke
+      +preis: number
+      +rabatt?: number
+      +lieferbar?: boolean
+      +datum?: Date
+      +modellnr: string
+      +homepage?: string
+      +spezifikationen?: Array<string>
+      +herstellungsorte: any
+    }
+
+    enum "Marke" as Marke {
+      BMW
+      AUDI
+    }
+
+    enum "AutoTyp" as AutoTyp {
+      LIMOUSINE
+      COUPE
+    }
+
+    class "AutoModel" as AutoModel
+    class "validateAuto()" as validateAuto
+
+    AutoData ..> Marke
+    AutoData ..> AutoTyp
+
+    AutoModel ..> validateAuto
+
+    package "mongoose" {
+      class "Schema" as Schema
+      class "model()" as modelFn
+
+      AutoModel ..> Schema
+      AutoModel ..> modelFn
+    }
+  }
+}
+@enduml

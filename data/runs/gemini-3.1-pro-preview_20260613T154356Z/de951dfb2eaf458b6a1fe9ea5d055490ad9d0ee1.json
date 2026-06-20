@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle US004 - As Administrator, I want to search for users\n\nactor Administrator\nparticipant \": SearchUsersByParamsRoute\" as Route\nparticipant \"inDto : SearchUserDto\" as inDto\nparticipant \": UsersController\" as Controller\nparticipant \": SearchUsersByParamsService\" as Service\nparticipant \": ISystemUserRepo\" as UserRepo\nparticipant \": IUserProfileRepo\" as ProfileRepo\nparticipant \"user : SystemUser\" as User\nparticipant \": SystemUserMapper\" as Mapper\n\nactivate Administrator\nAdministrator -> Route : 1 GET /users?name={name}&email={email}&profile={profile}&func={func}\nnote left\nThe parameters (name, email, profile and function) will be in the query of the request. At least, one of them must be typed or chosen.\nend note\nactivate Route\n\nRoute -> Controller : 2 searchUsersByTypedParams(inDto)\nactivate Controller\n\nController -> Service : 3 searchUsersByTypedParams(inDto)\nactivate Service\n\nopt if the request has a profile\n    Service -> ProfileRepo : 4 result : existByUserProfileId(profile)\n    activate ProfileRepo\n    deactivate ProfileRepo\nend\n\nalt depending on which params came from inputDto, the service class will invoke the respective method\n    Service -> UserRepo : 5 findAllBy...()\n    activate UserRepo\n    UserRepo --> \"usersFound : List<SystemUser>\" ** : 6 create()\n    UserRepo --> Service : 7 usersFound\n    deactivate UserRepo\nend\n\nService --> \"usersFoundDto : List<UserDto>\" ** : 8 create()\n\nloop for each user found at the list\n    Service -> Mapper : 9 model2Dto(user)\n    activate Mapper\n    Mapper --> \"userDto : OutputUserDto\" ** : 10 create()\n    Mapper --> Service : 11 userDto\n    deactivate Mapper\n    Service -> \"usersFoundDto : List<UserDto>\" : 12 add(userDto)\n    activate \"usersFoundDto : List<UserDto>\"\n    deactivate \"usersFoundDto : List<UserDto>\"\nend\n\nService --> Controller : 13 usersFoundDto\ndeactivate Service\n\nController --> \"usersJson : ResponseEntity\" ** : 14 create(usersFoundDto)\n\nController --> Route : 15 usersJson\ndeactivate Controller\n\nRoute --> Administrator : 16 Show the list of user found by typed/chosen parameters\ndeactivate Route\ndeactivate Administrator\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHTMUWMeaNU3yncsudJMUwxGhw4Nz7TjJ0YIEvHyq6+RAKzyFq2Q97YQipmpZQ"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1142,
+    "candidatesTokenCount": 549,
+    "totalTokenCount": 1691,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1062
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "-GExasz4BfebvdIPt_WemQY"
+}

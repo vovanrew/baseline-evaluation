@@ -1,0 +1,97 @@
+```plantuml
+@startuml
+title Zhinahan Classes
+
+package Zhinahan {
+  package Parser {
+    class Parser {
+      - matchers : Array<AbstractLineMatcher>
+      - appendix_detector : AppendixDetector
+      - context : Context
+      + parse(file : string) : Dictionary
+      - per_line(line : string, index : int)
+      - parse_line(line : string, index : int)
+    }
+
+    class AppendixDetector {
+      + starts_appendix_section?(line : string) : bool
+      + has_leaved_appendix_section?(line : string) : bool
+    }
+
+    class Context {
+      - while_appendix : bool
+      - line : string?
+      - index : int?
+      + within_appendix?() : bool
+      + enter_appendix() : void
+      + leave_appendix() : void
+      + update_position(line : string, index : int) : void
+    }
+
+    class LineParser {
+      + parse(context : Context)
+    }
+
+    package LineMatchers {
+      abstract class AbstractLineMatcher {
+        + match(context : Context) : MatchResult?
+        + pattern(context : Context) : RexExp
+        + type() : Symbol
+      }
+
+      class RadicalLineMatcher
+      class ExplanationLineMatcher
+      class PronunciationLineMatcher
+      class CharacterLineMatcher
+
+      class MatchResult {
+        - matched : MatchData
+        + type : String
+        + matched() : Hash<String, String>
+      }
+    }
+  }
+
+  package Core {
+    class Dictionary {
+      - characters : Array<Character>
+      + find(character : string) : Character?
+    }
+
+    class Character {
+      - radical : Radical
+      - char : string
+      + is?(character : string) : bool
+    }
+
+    class Description
+    class Radical
+    class Explanation
+    class Pronunciation
+  }
+}
+
+Parser *-- AppendixDetector
+Parser *-- Context
+Parser *-- LineParser
+LineParser *-- AbstractLineMatcher
+LineParser --> Context
+LineParser --> MatchResult
+
+AbstractLineMatcher <|-- RadicalLineMatcher
+AbstractLineMatcher <|-- ExplanationLineMatcher
+AbstractLineMatcher <|-- PronunciationLineMatcher
+AbstractLineMatcher <|-- CharacterLineMatcher
+AbstractLineMatcher --> MatchResult
+AbstractLineMatcher --> Context
+
+Parser --> Dictionary
+
+Dictionary o-- "*" Character : 1
+Character *-- "1..*" Description : 1
+Character *-- "1" Radical : 1
+Description *-- "0..*" Explanation : 1
+Description *-- "0..1" Pronunciation : 1
+
+@enduml
+```

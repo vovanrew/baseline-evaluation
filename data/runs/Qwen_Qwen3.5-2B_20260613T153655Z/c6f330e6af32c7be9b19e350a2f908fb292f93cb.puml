@@ -1,0 +1,40 @@
+@startuml
+skinparam sequenceDiagram
+
+participant arm_io_storage as "arm_io_storage"
+participant io_storage as "io_storage"
+participant io_fip as "io_fip"
+participant io_memmap as "io_memmap"
+
+actor arm_io_storage
+
+note right of arm_io_storage
+  arm_io_setup()
+end note
+
+rect io dev registration
+  register_io_dev_fip(&fip_dev_con)
+  io_register_device(&dev_info_pool[])
+  devices[dev_count] = (fip_)dev_info_pool
+  dev_count++
+  register_io_dev_memmap(&memmap_dev_con)
+  io_register_device(&memmap_dev_info)
+  devices[dev_count] = memmap_dev_info
+  dev_count++
+end rect
+
+  io_dev_open(fip_dev_con, NULL, fip_dev_handle)
+  dev_open(dev_con, dev_spec, handle)
+  opt [dev_open() on fip device]
+    flip_dev_open(dev_spec, dev_info)
+    dev_info = one of the "fip_dev_info" from dev_info_pool[]
+  end opt
+
+  io_dev_open(memmap_dev_con, NULL, memmap_dev_handle)
+  dev_open(dev_con, dev_spec, handle)
+  opt [dev_open() on memmap device]
+    memmap_dev_open(dev_spec, dev_info)
+    dev_info = memmap_dev_info
+  end opt
+
+@enduml

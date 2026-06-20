@@ -1,0 +1,36 @@
+```plantuml
+@startuml
+title Retrieve Part value
+
+actor "User" as user
+participant "libdrift" as libdrift
+rectangle "drift service" {
+    participant "Advertisement channel" as adv_channel
+    participant "Control channel" as ctrl_channel
+    participant "driftd" as driftd
+}
+participant "Neo4j" as neo4j
+participant "MongoDB" as mongo
+
+user -> libdrift : get Part value
+note left of libdrift: Retrieval message contains\nindex specifier\nindex value
+libdrift -> ctrl_channel : send retrieval message
+ctrl_channel --> user : ACK
+ctrl_channel -> driftd : get Part value
+driftd -> driftd : Lookup Part UUID in index
+driftd -> neo4j : Get Part info
+alt [Composite Part]
+    loop [foreach Part]
+        driftd -> neo4j : Get Part metadata with UUID
+        driftd -> mongo : Get Part values
+    end
+else [Simple Part]
+    driftd -> neo4j : Get Part metadata with UUID
+    driftd -> mongo : Get Part values
+end
+driftd -> driftd : build update message
+driftd -> adv_channel : Update messages for Part values
+adv_channel -> user : receive update message
+
+@enduml
+```

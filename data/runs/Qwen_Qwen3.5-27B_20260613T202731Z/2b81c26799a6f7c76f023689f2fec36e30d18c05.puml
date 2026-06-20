@@ -1,0 +1,65 @@
+```plantuml
+@startuml
+left to right direction
+skinparam sequence {
+    ArrowColor black
+    ActorBorderColor black
+    ActorBackgroundColor white
+    LifeLineBorderColor black
+    LifeLineBackgroundColor white
+}
+
+actor Administrator as admin
+participant "SpecifyNewVaccineUI" as ui
+participant "SpecifyNewVaccineController" as controller
+participant "Company" as company
+participant "VaccineStore" as store
+database "vc.Vaccine" as vaccineDB
+rectangle "admPro.AdministrationProcess" as admProcess
+database "VaccineTypeStore" as typeStore
+database "VaccineType" as vType
+
+admin -> ui : 1 starts specifying a new vaccine and its administration process
+activate ui
+ui -> controller : 2 createVaccine()
+activate controller
+controller -> company : 3 typeList = getVaccineTypeList()
+activate company
+company -> typeStore : 4 getVaccineTypeList()
+activate typeStore
+loop for all known vaccineTypes
+    typeStore -> vType : 5 VaccineType(code, name)
+end
+deactivate typeStore
+deactivate company
+typeStore --> controller : 6 request data (name, manufacturer, type, age groups,doses,elapsing interval, dosage) and show vaccineType list
+controller --> ui : 7 types requested data
+ui -> controller : 8 createVaccine(id, name, manufacturer, type, administrationProcess)
+controller -> company : 9 createVaccine(id, name, manufacturer, type, administrationProcess)
+company -> store : 10 createVaccine(id, name, manufacturer, type, administrationProcess)
+activate store
+store -> vaccineDB : 11 vc = createVaccine(id, name, manufacturer, type, administrationProcess)
+activate vaccineDB
+loop For all age groups
+    vaccineDB -> admProcess : 12 administrationProcess(minAge, maxAge, numberOfDoses, dosage, timeElapsed)
+    activate admProcess
+    admProcess --> vaccineDB : 13 validateVaccine()
+    deactivate admProcess
+end
+vaccineDB --> store : 14 updateVaccine()
+deactivate store
+deactivate vaccineDB
+store --> ui : 15 shows data and request confirmation
+ui --> controller : 16 confirms data
+controller -> company : 17 saveVaccine()
+company -> store : 18 saveVaccine()
+store -> vaccineDB : 19 saveVaccine()
+vaccineDB --> store : 20 addVaccine()
+deactivate store
+deactivate company
+deactivate controller
+deactivate ui
+ui --> admin : 21 informs operation (in)succcess
+
+@enduml
+```

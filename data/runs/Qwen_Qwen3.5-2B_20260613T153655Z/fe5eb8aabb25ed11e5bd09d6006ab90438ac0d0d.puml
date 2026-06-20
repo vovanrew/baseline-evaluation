@@ -1,0 +1,36 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "Line of Business" as LOB
+participant "ESB" as ESB
+participant "Scoring" as Scoring
+participant "Recertification" as Recertification
+
+subgraph Compliance_IT
+    LOB -> ESB: UpdatePartyKYC includeScore=true
+    alt [Recertification completed]
+        ESB -> LOB: UpdatePartyKYC includeScore=true recertificationStatus=completed actor=<userid> reason=<one of client-initiated trigger codes>
+    end
+    LOB -> Scoring: 1 score
+    Note over Scoring, Recertification: Schedule a new recertification and calculate its due date OR retrieve due date of an existing recertification if one has been previously scheduled and not yet completed or cancelled
+    Scoring -> Recertification: 2 recertify
+    Recertification -> Scoring: 3 evaluate rules
+    Scoring -> LOB: 8 score + recertification
+    alt [Recertification is Needed]
+        Recertification -> Scoring: 4 schedule a new recertification
+        alt [Existing Recertification]
+            Recertification -> Scoring: 5 retrieve a previously scheduled recertification that hasn't been completed or cancelled
+        end
+        alt [Complete a Recertification]
+            Recertification -> Scoring: 6 complete an established recertification
+            Note right of Recertification: Immediately complete the recertification if the LOB told us it was already done
+        end
+        Scoring -> LOB: 7 recertification details
+    end
+    alt [Recertification is Not Needed]
+        Scoring -> LOB: 9 no recertification
+        LOB -> Scoring: 10 score
+    end
+endsubgraph
+
+@enduml

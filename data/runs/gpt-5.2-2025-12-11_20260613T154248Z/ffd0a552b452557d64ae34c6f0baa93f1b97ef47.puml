@@ -1,0 +1,36 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor transparent
+  ParticipantBorderThickness 0
+  ParticipantBackgroundColor transparent
+  ActorBorderColor #000000
+  ActorBackgroundColor transparent
+  ArrowColor #000000
+  ArrowThickness 1
+  MessageAlign left
+}
+hide footbox
+
+actor Time as Time
+participant tradecenter as tradecenter
+participant wms as wms
+participant "合作商仓储系统" as PartnerWMS
+participant Aftership as Aftership
+
+Time ->> wms : [030] 定时推送运单
+wms <-- PartnerWMS : [010] 回传发货信息imei运单号等
+wms <-- wms : [020] 生成运单信息
+wms ->> Aftership : [040] 推送运单至aftership
+wms <-- Aftership : [050] 推送路由轨迹信息
+wms <-- wms : [060] 轨迹处理和封装
+wms <-- wms : [070] 记录运单信息更新状态
+
+alt [路由最终状态]
+  wms ->> tradecenter : <color:red><b>[080]</b></color> 通知订单发货单的路由状态
+else [非最终状态]
+end
+@enduml

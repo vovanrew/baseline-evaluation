@@ -1,0 +1,180 @@
+```plantuml
+@startuml
+
+package "php" {
+    package "SPL" {
+        interface "ArrayAccess" {
+            + offsetExists (offset)
+            + offsetGet (offset)
+            + offsetSet (offset, value)
+            + offsetUnset (offset)
+        }
+
+        interface "Countable" {
+            + count()
+        }
+
+        interface "Iterator" {
+            + current()
+            + next ()
+            + key ()
+            + valid ()
+            + rewind ()
+        }
+
+        class "SplFixedArray" {
+        }
+    }
+}
+
+package "Digitick" {
+    package "Foundation" {
+        package "Collection" {
+            interface "InterfaceCollection" {
+                + addAll(InterfaceCollection elementCollection)
+                + clear()
+                + contains(element)
+                + containsAll(InterfaceCollection elementCollection)
+                + isEmpty()
+                + removeAll(interfaceCollection elementCollection)
+                + size()
+                + toArray()
+            }
+
+            interface "InterfaceSet" {
+                + add(element)
+                + get(element)
+                + remove(element)
+            }
+
+            interface "InterfaceList" {
+                + add(offset, element)
+                + remove(offset)
+                + get(offset)
+                + set(offset, element)
+                + indexOf(element)
+                + subList(fromIndex, toIndex)
+            }
+
+            abstract class "TraitCollection" <<(A,#grey)>> {
+                - indexOf(element, collectionObject)
+                - contains(element, collectionObject)
+            }
+
+            abstract class "AbstractObjectSet" <<(A,#grey)>> {
+                ~ storageArray
+                ~ nextAvailableOffset
+                + set(element, data)
+            }
+
+            abstract class "AbstractScalarSet" <<(A,#grey)>> {
+                ~ {static} DEFAULT_SIZE
+                ~ nextAvailableOffset
+                ~ storageArray
+                + increaseSize(quantity=1)
+                + decreaseSize(quantity=1)
+                + shift(fromOffset)
+                + removeOffset(offset)
+            }
+
+            abstract class "TraitTypedCollection" <<(A,#grey)>> {
+                ~ CLASSORTYPENAME
+                - checkelementType(element)
+            }
+
+            abstract class "AbstractList" <<(A,#grey)>> {
+            }
+
+            class "BaseObjectSet" <<(C,#grey)>> {
+            }
+
+            abstract class "AbstractTypedScalarSet" <<(A,#grey)>> {
+            }
+
+            class "BaseScalarSet" <<(C,#grey)>> {
+            }
+
+            class "IntScalarSet" <<(C,#grey)>> {
+            }
+
+            class "StringScalarSet" <<(C,#grey)>> {
+            }
+
+            abstract class "AbstractTypedObjectSet" <<(A,#grey)>> {
+            }
+
+            abstract class "AbstractTypedList" <<(A,#grey)>> {
+            }
+
+            class "BaseList" <<(C,#grey)>> {
+            }
+
+            class "IntList" <<(C,#grey)>> {
+            }
+
+            class "StringList" <<(C,#grey)>> {
+            }
+        }
+    }
+}
+
+' Relationships from InterfaceCollection
+InterfaceCollection --|> ArrayAccess
+InterfaceCollection --|> Countable
+InterfaceCollection --|> Iterator
+
+' InterfaceSet and InterfaceList extend InterfaceCollection
+InterfaceSet --|> InterfaceCollection
+InterfaceList --|> InterfaceCollection
+
+' AbstractObjectSet implements InterfaceSet
+AbstractObjectSet ..|> InterfaceSet
+
+' AbstractScalarSet implements InterfaceSet
+AbstractScalarSet ..|> InterfaceSet
+
+' AbstractScalarSet uses SplFixedArray
+AbstractScalarSet --|> "SplFixedArray"
+
+' TraitCollection used by AbstractObjectSet and AbstractScalarSet
+AbstractObjectSet ..> TraitCollection
+AbstractScalarSet ..> TraitCollection
+
+' BaseObjectSet extends AbstractObjectSet
+BaseObjectSet --|> AbstractObjectSet
+
+' AbstractTypedScalarSet extends AbstractScalarSet
+AbstractTypedScalarSet --|> AbstractScalarSet
+AbstractTypedScalarSet --|> AbstractObjectSet
+
+' BaseScalarSet extends AbstractScalarSet
+BaseScalarSet --|> AbstractScalarSet
+
+' IntScalarSet extends AbstractScalarSet
+IntScalarSet --|> AbstractScalarSet
+
+' StringScalarSet extends AbstractScalarSet
+StringScalarSet --|> AbstractScalarSet
+
+' AbstractTypedObjectSet extends AbstractObjectSet
+AbstractTypedObjectSet --|> AbstractObjectSet
+AbstractTypedObjectSet ..> TraitTypedCollection
+
+' AbstractList implements InterfaceList
+AbstractList ..|> InterfaceList
+
+' BaseList extends AbstractList
+BaseList --|> AbstractList
+
+' AbstractTypedList extends AbstractList
+AbstractTypedList --|> AbstractList
+AbstractTypedList ..> TraitTypedCollection
+
+' IntList extends AbstractTypedList
+IntList --|> AbstractTypedList
+
+' StringList extends AbstractTypedList
+StringList --|> AbstractTypedList
+
+@enduml
+```

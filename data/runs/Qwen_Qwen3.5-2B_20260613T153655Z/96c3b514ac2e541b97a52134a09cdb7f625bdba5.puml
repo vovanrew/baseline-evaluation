@@ -1,0 +1,57 @@
+@startuml
+participant "User" as User
+participant "CellEditor" as CellEditor
+participant "Address" as Address
+participant "Controller" as Controller
+participant "Cell" as Cell
+participant "CellImpl" as CellImpl
+participant "FormulaCompiler" as FormulaCompiler
+participant "ExcelExpressionCompiler" as ExcelExpressionCompiler
+participant "ANTLRStringStream" as ANTLRStringStream
+participant "FormulaLexer" as FormulaLexer
+participant "CommonTokenStream" as CommonTokenStream
+participant "FormulaParser" as FormulaParser
+participant "Expression" as Expression
+participant "Formula" as Formula
+
+User --> "Inputs block of instructions" as Input
+
+CellEditor --> address := getAddress()
+CellEditor --> cell := getCell(address)
+CellEditor --> setContent(content)
+
+CellEditor --> setContent(content) as setContentCall
+
+CellEditor --> storeContent(content) as storeContentCall
+
+CellEditor --> compile(cell, content) as compileCall
+
+CellImpl --> compile(cell, content) as compileCallImpl
+
+FormulaCompiler --> compile(cell, content) as compileCallFormula
+
+FormulaCompiler --> input := create(source) as inputCall
+
+FormulaCompiler --> lexer := create(input) as lexerCall
+
+FormulaCompiler --> tokens := create(lexer) as tokensCall
+
+FormulaCompiler --> parser := create(tokens) as parserCall
+
+FormulaCompiler --> tree := parser.expression() as treeCall
+
+FormulaParser --> create() as createCall
+
+FormulaCompiler --> expression := convert(cell, tree) as expressionCall
+
+FormulaCompiler --> formula := create(cell, expression) as formulaCall
+
+CellImpl --> show() as showCall
+
+CellImpl --> formula as formulaCall
+
+Cell --> show() as showCall
+
+User --> Result as Result
+
+@enduml

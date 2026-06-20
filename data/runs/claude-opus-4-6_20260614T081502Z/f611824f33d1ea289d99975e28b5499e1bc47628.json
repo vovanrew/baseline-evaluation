@@ -1,0 +1,21 @@
+{
+  "id": "msg_01DwA221nMfD5nAiWJuwQrtN",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Retrieve Part value\n\nactor User\nparticipant \"libdrift\" as libdrift\nbox \"driftd service\" #LightBlue\nparticipant \"Advertisement channel\" as AdChannel\nparticipant \"Control channel\" as CtrlChannel\nparticipant \"driftd\" as driftd\nend box\nparticipant \"Neo4j\" as Neo4j\nparticipant \"MongoDB\" as MongoDB\n\nUser -> libdrift : get Part value\n\nnote left of libdrift\nRetrieval message contains\nindex specifier\nindex value\nend note\n\nlibdrift -> driftd : send retrieval message\n\nlibdrift <-- driftd : ACK\n\ndriftd -> Neo4j : get Part value\n\nNeo4j -> Neo4j : Lookup Part UUID in index\n\nNeo4j -> MongoDB : Get Part info\n\nalt Composite Part\n    loop foreach Part\n        Neo4j -> MongoDB : Get Part metadata with UUID\n        Neo4j -> MongoDB : Get Part values\n    end\nelse Simple Part\n    Neo4j -> MongoDB : Get Part metadata with UUID\n    Neo4j -> MongoDB : Get Part values\nend\n\ndriftd -> driftd : build update message\n\ndriftd -> AdChannel : Update messages for Part values\n\nAdChannel -> User : receive update message\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431071,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 300,
+    "prompt_tokens": 1636,
+    "total_tokens": 1936
+  }
+}

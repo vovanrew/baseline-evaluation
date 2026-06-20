@@ -1,0 +1,155 @@
+@startuml
+left to right direction
+package "Client" {
+  interface IInfoPontoFonte {
+    [key: String]: number
+  }
+  interface IInfoPontoPrevisaoResponse {
+    [hours: String]: IInfoPonto[]
+  }
+  class InfoPonto {
+    tempo: String
+    alturaOnda: IInfoPontoFonte
+    direcaoOnda: IInfoPontoFonte
+    alturaOndulacao: IInfoPontoFonte
+    direcaoOndulacao: IInfoPontoFonte
+    periodoOndulacao: IInfoPontoFonte
+    velocidadeVento: IInfoPontoFonte
+    direcaoVento: IInfoPontoFonte
+  }
+  class ApInfoPraia {
+    [parameters: []]
+    [request: Class Request]
+    [buscarPontos(lat: Int, lng: <IPrevisaoPonto[]>): normalizarResponse(points: IInfoPontoPrevisaoResponse): IPrevisaoPonto[]]
+    [PontoValido(point: <IInfoPonto>): Boolean]
+  }
+  class IPrevisaoPonto {
+    tempo: String
+    alturaOnda: Number
+    direcaoOnda: Number
+    alturaOndulacao: Number
+    direcaoOndulacao: Number
+    periodoOndulacao: Number
+    velocidadeVento: Number
+    direcaoVento: Number
+  }
+  note right of ApInfoPraia
+    parameters: [alturaOnda, direcaoOnda, alturaOndulacao, direcaoOndulacao, periodoOndulacao, velocidadeVento, direcaoVento]
+  end note
+}
+
+package "Models" {
+  interface IPraia {
+    id: Integer
+    name: String
+    position[]: Position
+    lat: Integer
+    lng: Integer
+    user: String
+  }
+  interface IPosition {
+    N: String
+    S: String
+    L: String
+    O: String
+  }
+  interface IUser {
+    id: String
+    name: String
+    email: String
+    password: String
+  }
+  class PraiaModel {
+    [id: Integer]
+    [name: String]
+    [position[]: Position]
+    [lat: Integer]
+    [lng: Integer]
+    [user: String]
+  }
+  class ModelUser {
+    [id: String]
+    [name: String]
+    [email: String]
+    [password: String]
+  }
+  class Praia {
+    [id: Integer]
+    [name: String]
+    [position[]: Position]
+    [lat: Integer]
+    [lng: Integer]
+    [user: String]
+  }
+}
+
+package "Services" {
+  interface IPraia {
+    [id: Integer]
+    [name: String]
+    [position[]: Position]
+    [lat: Integer]
+    [lng: Integer]
+    [user: String]
+  }
+  interface IPrevisaoPonto {
+    [tempo: String]
+    [alturaOnda: Number]
+    [direcaoOnda: Number]
+    [alturaOndulacao: Number]
+    [direcaoOndulacao: Number]
+    [periodoOndulacao: Number]
+    [velocidadeVento: Number]
+    [direcaoVento: Number]
+  }
+  interface IPrevisaoPraia {
+    [avaliacao: Number]
+  }
+  interface IPrevisaoPonto {
+    [tempo: String]
+    [previsao: IPrevisaoPraia[]]
+  }
+  class Previsao {
+    [apiInfoPraia: novo ApInfoPraia]
+    [servicoAvaliacao: Avaliacao]
+    [processandoPrevisaoPorPraia(praia: IPrevisaoPraia): <ITempoPrevisao[]>]
+  }
+}
+
+package "Controllers" {
+  class PraiasController {
+    [praia: Praia]
+    [resultado: mensagem]
+    [create(req, res)]
+    [novaPraia(req.body)]
+    [praia.save()]
+  }
+}
+
+package "Middlewares" {
+  interface IPrevisaoPonto {
+    [tempo: String]
+    [previsao: IPrevisaoPraia[]]
+  }
+}
+
+package "UI" {
+  class Request {
+    [request: []]
+    [getUrl]
+  }
+}
+
+"InfoPonto" --> "ApInfoPraia"
+"ApInfoPraia" --> "IPrevisaoPonto"
+"IPrevisaoPonto" --> "IPrevisaoPraia"
+"IPrevisaoPraia" --> "Previsao"
+"Previsao" --> "PraiasController"
+"PraiasController" --> "Praia"
+"Praia" --> "PraiaModel"
+"PraiaModel" --> "IPraia"
+"IPraia" --> "IPosition"
+"IPosition" --> "IUser"
+"ModelUser" --> "IUser"
+"Request" --> "UI"
+@enduml

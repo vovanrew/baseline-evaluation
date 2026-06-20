@@ -1,0 +1,44 @@
+@startuml
+actor Teams
+participant "API" as API #D3D3D3
+control BuildService #E6F2FF
+control CommandParser #FFFACD
+control BuildCommand #FFE4B5
+boundary BuildSystem #98FB98
+control BuildFactory #DDA0DD
+database BuildDb #ADD8E6
+control BuildMonitor #FAEBD7
+entity NotificationService #AFEEEE
+database NotificationDb #DEB887
+
+Teams -> API : /api/messages
+activate API
+    API -> BuildService : ProcessCommandAsync()
+        activate BuildService
+        
+            BuildService -> CommandParser : ParseCommand(command)
+                activate CommandParser
+                
+                    alt command == 'build' 
+                        return new BuildCommand(projectName, branch);
+                        
+                            note right of CommandParser\n#lightgreen:green background:#white:black text:\nBuildCommand { \n  projectName = string; \n  branch = string;\n}
+                            
+                    else invalid_command_type_error
+                        
+                    end
+                    
+                
+                deactivate CommandParser
+            
+            
+            opt if buildcommand != null then 
+            
+                BuildService->BuildCommand: Execute();
+                    
+                    activate BuildCommand
+                    
+                        BuildCommand --> BuildSystem : CreateBuildAsync(buildRequestDto);\n// DTO contains project name & git ref to use for this specific run.\n // Also includes user who triggered it so we can notify them later via email/slack etc.. once done successfully or failed due some reason like compilation errors during execution phase itself which would require manual intervention from developer side before proceeding further ahead steps below mentioned hereunder:-\nawait Task.Delay(TimeSpan.FromSeconds(1));   /* Simulate delay */return true ;     } catch(Exception ex){Console.WriteLine(ex.Message);}finally{this.Dispose ();}}}'/>
+
+
+@enduml

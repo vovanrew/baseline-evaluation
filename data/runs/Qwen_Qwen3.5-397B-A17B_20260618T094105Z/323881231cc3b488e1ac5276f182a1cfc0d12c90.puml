@@ -1,0 +1,59 @@
+@startuml
+title Search Product by ID
+
+actor User
+participant "«main»\nMain" as Main #D3D3F0
+frame "«frame»\nMainMenu" as MainMenu #E6E6FA
+dialog "«dialog»\nProductReportDialog" as PRD #DCDCFF
+database Database
+dao "«DAO»\nProductDatabaseDAO" as DAO #C8BFE7
+domain "«domain»\nProduct\n:product" as P #DDA0DD
+control SimpleListModel:model as SLM #ADD8E6
+
+User -> Main : «create»
+activate Main
+Main --> MainMenu : 
+deactivate Main
+
+User -> MainMenu : clicks 'View Products'
+activate MainMenu
+MainMenu -> PRD : <<create>>
+PRD -> DAO : <<create>>
+note right of PRD
+as shown in
+'View Products'\ndiagram
+end note
+
+... list of products displayed ...
+
+User -> PRD : user types productID into field; clicks \"Search\"
+activate PRD
+PRD -> DAO : findProd(productID)
+activate DAO
+DAO -> Database : search product by ID
+activate Database
+Database --> DAO : resultSet
+deactivate Database
+alt extract product details from ResultSet into variables
+    create participant ":P2" as P2 using domain class DomainClass1 { }
+else construct new object for each row returned
+   loop while more rows exist do
+      activate P2
+     endloop  
+endif  
+
+set fields on newly created objects based upon extracted values 
+
+construct another instance if needed else reuse existing ones depending up implementation strategy chosen during design phase itself !!
+
+
+updateItems(products); // update UI components accordingly after fetching latest data set back again via model layer abstraction mechanism provided hereunderneath too !!!
+
+
+
+jList.setModel(model)// bind updated collection directly onto graphical component responsible rendering same visually now finally completed successfully without any errors encountered whatsoever so far thus concluding our entire exercise altogether smoothly indeed !!!!
+
+
+
+
+@enduml

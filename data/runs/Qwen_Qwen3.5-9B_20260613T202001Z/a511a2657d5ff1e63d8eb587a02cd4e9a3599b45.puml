@@ -1,0 +1,194 @@
+@startuml
+' Define package boundaries
+package "expr" {
+  package "repl" {
+    class "REPL" {
+      <<interface>>
+      loop(): void
+    }
+    class "ConsoleREPL" {
+      ConsoleREPL(ExpressionParser)
+    }
+  }
+  package "parser" {
+    class "ExpressionParser" {
+      <<interface>>
+      parse(String): Optional<Expression>
+    }
+    class "DefaultExpressionParser" {
+      DefaultExpressionParser(ExpressionFactory)
+    }
+  }
+  package "expression" {
+    class "AddExpression" {
+      operandA: Integer
+      operandB: Integer
+      operator: String
+      AddExpression(String, Integer, Integer)
+    }
+    class "SubExpression" {
+      operandA: Integer
+      operandB: Integer
+      operator: String
+      SubExpression(String, Integer, Integer)
+    }
+    class "MulExpression" {
+      operandA: Integer
+      operandB: Integer
+      operator: String
+      MulExpression(String, Integer, Integer)
+    }
+    class "QuotExpression" {
+      operandA: Integer
+      operandB: Integer
+      operator: String
+      QuotExpression(String, Integer, Integer)
+    }
+    class "FPAddExpression" {
+      operandA: Double
+      operandB: Double
+      operator: String
+      AddExpression(String, Double, Double)
+    }
+    class "FPSubExpression" {
+      operandA: Double
+      operandB: Double
+      operator: String
+      SubExpression(String, Double, Double)
+    }
+    class "FPMulExpression" {
+      operandA: Double
+      operandB: Double
+      operator: String
+      MulExpression(String, Double, Double)
+    }
+    class "FPDivExpression" {
+      operandA: Double
+      operandB: Double
+      operator: String
+      QuotExpression(String, Double, Double)
+    }
+    class "Expression" {
+      <<interface>>
+      eval(): T
+    }
+  }
+  package "ints" {
+    class "IntExpressionFactory" {
+      <<interface>>
+      create(op: String, operandA: Integer, operandB: Integer): IntExpression
+    }
+    class "SubExpressionFactory" {
+      SubExpression
+    }
+    class "MulExpressionFactory" {
+      MulExpression
+    }
+    class "QuotExpressionFactory" {
+      QuotExpression
+    }
+    class "AddExpressionFactory" {
+      AddExpression
+    }
+  }
+  package "fps" {
+    class "FPExpressionFactory" {
+      <<interface>>
+      create(op: String, operandA: Double, operandB: Double): FPExpression
+    }
+    class "FPSubExpressionFactory" {
+      FPSubExpression
+    }
+    class "FPMulExpressionFactory" {
+      FPMulExpression
+    }
+    class "FPDivExpressionFactory" {
+      FPDivExpression
+    }
+    class "FPAddExpressionFactory" {
+      FPAddExpression
+    }
+  }
+}
+
+' Define external classes
+class "ExpressionEvaluator" {
+  main(String[]): void
+}
+class "ExpressionEvaluatorConfig" {
+  repl(): REPL
+  expressionParser(): ExpressionParser
+  expressionFactory(): ExpressionFactory
+}
+
+' Relationships
+ExpressionEvaluator --> ExpressionEvaluatorConfig
+ExpressionEvaluatorConfig ..> REPL
+ExpressionEvaluatorConfig ..> ExpressionParser
+ExpressionEvaluatorConfig ..> ExpressionFactory
+
+REPL ..> ConsoleREPL
+ConsoleREPL ..> ExpressionParser
+
+ExpressionParser ..> DefaultExpressionParser
+DefaultExpressionParser ..> ExpressionFactory
+
+ExpressionFactory ..> IntExpressionFactory
+ExpressionFactory ..> FPExpressionFactory
+
+IntExpressionFactory ..> SubExpressionFactory
+IntExpressionFactory ..> MulExpressionFactory
+IntExpressionFactory ..> QuotExpressionFactory
+IntExpressionFactory ..> AddExpressionFactory
+
+FPExpressionFactory ..> FPSubExpressionFactory
+FPExpressionFactory ..> FPMulExpressionFactory
+FPExpressionFactory ..> FPDivExpressionFactory
+FPExpressionFactory ..> FPAddExpressionFactory
+
+SubExpressionFactory ..> SubExpression
+MulExpressionFactory ..> MulExpression
+QuotExpressionFactory ..> QuotExpression
+AddExpressionFactory ..> AddExpression
+
+FPSubExpressionFactory ..> FPSubExpression
+FPMulExpressionFactory ..> FPMulExpression
+FPDivExpressionFactory ..> FPDivExpression
+FPAddExpressionFactory ..> FPAddExpression
+
+SubExpression ..> Expression
+MulExpression ..> Expression
+QuotExpression ..> Expression
+AddExpression ..> Expression
+
+FPSubExpression ..> Expression
+FPMulExpression ..> Expression
+FPDivExpression ..> Expression
+FPAddExpression ..> Expression
+
+' Bindings
+SubExpressionFactory ..> Expression : <<bind>> T:Integer
+MulExpressionFactory ..> Expression : <<bind>> T:Integer
+QuotExpressionFactory ..> Expression : <<bind>> T:Integer
+AddExpressionFactory ..> Expression : <<bind>> T:Integer
+
+FPSubExpressionFactory ..> Expression : <<bind>> T:Double
+FPMulExpressionFactory ..> Expression : <<bind>> T:Double
+FPDivExpressionFactory ..> Expression : <<bind>> T:Double
+FPAddExpressionFactory ..> Expression : <<bind>> T:Double
+
+' DefaultExpressionFactory
+class "DefaultExpressionFactory" {
+  intFactories: Map<String, IntExpressionFactory>
+  fpFactories: Map<String, FPExpressionFactory>
+  DefaultExpressionFactory(Map<String, IntExpressionFactory>, Map<String, FPExpressionFactory>)
+}
+
+DefaultExpressionFactory ..> IntExpressionFactory
+DefaultExpressionFactory ..> FPExpressionFactory
+
+' Dashed lines for composition/aggregation
+ExpressionEvaluatorConfig ..> DefaultExpressionFactory
+DefaultExpressionParser ..> DefaultExpressionFactory
+
+@enduml

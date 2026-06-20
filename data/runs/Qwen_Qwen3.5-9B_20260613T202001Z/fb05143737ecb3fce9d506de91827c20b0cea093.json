@@ -1,0 +1,22 @@
+{
+  "id": "fdd14be6-a0a2-4039-ada0-854ea1baa703",
+  "object": "chat.completion",
+  "created": 1781426038,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Traffic influencing flows between OpenNESS controller and 5G Core\n\nactor \"User/Admin\" as user\n\npackage \"OpenNESS Controller components\" as openness {\n  participant \"UI/CLI\" as ui\n  participant \"AF Microservice\" as af\n}\n\npackage \"5G Core components\" as core {\n  participant \"NEF\" as nef\n  participant \"NGC CP Functions\" as ngc\n  note right of nef\n    OpenNESS provided\n    Core component with\n    limited functionality\n  end note\n}\n\nuser --> ui : Request all traffic influence subscribed\nui --> af : /af/v1/subscriptions : GET\naf --> nef : /3gpp-traffic-Influence/v1/{afId}/subscriptions : GET\nnef --> ngc : NGC_STUB(PCF,UDR,BSF)\nngc --> nef : {Open: 3rd party NGC integration with OpenNESS(NEF)}\nnef --> af : OK: traffic influence info\\nERROR: {400/500}\naf --> user : Traffic influence details\n\nuser --> ui : Request traffic influence using subscriptionId\nui --> af : /af/v1/subscriptions/{subscriptionId} : GET\naf --> nef : /3gpp-traffic-Influence/v1/{afId}/subscriptions/{subscriptionId} : GET\nnef --> ngc : NGC_STUB(PCF,UDR,BSF)\nngc --> nef : {Open: 3rd party NGC integration with OpenNESS(NEF)}\nnef --> af : OK: traffic influence info\\nERROR: {400/500}\naf --> user : Traffic influence details\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1958,
+    "completion_tokens": 368,
+    "total_tokens": 2326
+  }
+}

@@ -1,0 +1,33 @@
+@startuml
+skinparam sequenceDiagram
+    participant TaskManager as "タスク管理"
+    participant PagingManager as "ページング管理"
+    participant PhysicalMemory as "物理メモリ領域管理"
+    participant MLIB as "MLIB"
+
+    note over PagingManager, PhysicalMemory
+        メモリ管理
+    end note
+
+    TaskManager -> PagingManager: ページディレクトリ解放 (ページディレクトリID)
+    PagingManager -> PhysicalMemory: 管理情報取得
+    PhysicalMemory -> PagingManager: ページディレクトリ操作領域マッピング設定
+    PagingManager -> PagingManager: ref マッピング設定
+
+    loop [カーネル領域以外の有効エントリー毎]
+        PagingManager -> PagingManager: ページテーブル操作領域マッピング設定
+        PagingManager -> PagingManager: ref マッピング設定
+        PagingManager -> PhysicalMemory: ページテーブル0初期化
+        PagingManager -> PhysicalMemory: ページテーブル解放
+        PhysicalMemory -> PagingManager: ref 物理メモリ領域解放
+    end loop
+
+    PagingManager -> PagingManager: ページディレクトリ0初期化
+    PagingManager -> PhysicalMemory: ページディレクトリ解放
+    PhysicalMemory -> PagingManager: ref 物理メモリ領域割当
+    PagingManager -> PhysicalMemory: 管理情報解放
+    PhysicalMemory -> PagingManager: ref 動的配列
+    PagingManager -> TaskManager: 管理情報解放
+
+    TaskManager -> PagingManager: 管理情報解放
+@enduml

@@ -1,0 +1,36 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam lifelineStrategy solid
+
+box "SnapHelper" LightBlue
+    participant OnFlingListener as OFL <<C>> 
+    participant ScrollListener as SL <<C>>  
+    participant SnapHelperClass as SH <<C>>   
+    participant LinearSmoothScroller as LSS <<C>>    
+end box
+
+participant snap 
+
+activate snap 100%#FFCCCC/Red:snap
+
+
+OFL ->> OFL : onFling
+deactivate OFL
+snap <-+ SH: findTargetSnapPosition
+SH --> LSS: createSnapScroller
+LSS -->> SH:onTargetFound
+snap <-- + SH: calculateDistanceToFinalSnap
+SL->>+SL:onScrollStateChanged
+SL-->-SL
+SL -right-shapenote right of SL:<b>snap</b>:<i>Snap to target existing view\nif scroll state idle.</i>#LightGreen:green;
+
+
+
+note over snap,snap:#ffffff:red;<u><font color=red size="24">scrolling by flinging:</font></u>\n<i>- call <code>{@link RecyclerView.SmoothScroller}</code>'s \n{@link android.support.v7.widget.RecyclerView.SmoothScroller#\nonTargetFound(View, int)} method if a target was found.\nOtherwise {@linkplain #findViewByPosition(int) start scrolling}\ntowards the nearest child in case there are any children left\nduring this time or do nothing otherwise.<br/>\n<br/>Note that calling {\code setTargetPosition} without finding a target will result into two calls for{\code onStart()}and{code onStop()}: one from initial setting and another due to default implementation's behavior which sets back old position after failing to locate a target. This may cause unexpected behaviors so you should always make sure your custom implementations handle these cases properly especially when dealing with complex layouts where multiple items might be visible at once like grids etc.. Also keep track whether user has scrolled far enough away such they won't see current item anymore before deciding what action needs taken next based upon their input device type i.e touch vs mouse wheel since each requires different handling strategies altogether!</font>;
+
+
+
+
+@enduml

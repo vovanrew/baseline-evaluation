@@ -1,0 +1,51 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nactor User\ncontrol JobManager\nparticipant Nodes\nparticipant ESDM\nparticipant \"Post Processing Library\" as PPL\ndatabase Storage\n\nUser -> JobManager : submit job(IN, OUT)\nJobManager -> Nodes\n\n== Initialization ==\nNodes -> Storage : read IN=x\nStorage -> Nodes : return\n\n== Loop ==\nNodes -> Nodes : compute\nactivate Nodes\nNodes -> ESDM : write async OUT=y\nactivate ESDM\nESDM -> Storage : write snapshot (async)\nESDM -> PPL : trigger post processing if region effected\n\n== In Situ Post Processing ==\nPPL -> PPL : perform post processing\nPPL -> Storage : (could write result directly)\nPPL -> ESDM : return\nESDM -> Storage : write post processing result\nESDM -> Nodes : return\ndeactivate ESDM\nStorage -> User : OUT files become visible\n\n... multiple iterations ...\n\n== Finalize ==\nStorage -> User : All OUT files become visible to subsequent users.\ndeactivate Nodes\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHpQsi4RSzEqHNkOtEzTZ5sqnJ28Bbf3U13pk6PGe85j9gm365Xz5Jtpycx0NY"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "citationMetadata": {
+        "citationSources": [
+          {
+            "startIndex": 132,
+            "endIndex": 432,
+            "uri": "https://github.com/lucyrpedro/D4.2",
+            "license": ""
+          },
+          {
+            "startIndex": 615,
+            "endIndex": 862,
+            "uri": "https://github.com/lucyrpedro/D4.2",
+            "license": ""
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1168,
+    "candidatesTokenCount": 225,
+    "totalTokenCount": 1393,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1088
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "HV0xaqrTMfebvdIPt_WemQY"
+}

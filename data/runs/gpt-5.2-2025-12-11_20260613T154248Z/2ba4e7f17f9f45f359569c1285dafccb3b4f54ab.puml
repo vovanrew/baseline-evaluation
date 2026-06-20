@@ -1,0 +1,34 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #EFEFEF
+  ActorBorderColor #666666
+  ActorBackgroundColor #FFFFFF
+  BoxBorderColor #666666
+  BoxBackgroundColor #FFFFFF
+}
+
+actor SecurityEngineer as SE
+participant EventBus as EB
+
+box "Security Profile Manager" #C98585
+  boundary spm as SPM
+end box
+
+box "Software Defined Infrastructure" #C9C98A
+  participant storageresource as SR
+end box
+
+participant securityprofile as SP
+
+SE -> SPM : Monitor Security Profile
+SPM -> SR : create (name: secProfileMSP,file: ./templates/secprofile.yml)
+EB <-.. SPM : securityprofile.create
+SPM -> SP : status (name: secProfileMSP)
+EB <-.. SPM : securityprofile.status
+
+@enduml

@@ -1,0 +1,118 @@
+@startuml
+
+actor user
+
+participant "InspectionSheetForm" as ISF
+participant "EquipmentForm" as EF
+participant "InspectionItemForm" as IIF
+participant "InspectionItemDialog" as IID
+participant "InspectionSheetContext" as ISC
+participant "InspectionItemContext" as IIC
+
+== Add New Equipment ==
+
+user -> ISF : 点検機器追加ボタンをクリック
+ISF -> ISC : 点検機器追加
+ISC --> ISF : 点検シート情報
+ISF -> EF : 描画処理
+EF -> IIF : 描画処理
+IIF --> EF : 表示結果
+EF --> ISF : 表示結果
+ISF --> user : 更新後の表示結果
+
+== Remove Equipment ==
+
+user -> ISF : 点検機器削除ボタンをクリック
+ISF -> ISC : 点検機器削除
+ISC --> ISF : 点検シート情報
+ISF -> EF : 描画処理
+EF -> IIF : 描画処理
+IIF --> EF : 表示結果
+EF --> ISF : 表示結果
+ISF --> user : 更新後の表示結果
+
+== Update Equipment ==
+
+user -> ISF : 点検機器情報編集
+ISF -> ISC : 点検機器情報編集
+ISC --> ISF : 点検シート情報
+ISF -> EF : 描画処理
+EF -> IIF : 描画処理
+IIF --> EF : 表示結果
+EF --> ISF : 表示結果
+ISF --> user : 更新後の表示結果
+
+== Add Inspection Item ==
+
+user -> ISF : 点検項目追加ボタンをクリック
+ISF -> IIF : 追加モードに設定
+IIF -> IIF : 新規点検項目を設定
+IIF -> IID : 点検項目ダイアログを開く
+IID --> user : 点検項目ダイアロ表示
+user -> IID : 点検項目編集
+IID -> IIC : 点検項目編集
+IID -> IIC : 点検項目情報
+IID --> ISF : 更新後の表示結果
+
+alt 【編集を適応する場合】
+user -> IID : OKボタンをクリック
+IID -> IIC : 点検項目情報を取得
+IIC --> IID : 点検項目情報
+IID -> ISC : 点検項目を追加
+IID -> IID : 点検項目ダイアログを閉じる
+ISC --> ISF : 点検シート情報
+ISF -> EF : 描画処理
+EF -> IIF : 描画処理
+IIF --> EF : 表示結果
+EF --> ISF : 表示結果
+ISF --> user : 更新後の表示結果
+
+else 【編集を適応しない場合】
+user -> IID : キャンセルボタンをクリック
+IID -> IID : 点検項目ダイアログを閉じる
+end
+
+== Remove Inspection Item ==
+
+user -> ISF : 点検項目削除ボタンをクリック
+ISF -> ISC : 点検項目削除
+ISC --> ISF : 点検シート情報
+ISF -> EF : 描画処理
+EF -> IIF : 描画処理
+IIF --> EF : 表示結果
+EF --> ISF : 表示結果
+ISF --> user : 更新後の表示結果
+
+== Edit Inspection Item ==
+
+user -> ISF : 点検項目編集ボタンをクリック
+ISF -> IIF : 更新モードに設定
+IIF -> IIC : 点検項目情報を取得
+IIC --> IIF : 点検項目情報
+IIF -> IIF : 新規点検項目を設定
+IIF -> IID : 点検項目ダイアログを開く
+IID --> user : 点検項目ダイアロ表示
+user -> IID : 点検項目編集
+IID -> IIC : 点検項目編集
+IID -> IIC : 点検項目情報
+IID --> ISF : 更新後の表示結果
+
+alt 【編集を適応する場合】
+user -> IID : OKボタンをクリック
+IID -> IIC : 点検項目情報を取得
+IIC --> IID : 点検項目情報
+IID -> ISC : 点検項目を追加
+IID -> IID : 点検項目ダイアログを閉じる
+ISC --> ISF : 点検シート情報
+ISF -> EF : 描画処理
+EF -> IIF : 描画処理
+IIF --> EF : 表示結果
+EF --> ISF : 表示結果
+ISF --> user : 更新後の表示結果
+
+else 【編集を適応しない場合】
+user -> IID : キャンセルボタンをクリック
+IID -> IID : 点検項目ダイアログを閉じる
+end
+
+@enduml

@@ -1,0 +1,108 @@
+```plantuml
+@startuml
+title RTP Audio Transmission Sequence Diagram
+
+' Define participants with their groupings
+rectangle "RTP" #LightSalmon {
+    participant "RtpSenderEgress" as RtpSenderEgress
+    participant "ModuleRtpRtcpImpl" as ModuleRtpRtcpImpl
+    participant "PacketRouter" as PacketRouter
+    participant "ProcessThreadImpl" as ProcessThreadImpl
+    participant "PacingController" as PacingController
+    participant "PacedSender" as PacedSender
+    participant "RTPSender" as RTPSender
+    participant "RTPSenderAudio" as RTPSenderAudio
+}
+
+rectangle "Call" #LightSalmon {
+    participant "AudioCodingModuleImpl" as AudioCodingModuleImpl
+    participant "ChannelReceive" as ChannelReceive
+    participant "ChannelSend" as ChannelSend
+    participant "AcmReceiver" as AcmReceiver
+}
+
+rectangle "NetEq" #LightSalmon {
+    participant "AudioSendStream" as AudioSendStream
+    participant "AudioMixerImpl" as AudioMixerImpl
+    participant "AudioTransportImpl" as AudioTransportImpl
+}
+
+rectangle "Audio" #LightSalmon {
+    participant "AudioDeviceBuffer" as AudioDeviceBuffer
+    participant "AudioTrackJni" as AudioTrackJni
+    participant "AudioRecordJni" as AudioRecordJni
+}
+
+' Sequence of interactions from right to left (as shown in diagram)
+activate AudioRecordJni
+AudioRecordJni -> AudioRecordJni: DataIsRecorded()
+deactivate AudioRecordJni
+
+activate AudioTrackJni
+AudioRecordJni -> AudioTrackJni: DeliverRecordedData()
+deactivate AudioTrackJni
+
+activate AudioDeviceBuffer
+AudioTrackJni -> AudioDeviceBuffer: RecordedDataIsAvailable()
+deactivate AudioDeviceBuffer
+
+activate AudioTransportImpl
+AudioDeviceBuffer -> AudioTransportImpl: SendAudioData()
+deactivate AudioTransportImpl
+
+activate AudioSendStream
+AudioTransportImpl -> AudioSendStream: ProcessAndEncodeAudio()
+deactivate AudioSendStream
+
+activate ChannelSend
+AudioSendStream -> ChannelSend: Add10MsData()
+deactivate ChannelSend
+
+activate AudioCodingModuleImpl
+ChannelSend -> AudioCodingModuleImpl: Encode()
+deactivate AudioCodingModuleImpl
+
+activate ChannelSend
+AudioCodingModuleImpl -> ChannelSend: SendData()
+deactivate ChannelSend
+
+activate ChannelReceive
+ChannelSend -> ChannelReceive: SendRtpAudio()
+deactivate ChannelReceive
+
+activate RTPSenderAudio
+ChannelReceive -> RTPSenderAudio: SendAudio()
+deactivate RTPSenderAudio
+
+activate RTPSender
+RTPSenderAudio -> RTPSender: SendToNetwork()
+deactivate RTPSender
+
+activate PacedSender
+RTPSender -> PacedSender: EnqueuePackets()
+deactivate PacedSender
+
+activate PacingController
+PacedSender -> PacingController: ProcessPackets()
+deactivate PacingController
+
+activate ProcessThreadImpl
+PacingController -> ProcessThreadImpl: SendRtpPacket()
+deactivate ProcessThreadImpl
+
+activate PacketRouter
+ProcessThreadImpl -> PacketRouter: SendPacket()
+deactivate PacketRouter
+
+activate ModuleRtpRtcpImpl
+PacketRouter -> ModuleRtpRtcpImpl: TrySendPacket()
+deactivate ModuleRtpRtcpImpl
+
+activate RtpSenderEgress
+ModuleRtpRtcpImpl -> RtpSenderEgress: SendPacket()
+deactivate RtpSenderEgress
+
+RtpSenderEgress -> RtpSenderEgress: SendPacketToNetwork()
+
+@enduml
+```

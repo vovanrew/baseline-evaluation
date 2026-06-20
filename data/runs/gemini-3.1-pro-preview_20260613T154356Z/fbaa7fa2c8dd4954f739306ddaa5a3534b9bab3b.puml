@@ -1,0 +1,103 @@
+```plantuml
+@startuml
+title Project - Staff - Update
+
+participant Client #Tomato
+participant ProjectService #Tomato
+participant RedisCache #Tomato
+queue Kafka #Tomato
+participant PersisterService #Tomato
+participant IndexerService #Tomato
+participant ErrorService #Tomato
+participant ElasticSearch #Tomato
+database Database #Aqua
+
+Client -> ProjectService: /project/staff/v1/_update
+activate ProjectService
+
+ProjectService -> ProjectService: Validate request body
+
+alt request validation fails
+    ProjectService -> ProjectService: Request validation failed
+    ProjectService -> Client: HttpStatus: 400 with appropriate error code
+    note left: Error Code: REQUEST_VALIDATION_FAILED #Aquamarine
+else
+    ProjectService -> ProjectService: Request validation successful
+end
+
+alt record doesn't exist
+    ProjectService -> RedisCache: Search record based on serverGeneratedId
+    activate RedisCache
+    RedisCache -> ProjectService: 0 rows
+    deactivate RedisCache
+    
+    ProjectService -> Database: Search record based on serverGeneratedId
+    activate Database
+    Database -> ProjectService: 0 row
+    deactivate Database
+    
+    ProjectService -> Client: HttpStatus: 400 with appropriate error code
+    note left: Error Code: RECORD_NOT_FOUND #Aquamarine
+else
+    alt record doesn't exists in cache
+        ProjectService -> RedisCache: Search record based on serverGeneratedId
+        activate RedisCache
+        RedisCache -> ProjectService: 0 rows
+        deactivate RedisCache
+        
+        ProjectService -> Database: Search record based on serverGeneratedId
+        activate Database
+        Database -> ProjectService: 1 row
+        deactivate Database
+        
+        ProjectService -> RedisCache: 1 record
+        activate RedisCache
+        deactivate RedisCache
+    end
+end
+
+ProjectService -> RedisCache: Fetch the existing record
+activate RedisCache
+RedisCache -> ProjectService: 1 row
+deactivate RedisCache
+
+alt incorrect rowVersion
+    ProjectService -> ProjectService: Compare rowVersion between request and db
+    ProjectService -> ProjectService: Incorrect rowVersion [request: should be +1 only]
+    ProjectService -> Client: HttpStatus: 400 with appropriate error code
+    note left: Error Code: BAD_REQUEST #Aquamarine
+else
+    ProjectService -> ProjectService: Compare rowVersion between request and db
+    ProjectService -> ProjectService: rowVersion in request = rowVersion in db + 1
+end
+
+ProjectService -> Kafka: Project Staff Data /update_topic
+activate Kafka
+
+ProjectService -> RedisCache: Update new record in cache against serverGeneratedId
+activate RedisCache
+deactivate RedisCache
+
+ProjectService -> Client: HttpStatus: 202 ACCEPTED
+deactivate ProjectService
+
+par async
+    Kafka -> PersisterService: Consume Project Staff Data
+    activate PersisterService
+    Kafka -> IndexerService: Consume Project Staff Data
+    activate IndexerService
+    
+    PersisterService -> Database: Store Project Staff Data
+    activate Database
+    deactivate Database
+    deactivate PersisterService
+    
+    IndexerService -> ElasticSearch: Update Project Staff Data
+    activate ElasticSearch
+    deactivate ElasticSearch
+    deactivate IndexerService
+end
+deactivate Kafka
+
+@enduml
+```

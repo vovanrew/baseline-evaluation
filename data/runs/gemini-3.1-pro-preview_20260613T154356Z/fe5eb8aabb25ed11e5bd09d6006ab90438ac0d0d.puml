@@ -1,0 +1,59 @@
+```plantuml
+@startuml
+participant "Line of Business" as LOB
+participant ESB
+
+box "Compliance IT" #LightGreen
+participant Scoring
+participant Recertification
+end box
+
+group Customer On-Boarding: Open a New Account
+    LOB -> ESB : UpdatePartyKYC\nincludeScore=true
+    alt Recertification completed
+        LOB -> ESB : UpdatePartyKYC\nincludeScore=true\nrecertificationStatus=completed\nactor=<userid>\nreason=<one of client-initiated trigger codes>
+    end
+end
+
+ESB -> Scoring : 1 score
+note left
+Schedule a new recertification and calculate its due date
+OR retrieve due date of an existing recertification if
+one has been previously scheduled and not yet
+completed or cancelled
+end note
+
+Scoring -> Recertification : 2 recertify
+activate Recertification
+
+Recertification -> Recertification : 3 evaluate rules
+
+group Recertification
+    alt Recertification is Needed
+        group Establish a Recertification
+            Recertification -> Recertification : 4 schedule a new recertification
+            alt Existing Recertification
+                Recertification -> Recertification : retrieve a previously\n5 scheduled recertification\nthat hasn't been completed or cancelled
+            end
+        end
+        alt Complete a Recertification
+            Recertification -> Recertification : 6 complete an established recertification
+            note right
+            Immediately complete the
+            recertification if the LOB
+            told us it was already done
+            end note
+        end
+        Recertification --> Scoring : 7 recertification details
+        note left: Due date, status, recert id
+        Scoring --> LOB : 8 score + recertification
+    end
+    alt Recertification is Not Needed
+        Recertification --> Scoring : 9 no recertification
+        Scoring --> LOB : 10 score
+    end
+end
+deactivate Recertification
+
+@enduml
+```

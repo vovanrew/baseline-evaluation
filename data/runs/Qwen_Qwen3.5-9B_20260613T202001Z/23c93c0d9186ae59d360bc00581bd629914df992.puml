@@ -1,0 +1,57 @@
+@startuml
+left to right direction
+actor "Nurse" as nurse
+participant ": RecordAdverseReactionUI" as ui
+participant ": RecordAdverseReactionController" as controller
+participant ": Company" as company
+participant ": AdverseReactionStore" as store
+participant ": AdverseReactionDTO" as dto
+participant ": AdverseReactionMapper" as mapper
+participant ": WaitingRoomStore" as waitingRoomStore
+participant ": AdverseReaction" as adverseReaction
+
+nurse -> ui: 1 Starts recording adverse reaction
+activate ui
+ui -> nurse: 2 asks for data(SNS Number, Adverse Reaction Text)
+nurse --> ui: 3 types requested data
+deactivate ui
+
+ui -> controller: 4 createAdverseReaction(SNSNumber, advReact)
+activate controller
+controller -> waitingRoomStore: 5 wstore = getWaitingRoomStore()
+controller -> waitingRoomStore: 6 store = getRecordAdverseReactionStore()
+controller -> waitingRoomStore: 7 snsus = getSNSUserInTheWaitingRoomByItsSNSNumber(snsuserNumber)
+controller -> waitingRoomStore: 8 vc = getVaccinationCenterBySNSNumber(snsuserNumber)
+controller -> store: 9 ar = createAdverseReaction(snsus, advReact, vc)
+activate store
+store -> adverseReaction: 10 create(snsus,advReact,vc)
+deactivate store
+
+controller -> store: 11 validateAdverseReaction(ar)
+activate store
+deactivate store
+
+controller -> mapper: 12 toDTO(ar)
+activate mapper
+mapper --> controller: 13 arDTO
+deactivate mapper
+
+controller --> ui: 14 arDTO
+deactivate controller
+
+ui -> nurse: 15 shows SNS User correspondent to the SNS Number and adverse reaction waiting for approval
+nurse --> ui: 16 confirms action
+activate ui
+ui -> controller: 17 saveAdverseReaction()
+activate controller
+controller -> store: 18 saveAdverseReaction(ar)
+activate store
+store -> store: 19 validateAdverseReaction(ar)
+deactivate store
+store -> store: 20 addAdverseReaction(ar)
+deactivate store
+
+controller --> nurse: 21 informs oppertion success
+deactivate ui
+
+@enduml

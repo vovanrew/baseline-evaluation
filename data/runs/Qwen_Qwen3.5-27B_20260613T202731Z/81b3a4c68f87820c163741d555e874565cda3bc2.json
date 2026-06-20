@@ -1,0 +1,22 @@
+{
+  "id": "ce54fa9b-2ccd-49ee-a440-ab03094ee28b",
+  "object": "chat.completion",
+  "created": 1781487272,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Authorization token with auth_code\n\nparticipant \"web\" as web\nrectangle K8S_ZONE {\n    participant \"bff_web_api\" as bff\n    participant \"authorization_api\" as auth\n    database \"k8s_redis\" as redis\n}\n\nnote left of web\n    Reuquest header\\nContent-Type: application/json\n    Request body\\n- auth_code: xxxxxx\nend note\n\nweb -> bff : /api/v1/auth/token\nactivate bff\nbff -> bff : validate request\n\nnote left of bff\n    Request header\\nContent-Type: application/x-www-form-urlencoded\n    Request body\\n- auth_code\n    note:\\n- handler late limit (brute force attack)\nend note\n\nbff -> auth : /api/v1/oauth/token\nactivate auth\nauth -> auth : validate request\nauth -> redis : check auth_code from k8s_redis\nactivate redis\n\nnote right of redis\n    Key:\\n- auth_code\n    Redis object\\n- user_id\\n- scope\nend note\n\nredis -->> auth : return redis object\ndeactivate redis\n\nnote left of auth\n    Access token:\\n{\\n  header\\n  - alg: rsa256\\n  - typ: JWT\n  payload\\n  - iss\\n  - jti\\n  - user_id\\n  - iat\\n  - exp\\n  - roles\n  signature\\n}\nend note\n\nauth -> auth : generate JWT Token with private key\n\nnote left of auth\n    ttl: 300000 milliseconds (5 min)\\nKey: user_id:xxxxx\n    Redis object value:\\n- access_token\\n- refrech_token\nend note\n\nauth -> redis : put user session into k8s_redis\nactivate redis\nredis -> redis : save data\nredis -->> auth : \ndeactivate redis\ndeactivate auth\n\nauth -->> bff : return\ndeactivate bff\n\nnote right of bff\n    Response header\\nContent-Type: application/json\n    Response body\\n- accessToken\\n- RefreshToken\nend note\n\nbff -->> web : return\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2252,
+    "completion_tokens": 457,
+    "total_tokens": 2709
+  }
+}

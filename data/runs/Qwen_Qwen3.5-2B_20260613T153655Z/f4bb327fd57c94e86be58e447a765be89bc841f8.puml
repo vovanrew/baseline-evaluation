@@ -1,0 +1,54 @@
+@startuml
+skinparam sequenceDiagram
+
+participant Database
+participant ManageLogDemo
+participant ManageLogReceiveFacade
+participant ManageLogReceiveProvider
+participant ManageLogCommon
+participant AnotherJavaProject
+participant ManageLogUploadFacade
+participant AnotherProject
+participant ManageLogQueryProvider
+participant ManageLogQueryFacade
+
+actor ManageLogDemo
+actor ManageLogReceiveFacade
+actor ManageLogReceiveProvider
+actor ManageLogCommon
+actor AnotherJavaProject
+actor ManageLogUploadFacade
+actor AnotherProject
+actor ManageLogQueryProvider
+actor ManageLogQueryFacade
+
+rectangle rpc 上传日志 {
+    ManageLogDemo as aspect 获取数据
+    aspect 获取数据 -> ManageLogReceiveFacade: rpc/http/kafka，数据为业务数据，configName
+    ManageLogReceiveFacade -> ManageLogCommon: 使用工具类
+    ManageLogCommon -> ManageLogReceiveProvider: 抓取配置
+    ManageLogReceiveProvider <- ManageLogCommon: 落地数据
+}
+
+rectangle 自主使用 facade 上传日志 {
+    ManageLogReceiveFacade 自己组装数据，使用 facade 提供的策略上传
+    ManageLogReceiveFacade -> AnotherJavaProject: rpc/http/kafka，数据为业务数据，configName
+    AnotherJavaProject -> ManageLogCommon: 使用工具类
+    ManageLogCommon -> ManageLogReceiveProvider: 抓取配置
+    ManageLogReceiveProvider <- AnotherJavaProject: 落地数据
+}
+
+rectangle 自主上传日志 {
+    AnotherJavaProject -> ManageLogReceiveProvider: http/kafka，数据为业务数据，configName
+    ManageLogReceiveProvider -> AnotherJavaProject: 使用工具类
+    AnotherJavaProject <- ManageLogReceiveProvider: 抓取配置
+    ManageLogReceiveProvider <- AnotherJavaProject: 落地数据
+}
+
+rectangle 日志查询 {
+    ManageLogQueryFacade 获取数据
+    ManageLogQueryFacade -> ManageLogQueryProvider: rpc 提供
+    ManageLogQueryProvider -> ManageLogQueryFacade: http 提供（默认）
+}
+
+@enduml

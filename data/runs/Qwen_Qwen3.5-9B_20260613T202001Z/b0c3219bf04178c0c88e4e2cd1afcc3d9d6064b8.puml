@@ -1,0 +1,44 @@
+@startuml
+left to right direction
+actor "Crapchat user" as user1
+actor "Another Crapchat user" as user2
+participant "Crapchat REST API" as api
+participant "Crapchat identity provider" as idp
+database "Crapchat storage" as storage
+
+rectangle "Search user" {
+  user1 -> api: HTTP POST request with search query
+  activate api
+  api -> idp: HTTP request with search query
+  activate idp
+  idp --> api: HTTP response with list of users
+  deactivate idp
+  api --> user1: HTTP response with array of users
+  deactivate api
+}
+
+rectangle "Send follow request" {
+  user1 -> user1: Clicks follow button
+  user1 -> api: HTTP request with ID of the user to follow
+  activate api
+  api -> storage: SQL insert query
+  activate storage
+  storage --> api: Success response
+  deactivate storage
+  api -> user2: Notify with follow request
+  api --> user1: HTTP OK response
+  deactivate api
+}
+
+rectangle "Accept follow request" {
+  user2 -> api: HTTP request to accept
+  activate api
+  api -> storage: SQL update query
+  activate storage
+  storage --> api: Success response
+  deactivate storage
+  api --> user2: HTTP OK response
+  deactivate api
+}
+
+@enduml

@@ -1,0 +1,22 @@
+{
+  "id": "e317db58-acf1-4950-b76d-3eaf9e9e1eae",
+  "object": "chat.completion",
+  "created": 1781396994,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"User Agent\" as UA\nparticipant \"Content Upload API\" as API\nparticipant \"Content database\" as DB\nparticipant \"CAFF Parser\" as Parser\n\nUA -> API : Upload request (HTTP POST), contains a single CAFF file in its body.\n\nnote right of API\nMUST also include a CSRF token to prevent users of other, potentially XSS vulnerable sites to take part in a massive distributed spam or DoS operation.\nend note\n\nAPI -> Parser : Validate upload request\nParser -> API : Return result\n\nalt [Failed to validate uploaded content]\n    API -> UA : Return an HTTP status code that signals validation failure.\n    exact value depends on how the validation failed.\n    alt [Request is deemed valid]\n        API -> DB : Store content in database\n        DB -> API : Return result of request\n        alt [Upload succeeded]\n            API -> UA : Return HTTP 201 Created\n            API -> UA : Return HTTP status code signaling the reason for failure.\n        end alt\n    end alt\nend alt\n\nnote right of API\nUploads should be validated by at LEAST:\n* Content-Size header against max file size.\n* All size fields against their respective supported bounds.\n* Structure of all fields match expectations from the spec.\n* Number of bytes from the upload matches number of bytes expected from in-file metadata.\nend note\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1027,
+    "completion_tokens": 300,
+    "total_tokens": 1327
+  }
+}

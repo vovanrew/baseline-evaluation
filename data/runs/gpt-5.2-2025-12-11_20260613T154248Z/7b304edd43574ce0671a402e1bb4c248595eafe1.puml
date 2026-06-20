@@ -1,0 +1,188 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+package "db" as pkg_db {
+  interface "ConnectionDB" as ConnectionDB
+
+  class "LazyHolderDB" as LazyHolderDB {
+    {static} final INSTANCE : ConnectionDBMySQL
+  }
+
+  class "ConnectionDBMySQL" as ConnectionDBMySQL {
+    - connection : Connection
+    + ConnectionDBMySQL()
+    + getInstance() : ConnectionDBMySQL
+    + getDb() : Connection
+    + setDb() : Connection
+  }
+
+  ConnectionDBMySQL ..|> ConnectionDB
+  LazyHolderDB ..> ConnectionDBMySQL : INSTANCE
+}
+
+package "gui" as pkg_gui {
+  package "controller" as pkg_controller {
+
+    class "OfferController" as OfferController {
+      - FAQ : ListView
+      - answerQuestion : ButtonBar
+      - update : ButtonBar
+      - updateQuestion : ButtonBar
+      - newQuestion : ButtonBar
+      - rateArea : ButtonBar
+      - handleNewQuestion(actionEvent : ActionEvent) : void
+      - handleNewAnswer(actionEvent : ActionEvent) : void
+      - handleUpdateQuestion(actionEvent : ActionEvent) : void
+      - handleDeleteQuestion(actionEvent : ActionEvent) : void
+      - handleDeleteAnswer(actionEvent : ActionEvent) : void
+      - handleDeleteScoreQuestion(actionEvent : ActionEvent) : void
+      - handleDeleteScoreAnswer(actionEvent : ActionEvent) : void
+      - handleUpdateScoreAnswer(actionEvent : ActionEvent) : void
+    }
+
+    class "NewQuestionController" as NewQuestionController {
+      - questionArea : JTextArea
+      - postQuestion : JButton
+      - cancel : JButton
+      - handleNewQuestion(actionEvent : ActionEvent) : void
+      - handleLoadAnswer(actionEvent : ActionEvent) : void
+      - cancel(actionEvent : ActionEvent) : void
+    }
+
+    class "NewAnswerController" as NewAnswerController {
+      - answerArea : JTextArea
+      - postAnswer : JButton
+      - cancel : JButton
+      - handleNewAnswer(actionEvent : ActionEvent) : void
+      - cancel(actionEvent : ActionEvent) : void
+    }
+
+    class "LoadView" as LoadView {
+      - loadNameFXML : Parent : Parent
+      + changeScreen(actionEvent : ActionEvent, view : String) : void
+    }
+  }
+}
+
+package "business" as pkg_business {
+
+  class "FAQFacade" as FAQFacade {
+    + getQuestionById(id : int) : Question
+    + getAnswerById(id : int) : Answer
+    + createQuestion(id : int, userid : int, offerid : int, question : String, score : int) : Question
+    + createAnswer(id : int, userid : int, answer : String, score : int) : Answer
+    + getQuestionsByOfferId(offerid : int) : ArrayList<Question>
+    + getAnswersByOfferId(offerid : int) : ArrayList<Answer>
+    + updateQuestionScore(id : int, userid : int, offerid : int, question : String, score : int) : Question
+    + updateAnswerScore(id : int, userid : int, answer : String, score : int) : Answer
+    + deleteQuestion(id : int) : boolean
+    + deleteAnswer(id : int) : boolean
+  }
+
+  class "Question" as Question {
+    - questionId : int
+    - content : String
+    - score : int
+    - answerId : int
+    - userId : int
+    - offerId : int
+    + Question()
+    + getQuestionId() : int
+    + getContent() : String
+    + getScore() : int
+    + getAnswerId() : int
+    + getUserId() : int
+    + getOfferId() : int
+    + setQuestionId(questionId : int) : void
+    + setContent(content : String) : void
+    + setScore(score : int) : void
+    + setAnswerId(answerId : int) : void
+    + setUserId(userId : int) : void
+    + setOfferId(categoryId : int) : void
+  }
+
+  class "Answer" as Answer {
+    - answerId : int
+    - content : String
+    - score : int
+    - userId : int
+    - answer()
+    + getAnswerId() : int
+    + getContent() : String
+    + getScore() : int
+    + getUserId() : int
+    + setAnswerId(answerId : int) : void
+    + setContent(content : String) : void
+    + setScore(score : int) : void
+    + setUserId(userId : int) : void
+  }
+
+  class "SessionFacade" as SessionFacade {
+    + SessionFacade()
+    + getUser() : User
+  }
+
+  FAQFacade --> Question
+  FAQFacade --> Answer
+  FAQFacade --> SessionFacade
+  pkg_controller.OfferController --> FAQFacade
+  pkg_controller.NewQuestionController --> FAQFacade
+  pkg_controller.NewAnswerController --> FAQFacade
+}
+
+package "dao" as pkg_dao {
+
+  interface "DAO" as DAO {
+    + find(id : int) : T
+    + create(obj : T) : T
+    + update(obj : T) : T
+    + delete(obj : T) : boolean
+  }
+
+  abstract class "AnswerDao" as AnswerDao {
+    - OfferDao()
+    + getInstance() : QuestionDao
+    + getAnswersByOfferId(offerid : int) : ArrayList<Answer>
+    + answerExists(id : int) : boolean
+  }
+
+  abstract class "QuestionDao" as QuestionDao {
+    - getInstance() : QuestionDao
+    + LazyHolder()
+    + getQuestionsByOfferId(offerid : int) : ArrayList<Question>
+    + questionExists(id : int) : boolean
+    + hasAnAnswer(id : int) : boolean
+  }
+
+  abstract class "AbstractFactoryDao" as AbstractFactoryDao {
+    {static} final connectionDb : ConnectionDB
+    {static} + getFactory(typeDB : TypeDB) : AbstractFactoryDao
+    + getAnswerDao() : AnswerDao
+    + getQuestionDao() : QuestionDao
+  }
+
+  class "AnswerDaoMySQL" as AnswerDaoMySQL
+  class "QuestionDaoMySQL" as QuestionDaoMySQL
+  class "FactoryDaoMySQL" as FactoryDaoMySQL
+
+  AnswerDao ..|> DAO
+  QuestionDao ..|> DAO
+
+  AnswerDaoMySQL --|> AnswerDao
+  QuestionDaoMySQL --|> QuestionDao
+
+  FactoryDaoMySQL --|> AbstractFactoryDao
+
+  AbstractFactoryDao --> ConnectionDB
+  AnswerDao --> AbstractFactoryDao
+  QuestionDao --> AbstractFactoryDao
+
+  pkg_business.FAQFacade --> AnswerDao
+  pkg_business.FAQFacade --> QuestionDao
+}
+
+@enduml
+```

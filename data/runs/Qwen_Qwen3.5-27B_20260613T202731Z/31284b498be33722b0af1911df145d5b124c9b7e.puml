@@ -1,0 +1,194 @@
+```plantuml
+@startuml
+title Gestion de la cinématique de connexion et de navigation entre les applications
+
+actor "User" as User
+participant "Portal" as Portal
+participant "IAM Cognito" as IAM_Cognito
+participant "SSO" as SSO
+participant "Manager Backend" as Manager_Backend
+participant "Reality Backend" as Reality_Backend
+participant "Reality Frontend" as Reality_Frontend
+
+rectangle "Inscrire" {
+    User -> Portal: S'inscrire sur la plateforme
+    activate Portal
+    
+    rectangle "Création de l'utilisateur" {
+        Portal -> SSO: Remplir le formulaire
+        activate SSO
+        
+        note left of SSO
+            email
+            nom, prénom
+        end note
+        
+        SSO -> SSO: Créer l'utilisateur
+        SSO -> Manager_Backend: Enregistre l'utilisateur dans la base de données
+        activate Manager_Backend
+        Manager_Backend --> SSO
+        deactivate Manager_Backend
+        
+        SSO -> Reality_Backend: Enregistre l'utilisateur Cognito avec un mot de passe temporaire
+        activate Reality_Backend
+        Reality_Backend --> SSO
+        deactivate Reality_Backend
+        
+        alt [success]
+            SSO --> Portal: Retour de l'id de l'utilisateur
+            note right of Portal
+                Suggestion
+                Email de confirmation ?
+                Changer le mot de passe lors de sa première connexion
+            end note
+        else [failure]
+            SSO --> Portal: Retour de l'erreur
+            note right of Portal
+                - utilisateur existe déjà
+                - formulaire non valide
+            end note
+        end
+    }
+    
+    deactivate SSO
+    deactivate Portal
+}
+
+rectangle "Login cognito" {
+    User -> Portal: Se connecte
+    activate Portal
+    Portal --> SSO: est redirigé vers le SSO
+    activate SSO
+    SSO --> Portal: Redirection
+    Portal --> IAM_Cognito: est redirigé via Passport
+    activate IAM_Cognito
+    IAM_Cognito --> Portal: Redirection
+    Portal --> Portal: Page d'authentification
+    User -> Portal: Saisi ses identifiants
+    
+    alt [success]
+        Portal -> IAM_Cognito: Utilisateur authentifié avec le token Cognito
+        activate IAM_Cognito
+        IAM_Cognito --> SSO: Demande de décoder
+        SSO -> SSO: Decode le token Cognito (Passport.js) pour récupérer l'email et l'identifiant
+        SSO -> Manager_Backend: Vérification de l'utilisateur grace à son email et son/les identifiant(s) identité(s)
+        activate Manager_Backend
+        Manager_Backend --> SSO
+        
+        alt [success]
+            SSO --> SSO: Utilisateur est autorisé
+            SSO -> SSO: Création du token plateforme
+            note right of SSO
+                email
+                firstname
+                lastname
+                application ?
+            end note
+            SSO -> SSO: Utiliser un token SSO au lieu du JWT
+            SSO -> SSO: Stocke le token plateforme en session du navigateur
+            SSO -> Manager_Backend: Stocke le token plateforme en BDD (PC)
+            activate Manager_Backend
+            Manager_Backend --> SSO
+            deactivate Manager_Backend
+            
+            SSO --> Portal: Redirige vers l'application et transmet le token plateforme au frontend
+            deactivate SSO
+            Portal -> Portal: Stocke le token sur sa session
+            Portal --> Portal: Accède à l'application avec son token plateforme
+            note right of Portal
+                Question:
+                Doit-on aussi envoyer le token Cognito ?
+            end note
+            
+            Portal -> Manager_Backend: Appel Manager pour récupérer les droits hauts pour l'utilisateur
+            activate Manager_Backend
+            
+            alt [success]
+                Manager_Backend --> Portal: Renvoie les droits hauts (applications disponibles)
+                Manager_Backend --> Portal: Renvoie la page à l'utilisateur
+                deactivate Manager_Backend
+            else [failure]
+                note right of Portal
+                    Question:
+                    Peut-on avoir un utilisateur sans droits hauts ?
+                end note
+                Manager_Backend --> Portal: Retour vers la page de login du SSO
+                deactivate Manager_Backend
+            end
+            
+            note right of Portal
+                Rien n'est encore affiché
+                Question:
+                Gestion des droits haut niveau de manière automatique ?
+            end note
+            
+            Portal -> Portal: Met à disposition les applications auxquelles l'utilisateur à accès
+            Portal --> Portal: L'utilisateur peut naviguer entre les applications
+            
+            alt [failure]
+                Manager_Backend --> Portal: Utilisateur non autorisé
+                Portal --> Portal: Redirige vers la page d'accueil du portail avec un message (non autorisé, pas de droits suffisant)
+                note right of Portal
+                    Question:
+                    Doit-on créer son compte sur la plateforme ?
+                end note
+            end
+            
+            alt [failure]
+                IAM_Cognito --> Portal: Utilisateur non authentifié
+                Portal --> Portal: Erreur de connexion sur la page Cognito
+            end
+        end
+    end
+    
+    deactivate IAM_Cognito
+    deactivate Portal
+}
+
+rectangle "Naviguer entre les applications" {
+    User -> Portal: Aller vers l'application
+    activate Portal
+    Portal --> SSO: Redirection vers le SSO
+    activate SSO
+    SSO -> SSO: Check du token en session (navigateur)
+    
+    alt [success]
+        SSO --> Reality_Frontend: Redirection avec le token en query (pour le récupérer avec l'URL)
+        activate Reality_Frontend
+        Reality_Frontend --> SSO: Redirection route d'authentification
+        SSO --> Reality_Frontend: Redirection sur le callback de login avec le token en query
+        Reality_Frontend -> Reality_Frontend: Stocke le token plateforme en local storage
+        Reality_Frontend -> Manager_Backend: Demande de récupération des droits fins de l'utilisateur (appel simple)
+        activate Manager_Backend
+        Manager_Backend -> Manager_Backend: Récupération des droits fins dans sa propre BDD
+        Manager_Backend --> Reality_Frontend: Retour des droits utilisateur
+        Reality_Frontend -> Reality_Frontend: Stockage des droits utilisateur en session
+        Reality_Frontend --> Reality_Frontend: Redirection vers la page principale de l'application
+        deactivate Manager_Backend
+        deactivate Reality_Frontend
+    else [failure]
+        note right of SSO
+            Question:
+            La durée du token Cognito de l'utilisateur ?
+            30 min pour le token
+            Comment faire la gestion du refresh du token ?
+            - Tous les x temps ?
+            Pas connecté (token expiré ?) ou pas autorisé
+        end note
+        SSO --> Reality_Frontend: Eject de la connexion
+        Reality_Frontend --> Portal: Redirection vers la page de connexion du portail
+    end
+    
+    deactivate SSO
+    deactivate Portal
+}
+
+note top of SSO
+    Question:
+    Validation de l'utilisateur dans la plateforme Cognito créé par l'administrateur ?
+    Réponse:
+    Désactivé dans Cognito, la validation de l'utilisateur par l'administrateur
+end note
+
+@enduml
+```

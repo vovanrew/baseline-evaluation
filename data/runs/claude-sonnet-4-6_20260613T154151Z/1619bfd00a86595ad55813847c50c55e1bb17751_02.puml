@@ -1,0 +1,42 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class thread_base <<C>> {
+}
+
+class socket_thread <<C>> {
+}
+
+class transport_socket_thread <<C>> {
+  -bus : LocalBusInterface
+  -poller : Poller
+  --
+  +transport_socket_thread()
+  +~transport_socket_thread()
+  +init() override
+  +work() override
+  ~add_socket() override
+  ~remove_socket() override
+  ~read_ready() override
+  ~configure_ieee1905_transport_interfaces()
+  ~broker_subscribe()
+  ~broker_connect()
+  ~send_cmdu_to_broker()
+  -broker_init()
+  -broker_send()
+  -handle_cmdu_message_broker()
+}
+
+class LocalBusInterface <<C>> {
+}
+
+class Poller <<C>> {
+}
+
+thread_base <|-- socket_thread
+socket_thread <|-- transport_socket_thread
+
+transport_socket_thread *-- LocalBusInterface
+transport_socket_thread *-- Poller
+
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+
+actor "Programador" as Programador
+
+box "LEA"
+participant "front: Ceed" as front
+participant "agent: Ceed" as agent
+end box
+
+front -> front : see(addBrain, brain)
+front -> front : see('listen', port)
+
+Programador -> front : ws://lea
+front -> front : see('onSocketConnection', socket)
+front --> Programador : socket.emit(agents)
+Programador -> front : see(agent, action, args)
+front -> agent : see(action, args)
+agent --> front
+front --> Programador : resolve()
+Programador -> front : http://lea/:agent/:action
+front -> front : see('http', [req, res])
+front -> agent : see(action, [req, res])
+agent --> front
+front --> Programador : res.send()
+
+@enduml

@@ -1,0 +1,96 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+package "Client" {
+    interface IInfoPraiaData as IInfoPraiaData {
+        [key: String]: number
+    }
+
+    interface IInfoPonto as IInfoPonto {
+        alturaOnda: IinfoPraiaData
+        direçãoOnda: IinfoPraiaData
+        alturaOndulação: IinfoPraiaData
+        direçãoOndulação: IinfoPraiaData
+        períodoOndulação: IinfoPraiaData
+        velocidadeVento: IinfoPraiaData
+        direçãoVento: IinfoPraiaData
+    }
+
+    class ApiInfoPraia as ApiInfoPraia {
+        + parameters: []
+        + request: Class Request
+        + buscarPonto(lat, lng)<IPrevisãoPonto>
+    }
+
+    interface IPrevisãoPonto as IPrevisãoPonto {
+        alturaOnda: Number
+        direçãoOnda: Number
+        alturaOndulação: Number
+        direçãoOndulação: Number
+        períodoOndulação: Number
+        velocididadeVento: Number
+        direçãoVento: Number
+    }
+
+    package "Util" {
+        class Request as Request {
+            + request: {}
+            + get(url)
+        }
+    }
+}
+
+package "Models" {
+    interface IPraia as IPraia {
+        + id: Integer
+        + name: String
+        + position[1]: Position
+        + lat: Integer
+        + lng: Integer
+        + user: String
+    }
+
+    class PraiaModel as PraiaModel {
+    }
+
+    class Praia as Praia {
+    }
+
+    interface IUser as IUser {
+        + id: String
+        + name: String
+        + email: String
+        + password: String
+    }
+
+    class ModelUser as ModelUser {
+    }
+
+    class Position as Position {
+        N
+        S
+        L
+        O
+    }
+}
+
+package "Controllers" as Controllers {
+}
+
+package "Middlewares" as Middlewares {
+}
+
+package "Services" as Services {
+}
+
+IInfoPonto ..> ApiInfoPraia : parameters: [alturaOnda, direçãoOnda, alturaOndulação,\n direçãoOndulação, períodoOndulação,\n velocidadeVento, direçãoVento]
+ApiInfoPraia --> Request
+Request ..> IPrevisãoPonto
+PraiaModel ..|> IPraia
+Praia ..|> PraiaModel
+ModelUser ..|> IUser
+Position -- IPraia
+
+@enduml
+```

@@ -1,0 +1,21 @@
+{
+  "id": "msg_017vUJhg8ybQZPjhJ2LU1N9o",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor Service\n\nbox \"Access token guard\"\nparticipant \"Access token guard\" as ATG\nend box\n\nbox \"Auth microservice\" #YellowGreen\nparticipant \"Session module\" as SM\nparticipant \"Auth module\" as AM\nend box\n\nService -> ATG : request\nATG -> ATG : get headers\nATG -> ATG : check authentication header existence\n\nalt [Authentication header is undefined]\n    ATG -->> Service : 401\nend\n\nATG <- SM : get access token from header\nATG -> AM : validate access token\nATG <- AM : result of validation\n\nalt [Access token is Invalid]\n    ATG -->> Service : 401\nend\n\nATG -> AM : get embedded client id from access token\nAM -> AM : extract id\n\nalt [Client id is missing]\n    ATG <- AM : error\n    ATG -->> Service : 401\nend\n\nATG <- AM : client id\nATG -> ATG : modify request with client id\nATG -->> Service : modified request\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781430343,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 247,
+    "prompt_tokens": 1636,
+    "total_tokens": 1883
+  }
+}

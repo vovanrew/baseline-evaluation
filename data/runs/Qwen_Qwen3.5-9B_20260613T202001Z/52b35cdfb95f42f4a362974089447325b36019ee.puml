@@ -1,0 +1,87 @@
+@startuml
+left to right direction
+actor "Program" as Program
+participant "V4L2" as V4L2
+participant "Bridge CX3" as Bridge
+participant "Camera OV5640" as Camera
+
+rectangle "Initialization" {
+  Program -> V4L2 : 1 OpenDevice(/dev/video0)
+  V4L2 -> Bridge : 2
+  Bridge -> Camera : 3
+  Camera --> Bridge : 4
+  Bridge --> V4L2 : 5
+  V4L2 --> Program : 6
+  Program -> Bridge : 7 InitDevice()
+  Bridge -> Camera : 8
+  Camera --> Bridge : 9
+  Bridge --> V4L2 : 10
+  V4L2 --> Program : 11
+  Program --> V4L2 : 12
+}
+
+rectangle "Test" {
+  Program -> Bridge : 13 SetParameter(valueA)
+  Bridge -> Bridge : 14 valueA
+  Bridge -> Camera : 15 valueA
+  Camera --> Bridge : 16
+  Bridge --> Program : 17
+  Program --> Bridge : 18
+  Program -> Bridge : 19 GetParameter()
+  Bridge -> Bridge : 20
+  Bridge -> Camera : 21
+  Camera --> Bridge : 22 value
+  Bridge --> Program : 23 value
+  note right of Program : value must be equal to ValueA
+  Program --> Bridge : 24 value
+  Program -> Bridge : 25 StartStream()
+  Bridge -> Bridge : 26
+  Bridge -> Camera : 27
+  Camera --> Bridge : 28
+  Bridge --> Program : 29
+  Program --> Bridge : 30
+  Program -> Bridge : 31 GetParameter()
+  Bridge -> Bridge : 32
+  Bridge -> Camera : 33
+  Camera --> Bridge : 34 value
+  Bridge --> Program : 35 value
+  note right of Program : value must be equal to ValueA
+  Program --> Bridge : 36 value
+  Program -> Bridge : 37 SetParameter(valueB)
+  Bridge -> Bridge : 38 valueB
+  Bridge -> Camera : 39 valueB
+  Camera --> Bridge : 40
+  Bridge --> Program : 41
+  Program --> Bridge : 42
+  Program -> Bridge : 43 GetParameter()
+  Bridge -> Bridge : 44
+  Bridge -> Camera : 45
+  Camera --> Bridge : 46 value
+  Bridge --> Program : 47 value
+  note right of Program : value must be equal to ValueB
+  Program --> Bridge : 48 value
+  Program -> Bridge : 49 StopStream()
+  Bridge -> Bridge : 50
+  Bridge -> Camera : 51
+  Camera --> Bridge : 52
+  Bridge --> Program : 53
+  Program --> Bridge : 54
+  Program -> Bridge : 55 GetParameter()
+  Bridge -> Bridge : 56
+  Bridge -> Camera : 57
+  Camera --> Bridge : 58 value
+  Bridge --> Program : 59 value
+  note right of Program : value must be equal to ValueB
+  Program --> Bridge : 60 value
+}
+
+rectangle "Destruction" {
+  Program -> V4L2 : 61 CloseDevice()
+  V4L2 -> Bridge : 62
+  Bridge -> Camera : 63
+  Camera --> Bridge : 64
+  Bridge --> V4L2 : 65
+  V4L2 --> Program : 66
+}
+
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 80
+  MessageAlign left
+  LifeLineBorderColor #888888
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6F2
+  ParticipantFontSize 22
+  ParticipantFontStyle plain
+  NoteBackgroundColor #FFF9CC
+  NoteBorderColor #666666
+  NoteFontSize 18
+}
+
+participant Client
+participant TEAPServer
+
+TEAPServer -> Client : EAP-Request/\nIdentity
+Client -> TEAPServer : EAP-Response/\nType=Identity
+TEAPServer -> Client : EAP-Request/\nType=TEAP,\nTEAP Start,\nAuthority-ID TLV
+Client -> TEAPServer : EAP-Response/\nType=TEAP,\nTLS(ClientHello)
+
+note left of Client
+(1)
+(2)
+end note
+
+TEAPServer -> Client : EAP-Request/\nType=TEAP,\nTLS(ServerHello,\nServerKeyExchange,\nServerHelloDone)
+
+note left of Client
+(3)
+end note
+
+Client -> TEAPServer : EAP-Response/\nType=TEAP,\nTLS(ClientKeyExchange,\nCertificateVerify,\nChangeCipherSpec,\nFinished)
+
+TEAPServer -> Client : EAP-Request/\nType=TEAP,\nTLS(ChangeCipherSpec,\nFinished),\n{Crypto-Binding TLV,\nResult TLV=Success}
+Client -> TEAPServer : EAP-Response/\nType=TEAP,\n{Crypto-Binding TLV,\nResult TLV=Success}
+TEAPServer -> Client : EAP-Success
+
+@enduml

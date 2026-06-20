@@ -1,0 +1,27 @@
+@startuml
+actor ":图书管理员" as librarian
+
+participant ":读者" as reader
+participant ":图书目录" as catalog
+participant ":图书信息" as bookinfo
+participant ":借书记录" as borrowrecord
+
+librarian -> reader : 验证读者信息
+librarian -> reader : 获取读者借书数量
+
+opt **[超出借书数量]**
+  librarian <-- reader : 借书失败
+end
+
+librarian -> catalog : 获取图书目录
+catalog -> bookinfo : 查询图书信息
+librarian <-- bookinfo : 返回信息
+
+librarian -> borrowrecord : 存储借书记录
+
+librarian -> catalog : 借出图书
+catalog -> bookinfo : 减少图书数量
+
+librarian -> reader : 减少读者可借数量
+
+@enduml

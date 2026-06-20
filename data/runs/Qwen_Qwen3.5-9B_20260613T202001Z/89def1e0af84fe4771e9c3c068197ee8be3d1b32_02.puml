@@ -1,0 +1,50 @@
+@startuml
+title Scheduled Events
+
+actor "Recording Staff" as rs
+actor "Coach" as coach
+package "IP/Mobile Cams" as cams
+package "Consumer Apps" as apps
+package "Security Gateway" as sg
+package "Streaming Service (encoder)" as ss
+package "Transfer Service" as ts
+package "Control Domain (win10/linux)" as cd
+package "Media (mediaID)" as media
+
+cd -> ss : host(sources{endpoints})
+cd -> ss : host(mediaID, consumers{token, priority})
+
+apps -> sg : authenticate(ID)
+sg --> apps : return(token)
+
+cams -> cd : register(endpoint)
+apps -> cd : register(token, priority)
+
+cd -> cd : create(newEvent)
+cd -> ss : encode()
+cd -> media : saveAs(mediaID)
+media --> cd : save(mediaID)
+
+cd -> apps : notify(recording)
+cd -> apps : notify(newMediaAvailable, mediaID, transferServiceEndpoint)
+
+cd -> apps : fetchMedia(token, mediaID)
+apps --> cd : returnByPriority(mediaStream)
+
+cd -> apps : showMedia(token)
+apps --> cd : fetchMedia(token, mediaID)
+cd --> apps : returnByPriority(mediaStream)
+
+cd -> rs : start(newEvent)
+cd -> rs : stop(newEvent)
+
+alt [auto-download enabled]
+  cd -> apps : fetchMedia(token, mediaID)
+  apps --> cd : returnByPriority(mediaStream)
+else [manual-download enabled]
+  apps -> cd : showMedia(token)
+  cd -> apps : fetchMedia(token, mediaID)
+  cd --> apps : returnByPriority(mediaStream)
+end
+
+@enduml

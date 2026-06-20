@@ -1,0 +1,21 @@
+{
+  "id": "msg_013zSDgLw4puh6HZT1aN5PT2",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nparticipant \"Line of Business\" as LOB\nparticipant \"ESB\" as ESB\nbox \"Compliance IT\" #lightgreen\nparticipant \"Scoring\" as Scoring\nparticipant \"Recertification\" as Recert\nend box\n\ngroup Customer On-Boarding: Open a New Account\nLOB -> ESB : UpdatePartyKYC\\nincludeScore=true\nend\n\ngroup alt [Recertification completed]\nLOB -> ESB : UpdatePartyKYC\\nincludeScore=true\\nrecertificationStatus=completed\\nactor=<userid>\\nreason=<one of client-initiated trigger codes>\nend\n\nESB -> Scoring : 1 score\n\nnote left of Scoring\nSchedule a new recertification and calculate its due date\nOR retrieve due date of an existing recertification if\none has been previously scheduled and not yet\ncompleted or cancelled\nend note\n\nScoring -> Recert : 2 recertify\n\nRecert -> Recert : 3 evaluate rules\n\ngroup Recertification\ngroup alt [Recertification is Needed]\n\ngroup Establish a Recertification\nRecert -> Recert : 4 schedule a new recertification\n\ngroup alt [Existing Recertification]\nRecert -> Recert : 5 retrieve a previously\\nscheduled recertification\\nthat hasn't been completed or cancelled\nend\n\ngroup alt [Complete a Recertification]\nRecert -> Recert : 6 complete an established recertification\nnote right of Recert\nImmediately complete the\nrecertification if the LOB\ntold us it was already done\nend note\nend\n\nend\n\nRecert --> Scoring : 7 recertification details\n\nnote left of Scoring\nDue date, status, recert id\nend note\n\nScoring --> LOB : 8 score + recertification\n\nend\n\ngroup alt [Recertification is Not Needed]\nRecert --> Scoring : 9 no recertification\nScoring --> LOB : 10 score\nend\n\nend\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781372366,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 492,
+    "prompt_tokens": 1660,
+    "total_tokens": 2152
+  }
+}

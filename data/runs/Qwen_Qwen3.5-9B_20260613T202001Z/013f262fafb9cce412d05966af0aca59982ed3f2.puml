@@ -1,0 +1,274 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor White
+  BorderColor Black
+  ArrowColor Black
+  FontColor Black
+  FontName Arial
+  FontSize 12
+}
+
+class "TGestionnaireDels" as TGestionnaireDels {
+  - FDerniereDel : *TDel
+  - FClignotement : bool
+  + TGestionnaireDels() = delete
+  + begin(clignoter : uint32_t, TimerInterrupt &timer)
+}
+
+class "TimerInterrupt" as TimerInterrupt {
+  + init()
+  + attachInterrupt(interval : unsigned long, isr : void() *void)
+  <<See: https://github.com/khoih-prog/TimerInterrupt>>
+}
+
+class "TDel" as TDel {
+  - FBroche : const int
+  - FEtat : TEtatDel
+  - FNBReferences : uint8_t
+  - FDelPrecedente : *TDel*
+  - FDelSuivante : *TDel*
+  + TDel(broche : int)
+  + TDel(del : *TDel*) = delete
+  + ~TDel()
+  + Etat(etat : TEtatDel : int)
+  + Etat() : TEtatDel
+  + MajEtat()
+}
+
+class "TReDel" as TReDel {
+  - TRefDel : TTypeDel*
+  + TRefDel(broche : int)
+  + TRefDel(TRefDel : *TTypeDel*) = delete
+  + ~TRefDel()
+}
+
+class "TDeClignotteTemp" as TDeClignotteTemp {
+  - FNBClignotements : uint8_t
+  - FClignotementsRestants : uint16_t
+  - NB_CLIGNOTTEMENTS_DEFAULT : const uint8_t = 5
+  + TDeClignotteTemp(broche : int)
+  + FaireClignotter()
+  + Clignote() : bool
+  + MajEtat()
+}
+
+class "TEtatDel" as TEtatDel {
+  + edAllume
+  + edEteins
+  + edClignotte
+  + edInactive
+}
+
+class "TGroupeCapteursObstruction" as TGroupeCapteursObstruction {
+  - TGroupeCapteursObstruction(broches : const int*, nbCapteurs : int, niveauObstruction : uint8_t, delaSansObstructions : uint32_t)
+  - FCapteurs : *TCapteurObstruction*
+  - FNBCapteurs : const size_t
+  + begin()
+  + Lire()
+  + ObstrueImmEDIATEMENT() : bool
+  + Obstrue() : bool
+  + edPremier
+  + edDernier
+  + ChangerBroche(broche : int)
+  + ChangerNiveauObstruction(niveauObstruction : uint8_t)
+  + ChangerDelaSansObstructions(delaSansObstructions : uint32_t)
+  + Obstrue() : bool
+  + ObstrueImmEDIATEMENT() : bool
+  + DelaSansObstruction() : uint32_t
+  + DelaSansObstructions() : size_t
+}
+
+class "TCapteurObstruction" as TCapteurObstruction {
+  - FBroche : int
+  - FDebutNonObstrue : uint32_t
+  - FDelaSansObstructions : uint32_t
+  - OBSTRUE : const bool = true
+  - NON_OBSTRUE : const bool = false
+  + TCapteurObstruction(broche : int, niveauObstruction : uint8_t, delaSansObstructions : uint32_t)
+  + ChangerBroche(broche : int)
+  + ChangerNiveauObstruction(niveauObstruction : uint8_t)
+  + ChangerDelaSansObstructions(delaSansObstructions : uint32_t)
+  + Lire()
+  + Obstrue() : bool
+  + ObstrueImmEDIATEMENT() : bool
+  + DelaSansObstruction() : uint32_t
+  + DelaSansObstructions() : size_t
+}
+
+class "TGlissiere" as TGlissiere {
+  - FDirectionOuvrir : int
+  - FDirectionFermer : int
+  - FCapteurOuvrir : int
+  - FCapteurFermer : int
+  - FCommande : bool
+  - FNBDebutPlacement : time_t
+  - GLISSIERE_OUVRIR : const bool = true
+  - GLISSIERE_FERMER : const bool = false
+  + begin()
+  + TGlissiere(directionOuvrir : int, directionFermer : int, capteurOuvrir : int, capteurFermer : int)
+  + TempsDeplacement() : uint32_t
+  + EstEnDeplacement() : bool
+  + Etat() : TEtatGlissiere
+  + Commander(commande : bool)
+}
+
+class "TEtatGlissiere" as TEtatGlissiere {
+  - egOuverte
+  - egOuverture
+  - egFerme
+  - egFermeture
+  + Représente l'état de la glissière
+}
+
+class "TVerrou" as TVerrou {
+  - FBroche : int
+  - FEtat : bool
+  - FDirectionFermer : int
+  - FDebutDeverrouillage : uint32_t
+  - DELaDeverrouillage
+  - VERROUILLE : const bool = true
+  - DEVERROUILLE : const bool = false
+  + TVerrou(broche : int, delaDeverrouillage : uint32_t)
+  + begin()
+  + loop()
+  + Etat() : bool
+  + EtatEtat() : bool
+  + Deverrouiller()
+}
+
+class "TGestionnaireDistribution" as TGestionnaireDistribution {
+  - FMedicamentsRestant : uint16_t
+  - FMedicamentsADistribuer : uint8_t
+  - FGlissiere : TGlissiere
+  - FVerrou : TVerrou
+  - FNiveauReservoir : *TGroupeCapteursObstruction*
+  - FGlissiereObstruee : *TCapteurObstruction*
+  + begin()
+  + MedicamentsRestant() : uint16_t
+  + MedicamentsADistribuer(medicaments : uint16_t)
+  + DistribuerMedicaments(medicaments : uint16_t)
+  + MedicamentsADistribuer(medicaments : uint16_t)
+}
+
+class "TCCommunication" as TCCommunication {
+  - FAdresse2C : uint16_t
+  - FClEncryption : uint8_t *TAILLE_CLE_ENCRYPTION
+  - TCommunication()
+  + begin()
+  + NotifieNiveauMedicamentC(niveau : int)
+  + CommunicationEncrypted() : bool
+}
+
+class "EEPROM" as EEPROM {
+}
+
+class "Wire" as Wire {
+}
+
+TGestionnaireDels --> TDel : "Gère l'état d'une liste de DEL en utilisant un Timer pour les faire clignoter"
+TGestionnaireDels --> TDeClignotteTemp : "DEL gérée par TGestionnaireDels"
+TGestionnaireDels --> TReDel : "TReDel : TTypeDel*"
+TGestionnaireDels --> TimerInterrupt : "init()"
+TGestionnaireDels --> TDel : "begin(clignoter : uint32_t, TimerInterrupt &timer)"
+TDel --> TDel : "TDel(broche : int)"
+TDel --> TDel : "TDel(del : *TDel*) = delete"
+TDel --> TDel : "~TDel()"
+TDel --> TDel : "Etat(etat : TEtatDel : int)"
+TDel --> TDel : "Etat() : TEtatDel"
+TDel --> TDel : "MajEtat()"
+TReDel --> TDel : "TRefDel(broche : int)"
+TReDel --> TDel : "TRefDel(TRefDel : *TTypeDel*) = delete"
+TReDel --> TDel : "~TRefDel()"
+TDeClignotteTemp --> TDel : "TDeClignotteTemp(broche : int)"
+TDeClignotteTemp --> TDel : "FaireClignotter()"
+TDeClignotteTemp --> TDel : "Clignote() : bool"
+TDeClignotteTemp --> TDel : "MajEtat()"
+TEtatDel --> TDel : "edAllume"
+TEtatDel --> TDel : "edEteins"
+TEtatDel --> TDel : "edClignotte"
+TEtatDel --> TDel : "edInactive"
+TGroupeCapteursObstruction --> TCapteurObstruction : "TGroupeCapteursObstruction(broches : const int*, nbCapteurs : int, niveauObstruction : uint8_t, delaSansObstructions : uint32_t)"
+TGroupeCapteursObstruction --> TCapteurObstruction : "FCapteurs : *TCapteurObstruction*"
+TGroupeCapteursObstruction --> TCapteurObstruction : "FNBCapteurs : const size_t"
+TGroupeCapteursObstruction --> TCapteurObstruction : "begin()"
+TGroupeCapteursObstruction --> TCapteurObstruction : "Lire()"
+TGroupeCapteursObstruction --> TCapteurObstruction : "ObstrueImmEDIATEMENT() : bool"
+TGroupeCapteursObstruction --> TCapteurObstruction : "Obstrue() : bool"
+TGroupeCapteursObstruction --> TCapteurObstruction : "edPremier"
+TGroupeCapteursObstruction --> TCapteurObstruction : "edDernier"
+TGroupeCapteursObstruction --> TCapteurObstruction : "ChangerBroche(broche : int)"
+TGroupeCapteursObstruction --> TCapteurObstruction : "ChangerNiveauObstruction(niveauObstruction : uint8_t)"
+TGroupeCapteursObstruction --> TCapteurObstruction : "ChangerDelaSansObstructions(delaSansObstructions : uint32_t)"
+TGroupeCapteursObstruction --> TCapteurObstruction : "Obstrue() : bool"
+TGroupeCapteursObstruction --> TCapteurObstruction : "ObstrueImmEDIATEMENT() : bool"
+TGroupeCapteursObstruction --> TCapteurObstruction : "DelaSansObstruction() : uint32_t"
+TGroupeCapteursObstruction --> TCapteurObstruction : "DelaSansObstructions() : size_t"
+TCapteurObstruction --> TCapteurObstruction : "FBroche : int"
+TCapteurObstruction --> TCapteurObstruction : "FDebutNonObstrue : uint32_t"
+TCapteurObstruction --> TCapteurObstruction : "FDelaSansObstructions : uint32_t"
+TCapteurObstruction --> TCapteurObstruction : "OBSTRUE : const bool = true"
+TCapteurObstruction --> TCapteurObstruction : "NON_OBSTRUE : const bool = false"
+TCapteurObstruction --> TCapteurObstruction : "TCapteurObstruction(broche : int, niveauObstruction : uint8_t, delaSansObstructions : uint32_t)"
+TCapteurObstruction --> TCapteurObstruction : "ChangerBroche(broche : int)"
+TCapteurObstruction --> TCapteurObstruction : "ChangerNiveauObstruction(niveauObstruction : uint8_t)"
+TCapteurObstruction --> TCapteurObstruction : "ChangerDelaSansObstructions(delaSansObstructions : uint32_t)"
+TCapteurObstruction --> TCapteurObstruction : "Lire()"
+TCapteurObstruction --> TCapteurObstruction : "Obstrue() : bool"
+TCapteurObstruction --> TCapteurObstruction : "ObstrueImmEDIATEMENT() : bool"
+TCapteurObstruction --> TCapteurObstruction : "DelaSansObstruction() : uint32_t"
+TCapteurObstruction --> TCapteurObstruction : "DelaSansObstructions() : size_t"
+TGlissiere --> TGlissiere : "FDirectionOuvrir : int"
+TGlissiere --> TGlissiere : "FDirectionFermer : int"
+TGlissiere --> TGlissiere : "FCapteurOuvrir : int"
+TGlissiere --> TGlissiere : "FCapteurFermer : int"
+TGlissiere --> TGlissiere : "FCommande : bool"
+TGlissiere --> TGlissiere : "FNBDebutPlacement : time_t"
+TGlissiere --> TGlissiere : "GLISSIERE_OUVRIR : const bool = true"
+TGlissiere --> TGlissiere : "GLISSIERE_FERMER : const bool = false"
+TGlissiere --> TGlissiere : "begin()"
+TGlissiere --> TGlissiere : "TGlissiere(directionOuvrir : int, directionFermer : int, capteurOuvrir : int, capteurFermer : int)"
+TGlissiere --> TGlissiere : "TempsDeplacement() : uint32_t"
+TGlissiere --> TGlissiere : "EstEnDeplacement() : bool"
+TGlissiere --> TGlissiere : "Etat() : TEtatGlissiere"
+TGlissiere --> TGlissiere : "Commander(commande : bool)"
+TEtatGlissiere --> TGlissiere : "egOuverte"
+TEtatGlissiere --> TGlissiere : "egOuverture"
+TEtatGlissiere --> TGlissiere : "egFerme"
+TEtatGlissiere --> TGlissiere : "egFermeture"
+TEtatGlissiere --> TGlissiere : "Représente l'état de la glissière"
+TVerrou --> TVerrou : "FBroche : int"
+TVerrou --> TVerrou : "FEtat : bool"
+TVerrou --> TVerrou : "FDirectionFermer : int"
+TVerrou --> TVerrou : "FDebutDeverrouillage : uint32_t"
+TVerrou --> TVerrou : "DELaDeverrouillage"
+TVerrou --> TVerrou : "VERROUILLE : const bool = true"
+TVerrou --> TVerrou : "DEVERROUILLE : const bool = false"
+TVerrou --> TVerrou : "TVerrou(broche : int, delaDeverrouillage : uint32_t)"
+TVerrou --> TVerrou : "begin()"
+TVerrou --> TVerrou : "loop()"
+TVerrou --> TVerrou : "Etat() : bool"
+TVerrou --> TVerrou : "EtatEtat() : bool"
+TVerrou --> TVerrou : "Deverrouiller()"
+TGestionnaireDistribution --> TGlissiere : "FGlissiere : TGlissiere"
+TGestionnaireDistribution --> TVerrou : "FVerrou : TVerrou"
+TGestionnaireDistribution --> TGroupeCapteursObstruction : "FNiveauReservoir : *TGroupeCapteursObstruction*"
+TGestionnaireDistribution --> TCapteurObstruction : "FGlissiereObstruee : *TCapteurObstruction*"
+TGestionnaireDistribution --> TGestionnaireDistribution : "begin()"
+TGestionnaireDistribution --> TGestionnaireDistribution : "MedicamentsRestant() : uint16_t"
+TGestionnaireDistribution --> TGestionnaireDistribution : "MedicamentsADistribuer(medicaments : uint16_t)"
+TGestionnaireDistribution --> TGestionnaireDistribution : "DistribuerMedicaments(medicaments : uint16_t)"
+TGestionnaireDistribution --> TGestionnaireDistribution : "MedicamentsADistribuer(medicaments : uint16_t)"
+TCCommunication --> TCCommunication : "FAdresse2C : uint16_t"
+TCCommunication --> TCCommunication : "FClEncryption : uint8_t *TAILLE_CLE_ENCRYPTION"
+TCCommunication --> TCCommunication : "TCommunication()"
+TCCommunication --> TCCommunication : "begin()"
+TCCommunication --> TCCommunication : "NotifieNiveauMedicamentC(niveau : int)"
+TCCommunication --> TCCommunication : "CommunicationEncrypted() : bool"
+TCCommunication --> TCCommunication : "Gère la communication avec le module de contrôle"
+TGestionnaireDistribution --> TCCommunication : "Gère la communication avec le module de contrôle"
+TGestionnaireDistribution --> EEPROM : "Gère la communication avec le module de contrôle"
+TGestionnaireDistribution --> Wire : "Gère la communication avec le module de contrôle"
+
+@enduml

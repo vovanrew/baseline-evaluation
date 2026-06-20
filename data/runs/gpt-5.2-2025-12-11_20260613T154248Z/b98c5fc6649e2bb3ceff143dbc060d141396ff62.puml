@@ -1,0 +1,121 @@
+@startuml
+' NOTE: The provided image is extremely high-density and the text is not legible enough to accurately reproduce every message label and fragment.
+' Below is a best-effort structural reproduction of the visible lifelines and major combined fragments.
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #333
+  LifeLineBorderColor #999
+  LifeLineBackgroundColor white
+  ParticipantBorderColor #999
+  ParticipantBackgroundColor #f7f7f7
+  BoxBorderColor #999
+  BoxBackgroundColor white
+  GroupBorderColor #666
+  GroupBackgroundColor white
+  MessageAlign left
+}
+
+title purchase() sequence (approx.)
+
+participant "wapPurchase\n(前端)" as wapPurchase
+participant "ms-trade" as msTrade
+participant "subscribe-service" as subscribeService
+participant "ctu" as ctu
+participant "payment-service" as paymentService
+participant "cpm" as cpm
+participant "payment" as payment
+participant "upm" as upm
+participant "public-service" as publicService
+participant "product" as product
+participant "subscribe" as subscribe
+participant "charging" as charging
+participant "order" as order
+participant "proxy" as proxy
+participant "campaign" as campaign
+
+wapPurchase -> msTrade : purchase() 请求
+msTrade -> subscribeService : purchase() 业务处理
+
+group 获取/刷新连续包Token缓存
+  alt 缓存不存在/过期
+    subscribeService -> subscribeService : queryContinuousTokenMemCache\n(查询缓存)
+    subscribeService -> subscribeService : updateContinuousTokenMemCache\n(刷新缓存)
+  else 缓存有效
+    subscribeService -> subscribeService : queryContinuousTokenMemCache\n(命中缓存)
+  end
+end
+
+group 获取/创建支付账户
+  subscribeService -> paymentService : getPaymentAccountInfo()
+  paymentService -> cpm : getPaymentAccountInfo()
+  alt 支付账户不存在
+    subscribeService -> paymentService : createPaymentAccount()
+    paymentService -> cpm : createPaymentAccount()
+  else 支付账户已存在
+    subscribeService <-- paymentService : accountInfo
+  end
+end
+
+group 参数校验/匹配
+  alt 参数不合法
+    subscribeService --> msTrade : 返回错误
+  else 参数合法
+    subscribeService -> publicService : matchNumberSegment()
+    subscribeService -> publicService : matchNumberSegment()
+  end
+end
+
+group 订阅/下单主流程
+  alt 新订阅
+    subscribeService -> subscribe : fetchSubscription()
+    subscribeService -> subscribe : subscribe()
+    subscribeService -> subscribe : authenticate()
+    alt 价格计算
+      subscribeService -> product : calculatePrice()
+      group 支付渠道适配
+        subscribeService -> paymentService : autoAdaptPayChannels()
+        subscribeService -> paymentService : autoAdaptPayChannels()
+      end
+    end
+    subscribeService -> order : createOrder()
+  else 续订/变更
+    subscribeService -> subscribe : authenticate()
+    subscribeService -> product : calculatePrice()
+    group 支付渠道适配
+      subscribeService -> paymentService : autoAdaptPayChannels()
+      subscribeService -> paymentService : autoAdaptPayChannels()
+    end
+    subscribeService -> order : createOrder()
+    subscribeService -> order : submitOrder()
+  end
+end
+
+group 支付
+  alt 直付
+    subscribeService -> paymentService : directPayment()
+    paymentService -> payment : directPayment()
+    paymentService -> upm : directPayment()
+  else 代扣/异步
+    subscribeService -> paymentService : payOrder()
+    paymentService -> payment : payOrder()
+  end
+end
+
+group 回调/通知与补偿
+  subscribeService -> subscribe : batchSubscribe()
+  subscribeService -> order : batchFetchHistoryOrders()
+  subscribeService -> paymentService : payNotifyStatus()
+  subscribeService -> proxy : topic=itemPurchase_tags=Main
+  proxy -> campaign : lotteryCampaignService.setLotteryInfo()
+  group 连续包扣费
+    subscribeService -> charging : runContinuousCharging()
+    subscribeService -> charging : runContinuousCharging()
+  end
+end
+
+msTrade <-- subscribeService : purchase() 响应
+wapPurchase <-- msTrade : purchase() 返回
+
+@enduml

@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLHsrA5Bc7zjDFC0mwfCa7bZ6KAw",
+  "object": "chat.completion",
+  "created": 1781367256,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam classAttributeIconSize 0\nskinparam shadowing false\nskinparam linetype ortho\n\ninterface \"QuestReward\" as QuestReward << (I,#b39ddb) >>\nnote top of QuestReward\ninterface since QuestRewards need to have RewardPlayer but that logic will vary from reward to reward\nend note\nQuestReward : + void RewardPlayer()\nQuestReward : + String ToString() so that the reward can be described in text in the quest window\n\nclass \"Quest\" as Quest << (A,#b2ebf2) >>\nQuest : + bool isActive\nQuest : + bool isComplete\nQuest : # [SerializedField] string name\nQuest : # [SerializedField] string description\nQuest : # [SerializedField] List<QuestReward> questRewards\nQuest : {abstract} make sure it does not derive from monobehaviour\nQuest : {abstract} all classes that inherit from quest need the [Serializable] attribute\n\nclass \"RivalQuest\" as RivalQuest << (C,#c8e6c9) >>\nRivalQuest : {abstract} rival quests will need their own unique logic and AI\n\nclass \"CountQuest\" as CountQuest << (C,#c8e6c9) >>\nCountQuest : - int currentCount\nCountQuest : - [SerializedField] int completionCount\nCountQuest : + void checkWin() sets isComplete to true if currentCount == completionCount\n\nenum \"CountQuestTypes\" as CountQuestTypes << (E,#ffab91) >>\nCountQuestTypes : GrindTime, Graffiti, SpeedMeter, Coins, Enemies\n\nclass \"QuestGiver\" as QuestGiver << (C,#c8e6c9) >>\nQuestGiver : {abstract} attaches to NPC objects, derives from monobehaviour\nQuestGiver : - [SerializedField] Quest questToGive;\nQuestGiver : - [SerializedField] GameObject questWindow\nQuestGiver : - [SerializedField] TextMeshProUGUI titleText\nQuestGiver : - [SerializedField] TextMeshProUGUI descText\nQuestGiver : - [SerializedField] TextMeshProUGUI rewardText;\nQuestGiver : {abstract} not sure if the player will need its own new quest script of if questing logic can go in an existing one\nQuestGiver : - PlayerReference player;\nQuestGiver : + void OpenQuestWindow()\nQuestGiver : + void AcceptQuest()\nQuestGiver : + void CompleteQuest()\n\nclass \"MonoBehaviour\" as MonoBehaviour << (C,#c8e6c9) >>\nMonoBehaviour : Unity MonoBehaviour\n\n' Relationships\nQuestReward *-- Quest : has\nQuestReward *-- RivalQuest : has\nQuestReward *-- CountQuest : has\n\nRivalQuest --|> Quest : inherits from\nCountQuest --|> Quest : inherits from\n\nCountQuest *-- CountQuestTypes : has\n\nQuestGiver *-- Quest : gives\nQuestGiver --|> MonoBehaviour : inherits from\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2346,
+    "completion_tokens": 646,
+    "total_tokens": 2992,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

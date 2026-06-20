@@ -1,0 +1,28 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #333333
+  ParticipantBackgroundColor #E6E6F2
+  ArrowColor #111111
+  ArrowThickness 2
+  MessageAlign left
+}
+
+participant Client
+participant RuleService
+database database
+
+Client -> RuleService : POST api /rule-management/v1/business-rule
+
+RuleService -> RuleService : Validate path variable and json body
+RuleService -> RuleService : Extract data from json
+RuleService -> RuleService : Set data to entity
+
+RuleService -> database : Insert data to database
+database --> RuleService
+
+RuleService --> Client : Return result
+@enduml

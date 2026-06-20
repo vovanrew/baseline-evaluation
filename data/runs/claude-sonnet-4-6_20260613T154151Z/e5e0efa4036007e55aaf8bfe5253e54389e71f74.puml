@@ -1,0 +1,25 @@
+@startuml
+!option handwritten true
+
+title 系统用户登录时序图
+
+actor Client
+participant API
+participant MsgServer
+
+== login ==
+
+Client -> API: **1** login
+API -> API: **2** account verify
+
+alt [verify success:]
+    API --> Client: **3** generate jwt and return
+    note left of Client: connect MsgServer with jwt
+    Client -> MsgServer: **4** connect MsgServer and build tcp connect
+    MsgServer -> MsgServer: **5** parse jwt  and  attr the accountInfo to Channel
+    MsgServer --> Client: **6** connect success
+else [verify fail:]
+    API --> Client: **7** login failed;
+end
+
+@enduml

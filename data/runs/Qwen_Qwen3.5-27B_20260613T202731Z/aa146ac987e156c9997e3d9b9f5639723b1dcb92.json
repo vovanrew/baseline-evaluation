@@ -1,0 +1,22 @@
+{
+  "id": "54f542e9-6274-4026-bc33-eff339d40271",
+  "object": "chat.completion",
+  "created": 1781489725,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml SignUp Flow\n\nactor \"Client\" as Client\nparticipant \"Mobile\" as Mobile\nparticipant \"SMS Gateway\" as SMSGateway\nparticipant \"Push Gateway\" as PushGateway\ndatabase \"DigitalDB\" as DigitalDB\nparticipant \"Keycloak + Extension\" as Keycloak\n\n== Initial Sign-Up ==\nClient -> Mobile: 1 Enter PhoneNumber, Birthday\nClient -> Mobile: 2 Enter Password\nMobile -> Keycloak: 3 POST /auth/signup (PhoneNumber, Birthday)\nactivate Keycloak\n    Keycloak -> DigitalDB: 4 findClientRecord(PhoneNumber, Birthday): ClientRecord\n    activate DigitalDB\n    DigitalDB --> Keycloak: 5 ClientRecord\n    deactivate DigitalDB\n    \n    alt [ClientRecord is NOT found]\n        Keycloak --> Mobile: 6 HTTP 202\n    end\n    \n    Keycloak -> Keycloak: 7 saveInOTPContext(ClientRecord.id)\n    Keycloak -> Keycloak: 8 generateAndSaveOTP(): OTP\n    Keycloak --> Mobile: 9 HTTP 202\n    Keycloak -> SMSGateway: 10 sendSMS(phone=PhoneNumber, data=OTP)\n    activate SMSGateway\n    SMSGateway --> Mobile: 11 SMS with OTP\n    deactivate SMSGateway\ndeactivate Keycloak\n\n== Preparing for Completion ==\nMobile -> PushGateway: 12 getPushToken(): Push Token\nactivate PushGateway\nPushGateway --> Mobile: 13 Push Token\ndeactivate PushGateway\nMobile -> Mobile: 14 generateKeys(): [PublicKey, PrivateKey]\n\n== Completing Sign-Up ==\nClient -> Mobile: 15 Enter OTP\nMobile -> Keycloak: 16 POST /auth/signup/complete (OTP, Password, Push Token, PublicKey)\nactivate Keycloak\n    Keycloak -> Keycloak: 17 validateOTP(OTP)\n    Keycloak -> DigitalDB: 18 updateUser(ClientId, KeycloakUserId)\n    activate DigitalDB\n    DigitalDB --> Keycloak: 19\n    deactivate DigitalDB\n    \n    Keycloak -> DigitalDB: 20 createMobileDevice(ClientId, Push Token, PublicKey)\n    activate DigitalDB\n    DigitalDB --> Keycloak: 21\n    deactivate DigitalDB\n    \n    Keycloak -> Keycloak: 22 generateJWT(scope=\"regular_user\"): JWT\n    Keycloak --> Mobile: 23 HTTP 200 {jwt: JWT}\ndeactivate Keycloak\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1713,
+    "completion_tokens": 528,
+    "total_tokens": 2241
+  }
+}

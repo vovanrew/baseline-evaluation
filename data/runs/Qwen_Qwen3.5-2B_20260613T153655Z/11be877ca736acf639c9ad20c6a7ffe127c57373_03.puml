@@ -1,0 +1,34 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "kubectl" as kubectl
+participant "K8s Auth Proxy" as k8sAuthProxy
+participant "K8s API Server" as k8sApiServer
+participant "Hydra" as hydra
+
+note over kubectl, right of kubectl: Set the correct cluster with server pointing to the k8auth in the kubectl config
+note over kubectl, right of kubectl: GET: https://k8s.dolittle.cloud/api/pods
+note over kubectl, right of kubectl: Header: { Authentication: Bearer <token> }
+
+k8sAuthProxy->>hydra: GET: http://hydra.system-auth.svc.cluster.local/userinfo
+hydra->>k8sAuthProxy: Status 200 { claims... }
+k8sAuthProxy->>k8sApiServer: Impersonate: Hydra-User-Info
+k8sAuthProxy->>hydra: GET: <local-cluster-url>/api/pods
+hydra->>k8sApiServer: Status 200 (results)
+k8sApiServer->>k8sAuthProxy: Status 200 (results)
+k8sAuthProxy->>kubectl: Status 200 (results)
+
+alt [If good token]
+    k8sAuthProxy->>hydra: Status 200 { claims... }
+    k8sAuthProxy->>k8sApiServer: Impersonate: Hydra-User-Info
+    k8sAuthProxy->>hydra: GET: <local-cluster-url>/api/pods
+    hydra->>k8sApiServer: Status 200 (results)
+    k8sApiServer->>k8sAuthProxy: Status 200 (results)
+    k8sAuthProxy->>kubectl: Status 200 (results)
+else [If bad/no token]
+    k8sAuthProxy->>hydra: Status 401
+    hydra->>k8sAuthProxy: Status 401
+    k8sAuthProxy->>kubectl: Status 401
+end
+
+@enduml

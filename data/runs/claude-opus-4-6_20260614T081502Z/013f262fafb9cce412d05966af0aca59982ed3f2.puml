@@ -1,0 +1,203 @@
+```plantuml
+@startuml
+
+class TGestionnaireDels {
+  ◇ FDerniereDel: *TDel
+  ◇ FClignotement: bool
+  ◇ ~TGestionnaireDels() = delete
+  ◆ begin(periode: uint32_t, TimerInterrupt &timer)
+  --
+  Gère l'état d'une liste de DEL en utilisant\nun Timer pour les faire clignoter
+}
+
+class TRefDel <<TTypeDel, TDel>> {
+  ◇ FDel: TTypeDel*
+  ◇ TRefDel(broche: int)
+  ◇ TRefDelref: TRefDel<TTypeDel>&)
+  ◇ ~TRefDel()
+  ◇ Del(): TTypeDel&
+  --
+  Référence vers une TDel
+}
+
+class TimerInterrupt {
+  ◆ init()
+  ◆ attachInterruptInterval(periode: unsigned long,\nisr: void(*)(void))
+  --
+  Voir: https://github.com/khoih-prog/TimerInterrupt
+}
+
+class TDel {
+  ◇ FBroche: const int
+  ◇ FEtat: TEtatDel
+  ◇ FNbReferences: uint8_t
+  ◇ FDelPrecedente: TDel*
+  ◇ FDelSuivante: TDel*
+  ◇ TDel(broche: int)
+  ◇ TDel(del: TDel&) = delete
+  ◇ ~TDel()
+  ◇ Etat(etat: TEtatDel): int
+  ◇ Etat(): TEtatDel
+  ◇ MajEtat()
+  --
+  DEL gérée par TGestionnaireDels
+}
+
+enum TEtatDel {
+  edAllume
+  edEteinte
+  edClignote
+  edInactive
+  edPremier
+  edDernier
+  --
+  Représente l'état\nd'une DEL pour TDelIsr
+}
+
+class TGroupeCapteursObstruction {
+  ◇ FCapteurs: TCapteurObstruction*
+  ◇ FNbCapteurs: const size_t
+  ◇ TGroupeCapteursObstruction(brochesCapteuts: const int*, nbCapteurs: int,\nniveauObstruction: uint8_t,\ndelaiSansObstructions: uint32_t)
+  ◇ ~TGroupeCapteursObstruction()
+  ◆ begin()
+  ◆ Lire()
+  ◆ ObstrueImmediatement(): bool
+  ◆ Obstrue(): bool
+  ◆ DelaiSansObstruction(): uint32_t
+  ◆ Capteurs(): TCapteurObstruction *
+  ◆ NbCapteurs(): size_t
+  --
+  Groupe de capteurs d'obstructions.\nTant qu'un des capteurs du groupe est obstrué,\nle groupe de capteurs est considéré comme obstrué.
+}
+
+class TCapteurObstruction {
+  ◇ FBroche: int
+  ◇ FNiveauObstruction: uint8_t
+  ◇ FDelaiSansObstructions: uint32_t
+  ◇ FDebutNonObstrue: uint32_t
+  ◇ FDerniereLecture: bool
+  ◇ OBSTRUE: const bool = true
+  ◇ NON_OBSTRUE: const bool = false
+  ◇ TCapteurObstruction(broche: int, niveauObstruction: uint8_t,\ndelaiSansObstructions: uint32_t)
+  ◇ ~TCapteurObstruction()
+  ◆ ChangerBroche(broche: int)
+  ◆ ChangerNiveauObstruction(niveauObstruction: uint8_t)
+  ◆ ChangerDelaiSansObstructions(delaiSansObstructions: uint32_t)
+  ◆ begin()
+  ◆ Lire()
+  ◆ Obstrue(): bool
+  ◆ ObstrueImmediatement(): bool
+  ◆ DelaiSansObstruction(): uint32_t
+  --
+  Permet de lire la valeur d'un capteur\nd'obstruction analogique. Il utilise\nun délai configurable pour s'assurer\nque le capteur d'obstruction est\nbien découvert.
+}
+
+enum TEtatGlissiere {
+  egOuverte
+  egOuverture
+  egFermee
+  egFermeture
+  --
+  Représente l'état de la glissière
+}
+
+class TGlissiere {
+  ◇ FDirectionOuvrir: int
+  ◇ FDirectionFermer: int
+  ◇ FCapteurOuvert: int
+  ◇ FCapteurFerme: int
+  ◇ FCommande: bool
+  ◇ FDebutCommande: time_t
+  ◇ const COMMANDE_OUVRIR: bool = true
+  ◇ const COMMANDE_FERMER: bool = false
+  ◇ TGlissiere(directionOuvrir: int, directionFermer: int, capteurOuvert: int, capteurFerme: int)
+  ◆ begin()
+  ◆ TempsDeplacement(): uint32_t
+  ◆ EstEnDeplacement(): bool
+  ◆ Etat(): TEtatGlissiere
+  ◆ CommanderCommande(): bool
+  --
+  Permet de contrôler la glissière pour distribuer des médicaments
+}
+
+class TVerrou {
+  ◇ FBroche: int
+  ◇ FEtat: bool
+  ◇ FDebutDeverrouillage: uint32_t
+  ◇ DelaiDeverrouillage
+  // Valeur de l'état du verrou lorsqu'il est verrouillé\nVERROUILLE: const bool = true\n// Valeur de l'état du verrou lorsqu'il est déverrouillé\nDEVERROUILLE: const bool = false
+  ◇ TVerrou(broche: int, delaiDeverrouillage: uint32_t)
+  ◆ begin()
+  ◆ loop()
+  ◆ Etat(etat: bool)
+  ◆ Etat(): bool
+  ◆ Deverrouiller()
+  --
+  Contrôle un verrou en PWM avec un cycle de travail de 50%. Le verrou est\nverrouillé par défaut et ne se verrouille que pendant un interval spécifié,\ns'il est.\nLe verrou doit être verrouillé sur un niveau logique bas
+}
+
+class TDelClignoteTemp {
+  ◇ FNbClignotements: uint8_t
+  ◇ FClignotementsRestants: uint16_t
+  NB_CLIGNOTEMENTS_DEFAUT: const uint8_t = 5
+  ◇ TDelClignoteTemp(broche: int)
+  ◆ FaireClignoter()
+  ◆ Clignote(): bool
+  ◆ MajEtat()
+  --
+  Permet de faire clignoter une DEL\nun certain nombre de fois à chaque\nfois que la méthode FaireClignoter
+}
+
+class TGestionnaireDistribution {
+  ◇ FMedicamentsRestant: uint16_t
+  ◇ FMedicamentsADistribuer: uint8_t
+  ◇ FGlissiere: TGlissiere
+  ◇ PVerrou: TVerrou
+  ◇ FNiveauReservoir: TGroupeCapteursObstruction
+  ◇ FGlissiereObstruee: TCapteurObstruction
+  ◆ begin()
+  ◆ MedicamentsRestant(): uint16_t
+  ◆ MedicamentsRestant(medicaments: uint16_t)
+  ◆ DistribuerMedicaments(medicaments: uint16_t)
+  ◆ MedicamentsADistribuer(medicaments: uint16_t)
+  --
+  Gère la distribution de médicaments
+}
+
+class TCommunication {
+  ◇ FAdresseI2C: uint16_t
+  ◇ FCleEncryption: uint8_t[TAILLE_CLE_ENCRYPTION]
+  ◇ TCommunication()
+  ◆ begin()
+  ◆ NotifierNiveauMedicamentCritique(): int
+  ◆ CommunicationEncryptee(): bool
+  --
+  Gère la communication avec le module de contrôle
+}
+
+class EEPROM {
+}
+
+class Wire {
+}
+
+TGestionnaireDels --> TDel
+TRefDel --> TDel
+TDel --> TEtatDel
+TDel ..> TGestionnaireDels
+TGestionnaireDels --> TimerInterrupt
+TGroupeCapteursObstruction --> TCapteurObstruction
+TGlissiere --> TEtatGlissiere
+TGestionnaireDistribution --> TGlissiere
+TGestionnaireDistribution --> TVerrou
+TGestionnaireDistribution --> TGroupeCapteursObstruction
+TGestionnaireDistribution --> TCapteurObstruction
+TDelClignoteTemp --> TDel
+TDel ..> "delMedicDispo" TEtatDel
+TDelClignoteTemp ..> "delErreur" TDel
+TCommunication --> EEPROM
+TCommunication --> Wire
+TGestionnaireDistribution --> EEPROM
+
+@enduml
+```

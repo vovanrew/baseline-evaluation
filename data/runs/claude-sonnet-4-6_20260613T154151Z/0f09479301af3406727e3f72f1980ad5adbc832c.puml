@@ -1,0 +1,49 @@
+@startuml
+actor 참가자
+participant 깃헙리포지토리 as 깃헙리포지토리
+participant 깃헙액션 as 깃헙액션
+actor 운영자
+participant 파워오토메이트 as 파워오토메이트
+database 데이터베이스
+
+box "PR"
+참가자 -> 깃헙리포지토리: PR 생성
+note left of 참가자: GHA 챌린지 완료 인증샷
+깃헙리포지토리 -> 깃헙액션: 이벤트 생성
+깃헙액션 -> 깃헙리포지토리: 라벨 추가: review-required
+end box
+
+box "REVIEW"
+운영자 -> 깃헙리포지토리: 리뷰
+깃헙리포지토리 <- 운영자: 라벨 추가: review-completed
+깃헙리포지토리 <- 운영자: 라벨 삭제: review-required
+깃헙리포지토리 <- 운영자: 코멘트: /ghasignoff
+깃헙리포지토리 -> 깃헙액션: 이벤트 생성
+note left of 깃헙리포지토리: 지정된 사용자만\n이벤트 생성 가능
+깃헙액션 -> 파워오토메이트: 호출
+note right of 깃헙액션: GitHub ID\nPR 본문\n제출시간
+파워오토메이트 -> 데이터베이스: 레코드 조회
+note right of 파워오토메이트: GitHub ID
+
+alt [레코드 있음]
+파워오토메이트 -> 데이터베이스: 레코드 업데이트
+note right of 파워오토메이트: PR ID
+파워오토메이트 -> 깃헙액션: 호출
+깃헙액션 -> 깃헙리포지토리: 라벨 추가: record-updated
+깃헙액션 -> 깃헙리포지토리: 라벨 추가: completed-gha
+깃헙액션 -> 깃헙리포지토리: 라벨 삭제: review-completed
+깃헙액션 -> 깃헙리포지토리: PR 머지
+데이터베이스 -> 파워오토메이트: 업데이트 완료
+파워오토메이트 -> 참가자: 확인 이메일
+else [레코드 없음]
+파워오토메이트 -> 깃헙액션: 호출
+note right of 파워오토메이트: PR ID
+깃헙액션 -> 깃헙리포지토리: 라벨 추가: review-required
+깃헙액션 -> 깃헙리포지토리: 라벨 삭제: review-completed
+데이터베이스 -> 파워오토메이트: 레코드 없음
+파워오토메이트 -> 참가자: 확인 이메일
+end
+
+end box
+
+@enduml

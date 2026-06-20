@@ -1,0 +1,65 @@
+```plantuml
+@startuml
+
+actor "Specialist Doctor" as SD
+
+participant ":CreateReportUI" as UI
+participant ":CreateReportController" as Ctrl
+participant ":Company" as Comp
+participant ":TestDiagnosis" as TD
+participant "obj : diagnosis" as ObjDiag
+participant "rp : TestReportStore" as TRS
+participant "rp : TestReport" as TR
+
+SD -> UI : 1 asks to create a new diagnosis
+
+ref over UI, Ctrl, Comp, TD
+US4_SD_testsDTO.puml
+end ref
+
+UI --> SD : 2 requests to choose a given test
+
+SD -> UI : 3 chooses a given test
+
+UI -> Ctrl : 4 createTestDiagnosis(idTest)
+
+Ctrl -> TD : 5 createTestDiagnosis(test)
+
+TD -> ObjDiag : 6 createTestDiagnosis(testParameterList)
+
+TD -> TD : 7 getDiagnosis()
+
+Ctrl -> Ctrl : 8 getDiagnosis()
+
+UI --> SD : 9 shows the diagnosis done automatically and requests the data for the report
+
+SD -> UI : 10 types the requested data
+
+UI -> Ctrl : 11 createReport(idTest, diagnosis, report)
+
+Ctrl -> Ctrl : 12 store = getTestReportStore()
+
+Ctrl -> TRS : 13 createReport(idTest, diagnosis, report)
+
+TRS -> TR : 14 create(idTest, diagnosis, report)
+
+Ctrl -> TR : 15 validateReport()
+
+UI --> SD : 16 shows the typed data and asks for confirmation
+
+SD -> UI : 17 confirms the data
+
+UI -> Ctrl : 18 saveReport(report)
+
+Ctrl -> TRS : 19 saveReport(report)
+
+TRS -> TR : 20 saveReport(report)
+
+TR -> TR : 21 validateReport(report)
+
+TR -> TR : 22 addReport(report)
+
+UI --> SD : 23 informs operation success
+
+@enduml
+```

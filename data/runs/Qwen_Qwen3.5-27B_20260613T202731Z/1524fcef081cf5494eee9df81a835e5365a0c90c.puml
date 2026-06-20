@@ -1,0 +1,60 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+package "sw-explorer" {
+    participant "WebApp" as WebApp
+    participant "SWData" as SWData
+}
+
+package "Example background processing module" {
+    participant "Manager" as Manager
+    participant "MessageQueue" as MessageQueue
+    participant "Worker" as Worker
+    participant "Memcache" as Memcache
+}
+
+note right of Manager: This is just an example.\nWe could got wi go with Celery, but sometimes it's good\nto hide the concrete engine behind the abstraction layer.
+
+activate WebApp
+activate SWData
+activate Manager
+activate MessageQueue
+activate Worker
+activate Memcache
+
+' Fetch new collection sequence
+User -> WebApp : fetch new collection
+WebApp -> SWData : fetch new collection
+SWData -> Manager : schedule a job
+Manager -> MessageQueue : schedule a job
+MessageQueue -> Worker : execute a job
+Worker -> Manager : update job status
+Manager -> Memcache : update job status
+Worker -> Manager : job result
+Manager -> Memcache : job result
+
+deactivate Worker
+deactivate MessageQueue
+deactivate Manager
+deactivate SWData
+deactivate WebApp
+
+' View pending collection sequence
+activate WebApp
+activate SWData
+activate Manager
+activate Memcache
+
+User -> WebApp : view pending collection
+WebApp -> SWData : get job status
+SWData -> Manager : get job status
+Manager -> Memcache : get job status
+
+deactivate Memcache
+deactivate Manager
+deactivate SWData
+deactivate WebApp
+
+@enduml
+```

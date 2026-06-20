@@ -1,0 +1,56 @@
+```plantuml
+@startuml
+header Intel Corporation
+title PFD flow between Openness and 5G core
+footer Proprietary and Confidential
+
+actor Admin
+
+box "OpenNESS Controller Components" #LightBlue
+participant "UI/CLI" as UI
+participant "Af Microservice" as AF
+end box
+
+box "5G Core Components" #LightGreen
+participant NEF
+participant "NGC CP Function" as NGC
+end box
+
+note over NEF
+OpenNESS provided
+Core component with
+limited functionality
+end note
+
+group Get all transactions with PFD
+    Admin -> UI : Request all PFD transactions
+    UI -> AF : af/v1/pfd/transaction GET
+    AF -> NEF : 3gpp-pfd-management/v1/{scsAsId}/transactions/\nGET
+    NEF -> NEF : NGC_STUB (UDR SMF)
+    NEF -> AF : OK: PFD information \\ ERROR
+    AF -> UI : OK: PFD information \\ ERROR
+    UI -> Admin : PFD details
+end
+
+group Get transactions with transactionId
+    Admin -> UI : Request transaction with\ntransactionId
+    UI -> AF : af/v1/pfd/transactions/{transactionId}\nGET
+    AF -> NEF : 3gpp-pfd-management/v1/{scsAsId}/transactions/{transactionId}\nGET
+    NEF -> NEF : NGC_STUB (UDR SMF)
+    NEF -> AF : OK: PFD information \\ ERROR
+    AF -> UI : OK: PFD information \\ ERROR
+    UI -> Admin : PFD details
+end
+
+group Get transactions with applicationId
+    Admin -> UI : Request transactions with\napplicationId
+    UI -> AF : af/v1/pfd/transactions/{transactionId}/applications/{appId}\nGET
+    AF -> NEF : 3gpp-pfd-management/v1/{scsAsId}/transactions/{transactionId}/applications/{appId}\nGET
+    NEF -> NEF : NGC_STUB (UDR SMF)
+    NEF -> AF : OK: PFD information \\ ERROR
+    AF -> UI : OK: PFD information \\ ERROR
+    UI -> Admin : PFD details
+end
+
+@enduml
+```

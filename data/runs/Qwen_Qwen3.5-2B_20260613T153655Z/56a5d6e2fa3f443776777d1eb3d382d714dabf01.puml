@@ -1,0 +1,17 @@
+@startuml
+participant TaskControl as TaskControl
+participant Reins_Agent as Reins_Agent
+participant ExecCommands as ExecCommands
+participant HostRegistry as HostRegistry
+
+loop all_clients
+    TaskControl -> Reins_Agent : identified_key
+    Reins_Agent -> ExecCommands : connection check
+    ExecCommands -> Reins_Agent : varid?(identified_key)
+    Reins_Agent -> TaskControl : status
+    TaskControl -> Reins_Agent : status
+    Reins_Agent -> HostRegistry : logging status
+    HostRegistry -> Reins_Agent : set_status(identified_key, IPaddress, status)
+    Reins_Agent -> HostRegistry : store()
+    HostRegistry -> TaskControl : true or false
+@enduml

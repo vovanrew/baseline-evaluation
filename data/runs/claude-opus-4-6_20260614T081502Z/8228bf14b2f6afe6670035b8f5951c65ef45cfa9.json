@@ -1,0 +1,21 @@
+{
+  "id": "msg_017cZrD9BRfVJDWEGNXa8GaF",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nparticipant \"FragmentVideoChat\" as FVC\nparticipant \"LicodeConnector\" as LC\nparticipant \"PeerConnectionFactory\" as PCF\nparticipant \"RoomObserver\" as RO\nparticipant \"MediaStream\" as MS\nparticipant \"PeerConnection\" as PC\nparticipant \"StreamDescription\" as SD\nparticipant \"LicodeSdpObserver\" as LSO\nparticipant \"LicodeServer\" as LS\nparticipant \"SocketIOClient\" as SOC\n\n== Init ==\n\nFVC -> FVC : configureConnector\nFVC -> LC : init\nLC -> PCF : initializeAndroidGlobals\nFVC -> LC : addObserver(RoomObserver)\n\n== Publish ==\n\nFVC -> FVC : startCastView.onClick\nFVC -> LC : requestPublish\nLC -> RO : triggerPublishAllowed\nRO -> FVC : onPublishAllowed\n\nFVC -> FVC : startPublish\nFVC -> FVC : makeVideoView\nFVC -> LC : publish(VideoStreamsView)\nLC -> LC : doPublish\n\n== Publish-create media ==\n\nLC -> MS : createLocalMediaStream\nLC -> LC : createMediaConstraints\nLC -> LC : setVideoCapturer\nLC -> PCF : createVideoSource(VideoCapturer, MediaConstraints)\nLC -> MS : createVideoTrack(String, VideoSource)\nLC -> MS : addTrack\nLC -> PCF : createAudioSource(MediaConstraints)\nLC -> MS : createAudioTrack(String, AudioSource)\nLC -> MS : addTrack\n\n== Publish-create offer ==\n\nLC -> LC : makePcConstraints\nLC -> LSO : create MyPcObserver\nLC -> PCF : createPeerConnection(List<IceServer>, MediaConstraints, Observer)\nLC -> PC : addStream(MediaStream, MediaConstraints)\nLC -> LC : setMedia\nLC -> LC : attachRenderer\nLC -> PC : initLocal(PeerConnection, SdpObserver)\nPC -> PC : createOffer\nPC -> LSO : onCreateSuccess\nPC -> PC : setLocalDescription\nPC -> LSO : onSetSuccess\nLSO -> LSO : sendLocalDescription\nLSO -> LSO : sendSDP(Socket(\"publish\"))\nLSO -> LS : publish\nLS -> LSO : publish success\nLSO -> PC : setRemoteDescription\n\n== Subscribe ==\n\n== Subscribe-token ==\n\nFVC -> FVC : startVideoChat\nFVC -> FVC : createToken\\nhttp\\nLoad Balance\nFVC -> FVC : createToken success\nFVC -> LC : connect\nLC -> LC : createToken\nLC -> LC : decodeToken\nLC -> SOC : connect to server\\nsocket\nSOC -> LC : onConnectCompleted\n\n== Subscribe-listen socket events ==\n\nLC -> SOC : listen events\\nonAddStream\\nonSubscribeP2P\\nonPublishP2P\\nonDataStream\\nonRemoveStream\\ndisconnect\nLC -> SOC : sendMessageSocket(\"token\")\nSOC -> LC : token success\nLC -> FVC : onRoomConnected\nLC -> FVC : setBandwidthLimits\n\nalt has streams\nLC -> LC : triggerStreamAdded\nLC -> RO : mOnAddStream\nRO -> RO : triggerStreamAdded\nend\n\nFVC -> FVC : onStreamAdded\nFVC -> LC : subscribe\nLC -> LC : doSubscribe\nLC -> LC : triggerMediaAvailable\n\nFVC -> FVC : onStreamMediaAvailable\nFVC -> FVC : makeVideoView\nFVC -> LC : attachRenderer\nLC -> LC : attachRenderer\nLC -> LSO : create MyPcObserver\nLC -> PCF : createPeerConnection\nLC -> PC : initRemote(PeerConnection, SdpObserver)\nPC -> PC : createOffer\nPC -> LSO : onCreateSuccess\nPC -> PC : setLocalDescription\nPC -> LSO : onSetSuccess\nLSO -> LSO : sendLocalDescription\nLSO -> LSO : sendSDP(Socket(\"subscribe\"))\nLSO -> LS : subscribe success\nLSO -> PC : setRemoteDescription\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781431848,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 976,
+    "prompt_tokens": 1646,
+    "total_tokens": 2622
+  }
+}

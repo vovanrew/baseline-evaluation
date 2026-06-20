@@ -1,0 +1,21 @@
+@startuml
+left to right direction
+actor "Administrator" as Admin
+participant ":Main UI" as MainUI
+participant ":ImportReadingsFromFileUI" as ImportUI
+participant ":ImportReadingsFromFileController" as ImportController
+participant ":ListOfGeographicArea" as ListOfArea
+participant "reader:XmlReader" as XmlReader
+
+Admin -> MainUI : Request file path
+MainUI --> Admin : file path
+ImportUI -> ImportController : addReadingsToSensors(reader,path)
+ImportController -> XmlReader : importReadingsOfSensor(path)
+XmlReader --> ImportController : listOfReadingsDto
+ImportController -> ListOfArea : getAllSensors()
+ListOfArea --> ImportController : listOfAreaSensors
+ImportController -> ImportController : setReadingsBySensorIDescription()
+ImportController --> ImportUI : number of lines added
+ImportUI --> Admin : number of lines added
+
+@enduml

@@ -1,0 +1,22 @@
+{
+  "id": "d0a538ee-43be-449c-97c5-266d3453ca6a",
+  "object": "chat.completion",
+  "created": 1781426013,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam classAttributeIconSize 0\n\ninterface QuestReward {\n    <<interface>> since QuestRewards need to have RewardPlayer but that logic will vary from reward to reward\n    + void RewardPlayer()\n    + String ToString() so that the reward can be described in text in the quest window\n}\n\nclass Quest {\n    - bool isActive\n    - bool isComplete\n    - [SerializeField] string name\n    - [SerializeField] string description\n    - [SerializeField] List<QuestReward> questRewards\n    make sure it does not derive from monobehaviour\n    all classes that inherit from quest need the [Serializable] attribute\n}\n\nclass RivalQuest {\n    <<abstract>> rival quests will need their own unique logic and AI\n}\n\nclass CountQuest {\n    - int currentCount\n    - [SerializeField] int completionCount\n    + void checkWin() sets isComplete to true if currentCount == completionCount\n}\n\nclass CountQuestTypes {\n    <<enumeration>> GrindTime, Graffiti, SpeedMeter, Coins, Enemies\n}\n\nclass QuestGiver {\n    <<component>> attaches to NPC objects, derives from monobehaviour\n    - [SerializeField] Quest questToGive;\n    - [SerializeField] GameObject questWindow\n    - [SerializeField] TextMeshProUGUI titleText\n    - [SerializeField] TextMeshProUGUI descText\n    - [SerializeField] TextMeshProUGUI rewardText;\n    not sure if the player will need its own new quest script of if questing logic can go in an existing one\n    - PlayerReference player;\n    + void OpenQuestWindow()\n    + void AcceptQuest()\n    + void CompleteQuest()\n}\n\nclass MonoBehaviour {\n    <<component>> Unity MonoBehaviour\n}\n\nQuestReward *-- Quest : has\nQuest <|-- RivalQuest : inherits from\nQuest <|-- CountQuest : inherits from\nCountQuest *-- CountQuestTypes : has\nQuest *-- QuestGiver : gives\nQuestGiver <|-- MonoBehaviour : inherits from\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2007,
+    "completion_tokens": 449,
+    "total_tokens": 2456
+  }
+}

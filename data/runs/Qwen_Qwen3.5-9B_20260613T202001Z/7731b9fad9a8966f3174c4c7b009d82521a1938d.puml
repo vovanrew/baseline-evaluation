@@ -1,0 +1,42 @@
+@startuml
+left to right direction
+actor User
+participant JobManager as JobManager
+participant Nodes
+participant ESDM
+participant Post Processing Library
+participant Storage
+
+User -> JobManager: submit job(IN, OUT)
+JobManager -> Nodes
+
+rectangle Initialization {
+  Nodes -> Storage: read IN=x
+  Storage --> Nodes: return
+}
+
+rectangle Loop {
+  activate Nodes
+  Nodes -> Nodes: compute
+  Nodes -> ESDM: write async OUT=y
+  ESDM -> Storage: write snapshot (async)
+  ESDM -> Post Processing Library: trigger post processing if region effected
+}
+
+rectangle In Situ Post Processing {
+  activate Post Processing Library
+  Post Processing Library -> Post Processing Library: perform post processing
+  Post Processing Library -> Storage: (could write result directly)
+  Post Processing Library --> ESDM: return
+  ESDM -> Storage: write post processing result
+  ESDM --> Nodes: return
+  Nodes --> User: OUT files become visible
+}
+
+rectangle Finalize {
+  Nodes --> User: All OUT files become visible to subsequent users.
+}
+
+Note right of ESDM: multiple iterations
+
+@enduml

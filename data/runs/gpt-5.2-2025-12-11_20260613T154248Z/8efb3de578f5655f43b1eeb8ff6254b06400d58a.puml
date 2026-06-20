@@ -1,0 +1,126 @@
+@startuml
+title CONTROL Class Diagram
+
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "com" {
+  package "unisa" {
+    package "cinehub" {
+
+      package "control" {
+
+        class "GestioneCatalogoControl" as GestioneCatalogoControl << (C,#b7e1b0) >> {
+          + addFilm(Film film): Film
+          + addSerieTV(SerieTV serieTv): SerieTv
+          + addPuntata(Puntata puntata, Long idSerieTv, Integer numeroStagione): void
+          + addCast(Cast cast): void
+          + addRuolo(Ruolo ruolo, Long castId, Long mediaId): void
+          + findAllCast(): List<Cast>
+          + updateFilm(Film film): void
+          + updateSerieTv(SerieTv serieTv): void
+          + updatePuntata(Puntata puntata): void
+          + removeFilm(Long id): void
+          + removeSerieTV(Long id): void
+          + removePuntata(Long id): void
+          + removeCast(Long id): void
+          + addGeneriFilm(Collection<Genere> generi, Long id): void
+          + addGeneriSerieTv(Collection<Genere> generi, Long id): void
+          + findRecensioniByMiPiace(Recensione recensione): List<Recensione>
+          + requestAllRecensioni(): List<Recensione>
+        }
+
+        class "CatalogoControl" as CatalogoControl << (C,#b7e1b0) >> {
+          + addRecensione(Recensione recensione): void
+          + requestRecensioneById(Long id): Recensione
+          + addMiPiace(boolean b, Recensione recensione): void
+          + findMiPiaceById(Recensione recensione): MiPiace
+          + getNumeroMiPiaceOfRecensione(Recensione recensione): Integer
+          + getNumeroNonMiPiaceOfRecensione(Recensione recensione): Integer
+          + rispondiARecensione(Recensione risposta): void
+          + findAllFilm(): List<Film>
+          + findAllSerieTv(): List<SerieTv>
+          + findMostRecentMedia(Integer howMany): List<Media>
+          + puntateByStagione(Long idSerieTv, Integer numeroStagione): List<Puntata>
+          + puntateBySerie(Long idSerieTv): List<Puntata>
+          + findFilmById(Long id): Film
+          + findSerieTvById(Long id): SerieTv
+          + findPuntataById(PuntataId puntataId): Puntata
+          + searchFilmByGenere(Collection<Genere> generi): List<Film>
+          + searchSerieTVByGenere(Collection<Genere> generi): List<SerieTv>
+          + searchFilmByTitle(String titolo): List<Film>
+          + findAllPuntate(): List<Puntata>
+          + findPuntataByTitle(String titolo): List<Puntata>
+          + searchSerieTvByTitle(String titolo): List<SerieTv>
+          + findMostVoted(): List<Media>
+        }
+
+        class "ModerazioneControl" as ModerazioneControl << (C,#b7e1b0) >> {
+          + addSegnalazione(Recensione recensione): void
+          + bannaRecensore(String email): void
+          + findAllSegnalazioni(): List<Segnalazione>
+          + deleteRecensione(Recensione recensione): void
+          + isSegnalated(Recensione recensione): Boolean
+        }
+
+        class "UtenteControl" as UtenteControl << (C,#b7e1b0) >> {
+          - cal: Calendar
+          - eventPublisher: ApplicationEventPublisher
+          + getAllRecensori(): List<Recensore>
+          + getAllNotBannedRecensori(): List<Recensore>
+          + registrazioneUtente(Utente utente): Utente
+          + confermaRegistrazione(String token): void
+        }
+      }
+
+      package "model" {
+
+        package "media" {
+          package "film" {
+            class "FilmService" as FilmService << (C,#b7e1b0) >>
+          }
+          package "serietv" {
+            class "PuntataService" as PuntataService << (C,#b7e1b0) >>
+            class "SerieTVService" as SerieTVService << (C,#b7e1b0) >>
+            class "CastService" as CastService << (C,#b7e1b0) >>
+            class "RuoloService" as RuoloService << (C,#b7e1b0) >>
+          }
+        }
+
+        package "recensione" {
+          class "RecensioneService" as RecensioneService << (C,#b7e1b0) >>
+        }
+
+        package "utente" {
+          class "MiPiaceService" as MiPiaceService << (C,#b7e1b0) >>
+          class "UtenteService" as UtenteService << (C,#b7e1b0) >>
+          class "SegnalazioneService" as SegnalazioneService << (C,#b7e1b0) >>
+          class "RecensoreService" as RecensoreService << (C,#b7e1b0) >>
+        }
+      }
+
+      GestioneCatalogoControl --> FilmService
+      GestioneCatalogoControl --> PuntataService
+      GestioneCatalogoControl --> SerieTVService
+      GestioneCatalogoControl --> CastService
+      GestioneCatalogoControl --> RuoloService
+      GestioneCatalogoControl --> RecensioneService
+
+      CatalogoControl --> FilmService
+      CatalogoControl --> SerieTVService
+      CatalogoControl --> PuntataService
+      CatalogoControl --> RecensioneService
+      CatalogoControl --> MiPiaceService
+
+      ModerazioneControl --> SegnalazioneService
+      ModerazioneControl --> RecensioneService
+      ModerazioneControl --> RecensoreService
+
+      UtenteControl --> UtenteService
+      UtenteControl --> RecensoreService
+    }
+  }
+}
+@enduml

@@ -1,0 +1,40 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 60
+  BoxPadding 10
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor transparent
+  MessageAlign left
+}
+skinparam participant {
+  BackgroundColor #E6E6E6
+  BorderColor #666666
+  FontSize 18
+}
+skinparam actor {
+  BackgroundColor #E6E6E6
+  BorderColor #666666
+  FontSize 18
+}
+
+actor "Администратор" as A
+participant "Сервис\nавтомасштабирования" as S
+participant "Платформы облачных\nвычислений" as P
+
+== Начальная конфигурация ==
+A -> S : группа BM G, шаблон BM T,\nлогин L, пароль P...
+A -> S : namespace N, deployment D, kubeconfig C...
+
+== Осуществление масштабирования OpenNebula ==
+S -> P : подключиться с логином L, паролем P...
+P --> S : соединение установлено
+S -> P : создать BM в группе G по шаблону T...
+
+== Осуществление масштабирования Kubernetes ==
+S -> P : подключиться с kubeconfig C...
+P --> S : соединение установлено
+S -> P : масштабировать deployment D в namespace N на 2
+
+@enduml

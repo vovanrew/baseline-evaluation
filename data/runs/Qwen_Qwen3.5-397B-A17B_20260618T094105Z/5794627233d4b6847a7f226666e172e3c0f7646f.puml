@@ -1,0 +1,50 @@
+@startuml
+title Weekly Rewards to Vaults
+
+actor User as u1
+actor Ops as o1
+participant "«mStable»\nEmissions Controller" as ec
+participant "«mStable»\nVaults" as v
+database "«mStable»\nMTA" as mta
+
+u1 -> ec : setVoterDialWeights ([dial ids], [weights])
+note right of ec: proportions voting power across dials\nfor future distributions
+ec --> u1 
+
+== After Thursday 00:00 UTC ==
+
+o1 -> ec : calculateRewards () 
+activate ec
+note right of ec: Calculates and stores \nrewards for each dial
+deactivate ec
+ec --> o1 
+
+
+o1 -> ec : distributeRewards ([dial ids])
+loop Dials
+    note left of ec: transfer MTA from Emissions Controller to Vault
+    
+    activate ec
+    ec->mta:transfer(vault,rewards)
+    
+    deactivate mtas
+    return 
+    
+  	ec-->v:notifyRewardAmount(rewards)
+	note right of v:Stream MTA to Users
+	
+end loop
+
+
+==After rewards have accrued==
+
+
+
+User -> Vaulst:claimRewards()
+note over vaults,mata:Transfer Mata From Vault To user
+vaults->mata:user ,rewardss
+
+
+
+
+@enduml

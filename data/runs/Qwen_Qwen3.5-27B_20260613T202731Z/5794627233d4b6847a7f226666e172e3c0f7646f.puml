@@ -1,0 +1,56 @@
+```plantuml
+@startuml
+title Weekly Rewards to Vaults
+
+actor "User" as User
+actor "Ops" as Ops
+participant "<<mStable>>\nEmissions Controller" as EmissionsController
+participant "<<mStable>>\nVaults" as Vaults
+participant "<<mStable>>\nMTA" as MTA
+
+User -> EmissionsController: setVoterDialWeights ([dial ids], [weights])
+activate EmissionsController
+note right of EmissionsController: proportions voting power across dials\nfor future distributions
+deactivate EmissionsController
+EmissionsController --> User
+
+== After Thursday 00:00 UTC ==
+
+Ops -> EmissionsController: calculateRewards ()
+activate EmissionsController
+note right of EmissionsController: Calculates and stores\nrewards for each dial
+deactivate EmissionsController
+EmissionsController --> Ops
+
+Ops -> EmissionsController: distributeRewards ([dial ids])
+activate EmissionsController
+loop [Dials]
+    note left: transfer MTA\nfrom Emissions Controller\nto Vault
+    EmissionsController -> MTA: transfer(vault, rewards)
+    activate MTA
+    deactivate MTA
+    MTA --> EmissionsController
+    
+    EmissionsController -> Vaults: notifyRewardAmount(rewards)
+    activate Vaults
+    note right of Vaults: Stream MTA to Users
+    deactivate Vaults
+    Vaults --> EmissionsController
+end loop
+deactivate EmissionsController
+EmissionsController --> Ops
+
+== After rewards have accrued ==
+
+User -> Vaults: claimRewards ()
+activate Vaults
+note left: transfer MTA\nfrom Vault\nto User
+Vaults -> MTA: transfer(user, rewards)
+activate MTA
+deactivate MTA
+MTA --> Vaults
+deactivate Vaults
+Vaults --> User
+
+@enduml
+```

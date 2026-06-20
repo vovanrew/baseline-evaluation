@@ -1,0 +1,43 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class PatientStudioDriver <<C>> #white
+class PatientAdapter <<C>> #white {
+  interviews
+}
+note top of PatientAdapter
+<<Proxy>>
+end note
+
+class InterviewStudioDriver <<C>> #white {
+  save(study, patient, interview)
+}
+
+class StudyStudioDriver <<C>> #white
+class StudyAdapter <<C>> #white {
+  start(command, ...args)
+  getInterviewItems(pageSet)
+  apply(interviewItems)
+}
+note top of StudyAdapter
+<<Proxy>>
+end note
+
+interface IMutationCommand <<I>> #white
+class UpdateItemCommand <<C>> #white {
+  start(study, page, index)
+  getInterviewItems(pageSet)
+  apply(study, interviewItems)
+}
+
+PatientStudioDriver --> PatientAdapter
+StudyStudioDriver --> StudyAdapter
+
+PatientAdapter ..> StudyAdapter : getInterviewItems(pageSet)
+InterviewStudioDriver ..> StudyAdapter : apply(interviewItems)
+
+StudyAdapter ..> UpdateItemCommand : start(...)
+StudyAdapter ..> UpdateItemCommand : apply(...)
+
+UpdateItemCommand ..|> IMutationCommand
+@enduml

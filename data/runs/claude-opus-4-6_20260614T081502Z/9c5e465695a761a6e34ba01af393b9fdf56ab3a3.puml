@@ -1,0 +1,29 @@
+```plantuml
+@startuml
+
+participant "ListingController" as LC
+participant "FixPriceListingMapper" as FPLM
+participant "Database" as DB
+participant "allListings: ArrayList<FixPriceListing>" as AL
+
+[-> LC : doGet()
+activate LC
+
+LC -> FPLM : readList()
+activate FPLM
+
+FPLM -> DB : SELECT * FROM fixed_price_listing
+activate DB
+
+FPLM <-- DB : resultSet
+deactivate DB
+
+FPLM ->> AL : create(title=resultSet.getString("title"), ...)
+
+LC <-- FPLM : allListings
+deactivate FPLM
+
+deactivate LC
+
+@enduml
+```

@@ -1,0 +1,22 @@
+{
+  "id": "22a1dbcd-c45a-4173-8af0-98cd2d733f4e",
+  "object": "chat.completion",
+  "created": 1781921713,
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle User getUsers\n\nparticipant \"API_Gateway\" as API_Gateway <<boundary>>\nparticipant \"UserRouter\" as UserRouter <<control>>\nparticipant \"Middleware\" as Middleware <<control>>\nparticipant \"UserController\" as UserController <<control>>\ndatabase \"UserDB\" as DB\n\nactivate API_Gateway\n->> UserRouter : getusers(token) \n    activate UserRouter\n    \n        ->> Middleware \t:withAuth(token)  \n            activate Middleware\n            \n                alt !token\n                \n                    <- - Middleware :'Unauthorized: No token provided (401)'   \n                    \n                        <-- API_Gateway:'Unauthorized: No token provided (401)'    \n                \n                 else [!valid] jwt.verify(token)     \n                 \n                  deactivate middleware\n                    \n                     alt [token != valid ]\n                     \n                         --> userRouter   'unauthorized invalid Token(401)'      \n                         \n                             <--- api_gateway     unauthorized InvalidToken()       \n                             \n                      end if\n                        \n                       return Validated        \n                       \n                   endif         \n                   \n               deactivatemiddleware           \n               \n           call findUsersFromDb(DB.find()) {          \n              note right of db #lightgreen:return users[];              \n          }            \n             \n         loop for each resultset row do            \n\n\nif(users.length == null){ throw new Exception(\"No Results Found\");}else{return res.status(http_status_code_ok).json(results);}endifloopendcallreturn(res,status(code=http_2oo_success,message=\"success\",data=results));deactivatedbcontrollerroutergateway@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2007,
+    "completion_tokens": 308,
+    "total_tokens": 2315
+  }
+}

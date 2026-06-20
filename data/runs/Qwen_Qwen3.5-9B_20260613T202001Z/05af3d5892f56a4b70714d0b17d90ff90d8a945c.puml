@@ -1,0 +1,32 @@
+@startuml
+left to right
+participant "CShareMoreDlg" as CShareMoreDlg
+participant "CSharingMoreWrapper" as CSharingMoreWrapper
+participant "CPfwMainFrame" as CPfwMainFrame
+participant "CPfwChainMessageMapT" as CPfwChainMessageMapT
+participant "CMCUIMgr" as CMCUIMgr
+participant "CSmDefUIMgr" as CSmDefUIMgr
+participant "CPfwMessageCenterAgent" as CPfwMessageCenterAgent
+participant "CSmFITUIMgr" as CSmFITUIMgr
+participant "CMCFITUIMgr" as CMCFITUIMgr
+participant "CSmAppShareSessionMgr" as CSmAppShareSessionMgr
+participant "CPcmAppShareMgr" as CPcmAppShareMgr
+
+CShareMoreDlg -> CSharingMoreWrapper : ShareOtherApp
+CSharingMoreWrapper -> CPfwMainFrame : SendMessage
+note right of CSharingMoreWrapper : PFW_QS_MENU_SHARE_OTHER_APP_ID
+CPfwMainFrame -> CPfwChainMessageMapT : PfwChainProcessWindowMessage
+CPfwChainMessageMapT --> CPfwMainFrame : ProcessWindowMessage
+CPfwMainFrame --> CMCUIMgr : OnWindowMsg
+CMCUIMgr -> CSmDefUIMgr : OnWindowMsg
+CSmDefUIMgr -> CPfwMessageCenterAgent : ChainToMsgCenter
+CPfwMessageCenterAgent --> CSmDefUIMgr : SendMessage
+CPfwMessageCenterAgent -> CSmFITUIMgr : :ProcessWindowMessage
+CSmFITUIMgr --> CMCFITUIMgr : OnCommand
+CMCFITUIMgr --> CSmAppShareSessionMgr : OnCommand
+CSmAppShareSessionMgr --> CPcmAppShareMgr : SelectANewApplication
+CPcmAppShareMgr -> CPcmAppShareMgr : ShowInstalledAppDialog
+
+note left of CShareMoreDlg : OnBtnShareOtherApp
+note right of CShareMoreDlg : User Click "Other Application"
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+hide footbox
+
+participant main
+participant OsScheduler
+participant Semaphore
+participant TaskA
+participant TaskB
+participant System
+
+main -> OsScheduler : startOS
+OsScheduler -> TaskA : launch
+TaskA -> Semaphore : waitSemaphore
+Semaphore -> System : callSystem
+System -> System : setJump(buf)
+System -> OsScheduler : reportSystemCall
+OsScheduler -> OsScheduler : saveTaskContext
+OsScheduler -> TaskB : launch
+TaskB -> Semaphore : waitSemaphore
+Semaphore -> System : callSystem
+System -> OsScheduler : reportSystemCall
+OsScheduler -> OsScheduler : saveTaskContext
+OsScheduler -> TaskA : launch
+
+@enduml

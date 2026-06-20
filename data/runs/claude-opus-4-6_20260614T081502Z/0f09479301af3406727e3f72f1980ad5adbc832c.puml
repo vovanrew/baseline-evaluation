@@ -1,0 +1,52 @@
+```plantuml
+@startuml
+
+actor "참가자" as participant1
+participant "깃헙 리포지토리" as repo
+participant "깃헙 액션" as action
+actor "운영자" as operator
+participant "파워 오토메이트" as automate
+database "데이터베이스" as db
+
+group PR
+    participant1 -> repo : PR 생성
+    note left of repo : GHA 챌린지 완료 인증샷
+    repo -> action : 이벤트 생성
+    action -> repo : 라벨 추가: review-required
+end
+
+group REVIEW
+    operator -> repo : 리뷰
+    repo -> repo : 라벨 추가: review-completed
+    repo -> repo : 라벨 삭제: review-required
+    repo -> repo : 코멘트: /ghasignoff
+    repo -> action : 이벤트 생성
+    note left of repo : 지정된 사용자만\n이벤트 생성 가능
+    action -> automate : 호출
+    note right of action : GitHub ID\nPR 본문\n제출시간
+    automate -> db : 레코드 조회
+    note left of db : GitHub ID
+
+    alt [레코드 있음]
+        db -> automate : 레코드 업데이트
+        note left of db : PR ID
+        automate -> action : 호출
+        note left of automate : PR ID
+        action -> repo : 라벨 추가: record-updated
+        action -> repo : 라벨 추가: completed-gha
+        action -> repo : 라벨 삭제: review-completed
+        action -> repo : PR 머지
+        note right of db : 업데이트 완료
+        repo -> participant1 : 확인 이메일
+    else [레코드 없음]
+        automate -> action : 호출
+        note left of automate : PR ID
+        action -> repo : 라벨 추가: review-required
+        action -> repo : 라벨 삭제: review-completed
+        note right of db : 레코드 없음
+        repo -> participant1 : 확인 이메일
+    end
+end
+
+@enduml
+```

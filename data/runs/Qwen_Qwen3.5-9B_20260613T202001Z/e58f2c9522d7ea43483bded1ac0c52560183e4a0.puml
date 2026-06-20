@@ -1,0 +1,100 @@
+@startuml
+' Define skin parameters for colors and styles
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor White
+  BorderColor Black
+  ArrowColor Black
+  FontColor Black
+}
+skinparam interface {
+  BackgroundColor White
+  BorderColor Black
+  ArrowColor Black
+  FontColor Black
+}
+skinparam note {
+  BackgroundColor White
+  BorderColor Black
+  FontColor Black
+}
+skinparam actor {
+  BackgroundColor White
+  BorderColor Black
+  FontColor Black
+}
+skinparam database {
+  BackgroundColor White
+  BorderColor Black
+  FontColor Black
+}
+skinparam relationship {
+  ArrowColor Black
+  FontColor Black
+}
+
+' Define classes and interfaces
+class SessionRepository {
+  <<interface>>
+  S createSession()
+  void save(S session)
+  S getSession(String id)
+  void delete(String id)
+}
+
+class Session {
+  <<interface>>
+}
+
+class ExpiringSession {
+  <<interface>>
+}
+
+class RedisSession {
+  <<class>>
+}
+
+class MapSessionRepository {
+  <<class>>
+}
+
+class JdbcOperationsSessionRepository {
+  <<class>>
+}
+
+class MongoOperationsSessionRepository {
+  <<class>>
+}
+
+class RedisOperationsSessionRepository {
+  <<class>>
+}
+
+class FindByIndexNameSessionRepository {
+  <<interface>>
+  Map<String, S> findByNameAndIndexValue(String indexName, String indexValue)
+}
+
+' Define relationships
+SessionRepository --|> Session : extends
+SessionRepository --|> FindByIndexNameSessionRepository : extends
+SessionRepository --|> MapSessionRepository : extends
+SessionRepository --|> JdbcOperationsSessionRepository : extends
+SessionRepository --|> MongoOperationsSessionRepository : extends
+SessionRepository --|> RedisOperationsSessionRepository : extends
+
+Session --|> ExpiringSession : extends
+ExpiringSession ..> RedisSession : extends
+RedisSession --> RedisOperationsSessionRepository : implements
+RedisOperationsSessionRepository ..> FindByIndexNameSessionRepository : implements
+
+' Add notes
+note right of SessionRepository
+  S extends Session
+end note
+
+note right of RedisOperationsSessionRepository
+  RedisSession
+end note
+
+@enduml

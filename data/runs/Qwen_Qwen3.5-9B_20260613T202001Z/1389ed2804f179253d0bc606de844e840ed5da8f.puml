@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+actor "User" as User
+rectangle "«main»\nAdministration" as Admin
+rectangle "«JFrame»\nMain Menu" as MainMenu
+rectangle "«dialog»\nView Products" as ViewProducts
+rectangle "«DAO»\nProductManagerdao" as ProductManagerDao
+rectangle "«DAO»\nDbConnection" as DbConnection
+
+User --> Admin : construct
+Admin --> MainMenu : construct
+User --> MainMenu : click "view products" button
+MainMenu --> ViewProducts : construct
+ViewProducts --> ProductManagerDao : construct
+ViewProducts --> ProductManagerDao : getProducts()
+ProductManagerDao --> DbConnection : getConnection(uri);
+DbConnection --> ProductManagerDao : connection
+ProductManagerDao --> ProductManagerDao : prepareStatement(sql)
+ProductManagerDao --> ProductManagerDao : executeQuery()
+ProductManagerDao --> ProductManagerDao : getters retrieve product details
+ProductManagerDao --> ProductManagerDao : setters set product details
+ProductManagerDao --> ViewProducts : product
+ViewProducts --> ViewProducts : setModel(displayProducts)
+User --> ViewProducts : enter a product ID in search bar
+User --> ViewProducts : user clicks 'search' button
+ViewProducts --> ViewProducts : searchbyIDTxt.getText()
+ViewProducts --> ProductManagerDao : searchProduct(searchID)
+ProductManagerDao --> DbConnection : getConnection(uri);
+DbConnection --> ProductManagerDao : connection
+ProductManagerDao --> ProductManagerDao : perpareStatement(sql)
+ProductManagerDao --> ProductManagerDao : setString(1, searchProdID)
+ProductManagerDao --> ProductManagerDao : executeQuery()
+ProductManagerDao --> ProductManagerDao : getters retrieve product details
+ProductManagerDao --> ProductManagerDao : setters set product details
+ProductManagerDao --> ViewProducts : product searched for (p)
+ViewProducts --> ViewProducts : updateItems(returnedProduct)
+User --> User : waiting for further user action
+
+@enduml

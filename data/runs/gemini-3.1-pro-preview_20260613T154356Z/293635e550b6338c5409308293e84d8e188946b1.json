@@ -1,0 +1,51 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nactor Admin\ncontrol Sqoop\ndatabase \"Metastore DB\" as MetastoreDB\ncollections HDFS\nboundary \"Hive SQL\" as HiveSQL\ndatabase Hive\nentity \"Hive Table\" as HiveTable\nentity Ambari\n\n== Pre Upgrade Planning Setup ==\nAdmin -> Sqoop : Run \"Collect the Metadata\"\nSqoop -> MetastoreDB : Extracts from\nSqoop -> HDFS : Saves to\nAdmin -> Hive : Run \"Build Supporting Tables\"\n\n== Pre Upgrade Planning ==\nAdmin -> HiveSQL : Run \"Distinct Serdes\"\nAdmin -> HiveTable : Fix Tables with Serde Issues\nAdmin -> HiveSQL : Run \"Check Partition Location\"\nAdmin -> HiveSQL : Run \"Non-Managed Table Locations\"\nAdmin -> HiveSQL : Run \"Managed Table Locations\"\nAdmin -> HiveSQL : Run \"Missing HDFS Directories Check\"\nAdmin -> HiveSQL : Correct \"Missing Directories\"\nAdmin -> HiveSQL : Run \"Table Migration Check\"\nAdmin -> HiveSQL : Run \"Acid Table Conversions\"\nAdmin -> HiveSQL : Run \"Conversion Table Directories\"\n\n== Pre Upgrade Compaction ==\nnote left of Admin\nThis process should be run several days\nBEFORE the actual upgrade to reduce the downtime\nof the upgrade.\n\nAnd should be run just BEFORE the upgrade and\nAFTER all users have been cleared from the system\nto ensure no tables are modified after this runs.\nend note\nAdmin -> HiveSQL : Run \"Acid Table Compaction Check\"\nAdmin -> HiveSQL : Run \"Acid Table Compaction Required\"\nAdmin -> Hive : TUNE THE COMPACTOR for estimated compaction needs\nAdmin -> HiveSQL : Run the compaction script. Break it apart if needed.\n\n== Post Upgrade Planning ==\nAdmin -> HiveSQL : Run \"Acid Table Locations\". Save artifact for Upgrade.\n\n== Upgrade ==\nAdmin -> Admin : Review and Run ALL previous steps\\nand collect details.\nAdmin -> Admin : Decision to intervene with Ambari Process\\nbased on volumes indicated through research\nAdmin -> Ambari : Hack Pre/Post Processes\nAdmin -> Admin : Run Compaction Routine one last time.\nAdmin -> Ambari : Start Upgrade\nAdmin -> Admin : Run the Post Upgrade Planning Output to convert tables.\nAdmin -> Ambari : Complete Upgrade\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHK65GuBl9myZzsFd8Munsy3Nzw27ZlEfZ+nRohZbCeZg/XlXdBmrUTTPVpTU2"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "citationMetadata": {
+        "citationSources": [
+          {
+            "startIndex": 956,
+            "endIndex": 1217,
+            "uri": "https://github.com/dstreev/hdp3_upgrade_utils",
+            "license": ""
+          },
+          {
+            "startIndex": 1512,
+            "endIndex": 2000,
+            "uri": "https://github.com/dstreev/hdp3_upgrade_utils",
+            "license": ""
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1168,
+    "candidatesTokenCount": 486,
+    "totalTokenCount": 1654,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1088
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "HF8xariPI-CO28oPxbG9oA4"
+}

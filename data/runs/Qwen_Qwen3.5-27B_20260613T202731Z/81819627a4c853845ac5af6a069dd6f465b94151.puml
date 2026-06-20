@@ -1,0 +1,41 @@
+```plantuml
+@startuml
+title 3. 女の子の招待
+
+actor "お嬢" as Hostess
+participant "グループスタッフ" as GroupStaff
+participant "CABABA" as CababaSystem
+database "データベース" as Database
+actor "CABABA管理者" as Admin
+
+rectangle "女の子登録" {
+    activate GroupStaff
+    GroupStaff -> CababaSystem: 設定画面から女の子の参加招待URLを作成
+    activate CababaSystem
+    
+    CababaSystem -> Database: SELECT Group.group_id
+    activate Database
+    Database --> CababaSystem
+    deactivate Database
+    
+    CababaSystem --> GroupStaff: 参加招待URLを表示
+    deactivate CababaSystem
+    deactivate GroupStaff
+    
+    activate Hostess
+    GroupStaff -> Hostess: URLを共有
+    Hostess -> CababaSystem: URLをクリック, LINEログイン画面へ
+    activate CababaSystem
+    
+    CababaSystem -> Database: UPDATE hostess.groups.add
+    activate Database
+    Database --> CababaSystem
+    deactivate Database
+    
+    CababaSystem --> GroupStaff: お嬢のグループ登録完了
+    deactivate CababaSystem
+    deactivate Hostess
+}
+
+@enduml
+```

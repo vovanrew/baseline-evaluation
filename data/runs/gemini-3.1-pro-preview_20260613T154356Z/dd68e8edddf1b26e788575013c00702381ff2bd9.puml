@@ -1,0 +1,37 @@
+```plantuml
+@startuml
+participant subject
+participant blockchain
+participant issuer
+
+activate subject
+subject -> blockchain: look up issuer DID
+activate blockchain
+blockchain --> subject: issuer public key
+deactivate blockchain
+
+subject -> subject: encrypt request with issuer public key
+subject -> subject: sign request with subject private key
+
+subject -> issuer: request credential
+activate issuer
+
+issuer -> blockchain: look up subject DID
+activate blockchain
+blockchain --> issuer: subject public key
+deactivate blockchain
+
+issuer -> issuer: validate request signature
+issuer -> issuer: decrypt request with issuer private key
+issuer -> issuer: validate facts of requested credential
+issuer -> issuer: create Verified Credential (VC)
+issuer -> issuer: sign VC with issuer private key
+
+issuer --> subject: verified credential
+deactivate issuer
+
+subject -> subject: store credential
+deactivate subject
+
+@enduml
+```

@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLs1Qba7ExayDx1693PmJXoqq2Fz",
+  "object": "chat.completion",
+  "created": 1781369497,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam backgroundColor white\nskinparam sequence {\n  ArrowColor #000000\n  LifeLineBorderColor #999999\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #999999\n  ParticipantBackgroundColor #E9E9F2\n  BoxBorderColor #999999\n  BoxBackgroundColor #FFFFFF\n  GroupBorderColor #000000\n  GroupBackgroundColor #FFFFFF\n  NoteBackgroundColor #FFF9C4\n  NoteBorderColor #999999\n}\nhide footbox\n\nactor CenterCoordinator\n\nparticipant \":DataFromLegacySystemUI\" as UI\nparticipant \":DataFromLegacySystemController()\" as C1\nparticipant \":DataFromLegacySystemController\" as C2\nparticipant \":ReadLegacyDataFile\" as R\nparticipant \":Company\" as Company\nparticipant \":SNSUserStore\" as SNS\nparticipant \":App\" as App\nparticipant \":VaccinationCenter\" as VC\nparticipant \":Arrival\" as Arrival\nparticipant \":Departure\" as Departure\nparticipant \":vaccinationCentersStore\" as VCS\n\nCenterCoordinator -> UI : 1 Asks to load a CSV file with legacy data.\nUI -> C1 : 2 DataFromLegacySystemController()\nC1 -> C2 : 2 DataFromLegacySystemController\n\nC2 -> Company : 3 getVaccinationCentersStore()\nCompany --> C2 : 4 returns the store\nC2 -> VCS : 5 getVaccinationCenterAssociatedToCoordinator(id)\nVCS --> C2 : 6 returns the vaccination center\nC2 -> R : 7 ReadLegacyDataFile(center)\n\nUI -> CenterCoordinator : 8 request path of the CSV file\nCenterCoordinator -> UI : 9 types path\nUI -> C2 : 10 readFile(path)\nC2 -> R : 11 readFile(String path)\n\nloop while csv has new lines\n  R -> R : 12 validateFile(legacySNSUserNumber,\\nfirstDate,secondDate,thirdDate,fourthDate)\n  R -> R : 13 Saves data into an ArrayList<String> called\\nlegacyDataList\nend\n\nR -> Company : 14 getSNSUserList()\nCompany -> SNS : 15 getSNSUserList()\nSNS --> Company : 16 returns list\nCompany --> R : 17 returns list\n\nR -> Company : 18 getVaccineList()\nCompany --> R : 19 returns list\n\nloop while legacyDataList has new lines\n  R -> R : 20 findPosOfSNSUser(snsUsersList,\\nvalues,positionInSNSUserList)\n  R -> R : 21 findPosOfVax(vaccineList,values,positionInVaccinesList)\n  R -> R : 22 checksDuplicates(updatedList,snsUsersList,vaccineList,positionInSNSUserList,positionInVaccinesList,lineOfTheData)\n  R -> R : 23 Saves data into an ArrayList<String> called updatedList\n\n  R -> App : 24 createArrival()\n  App -> Arrival : 25 createArrival()\n  Arrival --> App : 26 returns Arrival\n  App -> App : 27 Saves arrival into List<Arrival> called arrivalsList\n  App -> App : 28 genericsArrivals.binaryFileWrite(Constants.FILE_PATH_ARRIVALS, arrivalsList)\n\n  R -> App : 29 createDeparture()\n  App -> Departure : 30 createDeparture()\n  Departure --> App : 31 returns departure\n  App -> App : 32 Saves departure into List<Departure> called departuresList\n  App -> App : 33 genericsDeparture.binaryFileWrite(Constants.FILE_PATH_DEPARTURES, departuresList)\nend\n\nR --> C2 : 34 returns updatedList\nC2 --> UI : 35 returns updatedList\n\nUI -> CenterCoordinator : 36 requests the option to sort\nCenterCoordinator -> UI : 37 selects option\nUI -> C2 : 38 chooseCriteriaToSort(option)\nC2 -> R : 39 setList(option)\n\nloop while updatedList has new lines\n  R -> R : 40 Saves dates to\\n a List<LocalDateTime>\\n called listToSort\nend\n\nUI -> CenterCoordinator : 41 requests the order of the sort\nCenterCoordinator -> UI : 42 selects order\n\nalt (algorithmToBeUsed == \"InsertionSort\", option == \"0\" - Ascending)\n  UI -> C2 : 43 getAlgorithm()\n  C2 -> Company : 44 getSortingAlgorithm()\n  Company --> C2 : 45 returns algorithm\n  C2 --> UI : 46 returns algorithm\n\n  UI -> R : 47 sortListWithAlgo(algorithmToBeUsed,option)\n  note right of R\n    algorithmToBeUsed can be InsertionSort or HeapSort, both have methods that\n    can sort in ascending/descending order, here we are just representing the\n    InsertionSort algorithm because HeapSort functions in a similar way.\n  end note\n  R -> R : 48 insertionSortAscending()\n  R --> UI : 49 returns sortedList\n  UI --> CenterCoordinator : 51 prints sortedList\nelse (algorithmToBeUsed == \"InsertionSort\", option == \"1\" - Descending)\n  UI -> C2 : 53 getAlgorithm()\n  C2 -> Company : 54 getSortingAlgorithm()\n  Company --> C2 : 55 returns algorithm\n  C2 --> UI : 56 returns algorithm\n\n  UI -> R : 57 sortListWithAlgo(algorithmToBeUsed,option)\n  R -> R : 58 insertionSortDescending()\n  R --> UI : 59 returns sortedList\n  UI --> CenterCoordinator : 61 prints sortedList\nend\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2296,
+    "completion_tokens": 1189,
+    "total_tokens": 3485,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

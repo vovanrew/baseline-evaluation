@@ -1,0 +1,28 @@
+```plantuml
+@startuml
+
+participant "browser" as browser
+participant "proxy" as proxy
+actor "backend" as backend
+database "component_config" as component_config
+database "subscription_map" as subscription_map
+database "normalized_object_map" as normalized_object_map
+database "normalized_object" as normalized_object
+
+browser -> browser : **1** get_state(\n\tconfiguration_name,\n\tgeo_bounding_box\n)
+browser -> proxy :
+proxy -> backend : **2** +TENANT_HEADER
+backend -> component_config : **3** component_config[configuration_name]\n.subscription_usages
+component_config --> backend : **4** [ subscription_usage_config ]
+backend -> subscription_map : **5** forEach subscription_usage_config.subscription_id
+subscription_map --> backend : **6** subscription_map[subscription_id] (= normalized_object_map)
+backend -> normalized_object_map : **7** forEach key
+normalized_object_map --> backend : **8** normalized_object
+backend -> backend : **9** forEach normalized_object:\n\tif object.in(geo_bounding_box):\n\t\tobject.to_dto(\n\t\t\tsubscription_usage_config\n\t\t)
+backend -> normalized_object : **10** object_dto
+normalized_object --> backend
+backend --> proxy : **11** [ object_dto ]
+proxy --> browser : **12**
+
+@enduml
+```

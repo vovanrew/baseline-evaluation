@@ -1,0 +1,26 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "user" as User
+participant "LicenseAcceptor" as LA
+participant "FileAcceptance" as FA
+participant "ArgAcceptance" as AA
+participant "LicensePrompt" as LP
+participant "HelpTextMixin" as HTM
+
+User -> LA: /bin/chef
+LA -> FA: ::check
+FA --> LA: false
+LA -> AA: ::check
+AA --> LA: false
+LA -> LP: ::request_acceptance
+LP -> LP: ::check_for_tty
+LP --> User: accept license?
+User -> LP: yes
+LP -> FA: ::persist
+FA -> LP: path
+LP --> LA: true
+
+@enduml
+```

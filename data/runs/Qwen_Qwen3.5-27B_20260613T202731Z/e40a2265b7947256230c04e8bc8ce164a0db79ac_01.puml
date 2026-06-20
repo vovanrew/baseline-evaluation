@@ -1,0 +1,30 @@
+```plantuml
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Actor" as actor1
+participant "Boundary" as boundary1
+participant "Entity" as entity1
+participant "Control" as control1
+participant "Control" as control2
+
+actor1 -> boundary1 : authorization Request
+activate boundary1
+boundary1 -> entity1 : gson.fromJson(user, User.class);
+activate entity1
+entity1 --> boundary1
+deactivate entity1
+boundary1 -> control1 : userService.userValidation(user)
+activate control1
+control1 -> control2 : tokenService.createToken(user.getName())
+activate control2
+control2 --> control1 : Token
+deactivate control2
+control1 --> boundary1 : Token
+deactivate control1
+boundary1 --> actor1 : authorization Responsh Token
+deactivate boundary1
+
+@enduml
+```

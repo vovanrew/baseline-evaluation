@@ -1,0 +1,81 @@
+```plantuml
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Specialist Doctor" as doctor
+participant ":CreateReportUI" as UI
+participant ":CreateReportController" as Controller
+participant ":Company" as Company
+participant ":TestDiagnosis" as TestDiagnosis
+participant "rp : TestReportStore" as ReportStore
+participant "obj : diagnosis" as Diagnosis
+participant "rp : TestReport" as Report
+
+doctor -> UI: 1 asks to create a new diagnosis
+activate UI
+ref over UI,Controller {US4_SD_testsDTO.puml}
+deactivate UI
+UI --> doctor: 2 requests to choose a given test
+doctor -> UI: 3 chooses a given test
+activate UI
+UI -> Controller: 4 createTestDiagnosis(idTest)
+activate Controller
+Controller -> TestDiagnosis: 5 createTestDiagnosis(test)
+activate TestDiagnosis
+TestDiagnosis -> Diagnosis: 6 createTestDiagnosis(testParameterList)
+activate Diagnosis
+Diagnosis --> TestDiagnosis: 
+deactivate Diagnosis
+TestDiagnosis --> Controller: 7 getDiagnosis()
+deactivate TestDiagnosis
+Controller --> UI: 8 getDiagnosis()
+deactivate Controller
+UI --> doctor: 9 shows the diagnosis done automatically and requests the data for the report
+doctor -> UI: 10 types the requested data
+activate UI
+UI -> Controller: 11 createReport(idTest, diagnosis, report)
+activate Controller
+Controller -> Company: 12 store = getTestReportStore()
+activate Company
+Company --> Controller: 
+deactivate Company
+Controller -> ReportStore: 13 createReport(idTest, diagnosis, report)
+activate ReportStore
+ReportStore -> Report: 14 create(idTest, diagnosis, report)
+activate Report
+Report --> ReportStore: 
+deactivate Report
+Controller -> ReportStore: 15 validateReport()
+activate ReportStore
+ReportStore --> Controller: 
+deactivate ReportStore
+deactivate Controller
+UI --> doctor: 16 shows the typed data and asks for confirmation
+doctor -> UI: 17 confirms the data
+activate UI
+UI -> Controller: 18 saveReport(report)
+activate Controller
+Controller -> Company: 19 saveReport(report)
+activate Company
+Company -> ReportStore: 20 saveReport(report)
+activate ReportStore
+ReportStore -> ReportStore: 21 validateReport(report)
+activate ReportStore
+ReportStore --> ReportStore: 
+deactivate ReportStore
+ReportStore -> ReportStore: 22 addReport(report)
+activate ReportStore
+ReportStore --> ReportStore: 
+deactivate ReportStore
+ReportStore --> Company: 
+deactivate ReportStore
+Company --> Controller: 
+deactivate Company
+Controller --> UI: 
+deactivate Controller
+deactivate UI
+UI --> doctor: 23 informs operation success
+
+@enduml
+```

@@ -1,0 +1,55 @@
+@startuml
+participant "InstallInstalling" as II
+participant "PackageInstaller" as PI
+participant "PackageInstallerService" as PIS
+participant "InstallingAsyncTask" as IAT
+participant "PackageInstallerSession" as PISes
+participant "Handler" as H
+participant "mHandlerCallback" as MHC
+participant "PkMS" as PkMS
+participant "PkMS.PackageHandler" as PPH
+participant "PkMS.HandlerParams" as PHP
+participant "PkMS.InstallParams" as PIP
+
+II -> II : onCreate()
+II -> II : createSession()
+II -> PIS : createSession()
+PIS --> II : sessionId
+II -> II : sessionId
+II -> II : onResume()
+II -> II : execute()
+II -> IAT : doInBackground()
+IAT --> II : 
+IAT -> PISes : openSession(sessionId)
+PISes --> IAT : Session
+IAT -> PISes : openWrite()
+IAT -> IAT : doPostExecute()
+IAT --> IAT : 
+IAT -> PISes : commit()
+PISes -> H : sendToTarget(MSG_COMMIT)
+H -> MHC : handleMessage(MSG_COMMIT)
+PISes -> PISes : handleCommit()
+PISes -> PISes : commitNonStagedLocked()
+PISes --> PISes : 
+PISes -> PkMS : installStage()
+PkMS -> PPH : sendMessage(INIT_COPY)
+PPH -> PHP : startCopy()
+PHP -> PIP : handleStartCopy()
+PHP -> PIP : handleReturnCode()
+PPH -> PPH : processPendingInstall()
+PPH -> PPH : processInstallRequestsAsync()
+PPH --> PPH : 
+PPH -> PPH : installPackagesTracedLI()
+PPH --> PPH : 
+PPH -> PPH : installPackagesLI()
+PPH --> PPH : 
+PPH -> PPH : preparePackageLI()
+PPH --> PPH : 
+PPH -> PPH : scanPackageTracedLI()
+PPH --> PPH : 
+PPH -> PPH : commitPackagesLocked()
+PPH --> PPH : 
+PPH -> PPH : commitReconciledScanResultLocked()
+PPH --> PPH : 
+PPH -> PPH : commitPackageSettings()
+@enduml

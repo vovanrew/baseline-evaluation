@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLc5w7UywHOKarN0zfux6A0nh4ns",
+  "object": "chat.completion",
+  "created": 1781368509,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  ParticipantPadding 35\n  BoxPadding 10\n  MessageAlign left\n}\n\nactor User\nparticipant JobManager\nparticipant Nodes\nparticipant ESDM\nparticipant \"Post Processing Library\" as PPL\ndatabase Storage\n\nUser -> JobManager : submit job(IN, OUT)\nJobManager -> Nodes\n\n== Initialization ==\nNodes -> Storage : read IN=x\nStorage --> Nodes : return\n\n== Loop ==\nloop\n  Nodes -> Nodes : compute\n  Nodes -> ESDM : write async OUT=y\n  activate ESDM\n  ESDM -> Storage : write snapshot (async)\n  ESDM -> PPL : trigger post processing if region effected\n\n  == In Situ Post Processing ==\n  activate PPL\n  PPL -> PPL : perform post processing\n  PPL -> Storage : (could write result directly)\n  PPL --> ESDM : return\n  deactivate PPL\n\n  ESDM -> Storage : write post processing result\n  deactivate ESDM\n  ESDM --> Nodes : return\nend\n\nnote left of User\nOUT files become visible\nend note\n\nnote over ESDM\nmultiple iterations\nend note\n\n== Finalize ==\n\nnote left of User\nAll OUT files become visible to subsequent users.\nend note\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2586,
+    "completion_tokens": 285,
+    "total_tokens": 2871,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

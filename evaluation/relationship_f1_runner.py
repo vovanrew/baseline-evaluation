@@ -59,6 +59,27 @@ def micro_with_support(rows):
     }
 
 
+def per_relation_counts(gt_by_key, pred_by_key, keys):
+    """Per-diagram per-relation tp/fp/fn over the canonical RELATIONS.
+
+    Returns ``{key: {rel: {"tp", "fp", "fn"}}}``. Built from the same
+    ``rf.compute(relation=rel)`` scoring that ``summarize`` pools into
+    ``summary.by_relation``, so two structural invariants hold by construction:
+      * pooling these counts across any key subset reproduces
+        ``summary[pop]["by_relation"]`` (both populations); and
+      * the edge match key carries the relation type, so edges partition by
+        relation -- summing a diagram's six relations reproduces its overall
+        tp/fp/fn.
+    This is purely additive: it is attached to each per-diagram row and does not
+    touch the overall scores or the summary.
+    """
+    per_key = {k: {} for k in keys}
+    for rel in rf.RELATIONS:
+        for row in rf.compute(gt_by_key, pred_by_key, keys, relation=rel):
+            per_key[row["key"]][rel] = {"tp": row["tp"], "fp": row["fp"], "fn": row["fn"]}
+    return per_key
+
+
 def summarize(gt_by_key, pred_by_key, keys, compiled_keys):
     """Build the summary for both reporting populations.
 
@@ -130,6 +151,10 @@ def main():
 
     summary, overall_rows = summarize(gt_by_key, pred_by_key, keys, compiled_keys)
 
+    # Additive per-diagram per-relation tp/fp/fn (enables per-relation CIs);
+    # overall scores and the summary above are untouched.
+    by_rel = per_relation_counts(gt_by_key, pred_by_key, keys)
+
     compiled_set = set(compiled_keys) if compiled_keys is not None else None
     diagrams = []
     for r in overall_rows:
@@ -137,6 +162,7 @@ def main():
         d["has_pred"] = r["key"] in have_pred
         if compiled_set is not None:
             d["compiled"] = r["key"] in compiled_set
+        d["by_relation"] = by_rel[r["key"]]
         diagrams.append(d)
 
     out_path = os.path.join(args.out, "relationship_f1_results.json")

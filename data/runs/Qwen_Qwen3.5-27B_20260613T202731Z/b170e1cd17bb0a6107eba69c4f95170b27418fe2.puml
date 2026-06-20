@@ -1,0 +1,39 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "User" as User
+participant "QuerySet" as QuerySet
+participant "QueryParser" as QueryParser
+participant "Tokenizer" as Tokenizer
+participant "Query" as Query
+participant "QueryComponent" as QueryComponent
+
+User -> QuerySet: 1 QuerySet()
+User -> QuerySet: 2 add("longitude", "*/CLON")
+QuerySet -> QueryParser: 3 parse(queryString)
+activate QueryParser
+QueryParser -> Tokenizer: 4 tokenize(queryString)
+activate Tokenizer
+Tokenizer --> QueryParser: 5 tokens
+deactivate Tokenizer
+
+loop [all sub-queries]
+    QueryParser -> Query: 6 Query()
+    activate Query
+    
+    loop [all components]
+        QueryParser -> QueryComponent: 7 QueryComponent()
+        activate QueryComponent
+        QueryParser -> Query: 8 push_back(component)
+        deactivate QueryComponent
+    end
+    
+    deactivate Query
+end
+
+QueryParser --> QuerySet: 9 queries
+deactivate QueryParser
+
+@enduml
+```

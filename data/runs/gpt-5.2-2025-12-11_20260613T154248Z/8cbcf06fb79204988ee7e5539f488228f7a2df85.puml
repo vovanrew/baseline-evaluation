@@ -1,0 +1,70 @@
+@startuml
+title <u><color:blue>Subscribe & Save Debugging Classroom Activity</color></u>
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #F2F2F2
+  BorderColor #666666
+  HeaderBackgroundColor #E6E6E6
+}
+
+class App << (C,#B7D7B7) >> {
+  +getAmazonProductService() : AmazonProductService
+  +getAmazonIdentityService() : AmazonIdentityService
+  +getSubscriptionDAO() : SubscriptionDAO
+  +getSubscriptionFileStorage() : SubscriptionFileStorage
+  +getSubscriptionService() : SubscriptionService
+}
+
+class Subscription << (C,#B7D7B7) >> {
+  -String id
+  -String customerId
+  -String asin
+  -int frequency
+  --
+  +getId() : String
+  +setId(id : String) : void
+  +getCustomerId() : String
+  +getAsin() : String
+  +getFrequency() : int
+  +toString() : String
+}
+
+class SubscriptionDebugUtil << (C,#B7D7B7) >> {
+  +main(String[] args) : void
+}
+
+class SubscriptionService << (C,#B7D7B7) >> {
+  +subscribe(customerId : String, asin : String, frequency : int) : Subscription
+  +getSubscription(subscriptionId : String) : Subscription
+}
+
+class SubscriptionDAO << (C,#B7D7B7) >> {
+  +createSubscription(customerId : String, asin : String, frequency : int) : Subscription
+  +getSubscription(subscriptionId : String) : Subscription
+}
+
+class AmazonProductService << (C,#B7D7B7) >> {
+  +getProductByAsin(asin : String) : Product
+}
+
+class AmazonIdentityService << (C,#B7D7B7) >> {
+  +validateCustomer(customerId : String) : boolean
+}
+
+class SubscriptionFileStorage << (C,#B7D7B7) >> {
+  +getSubscriptionById(subscriptionId : String) : Subscription
+  +writeSubscription(subscription : Subscription) : Subscription
+}
+
+App -up- Subscription
+SubscriptionDebugUtil -down- SubscriptionService
+
+SubscriptionService *-- SubscriptionDAO
+SubscriptionService -- AmazonProductService
+SubscriptionService -- AmazonIdentityService
+
+SubscriptionDAO *-- SubscriptionFileStorage
+
+@enduml

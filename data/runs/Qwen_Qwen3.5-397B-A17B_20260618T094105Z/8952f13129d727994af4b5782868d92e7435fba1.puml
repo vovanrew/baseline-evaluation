@@ -1,0 +1,85 @@
+@startuml
+title Shared memory receiver behaviour
+
+participant "Shared\nmemory\nreceiver" as SMR #LightBlue20
+box Coordination struct  LightGrey 
+    participant "<b>Reader count var</b>" as RCV #WhiteSmoke
+    participant "<b>locks_active</b>\n<color:red><i>(mutex)</i></color>" as LA #WhiteSmoke
+    participant "<b>locks_leaving</b>\n<color:green><i>(semaphore)</i></color>" as LL #WhiteSmoke
+    participant "<b>Semaphore copy</b>" as SC #WhiteSmoke
+end box
+participant Copy buff as CB #LightGreen35
+
+
+SMR -> SMR : create 
+
+alt ["Coordination semaphore doesn't exist"]
+   note right of SMR: Create semaphore \nto Semaphore coord
+   
+else
+    
+endif
+
+
+
+activate SMR
+note over SMR,CB#Line.Dashed:#DarkGray;Writer sets up sharedmem\or y\nand signals Writer is ready <font color=red>:) </font>;
+deactivate SMR
+
+
+
+
+group wait [ok]
+    
+     activate SMR
+     
+     
+      group reincrease
+      
+         alt []
+            opt this way all readers access the mem ory,\nthey will fail on the copy sem
+                
+                rect rgb(198, 247, 67)  
+                    'MMMap coordination struct
+                    
+                    
+                     trylock copy semaphore to SC   
+                     
+                     
+            
+             else 
+            
+                 Can't lock
+                 
+                  Fail
+                  
+              end
+        
+        success 
+        
+          Success
+          
+           MMmap copy buffer from CB
+           
+           read_flag set true in SMR
+         
+            
+        
+       Lock leaving[1] -->LL
+       
+      
+      Signal reader ready back to writer
+      
+      
+      
+      Close coordination semaphore file
+      
+      deactivate SMR
+      
+      return Success
+  
+  
+  
+  
+
+@enduml

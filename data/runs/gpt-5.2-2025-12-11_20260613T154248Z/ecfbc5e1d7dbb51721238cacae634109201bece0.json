@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLuzN93DcAVgoobmCIyLWYZE7NmH",
+  "object": "chat.completion",
+  "created": 1781369681,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Compass Sequence Diagram\n\nactor User\nparticipant HubSpot\nparticipant TypeForm\nparticipant \"TypeForm API\" as TypeFormAPI\nparticipant \"Node App\" as NodeApp\n\nbox \"AWS\" #DDDDDD\n  participant \"S3 Bucket\" as S3\n  participant SES\nend box\n\nUser -> HubSpot : Loads Compass\nactivate HubSpot\nHubSpot -> HubSpot : Generate UUID to identify user\nHubSpot -> TypeForm : Load embedded TypeForm survery\n\nUser -> HubSpot : Completes survey\nHubSpot --> User : Redirects to HubSpot Landing Page Submission Form\\nhttps://info.codurance.com/en/compass-details-submission\n\nUser -> HubSpot : Completes submission form\nHubSpot -> HubSpot : Save submission info\\n& contact in Hubspot\nHubSpot -> NodeApp : Redirects to /report/submit/:uuid (to generate report)\n\nactivate NodeApp\nNodeApp -> NodeApp : Start report generation\n\nHubSpot --> User : Redirects to HubSpot Thanks Landing Page\\n\"https://info.codurance.com/en/compass-successful-submission\"\n\nNodeApp -> TypeFormAPI : Gets survey questions & answers\nTypeFormAPI --> NodeApp\n\nnote left of HubSpot\ngenerate report\nand send email\nend note\n\nNodeApp -> HubSpot : Get user details\nHubSpot --> NodeApp\n\nNodeApp -> NodeApp : Build report and render with jsreport\nNodeApp -> S3 : Upload report to AWS S3 bucket\nNodeApp -> S3 : Query report link\nS3 --> NodeApp\nNodeApp -> NodeApp : Compose email data with report pdf link\nNodeApp -> SES : Queue email for sending\n\nSES -> User : Send email to user\n\ndeactivate NodeApp\ndeactivate HubSpot\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1951,
+    "completion_tokens": 375,
+    "total_tokens": 2326,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

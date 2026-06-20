@@ -1,0 +1,71 @@
+```plantuml
+@startuml
+participant User
+participant "pub.com" as pub
+participant "prebid.js" as prebid
+participant "prebid_[SSP_MODULE].js" as ssp_module
+participant SSPs
+participant DSPs
+participant "gam.js" as gam
+participant "GAM/AdX" as adx
+
+User -> pub : 1. navigates browser to pub.com
+activate pub
+
+pub -> prebid : 2. load, configure, execute prebid.js
+activate prebid
+
+prebid -> ssp_module : 3. invoke SSP bid adapter
+activate ssp_module
+
+ssp_module -> SSPs : 4. ad request
+activate SSPs
+
+SSPs -> SSPs : 5. traffic quality controls
+
+SSPs -> DSPs : 6. make bid requests
+activate DSPs
+
+DSPs -> SSPs : 7. respond with bids
+deactivate DSPs
+
+SSPs -> SSPs : 8. pub ad controls
+
+SSPs -> ssp_module : 9. ad w/price
+deactivate SSPs
+
+ssp_module -> prebid : 10. ad w/price
+deactivate ssp_module
+
+prebid -> prebid : 11. select appropriate ad
+
+prebid -> gam : 12. configure k/v pair for selected ad
+activate gam
+
+gam -> pub : 13. wait for ad slot to load
+deactivate prebid
+
+note over pub, gam : At this point control over the ad loading process is transferred from Prebid.js to GAM (final selection layer)
+
+pub -> gam : 14. load slot
+
+gam -> adx : 15. ad request
+activate adx
+
+adx -> gam : 16. respond with winning ad, which may be prebid.js line item
+deactivate adx
+
+alt GAM/AdX highest bid
+    gam -> gam : 17.1 render GAM/AdX result
+else Prebid.js highest bid
+    gam -> prebid : 17.2 render selected SSP ad
+end
+
+gam -> pub : 
+deactivate gam
+
+pub -> User : 18. show highest value advertisement
+deactivate pub
+
+@enduml
+```

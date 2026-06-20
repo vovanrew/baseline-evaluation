@@ -1,0 +1,21 @@
+{
+  "id": "msg_013Gd1CKB9HFMzPYM7TikFDk",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Sequence Diagram: Internal state synchronization\n\nbox \"Internal Service\" #LightGray\nparticipant Sender\nparticipant IoTClient\nparticipant ShadowCallback\nend box\n\nbox \"AWS Cloud\" #LightGreen\nparticipant ShadowService\nend box\n\n== client connection ==\n\nSender -> IoTClient : connect()\nIoTClient -> ShadowCallback : on_conncet_wrapper()\nShadowCallback -> Sender : subscribe(\"AWS Shadow Topics\")\nSender -> ShadowService : subscribe()\nIoTClient -> ShadowCallback : on_subscribe_wrapper()\nShadowCallback -> ShadowCallback : request_desired_state()\n\n== state retrival ==\n\nShadowCallback -> ShadowService : publish(\"myClient/shadow/get\")\nactivate ShadowCallback #Salmon\nactivate IoTClient #Salmon\ndeactivate IoTClient\nShadowService -> ShadowCallback : on_message(\"myClient/shadow/get/accepted\", state)\ndeactivate ShadowCallback\nIoTClient -> ShadowCallback : on_message_wrapper(rawState)\nShadowCallback -> ShadowCallback : on_desired_state_change(rawState)\n\n== state synchronization ==\n\nSender <- ShadowCallback : set_state(desiredState)\nSender -> ShadowCallback : on_set_state_wrapper()\nShadowCallback -> ShadowCallback : publish_new_state()\nShadowCallback -> ShadowService : publish(\"myClient/shadow/update\", reportedState)\nactivate IoTClient #Salmon\nactivate ShadowCallback #Salmon\ndeactivate ShadowCallback\nShadowCallback -> ShadowService : publish(\"myClient/shadow/update\", state)\ndeactivate IoTClient\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781430659,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 431,
+    "prompt_tokens": 1650,
+    "total_tokens": 2081
+  }
+}

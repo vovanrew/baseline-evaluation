@@ -1,0 +1,25 @@
+@startuml
+participant Actor as Player
+participant Telnet Server as TelnetServer
+participant Connection Manager as ConnectionManager
+participant Middleware as Middleware
+participant World Service as WorldService
+
+subgraph PortalService
+    TelnetServer
+    ConnectionManager
+    Middleware
+    WorldService
+endsubgraph
+
+Actor "Player" as P1
+Actor "Player" as P2
+
+P1 -- TelnetServer : 1. connects to server
+TelnetServer -- ConnectionManager : 2. passes connection to manager
+ConnectionManager -- ConnectionManager : 3. calls configured OnConnect callbacks
+ConnectionManager -- Middleware : 4. calls all Middleware OnConnect callbacks
+ConnectionManager -- ConnectionManager : 5. start main Connection loop
+ConnectionManager -- Middleware : 6. initialize World session
+
+@enduml

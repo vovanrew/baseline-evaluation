@@ -1,0 +1,22 @@
+{
+  "id": "86d7e4ae-22e9-4d38-84e9-ca02207dd884",
+  "object": "chat.completion",
+  "created": 1781402372,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n\nparticipant \"Admin\" as Admin\nparticipant \"OpenNESS Controller Components\" as OpenNESS\nparticipant \"5G Core Components\" as 5G_Core\n\nOpenNESS <- UI/CLI\nOpenNESS <- Af Microservice\n5G_Core <- NEF\n5G_Core <- NGC CP Function\n\nNote over OpenNESS, 5G_Core: OpenNESS provided Core component with limited functionality\n\nactor Admin\n\nrectangle \"Get all transactions with PFD\" {\n    Admin->>OpenNESS: Request all PFD transactions\n    OpenNESS->>Af Microservice: af/v1/pfd/transaction GET\n    Af Microservice->>5G_Core: 3gpp-pfd-management/v1/{scsAsId}/transactions/GET\n    5G_Core->>NEF: NGC_STUB (UDR SMF)\n    NEF-->>Af Microservice: OK: PFD information \\\\ ERROR\n    Af Microservice-->>OpenNESS: OK: PFD information \\\\ ERROR\n    OpenNESS-->>Admin: PFD details\n}\n\nrectangle \"Get transactions with transactionId\" {\n    Admin->>OpenNESS: Request transaction with transactionId\n    OpenNESS->>Af Microservice: af/v1/pfd/transactions/{transactionId} GET\n    Af Microservice->>5G_Core: 3gpp-pfd-management/v1/{scsAsId}/transactions/{transactionId} GET\n    5G_Core->>NEF: NGC_STUB (UDR SMF)\n    NEF-->>Af Microservice: OK: PFD information \\\\ ERROR\n    Af Microservice-->>OpenNESS: OK: PFD information \\\\ ERROR\n    OpenNESS-->>Admin: PFD details\n}\n\nrectangle \"Get transactions with applicationId\" {\n    Admin->>OpenNESS: Request transactions with applicationId\n    OpenNESS->>Af Microservice: af/v1/pfd/transactions/{transactionId}/applications/{appId} GET\n    Af Microservice->>5G_Core: 3gpp-pfd-management/v1/{scsAsId}/transactions/{transactionId}/applications/{appId} GET\n    5G_Core->>NEF: NGC_STUB (UDR SMF)\n    NEF-->>Af Microservice: OK: PFD information \\\\ ERROR\n    Af Microservice-->>OpenNESS: OK: PFD information \\\\ ERROR\n    OpenNESS-->>Admin: PFD details\n}\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1713,
+    "completion_tokens": 532,
+    "total_tokens": 2245
+  }
+}

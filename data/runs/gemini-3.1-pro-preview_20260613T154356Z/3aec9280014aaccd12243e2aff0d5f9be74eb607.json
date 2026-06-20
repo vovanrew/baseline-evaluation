@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle band301\n\nparticipant BTManager\nparticipant BTCallback\nparticipant BleController\nparticipant ScannerPresenter\nparticipant LeScannerV21\nparticipant WristbandManager\nparticipant L2Layer\nparticipant L2KeyPacket\nparticipant L2CMDPacket\nparticipant L1Layer\nparticipant L1Packet\nparticipant GattLayer\nparticipant BluetoothGatt\n\n-> BTManager : onCreate\nBTManager -> WristbandManager : initial\nWristbandManager -> L2Layer : new\nL2Layer -> L1Layer : new\nL1Layer -> L1Packet : new\nL1Layer -> GattLayer : new\n\nBTManager -> BleController : initial\nBleController -> ScannerPresenter : new\nScannerPresenter -> LeScannerV21 : new\n\n== \u641c\u7d22\u8bbe\u5907 ==\n\nBleController -> BleController : forceLeScan\nBleController -> BleController : scanLeDevice\nnote left: \u641c\u7d22\u84dd\u7259\u8bbe\u5907\nBleController -> ScannerPresenter : scanDevice\nScannerPresenter -> ScannerPresenter : scanLe\nScannerPresenter -> LeScannerV21 : scanLeDevice\nLeScannerV21 -> LeScannerV21 : startScan\nLeScannerV21 --> ScannerPresenter : onScanResult\nScannerPresenter --> ScannerPresenter : notifyLeScan\nScannerPresenter --> BleController : onLeScan\nBleController --> BTManager : onNewDevice\nBTManager -> BTManager : mHandler.handleMessage\nnote left: MSG_FIND_BONDED_DEVICE\n\n== \u5efa\u7acbGATT\u8fde\u63a5 ==\n\nBTManager -> WristbandManager : Connect : \u627e\u5230\u5408\u9002\u7684\u5730\u5740\u540e\uff0c\u4f7f\u7528\u8be5\u5730\u5740\u8fdb\u884c\u84dd\u7259\u8fde\u63a5\nWristbandManager -> L2Layer : connect\nL2Layer -> L1Layer : connect\nL1Layer -> L1Layer : startTxSchedule\nL1Layer -> L1Layer : startRxSchedule\nnote left: \u5f00\u542f\u4e24\u4e2a\u7ebf\u7a0b\uff0cTx\u53d1\u9001\uff0cRx\u63a5\u6536\nL1Layer -> GattLayer : connect\nGattLayer -> BluetoothGatt : connect\nBluetoothGatt --> GattLayer : onConnectionStateChange\nGattLayer -> BluetoothGatt : requestMtu\nnote left: \u8bbe\u7f6eMTU : 240\nBluetoothGatt --> GattLayer : onMtuChanged\nGattLayer -> BluetoothGatt : discoverServices\nBluetoothGatt --> GattLayer : onServicesDiscovered\nnote left: \u901a\u8fc7UUID\uff0c\u53d1\u73b0\u6211\u4eec\u8bbe\u7f6e\u7684Services\u548c\u6570\u636e\u8f7d\u4f53Characteristic\nBluetoothGatt --> GattLayer : onDescriptorWrite\nGattLayer --> L1Layer : mGattCallback.onConnectionStateChange\nL1Layer --> L2Layer : mTransportCallback.onConnectionStateChange\nL2Layer --> WristbandManager : mApplicationCallback.onConnectionStateChange\nnote left: MSG_STATE_CONNECTED\nWristbandManager --> BTManager : mHandler.handleMessage\nBTManager -> WristbandManager : StartLoginProcess\nWristbandManager -> WristbandManager : RequestLogin\nWristbandManager -> WristbandManager : RequestSetNeedInfo\nWristbandManager -> WristbandManager : SetUserProfile\n\n== \u5c01\u88c5\u5e76\u53d1\u9001\u6570\u636e - Tx ==\n\nWristbandManager -> L2Layer : SettingCmdUserSetting\nL2Layer <-> L2KeyPacket : preparePacket : key(1B),data,len(2B),data\nnote left: \u5c01\u88c5L2\nL2Layer <-> L2CMDPacket : preparePacket : cmd(1B),version(1B)\nL2Layer -> L1Layer : sendData\nL1Layer <-> L1Packet : prepareDataPacket\nnote left: \u5c01\u88c5L1\nL1Packet <-> L1Packet : preparePacket\nnote right: magic:AB; er-ack-version:00; len(2B);crc(2B);seq(2B)\nL1Layer -> L1Layer : addToTxPacketList\nL1Layer -> L1Layer : ThreadTx.run\nnote left: \u6bcf\u96941\u79d2\u67e5\u8be2\u4e00\u6b21\u662f\u5426\u6709\u65b0\u6570\u636e\uff0c\u6709\u5c31\u53d1\u9001\uff0c\u91cd\u8bd53\u6b21\nL1Layer -> L1Layer : getFromTxPacketList\nL1Layer -> L1Layer : UnpackSendPacket\nnote left: \u8981\u53d1\u9001\u7684\u6570\u636e\u62c6\u4e3a\u6bcf20\u4e2a\u5b57\u8282\u53d1\u9001\u4e00\u6b21\uff0c\u76f4\u5230\u53d1\u9001\u5b8c\u6bd5\nL1Layer -> L1Layer : sendGattLayerData\nL1Layer -> GattLayer : sendData\nGattLayer -> BluetoothGatt : sendData\nL1Layer -> L1Layer : tellUpstackPacketSend\nnote left: \u53cd\u9988\u53d1\u9001\u6210\u529f, SequenceId++\nL1Layer --> L2Layer : onDataSend\n\n== \u63a5\u6536\u6570\u636e - Rx ==\n\nBluetoothGatt --> GattLayer : onCharacteristicChanged\nGattLayer --> L1Layer : mGattCallback.onDataReceive\nL1Layer -> L1Layer : receiveData\nL1Layer -> L1Layer : decodeReceiveData\nnote left: \u62c6\u5305L1\nL1Layer -> L1Layer : parseHeader:\u89e3\u6790\u51famagic, ack, \u603b\u957f\u5ea6, crc, sequenceId\nL1Layer -> L1Packet : parseData\nnote left: \u5982\u679c\u63a5\u6536\u7684\u6570\u636e\u957f\u5ea6\u7b49\u4e8eL1\u4e2d\u8bb0\u5f55\u7684\u603b\u957f\u5ea6\u5219\u8fd4\u56de: LT_FULL_PACKET\\n\u5426\u5219\uff0c\u628a\u6570\u636e\u6682\u5b58\u8d77\u6765\uff08\u5b58504B\uff09\uff0c\u8fd4\u56deLT_SUCCESS\uff0c\u7b49\u5f85\u5269\u4f59\u6570\u636e\u4f20\u8fc7\u6765\nL1Layer -> L1Layer : sendAckPacket\nnote left: \u5411\u624b\u73af\u53d1\u9001\u6210\u529f\u7684ack\nL1Layer -> L1Layer : addToRxPacketList\nL1Layer -> L1Layer : ThreadRx.run\nnote left: \u6bcf\u96941\u79d2\u67e5\u8be2\u4e00\u6b21\u662f\u5426\u6709\u65b0\u6570\u636e\uff0c\u6709\u5c31\u62c6\u5305\nL1Layer -> L1Layer : getFromRxPacketList\nL1Layer --> L2Layer : onDataReceive\nL2Layer -> L2CMDPacket : parseData: \u62c6\u5305L2: cmd(1B),version(1B)\nnote left: \u62c6\u5305L2\nL2Layer -> L2KeyPacket : parseData: \u62c6\u51fa key(1B), len(2B),data\n\n== handshake ==\n\nBTManager -> WristbandManager : handshake\nWristbandManager -> L2Layer : handshake\nL2Layer -> L1Layer : handshake\nL1Layer -> GattLayer : sendData\nGattLayer -> BluetoothGatt : sendData\nL1Layer --> L2Layer : onDataReceive\nL2Layer --> WristbandManager : onHandshakeCallback\nWristbandManager --> BTManager : onHandshakeCallback\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHfDNqXYPSQZCKfmBl5C2kpyMpmO/z+Fn52WYjOu81qifD/ifaMbMZ0Kvsbdui"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1172,
+    "candidatesTokenCount": 1369,
+    "totalTokenCount": 2541,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1092
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "Tl8xaqPsIMTdxs0P8P2OkA0"
+}

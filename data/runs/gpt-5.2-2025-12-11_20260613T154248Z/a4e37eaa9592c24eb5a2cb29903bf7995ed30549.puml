@@ -1,0 +1,36 @@
+@startuml
+title 分页查询运单时序图
+
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 30
+  BoxPadding 10
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor transparent
+  ArrowColor #000000
+  ArrowThickness 1
+  MessageAlign left
+}
+skinparam participant {
+  BackgroundColor #E9E9F6
+  BorderColor #666666
+  FontColor #000000
+}
+
+participant "Query Request" as QR
+participant "TradeBillController" as TBC
+participant "TradeBillService" as TBS
+participant "TradeBillGoodsService" as TBGS
+participant "LossesService" as LS
+
+QR -> TBC : 1 发送 分页查询条件
+TBC -> TBC : 2 checkPageQueryParams() 校验分页查询参数
+TBC -> TBS : 3 pageData() 调用运单分页查询方法
+TBS --> TBC : 4 返回运单分页数据
+TBC -> TBGS : 5 countByTradeBillId() 统计单条交易单的商品信息集合
+TBC -> LS : 6 countByTradeBillId() 统计单条交易单的挂账信息集合
+TBC -> TBC : 7 generateTradeBillData() 将查询数据整合
+TBC --> QR : 8 返回查询结果
+
+@enduml

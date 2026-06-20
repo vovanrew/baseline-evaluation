@@ -1,0 +1,53 @@
+@startuml
+skinparam sequenceMessageAlign center
+participant "Client" as Client
+participant "Oauth" as Oauth
+box Login Endpoint #LightBlue2
+    participant "" as LE1
+end box
+box Consent Endpoint #DarkSeaGreen3
+    participant "" as CE1
+end box
+
+
+== Open page ==
+
+activate Client 
+note over Client : Initiate authorize code or implicit flow  
+deactivate Client 
+
+->>  Oauth   : No user session (not authenticated)   
+<<-->> Oauth  
+
+-->LE1: Redirect to login endpoint with <login_challenge>\n\nGET https://<LOGIN_ENDPOINT>/login?login_challange=7bb518c4eec2454dbb289f5fdb4c0ee2 
+
+
+==Login==
+
+
+
+ activate Client    
+ note left of Client     : Input user/passwd     
+ deactivate Client      
+ -->CE1      : Verify user/password       
+ <<---->CE1        
+ <--+Oauth       : Fetch login request info with <login_challenge>\n GET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login?login_challenge=<challenge>         
+ -->>-Oauth        {             
+             PUT http(s):/<OAUTH_ADMIN_URL>/oauth2/auth/requests/login/accept?login_challenge=<challeng e >\n{ \ n\"acr\": \"string\",\n"context": {},\n"force_subject_identifier":" string",\n"remember ": true,\n" remember_for":3600 ,\n"s ubject ":" s tring"\n}            
+         }          
+ <- - +O auth          Accept logi n           
+ return redirect url               
+ ->>-Clien t            Redire ct               
+
+
+
+
+ ===Consent===                 
+
+ first time client asks permission                
+ redir ect w ith cons ent challenge                 
+ askin g users perm ission grant app access              
+ fetch consent inf o                  
+ get ht tp:/ /OA UT H_A DMIN_U RL/o aut h/r eqs/c onse nt ?con sen _cha lleng =chal lenge p ut htt ps // OA TH_ AD MI N UR L/a u th/re qu es ts/co ns en/ac cept co nsen ch al le ng=g ra nt_sc op=["ope nid","off line_ac ces"],ha ndled_at="2019-08-TI MESTAM P,sess ion={access_token:{foo:"field avail able introspecting Access Token"},id_to ken:{bar :"fiel d ava ilable claim ID Toke"}} accept ret urn r edirect ur l re direct pag e     
+
+@enduml

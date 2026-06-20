@@ -1,0 +1,66 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class "Producto" <<A>> {
+    id : int
+    nombre : String
+    stock: boolean
+}
+
+class "Pedido" <<C>> {
+    direccion_entrega: Direccion
+    direccion_facturacion: Direccion
+    estado_pedido: String
+}
+
+class "Usuario" <<C>> {
+    nombre: String
+    apellido: String
+    edad: int
+    direcciones: Direccion[]
+    direcciones_facturacion: Direccion[]
+    numero_tarjeta: int
+    
+    void get_direccion()
+    
+    void set_direccion()
+}
+
+class "Direccion" <<C>> {
+    pais: String
+    municipio: String
+    departamento: String
+    direccion: String
+    observaciones: String
+    facturacion: boolean
+    correo_electronico: String
+}
+
+class "ProductoFisico" <<C>> {
+    peso : float
+    alto : float
+    ancho : float
+    largo : float
+    coste_transporte : float
+}
+
+class "ProductoVirtual" <<C>> {
+    numero_licencia: String
+}
+
+
+' Relationships from Producto to subclasses (Generalization)
+<|--- Producto
+Producto <|-- ProductoFisico
+Producto <|-- ProductoVirtual
+
+' Relationship between Pedido and Usuario (Composition - filled diamond on User side implies strong ownership/lifecycle dependency in this context based on visual placement of black diamond near user line end, though standard interpretation might vary slightly without explicit arrowheads showing directionality clearly beyond diamonds). 
+User *-- Pedido 
+
+' Aggregation relationships involving Address/Dirección  
+Dirección o-- Usuario   
+Pedidoo -- Dirección  
+
+Aggregations/Compositions related specifically within Pedidos structure itself? The original shows two lines going outwards towards different entities but both originating at same point which suggests multiple associations or perhaps an error if meant for one entity only; however given clarity issues let's assume separate aggregative links where appropriate per typical e-commerce logic implied by names like 'direccion entrega/factura'. So we'll keep those direct attribute references instead unless more info provided about specific association roles not evident here visually alone . Thus keeping simple attributes inside classes rather than extra connector types since they're already represented through field declarations above !
+
+@enduml

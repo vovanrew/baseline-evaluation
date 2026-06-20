@@ -1,0 +1,45 @@
+```plantuml
+@startuml
+!pragma handwritten true
+skinparam backgroundColor #F0EBE1
+skinparam sequence {
+    ArrowColor #00BFFF
+    LifeLineBorderColor #000000
+    LifeLineBackgroundColor #B0E0E6
+    ParticipantBorderColor #000000
+    ParticipantBackgroundColor #E6E6FA
+    ActorBorderColor #00BFFF
+    ActorBackgroundColor #00BFFF
+    ActorFontColor #00BFFF
+}
+
+title <u>借出图书</u> 用例
+
+actor 图书管理员 as Admin
+boundary 账号判断 as AccountCheck
+control 业务控制 as BusinessControl
+database 数据库 as Database
+
+group 读者账号合法性验证
+    Admin -[#00BFFF]> AccountCheck : **1** 输入读者账号信息
+    activate AccountCheck
+    AccountCheck -[#00BFFF]> BusinessControl : **2** 获取账号信息
+    deactivate AccountCheck
+    activate BusinessControl
+    BusinessControl -[#00BFFF]> Database : **3** 比对账号密码合法性
+    activate Database
+    Database --[#00BFFF]> BusinessControl : **4** 账号合法
+end
+
+group 借出图书
+    Admin -[#00BFFF]> BusinessControl : **5** 输入借出图书信息
+    BusinessControl -[#00BFFF]> Database : **6** 增加借阅信息
+    BusinessControl -[#00BFFF]> Database : **7** 修改图书库存
+    Database -[#00BFFF]> BusinessControl : **8** 返回操作结果
+    deactivate Database
+    BusinessControl -[#00BFFF]> Admin : **9** 返回借出结果
+    deactivate BusinessControl
+end
+
+@enduml
+```

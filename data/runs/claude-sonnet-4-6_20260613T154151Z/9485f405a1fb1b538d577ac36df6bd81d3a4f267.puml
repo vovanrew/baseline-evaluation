@@ -1,0 +1,30 @@
+@startuml
+
+class IFileHelperService {
+}
+
+class FileHelperService {
+  -{field} «readonly» dirPath : string
+  --
+  + FileHelperService(environment:IHostEnvironment, uow:IUnitOfWork)
+  + «async» GetSingleFileAsync(documentoId:long) : Task<(string, byte[])>
+  - «async» {method} GetSingleFileAsync(arquivo:DocumentoAula) : Task<byte[]>
+  + «async» SaveFileAsync(fileDTO:FileDTO) : Task<string>
+  - GetFullPath() : string
+  + «async» DeleteFile(documentoId:long) : Task
+  - {method} DeleteFile(caminhoArquivo:string) : void
+  + «async» GetDocumentoAula(aulaId:long) : Task<DocumentoAulaDTO>
+}
+
+class IHostEnvironment {
+}
+
+class IUnitOfWork {
+}
+
+IFileHelperService <|-- FileHelperService
+
+FileHelperService --> IHostEnvironment : _environment
+FileHelperService --> IUnitOfWork : _uow
+
+@enduml

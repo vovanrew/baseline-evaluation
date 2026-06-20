@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nactor user\nentity \"Gstreamer Pipeline\" as GstreamerPipeline\nentity realsensesrc\nentity librealsense2\nentity GStreamer\n\nuser -> GstreamerPipeline : realsensesrc\\nserial=728...\nnote left: load GSt\\npipeline with\\nrealsensesrc\nactivate GstreamerPipeline\n\n== pipeline goto GST_STATE_READY ==\n\nGstreamerPipeline -> realsensesrc : create\nactivate realsensesrc\n\nrealsensesrc -> librealsense2 : rs2::context.query_devices()\nactivate librealsense2\nlibrealsense2 --> realsensesrc : rs2::device_list\ndeactivate librealsense2\n\nrealsensesrc -> librealsense2 : select device by serial\nactivate librealsense2\nlibrealsense2 --> realsensesrc : rs2::sensor\nnote right: Select device\ndeactivate librealsense2\n\nloop for (info: rs2::rs2_camera_info)\n    realsensesrc -> librealsense2 : rs2::device.supports(info)\n    activate librealsense2\n    librealsense2 --> realsensesrc : bool\n    deactivate librealsense2\n\n    realsensesrc -> librealsense2 : rs2::device.get_info(info)\n    activate librealsense2\n    librealsense2 --> realsensesrc : const char* info_string\n    deactivate librealsense2\n\n    realsensesrc -> realsensesrc : store info\n    activate realsensesrc\n    realsensesrc --> realsensesrc\n    deactivate realsensesrc\nend\n\nrealsensesrc -> GStreamer : gst_tag_setter_add_tag_valist_values(...,infos, NULL)\nactivate GStreamer\nGStreamer --> realsensesrc\nnote right: Register per-stream\\nmetadata as\\nGst tags\ndeactivate GStreamer\n\nrealsensesrc -> librealsense2 : rs2::sensor.get_stream_profiles()\nactivate librealsense2\nlibrealsense2 --> realsensesrc : std::vector<rs2::stream_profile>\ndeactivate librealsense2\n\nloop for (profile: std::vector<rs2::stream_profile>)\n    realsensesrc -> realsensesrc : Create profile_list of supported profiles\n    activate realsensesrc\n    realsensesrc --> realsensesrc\n    deactivate realsensesrc\nend\n\nrealsensesrc -> GStreamer : g_object_class_install_properties(...,...,options)\nactivate GStreamer\nGStreamer --> realsensesrc\nnote right: Install all\\nsupported\\nvideo profiles\\nas an option\ndeactivate GStreamer\n\nloop for (option: rs2::rs2_option)\n    realsensesrc -> librealsense2 : rs2::sensor.supports(option)\n    activate librealsense2\n    librealsense2 --> realsensesrc : bool\n    deactivate librealsense2\n\n    realsensesrc -> librealsense2 : rs2::sensor.get_option_range\n    activate librealsense2\n    librealsense2 --> realsensesrc : rs2::option_range\n    deactivate librealsense2\n\n    realsensesrc -> realsensesrc : store option\n    activate realsensesrc\n    realsensesrc --> realsensesrc\n    deactivate realsensesrc\nend\n\nrealsensesrc -> GStreamer : g_object_class_install_properties(...,...,options)\nactivate GStreamer\nGStreamer --> realsensesrc\nnote right: Install all\\nsupported\\nRS camera options\\nas properties/options\ndeactivate GStreamer\n\nrealsensesrc -> GStreamer : gst_bus_add_watch(bus, bus_call...);\nGStreamer --> realsensesrc\nnote right: Register callback\\nfor parameter changes\n\nGstreamerPipeline -> realsensesrc : caps negotiation\\n(CAPS)\nnote right: - pixel_format\\n- width\\n- height\\n- framerate\n\n== pipeline goto GST_STATE_PLAYING ==\n\nGstreamerPipeline --> realsensesrc : state=playing\n\nrealsensesrc -> librealsense2 : rs2::sensor.start()\nactivate librealsense2\nlibrealsense2 --> realsensesrc\ndeactivate librealsense2\n\n== pipeline goto GST_STATE_READY ==\n\nrealsensesrc -> librealsense2 : rs2::sensor.stop()\nactivate librealsense2\nlibrealsense2 --> realsensesrc\ndeactivate librealsense2\n\ndeactivate realsensesrc\ndeactivate GstreamerPipeline\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHhxVQAECfHZ26k7CqIjaclSS/dvXH9lzQ1XY00xeArZg6RaGBFiel5IKwszQK"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1161,
+    "candidatesTokenCount": 1034,
+    "totalTokenCount": 2195,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1081
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "P18xav_1NemavdIPrcmQ0A8"
+}

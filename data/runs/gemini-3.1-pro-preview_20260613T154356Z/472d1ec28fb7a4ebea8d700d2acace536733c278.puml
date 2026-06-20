@@ -1,0 +1,46 @@
+```plantuml
+@startuml
+title login by token
+
+actor 学术袁 as user #red
+participant App客户端 as app
+participant 后台服务器 as server
+
+user -> app : 启动
+activate app
+app -> app : 检测本地登录信息
+deactivate app
+
+alt 有本地记录
+    alt token有效
+        app -> server : token自动登陆
+    else token无效
+        app -> user : 提示登录
+        user -> app : 输入手机号+密码
+        app -> server : 手机号+密码登录
+        server -> app : 返回新的token
+        app -> app : token保存
+    end
+else 无本地记录
+    app -> user : 提示输入手机号
+    app -> server : 请求发送验证码
+    server -> app : 返回验证码
+    user -> app : 输入验证码
+    app -> server : 请求后台验证
+    alt 已注册
+        app -> user : 提示登录
+        user -> app : 输入手机号+密码
+        app -> server : 手机号+密码登录
+        server -> app : 返回新的token
+        app -> app : token保存
+    else 未注册
+        app -> user : 提示注册
+        user -> app : 输入两次密码
+        app -> server : 请求注册
+        server -> app : 返回新的token
+        app -> app : token保存
+    end
+end
+
+@enduml
+```

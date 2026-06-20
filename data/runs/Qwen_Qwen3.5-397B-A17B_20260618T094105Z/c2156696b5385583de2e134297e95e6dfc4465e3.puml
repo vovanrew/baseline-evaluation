@@ -1,0 +1,69 @@
+@startuml
+skinparam sequenceMessageAlign center
+autonumber "<b>[0]"
+
+box "Master" #LightGray
+    participant Client
+    participant Dispatcher
+    database Database
+    participant RSyncServer
+    participant Arbiter
+end box
+
+box "Worker" #LightGrey
+    participant Worker
+end box
+
+
+Client ->> Database : Create a taskset\nEnqueue tasks
+activate Database
+deactivate Database
+
+== Taskset request ==
+Dispatcher->>+Database:Taskset dispatch 
+note right of  Database:#1;Log the worker participation#2;RSync 
+
+alt setup failed
+    
+   note over RSycn,Rsyncserver:Setup
+   
+   
+else [setup succeeded]
+    
+     activate Worker
+     
+     
+      alt retry needed
+      
+         deactivate Worker
+        
+         
+        else[no more retries ] 
+        
+         
+            
+            end 
+            
+            
+
+
+
+Testing 
+
+
+Slave -->+ Slave:Spawn slaves  
+slave-->- slave:slaveset up  
+
+Dequeue a task \Return atask\Add atrial  
+
+
+Executeat ask 
+
+
+
+Queryth etrialresult Respondtothequery Marktaskasfinished Enqueuethe tas kMarktas kasfailed Dequeeuatas knotasksleft CheckrequestCheckwhetheralltasksare finished[sometaksarel eft]E nqeuethetas ksM arktasetkasf inishedNotifyt hetasketismarkedafinished Killsla ves Addsavelogs Querythestatusoft he tase ktRespon dto th e query
+
+
+
+
+@enduml

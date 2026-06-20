@@ -1,0 +1,70 @@
+```plantuml
+@startuml
+hide circle
+skinparam classAttributeIconSize 0
+
+class GeographicPlaceNameSourceDetail {
+  -sourceUrl
+  -country
+  -stateProvince
+  -higherGeographicPlaces
+  -recordedOn
+}
+
+class CollectingEvent {
+  -dwcVerbatimLatitude
+  -dwcVerbatimLongitude
+  -dwcVerbatimLocality
+  -verbatimEventDateTime
+  -geographicPlaceNameSource
+  -collectors
+  -attachments
+}
+
+class GeoreferenceAssertion {
+  -dwcDecimalLatitude
+  -dwcDecimalLongitude
+  -dwcCoordinateUncertaintyInMeters
+  -georeferencedBy
+  -dwcGeoreferenceVerificationStatus
+}
+
+class MaterialSample {
+  -materialSampleName
+  -dwcCatalogueNumber[not unique]
+  -dwcOtherCatalogNumbers
+  -preparedBy
+  -preparationDate
+}
+
+class Determination {
+  -scientificName
+  -determinationDate
+}
+
+class PreparationType {
+  -name
+  -description
+}
+
+class MaterialSampleType {
+  -name
+  -description
+}
+
+class StorageUnit {
+  -name
+  -type
+}
+
+CollectingEvent "1" -up- "1" GeographicPlaceNameSourceDetail
+CollectingEvent "1" -right- "0..*" GeoreferenceAssertion
+CollectingEvent "0..1" -right- "0..*" MaterialSample
+MaterialSample "1" -up- "0..*" Determination
+MaterialSample "0..*" -right- "0..1" PreparationType
+MaterialSample "0..*" -right- "0..1" MaterialSampleType
+MaterialSample "0..*" -down- "0..1" StorageUnit
+
+MaterialSample .up.> MaterialSample : <color:red>parent</color>
+@enduml
+```

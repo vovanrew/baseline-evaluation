@@ -1,0 +1,65 @@
+@startuml
+participant "Admin" as Admin
+participant :DivisionPage as DivisionPage
+participant :DivisionTableContainer as DivisionTableContainer
+participant :DivisionTable as DivisionTable
+participant :DivisionService (Frontend) as DivisionService
+participant :Router as Router
+participant :DivisionHTTPTransport as DivisionHTTPTransport
+participant :DivisionEndpoint as DivisionEndpoint
+participant :DivisionService as DivisionService
+participant :DivisionCommand as DivisionCommand
+participant :DivisionQuery as DivisionQuery
+
+Actor "Admin" as AdminActor
+
+divisionPage : DivisionPage
+divisionTableContainer : DivisionTableContainer
+divisionTable : DivisionTable
+divisionService : DivisionService (Frontend)
+router : Router
+divisionHTTPTransport : DivisionHTTPTransport
+divisionEndpoint : DivisionEndpoint
+divisionService : DivisionService
+divisionCommand : DivisionCommand
+divisionQuery : DivisionQuery
+
+AdminActor ..> divisionPage : Open "Manage Division" Page
+divisionPage ..> divisionTableContainer : Render "Division Table" Container
+divisionTableContainer ..> divisionTable : Render "Division Table"
+divisionTable ..> divisionService : Mark "Division"
+divisionService ..> divisionTableContainer : marked
+divisionTableContainer ..> divisionTable : marked
+divisionTable ..> divisionService : marked
+divisionService ..> divisionTableContainer : marked
+divisionTableContainer ..> divisionPage : marked
+divisionPage ..> AdminActor : rendered
+divisionPage ..> AdminActor : Mark "Division"
+divisionPage ..> divisionTableContainer : Mark "Division"
+divisionTableContainer ..> divisionTable : Mark "Division"
+divisionTable ..> divisionService : marked
+divisionService ..> divisionTableContainer : marked
+divisionTableContainer ..> divisionPage : marked
+divisionPage ..> AdminActor : marked
+divisionPage ..> AdminActor : Click "Delete Selected" Button
+divisionPage ..> divisionTableContainer : showDeleteConfirmation(item)
+
+alt ["Cancel Delete"]
+divisionTableContainer ..> divisionPage : Close Dialog
+divisionPage ..> AdminActor : Close Dialog
+divisionTableContainer ..> divisionTableContainer : handleDeleteConfirmation(item)
+divisionTableContainer ..> divisionService : deleteDivision([payload])
+divisionService ..> router : route("DELETE", "v2/divisions", formData)
+router ..> divisionService : DeleteDivisions(DivisionService, [ServerOption])
+divisionService ..> divisionEndpoint : DeleteMany(DivisionService)
+divisionEndpoint ..> divisionService : DeleteDivisions(context, [uuid])
+divisionService ..> divisionCommand : isDeleted
+divisionCommand ..> divisionService : response := Response(isDeleted, nil)
+divisionService ..> divisionEndpoint : response
+divisionEndpoint ..> router : response
+router ..> divisionHTTPTransport : response
+divisionHTTPTransport ..> divisionService : response
+divisionService ..> divisionTableContainer : response
+divisionTableContainer ..> divisionPage : response
+divisionPage ..> AdminActor : response
+@enduml

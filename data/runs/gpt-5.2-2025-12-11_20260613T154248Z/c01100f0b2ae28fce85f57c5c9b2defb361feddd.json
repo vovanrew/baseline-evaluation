@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLr3WThWaOwrtQG7X04dyi207eyV",
+  "object": "chat.completion",
+  "created": 1781369437,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam backgroundColor white\nskinparam sequence {\n  ArrowColor black\n  LifeLineBorderColor #999999\n  LifeLineBackgroundColor transparent\n  ParticipantBorderColor #333333\n  ParticipantBackgroundColor #E6E6FA\n  ActorBorderColor #333333\n  ActorBackgroundColor #FFFFFF\n  BoxBorderColor #333333\n  BoxBackgroundColor #FFFFFF\n  NoteBackgroundColor #FFFED6\n  NoteBorderColor #999999\n  GroupBorderColor #333333\n  GroupBackgroundColor #FFFFFF\n  DividerBackgroundColor #FFFFFF\n  DividerBorderColor #333333\n}\n\nactor Customer as C\nparticipant Device as D #E6E6FA\nparticipant DeviceProvisioningService as DPS #00E5EE\nparticipant ProductIoTHub as HUB #00E5EE\nparticipant FWProvider as FW #FF00FF\n\nnote over D,DPS,HUB,FW\nDevice was registered for this product before\nend note\n\n== First start ==\n\nC -> D : 1 Switch On/Power Up\nnote over D : Booting up\n\nD -> DPS : 2 registerDevice(callback)\nDPS --> D : 3 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)\nD -> D : 4 setProperties\nD -> HUB : 5 iamNewToYou(deviceId, firmwareversion)\n\nopt Firmware needs to be updated\n  HUB --> D : 6 updateFWMandantory(URL)\n  D -> FW : 7 URL.get(OLDFW)\n  FW --> D : 8 FW, Checksum\n  note over D : Downloading\n  D -> D : 9 CheckChecksum\n  note over D : Installing\n  D -> D : 10 update\n  D -> D : 11 restart\n  note over D : Booting up\n  D -> HUB : 12 iamNewToYou(deviceId, firmwareversion)\nend\n\nHUB --> D : 13 youMayStartSending()\nD -> HUB : 14 sendData(Data)\nnote over D : Working\n\n== Claim / Remove ==\n\nHUB --> D : 15 youMustRetire()\nD -> D : 16 waits\n\nopt if Device was not reached\n  D -> HUB : 17 sendData(Data)\n  HUB --> D : 18 Not registered\nend\n\nD -> DPS : 19 registerDevice(callback)\nDPS --> D : 20 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ERROR, null, null)\nD -> D : 21 NobodyLovesMeMode()\n\nloop once a day\n  D -> DPS : 22 registerDevice(callback)\nend\n\n== IoT Hub not available ==\n\nloop several times\n  D -> HUB : 23 sendData(Data)\n  HUB --> D : 24 NotAvailable/Network Error\nend\n\nD -> DPS : 25 registerDevice(callback)\nDPS --> D : 26 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)\nD -> D : 27 compare IoTHub and change if necessary\n\nnote over D,DPS,HUB,FW\nif connection is now successful, go on. If not and IoT Hub has not changed\nrepeat with low frequence. Also if DPS is not available.\nend note\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2195,
+    "completion_tokens": 697,
+    "total_tokens": 2892,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

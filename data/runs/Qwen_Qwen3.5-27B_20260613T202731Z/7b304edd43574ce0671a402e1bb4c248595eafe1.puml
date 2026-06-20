@@ -1,0 +1,167 @@
+```plantuml
+@startuml
+package "gui" {
+    class FAQController {
+        + FAQ : ListView
+        + answerQuestion : ButtonBar
+        + update : ButtonBar
+        + rateArea : ButtonBar
+        + handleNewQuestionActionEvent(ActionEvent) : void
+        + handleNewAnswerActionEvent(ActionEvent) : void
+        + handleUpdateQuestionActionEvent(ActionEvent) : void
+        + handleUpdateAnswerActionEvent(ActionEvent) : void
+        + handleDeleteQuestionActionEvent(ActionEvent) : void
+        + handleDeleteAnswerActionEvent(ActionEvent) : void
+        + handleUpdateScoreQuestionActionEvent(ActionEvent) : void
+        + handleUpdateScoreAnswerActionEvent(ActionEvent) : void
+    }
+
+    class NewQuestionController {
+        + questionArea : TextArea
+        + postQuestion : ButtonBar
+        + cancel : ButtonBar
+        + handleNewQuestionActionEvent(ActionEvent) : void
+        + cancellationEvent(ActionEvent) : void
+    }
+
+    class LoadView {
+        + loadSavedXml(Parent, Parent)
+        + changeScreenActionEvent(ActionEvent, view: String) : void
+    }
+
+    class NewAnswerController {
+        + answerArea : TextArea
+        + postAnswer : ButtonBar
+        + cancel : ButtonBar
+        + handleNewAnswerActionEvent(ActionEvent) : void
+        + cancellationEvent(ActionEvent) : void
+    }
+}
+
+package "business" {
+    class Question {
+        - questionId : int
+        - content : String
+        - score : int
+        - answered : int
+        - userId : int
+        - offered : int
+        + Question()
+        + getQuestionId() : int
+        + getContent() : String
+        + getScore() : int
+        + getAnswered() : Answer
+        + getUserId() : int
+        + setDid(int) : void
+        + setContent(content:String) : void
+        + setAnswer(answer:Answer) : void
+        + setScore(score:int) : void
+        + setUserId(userId:int) : void
+        + setOffered(categoryId:int) : void
+    }
+
+    class Answer {
+        - answerId : int
+        - content : String
+        - score : int
+        - userId : int
+        + Answer()
+        + getAnswerId() : int
+        + getContent() : String
+        + getScore() : int
+        + getUserId() : int
+        + setDid(int) : void
+        + setContent(content:String) : void
+        + setScore(score:int) : void
+        + setUserId(userId:int) : void
+    }
+
+    class SessionFacade {
+        + SessionFacade()
+        + getUser() : User
+    }
+
+    class FAQFacade {
+        + getQuestionById(id : int) : Question
+        + getAnswerById(id : int) : Answer
+        + createQuestion(id : int, userId : int, offered : int, answered : int, question : String, score : int) : Question
+        + createAnswer(id : int, userId : int, answer : String, score : int) : Answer
+        + getQuestionsByOfferedId(offerId : int) : ArrayList<Question>
+        + getAnswersByOfferedId(offerId : int) : ArrayList<Answer>
+        + updateQuestionScore(id : int, userId : int, offered : int, answered : int, question : String, score : int) : Question
+        + updateAnswerScore(id : int, userId : int, answer : String, score : int) : Answer
+        + deleteQuestion(id : int) : boolean
+        + deleteAnswer(id : int) : boolean
+    }
+}
+
+package "dao" {
+    interface DAO {
+        + findId(T id : T) : T
+        + create(T obj : T) : T
+        + update(T obj : T) : T
+        + delete(T obj : T) : boolean
+    }
+
+    class QuestionDao {
+        + OfferDao()
+        + getInstance() : QuestionDao
+        + LazyHolder()
+        + getQuestionsByOfferedId(offerId : int) : ArrayList<Question>
+        + questionExists(id : int) : boolean
+        + hasAnAnswer(id : int) : boolean
+    }
+
+    class AnswerDao {
+        + OfferDao()
+        + getInstance() : QuestionDao
+        + LazyHolder()
+        + getAnswersByOfferedId(offerId : int) : ArrayList<Answer>
+        + answerExists(id : int) : boolean
+    }
+
+    class AbstractFactoryDao {
+        - final connectionDB : ConnectionDB
+        + getFactory(type : TypeDB) : AbstractFactoryDao
+        + getAnswerDao() : AnswerDao
+        + getQuestionDao() : QuestionDao
+    }
+
+    class FactoryDaoMySQL {
+    }
+
+    class QuestionDaoMySQL {
+    }
+
+    class AnswerDaoMySQL {
+    }
+}
+
+package "db" {
+    class ConnectionDB {
+    }
+
+    class ConnectionDBMySQL {
+        # connection : Connection
+        + ConnectionDBMySQL()
+        + getConnection() : ConnectionDBMySQL
+        + getDB() : Connection
+    }
+
+    class LazyHolderDB {
+        - final INSTANCE : ConnectionDBMySQL
+    }
+}
+
+DAO <|.. QuestionDao
+DAO <|.. AnswerDao
+AbstractFactoryDao <|-- FactoryDaoMySQL
+AbstractFactoryDao ..> ConnectionDB : uses
+AbstractFactoryDao ..> AnswerDao : creates
+AbstractFactoryDao ..> QuestionDao : creates
+ConnectionDB <|-- ConnectionDBMySQL
+LazyHolderDB ..> ConnectionDBMySQL : contains
+FAQFacade --> SessionFacade : uses
+SessionFacade --> User : uses
+@enduml
+```

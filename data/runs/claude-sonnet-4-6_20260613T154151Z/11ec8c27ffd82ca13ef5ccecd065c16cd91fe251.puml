@@ -1,0 +1,39 @@
+@startuml
+title 認証のシーケンス
+
+box "フロントエンド(React)" #LightBlue
+participant "ContextProvider" as CP
+participant "_app" as App
+participant "Login" as Login
+end box
+
+participant "ブラウザ" as Browser order 0
+participant "バックエンド" as Backend
+database "DB" as DB
+
+Browser -> Login : ログイン要求(email, password)
+Login -> App : (フレームワークの振る舞い)
+App -> CP : コンポーネントとして呼び出し
+
+note over CP : ※ログイン時はとくに\nなにもしてない。
+
+CP --> App : 
+App --> Login : 
+
+Login -> Backend : ログイン要求(email, password)
+Backend -> DB : select(email, password)
+DB --> Backend : ユーザー情報
+
+note over Backend : ユーザー ID をもとに\nJWT を生成。\nresponse の cookie に\n{token: JWT} を載せる。
+
+Backend --> Login : ログイン結果(結果, cookie, ユーザー情報)
+Login -> CP : dispatch
+
+note over CP : (必要あれば)\n取得したユーザー情報を\nstate に保持。
+
+CP --> Login : 
+Login --> Browser : ログイン結果(結果, cookie)
+
+note over Browser : ブラウザの cookie に\n{token: JWT} が保存される。\n今後のリクエストには\nこの情報が付与される。
+
+@enduml

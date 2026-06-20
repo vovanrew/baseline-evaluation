@@ -1,0 +1,62 @@
+```plantuml
+@startuml
+title 票据签发
+
+participant "web" as web
+participant "供票服务" as supply
+participant "文件系统" as file
+participant "贸易背景" as trade
+participant "工作流" as workflow
+participant "短信服务" as sms
+
+web -> web : 1 点击票据签发
+web -> web : 2 填写出票人信息
+web -> web : 3 填写承兑人信息
+web -> web : 4 填写收票人信息
+web -> web : 5 填写保证人信息（非必须）
+web -> web : 6 填写票据信息
+web -> web : 7 点击下一步
+
+web -> supply : 8 请求保存第一步数据
+supply -> supply : 9 入参校验
+supply -> supply : 10 创建交易单（trade表,交易状态 1-初始）
+supply -> supply : 11 创建交易单记录（trade_detail表，预生成bill_id和bill_code）
+supply -> supply : 12 添加资产记录（assert表，资产状态=0初始）
+supply -> supply : 13 添加开票拓展记录，绑定资产id(trade_issue_ext表)
+supply --> web : 14 返回trade_code
+
+web -> supply : 15 上传贸易背景资料
+supply -> file : 16 上传贸易背景资料
+file --> supply : 17 贸易背景文件id
+supply --> web : 18 贸易背景文件id
+
+web -> supply : 19 请求发票清单
+supply -> trade : 20 请求发票列表
+trade --> supply : 21 可用的发票列表
+supply --> web : 22 可用的发票资料
+
+web -> supply : 23 点击下一步
+supply -> supply : 24 入参校验，若有上传发票，则校验发票金额和开票金额大小\n反之则不校验
+supply -> trade : 25 发送选定的发票id和文件id
+trade -> trade : 26 校验发票是否可用
+
+alt [发票不可用]
+trade -> sms : 27 发送短信通知开票人发票不可用
+else [发票可用]
+trade --> supply : 28 贸易背景id
+end
+
+supply -> supply : 29 绑定贸易背景id（trade_issue_ext表）
+supply --> web : 30 展示票面核对信息
+
+web -> supply : 31 确认提交
+supply -> supply : 32 动态密码器挑战码校验
+supply -> supply : 33 修改trade状态，1初始->2待审核
+supply -> workflow : 34 请求开启工作流
+workflow --> supply : 35 返回工作流id
+supply -> supply : 36 保存工作流id
+supply -> sms : 37 发送短信通知下一审批人
+supply --> web : 38 完成
+
+@enduml
+```

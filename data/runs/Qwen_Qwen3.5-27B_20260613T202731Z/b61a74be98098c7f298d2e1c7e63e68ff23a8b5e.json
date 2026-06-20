@@ -1,0 +1,22 @@
+{
+  "id": "8345d7bf-fa65-4dca-8161-4c2f8b36907e",
+  "object": "chat.completion",
+  "created": 1781490279,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\nactor \"Admin\" as Admin\nactor \"User\" as User\nparticipant \"AccountManagement\" as AM\nparticipant \"Broker\" as Broker\nparticipant \"Notifications\" as Notifications\nparticipant \"UAA\" as UAA\nparticipant \"EmailSender\" as EmailSender\n\nAdmin -> AM: WorkspaceInvitation\nactivate AM\nnote right of AM: with email\nAM -> AM: save data to db\ndeactivate AM\nAM --> Admin: 200 response\nactivate AM\nAM -> Broker: create event \"new user invited event\"\ndeactivate AM\nactivate Broker\nBroker -> Notifications: read event\ndeactivate Broker\nactivate Notifications\nnote right of Notifications: with email and senderId\nNotifications -> UAA: read info about sender\nNotifications -> Notifications: generate email\nNotifications -> Broker: create \"new email event\"\ndeactivate Notifications\nactivate Broker\nBroker -> EmailSender: read \"new email event\"\ndeactivate Broker\nEmailSender -> User: send email\n\nalt [user accepts invitation]\n    User -> AM: WorkspaceEmailValidation\n    activate AM\n    AM -> AM: check email\n    deactivate AM\n    AM --> User: WorkspaceEmailValidationResult\n    \n    alt [email valid]\n        activate AM\n        AM -> AM: generate access code\n        AM -> Broker: create event \"new access code\"\n        deactivate AM\n        activate Broker\n        Broker -> Notifications: read event\n        deactivate Broker\n        activate Notifications\n        note right of Notifications: with email and access code\n        Notifications -> Notifications: generate email\n        Notifications -> Broker: create \"new email event\"\n        deactivate Notifications\n        activate Broker\n        Broker -> EmailSender: read \"new email event\"\n        deactivate Broker\n        EmailSender -> User: send email\n        \n        User -> User: get access code from email\n        User -> AM: WorkspaceAccessCodeValidation\n        activate AM\n        AM --> User: WorkspaceAccessCodeValidationResult\n        note right of AM: with email, access code\n        deactivate AM\n        \n        alt [access code valid]\n            activate AM\n            AM -> AM: change state\n            AM -> UAA: WorkspaceRegistration\n            note right of UAA: with email, username, password and code\n            UAA -> AM: check state by email\n            deactivate AM\n            activate UAA\n            UAA -> Broker: create new event \"user created event\"\n            note left of Broker: with userId and email\n            deactivate UAA\n            activate Broker\n            Broker -> Notifications: read event \"user created event\"\n            deactivate Broker\n            activate Notifications\n            Notifications -> Notifications: create user with email\n            deactivate Notifications\n        end\n    end\nend\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2497,
+    "completion_tokens": 582,
+    "total_tokens": 3079
+  }
+}

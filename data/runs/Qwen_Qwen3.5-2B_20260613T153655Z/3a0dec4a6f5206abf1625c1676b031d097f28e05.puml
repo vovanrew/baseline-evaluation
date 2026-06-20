@@ -1,0 +1,27 @@
+@startuml
+participant "Client" as Client1
+participant "RMB" as RMB
+participant "Node" as Node
+
+Client1 ..> RMB : Create an RMB message
+    cmd: zos.deployment.deploy, dat: base64(json(deployment))
+
+RMB ..> Node : Decode payload(dat).
+    So node receive a deployment object
+
+Node ..> RMB : Accepted Or Error
+
+RMB ..> Client1 : Response from the node
+
+Node ..> Node : If valid
+    Deploy
+
+RMB ..> Node : Get Deployment (cmd: zos.deployment.get)
+
+Node ..> RMB : Call get method
+
+RMB ..> Node : Get Response
+
+Node ..> Client1 : Response
+
+@enduml

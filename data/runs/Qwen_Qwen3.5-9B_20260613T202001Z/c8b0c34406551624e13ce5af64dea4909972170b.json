@@ -1,0 +1,22 @@
+{
+  "id": "547cecfa-0a40-4b10-85eb-03bcfcf26e13",
+  "object": "chat.completion",
+  "created": 1781418848,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle User getUsers\n\nactor API_Gateway\nactor UserRouter\nactor Middleware\nactor UserController\ndatabase UserDB\n\nAPI_Gateway -> UserRouter : getUsers(token)\nUserRouter -> Middleware : withAuth(token)\n\nalt [!token]\n  Middleware -> UserRouter : 'Unauthorized: No token provided (401)'\n  UserRouter -> API_Gateway : 'Unauthorized: No token provided (401)'\nelse\n  Middleware -> Middleware : jwt.verify(token)\n  \n  alt [token != valid]\n    Middleware -> UserRouter : 'Unauthorized: Invalid token (401)'\n    UserRouter -> API_Gateway : 'Unauthorized: Invalid token (401)'\n  else\n    UserRouter -> UserRouter : Token Valid\n    UserRouter -> UserController : getUsers()\n    UserController -> UserDB : find()\n    UserDB --> UserController : users[]\n    \n    alt [users.length == 0]\n      UserController -> UserRouter : 'User not found 404'\n      UserRouter -> API_Gateway : 'User not found 404'\n    else\n      UserController -> UserRouter : return(res.status(200), users)\n    end\n    UserRouter -> API_Gateway : return(res.status(200), users)\n  end\nend\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2007,
+    "completion_tokens": 284,
+    "total_tokens": 2291
+  }
+}

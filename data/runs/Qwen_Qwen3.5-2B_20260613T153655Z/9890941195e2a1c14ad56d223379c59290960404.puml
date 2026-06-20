@@ -1,0 +1,83 @@
+@startuml
+skinparam classDiagram
+    class Cliente {
+        +id: Int
+        +nome: String
+        +cobranças: List<Cobrança>
+        -fazerPagamento()
+    }
+
+    class Cobrança {
+        +id: Int
+        +cliente: Cliente
+        +quitada: Boolean
+        -gerarBoleto()
+        -consultaBoleto(): Boolean
+    }
+
+    class Boleto {
+        +id: Int
+        +validade: Date
+        +valor: Float
+        +quitado: Boolean
+        -foiQuitado(): Boolean
+        -setQuitado(Boolean: foiQuitado)
+        -informaStatusDoBoleto()
+    }
+
+    interface FazerCobrança {
+        -gerarBoleto()
+        -consultaBoleto(): Boolean
+    }
+
+    interface PagarBoleto {
+        -fazerPagamento()
+    }
+
+    class Cliente <|-- Cliente {
+        <<actor>>
+        id: Int
+        nome: String
+        cobranças: List<Cobrança>
+        fazerPagamento()
+    }
+
+    class Cobrança <|-- Cobrança {
+        <<actor>>
+        id: Int
+        cliente: Cliente
+        quitada: Boolean
+        gerarBoleto()
+        consultaBoleto(): Boolean
+    }
+
+    class Boleto <|-- Boleto {
+        <<actor>>
+        id: Int
+        validade: Date
+        valor: Float
+        quitado: Boolean
+        foiQuitado(): Boolean
+        setQuitado(Boolean: foiQuitado)
+        informaStatusDoBoleto()
+    }
+
+    class FazerCobrança <|-- FazerCobrança {
+        <<interface>>
+        Cobrança ..> FazerCobrança
+        gerarBoleto()
+        consultaBoleto(): Boolean
+    }
+
+    class PagarBoleto <|-- PagarBoleto {
+        <<interface>>
+        fazerPagamento()
+    }
+
+    Cliente --|> Cobrança : 1
+    Cobrança ..> FazerCobrança : 1
+    Cobrança --|> Boleto : 1
+    Cliente ..> FazerCobrança : 1
+    Cobrança ..> PagarBoleto : 1
+
+@enduml

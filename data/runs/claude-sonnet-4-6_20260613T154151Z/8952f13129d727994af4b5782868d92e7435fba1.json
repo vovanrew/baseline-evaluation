@@ -1,0 +1,21 @@
+{
+  "id": "msg_01SYYSjA5gwqCgz2MXi5buWn",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Shared memory receiver behaviour\n\nparticipant \"Shared memory receiver\" as SMR\nbox \"Coordination struct\"\nparticipant \"Reader count var\" as RCV\nparticipant \"locks_active\" as LA\nparticipant \"locks_leaving\" as LL\nparticipant \"Semaphore copy\" as SC\nparticipant \"Copy buff\" as CB\nend box\n\ngroup create\n  alt [\"Coordination semaphore doesn't exist\"]\n    SMR -> SMR: Create semaphore\n    SMR -> SC: Semaphore coord\n  end\n  SMR -> SMR: wait\n  SMR <-- RCV: Writer sets up sharedmemory\\nWriter is ready\n  CB -> CB: Writer inits it with the required number\n  SMR -> SMR: ok\n  SMR -> RCV: reincrease\n  note over RCV: this way all readers access the memory,\\nthey will fail on the copy sem\n  SMR -> CB: MMap coordination struct\n  SMR <-- CB\n  SMR -> SC: Trylock copy semaphore\n  alt [fail]\n    SMR -> SMR: Can't lock\n    SMR <-- SMR: Fail\n  end\n  alt [success]\n    SMR -> SMR: Success\n    SMR -> CB: MMap copy buffer\n    SMR <-- CB\n    SMR -> RCV: read_flag to true\n    SMR -> LL: Lock leaving[1]\n    LL --> SMR\n    SMR -> LA: Signal reader ready\n    SMR -> SC: Close coordination semaphore file\n    SMR <-- SC\n    SMR <-- SMR: Success\n  end\nend\n\ngroup ready\n  SMR -> SMR: ready?\n  alt [finished flag set]\n    SMR -> SMR: False\n  end\n  alt [has read current chunk]\n    SMR -> LL: lock next chunk (reading)\n    note over SC: Blocks until next\\nchunk is written\n    LL --> SMR\n    SMR -> LA: Release previous leaving\n    SMR -> LA: Change active\n    LA --> SMR\n    SMR -> RCV: reset read flag\n    RCV --> SMR\n    SMR -> CB: get chunk size\n    CB --> SMR: c_size\n    SMR -> SMR: c_size > 0\n  end\n  alt [Yet to read current and no finished flag]\n    SMR -> SMR: True\n  end\n  alt [finished]\n    note over SMR: This is done before\\nactually returning\n    SMR -> RCV: Set finished flag\n    RCV --> SMR\n    SMR -> LL: Release lock\n    LL --> SMR\n  end\nend\n\ngroup buff size\n  SMR -> SMR\n  SMR -> RCV: get buff_size from coord\n  RCV --> SMR: buff_size\n  SMR <-- SMR\nend\n\ngroup receive\n  SMR -> SMR\n  note over SMR: This is called after ready so I am already on the correct\\nchunk and it has data to read\n  alt [read_flag_set or finished flag set]\n    SMR -> SMR: Fail\n  end\n  SMR -> CB: Read data in current chunk\n  CB --> SMR: vector\n  SMR -> RCV: set read flag\n  RCV --> SMR\n  SMR -> LL: lock leaving\n  LL --> SMR\n  SMR -> LA: release active\n  LA --> SMR\n  SMR <-- SMR: vector\nend\n\ngroup destructor\n  SMR -> SMR: Destroy\n  alt [not finished]\n    alt [read_flag set]\n      SMR -> LL: unlock\n      LL --> SMR\n    end\n    alt [read_flag false]\n      SMR -> LA: unlock\n      LA --> SMR\n    end\n    SMR -> LA: Notify left\n    SMR -> CB: Unmap memory\n    CB --> SMR\n    SMR -> SC: Close files\n    SC --> SMR\n  end\nend\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781371447,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 964,
+    "prompt_tokens": 1608,
+    "total_tokens": 2572
+  }
+}

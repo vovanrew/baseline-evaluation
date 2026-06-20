@@ -1,0 +1,50 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+title IPv4 Packet Transmission Sequence Diagram
+
+actor "Upper layer" as upper
+database "tuple" as tuple_db
+participant "IPv4 layer" as ipv4_layer
+database "Routing table" as routing_table
+package "IP Layer" {
+    ipv4_layer
+    routing_table
+}
+
+package "IPv4 Ineterface" {
+    participant "IPv4 interface" as ipv4_interface
+    database "ARP" as arp_db
+}
+actor "Lower layer" as lower
+
+note left of ipv4_layer: IPv4.dst=192.0.2.1\nIPv4.src=198.51.100.2
+
+upper -> ipv4_layer : IPdata
+activate ipv4_layer
+note right of ipv4_layer: Allocate\nIPv4\nheader
+ipv4_layer -> routing_table : dst=192.0.2.1
+activate routing_table
+routing_table --> ipv4_layer
+deactivate routing_table
+ipv4_layer --> upper
+deactivate ipv4_layer
+
+note left of upper: IPv4.oif=ifp1\nIPv4.gw=198.51.100.1
+
+ipv4_layer -> ipv4_interface : 
+activate ipv4_interface
+ipv4_interface -> arp_db : gw=198.51.100.1
+note right of arp_db: enqueue\npacket
+arp_db --> ipv4_interface : ARP request
+ipv4_interface -> lower : 
+lower --> ipv4_interface : ARP response
+ipv4_interface -> arp_db : 
+arp_db --> ipv4_interface : resolved packets
+ipv4_interface -> ipv4_interface : send as\nsend thread
+ipv4_interface -> lower : 
+deactivate ipv4_interface
+
+@enduml
+```

@@ -1,0 +1,72 @@
+@startuml
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 200
+
+participant "DefaultResultSetHandler" as A
+participant "DefaultResultSetHandler1" as B
+participant "DefaultResultSetHandler2" as C
+participant "DefaultResultSetHandler3" as D
+participant "DefaultResultSetHandler4" as E
+participant "DefaultResultSetHandler5" as F
+participant "DefaultResultSetHandler6" as G
+participant "DefaultResultSetHandler7" as H
+participant "DefaultResultSetHandler8" as I
+
+A -> A : .handleResultSets()
+
+loop
+  A -> C : 1. handleResultSet(): 使用MappedStatement指定的ResultMap将结果集映射成对象
+  C -> D : handleRowValues(): 映射结果集
+
+  box "映射包含嵌套子映射的结果集"
+  D -> D : .handleRowValuesForNestedResultMap()
+  loop
+    D -> E : getRowValue()
+    E -> E : 1. createResultObject(): 使用构造器属性将结果构造对象
+    E -> E : 2. applyAutomaticMappings(): 使用自动映射映射没有定义映射的
+    E -> E : 3. applyPropertyMappings(): 使用映射映射属性对应的列
+
+    loop
+      E -> F : getPropertyMappingValue()
+      F -> G : 
+      note over G
+        属性的值是内嵌的子查询结果，可能是懒查询：
+        getNestedQueryMappingValue()
+      end note
+      note over G
+        属性的值需要使用resultSet属性指定的结果集来映射，延迟映射的子：
+        addPendingChildRelation()
+      end note
+      note over G
+        属性的值直接从结果集中获取
+        TypeHandler.getResult()
+      end note
+      G -> E : 通过反射将值设置到宿主对象的属性上
+    end
+
+    E -> D : 4. applyNesteResultMappings(): 使用内嵌子映射映射生成属性对象（会调用getRowValue()方法）
+    D -> D : 收集映射生成的结果对象，并且返回
+  end
+  end box
+
+  box "映射没有嵌套子映射的结果集"
+  D -> D : .handleRowValuesForSimpleResultMap()
+  loop
+    D -> E : getRowValue()
+    E -> E : 1. createResultObject(): 使用构造器属性将结果构造对象
+    E -> E : 2. applyAutomaticMappings(): 使用自动映射映射没有定义映射的
+    E -> E : 3. applyPropertyMappings(): 使用映射映射属性对应的列
+    E -> D : 收集映射生成的结果对象，并且返回
+  end
+  end box
+
+end
+
+loop
+  A -> A : 2. handleResultSet(): 使用resultMapping指定的ResultMap将resultMapping指定的结果集映射成对象（属性值）
+  A -> A : 过程与上面完全一样，不同的是收集结果对象，此流程将生成的结果对象设置到宿主属性上
+end
+
+A -> A : done
+
+@enduml

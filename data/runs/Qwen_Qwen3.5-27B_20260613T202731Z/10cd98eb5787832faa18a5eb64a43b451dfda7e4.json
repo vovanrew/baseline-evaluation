@@ -1,0 +1,22 @@
+{
+  "id": "835e9c93-fbf5-494c-9c97-d7cd67410a23",
+  "object": "chat.completion",
+  "created": 1781483484,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam sequence {\n  ArrowColor Black\n  ActorBorderColor Black\n  ActorBackgroundColor White\n  ParticipantBorderColor Black\n  ParticipantBackgroundColor White\n}\n\nparticipant \"VideoSink\" as VideoSink\nparticipant \"VideoDecoder\" as VideoDecoder\nparticipant \"VideoReceiver\" as VideoReceiver\nparticipant \"RTSPSession\" as RTSPSession\nparticipant \"Transcoder\" as Transcoder\nparticipant \"DTLS\" as DTLS\n\nactivate VideoReceiver\nnote over VideoReceiver: Receive RTP\ndeactivate VideoReceiver\n\nactivate RTSPSession\nactivate Transcoder\nactivate DTLS\n\nbox \"OutputPacket\" #LightYellow\nend box\n\nbox \"AsyncUDP Packet\" #LightBlue\nend box\n\nbox \"SignalReadEvent\" #LightGreen\nend box\n\nbox \"OnDataReceived\" #LightCyan\nend box\n\nbox \"Receive Video\" #LightPink\nend box\n\nbox \"Resume\" #LightOrange\nend box\n\nbox \"StartNewVideoCodec\" #LightGray\nend box\n\nbox \"VideoDecoderWrapper\" #Lavender\nend box\n\nbox \"VideoDecoderCallback\" #Plum\nend box\n\nbox \"IncomingVideoStream\" #Thistle\nend box\n\nbox \"WMRVideoStreamWrapper\" #Violet\nend box\n\nbox \"SurfaceVideoRenderer\" #Wheat\nend box\n\nVideoReceiver -> AsyncUDP Packet : OnDataReceived()\nAsyncUDP Packet -> SignalReadEvent : ReadFromAsyncUDPSocket()\nSignalReadEvent -> OutputPacket : ProcessConnection()\nOutputPacket -> Transcoder : WriteToTranscoder()\nTranscoder -> OutputPacket : OnDataReceived()\nOutputPacket -> RTSPSession : OnDataReceived()\nRTSPSession -> Transcoder : OnDataReceived()\nTranscoder -> OutputPacket : OnDataReceived()\nOutputPacket -> VideoReceiver : OnDataReceived()\nVideoReceiver -> IncomingVideoStream : StartNewVideoCodec()\nIncomingVideoStream -> VideoDecoder : OnFrame()\nVideoDecoder -> VideoDecoderCallback : OnFrame()\nVideoDecoderCallback -> VideoDecoderWrapper : OnFrame()\nVideoDecoderWrapper -> WMRVideoStreamWrapper : OnFrame()\nWMRVideoStreamWrapper -> SurfaceVideoRenderer : OnFrame()\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 978,
+    "completion_tokens": 470,
+    "total_tokens": 1448
+  }
+}

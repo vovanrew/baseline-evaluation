@@ -1,0 +1,22 @@
+{
+  "id": "cd2a778c-f59e-42c1-a1d0-4f7bd576988d",
+  "object": "chat.completion",
+  "created": 1781483944,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam sequence {\n  ArrowColor DarkSlateGray\n  ActorBorderColor DarkSlateGray\n  ActorBackgroundColor WhiteSmoke\n  ParticipantBorderColor DarkSlateGray\n  ParticipantBackgroundColor WhiteSmoke\n  LifeLineBorderColor DarkSlateGray\n  LifeLineBackgroundColor WhiteSmoke\n}\n\nactor \"user\" as User\nparticipant \"GStreamer Pipeline\" as GSPipeline\nparticipant \"realsensesrc\" as RSsrc\nparticipant \"librealsense2\" as libRS\nparticipant \"GStreamer\" as GST\n\nnote left of User: load Gst pipeline with realsensesrc\n\nUser -> GSPipeline: realsensesrc serial=728..\nactivate GSPipeline\n\nbox \"pipeline goto GST_STATE_READY\" #LightYellow\n  GSPipeline -> RSsrc: create\n  activate RSsrc\n  \n  RSsrc -> libRS: rs2::context.query_devices()\n  activate libRS\n  libRS --> RSsrc: rs2::device_list\n  deactivate libRS\n  \n  RSsrc -> libRS: select device by serial\n  activate libRS\n  note right of libRS: Select device\n  libRS --> RSsrc: rs2::sensor\n  deactivate libRS\n  \n  rect rgb(240,240,240)\n    label loop [for (info: rs2::rs2_camera_info)]\n    RSsrc -> libRS: rs2::device.supports(info)\n    activate libRS\n    libRS --> RSsrc: bool\n    deactivate libRS\n    \n    RSsrc -> libRS: rs2::device.get_info(info)\n    activate libRS\n    libRS --> RSsrc: const char* info_string\n    deactivate libRS\n    RSsrc -> RSsrc: store info\n  end\n    \n  RSsrc -> GST: gst_tag_setter_add_tag_valist_values(...,infos, NULL)\n  activate GST\n  note right of GST: Register per-stream metadata as Gst tags\n  GST --> RSsrc\n  deactivate GST\n  \n  RSsrc -> libRS: rs2::sensor.get_stream_profiles()\n  activate libRS\n  libRS --> RSsrc: std::vector<rs2::stream_profile>\n  deactivate libRS\n  \n  rect rgb(240,240,240)\n    label loop [for (profile: std::vector<rs2::stream_profile>)]\n    RSsrc -> RSsrc: Create profile_list of supported profiles\n  end\n  \n  RSsrc -> GST: g_object_class_install_properties(...,...,options)\n  activate GST\n  note right of GST: Install all supported video profiles as an option\n  GST --> RSsrc\n  deactivate GST\n  \n  rect rgb(240,240,240)\n    label loop [for (option: rs2::rs2_option)]\n    RSsrc -> libRS: rs2::sensor.supports(option)\n    activate libRS\n    libRS --> RSsrc: bool\n    deactivate libRS\n    \n    RSsrc -> libRS: rs2::sensor.get_option_range\n    activate libRS\n    libRS --> RSsrc: rs2::option_range\n    deactivate libRS\n    RSsrc -> RSsrc: store option\n  end\n  \n  RSsrc -> GST: g_object_class_install_properties(...,...,options)\n  activate GST\n  note right of GST: Install all supported RS camera options as properties/options\n  GST --> RSsrc\n  deactivate GST\n  \n  RSsrc ..> GST: gst_bus_add_watch(bus, bus_call...);\n  note right of GST: Register callback for parameter changes\nend box\n\nGSPipeline -> RSsrc: caps negotiation (CAPS)\nnote right of RSsrc: - pixel_format\\n- width\\n- height\\n- framerate\n\nbox \"pipeline goto GST_STATE_PLAYING\" #LightYellow\n  GSPipeline -> RSsrc: state=playing\n  RSsrc -> libRS: rs2::sensor.start()\n  activate libRS\nend box\n\nbox \"pipeline goto GST_STATE_READY\" #LightYellow\n  RSsrc -> libRS: rs2::sensor.stop()\n  deactivate libRS\nend box\n\ndeactivate RSsrc\ndeactivate GSPipeline\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1321,
+    "completion_tokens": 905,
+    "total_tokens": 2226
+  }
+}

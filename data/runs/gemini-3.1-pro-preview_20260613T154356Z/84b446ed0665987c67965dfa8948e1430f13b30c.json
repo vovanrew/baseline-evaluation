@@ -1,0 +1,123 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nclass DecisionGraphFileManager\nclass PolicySpaceFileManager\nclass ValueInferenceFileManager\n\npackage LanguageServices {\n    package LanguageUtils {\n        class DecisionGraphServices\n        class PolicySpaceServices\n        class ValueInferenceServices\n    }\n\n    class LanguageServicesFacade {\n        + uriPathMap: Map<string, string>\n        + services: LanguageServices\n        - addToUriPathMap(docs: PMTextDocument[]): void\n        + addDocs(docs: PMTextDocument[]): void\n        + updateDoc(doc: PMTextDocument): void\n        + removeDoc(doc: string): void\n        + onDefinition(params: DeclarationParams): LocationLink[]\n        + onReferences(params: ReferenceParams): Location[]\n        + onPrepareRename(params: PrepareRenameParams): Range\n        + onRenameRequest(params: RenameParams): Location[]\n        + onCompletion(params: TextDocumentPositionParams): CompletionList\n        + onCompletionResolve(params: CompletionItem): CompletionItem\n        + onFoldingRanges(params: FoldingRangeParams): Location[]\n        - convertUri2PathLocationToConvert: Location, uri2path?: boolean): Location\n        - convertUri2PathLocationLink(toConvert: LocationLink, uri2path?: boolean): LocationLink\n        - convertUri2PathPMTextDocument(toConvert: PMTextDocument, uri2path?: boolean): PMTextDocument\n        + {static} init(docs: PMTextDocument[], pluginDir: string): Promise<LanguageServicesFacade>\n    }\n\n    class CacheQueries {\n        + {static} getAllDefinitionsDGNode(cache: PolicyModelEntity[], name: string): Location[]\n        + {static} getAllReferencesDGNode(cache: PolicyModelEntity[], name: string, sourceOfEntity: string): Location[]\n        + {static} getAllDefinitionsSlot(cache: PolicyModelEntity[], name: string): Location[]\n        + {static} getAllReferencesSlot(cache: PolicyModelEntity[], name: string, sourceOfEntity: string): Location[]\n        + {static} getAllDefinitionsSlotValue(cache: PolicyModelEntity[], name: string): Location[]\n        + {static} getAllReferencesSlotValue(cache: PolicyModelEntity[], name: string, sourceOfEntity: string): Location[]\n        + {static} getFoldingRanges(cache: PolicyModelEntity[]): Location[]\n        + {static} getAutoCompleteDecisionGraph(cache: PolicyModelEntity[], currentFile: string, importMap: ImportMap): CompletionList\n        + {static} getAutoCompletePolicySpace(cache: PolicyModelEntity[]): CompletionList\n    }\n\n    class LanguageServices {\n        + fileManagers: Map<string, FileManager>\n        + parsers: Map<PolicyModelsLanguage, Parser>\n        + addDocs(docs: PMTextDocument[]): void\n        + updateDoc(doc: PMTextDocument): void\n        + removeDoc(doc: string): void\n        # initParsers(parserPath: string): Promise<void>\n        # getParserByExtension(extension: string): Parser\n        # populateMaps(docs: PMTextDocument[]): void\n        # getFileManager(doc: PMTextDocument, extension: string): FileManager\n        # getFileManagerByLocation(location: Location): FileManager\n        + getDeclarations(location: Location): Location[]\n        + getReferences(location: Location): Location[]\n        + getRangeOfDoc(path: string): Range\n        + createPolicyModelEntity(location: Location): PolicyModelEntity\n        + getFoldingRanges(path: string): Location[]\n        + getCompletion(location: Location): CompletionList\n        + {static} init(docs: PMTextDocument[], pluginDir: string): Promise<LanguageServices>\n    }\n\n    class FileManagerFactory {\n        + {static} create(doc: PMTextDocument, parser: Parser, language: PolicyModelsLanguage, cacheVersion?: boolean): FileManager\n    }\n\n    class LanguageServicesWithCache {\n        + getFileManager(doc: PMTextDocument, extension: string): FileManager\n        + getCompletion(location: Location): CompletionList\n        + {static} init(docs: PMTextDocument[], pluginDir: string): Promise<LanguageServicesWithCache>\n    }\n\n    abstract class FileManager {\n        + tree: Tree\n        + path: string\n        + errorNodes: SyntaxNode[]\n        + updateTree(newTree: Tree): void\n        + getCache(): PolicyModelEntity[]\n        + isLocationInDoc(location: Location): boolean\n        + getNodeFromLocation(location: Location): SyntaxNode\n        + rangeArray2LocationArray(ranges: Range[]): Location[]\n        + getAllDefinitions(entity: PolicyModelEntity): Location[]\n        + getAllReferences(entity: PolicyModelEntity): Location[]\n        + getAllSyntaxErrors(): { location: Location; source: string; message: string; }[]\n        + {abstract} createPolicyModelEntity(location: Location): PolicyModelEntity\n        + {abstract} getAllDefinitionsDGNode(name: string, source: string): Location[]\n        + {abstract} getAllDefinitionsSlot(name: string): Location[]\n        + {abstract} getAllDefinitionsSlotValue(name: string): Location[]\n        + {abstract} getAllReferencesDGNode(name: string, currentFile: string, sourceOfEntity: string): Location[]\n        + {abstract} getAllReferencesSlot(name: string, sourceOfEntity: string): Location[]\n        + {abstract} getAllReferencesSlotValue(name: string, sourceOfEntity: string): Location[]\n        + {abstract} getFoldingRanges(): Location[]\n        + {abstract} getAutoComplete(location: Location, allCaches: PolicyModelEntity[]): CompletionList\n    }\n\n    class DecisionGraphFileManagerNaive {\n        + createPolicyModelEntity(location: Location): PolicyModelEntity\n        + getAllDefinitionsDGNode(name: string, source: string): Location[]\n        + getAllDefinitionsSlot(name: string): Location[]\n        + getAllDefinitionsSlotValue(name: string): Location[]\n        + getAllReferencesDGNode(name: string, currentFile: string, sourceOfEntity: string): Location[]\n        + getAllReferencesSlot(name: string, sourceOfEntity: string): Location[]\n        + getAllReferencesSlotValue(name: string, sourceOfEntity: string): Location[]\n        + getFoldingRanges(): Location[]\n        + getAutoComplete(location: Location, allCaches: PolicyModelEntity[]): CompletionList\n    }\n\n    class PolicySpaceFileManagerNaive {\n        + createPolicyModelEntity(location: Location): PolicyModelEntity\n        + getAllDefinitionsDGNode(name: string, sourceOfEntity: string): Location[]\n        + getAllDefinitionsSlot(name: string): Location[]\n        + getAllDefinitionsSlotValue(name: string): Location[]\n        + getAllReferencesDGNode(name: string, currentFile: string, sourceOfEntity: string): Location[]\n        + getAllReferencesSlot(name: string, sourceOfEntity: string): Location[]\n        + getAllReferencesSlotValue(name: string, sourceOfEntity: string): Location[]\n        + getFoldingRanges(): Location[]\n        + getAutoComplete(location: Location, allCaches: PolicyModelEntity[]): CompletionList\n    }\n\n    class ValueInferenceFileManagerNaive {\n        + createPolicyModelEntity(location: Location): PolicyModelEntity\n        + getAllDefinitionsDGNode(name: string, sourceOfEntity: string): Location[]\n        + getAllDefinitionsSlot(name: string): Location[]\n        + getAllDefinitionsSlotValue(name: string): Location[]\n        + getAllReferencesDGNode(name: string, currentFile: string, sourceOfEntity: string): Location[]\n        + getAllReferencesSlot(name: string, sourceOfEntity: string): Location[]\n        + getAllReferencesSlotValue(name: string, sourceOfEntity: string): Location[]\n        + getFoldingRanges(): Location[]\n        + getAutoComplete(location: Location, allCaches: PolicyModelEntity[]): CompletionList\n    }\n\n    class DecisionGraphFileManagerWithCache {\n        + cache: PolicyModelEntity[]\n        + importMap: ImportMap\n        + updateTree(newTree: Tree): void\n        + getCache(): PolicyModelEntity[]\n        + createPolicyModelEntity(location: Location): PolicyModelEntity\n        + getAllDefinitionsDGNode(name: string, sourceOfEntity: string): Location[]\n        + getAllDefinitionsSlot(name: string): Location[]\n        + getAllDefinitionsSlotValue(name: string): Location[]\n        + getAllReferencesDGNode(name: string, sourceOfEntity: string): Location[]\n        + getAllReferencesSlot(name: string, sourceOfEntity: string): Location[]\n        + getAllReferencesSlotValue(name: string, sourceOfEntity: string): Location[]\n        + getFoldingRanges(): Location[]\n        + getAutoComplete(location: Location, allCaches: PolicyModelEntity[]): CompletionList\n    }\n\n    class PolicySpaceFileManagerWithCache {\n        + cache: PolicyModelEntity[]\n        + updateTree(newTree: Tree): void\n        + getCache(): PolicyModelEntity[]\n        + createPolicyModelEntity(location: Location): PolicyModelEntity\n        + getAllDefinitionsDGNode(name: string, sourceOfEntity: string): Location[]\n        + getAllDefinitionsSlot(name: string): Location[]\n        + getAllDefinitionsSlotValue(name: string): Location[]\n        + getAllReferencesDGNode(name: string, sourceOfEntity: string): Location[]\n        + getAllReferencesSlot(name: string, sourceOfEntity: string): Location[]\n        + getAllReferencesSlotValue(name: string, sourceOfEntity: string): Location[]\n        + getFoldingRanges(): Location[]\n        + getAutoComplete(location: Location, allCaches: PolicyModelEntity[]): CompletionList\n    }\n\n    class ValueInferenceFileManagerWithCache {\n        + cache: PolicyModelEntity[]\n        + updateTree(newTree: Tree): void\n        + getCache(): PolicyModelEntity[]\n        + createPolicyModelEntity(location: Location): PolicyModelEntity\n        + getAllDefinitionsDGNode(name: string, sourceOfEntity: string): Location[]\n        + getAllDefinitionsSlot(name: string): Location[]\n        + getAllDefinitionsSlotValue(name: string): Location[]\n        + getAllReferencesDGNode(name: string, sourceOfEntity: string): Location[]\n        + getAllReferencesSlot(name: string, sourceOfEntity: string): Location[]\n        + getAllReferencesSlotValue(name: string, sourceOfEntity: string): Location[]\n        + getFoldingRanges(): Location[]\n        + getAutoComplete(location: Location, allCaches: PolicyModelEntity[]): CompletionList\n    }\n}\n\nDecisionGraphFileManager --> DecisionGraphServices : uses\nPolicySpaceFileManager --> PolicySpaceServices : uses\nValueInferenceFileManager --> ValueInferenceServices : uses\n\nLanguageServicesFacade --> LanguageServices\nLanguageServices --> FileManagerFactory : uses\nLanguageServices <|-- LanguageServicesWithCache\nFileManagerFactory --> FileManager : creates\n\nFileManager <|-- DecisionGraphFileManagerNaive\nFileManager <|-- PolicySpaceFileManagerNaive\nFileManager <|-- ValueInferenceFileManagerNaive\n\nDecisionGraphFileManagerNaive <|-- DecisionGraphFileManagerWithCache\nPolicySpaceFileManagerNaive <|-- PolicySpaceFileManagerWithCache\nValueInferenceFileManagerNaive <|-- ValueInferenceFileManagerWithCache\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHEoWqA//Hcm9ICLBC4vRe/JGV/LElFrD3opex4pLoaZCoGzLOxFKfQ+BbUKC7"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "citationMetadata": {
+        "citationSources": [
+          {
+            "startIndex": 288,
+            "endIndex": 1069,
+            "uri": "https://github.com/wolfj123/PolicyModelsPlugin",
+            "license": ""
+          },
+          {
+            "startIndex": 1091,
+            "endIndex": 1423,
+            "uri": "https://github.com/wolfj123/PolicyModelsPlugin",
+            "license": ""
+          },
+          {
+            "startIndex": 1442,
+            "endIndex": 2410,
+            "uri": "https://github.com/wolfj123/PolicyModelsPlugin",
+            "license": ""
+          },
+          {
+            "startIndex": 2428,
+            "endIndex": 3440,
+            "uri": "https://github.com/wolfj123/PolicyModelsPlugin",
+            "license": ""
+          },
+          {
+            "startIndex": 3909,
+            "endIndex": 5280,
+            "uri": "https://github.com/wolfj123/PolicyModelsPlugin",
+            "license": ""
+          },
+          {
+            "startIndex": 5340,
+            "endIndex": 6063,
+            "uri": "https://github.com/wolfj123/PolicyModelsPlugin",
+            "license": ""
+          },
+          {
+            "startIndex": 6063,
+            "endIndex": 6782,
+            "uri": "https://github.com/wolfj123/PolicyModelsPlugin",
+            "license": ""
+          },
+          {
+            "startIndex": 6797,
+            "endIndex": 7483,
+            "uri": "https://github.com/wolfj123/PolicyModelsPlugin",
+            "license": ""
+          },
+          {
+            "startIndex": 7534,
+            "endIndex": 7994,
+            "uri": "https://github.com/wolfj123/PolicyModelsPlugin",
+            "license": ""
+          },
+          {
+            "startIndex": 7993,
+            "endIndex": 8384,
+            "uri": "https://github.com/wolfj123/PolicyModelsPlugin",
+            "license": ""
+          },
+          {
+            "startIndex": 8437,
+            "endIndex": 8829,
+            "uri": "https://github.com/wolfj123/PolicyModelsPlugin",
+            "license": ""
+          },
+          {
+            "startIndex": 8828,
+            "endIndex": 9219,
+            "uri": "https://github.com/wolfj123/PolicyModelsPlugin",
+            "license": ""
+          },
+          {
+            "startIndex": 9275,
+            "endIndex": 9667,
+            "uri": "https://github.com/wolfj123/PolicyModelsPlugin",
+            "license": ""
+          },
+          {
+            "startIndex": 9666,
+            "endIndex": 9998,
+            "uri": "https://github.com/wolfj123/PolicyModelsPlugin",
+            "license": ""
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1165,
+    "candidatesTokenCount": 2477,
+    "totalTokenCount": 3642,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1085
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "TlouaruXIJW3vdIPmobgoQQ"
+}

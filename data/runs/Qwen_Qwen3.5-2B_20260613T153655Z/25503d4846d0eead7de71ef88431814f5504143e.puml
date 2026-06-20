@@ -1,0 +1,25 @@
+@startuml
+participant SendMessageController as SC
+participant SendMessageEngine as Sme
+participant SendMessageSender as Sse
+participant Socket as S
+
+SC --> Sme : sendMessage(message)
+
+Sme --> Sse : create(message, port)
+
+Sse --> S : create(message.getInetAddress(), port)
+
+Sme --> Sse : sendMessage()
+
+Sse --> Sse : create(socket.getOutputStream())
+
+Sse --> Sse : writeObject(message.getSheetTalkMessage())
+
+Sse --> Sse : flush()
+
+Sse --> Sse : close()
+
+Sse --> S : close()
+
+@enduml

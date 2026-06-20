@@ -1,0 +1,74 @@
+@startuml
+package Events {
+    class Events {
+        this.tourName = tourName
+        this.eventDate = eventDate
+        this.location = location
+        this.price = price
+        this.likedBy = []
+        this.attended = [] // created
+        this.payments = []
+        this.cancelledBy = []
+        this.comments = []
+        constructor(tourName, eventDate, location, price) {
+        }
+    }
+}
+
+class User {
+    this.name = name
+    this.age = age
+    this.phoneNumber = phoneNumber
+    this.email = email
+    this.location = location
+    this.photos = []
+    this.interestedBy = []
+    this.commented = []
+    this.likes = []
+    this.saved = []
+    constructor(name, age, phoneNumber, email, location) {
+    }
+}
+
+class TopVideos {
+    this.videoName = videoName
+    this.likedBy = []
+    this.comments = []
+    this.sharedOn = []
+    this.sharedBy = []
+    constructor(videoName) {
+    }
+}
+
+class TalkEvent {
+    constructor() {
+    }
+}
+
+class TourEvent {
+    constructor() {
+    }
+}
+
+class User as Actor {
+    Actor "C" User
+    Actor "C" TopVideos
+    Actor "C" TalkEvent
+    Actor "C" TourEvent
+}
+
+Actor User
+    "C" User
+    "C" TopVideos
+    "C" TalkEvent
+    "C" TourEvent
+
+User "likes, sharedBy" -> TopVideos
+User "attends, interests, likes" -> TalkEvent
+User "attends, interests, likes" -> TourEvent
+
+User "attends, interests, likes" -> Events
+Events "attends, interests, likes" -> TalkEvent
+Events "attends, interests, likes" -> TourEvent
+
+@enduml

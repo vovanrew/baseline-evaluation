@@ -1,0 +1,22 @@
+{
+  "id": "b23c964e-8781-44f4-8fff-5f990f35e6ae",
+  "object": "chat.completion",
+  "created": 1781486319,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Update Settlement\n\nparticipant \"Mojaloop Adapter\" as Adapter\nnote right of Adapter: Hub operator or DFSP interactions\n\nrectangle \"Central-Settlement\" {\n    participant \"API\" as API\n    note right of API: NodeJS interface invokes REST API\n    \n    participant \"api / Handler\" as Handler\n    note right of Handler: JSON request decoded & processed via handler\n    \n    participant \"Application Layer\\ndomain / service / facade\" as AppLayer\n    note right of AppLayer: Expose service functions & handle database interactions\n}\n\nrectangle \"Storage\" {\n    participant \"TigerBeetle Client\" as TBClient\n    participant \"TigerBeetle Cluster\" as TBCluster\n    database \"MySQL\" as MySQL\n}\n\nrectangle \"Update Settlement\" {\n    Adapter -> API : 1 JSON (settlement data)\n    activate API\n    API -> Handler : 2 Invoke handler\n    activate Handler\n    Handler -> AppLayer : 3 Invoke application layer\n    activate AppLayer\n    \n    AppLayer --> MySQL : 4 Retrieve settlement data (excluding accounts)\n    AppLayer --> TBClient : 5 Retrieve accounts for all Transfers for a settlement window\n    AppLayer -> MySQL : 6 Update settlement data (excluding accounts)\n    \n    AppLayer -> AppLayer : 7 Settlement state processing\n    \n    AppLayer -> TBClient : 8 Invoke account creation based on settlement state of each Transfer\n    activate TBClient\n    TBClient -> TBCluster : 9 Create settlement accounts & return result\n    activate TBCluster\n    TBCluster --> TBClient : \n    deactivate TBCluster\n    TBClient --> AppLayer : 10 Return settlement result\n    deactivate TBClient\n    \n    AppLayer -> MySQL : 11 Update final settlement state & return result\n    AppLayer --> Handler : 12 Return result\n    deactivate AppLayer\n    Handler --> API : 13 Return result\n    deactivate Handler\n    API --> Adapter : 14 Return result with settlementData\n    deactivate API\n}\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2105,
+    "completion_tokens": 442,
+    "total_tokens": 2547
+  }
+}

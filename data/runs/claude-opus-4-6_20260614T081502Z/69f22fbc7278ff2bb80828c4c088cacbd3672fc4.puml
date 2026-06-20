@@ -1,0 +1,52 @@
+@startuml
+
+participant "NavBar" as NavBar
+participant "ReduxStore" as ReduxStore
+participant "UserActions" as UserActions
+participant "UserReducer" as UserReducer
+participant "ProfileMiddleware" as ProfileMiddleware
+participant "Solid.js" as SolidJs
+database "POD" as POD
+
+NavBar -> ReduxStore : loadEmailRequest()
+ReduxStore -> UserActions : dispatch(loadEmailRequest())
+UserActions -> UserReducer : loadEmailRequest()
+destroy UserActions
+UserReducer -> ProfileMiddleware : loadEmailRequest()
+ProfileMiddleware -> SolidJs : getEmail()
+SolidJs -> POD : getEmail()
+SolidJs <-- POD : email
+ReduxStore <-- ProfileMiddleware : state
+destroy ProfileMiddleware
+ProfileMiddleware <-- SolidJs : email
+destroy SolidJs
+
+alt email successfully loaded
+    ProfileMiddleware <-- POD : email
+    destroy POD
+    ReduxStore -> UserActions : dispatch(loadEmailSuccess(email))
+    UserActions -> UserReducer : loadEmailSuccess(email)
+    destroy UserActions
+    UserReducer -> UserReducer : updateState(email)
+    NavBar <-- UserReducer : updated state with email
+    destroy UserReducer
+else error at loading email
+    ProfileMiddleware <-- POD : error
+    destroy POD
+    ReduxStore -> UserActions : dispatch(loadEmailError(error))
+    UserActions -> UserReducer : loadEmailError(error)
+    destroy UserActions
+    UserReducer -> UserReducer : updateState(error)
+    NavBar <-- UserReducer : updated state
+    destroy UserReducer
+end
+
+NavBar <-- ReduxStore : state
+destroy ProfileMiddleware
+
+legend right
+  line = method
+  dash line = data
+end legend
+
+@enduml

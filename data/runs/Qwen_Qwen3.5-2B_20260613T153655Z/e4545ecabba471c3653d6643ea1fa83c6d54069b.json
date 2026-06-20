@@ -1,0 +1,22 @@
+{
+  "id": "2cbe1ef2-8bbd-4b3e-a7af-e6dd44402be7",
+  "object": "chat.completion",
+  "created": 1781398399,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"User Agent\" as UA\nparticipant \"Content removal API\" as API\nparticipant \"User Manager\" as UM\nparticipant \"User database\" as UD\nparticipant \"Content database\" as CD\n\nnote right of UA\nShould also include a CSRF token to prevent admins who are also visit other, potentially XSS vulnerable or malicious sites from helping an unknown actor remove content without authorization.\n@endnote\n\nUA -> API: Removal request (HTTP POST), contains ID of content to be removed.\n\nAPI -> UM: Retrieve role of requesting user.\nUM -> UD: Fetch user information from database.\nUM -> API: Return query result.\nAPI -> UM: Return user role.\n\nalt [User has admin role]\n    API -> API: Validate removal request\n    alt [Failed to validate removal request]\n        API -> API: Return an HTTP status code that signals validation failure.\n        API -> API: Exact value depends on how the validation failed.\n    end\n    alt [Request is deemed valid]\n        API -> CD: Remove content from DB.\n        API -> CD: Result of delete operation\n    end\n    alt [Content has been removed successfully]\n        API -> API: Return HTTP 204 No Content\n    end\n    alt [Removal failed]\n        API -> API: Return HTTP Status code to signal reason for failure.\n    end\n    alt [User is not authorized to remove content]\n        API -> API: Return HTTP 403 Forbidden to signal that the user has no permission to request what they just did.\n    end\nend\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1076,
+    "completion_tokens": 340,
+    "total_tokens": 1416
+  }
+}

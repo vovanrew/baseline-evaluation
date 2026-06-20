@@ -1,0 +1,48 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor white
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F6
+  ActorBorderColor #666666
+  ActorBackgroundColor #E9E9F6
+  BoxBorderColor black
+  BoxBackgroundColor transparent
+  ArrowColor black
+  ArrowThickness 2
+  MessageAlign left
+}
+
+actor "：读者" as Reader
+actor "：图书管理员" as Librarian
+participant "还书界面" as UI
+participant "：还书信息" as ReturnInfo
+participant "：系统" as System
+
+loop
+  Reader -> Librarian : 1.取消预定
+  activate Librarian
+
+  Librarian -> UI : 2.处理图书
+  activate UI
+
+  UI -> ReturnInfo : 3.获取图书信息
+  activate ReturnInfo
+  ReturnInfo --> UI : 4.图书信息
+  deactivate ReturnInfo
+
+  UI -> System : 5.删除预定记录
+  activate System
+  System -> System : 6.删除预定记录
+  System --> UI : 7.删除预定成功
+  deactivate System
+
+  UI --> Librarian : 8.处理图成功
+  deactivate UI
+
+  Librarian --> Reader : 9.取消预定成功
+  deactivate Librarian
+end
+@enduml

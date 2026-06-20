@@ -1,0 +1,25 @@
+@startuml
+actor "Crapchat user" as User1
+participant "Another Crapchat\nuser" as OtherUser
+box "" #LightBlue2
+  participant "Crapchat REST API" as RestAPI
+end box
+database "Crapchat storage" as Storage
+
+== Search user ==
+activate User1
+RestAPI ->+ IdentityProvider : HTTP request with search query
+IdentityProvider -->- RestAPI : HTTP response with list of users
+deactivate IdentityProvider
+RestAPI <-- User1 : HTTP POST request with array of users
+deactivate User1
+
+frame SendFollowRequest {
+    activate User1
+    note right of User1: Clicks follow button
+    
+    ' This part seems to be missing in your original sequence but implied by context
+    RestAPI <-# User1 : HTTP OK response 
+} 
+
+@enduml

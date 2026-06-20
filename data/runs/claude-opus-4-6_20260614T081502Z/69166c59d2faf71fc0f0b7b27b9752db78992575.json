@@ -1,0 +1,21 @@
+{
+  "id": "msg_017MJJK3bW2Ryk24EYUsoKo3",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor Caller\n\nparticipant \":RoomTransactionService\" as RTS\nparticipant \":RoomTransactionCommand\" as RTC\nparticipant \":Nats Streaming\" as NS\n\nCaller -> RTS : Create(context, payload)\nRTS -> RTS : Validate()\n\nalt \"Data Not Valid\"\n    RTS ..> Caller : UnprocessableEntity\nelse\n    loop \"For each shift\"\n        RTS -> RTS : rt := RoomTransactionModel()\n        RTS -> RTC : Create(context, rt)\n        RTC ..> RTS : uuid\n    end\n\n    RTS -> NS : publishTransactionCreated(context, []uuid)\n    NS ..> RTS : published\n    RTS ..> Caller : created\nend\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781429544,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 196,
+    "prompt_tokens": 1600,
+    "total_tokens": 1796
+  }
+}

@@ -1,0 +1,31 @@
+@startuml
+actor "Crapchat user" as User
+actor "Another Crapchat user" as AnotherUser
+participant "Crapchat REST API" as API
+participant "Crapchat identity provider" as IDP
+database "Crapchat storage" as Storage
+
+box "Search user"
+User -> API : HTTP POST request with search query
+API -> IDP : HTTP request with search query
+IDP --> API : HTTP response with list of users
+API --> User : HTTP response with array of users
+end box
+
+box "Send follow request"
+User -> User : Clicks follow button
+User -> API : HTTP request with ID of the user to follow
+API -> Storage : SQL insert query
+Storage --> API : Success response
+API --> AnotherUser : Notify with follow request
+API --> User : HTTP OK response
+end box
+
+box "Accept follow request"
+AnotherUser -> API : HTTP request to accept
+API -> Storage : SQL update query
+Storage --> API : Success response
+API --> AnotherUser : HTTP OK response
+end box
+
+@enduml

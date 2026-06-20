@@ -1,0 +1,22 @@
+{
+  "id": "6ad92d1f-e6af-431c-b769-630dd2dff5e7",
+  "object": "chat.completion",
+  "created": 1781761782,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle PB-428 UC12 View fund details\n\nactor Next Customer as NextCustomer\ninterface Core Next as CoreNext\ninterface Next Database as NextDB\ninterface Core Bradesco as CoreBradesco\n\ndatabase Next Database as NextDB\n\nnote right of NextCustomer\nThe App will make a call to Core Next to get all the details for a fund. It will pass required input:\n- Fund ID\nnote right of NextCustomer\nNote to Dev\nPlease check if the input parameter Fund ID is the Product ID or the External_Core_Product_ID. From what I can see, there are two product records with the same External_Core_Product_ID (Next Simples) and this may create issues.\nendnote\n\nnote right of CoreNext\nref\nUse existing methodology to get complete details for a fund.\nendnote\n\nnote right of CoreNext\nCore Next will retrieve additional data from the PRODUCT table and return them to the App:\n1. FundCategory (new)\n2. RequireFundTC (new)\n3. RiskScore (existing field in table, but needs to be added in response)\n4. IncomeValue (new)\n5. IncomeDescription (new)\n6. isNextSimples (new)\nendnote\n\nnote right of NextCustomer\nCore Next will return all existing fields in the response + the following new response fields:\n1. FundCategory (new)\n2. RequireFundTC (new)\n3. RiskScore (existing field in table, but needs to be added in response)\n4. IncomeValue (new)\n5. IncomeDescription (new)\n6. isNextSimples (new)\nAll of these fields will come from the PRODUCT table.\nendnote\n\nNextCustomer ->> CoreNext: 1 HTTP GET /investments/funds/completeDetails\n\nCoreNext ->> NextDB: 2 GET additional fields from Product table\n\nNextDB ->> CoreNext: 3 Response\n\nCoreNext ->> NextCustomer: 4 Response\n\nCoreNext ..> NextDB : ref\n\nCoreNext ..> CoreBradesco : ref\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nes",
+  "usage": {
+    "prompt_tokens": 1664,
+    "completion_tokens": 449,
+    "total_tokens": 2113
+  }
+}

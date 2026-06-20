@@ -1,0 +1,22 @@
+{
+  "id": "1739242c-a605-405f-804b-260798e4d997",
+  "object": "chat.completion",
+  "created": 1781439075,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nautonumber\n\ntitle Provider Login Into Provider App =\n\nparticipant \"Resident\" as Resident\nparticipant \"WeResident\" as WeResident\nparticipant \"WeID\" as WeID\nparticipant \"WeService\" as WeService\n\nResident -> WeResident: Send username:password /login\n\nalt [Provider already exist]\n    WeResident -> WeID: Get Token by username:password\\n/oauth/authorize\n    activate WeID\n    WeID --> WeResident: Return Token to WeResident\n    deactivate WeID\n    WeResident -> Resident: Return {\"token\": \"jwt-token\"}\nend\n\n== Provider Query/Search Service ==\n\nResident -> WeService: Query services including token\\n/weservices/services\\nHeader\\nAuthorization: Bear {jwt-token}\nnote right of Resident: Query Service schema\\n{\"query\":\"string\",\"status\":12}\n\nalt [above token is valid]\n    WeService -> WeID: verify token\n    activate WeID\n    WeID --> WeService: 200\n    deactivate WeID\n    WeService -> Resident: Response services data\n    note left of Resident: Service Data Array schema\\n[{\"id\":\"string\",\"company\":\"string\",\"name\":\"string\",\"rate\":4.2,\"image\":\"image.png\"},{}],\\n\"total\":10,\"currentPage\":1,\"perPage\":5\nelse [Token is expired/invalid]\n    WeService -> WeID: verify token\n    activate WeID\n    WeID --> WeService: 400\n    deactivate WeID\n    WeService -> Resident: Response 401 status\nend\n\n== Create Order(Request) ==\n\nResident -> WeService: Create Service\\nPOST: /weservices/service/{serviceID}/order\nnote right of Resident: Order Request schema\\n{\"resident\":\"$userID\",\\n\"service\":\"$serviceID\",\\n\"pricingModel\":{},\\n\"noteDetail\":\"string\",\\n\"address\":\"string\",\\n\"schedule\":Time}\n\nWeService -> WeID: verify token\nactivate WeID\nWeID --> WeService: 200\ndeactivate WeID\nWeService -> Resident: Response Service Data(JSON)\n\nResident -> WeService: Comment(chat) in Order\\nPOST: /weservices/order/{orderId}/comment\nnote right of Resident: Comment Data\\n{\"content\":\"string\"}\n\nWeService -> WeID: verify token\nactivate WeID\nWeID --> WeService: 200\ndeactivate WeID\nWeService -> Resident: 200\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1419,
+    "completion_tokens": 556,
+    "total_tokens": 1975
+  }
+}

@@ -1,0 +1,29 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "browser" as B
+participant "listener" as L
+participant "sequence_1" as S1
+participant "http_inbound_travelocity" as H1
+participant "OIDC_IdP" as OIDC
+participant "http_inbound_commonauth" as H2
+participant "sequence_2" as S2
+
+B ->> L: SAML login request
+L ->> S1: SAML login request
+B ->> H1: SAML login request
+S1 ->> H1: request
+note over S1, H1: SAML request process
+note over S1, H1: OIDC request build
+S1 ->> H1: Redirect to IDP
+B ->> OIDC: Redirect to IDP
+H2 ->> OIDC: login page
+B ->> OIDC: Submit credentials
+OIDC ->> H2: ID token
+H2 ->> S2: ID token
+note over S2: OIDC response process
+note over S2: SAML response build
+S2 ->> H2: SAML response
+H2 ->> B: SAML response
+
+@enduml

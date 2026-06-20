@@ -1,0 +1,27 @@
+@startuml
+participant "host" as Host
+participant "rcv" as Rcv
+participant "controller" as Controller
+
+participant "MultiDisplayService" as MultiDisplayService
+
+participant "IMultipleDisplaysUiController" as IMultipleDisplaysUiController
+participant "IMultipleDisplaysDelegate" as IMultipleDisplaysDelegate
+
+participant "DisplaysSwapViewController" as DisplaysSwapViewController
+participant "DisplaysSwapPresenter" as DisplaysSwapPresenter
+
+MultiDisplayService ..> IMultipleDisplaysUiController : onDisplayAdded
+MultiDisplayService ..> IMultipleDisplaysUiController : updateDisplayInfos
+MultiDisplayService ..> IMultipleDisplaysUiController : onDisplayRemoved
+MultiDisplayService ..> IMultipleDisplaysUiController : updateDisplayInfos
+
+IMultipleDisplaysUiController ..> IMultipleDisplaysDelegate : swap()
+DisplaysSwapViewController ..> DisplaysSwapPresenter : swap()
+DisplaysSwapPresenter ..> DisplaysSwapViewController : onUpdateDisplayInfo(IMultipleDisplaysUiController var1, EMultipleDisplaysAction var2)
+DisplaysSwapPresenter ..> DisplaysSwapViewController : loadMonitorsIndicator()
+
+IMultipleDisplaysUiController ..> IMultipleDisplaysDelegate : onUpdateDisplayInfo(IMultipleDisplaysUiController var1, EMultipleDisplaysAction var2)
+Host ..> MultiDisplayService : notifyMultiDisplayChanged(type: MultiDisplayChangeType, displayId: Int)
+
+@enduml

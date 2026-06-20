@@ -1,0 +1,80 @@
+```plantuml
+@startuml
+autonumber
+
+participant "Node" as Node
+participant "RF" as RF
+participant "Link" as Link
+participant "Hub" as Hub
+participant "testdomain.com" as testdomain
+
+note right of RF: BROADCAST: 256LW,R,F,KI7EST-0
+activate RF
+deactivate RF
+
+note right of RF: Repeated every 5 minutes while link is idle
+note right of RF: ...
+
+Node -> RF : CONTROL: Request Link KI7EST-1,KI7EST-0
+activate Node
+RF -> Link : CONTROL: Request Link KI7EST-1,KI7EST-0
+activate RF
+Link -> RF : CONTROL: Grant Link KI7EST-0,KI7EST-1
+deactivate RF
+RF -> Node : CONTROL: Grant Link KI7EST-0,KI7EST-1
+deactivate Node
+
+note right of RF: First frame has Start Flag set
+Node -> RF : DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>
+activate Node
+RF -> Link : DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>
+activate RF
+Link -> RF : ACK: 0x0001 0x0000, _N, _R, 0C, <FEC>
+deactivate RF
+RF -> Node : ACK: 0x0001 0x0000, _N, _R, 0C, <FEC>
+deactivate Node
+
+note over Node,RF: Repeat until all data frames are sent.\nNote that last frame has end flag set\nIf Link as response for command/packet then\nResponse Flag will be set and second data transfer happens in reverse.
+
+Node -> RF : DATA: 0x0020 256B,4F,_S,E <FEC> <payload> <FEC>
+activate Node
+RF -> Link : DATA: 0x0020 256B,4F,_S,E <FEC> <payload> <FEC>
+activate RF
+Link -> Link : Final packet, assembled sequence
+activate Link
+Link -> Link : <sig> 0001 REST KI7EST@rfnethub.net POST testdomain.com/ping
+Link -> Hub : /user/KI7EST/keys
+activate Link
+Hub -> Link : "MTIzNDU2Nzg=MjM0NTY3ODEyMzQ1Njc4MTIzNDU2Nzg="
+deactivate Link
+Link -> Link : Verify signature
+Link -> testdomain : /ping
+activate Link
+testdomain -> Link : 200
+deactivate Link
+deactivate Link
+Link -> RF : ACK: 0x0001 0x0000, _N, R, 0C, <FEC>
+deactivate RF
+RF -> Node : ACK: 0x0001 0x0000, _N, R, 0C, <FEC>
+deactivate Node
+
+Link -> RF : DATA: 0x0001 256B,4F,S,E <FEC> KI7EST@rfnethub.net 0001 REST 200
+activate Link
+RF -> Node : DATA: 0x0001 256B,4F,S,E <FEC> KI7EST@rfnethub.net 0001 REST 200
+activate RF
+Node -> RF : ACK: 0x0001 0x0000,_N,_R,0C <FEC>
+deactivate RF
+RF -> Link : ACK: 0x0001 0x0000,_N,_R,0C <FEC>
+deactivate Link
+
+Node -> RF : CONTROL: Close Link KI7EST-1,KI7EST-0
+activate Node
+RF -> Link : CONTROL: Close Link KI7EST-1,KI7EST-0
+activate RF
+Link -> RF : CONTROL: Closed Link KI7EST-0,KI7EST-1
+deactivate RF
+RF -> Node : CONTROL: Closed Link KI7EST-0,KI7EST-1
+deactivate Node
+
+@enduml
+```

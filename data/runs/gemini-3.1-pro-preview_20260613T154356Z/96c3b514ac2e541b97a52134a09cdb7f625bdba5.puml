@@ -1,0 +1,61 @@
+```plantuml
+@startuml
+actor User
+participant CellEditor
+participant Address
+participant Controller
+participant Cell
+participant CellImpl
+participant FormulaCompiler
+participant ExcelExpressionCompiler
+participant ANTLRStringStream
+participant FormulaLexer
+participant CommonTokenStream
+participant FormulaParser
+participant Expression
+participant Formula
+
+User -> CellEditor : Inputs block of instructions
+activate CellEditor
+CellEditor -> Address : address = getAddress()
+CellEditor -> Controller : cell = getCell(address)
+CellEditor -> Cell : setContent(content)
+deactivate CellEditor
+activate Cell
+Cell -> CellImpl : setContent(content)
+activate CellImpl
+CellImpl -> CellImpl : storeContent(content)
+CellImpl -> FormulaCompiler : compile(cell, content)
+activate FormulaCompiler
+FormulaCompiler -> ExcelExpressionCompiler : compile(cell, content)
+activate ExcelExpressionCompiler
+ExcelExpressionCompiler -> ANTLRStringStream : input = create(source)
+activate ANTLRStringStream
+deactivate ANTLRStringStream
+ExcelExpressionCompiler -> FormulaLexer : lexer = create(input)
+activate FormulaLexer
+deactivate FormulaLexer
+ExcelExpressionCompiler -> CommonTokenStream : tokens = create(lexer)
+activate CommonTokenStream
+deactivate CommonTokenStream
+ExcelExpressionCompiler -> FormulaParser : parser = create(tokens)
+activate FormulaParser
+ExcelExpressionCompiler -> FormulaParser : tree = parser.expression()
+ExcelExpressionCompiler -> Expression : create()
+activate Expression
+deactivate Expression
+ExcelExpressionCompiler -> ExcelExpressionCompiler : expression = convert(cell, tree)
+deactivate FormulaParser
+ExcelExpressionCompiler -> FormulaCompiler : expression
+deactivate ExcelExpressionCompiler
+FormulaCompiler -> Formula : formula = create(cell, expression)
+activate Formula
+deactivate Formula
+FormulaCompiler -> CellImpl : formula
+deactivate FormulaCompiler
+CellImpl -> Cell : show()
+deactivate CellImpl
+Cell --> User : Result
+deactivate Cell
+@enduml
+```

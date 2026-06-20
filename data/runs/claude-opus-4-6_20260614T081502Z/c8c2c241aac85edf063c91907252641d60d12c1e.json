@@ -1,0 +1,21 @@
+{
+  "id": "msg_01NFA3qYCBkCrWZ5oAeww9Gb",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle PD parse detail\n\nparticipant \"Chi\" as Chi\nparticipant \"pipeline\" as pipeline\nparticipant \"pdlibwrapper\\ncamxpdlibwrapper.cpp\" as pdlibwrapper\nparticipant \"pdlibinterface\\ncamxpdlibinterface.cpp\" as pdlibinterface\nparticipant \"camxsensornode.cpp\" as sensornode\nparticipant \"camxpdlibraryhandler.cpp\" as pdlibraryhandler\n\nhnote over pipeline #FF6600 : chi stats algo\n\nnote left of Chi\nChiPDEntry[]   = \"ChiPDLibraryEntry\"\nChiASDEntry[]  = \"ChiASDAlgorithmEntry\"\nChiAFDEntry[]  = \"ChiAFDAlgorithmEntry\"\nChiAWBEntry[]  = \"ChiAWBAlgorithmEntry\"\nChiAFEntry[]   = \"ChiAFAlgorithmEntry\"\nfrom this text, can get Algorithm Entry\nend note\n\nhnote over pipeline #FF6600 : PD lib create\n\nChi -> Chi : ProbeChiComponents\nactivate Chi #FF6600\nChi -> Chi : GetAECAlgorithmCallback\nChi -> Chi : GetAFDAlgorithmCallback\nChi -> Chi : GetAFAlgorithmCallback\nChi -> Chi : GetAWBAlgorithmCallback\nChi -> Chi : GetASDAlgorithmCallback\nChi -> Chi : **GetPDLibraryCallback**\nChi -> Chi : GetHVXAlgorithmCallback\nChi <-- Chi : return\ndeactivate Chi\n\nnote left of Chi\nThese Callback used in camxpipeline.cpp\nwhen call pipeline:CreateNodes\nend note\n\nnote left of Chi\nfor m_pStatscallback.pPDCallback\ncontain these inteface\n  pCallBacks->pfnGetCapabilities  = PDWrapperGetCapabilities;\n  pCallBacks->pfnCreate           = CreatePDLibWrapper;\n  pCallBacks->pfnQueryVendorTag   = NULL;\n  pCallBacks->pfnSetAlgoInterface = PDWrapperSetNodeInterface;\nend note\n\n== CreatePDLibWrapper ==\n\npipeline -> pdlibwrapper : CamX::LoadPDLib\nactivate pdlibwrapper\npdlibwrapper -> pdlibwrapper\nnote left of pdlibwrapper\n\"%s%s%s.%s\"\n\"VendorLibPath\"\n\"PathSeparator\"\n\"pLibName\"\n\"SharedLibraryExtension\"\nend note\npdlibwrapper --> pipeline : return Addr\npdlibwrapper -> pdlibinterface : pfnCreate\npdlibinterface -->]\npdlibwrapper <-- pdlibinterface : return\ndeactivate pdlibwrapper\n\nhnote over pipeline #FF6600 : call PD lib\n\nnote over pdlibinterface\nin dir:\n1. camx-lib-3a/system/statsalgo/pdlib\n2. camx-lib/system/statsalgo/pdlibsony\nboth have camxpdlibinterface.cpp\nend note\n\nhnote over pipeline #FF6600 : Init PDLib\n\nnote left of pipeline\nfor pipeline create, will create every node\nand pdlib is init in sensor node\nend note\n\npipeline -> sensornode : ProcessingNodeFinalizeInitialization\nactivate sensornode\nnote over sensornode #FFFFCC\n1. ReadEEPROMData\n2. GetCSIInfo\n3. GetOTPData\n4. PopulatePDAFInformation\n5. PublishPDAFInformation\nwhy we need publish this info?\n  actually for PropertyIDSensorPDAFInfo, in IFE PDPCv1.1 and BPS PDPC2.0 will use it.\n  since type 3 sensor will not do pdpc\nend note\nsensornode -> pdlibraryhandler : LoadPDLibrary\npdlibraryhandler -> pdlibraryhandler : CPDLibHandler::CreateLib\ndeactivate sensornode\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432415,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 1006,
+    "prompt_tokens": 1644,
+    "total_tokens": 2650
+  }
+}

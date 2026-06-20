@@ -1,0 +1,27 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "WebApp" as WebApp
+participant "SWData" as SWData
+participant "Manager" as Manager
+participant "MessageQueue" as MessageQueue
+participant "Worker" as Worker
+participant "Memcache" as Memcache
+
+note over Manager, MessageQueue, Worker, Memcache
+This is just an example.<br>We could got wi go with Celery, but sometimes it's good to hide the concrete engine behind the abstraction layer.
+end note
+
+WebApp->>SWData: fetch new collection
+SWData->>Manager: schedule a job
+Manager->>MessageQueue: execute a job
+Manager->>Worker: update job status
+Worker->>Memcache: job result
+Manager->>SWData: update job status
+SWData->>Manager: job result
+Manager->>Memcache: job result
+WebApp->>SWData: get job status
+SWData->>Manager: get job status
+Manager->>Memcache: get job status
+
+@enduml

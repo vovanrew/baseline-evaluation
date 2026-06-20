@@ -1,0 +1,68 @@
+```plantuml
+@startuml
+
+abstract class Score <<sealed>> {
+  placard: String
+  isGame: Boolean = false
+  {abstract} next(): Score
+}
+
+enum Points {
+  value: Int
+  LOVE
+  FIFTEEN
+  THIRTY
+  next(): Points
+}
+
+class ByPoints {
+  placard = "$A – $B"
+  next(): Score
+}
+
+enum Player {
+  A
+  B
+}
+
+class Forty {
+  placard = "$A – 40" | "40 – $B"
+  next(): Score
+}
+
+class Game {
+  placard = "Game $W"
+  isGame = true
+  next() = throw
+}
+
+class Advantage {
+  placard = "Advantage $W"
+  next(): Score
+}
+
+object Deuce {
+  placard = "Deuce"
+  next(): Score
+}
+
+ByPoints --|> Score
+Forty --|> Score
+Game --|> Score
+Advantage --|> Score
+Deuce --|> Score
+
+ByPoints --> Points : pointsB
+ByPoints --> Points : pointsA
+
+Forty --> Points : pointsOther
+Forty --> Player : player
+Forty --> Score
+
+Game o-- Player : winner
+
+Advantage --> Player : player
+Advantage --> Score
+
+@enduml
+```

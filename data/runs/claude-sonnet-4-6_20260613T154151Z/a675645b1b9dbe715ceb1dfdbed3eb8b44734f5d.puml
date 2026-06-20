@@ -1,0 +1,67 @@
+@startuml
+participant "Client" as Client
+participant "Oauth" as Oauth
+participant "Login Endpoint" as LoginEndpoint
+participant "Consent Endpoint" as ConsentEndpoint
+
+== Open page ==
+
+Client -> Oauth: Initiate authorize code or implicit flow
+Oauth -> Client: No user session (not authenticated)
+Oauth -> LoginEndpoint: Redirect to login endpoint with <login_challenge>
+note right of LoginEndpoint
+  GET https://<LOGIN_ENDPOINT>/login?login_challenge=7bb518c4eec2454dbb289f5fdb4c0ee2
+end note
+
+== Login ==
+
+Client -> LoginEndpoint: Input user/password
+LoginEndpoint -> Oauth: Verify user/password
+Oauth --> LoginEndpoint: Fetch login request info with <login_challenge>
+note right of LoginEndpoint
+  GET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login?login_challenge=<challenge>
+end note
+LoginEndpoint -> Oauth: Accept login
+note right of LoginEndpoint
+  PUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login/accept?login_challenge=<challenge>
+  {
+    "acr": "string",
+    "context": {},
+    "force_subject_identifier": "string",
+    "remember": true,
+    "remember_for": 3600,
+    "subject": "string"
+  }
+end note
+Oauth ..> LoginEndpoint: Return redirect url
+LoginEndpoint ..> Oauth: Redirect
+
+== Consent ==
+
+ConsentEndpoint -> Oauth: First time that client asks user for permission
+Oauth -> ConsentEndpoint: Redirect with <consent_challenge>
+ConsentEndpoint -> Oauth: Asking users permission to grant application access
+Oauth --> ConsentEndpoint: Fetch consent info
+note right of ConsentEndpoint
+  GET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent?consent_challenge=<challenge>
+end note
+ConsentEndpoint -> Oauth: Accept
+note right of ConsentEndpoint
+  PUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent/accept?consent_challenge=<challenge>
+  {
+    "grant_scope": ["openid", "offline_access"],
+    "handled_at": "2019-08-24T14:15:22Z",
+    "session": {
+      "access_token": {
+        "foo": "This field will be available when introspecting the Access Token"
+      },
+      "id_token": {
+        "bar": "This field will be available as a claim in the ID Token"
+      }
+    }
+  }
+end note
+Oauth ..> ConsentEndpoint: Return redirect url
+ConsentEndpoint ..> Oauth: Redirect page
+
+@enduml

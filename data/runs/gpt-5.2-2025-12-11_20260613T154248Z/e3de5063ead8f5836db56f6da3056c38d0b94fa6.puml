@@ -1,0 +1,45 @@
+```plantuml
+@startuml
+title Mengubah SubMenu
+
+actor Administrator as Admin
+boundary Dashboard_V as Dash
+boundary Submenu_V as SubV
+boundary EditSubmenu_V as EditV
+control Admin_C as AdminC
+control Menu_C as MenuC
+entity Submenu_E as SubE
+
+AdminC --> Dash : 1 load->view()
+Dash --> Admin : 2 Halaman Dashboard
+Admin -> Dash : 3 klik menu Submenu management
+Dash -> MenuC : 4 Submenu()
+MenuC -> SubE : 5
+SubE --> MenuC : 6
+MenuC --> SubV : 7 load->view()
+SubV --> Admin : 8 Halaman Submenu management
+Admin -> SubV : 9 klik tombol EditSubmenu
+SubV -> MenuC : 10 EditSubmenu()
+MenuC --> EditV : 11 load->view()
+EditV --> Admin : 12 Halaman EditSubmenu
+Admin -> EditV : 13 Mengisi Inputan dan klik tombol edit
+
+note left of Admin
+Inputan Submenu
+end note
+
+EditV -> MenuC : 14 EditSubmenu()
+MenuC -> SubE : 15
+
+alt [isValid() case]
+  SubE --> MenuC : 16 isValid()
+  MenuC --> SubV : 17 load->view()
+  SubV --> Admin : 18 Halaman Submenu
+else [isInvalid() case]
+  SubE --> MenuC : 19 isInvalid()
+  MenuC --> EditV : 20 load->view()
+  EditV --> Admin : 21 Halaman Edit Submenu
+end
+
+@enduml
+```

@@ -1,0 +1,66 @@
+@startuml
+actor Client as client
+participant "RegisterClientUI" as ui
+participant RegisterClientController as controller
+participant ApplicationPOT as app1
+participant ":app\nApplicationPOT" as app2
+database DBConnections as dbconn #DB_CONNEXIONS#
+object EncryptPassword as encryptpwd
+interface EmailSender as emailsender
+control DataHandler as datahandler
+
+client ->> ui : 1 Engages the register feature/button
+ui -->> client : Asks for all the information required \nfor the register (i.e. name,nif,email,password,latitude,longitute,\nalitude,streetName,doorNumber postalCode,locality,country,creditCardNr.,validityDate, CCV) 
+activate ui 
+
+note over ui: Ask user to fill in form fields
+
+
+client --> ui :3 Fills all the information required  
+ui -x-> client :4 Presents the data and asks for a confirmation   
+client -> ui :5 Confirms  
+
+alt if all the information given as input has a valid format
+    
+    activate ui 
+    
+     note right of ui: Validate inputs
+     
+     
+      ui ->>controller :6.registerNewClient(name,nif,email,pasword,latidude,longtutde,altitude,streetName,\ndoorNumber ,postalCode, locality,country, creditCardNºr.validityDate.CCV)\n
+      
+       activate controller
+        
+        controller ->> app1 :7 create() 
+        
+         activate app1
+         
+          app1 ->> app2 :8.create()\n
+          
+           activate app2
+            
+            participant clientService.ClientService as clientservice 
+            
+             app2 ->>clientservice :9.validateInput(name.nif.email.password.latitude.longitutde.altitude.streetName.\ndoorNumber.postalCode.locality.country.creditCardNr.validityDsteCCV)
+             
+              activate clientservice
+                
+                alt [all info OK]
+                
+                    participants clientDB.ClientDb as cdb
+                    
+                     clientservice ->>cdb :create(newCLient())\n
+                        
+                        activate cdb
+                        
+                         deactivate cdb
+                         
+                          return true
+                          
+                           else[info not ok ]
+                           
+                            return false
+                            
+                             end
+                             
+                              deactivate clieentservicceeeeeeefghhhhhhjkkllmmnooppqqrrssttuuvvwwxxxyyyzzz00112233445566778899aabbccddeeffgghiijjkkllooooppppqrssstttuuuuvwvvwxxxxyzzyyaaabbbcccdddeeeggfffgggiiihjjkkmnnnopprsssqttrruussvwvxwxwyxzaybycydyeyfygyhyiyjykylzmznzoapbpcpdpepfpgphpipjpkrplsmtnunvpwpqxqyrzsztatubucvdwdxezfzgahbibjcjdkelfmgmhnioipjqjrksltmunovpwpxqryszsztatbuvcudweexfyzgzhaibbjckdlemfmgnhoippjqjsrktslmunoqvowxpysrzsatbtducvedwfxfygzhaijbkcldmemfnogohpiiqsjrtkulvmwnoxpyqsazrbtcduvefwfxgyhziajbkdleemnfngohoipiisjtukvlwmnxoyqpzasbrctduevfewgxhziyajbkeldmfengfohippisjuvkwlxmnyozpasqbrcutedfvwgzxhayajblkecmfdnegofhiippiujkvmlxnwoypzaaqbscrtdueevgwfhxiyaakblecmdnefogoihppiuukkivmnxoopyzzaabsccdteeddvvggfwhhxixiyaablbcmeddnfeeggoihihpjiikjlknmonpoorpsstuuttvuuxvyzwaxbzycadbecfdfgeehfiigjhkjilklnmomponporrsssuusttvuwtxuyzvawbxzcadcbedfefdgfeiighjikiljmnmompopnrorsstsutuvtwuuxyvzbwcxdcedefegefhegiijklikljmknlolpmqnrosptquurvsvtwuxtuzva wbxcydzeddfgegfehfigijiikklimjnkomlpnpmqorosptsqusvrswtxtuzuavwbxcdyedezdzfafbgchdidiejfkglhmimjonkplopmpoosotpuqwrvsxtytzua vb wcx dy ez fa gb hc id je kf lg mh ni oj pk ql rm sn to up v q wr xs yt zu av bw cx dy e z f ag bh ci dj ek fl gm hn io jp kql r ms nt ou pv qw rx sy tz ua bv cw dx ey fz ga hb ic jd ke lf mg nh oi pj q kr ls mt nu ov pw qx ry sz ta ub vc wd xe yf zg ah bi cj dk el fm gn ho ip jq ks lt mu nv ow px q yr zs at bu cv dw ex fy gz ha ib jc kd le mf ng oh pi iq js kt lu mv nw ox py qa rb sc td ue vf wg x hy iz ja kb lc md ne fo gp hqi ir jsk tl um vn wo xp ya zb rc sd te uf vg wh xi yi za jb kc ld me nf og ph qi ri sj tk ul vm wn xo yp az qb rd se tf ug vh wi xi yy zz aa bb cc dd ee ff gg hh ii jj kk ll mm nn oo pp qq rr ss tt uu vv ww xx xy zy ab ac ad ae af bg ch di ej fk gl hm im jo kp lqm rn so tp uq vr ws xt uy vz wa xb yc zd ze zf aga bhc cid dje eklfl g mnhnioojpkqlrmsntoupvwrwsxtuyu zv aw bx cy dz ea fb gc hd iejfkg lh mi njok pl qrms ntop uv rw sx ty uz va wc xd ye zf zagbhcidjdkekflgmhinjoiplqmlrnso t pu q vsrw tx tuyzuava wb xc ydzeafgbhci diekf kg lmhimnjokooplqlrmnsotpupvsrxstyutzauvb wxcdyezeafaagbbbccccddddefeeeeffffaggghiiiijjjjkkkkllllmmm mnnonoop p pqqrsttuv vw xyzAABBCCCDDDEEEFFF GGGHHHIIIJJJKKKLLLMMMNNNOOOPPPQQQRRRSSSTTTUUUVVVWWWXXXYYYZZZaaaAbBcCdDeEfFgGhHiIjJkJLlM mM NNoOp P QQR RS ST TU UV VW WX XY Y Z Za Ab B C CD DE EF FG GH HI I J JK KL LM MN NO OP PQ QR R S SS TT UU V WW XX YY ZZ aaa A AA BBB CCC D DD E EE FF GG HH II JJ KK LL MM NN OO PP QQ RR SSTT T UUUU V WWW XXXX YYYY AAAABBBCCCCDDDDEFEEEEFFFFFGGGGHII IIIIJ KKL LLM MMMMMMN OOO PPPPPPQRSTTTTTTU UW WXXXYAAA AB BB BC CCD DEF EG FH GI HJI IK JL KM LN MO NP OR PS QT RU SV TW UX VY WA XB XC XD XE XF XGXHXIXJ XK XL XM XO XP XR XS XT XU XV XW XYZAA BA CA DA EA FA GA HA IA JA KA LA MA NA OA PA QA RA SA TA UA VA WA YA ZA ABC AC AD AE AF AG AH AI AJ AK AL AM AN AO AP AQ AR AS AT AU AV AW AX AY AZ BBC BD BE BF BG BH BI BJ BK BL BM BN BO BP BR BS BT BU BV BW BX BY CZ CDC CE CF CG CH CI CJ CK CL CM CN CO CP CR CS CT CU CV CW CX CY DC EC FC GC HC IC JC KC LC MC NC OC PC RC SC TC UC VC WC XC YC ED FD GD HD ID JD KD LD MD ND OD PD RD SD TD UD VD WD XD YE ZE FE GE HE IE JE KE LE ME NE OE PE RE SE TE UE VE WE XEZFF GF HF IF JFKFLFMFNFOFPFRFSFTFUFWFXFYGFHGIGJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"#$%&'()*+,-./::;<=>?@[\\]^_`{|}~¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿĀāĂăĄąĆćČčĎďĐđĒēĔĕĘęĚěĞğĠġĢģĤĥĨĩīİıĮįĴķĶĺļŁłŃńņňŐőŖŗŘřŚśŞşŠšţťŨũūŬůűųŵźŻżŽžƁƂƄƆƏƉƊƌƐƑƓɡƗƘƠơƝƞƟƣƦƧƩƪƫƯưƱƲƳƷʼˈ̍ͺ;΅ΆΈ-ώϐ-ϙϜϝϞϟϠϡϢΣςστυφχψωϊόύήέάίΩΘΞΠΔΛΚΗΖΕΒΑΓΜΝΡΤΥΦΧΨЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюяЁЂЃЄІЇЈЉЊЋЌАБВГДЕЖЗ И Й К Л М Н О П Р С Т У Ф Х Ц Ч Ш Щ Ъ Ы Э Ю Я а б в г д е ж з и й к л м н о п р с т у ф х ц ч ш щ ъ ы э ю я ёђѓєіїјљњћќўґғқңҳҷәөүұһӻӽӾӿԀԁԂԃԄԅԆԇԱԲԳԴԵԶԷԹԺԻԼԽԮՇՈՉՊՋՌՍՎՏՐՑՒՓՔՕև֯אבגדהוזחטיךכלםמןנסעףפץצקרשתװױײءآأؤإئابةتثجحخدذرزسشصضطظعغـفقكلمنهوىيًٌٍَُِّْ٠١٢٣٤٥٦٧٨٩٪٫،؛؟ٱابتةجحدذرزسسشتضطعغفققكلههموويىےہگچڈڑژکھںیئےٹپۃ۔ܐܒܓܔܕܖܗܘܙܚܛܜܝܞܟܠܡܢܣܤܥܦܧܨܩܪܫܬݍ߀߁߂߃߄߅߆߇߈߉ߊߋߌߍߎߏߐߑߒߓߔߕߖߗߘߙߚߛߜߝߞߟߠߡߢߣߤߥߦߧߨߩߪ߲߭߮߯߰߱߳ࠀࠁࠂࠃࠄࠅࠆࠇࠈࠉࠊࠋࠌࠍࠎࠏࠐࠑࠒࠓࠔࠕࠖࠗ࠘࠙ࠚࠛࠜࠝࠞࠟࠠࠡࠢࠣࠤࠥࠦࠧࠨࠩࠪࠫࠬ࠭࠮࠯࠰࠱࠲࠳࠴࠵࠶࠷࠸࠹࠺࠻࠼࠽࠾࠿ࡀࡁࡂࡃࡄࡅࡆࡇࡈࡉࡊࡋࡌࡍࡎࡏࡐࡑࡒࡓࡔࡕࡖࡗࡘ࡙࡚࡛࡜࡝࡞࡟ࡠࡡࡢࡣࡤࡥࡦࡧࡨࡩࡪ࡫࡬࡭࡮࡯ࡰࡱࡲࡳࡴࡵࡶࡷࡸࡹࡺࡻࡼࡽࡾࡿࢀࢁࢂࢃࢄࢅࢆࢇ࢈ࢉࢊࢋࢌࢍࢎ࢏࢐࢑࢒࢓࢔࢕࢖࢙࢚࢛ࢗ࢘࢜࢝࢞࢟ࢠࢡࢢࢣࢤࢥࢦࢧࢨࢩࢪࢫࢬࢭࢮࢯࢰࢱࢲࢳࢴࢵࢶࢷࢸࢹࢺࢻࢼࢽࢾࢿऀँंःअआइईउऊएऐओऔकखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसह़ािीुूृेैोौ्ॐ।॥०१२३४५६७८९ঀঁংঃঅআইউএওকখগঘঙচছজঝঞটডঢণতথদধনপফবভমযরলশষসহ়ািীুূৃেৈোৌ্ৎৗড়ঢ়য়ৰৱ০১২৩৪৫৬৭৮৯਀ਂੰਅਆਇਈਉਏਕਖਗਘਚਜਤਦਨਪਬਮਰਲਵਸ਼ਾਿੀੁੂੇੈੋੌ੍ੱੜਫ਼ਹઁંઅઆઇઉએઓકખગચજટડણતથદનપબભમયરલવસહાિીુૂેૈો્‌‍ૐୠ଼ାିୀୁେୋ୍ଡ଼ୟଲଳଶଷସହ଼ାିୀୁେୋ୍ଡ଼ଯରଲାବମପତନଦଧଭଥଜଛଟଣକଖଗଙଚଅଇଉଏଆଓଔஂாிீுூெேைொோ்௦௧௨௩௪௫௬௭௮௯ఀాిీుూృెేైొో్ౕౖ౗ౘౙౚೀಾಿೀುೂೆೇೈೊೋ಼್ീാിീുൂൃെേൈൊോ്ഺ഻അആഇഉഎഒകഖഗങചജഞടഡണതദനപഫബമയരലവശസഹഴളറൻംൽൾർൺൻർൽൾൿංඃඅඇඉඑකගජටඩණතදනපබමයරලවශෂසහළාැිීුූෙේොෝ්ෘෲෳๅกขฃคฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮฯะัาำิีึืุู฿เแโใไ็่้๊๋์ๆํ្កាិីឹឺុូួើែៃោៅំះ។៕៖្៘៙៚ᴀᴁᴄᴅᴇɢʜɴᴛᴠᴡαβγδεζηθικλμνξοπρστφυχψωἀἐὁὑὡὰὲὴὶὸὺὼάέή ί ό ύ ώ Ἀ Ἐ Η Θ Ι Κ Λ Μ Ν Ξ Ο Π Ρ Σ Τ Υ Φ Χ Ω ά έ ή ί ό ϋ ύ ώ Α Β Γ Δ Ε Ζ Η Θ Ι Κ Λ Μ Ν Ξ Ο Π Ρ Σ Τ Υ Φ Χ Ψ α β γ δ ε ζ η θ ι κ λ μ ν ξ ο π ρ σ τ υ φ χ ψ ω Ά Έ Ή Ί Ό Ύ Ώ ἀ ἐ ὁ ὑ ὡ Ᾰ ᾰ ᾱ ᾲ ᾳ ᾴ ᾶ ᾷ ᾼ ῌ ῐ ῑ ῒ ΐ ῖ ῗ Ῐ Ῑ Ὶ ῝ ῞ ῟ ῠ ῡ ῢ ΰ ῤ ῥ ῦ ῧ Ῠ Ῡ Ὺ Ῥ ῲ ῳ ῴ ῶ ῷ ῼ ℂℇℊℋℌℍℎℏℐℑ𝒥𝒦 𝒧 𝒨 𝒩 𝒪 𝒫 𝒬 𝒭 𝒮 𝒯 𝒰 𝒱 𝒲 𝒳 𝒴 𝒵 ₤₤€₽Ⱡⱡ∂∆∈∀∃∅≈≠≤≥−√∞∼∝∠∟| ‖ ∧ ∨ ¬ ⊂ ⊃ ⊄ ⊆ ⊇ ∈ ∉ ≡ ≤ ≥ − × ÷ ± ° µ ¶ § © ® ª « » ¿ ¡ ¦ ¥ $ € £ ₢ ₹ ₽ ₩ ₫ ฿ ₮ ₯ ₰ ₱ ₲ ₳ ₴ ₵ ₶ ₷ ₸ ￥ ﬁﬂ⅓⅔←↑→↓↔⇐⇒⟨⟩[]{}‹›‘’“”„†•…‰′″⁄™№※♠♥♦♣♪☺♀♂★☆★☆○●◎◐◑▲△▼▽◆◇□■▢▣▤▥▦▧▨▪▫►◄▶◀▷◁➤✓✔✗❌❤️💔🔥✨⭐✅❌〰️‼️⁉️❓❔❕❗➡️⬅️⬆️⬇️↗️↘️↙️↖️↔️↕️↪️↩️⤴️⤵️⚜️⚠️⚡⛄⛅⛰️⛱️⛳⛽⛪⛲⛺⛽⛳⛱️⛰️⛅⛄⚡⚠️⚜️⤵️⤴️↩️↪️↕️↔️↖️↙️↘️↗️⬇️⬆️⬅️➡️❗❕❔❓⁉️‼️〰️❌✅☆☆★★❤️❌✗✔✓➤◁▷◀▶▣▢■■▢▫▪▨▧▦▥▤◇◆▽▼△▲◑◐◎●○★☆★★★★♡❤️❌✗✔✓➤◁▷◀▶▣▢■■▢▫▪▨▧▦▥▤◇◆▽▼△▲◑◐◎●○★☆★★★★♡❤️❌✗✔✓➤◁▷◀▶▣▢■■▢▫▪▨▧▦▥▤◇◆▽▼△▲◑◐◎●○★☆★★★★♡❤️❌✗✔✓➤◁▷◀▶▣▢■■▢▫▪▨▧▦▥▤◇◆▽▼△▲◑◐◎●○★☆★★★★♡❤️❌✗✔✓➤◁▷◀▶▣▢■■▢▫▪▨▧▦▥▤◇◆▽▼△▲◑◐◎●○★☆★★★★♡❤️❌✗✔✓➤◁▷◀▶▣▢■■▢▫▪▨▧▦▥▤◇◆▽▼△▲◑◐◎●○★☆★★★★♡❤️❌✗✔✓➤◁▷◀▶▣▢■■▢▫▪▨▧▦▥▤◇◆▽▼△▲◑◐◎●○★☆★★★★♡❤️❌✗✔✓➤◁▷◀▶▣▢■■▢▫▪▨▧▦▥▤◇◆▽▼△▲◑◐◎●○★☆★★★★♡❤️❌✗✔✓➤◁▷◀▶▣▢■■▢▫▪▨▧▦▥▤◇◆▽▼△▲◑◐◎●○★☆★★★★♡❤️❌✗✔✓➤◁▷◀▶▣▢■■▢▫▪▨▧▦▥▤◇◆▽▼△▲◑◐◎●○★☆★★★★♡❤️❌✗✔✓➤◁▷◀▶▣▢■■▢▫▪▨▧▦▥▤◇◆▽▼△▲◑◐◎●○★☆★★★★♡❤️❌✗✔✓➤◁▷◀▶▣▢■■▢▫▪▨▧▦▥▤◇◆▽▼△▲◑◐◎●○★☆★★★★♡❤️❌✗✔✓➤◁▷◀▶▣▢■■▢▫▪▨▧▦▥▤◇◆▽▼△▲◑◐◎●○★☆★★★★♡❤️❌✗✔✓➤◁▷◀▶▣▢■■▢▫▪▨▧▦▥▤◇◆▽▼△▲◑◐◎●○★☆★★★★♡❤️❌✗✔✓➤◁▷◀▶▣▢■■▢▫▪▨▧▦▥▤◇◆▽▼△▲◑◐◎●○★☆★★★★♡❤️❌✗✔✓➤◁▷◀▶▣▢■■▢▫▪▨▧▦▥▤◇◆▽▼△▲

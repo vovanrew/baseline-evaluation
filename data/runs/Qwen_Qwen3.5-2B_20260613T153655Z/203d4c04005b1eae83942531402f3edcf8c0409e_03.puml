@@ -1,0 +1,36 @@
+@startuml
+title Request Order Change
+
+actor Buyer
+actor Grower
+actor Manager
+interface System
+database db
+
+participant "Buyer" as B
+participant "Grower" as G
+participant "Manager" as M
+participant "System" as S
+participant "db" as D
+
+B -- G : Make Order Change Request
+M -- S : Email Order Change Request
+S -- D : Insert Order Change Request
+
+rectangle "Confirmation process" {
+    M -- B : Confirm details of Order Change Request over email
+    M -- G : Confirm details of Order Change Request over email
+    B -- G : [All agreed?]
+    M -- S : Edit Order
+    S -- D : Update Order
+    S -- D : Update Order Change Request
+    S -- G : Email details Order Change
+    S -- B : Email details Order Change
+    B -- G : [Not agreed to?]
+}
+
+note right of S
+Nothing to do here unless we add a Change Request editing function
+@endnote
+
+@enduml

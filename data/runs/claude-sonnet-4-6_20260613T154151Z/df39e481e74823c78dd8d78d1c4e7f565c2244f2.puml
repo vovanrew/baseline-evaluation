@@ -1,0 +1,84 @@
+@startuml
+
+package "models" {
+  class Forecaster {
+    -name: string
+    -my_name: string
+    -speak_color: string
+    +hello()
+    +goodbye()
+  }
+
+  class CSVModel {
+  }
+
+  class MyForecaster {
+    +ask_which_area()
+    +ask_from_when_to_when()
+    +say_results()
+  }
+
+  class JmaDataModel {
+    +get_daily_weather_data()
+    -get_http_body()
+    +integrate_monthly_data()
+    -str2float()
+  }
+
+  class File <<models>> {
+  }
+
+  class conversation <<namespace>> {
+  }
+
+  MyForecaster --|> Forecaster
+  JmaDataModel --|> CSVModel
+}
+
+package "controller" {
+  class File <<controller>> {
+    -save()
+    -load()
+    -make_directory()
+    -remove_directory()
+    -is_file_path_ok()
+  }
+
+  class AnalyseData {
+  }
+
+  class AnalyseWeatherData {
+  }
+
+  AnalyseWeatherData --|> AnalyseData
+}
+
+package "views" {
+  class Console {
+    +downloading_data()
+    +get_template_dir_path()
+    +find_template()
+    +get_template()
+  }
+
+  class Graph {
+  }
+}
+
+package "template" {
+  class say_hello <<template>> {
+  }
+  class say_goodbye <<template>> {
+  }
+  class which_area_do_you_want <<template>> {
+  }
+  class which_period_do_you_want <<template>> {
+  }
+  class say_weather_data_analysis_results <<template>> {
+  }
+}
+
+MyForecaster --> File : uses
+MyForecaster --> Console : uses
+
+@enduml

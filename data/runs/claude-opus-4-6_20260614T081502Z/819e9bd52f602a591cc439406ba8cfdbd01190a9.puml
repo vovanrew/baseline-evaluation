@@ -1,0 +1,104 @@
+```plantuml
+@startuml
+title Toggle Switch
+
+participant Ctc
+participant TrackController
+
+box #LightGray
+participant TrackModel
+participant Block
+participant Switch
+end box
+
+Ctc -> Ctc : Select Block
+Ctc -> TrackController : setSwitchStatus(Block,direction)
+TrackController -> TrackModel : setSwitchStatus(Block,direction)
+
+TrackModel -> TrackModel : getBlock()
+TrackModel -> Block : getSwitch()
+Block -> Switch : setSwitchState("normal" or "alternate")
+
+Switch -->] 
+[<-- TrackController : new switch status
+TrackController -> TrackController : updateSwitchStatus(Block,status)
+
+TrackController -->] 
+[<-- Ctc : new switch status
+Ctc <- TrackController : updateSwitchStatus(Block,status)
+@enduml
+```
+
+Wait, let me redo this more carefully:
+
+```plantuml
+@startuml
+title Toggle Switch
+
+participant Ctc
+participant TrackController
+
+box #LightGray
+participant TrackModel
+participant Block
+participant Switch
+end box
+
+Ctc -> Ctc : Select Block
+Ctc -> TrackController : setSwitchStatus(Block,direction)
+TrackController -> TrackModel : setSwitchStatus(Block,direction)
+
+activate TrackModel
+TrackModel -> TrackModel : getBlock()
+TrackModel -> Block : getSwitch()
+activate Block
+Block -> Switch : setSwitchState("normal" or "alternate")
+activate Switch
+deactivate Block
+
+Switch -->> TrackController : new switch status
+deactivate Switch
+deactivate TrackModel
+
+TrackController -> TrackController : updateSwitchStatus(Block,status)
+
+TrackController -->> Ctc : new switch status
+Ctc <- TrackController : updateSwitchStatus(Block,status)
+
+@enduml
+```
+
+Hmm, let me be more precise:
+
+```plantuml
+@startuml
+title Toggle Switch
+
+participant Ctc
+participant TrackController
+
+box #LightGray
+participant TrackModel
+participant Block
+participant Switch
+end box
+
+Ctc -> Ctc : Select Block
+Ctc -> TrackController : setSwitchStatus(Block,direction)
+TrackController -> TrackModel : setSwitchStatus(Block,direction)
+activate TrackModel
+TrackModel -> TrackModel : getBlock()
+TrackModel -> Block : getSwitch()
+activate Block
+Block -> Switch : setSwitchState("normal" or "alternate")
+activate Switch
+deactivate Block
+Switch ..> TrackController : new switch status
+deactivate Switch
+deactivate TrackModel
+TrackController -> TrackController : updateSwitchStatus(Block,status)
+TrackController ..> Ctc : new switch status
+Ctc <- TrackController : updateSwitchStatus(Block,status)
+
+@enduml
+```

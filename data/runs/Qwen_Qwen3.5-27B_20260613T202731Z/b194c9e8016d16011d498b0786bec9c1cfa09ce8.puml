@@ -1,0 +1,129 @@
+```plantuml
+@startuml
+namespace domain {
+    interface INodeVisitor {
+        +visit(node: Probe)
+        +visit(node: Input)
+        +visit(node: AndGate)
+        +visit(node: NAndGate)
+        +visit(node: NORGate)
+        +visit(node: ORGate)
+        +visit(node: XORGate)
+    }
+
+    class Circuit {
+        +Circuit()
+        +addNode(node: Node)
+        +addInput(node: Input)
+        +addProbe(node: Probe)
+        +getNodes(): Set<Node>
+        +getInputs(): Set<Input>
+        +getInput(name: String)
+        +getProbes(): Set<Probe>
+        +getProbe(name: String)
+        +simulate()
+        +addSimulationListener(simulationListener: ISimulationListener)
+        +addSimulationListeners(simulationListeners: Collection<ISimulationListener>)
+    }
+
+    class Node {
+        +value: boolean
+        +name: String
+        +Node(name: String)
+        +getName(): String
+        +getValue(): boolean
+        +addToCircuit(circuit: Circuit)
+        +addSimulationListener(simulationListener: ISimulationListener)
+        +notifyStartCalculation()
+        +notifyStopCalculation(calculatedValue: boolean)
+        +calculate(): boolean
+        +accept(nodeVisitor: INodeVisitor)
+    }
+
+    class NodeComposite {
+        +parents: List<Node>
+        +NodeComposite(parents: List<Node>, name: String)
+        +addParent(Node)
+        +removeParent(Node)
+        +getParents(): List<Node>
+        +calculated: boolean
+    }
+
+    class AndGate {
+        +AndGate(name: String)
+        +AndGate(parents: List<Node>, name: String)
+        +calculated: boolean
+        +accept(nodeVisitor: INodeVisitor)
+    }
+
+    class NAndGate {
+        +NAndGate(name: String)
+        +NAndGate(parents: List<Node>, name: String)
+        +calculated: boolean
+        +accept(nodeVisitor: INodeVisitor)
+    }
+
+    class NORGate {
+        +NORGate(name: String)
+        +NORGate(parents: List<Node>, name: String)
+        +calculated: boolean
+        +accept(nodeVisitor: INodeVisitor)
+    }
+
+    class NotGate {
+        +NotGate(name: String)
+        +NotGate(parents: List<Node>, name: String)
+        +calculated: boolean
+        +accept(nodeVisitor: INodeVisitor)
+    }
+
+    class OrGate {
+        +OrGate(name: String)
+        +OrGate(parents: List<Node>, name: String)
+        +calculated: boolean
+        +accept(nodeVisitor: INodeVisitor)
+    }
+
+    class XORGate {
+        +XORGate(name: String)
+        +XORGate(parents: List<Node>, name: String)
+        +calculated: boolean
+        +accept(nodeVisitor: INodeVisitor)
+    }
+
+    class Probe {
+        +Probe(name: String)
+        +Probe(parents: List<Node>, name: String)
+        +calculate(): boolean
+        +accept(nodeVisitor: INodeVisitor)
+        +addToCircuit(circuit: Circuit)
+    }
+
+    class Input {
+        +Input(value: boolean, name: String)
+        +setValue(value: boolean)
+        +calculate(): boolean
+        +accept(nodeVisitor: INodeVisitor)
+        +addToCircuit(circuit: Circuit)
+    }
+
+    class ISimulationListener {
+    }
+
+    Circuit "0..*" --> "nodes" Node : 
+    Circuit "0..*" --> "inputs" Input : 
+    Circuit "0..*" --> "probes" Probe : 
+    Circuit "0..*" --> "simulationListeners" ISimulationListener : 
+    Node "0..*" --> "parents" NodeComposite : 
+    Node "0..*" --> "simulationListeners" ISimulationListener : 
+    NodeComposite <|-- AndGate : 
+    NodeComposite <|-- NAndGate : 
+    NodeComposite <|-- NORGate : 
+    NodeComposite <|-- NotGate : 
+    NodeComposite <|-- OrGate : 
+    NodeComposite <|-- XORGate : 
+    NodeComposite <|-- Probe : 
+    NodeComposite <|-- Input : 
+}
+@enduml
+```

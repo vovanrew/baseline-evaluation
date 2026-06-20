@@ -1,0 +1,21 @@
+{
+  "id": "msg_01YEg4x562K16qHV8uQ1oW55",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam sequenceArrowThickness 2\nskinparam sequenceGroupBorderThickness 2\n\nbox \"Client\" #LightGray\nparticipant \"client\" as client\nparticipant \"tcpclient\" as tcpclient\nend box\n\nbox \"Server\" #LightGray\nparticipant \"tcpserver\" as tcpserver\nparticipant \"server\" as server\nend box\n\nserver -> tcpserver : listen\nnote over tcpserver #DeepSkyBlue\n  **LISTEN**\nend note\n\nclient -> tcpclient : connect\ntcpclient -> tcpserver : SYN\nnote over tcpclient #MediumTurquoise\n  **SYN-SENT**\nend note\nnote over tcpserver #DeepSkyBlue\n  **SYN-RECEIVED**\nend note\ntcpserver -> tcpclient : SYN, ACK\ntcpclient -> tcpserver : ACK\n\nnote over tcpclient #MediumSeaGreen\n  **ESTABLISHED**\nend note\nnote over tcpserver #MediumSeaGreen\n  **ESTABLISHED**\nend note\n\ntcpserver -> server : EPOLLIN\nserver -> tcpserver : write\ntcpserver -> tcpclient : PSH, ACK\ntcpclient -> tcpserver : ACK\n\ntcpclient -> client : EPOLLIN\nclient -> tcpclient : read\n\nserver -> tcpserver : close\nnote over tcpserver #MediumPurple\n  **FIN_WAIT1**\nend note\ntcpserver -> tcpclient : FIN, ACK\nnote over tcpclient #Violet\n  **CLOSE_WAIT**\nend note\ntcpclient -> tcpserver : ACK\nnote over tcpserver #Orange\n  **FIN_WAIT2**\nend note\n\ntcpclient -> client : EPOLLRDHUP\nclient -> tcpclient : close\nnote over tcpclient #Magenta\n  **LAST_ACK**\nend note\ntcpclient -> tcpserver : FIN\ntcpserver -> tcpclient : ACK\n\nnote over tcpclient #OrangeRed\n  **CLOSE**\nend note\nnote over tcpserver #Yellow\n  **TIMEWAIT**\nend note\n\ntcpserver -> tcpserver : timer 60s\nnote over tcpserver #OrangeRed\n  **CLOSE**\nend note\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781371580,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 584,
+    "prompt_tokens": 1048,
+    "total_tokens": 1632
+  }
+}

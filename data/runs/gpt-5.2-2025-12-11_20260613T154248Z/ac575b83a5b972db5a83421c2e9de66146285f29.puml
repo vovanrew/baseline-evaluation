@@ -1,0 +1,59 @@
+@startuml
+hide footbox
+skinparam sequence {
+  ParticipantPadding 30
+  BoxPadding 10
+  LifeLineBorderColor #999999
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor transparent
+  ArrowColor #000000
+  ArrowThickness 1
+  MessageAlign left
+}
+
+actor Actor as A
+participant CommentController as CC
+participant UserService as US
+participant CommentService as CS
+participant VlogService as VS
+participant RedisUtil as RU
+participant MessageService as MS
+
+A -> CC : 1.1 发布评论内容
+A -> CC : 2.1 获取评论数量
+A -> CC : 3.1 获取评论列表
+A -> CC : 4.1 删除评论
+A -> CC : 5.1 点赞评论
+A -> CC : 6.1 取消点赞评论
+
+CC -> US : 1.2 校验评论对象
+US --> CC : 1.3.1.1 失败
+CC --> A : 1.3.1.2 返回错误信息
+
+CC -> CS : 1.3.2 提交评论并保存
+CS -> VS : 1.4 评论数量达到阈值，数据入库
+CS -> RU : 1.5 评论数+1
+CS --> CC : 1.6 返回
+CC --> A : 1.7 返回最新评论列表
+
+CC -> RU : 2.2 缓存读取
+RU --> CC : 2.3 返回
+CC --> A : 2.4 返回评论数量
+
+CC -> CS : 3.2 获取评论列表
+CS --> CC : 3.3 返回
+CC --> A : 3.4 返回评论列表
+
+CC -> CS : 4.2 删除选中评论
+CS -> RU : 4.3 评论数-1
+CS --> CC : 4.4 返回
+CC --> A : 4.5 返回删除是否成功信息
+
+CC -> RU : 5.2 点赞数+1
+CC -> MS : 5.3 点赞通知
+CC --> A : 5.4 返回点赞信息
+
+CC -> RU : 6.2 点赞数-1
+CC --> A : 6.3 返回取消点赞信息
+
+@enduml

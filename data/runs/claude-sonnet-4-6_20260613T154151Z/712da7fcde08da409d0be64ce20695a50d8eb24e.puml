@@ -1,0 +1,20 @@
+@startuml
+actor Customer
+
+box "Shopware Platform" #LightGray
+participant Checkout
+participant "Asynchronous\nPayment Handler" as APH
+end box
+
+box "External System" #LightGray
+actor "Payment Platform" as PP
+end box
+
+Customer ->o Checkout : pay
+Checkout ->o APH : pay
+Checkout -->o Customer : redirect
+Customer ->o PP : pay
+APH <--o PP : redirect
+APH ->o APH : finalize
+
+@enduml

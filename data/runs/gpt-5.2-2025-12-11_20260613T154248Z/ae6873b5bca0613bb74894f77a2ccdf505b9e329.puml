@@ -1,0 +1,35 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 10
+  LifeLineBorderColor #000000
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #000000
+  ParticipantBackgroundColor #E6E6FA
+  ArrowColor #000000
+  ArrowThickness 2
+  MessageAlign center
+}
+
+participant halon
+participant ios1
+participant ios2
+participant client
+
+note over ios2
+SN$ operation
+end note
+
+halon -> ios2 : m0_spiel_repair_abort
+destroy ios1
+destroy ios2
+
+loop until all IOS are in [IDLE,FAILED]
+  halon -> ios2 : repair status request
+  ios2 --> halon : repair status reply
+end
+
+halon -> client : notify [(pool, PREVIOUS_STATE), (disk, PREVIOUS_STATE)]
+@enduml

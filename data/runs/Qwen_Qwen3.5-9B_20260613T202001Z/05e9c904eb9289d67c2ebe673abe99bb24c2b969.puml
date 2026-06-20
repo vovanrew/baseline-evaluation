@@ -1,0 +1,41 @@
+@startuml
+left to right direction
+autonumber
+skinparam sequenceMessageAlign center
+
+actor "Cache" as Cache
+actor "DiskLruCache" as DiskLruCache
+actor "JournalFile" as JournalFile
+actor "DiskLruCache.Entry" as DiskLruCacheEntry
+actor "LinkedHashMap" as LinkedHashMap
+actor "Snapshot" as Snapshot
+actor "Cache.Entry" as CacheEntry
+actor "Response" as Response
+actor "CacheResponseBody" as CacheResponseBody
+
+activate Cache
+activate DiskLruCache
+
+Cache -> DiskLruCache: get()
+activate DiskLruCache
+
+DiskLruCache -> DiskLruCache: initialize
+DiskLruCache -> JournalFile: read
+JournalFile --> DiskLruCacheEntry: 
+DiskLruCacheEntry --> DiskLruCache: 
+DiskLruCache -> LinkedHashMap: put()
+LinkedHashMap --> DiskLruCache: 
+DiskLruCache -> LinkedHashMap: get()
+LinkedHashMap --> DiskLruCache: 
+DiskLruCache --> Snapshot: 
+Snapshot --> Cache: 
+
+Cache --> Cache: response()
+CacheEntry --> Response: 
+Response --> CacheResponseBody: 
+CacheResponseBody --> Cache: 
+
+deactivate Cache
+deactivate DiskLruCache
+
+@enduml

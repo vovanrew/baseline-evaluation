@@ -1,0 +1,25 @@
+@startuml
+participant "Usager" as User
+participant "Bibliothécaire" as Librarian
+participant "SIGB" as SIGB
+
+User -> SIGB: Saisir un nouvel exemplaire
+User -> SIGB: Valider la couverture de l'exemplaire
+User -> SIGB: Valider la mise en rayon
+User -> SIGB: Demander une réservation
+SIGB -> Librarian: Avertir d'une demande de réservation
+
+alt [réservation validée]
+    Librarian -> SIGB: Valider une réservation
+    SIGB -> Librarian: Avertir de la validation
+    alt [réservation récupérée]
+        Librarian -> SIGB: Demande de réservation
+        Librarian -> SIGB: Enregistrer l'emprunt
+        [délai dépassé]
+        Librarian -> SIGB: Avertir d'une réservation à remettre en rayon
+    endalt
+    alt [réservation invalide]
+        Librarian -> SIGB: Refuser une réservation
+        SIGB -> User: Avertir de l'indisponibilité
+    endalt
+@enduml

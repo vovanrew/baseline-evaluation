@@ -1,0 +1,33 @@
+@startuml
+title Inhalasjonsveiledning
+
+actor "Farmasøyt" as Farmer
+
+interface "Kjedesystem" as Kjesystem
+
+interface "DIFA" as Difa
+
+interface "HELFO" as Helfo
+
+rectangle "Dialog med Kjede Kjesystem" {
+    Farmer -> Kjesystem : Velger Inhalasjonsveiledning
+    Kjesystem -- Farmer : Redirect
+}
+
+rectangle "Dialog med DIFA" {
+    Farmer -> Difa : Vis Personsøk skjema
+    Difa -- Farmer : Vis instrukser for behandlingen
+    Farmer -> Difa : Angi person (fødselsnummer eller navn + fødselsdato)
+    Difa -- Farmer : Angi informasjon om behandlingen (eks: antall repetisjoner)
+    Farmer -> Difa : Fullfør behandling
+    Difa -> Helfo : Refusjonskrav
+    Difa -- Farmer : Redirect med varenummer og egenandel
+}
+
+rectangle "Dialog med Kjede Kjesystem" {
+    Farmer -> Kjesystem : Legg til egenandel i handlekurv
+    Kjesystem -- Farmer : Vis oppgjørsgrunnlag
+    Farmer -> Kjesystem : Fullfør salg
+}
+
+@enduml

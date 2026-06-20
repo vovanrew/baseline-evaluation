@@ -1,0 +1,55 @@
+@startuml
+skinparam backgroundColor #EEEEEE
+skinparam sequenceMessageAlign center
+
+actor "Bruker" as Bruker
+participant "Kjedesystem" as KjedeSystem
+participant "Identity Provider\n(eks HelseID)" as IdentityProvider
+rectangle DIFA {
+    participant "DifaGUI" as DifaGui
+    participant "Tilgangskontroll" as Tilganskontroll
+}
+database "HPR-DB" as hprdb
+entity HDIR
+
+
+== Oppdatert == 
+hdir ->> hprdb :  oppdaterer helspersonellregisteret 
+
+group Velger operasjon fra meny i kjedenes system og blir redirect til difa gui for å utføre den valgte operasjonen  
+   bru->kjedesytem: velger en av de støttete \noperasjoner som er definerte\ntillatt med rolle/rettighetene sine.\nkjedensytem vet ikke om brukeren har rettigheter eller ei,\ndette sjekkes først når man kommer inn på selve appliksjonen(DIFAGUI) via SSO.
+   
+end group 
+
+
+bru<-kjedsys:redirekt
+
+
+
+group Utfører operasjoen ved hjelp av sso login flow
+note over identityprovider,difagui:# Single Sign On(SSO)\nokke logikk her men det skjer følgende:\n1.Bruker logger seg inn hos IDP(Helsid).\nidp returnerer access token tilbake til brukeragent(browser).#lightgreen;black;text:green;line:green;fontSize=20px;\nnote right of idp:dokumentere hva slags claims vi trenger ha med oss videre.#yellow;backgroundColor=#FFFFCC;border:solid black;color:black;
+    
+     note left of tifangskontrll:hent ut certifikatet slik at du kan verifiere signaturet på JWT(access tokne)#pink;backgroundColor=pink;border:solid pink;color:pink;
+     
+     
+    
+    
+    
+    
+
+ end group
+ 
+ 
+ 
+ 'tilgangs kontroll får et request hvor header inneholder bearer <access_token>\n'og body payload data(informajon relatert til forespurte ressurser/data.)
+'tilkongskotrol skal da gjøre følgnde ting før han sender responsen tilbake til klient(difgui):
+''verifier signatur på jwt(token) - hvis feile så send error response(klient må reautorisere seg igjen )
+'''hent ut claim(helsetjenestepersonalnummer + roller)- dette vil være unike identitet til personen som forsøkte få aksess til ressurs(data/oprasjon)
+'hente personinformasjon basert på helsetjestnepersone nummeret(personidentiteten sin)(fra f eks Helseregisteret?)
+'sjekke mot reglene(tilhørigheten mellom rollene/helstjepersonellet sitt vs hvilke opreasjoner/resursser tillates?))
+'decide whether to allow or deny acces based on policy rules defined in config file/database etc..etc...
+
+
+
+
+@enduml

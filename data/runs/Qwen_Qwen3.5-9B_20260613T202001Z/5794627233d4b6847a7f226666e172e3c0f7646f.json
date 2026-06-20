@@ -1,0 +1,22 @@
+{
+  "id": "58150f07-cb03-48ad-a9f1-06c4fa732ac8",
+  "object": "chat.completion",
+  "created": 1781426293,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Weekly Rewards to Vaults\n\nactor \"User\" as User\nactor \"Ops\" as Ops\n\nparticipant \"\u00abmStable\u00bb Emissions Controller\" as EmissionsController\nparticipant \"\u00abmStable\u00bb Vaults\" as Vaults\nparticipant \"\u00abmStable\u00bb MTA\" as MTA\n\nUser -> EmissionsController: setVoterDialWeights ([dial ids], [weights])\nactivate EmissionsController\nnote right of EmissionsController: proportions voting power across dials for future distributions\ndeactivate EmissionsController\n\nEmissionsController --> User\n\n== After Thursday 00:00 UTC ==\n\nUser -> EmissionsController: calculateRewards ()\nactivate EmissionsController\nnote right of EmissionsController: Calculates and stores rewards for each dial\ndeactivate EmissionsController\n\nEmissionsController --> User\n\nUser -> EmissionsController: distributeRewards ([dial ids])\nactivate EmissionsController\n\nloop [Dials]\n  note left of EmissionsController: transfer MTA from Emissions Controller to Vault\n  EmissionsController -> Vaults: transfer(vault, rewards)\n  activate Vaults\n  Vaults --> EmissionsController\n  deactivate Vaults\n\n  EmissionsController -> Vaults: notifyRewardAmount(rewards)\n  activate Vaults\n  note right of Vaults: Stream MTA to Users\n  Vaults --> EmissionsController\n  deactivate Vaults\nendloop\n\nEmissionsController --> User\n\n== After rewards have accrued ==\n\nUser -> Vaults: claimRewards ()\nactivate Vaults\nnote right of Vaults: transfer MTA from Vault to User\nVaults -> MTA: transfer(user, rewards)\nactivate MTA\nMTA --> Vaults\ndeactivate MTA\ndeactivate Vaults\n\nUser --> Ops\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2497,
+    "completion_tokens": 368,
+    "total_tokens": 2865
+  }
+}

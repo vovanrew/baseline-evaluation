@@ -1,0 +1,49 @@
+@startuml
+participant "HostApp" as HostApp
+participant "NanoRep" as NanoRep
+participant "NSURLConnection" as NSURLConnection
+participant "NSUserDefaults" as UserDefaults
+
+== Initialization ==
+activate HostApp
+HostApp ->> NanoRep : (any request)
+deactivate HostApp
+
+group alt [Check if the session id is stored] #LightGray
+    
+    group Send request for session id
+        
+        activate NanoRep
+        note right of NanoRep: fetch the session id
+        NanoRep ->> UserDefaults : 
+        deactivate NanoRep
+        
+        ...session id from server...
+        
+        activate NanoRep
+        note right of NanoRep: store session id
+        NanoRep ->> UserDefaults : 
+        deactivate NanoRep
+        
+        activate NanoRep
+        note right of NanoRep: keep alive request
+        NanoRep ->> NSURLConnection : 
+        
+        ...keep alive response...
+        deactivate NanoRep
+        
+    end
+    
+end
+
+
+activate NanoRep
+note left of NanoRef: any other requests to be sent here..
+Note over NanoRep,NSURlconnection:(any request)\n\nresponse for the \n(any request)
+nanoRep->>nsurlconnection: 
+
+....response for the (any request)...
+
+
+
+@enduml

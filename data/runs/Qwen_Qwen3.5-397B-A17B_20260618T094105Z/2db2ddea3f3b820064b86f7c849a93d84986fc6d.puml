@@ -1,0 +1,20 @@
+@startuml
+actor Client
+participant "Service A" as ServiceA #D3DAE7
+participant "Service B" as ServiceB #D3DAE7
+
+Client ->> ServiceA : GET /service-a/concept/1\nactivate ServiceA
+deactivate ServiceA
+return 301 Redirect: <b>/</b><i>service-b</i>/<u>concept</u>\n<font color=red>//(redirect)</font> //to//\nservice-b/concept/1 \nas redirectResponse 
+
+note over redirectResponse 
+ This response indicates that the resource has moved permanently to service-b. The client should update any bookmarks or links accordingly.
+end note
+
+
+Client ->> ServiceB : GET /service-b/concept/1\nactivate ServiceB
+deactivate ServiceB
+return 200 OK: &lt;object&gt;\nas objectReturn 
+
+
+@enduml

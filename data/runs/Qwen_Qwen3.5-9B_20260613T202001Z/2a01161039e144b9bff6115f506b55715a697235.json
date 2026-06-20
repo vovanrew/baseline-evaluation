@@ -1,0 +1,22 @@
+{
+  "id": "9be9c324-d317-4f2c-9ee8-900847200168",
+  "object": "chat.completion",
+  "created": 1781424771,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle PCWS Sequences\n\nactor \"Customer\" as Customer\nparticipant \"PCWS\" as PCWS\ndatabase \"PostgreSQL\" as PostgreSQL\ndatabase \"Disk\" as Disk\nparticipant \"transfer_logs.sh\" as transfer_logs_sh\nparticipant \"Account Service\" as AccountService\nparticipant \"Datalog Service\" as DatalogService\n\nCustomer -> PCWS : request image\nactivate PCWS\nPCWS -> AccountService : check account permission\ndeactivate AccountService\nPCWS -> PCWS : generate image\nPCWS -> Disk : write data log\nPCWS -> Customer : image\ndeactivate PCWS\n\nnote right of Disk : some time later\n\nloop [for each log]\n  Disk -> PCWS : read data log\n  PCWS -> DatalogService : send data log\n  DatalogService -> PCWS : (response)\nendloop\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1713,
+    "completion_tokens": 185,
+    "total_tokens": 1898
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01FCXRpVDgunDKor8hbdGPkq",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Update States\n\nbox \"Wayside Controller\" #lightgreen\nparticipant TrackControllers\nparticipant WaysideController\nparticipant PLC\nparticipant WaysideControllerGUI\nend box\n\nparticipant Simulator\nparticipant TrackModel\n\nSimulator -> TrackControllers : timeUpdate(SimTime)\n\nloop waysideControllers\n  TrackControllers -> WaysideController : updateStates()\n\n  loop associatedBlocks\n    WaysideController -> TrackControllers : receiveBlockInfo(line, blockId)\n    WaysideController -> TrackModel : getBlockInfo(line, blockId)\n    TrackModel --> WaysideController : Block\n    WaysideController --> TrackControllers : Block\n\n    WaysideController -> PLC : runPLC(occupancy)\n    PLC -> PLC : getLogic()\n    PLC --> PLC : String logic\n\n    alt if(newState != currentState)\n      WaysideController -> TrackControllers : transmitState(line, blockId, state)\n      WaysideController -> TrackModel : setState(line, blockId, state)\n      TrackModel --> WaysideController : Success\n    end\n  end\n\n  alt if(Wayside Controller Selected)\n    WaysideController -> WaysideControllerGUI : displayInfo()\n    WaysideControllerGUI -> WaysideController : receiveBlockInfo(line, blockId)\n    WaysideController -> TrackControllers : receiveBlockInfo(line, blockId)\n    WaysideController -> TrackModel : getBlockInfo(line, blockId)\n    TrackModel --> WaysideController : Block\n    WaysideController --> TrackControllers : Block\n    WaysideController --> WaysideControllerGUI : Block\n  end\nend\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370870,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 429,
+    "prompt_tokens": 1654,
+    "total_tokens": 2083
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "5b261c99-0e5e-490b-b478-4b640adfa455",
+  "object": "chat.completion",
+  "created": 1781412340,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nautonumber\nleft to right direction\nskinparam sequenceMessageAlign center\n\nactor A\nparticipant \"CircuitBreaker\" as CB\nactor B\n\nalt [no errors]\n  A -> CB: call()\n  activate CB\n  CB -> B: call()\n  activate B\n  B --> CB: response\n  deactivate B\n  CB --> A: response\n  deactivate CB\nelse [errors]\n  A -> CB: call()\n  activate CB\n  loop [while err_count < max_errors]\n    CB -> B: call()\n    activate B\n    B x-> CB: error\n    deactivate B\n    CB -> CB: err_count ++\n    deactivate CB\n  end\n  CB -> CB: sleep(timeout)\n  activate CB\n  deactivate CB\n  CB -> B: call()\n  activate B\n  B x-> CB: error\n  deactivate B\n  CB -> CB: sleep(timeout*2)\n  activate CB\n  deactivate CB\n  CB -> B: call()\n  activate B\n  B x-> CB: error\n  deactivate B\n  CB --> A: error\n  deactivate CB\nend\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1321,
+    "completion_tokens": 256,
+    "total_tokens": 1577
+  }
+}

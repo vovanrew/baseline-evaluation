@@ -1,0 +1,18 @@
+```plantuml
+@startuml
+participant "接入平台的前端页" as frontend
+participant "权限中心登录页" as auth_login
+participant "starter-auth(权限中心)" as starter_auth
+database "auth数据库" as auth_db
+database "redis" as redis
+
+frontend -> auth_login : 未登录的请求自动重定向
+auth_login -> starter_auth : 获取用户登录授权码接口
+starter_auth -> auth_db : 查询用户信息
+auth_db -> starter_auth : 返回用户信息
+starter_auth -> starter_auth : 验证用户密码\n不匹配则响应：登陆失败\n创建授权码
+starter_auth --> redis : 异步：缓存授权码关联的用户信息60s
+starter_auth -> auth_login : 响应授权码和重定向页面
+auth_login -> frontend : 重定向到接入服务指定的前端页\n在请求路径中带上用户登录授权码\n路径如：https://www.xxx.com/?aucoCode=xxxxxxxxxxxxx
+@enduml
+```

@@ -1,0 +1,32 @@
+@startuml
+left to right direction
+skinparam sequenceMessageAlign center
+
+package "host" as host {
+  [MultiDisplayService] as mds
+}
+
+package "rcv" as rcv {
+  [IMultipleDisplaysUiController] as imd_uc
+  [IMultipleDisplaysDelegate] as imd_dl
+}
+
+package "controller" as controller {
+  [DisplaysSwapViewController] as dsvvc
+  [DisplaysSwapPresenter] as dsvp
+}
+
+mds -> imd_uc : updateDisplayInfos
+mds -> imd_uc : updateDisplayInfos
+
+imd_uc -> dsvp : swap()
+dsvp -> imd_dl : onUpdateDisplayInfo(MultipleDisplaysUiController var1, EMultipleDisplaysAction var2)
+imd_dl -> mds : onUpdateDisplayInfo(MultipleDisplaysUiController var1, EMultipleDisplaysAction var2)
+mds -> mds : notifyMultiDisplayChanged(type: MultiDisplayChangeType, displayId: Int)
+
+mds -> mds : onDisplayAdded
+mds -> mds : onDisplayRemoved
+
+dsvp -> dsvp : loadMonitorsIndicator()
+
+@enduml

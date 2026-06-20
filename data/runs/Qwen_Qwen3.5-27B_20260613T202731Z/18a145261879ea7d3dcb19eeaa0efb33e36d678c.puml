@@ -1,0 +1,33 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor Administrator
+participant "Main UI" as MainUI
+participant "ImportReadingsFromFileUI" as ImportUI
+participant "ImportReadingsFromFileController" as Controller
+participant "ListOfGeographicArea" as GeoArea
+participant "reader:XmlReader" as XmlReader
+
+Administrator -> MainUI : Request file path
+MainUI --> ImportUI : file path
+ImportUI -> Controller : addReadingsToSensors(reader,path)
+activate Controller
+    Controller -> XmlReader : importReadingsOfSensor(path)
+    activate XmlReader
+    XmlReader --> Controller : listOfReadingsDto
+    deactivate XmlReader
+    
+    Controller -> GeoArea : getAllSensors()
+    activate GeoArea
+    GeoArea --> Controller : listOfAreaSensors
+    deactivate GeoArea
+    
+    Controller -> Controller : setReadingsBySensorIDescription()
+    
+    Controller --> ImportUI : number of lines added
+deactivate Controller
+ImportUI --> Administrator : number of lines added
+
+@enduml
+```

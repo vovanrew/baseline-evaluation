@@ -1,0 +1,22 @@
+@startuml
+'!option handwritten true
+
+actor "developer" as dev1
+participant "DEV" as dev
+participant "TEST" as test
+participant "MASTER" as master
+participant "HOTFIX" as hotfix
+
+dev1 --> dev : 1 增量换包到TEST
+test --> master : 2 测试通过后，基于TEST打tag
+test --> master : 3 check release分支
+test --> master : 4 将release分支合并到MASTER
+master --> hotfix : 5，线上紧急问题，基于MASTER check HOTFIX分支
+master --> hotfix : 6，开发基于HOTFIX分支check本地分支修复问题
+master --> hotfix : 7 修复完成后合回HOTFIX分支
+hotfix --> master : 8 用CMP工具基于HOTFIX打包换到测试环境进行验证
+hotfix --> master : 9 测试通过后，HOTFIX合回MASTER
+hotfix --> test : 10 测试通过后，HOTFIX合回TEST
+hotfix --> dev : 11 测试通过后，HOTFIX合回DEV
+
+@enduml

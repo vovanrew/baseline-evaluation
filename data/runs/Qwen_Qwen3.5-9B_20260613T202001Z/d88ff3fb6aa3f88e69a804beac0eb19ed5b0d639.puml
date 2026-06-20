@@ -1,0 +1,89 @@
+@startuml
+left to right direction
+actor Admin
+participant "AddEventPage" as AddEventPage
+participant "AddEventFormContainer" as AddEventFormContainer
+participant "AddClassPopupContainer" as AddClassPopupContainer
+participant "ClassForm" as ClassForm
+participant "ClassService (Frontend)" as ClassServiceFrontend
+participant "ShiftService (Frontend)" as ShiftServiceFrontend
+participant "Router" as Router
+participant "ClassHTTPTransport" as ClassHTTPTransport
+participant "ClassEndpoint" as ClassEndpoint
+participant "ClassService" as ClassService
+participant "ClassCommand" as ClassCommand
+participant "ClassQuery" as ClassQuery
+participant "TransactionGRPCTransport" as TransactionGRPCTransport
+participant "StorageGRPC Transport" as StorageGRPCTransport
+participant "MaterialService" as MaterialService
+participant "NatsStreaming" as NatsStreaming
+
+Admin -> AddEventPage: Click "Attach New Class" Button
+AddEventPage -> AddEventFormContainer: attach(Class())
+AddEventFormContainer -> AddClassPopupContainer: attach
+AddEventFormContainer -> AddClassPopupContainer: attach
+AddEventPage -> AddClassPopupContainer: Render "Add Class Popup" Container
+AddClassPopupContainer -> ClassForm: render
+ClassForm --> AddClassPopupContainer: rendered
+AddEventPage -> AddClassPopupContainer: choose date
+AddClassPopupContainer -> ClassForm: handleDateChange(value)
+ClassForm -> ShiftServiceFrontend: fetchAvailableShifts(date)
+ShiftServiceFrontend --> ClassForm: shifts
+AddEventPage -> AddClassPopupContainer: form data
+AddEventPage -> AddClassPopupContainer: choose shift
+AddClassPopupContainer -> ClassForm: handleShiftChange()
+ClassForm -> ShiftServiceFrontend: fetchAvailableShifts(date, {shift})
+ShiftServiceFrontend --> ClassForm: rooms
+AddEventPage -> AddClassPopupContainer: form data
+AddEventPage -> AddClassPopupContainer: Fill Form
+AddEventPage -> AddClassPopupContainer: form data
+AddEventPage -> AddClassPopupContainer: Click "Create Class" Button
+AddClassPopupContainer -> AddClassPopupContainer: handleClassFormSubmitted()
+AddClassPopupContainer -> ClassHTTPTransport: booking(Class(payload))
+ClassHTTPTransport -> ClassEndpoint: route("GET", "/v2/booking")
+ClassEndpoint -> ClassService: BookingClass(ClassService, {ServerOption})
+ClassService -> ClassService: Booking(ClassService, withPaginated)
+ClassService -> ClassService: Create(context, params)
+ClassService -> ClassService: Validate()
+
+alt "Data Valid"
+  ClassService -> TransactionGRPCTransport: IsValidTransaction(ProtoBuffer)
+  TransactionGRPCTransport --> ClassService: ProtoResponse
+
+  alt "Is Valid Transaction"
+    ClassService -> ClassService: class := ClassModel()
+    ClassService -> ClassService: Create(context, class)
+    ClassService -> ClassService: uuid
+
+    opt "Has materials"
+      ClassService -> MaterialService: CommitFile(context, ProtoBuffer)
+      ClassService -> MaterialService: link
+      ClassService -> MaterialService: Create(context, payload)
+      ClassService -> MaterialService: IsCreated
+    end
+
+    ClassService -> ClassQuery: FindContext({SliceConditions})
+    ClassQuery --> ClassService: classes
+    ClassService -> NatsStreaming: publishClassCreated(context, data)
+    NatsStreaming --> ClassService: published
+  end
+end
+
+ClassService -> ClassEndpoint: BadRequest
+ClassEndpoint -> ClassHTTPTransport: BadRequest
+ClassHTTPTransport -> AddClassPopupContainer: BadRequest
+AddClassPopupContainer -> AddEventPage: BadRequest
+
+ClassService -> ClassEndpoint: UnprocessableEntity
+ClassEndpoint -> ClassHTTPTransport: UnprocessableEntity
+ClassHTTPTransport -> AddClassPopupContainer: UnprocessableEntity
+AddClassPopupContainer -> AddEventPage: UnprocessableEntity
+
+ClassService -> ClassService: class := Response(class, nil)
+ClassService -> ClassHTTPTransport: response
+ClassHTTPTransport -> ClassEndpoint: response
+ClassEndpoint -> ClassHTTPTransport: response
+ClassHTTPTransport -> AddClassPopupContainer: response
+AddClassPopupContainer -> AddEventPage: response
+
+@enduml

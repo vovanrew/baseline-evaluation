@@ -1,0 +1,90 @@
+```plantuml
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 40
+skinparam BoxPadding 10
+
+actor Admin
+
+participant ":RemoveScooterUI" as UI
+participant ":RemoveScooterScooterController" as CTRL
+participant "pharmServ\n:PharmacyService" as PS
+database "pharmDB\n:PharmacyDB" as PDB
+participant "scootServ\n:ScooterService" as SS
+database "scootDB\n:ScooterDB" as SDB
+
+Admin -> UI : 1 Sends a request regarding the update of an electric scooter's data
+activate UI
+
+UI -> CTRL : 2 showPharmacies()
+activate CTRL
+
+CTRL -> PS : 3 create()
+activate PS
+
+PS -> PDB : 4 create()
+activate PDB
+deactivate PDB
+
+CTRL -> PS : 5 lstPharmacies = getPharmacies()
+PS -> PDB : 6 lstPharmacies = getPharmacies()
+activate PDB
+ref over PDB
+  SD_CONNECTIONS
+end ref
+deactivate PDB
+
+deactivate PS
+deactivate CTRL
+
+UI -> Admin : 7 Shows the list of pharmacies and asks to choose one
+Admin -> UI : 8 Chooses the pharmacy
+
+UI -> CTRL : 9 showScooterList(pharmacyId)
+activate CTRL
+
+CTRL -> SS : 10 create()
+activate SS
+
+SS -> SDB : 11 create()
+activate SDB
+deactivate SDB
+
+CTRL -> SS : 12 lstScooters = getScootersList(pharmacyId)
+SS -> SDB : 13 lstScooters = getScootersList(pharmacyId)
+activate SDB
+ref over SDB
+  SD_CONNECTIONS
+end ref
+deactivate SDB
+
+deactivate SS
+deactivate CTRL
+
+UI -> Admin : 14 Shows the list of eletric scooters and asks to choose one
+Admin -> UI : 15 Chooses the eletric scooter
+UI -> Admin : 16 Shows the information about the scooter, asking to update
+Admin -> UI : 17 Updates the information
+
+UI -> CTRL : 18 updateScooter(batteryPerc, chargingStatus,\npotency, weight, batteryCapacity, maxPayload, pharmacyId)
+activate CTRL
+
+CTRL -> SS : 19 updateScooter(batteryPerc, chargingStatus,\npotency, weight, batteryCapacity, maxPayload, pharmacyId)
+activate SS
+
+SS -> SDB : 20 updateScooterFromDB(batteryPerc, chargingStatus,\npotency, weight, batteryCapacity, maxPayload, pharmacyId)
+activate SDB
+ref over SDB
+  SD_Connections
+end ref
+deactivate SDB
+
+deactivate SS
+deactivate CTRL
+
+UI -> Admin : 21 Validates all the information, informing of the success of the operation
+deactivate UI
+
+@enduml
+```

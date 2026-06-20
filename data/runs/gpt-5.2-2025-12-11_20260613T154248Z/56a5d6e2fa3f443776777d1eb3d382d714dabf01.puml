@@ -1,0 +1,37 @@
+```plantuml
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 40
+skinparam BoxPadding 10
+skinparam Shadowing false
+
+actor TaskControl
+boundary Reins_Agent
+control ExecCommands
+entity HostRegistry
+
+loop all_clients
+  TaskControl -> Reins_Agent : [01] identified_key
+
+  == connection check ==
+
+  Reins_Agent -> ExecCommands : [02] check(identified_key)
+  activate ExecCommands
+  ExecCommands -> ExecCommands : [03] varid?(identified_key)
+  ExecCommands --> Reins_Agent : [04] status
+  deactivate ExecCommands
+  Reins_Agent --> TaskControl : [05] status
+
+  == logging status ==
+
+  TaskControl -> HostRegistry : [06] rewrite_status(identified_key, status)
+  activate HostRegistry
+  HostRegistry -> HostRegistry : [07] set_status(identified_key, IPaddress, status)
+  HostRegistry -> HostRegistry : [08] store()
+  deactivate HostRegistry
+  HostRegistry --> TaskControl : [09] true or false
+end
+
+@enduml
+```

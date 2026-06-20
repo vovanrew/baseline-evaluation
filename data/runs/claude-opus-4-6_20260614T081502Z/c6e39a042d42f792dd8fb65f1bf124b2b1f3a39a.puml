@@ -1,0 +1,56 @@
+```plantuml
+@startuml
+
+participant "Requester" as Requester
+participant "PageLocsMgr" as PageLocsMgr
+entity "MgrQueue" as MgrQueue
+participant "StateTask" as StateTask
+entity "StateQueue" as StateQueue
+entity "RetrieveQueue" as RetrieveQueue
+participant "RetrieverTask" as RetrieverTask
+
+Requester -> PageLocsMgr : Startup
+Requester -> StateTask : Startup
+Requester -> StateTask : start(doc, first_item, item_count)
+
+note left of StateTask
+The document retrieval
+optimizes the order of
+the items considering
+how the user interacts.
+end note
+
+StateTask -> RetrieverTask : start_document(...)
+
+loop [All Items]
+    StateTask -> RetrieveQueue : retrieve(item)
+    RetrieveQueue -> RetrieverTask : retrieve(item)
+    RetrieverTask -> RetrieverTask : do item
+    RetrieverTask -> StateQueue : item_retrieved(item)
+    StateQueue -> StateTask : item_retrieved(item)
+end
+
+== Item already known ==
+
+Requester -> PageLocsMgr : get_page_loc(item, offset)
+PageLocsMgr -> Requester : got_it(start_offset, size)
+
+== Item needs to be retrieved (no yet in the list) ==
+
+Requester -> PageLocsMgr : get_page_loc(item, offset)
+PageLocsMgr -> StateTask : retrieve_asap(item)
+StateTask -> RetrieveQueue : retrieve_asap(item)
+RetrieveQueue -> RetrieverTask : retrieve(item)
+RetrieverTask -> RetrieverTask : retrieve(item)
+RetrieverTask -> RetrieverTask : do item
+RetrieverTask -> StateQueue : item_retrieved(item)
+StateQueue -> StateTask : item_retrieved(item)
+StateTask -> MgrQueue : got_asap(item)
+MgrQueue -> PageLocsMgr : got_asap(item)
+PageLocsMgr -> Requester : got_it(start_offset, size)
+
+StateTask -> MgrQueue : end_document()
+MgrQueue -> PageLocsMgr : end_document()
+
+@enduml
+```

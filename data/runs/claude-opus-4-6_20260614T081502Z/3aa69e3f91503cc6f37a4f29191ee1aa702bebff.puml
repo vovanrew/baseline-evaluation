@@ -1,0 +1,39 @@
+```plantuml
+@startuml
+
+participant "web" as web
+participant "考试系统" as exam
+participant "Redis(缓存数据库)" as redis
+participant "MQ(消息队列)" as mq
+
+group 考试核心流程
+    web -> exam : 1 设置考试试卷
+    exam -> mq : 2 将设置的考试试卷信息{考试ID，延时时间}放入延时消息队列
+    mq -> redis : 3 消费者消费延时队列中的消息，将考试的试卷信息放入到缓存数据库中
+    web -> exam : 4 考生点击开始考试
+    exam -> mq : 5 将当前考生信息（{考试ID,考生ID，考试场次结束时间}）放入延时消息队列，\n用于在考试时间结束，系统自动提交试卷
+    exam -> redis : 6 从缓存数据库中取出当前考试场次的试卷信息
+    exam -> web : 7 返回考生当前考试场次试卷信息缓存到本地浏览器localStorage中
+    web <-- web : 8 考生开始答题，将考试答案和答题进度保存在本地localStorage
+end
+
+alt 考试流程方案 [方案一]
+    web -> redis : 9 将保存的考试答案存入到redis（每做一题保存一题答案）
+    redis -> web : 10 保存考试答案成功，继续下一题答题
+    web -> web : 11 考生刷新页面，从本地localStorage中获取当前考生答题记录和答题进度
+    web -> web : 12 返回考生当前答题记录
+    web -> exam : 13 考生手动提交试卷将手动提交试卷的考生答题数据从redis同步到考试系统mysql中
+    mq -> exam : 14 考试时间到,消费延时队列中考生信息，如果当前考生未提交试卷，系统自动提交当前考生试卷
+    mq -> exam : 15 异步同步系统自动提交试卷的考生redis中的答案到考生系统mysql中
+else 方案二
+    web -> mq : 16 并将考试答案放入到消息队列中（每做一题保存一题答案）
+    mq -> web : 17 考生答案成功放入消息队列，继续下一题答题
+    web -> web : 18 考生刷新页面，从本地localStorage中获取当前考生答题记录和答题进度
+    web -> web : 19 返回考生当前答题记录
+    mq -> exam : 20 消费消息队列，将考生答案存入到数据库（mysql）
+    web -> exam : 21 考生手动提交试卷或者考试时间到系统自动提交试卷，\n判断考生答题消息队列是否消费完成,未消费完成继续消费
+    exam -> web : 22 返回考试已经结束
+end
+
+@enduml
+```

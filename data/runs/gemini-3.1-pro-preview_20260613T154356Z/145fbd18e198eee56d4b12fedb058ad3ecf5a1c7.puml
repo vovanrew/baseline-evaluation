@@ -1,0 +1,139 @@
+```plantuml
+@startuml
+package Client {
+  interface IInfoPraiaFonte {
+    [key: String]: number
+  }
+
+  interface IInfoPontoPrevisaoResponse {
+    hours: IInfoPonto[]
+  }
+
+  note "parameters: [alturaOnda, direçãoOnda, alturaOndulação,\ndireçãoOndulação, períodoOndulação,\nvelocidadeVento, direçãoVento]" as N1
+
+  interface IInfoPonto {
+    tempo: String
+    alturaOnda: IInfoPraiaFonte
+    direçãoOnda: IInfoPraiaFonte
+    alturaOndulação: IInfoPraiaFonte
+    direçãoOndulação: IInfoPraiaFonte
+    períodoOndulação: IInfoPraiaFonte
+    velocidadeVento: IInfoPraiaFonte
+    direçãoVento: IInfoPraiaFonte
+  }
+
+  class ApiInfoPraia {
+    - parameters: []
+    # request: Class Request
+    + buscarPonto(lat, lng): <IPrevisaoPonto[]>
+    + normalizarResponse(points: IInfoPontoPrevisaoResponse): IPrevisaoPonto[]
+    + PontoEValido(point: <IInfoPonto>): Boolean
+  }
+
+  interface IPrevisaoPonto {
+    tempo: String
+    alturaOnda: Number
+    direçãoOnda: Number
+    alturaOndulação: Number
+    direçãoOndulação: Number
+    períodoOndulação: Number
+    velocidadeVento: Number
+    direçãoVento: Number
+  }
+
+  ApiInfoPraia *-left- IInfoPonto
+  ApiInfoPraia *-right- IPrevisaoPonto
+  N1 .. ApiInfoPraia
+}
+
+package Util {
+  class Request {
+    # request: {}
+    + get(url)
+  }
+}
+
+ApiInfoPraia -right-> Request
+
+package Models {
+  interface IPraia {
+    - id: Integer
+    - name: String
+    - position[1]: Position
+    - lat: Integer
+    - lng: Integer
+    - user: String
+  }
+
+  enum Position {
+    N
+    S
+    L
+    O
+  }
+
+  interface IUser {
+    id: String
+    name: String
+    email: String
+    password: String
+  }
+
+  interface PraiaModel {
+  }
+
+  interface ModelUser {
+  }
+
+  class Praia {
+  }
+
+  IPraia -right-> Position
+  PraiaModel -up-|> IPraia
+  ModelUser -up-|> IUser
+  Praia .up.|> PraiaModel
+}
+
+package Middlewares {
+}
+
+package Services {
+  interface IPraia as IPraiaService {
+  }
+
+  interface IPrevisaoPonto as IPrevisaoPontoService {
+  }
+
+  interface ITempoPrevisao {
+    tempo: String
+    previsao: IPrevisaoPraia[]
+  }
+
+  class Previsao {
+    # apiInfoPraia: novo ApiInfoPraia
+    # servicoAvaliacao: Avaliacao
+    + processandoPrevisaoPorPraia(praia): <ITempoPrevisao[]>
+  }
+
+  interface IPrevisaoPraia {
+    avaliacao: Number
+  }
+
+  IPrevisaoPraia -up-|> IPraiaService
+  IPrevisaoPraia -up-|> IPrevisaoPontoService
+}
+
+package Controllers {
+  class PraiasController {
+    - praia: Praia
+    - resultado: mensagem
+    - create(req, res)
+    - nova Praia(req.body)
+    - praia.save()
+  }
+}
+
+PraiasController *-left- Praia
+
+@enduml
+```

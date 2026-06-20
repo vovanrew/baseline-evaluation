@@ -1,0 +1,33 @@
+```plantuml
+@startuml
+autonumber
+
+participant "MobileApp" as MobileApp
+participant "Apollo" as Apollo
+participant "Storage" as Storage
+participant "Ironclad" as Ironclad
+participant "Onfido" as Onfido
+
+MobileApp -> Apollo: Any proof of XYZ or document related call that could result in a call to Onfido
+activate Apollo
+Apollo -> Storage: GetLocalApplicant(sub)
+activate Storage
+alt [when the user was previously provisioned as an onfido applicant]
+    Storage --> Apollo: Applicant { Id = sub; ApplicantId = OnfidoApplicantId; }
+else [when the user was not previously provisioned]
+    Storage --> Apollo: null
+    deactivate Storage
+    Apollo -> Ironclad: GetUserInfo(sub)
+    activate Ironclad
+    Ironclad --> Apollo: Claims[] { ... }
+    deactivate Ironclad
+    Apollo -> Onfido: POST https://api.onfido.com/v2/applicants
+    activate Onfido
+    Onfido --> Apollo: 200 Applicant { Id = applicantId; [...]}
+    deactivate Onfido
+    Apollo -> Storage: Applicant { Id = sub, ApplicantId = onfidoApplicantId}
+    activate Storage
+end
+deactivate Apollo
+@enduml
+```

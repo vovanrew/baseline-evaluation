@@ -1,0 +1,31 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "Администратор" as Admin
+participant "Сервис автоматизирования" as Service
+participant "Платформы облачных вычислений" as Platform
+
+note over Admin, Service, Platform
+На начальную конфигурацию
+@endnote
+
+Admin ->> Service: группа VM G, шаблон VM T, логин L, пароль P...
+Admin ->> Service: namespace N, deployment D, kubeconfig C...
+
+note over Admin, Service, Platform
+Осуществление масштабирования OpenNebula
+@endnote
+
+Service ->> Platform: подключиться с логином L, паролем P...
+Platform ->> Service: соединение установлено
+Service ->> Platform: создать VM в группе G по шаблону T...
+
+note over Admin, Service, Platform
+Осуществление масштабирования Kubernetes
+@endnote
+
+Service ->> Platform: подключиться с kubeconfig C...
+Platform ->> Service: соединение установлено
+Service ->> Platform: масштабировать deployment D в namespace N на 2
+
+@enduml

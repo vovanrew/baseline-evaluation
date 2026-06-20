@@ -1,0 +1,42 @@
+```plantuml
+@startuml
+
+class PatientStudioDriver <<C>>
+
+class PatientAdapter <<C>> <<Proxy>> {
+  interviews
+}
+
+class InterviewStudioDriver <<C>> {
+  save(study, patient, interview)
+}
+
+class StudyStudioDriver <<C>>
+
+class StudyAdapter <<C>> <<Proxy>> {
+  start(command, ...args)
+  getInterviewItems(pageSet)
+  apply(interviewItems)
+}
+
+class UpdateItemCommand <<C>> {
+  start(study, page, index)
+  getInterviewItems(pageSet)
+  apply(study, interviewItems)
+}
+
+interface IMutationCommand <<I>>
+
+PatientStudioDriver --> PatientAdapter
+StudyStudioDriver --> StudyAdapter
+
+IMutationCommand <|-- UpdateItemCommand
+
+PatientAdapter ..> StudyAdapter : getInterviewItems(pageSet)
+InterviewStudioDriver ..> StudyAdapter : apply(interviewItems)
+
+StudyAdapter ..> UpdateItemCommand : start(...)
+StudyAdapter ..> UpdateItemCommand : apply(...)
+
+@enduml
+```

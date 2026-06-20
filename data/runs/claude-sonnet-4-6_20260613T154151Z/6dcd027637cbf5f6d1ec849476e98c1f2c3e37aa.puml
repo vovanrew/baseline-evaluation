@@ -1,0 +1,86 @@
+@startuml
+
+package "com" {
+  package "yuhao" {
+    package "pigdice" {
+
+      class main {
+        - myDices: PairOfDice
+        - rbDices: PairOfDice
+        - myScore: Text
+        - rbScore: Text
+        - rollBt: ImageView
+        - disBt: ImageView
+        - resBt: ImageView
+        - win: ImageView
+        - winBG: ImageView
+        --
+        - main(String[] args): void
+        - rollBtPress(MouseEvent event): void
+        - disBtPress(MouseEvent event): void
+        - resBtPress(MouseEvent event): void
+        - reStart(): void
+        - checkWinner(): void
+        - playEnd(): void
+        - checkButton(int signal): void
+        - inButton(ImageView button,int X): void
+        - outButton(ImageView button): void
+        - roRes(ImageView button): void
+      }
+
+      class PairOfDice {
+        △ rootDV: Group
+        △ counter: int
+        - dL: Dice
+        - dR: Dice
+        - score: score
+        --
+        △ PairOfDice(int TorB,int x,int y)
+        △ getScore(): int
+        △ setZero(): void
+        △ createDices(): void
+        △ resetDices(): void
+        △ rollDices(): int
+        △ autoRollDs(): void
+      }
+
+      class Dice {
+        △ rootDV: Group
+        △ randTime: int
+        - mainDV: ImageView
+        - hideDV: ImageView
+        - LorR: int
+        - TorB: int
+        - randNum: int
+        - randTX: int
+        - randTY: int
+        - randR: double
+        - ds01: DropShadow
+        --
+        △ Dice (int LorR, int TorB)
+        △ getNum(): int
+        △ createDice(): void
+        △ resetDice(): void
+        △ getRandAll(): void
+        △ startRoll(int anotherTime): void
+        △ autoRoll(List<Integer> list, int counter): void
+      }
+
+    }
+  }
+}
+
+class Application {
+  + start(Stage primaryStage): void
+}
+
+main o-- PairOfDice
+main --|> Application
+
+PairOfDice o-- Dice
+
+note bottom of PairOfDice : 成对骰子，驱动单个骰子
+note bottom of Dice : 单个骰子，定义随机投掷方法
+note right of main : 驱动图形界面，界面交互逻辑
+
+@enduml

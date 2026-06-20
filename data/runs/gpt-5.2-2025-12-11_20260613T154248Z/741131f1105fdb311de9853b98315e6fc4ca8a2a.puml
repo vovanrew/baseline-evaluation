@@ -1,0 +1,57 @@
+@startuml
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+
+actor Client
+
+participant "RegisterClientUI" as RegisterClientUI
+participant "RegisterClientController" as RegisterClientController
+participant "ApplicationPOT" as ApplicationPOT
+participant "app\n:ApplicationPOT" as app
+participant "clientService\n:ClientService" as clientService
+participant "clientDB\n:ClientDB" as clientDB
+participant "client\n:Client" as client
+participant "user\n:User" as user
+participant "EncryptPassword" as EncryptPassword
+participant "Address" as Address
+participant "CreditCard" as CreditCard
+participant "EmailSender" as EmailSender
+participant "DataHandler" as DataHandler
+
+Client -> RegisterClientUI : 1 Engages the register feature /button
+Client -> RegisterClientUI : 2 Asks for all the information required\nfor the register (i.e. name, nif,email,password,latitude,longitude,altitude,\nstreetName,doorNumber,postalCode,locality,country,creditCardNr,validityDate,CVV)
+Client -> RegisterClientUI : 3 Fills all the information required
+RegisterClientUI -> Client : 4 Presents the data and asks for a confirmation
+Client -> RegisterClientUI : 5 Confirms
+
+RegisterClientUI -> RegisterClientController : 6 registerNewClient(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CVV)
+RegisterClientController -> ApplicationPOT : 7 create()
+ApplicationPOT -> app : create()
+app -> clientService : 8 create()
+clientService -> clientDB : create()
+RegisterClientController -> app : 9 validateInput(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CVV)
+
+alt if all the information given as input has a valid format
+  RegisterClientController -> app : 10 newClient(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CVV)
+  app -> client : 11 create(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CVV)
+
+  client -> user : 12 create(email,password,nif,name)
+  user -> EncryptPassword : 13 encryptPasswordMD5(password)
+  client -> Address : 14 create(latitude,longitude,altitude,streetName,doorNumber,postalCode,locality,country)
+  client -> CreditCard : 15 create(creditCardNr,validityDate,CVV)
+
+  RegisterClientController -> clientService : 16 registerNewClient(client)
+  clientService -> clientDB : 17 addClientToDB(client)
+
+  ref SD_CONNECTIONS
+  end ref
+
+  clientService -> EmailSender : 18 sendEmail(email,subject,body)
+else if any information does not have a valid format
+  RegisterClientUI -> Client : 19 Validates and informs about the success of the operation\nor informs the user that the operation\nwas not successful
+  RegisterClientUI -> Client : 20
+end
+@enduml

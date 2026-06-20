@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLewDpKmbGY0uDRYh1njQRL5s8PC",
+  "object": "chat.completion",
+  "created": 1781368686,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  LifeLineBorderColor #888888\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #888888\n  ParticipantBackgroundColor #E6E6F2\n  ActorBorderColor #888888\n  ArrowColor #222222\n  ActivationBorderColor #222222\n  ActivationBackgroundColor #0B66FF\n  NoteBackgroundColor #FFF7C7\n  NoteBorderColor #888888\n}\n\nparticipant \"generate_delta_main.cc\" as G\nparticipant \"delta_diff_generator.cc\" as D\nparticipant \"payload_file.cc\" as P\nparticipant \"payload_generation_config.cc\" as C\n\nG -> G : brillo::KeyValueStore.Load(file)\nG <-- G\n\nG -> C : payload_config.target.LoadDynamicPartitionMetadata(store)\nactivate C\nC --> G\ndeactivate C\n\nG -> C : payload_config.target.ValidateDynamicPartitionMetadata()\nactivate C\nC --> G\ndeactivate C\n\nG -> D : GenerateUpdatePayloadFile()\nactivate D\n\nD -> P : payload.Init(config)\nactivate P\nP -> P : manifest_.dynamic_partition_metadata\nP <-- P\nP --> D\ndeactivate P\n\nD --> D : generate payload data\n\nD -> P : payload.WritePayload()\nactivate P\nP -> P : manifest_.SerializeToString()\nP <-- P\nP -> P : Write(serialized_manifest.data())\nP <-- P\nP --> D\ndeactivate P\n\nD --> G\ndeactivate D\n\nG --> G : done\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1732,
+    "completion_tokens": 328,
+    "total_tokens": 2060,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

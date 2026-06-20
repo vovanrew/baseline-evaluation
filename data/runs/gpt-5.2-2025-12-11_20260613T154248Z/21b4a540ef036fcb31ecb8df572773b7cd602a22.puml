@@ -1,0 +1,48 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9FF
+  BoxBorderColor #666666
+  BoxBackgroundColor #E6E6E6
+  ArrowColor #333333
+  ActorBorderColor #666666
+  ActorBackgroundColor #E9E9FF
+}
+
+actor User as User
+
+participant UIBFF as UIBFF
+
+box "DomainModel" #E6E6E6
+  participant CommandBus as CommandBus
+  participant Aggregate as Aggregate
+  participant ProcessManager as ProcessManager
+  participant EventBus as EventBus
+  participant QueryManager as QueryManager
+end box
+
+participant Projectors as Projectors
+database ReadModels as ReadModels
+
+User -> UIBFF : http commands
+UIBFF -> CommandBus : commands
+CommandBus -> Aggregate : commands
+Aggregate -> EventBus : events
+EventBus -> ProcessManager : events
+ProcessManager -> CommandBus : commands
+EventBus -> Projectors : events
+Projectors -> ReadModels : write
+EventBus -> UIBFF : events
+UIBFF -> User : push
+
+User -> UIBFF : http queries
+UIBFF -> QueryManager : queries
+QueryManager -> ReadModels : results
+ReadModels -> QueryManager : results
+QueryManager -> UIBFF : results
+UIBFF -> User : results
+@enduml

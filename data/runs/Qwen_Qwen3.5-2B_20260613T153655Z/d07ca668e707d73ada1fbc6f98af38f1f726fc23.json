@@ -1,0 +1,22 @@
+{
+  "id": "08ce7823-b403-4f16-826d-02db6321528f",
+  "object": "chat.completion",
+  "created": 1781403185,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant IntegrationTest as IntegrationTest\nparticipant Spring Application as Spring Application\nparticipant De /nSerializer as De /nSerializer\nparticipant ctrl:AddMember ToGroupController as ctrl:AddMember ToGroupController\nparticipant AddMember RequestAssembler as AddMember RequestAssembler\nparticipant AddMemberResponse DTOAssembler as AddMemberResponse DTOAssembler\nparticipant srv:AddMember ToGroupService as srv:AddMember ToGroupService\n\nIntegrationTest ..> Spring Application : POST 1 /groups/\"Family\"/members/\"ana@gmail.com\"\n\nSpring Application ..> De /nSerializer : 1.1 deserialze(\"groupDesc\":\"Family\", \"personEmail\":\"ana@gmail.com\")\n\nDe /nSerializer ..> ctrl:AddMember ToGroupController : 1.1.1 create (groupDesc, PersonEmail)\n\nctrl:AddMember ToGroupController ..> AddMember RequestAssembler : 1.2 addMember(info)\n\nAddMember RequestAssembler ..> ctrl:AddMember ToGroupController : 1.2.1 addMemberMapToDTO (info.getGroupDescription(), info.getPersonEmail())\n\nctrl:AddMember ToGroupController ..> AddMember RequestAssembler : 1.2.2 addMemeber(requestDTO)\n\nAddMember RequestAssembler ..> srv:AddMember ToGroupService : 1.2.3 groupDTO\n\nsrv:AddMember ToGroupService ..> ctrl:AddMember ToGroupController : 1.2.4 mapToGroupResponseDTO(GroupDTO)\n\nctrl:AddMember ToGroupController ..> AddMemberResponse DTOAssembler : 1.2.4.1 create\n\nAddMemberResponse DTOAssembler ..> srv:AddMember ToGroupService : 1.2.5 groupRespDTO\n\nsrv:AddMember ToGroupService ..> IntegrationTest : 1.4 HttpResponse\n\nIntegrationTest ..> Spring Application : 1.5 HttpResponse\n\nctrl:AddMember ToGroupController ..> De /nSerializer : 1.2.6 ResponseEntity(groupRespDTO, HttpStatus.OK)\n\nDe /nSerializer ..> Spring Application : 1.3 serialize(ResponseEntity(groupRespDTO, HttpStatus.OK))\n\nSpring Application ..> IntegrationTest : 1.4 HttpResponse\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1027,
+    "completion_tokens": 459,
+    "total_tokens": 1486
+  }
+}

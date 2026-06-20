@@ -1,0 +1,65 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+enum Points {
+  value: Int
+  {static} LOVE
+  {static} FIFTEEN
+  {static} THIRTY
+  next(): Points
+}
+
+abstract class Score <<sealed>> {
+  placard: String
+  isGame: Boolean = false
+  {abstract} next(): Score
+}
+
+object Deuce {
+  placard = "Deuce"
+  next(): Score
+}
+
+class ByPoints {
+  placard = "$A - $B"
+  next(): Score
+}
+
+enum Player {
+  {static} + A
+  {static} + B
+}
+
+class Forty {
+  placard = "$A - 40" | "40 - $B"
+  next(): Score
+}
+
+class Game {
+  placard = "Game $W"
+  isGame = true
+  next() = throw
+}
+
+class Advantage {
+  placard = "Advantage $W"
+  next(): Score
+}
+
+Score <|-- Deuce
+Score <|-- ByPoints
+Score <|-- Forty
+Score <|-- Game
+Score <|-- Advantage
+
+Points "pointsB" --* ByPoints
+Points "pointsA" --* ByPoints
+Points "pointsOther" --* Forty
+
+Player "player" --o Forty
+Player "winner" --o Game
+Player "player" --o Advantage
+
+@enduml
+```

@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+actor Programador
+
+box "LEA" #lightgray
+participant "front: Ceed" as front
+participant "agent: Ceed" as agent
+end box
+
+front -> front : see(addBrain, brain)
+activate front
+deactivate front
+
+front -> front : see('listen', port)
+activate front
+deactivate front
+
+Programador -> front : ws://lea
+activate front
+front -> front : see('onSocketConnection', socket)
+activate front
+front --> Programador : socket.emit(agents)
+deactivate front
+
+Programador -> front : see(agent, action, args)
+activate front
+front -> agent : see(action, args)
+activate agent
+agent --> front
+deactivate agent
+front --> Programador : resolve()
+deactivate front
+
+Programador -> front : http://lea/:agent/:action
+activate front
+front -> front : see('http', [req, res])
+activate front
+front -> agent : see(action, [req, res])
+activate agent
+agent --> front
+deactivate agent
+front --> Programador : res.send()
+deactivate front
+deactivate front
+
+@enduml
+```

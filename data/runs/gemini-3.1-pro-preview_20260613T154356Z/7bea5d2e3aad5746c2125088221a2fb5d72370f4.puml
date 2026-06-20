@@ -1,0 +1,91 @@
+```plantuml
+@startuml
+skinparam maxMessageSize 150
+
+box "RTP" #F8F8F8
+participant RtpSenderEgress
+participant ModuleRtpRtcpImpl
+participant PacketRouter
+participant ProcessThreadImpl
+participant PacingController
+participant PacedSender
+participant RTPSender
+participant RTPSenderAudio
+end box
+
+box "Call" #F8F8F8
+participant AudioCodingModuleImpl
+participant ChannelReceive
+participant ChannelSend
+participant AcmReceiver
+end box
+
+box "NetEq" #F8F8F8
+participant AudioSendStream
+participant AudioMixerImpl
+participant AudioTransportImpl
+end box
+
+box "Audio" #F8F8F8
+participant AudioDeviceBuffer
+participant AudioTrackJni
+participant AudioRecordJni
+end box
+
+-> AudioRecordJni : DataIsRecorded()
+activate AudioRecordJni
+AudioRecordJni -> AudioDeviceBuffer : DeliverRecordedData()
+activate AudioDeviceBuffer
+AudioDeviceBuffer -> AudioTransportImpl : RecordedDataIsAvailable()
+activate AudioTransportImpl
+AudioTransportImpl -> AudioSendStream : SendAudioData()
+activate AudioSendStream
+AudioSendStream -> ChannelSend : ProcessAndEncodeAudio()
+activate ChannelSend
+ChannelSend -[#blue]> AudioCodingModuleImpl : Add10MsData()
+activate AudioCodingModuleImpl
+AudioCodingModuleImpl -> AudioCodingModuleImpl : Encode()
+activate AudioCodingModuleImpl
+AudioCodingModuleImpl -> ChannelSend : SendData()
+deactivate AudioCodingModuleImpl
+deactivate AudioCodingModuleImpl
+ChannelSend -> ChannelSend : SendRtpAudio()
+activate ChannelSend
+ChannelSend -> RTPSenderAudio : SendAudio()
+deactivate ChannelSend
+deactivate ChannelSend
+activate RTPSenderAudio
+RTPSenderAudio -> RTPSender : SendToNetwork()
+deactivate RTPSenderAudio
+activate RTPSender
+RTPSender -> PacedSender : EnqueuePackets()
+deactivate RTPSender
+
+ProcessThreadImpl -> ProcessThreadImpl : Process()
+activate ProcessThreadImpl
+ProcessThreadImpl -> PacingController : Process()
+deactivate ProcessThreadImpl
+activate PacingController
+PacingController -> PacingController : ProcessPackets()
+activate PacingController
+PacingController -> PacingController : SendRtpPacket()
+activate PacingController
+PacingController -> PacketRouter : SendPacket()
+deactivate PacingController
+deactivate PacingController
+deactivate PacingController
+activate PacketRouter
+PacketRouter -> ModuleRtpRtcpImpl : TrySendPacket()
+deactivate PacketRouter
+activate ModuleRtpRtcpImpl
+ModuleRtpRtcpImpl -> RtpSenderEgress : SendPacket()
+deactivate ModuleRtpRtcpImpl
+activate RtpSenderEgress
+RtpSenderEgress -> RtpSenderEgress : SendPacketToNetwork()
+activate RtpSenderEgress
+RtpSenderEgress ->]
+deactivate RtpSenderEgress
+deactivate RtpSenderEgress
+
+@enduml
+```

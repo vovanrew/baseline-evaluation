@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle PB-158 UC8 SQD: Get campaigns customer is eligible for\n\nlegend top\n**Abstract:**\nThis use cases describes the changes being made to an existing endpoint.\nThe endpoint will be modified so that it can be called by the user and\nwill return a list of campaigns that the customer is eligible for. A campaign\nlogo version number will be returned, as well as a campaign logo\nimage (if requested).\nendlegend\n\nactor \"Next Customer\" as NC\n\nbox \"Next Platform\" #E2E2E2\nparticipant \"P&O\\n(Core Next)\" as PO\ndatabase \"P&O DB\" as PODB\nend box\n\nparticipant \"Core Bradesco\" as CB\n\nnote right of NC #DDA0DD\n**Endpoint:**\nGET /campaigns\n\n**Current implementation:**\nCurrently only called by system management, returns a list of all campaigns\nwith the option to specify:\n\u2022 NAME\n\u2022 PARTNER_ID\n\u2022 OFFER_ID\n\n**Required implementation:**\n//Either through extension of existing API or new, enable the user//\nto call the endpoint. When a user calls the endpoint return a list of campaigns\nthat that the user is eligible for. As part of the request, include an optional\nfield for whether or not to return the offer logo.\n\nAs part of the CAMPAIGN_RETRIEVAL response include:\n\u2022 Campaign logo version number\n\u2022 Campaign logo (optional)\n\n**ENSURE BACKWARDS COMPATIBILITY IS MAINTAINED**\nend note\n\nNC -> PO: 1 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})\nactivate PO\n\ngroup filter on {NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}\n    PO -> PODB: 2 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})\n    activate PODB\n    \n    note right of PODB\n    Note:\n    Read P&O tables:\n    \u2022 ELIGIBLE_USER\n    \u2022 CAMPAIGN\n    end note\n    \n    PODB -> PODB: 3 Read campaigns user is eligible for\n    \n    PODB --> PO: 4 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)\n    deactivate PODB\nend\n\ngroup if user has been or is eligible for at least one campaign\n    PO --> NC: 5 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)\nend\n\ngroup if user is not eligible for any active campaigns\n    PO --> NC: 6 Return error (MESSAGE)\nend\n\ndeactivate PO\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHhK1iEnk8Y+fkAY42P8ns6qiZNeS0S0zQcsBZIQvOdUSv87PqVJAESnnzhI2U"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1172,
+    "candidatesTokenCount": 601,
+    "totalTokenCount": 1773,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1092
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "jmAxat32MZiYkdUP-dXf2QU"
+}

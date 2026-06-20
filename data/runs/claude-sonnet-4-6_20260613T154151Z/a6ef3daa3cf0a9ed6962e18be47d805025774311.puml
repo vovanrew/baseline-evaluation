@@ -1,0 +1,66 @@
+```plantuml
+@startuml
+participant "finest level" as FL
+participant "intermediate level(s)" as IL
+participant "base level" as BL
+
+note over FL: U(k,2) -> F(U(k,2))
+
+FL -> FL: SDC
+
+note over FL: U(k',2) -> F(U(k',2))
+
+FL -> IL: restrict
+
+note over IL: U(k,1) -> F(U(k,1))
+
+IL -> IL: FAS
+
+note over IL: tau = Q(1)*F(U(k,1)) - R*Q(2)*F(U(k',2))
+
+IL -> IL: SDC with FAS
+
+note over IL: U(k',1) -> F(U(k',1))
+
+IL -> BL: restrict
+
+note over BL: U(k,0) -> F(U(k,0))
+
+BL -> BL: FAS
+
+note over BL: tau = Q(0)*F(U(k,0)) - R*Q(1)*F(U(k',1))
+
+BL -> BL: SDC with FAS
+
+note over BL: U(k+,0) -> F(U(k+,0))
+
+BL -> BL: coarse correction
+
+note over BL: c(0) = U(k+,0) - R*U(k',1)
+
+BL -> IL: prolongate
+
+IL -> IL: correct
+
+note over IL: U(k",1) = U(k',1) + P*c(0)
+
+IL -> IL: SDC
+
+note over IL: U(k+,1) -> F(U(k+,1))
+
+IL -> IL: coarse correction
+
+note over IL: c(1) = U(k+,1) - R*U(k',2)
+
+IL -> FL: prolongate
+
+FL -> FL: correct
+
+note over FL: U(k",2) = U(k',2) + P*c(1)
+
+FL -> FL: SDC
+
+note over FL: U(k+,2) -> F(U(k+,2))
+
+@enduml
+```

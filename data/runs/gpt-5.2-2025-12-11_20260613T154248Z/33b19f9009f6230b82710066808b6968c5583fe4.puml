@@ -1,0 +1,58 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+package "common" {
+  package "domain" {
+
+    package "repository" {
+      interface "FeatureConfigRepository" as FeatureConfigRepository {
+        Future<FeatureConfig> fetch()
+      }
+    }
+
+    package "entities" {
+      class "FeatureConfig" as FeatureConfig {
+        isPasswordSignInOptionEnabled : bool
+        isDebugMenuEnabled : bool
+      }
+    }
+
+    package "usecases" {
+      class "FetchFeatureConfigUseCase" as FetchFeatureConfigUseCase {
+        Future<FeatureConfig> call(FeatureConfigParam params)
+      }
+
+      package "parameters" {
+        class "FeatureConfigParam" as FeatureConfigParam {
+          isPasswordSignInOptionEnabled : bool
+          isDebugMenuEnabled : bool
+        }
+      }
+    }
+
+    FeatureConfigRepository ..> FeatureConfig : uses
+    FetchFeatureConfigUseCase ..> FeatureConfigRepository : uses
+    FetchFeatureConfigUseCase ..> FeatureConfigParam : uses
+  }
+}
+
+package "base" {
+  package "domain" {
+    package "usecases" {
+      interface "UseCase" as BaseUseCase {
+        call : Type
+      }
+      note right of BaseUseCase
+        Type, Params:
+      end note
+    }
+  }
+}
+
+FetchFeatureConfigUseCase ..|> BaseUseCase
+
+@enduml
+```

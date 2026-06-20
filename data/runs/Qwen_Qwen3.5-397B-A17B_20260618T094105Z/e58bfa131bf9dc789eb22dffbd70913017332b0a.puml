@@ -1,0 +1,47 @@
+@startuml
+skinparam packageStyle rectangle
+
+package "UI" {
+  class LoginUI <<C>> 
+}
+
+package "Controller" {
+  class LoginController <<C>> {
+    +login(email,password)
+  }
+  
+  class ApplicationPOT <<C>> {
+    +static getInstance()
+    +clearCurrentSession()
+  }
+}
+
+package "Model" {
+  folder Service {
+    class UserService <<C>> {
+      +UserService()
+      +newUserSession()
+    }
+    
+    class UserSession <<C>> {
+      -String email
+      +UserSession()
+    }
+    
+    class User <<A>> {
+      -Integer id
+      -String email
+      -String password
+      -Integer nif
+      -String name
+      
+      +User(email,password,nif,name)
+    }
+  }
+}
+
+LoginUI ..> LoginController : >
+ApplicationPOT --* Controller : has
+UserController --> Model.Service.UserService : creates
+UserService *-- UserSession : allocates
+@enduml

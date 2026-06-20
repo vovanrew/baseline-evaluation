@@ -1,0 +1,29 @@
+```plantuml
+@startuml
+autonumber
+actor User
+participant QuerySet
+participant QueryParser
+participant Tokenizer
+participant Query
+participant QueryComponent
+
+User -> QuerySet: QuerySet()
+User -> QuerySet: add("longitude", "*/CLON")
+QuerySet -> QueryParser: parse(queryString)
+activate QueryParser
+QueryParser -> Tokenizer: tokenize(queryString)
+Tokenizer --> QueryParser: tokens
+
+loop all sub-queries
+    QueryParser -> Query: Query()
+    loop all components
+        QueryParser -> QueryComponent: QueryComponent()
+        QueryParser -> Query: push_back(component)
+    end
+end
+
+QueryParser --> QuerySet: queries
+deactivate QueryParser
+@enduml
+```

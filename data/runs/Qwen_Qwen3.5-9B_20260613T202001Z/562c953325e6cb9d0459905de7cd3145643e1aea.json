@@ -1,0 +1,22 @@
+{
+  "id": "968d6bd4-f70e-4e76-9777-fc5afc62286c",
+  "object": "chat.completion",
+  "created": 1781410101,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"Service\" as service\nparticipant \"Access token guard\" as guard\nparticipant \"Auth microservice\" as auth\nparticipant \"Session module\" as session\nparticipant \"Auth module\" as auth_module\n\nauth -> auth : Session module\nauth -> auth : Auth module\n\nservice -> guard : request\nguard -> guard : get headers\nguard -> guard : check authentication header existence\n\nalt [Authentication header is undefined]\n  guard -> service : 401\nend\n\nguard -> guard : get access token from header\nguard -> auth_module : validate access token\nauth_module -> guard : result of validation\n\nalt [Access token is Invalid]\n  guard -> service : 401\nend\n\nguard -> auth_module : get embedded client id from access token\nauth_module -> auth_module : extract id\n\nalt [Client id is missing]\n  auth_module -> guard : error\n  guard -> service : 401\nend\n\nauth_module -> guard : client id\nguard -> guard : modify request with client id\nguard -> service : modified request\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2007,
+    "completion_tokens": 233,
+    "total_tokens": 2240
+  }
+}

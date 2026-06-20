@@ -1,0 +1,60 @@
+```plantuml
+@startuml
+
+class FEDLCookChecker {
+  TMultiMap<FEDLNodeID, FName> ImportToImportingPackage
+  TSet<FEDLNodeID> Exports
+  TMultiMap<FEDLNodeID, FEDLNodeID> NodePrereqs
+  --
+  + AddImport()
+  + AddExport()
+  + AddArc()
+}
+
+class FEDLNodeID {
+  TArray<FName> ObjectPath
+  --
+  + <color:red>GetTypeHash()</color>
+}
+
+note right of FEDLNodeID
+  ObjectPath 示例:
+  Hash算法:
+  基于FName的Hash, 注意Hash的末位是序列化标记
+  <color:red><b>bDepIsSerialize</b></color>
+end note
+
+class FUObjectThreadContext {
+  <color:red>□</color> TArray<FObjectInitializer> InitializerStack
+  <color:red>□</color> TRefCountPtr<FUObjectSerializeContext> SerializeContext
+}
+
+class FObjectInitializer {
+}
+
+class FUObjectSerializeContext {
+  <color:red>□</color> TArray<UObject*> ObjectsLoad
+  <color:red>□</color> TArray<FLonkerLoad*> AttachedLinkers
+}
+
+note top of FUObjectSerializeContext
+  这个结构体缓存多个UObject序列化信息
+end note
+
+package "CookUtils" #GreenYellow {
+  class FPackageTracker {
+  }
+
+  class CookRequests {
+  }
+}
+
+FEDLCookChecker <|-- FEDLNodeID
+
+FUObjectThreadContext "1:*" --> FObjectInitializer
+FUObjectThreadContext "1:1" --> FUObjectSerializeContext
+
+FPackageTracker <|-- CookRequests
+
+@enduml
+```

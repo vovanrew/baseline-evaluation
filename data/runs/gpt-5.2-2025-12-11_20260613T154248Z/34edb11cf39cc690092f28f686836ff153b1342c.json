@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLjmQw6VbKe0EGmU5QtQuEK4WYvZ",
+  "object": "chat.completion",
+  "created": 1781368986,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor black\n  LifeLineBorderColor black\n  LifeLineBackgroundColor white\n  ParticipantBorderColor black\n  ParticipantBackgroundColor white\n  ActorBorderColor black\n  ActorBackgroundColor white\n  BoxBorderColor black\n  BoxBackgroundColor white\n  NoteBorderColor black\n  NoteBackgroundColor #FFF9C4\n}\n\nactor user\nparticipant \"Gstreamer Pipeline\" as pipeline\nparticipant \"librealsense2\" as rs2\nparticipant \"GStreamer\" as gst\n\nnote left of user\nload GST\npipeline with\nrealsensesrc\nend note\n\nuser -> pipeline : realsensesrc\\nserial=728...\nactivate pipeline\n\n== pipeline goto GST_STATE_READY ==\n\npipeline -> pipeline : create\ncreate participant realsensesrc as src\nactivate src\n\nsrc -> rs2 : rs2::context.query_devices()\nactivate rs2\nrs2 --> src : rs2::device_list\ndeactivate rs2\n\nsrc -> rs2 : select device by serial\nactivate rs2\nrs2 --> src : rs2::sensor\ndeactivate rs2\n\nnote right of rs2 : Select device\n\nloop for (info: rs2::rs2_camera_info)\\nrs2::device.supports(info)\n  src -> rs2 : rs2::device.supports(info)\n  activate rs2\n  rs2 --> src : bool\n  deactivate rs2\n\n  src -> rs2 : rs2::device.get_info(info)\n  activate rs2\n  rs2 --> src : const char* info_string\n  deactivate rs2\n\n  src -> src : store info\nend\n\nsrc -> gst : gst_tag_setter_add_tag_valist_values(...,infos, NULL)\nactivate gst\ngst --> src\ndeactivate gst\n\nnote right of gst\nRegister per-stream\nmetadata as\nGst tags\nend note\n\nsrc -> rs2 : rs2::sensor.get_stream_profiles()\nactivate rs2\nrs2 --> src : std::vector<rs2::stream_profile>\ndeactivate rs2\n\nloop for (profile: std::vector<rs2::stream_profile>)\\nCreate profile_list of supported profiles\n  src -> src : Create\nend\n\nsrc -> gst : g_object_class_install_properties(...,...,options)\nactivate gst\ngst --> src\ndeactivate gst\n\nnote right of gst\nInstall all\nsupported\nvideo profiles\nas an option\nend note\n\nloop for (option: rs2::rs2_option)\\nrs2::sensor.supports(option)\n  src -> rs2 : rs2::sensor.supports(option)\n  activate rs2\n  rs2 --> src : bool\n  deactivate rs2\n\n  src -> rs2 : rs2::sensor.get_option_range\n  activate rs2\n  rs2 --> src : rs2::option_range\n  deactivate rs2\n\n  src -> src : store option\nend\n\nsrc -> gst : g_object_class_install_properties(...,...,options)\nactivate gst\ngst --> src\ndeactivate gst\n\nnote right of gst\nInstall all\nsupported\nRS camera options\nas properties/options\nend note\n\nsrc -> gst : gst_bus_add_watch(bus, bus_call...)\nactivate gst\ngst --> src\ndeactivate gst\n\nnote right of gst : Register callback\\nfor parameter changes\n\npipeline -> src : caps negotiation\\n(CAPS)\nnote right of src\n- pixel_format\n- width\n- height\n- framerate\nend note\n\n== pipeline goto GST_STATE_PLAYING ==\n\npipeline ..> src : state=playing\nsrc -> rs2 : rs2::sensor.start()\nactivate rs2\nrs2 --> src\ndeactivate rs2\n\n== pipeline goto GST_STATE_READY ==\n\nsrc -> rs2 : rs2::sensor.stop()\nactivate rs2\nrs2 --> src\ndeactivate rs2\n\ndeactivate src\ndeactivate pipeline\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1555,
+    "completion_tokens": 822,
+    "total_tokens": 2377,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

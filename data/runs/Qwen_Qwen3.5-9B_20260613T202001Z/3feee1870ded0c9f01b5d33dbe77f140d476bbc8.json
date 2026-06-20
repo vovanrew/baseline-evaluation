@@ -1,0 +1,22 @@
+{
+  "id": "e8868542-86a1-467c-882e-1fc0e06733b6",
+  "object": "chat.completion",
+  "created": 1781409763,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"User\" as User\nrectangle \"BileMo API\" as BileMoAPI\ndatabase \"BileMo Database\" as BileMoDB\n\nUser --> BileMoAPI : 1 Authentication Request (email, plain password)\nBileMoAPI --> BileMoDB : 2 Find user with matching email & password combination\n\nalt [invalid credentials]\n  BileMoDB --> BileMoAPI : 3 null\n  BileMoAPI --> User : 4 JSON Authentication response: 401 Invalid credentials\nelse [valid credentials]\n  BileMoDB --> BileMoAPI : 5 User object\n  BileMoAPI --> User : 6 JSON Authentication Response: 200 JWT token\n  User --> BileMoAPI : 7 Show products list (JWT token)\n  activate BileMoAPI\n  BileMoAPI --> BileMoAPI : 8 Check route & query parameters are valid\n  deactivate BileMoAPI\n\n  alt [Route does not exist]\n    BileMoAPI --> User : 9 404 Route not found\n  else [Route found]\n    activate BileMoAPI\n    BileMoAPI --> BileMoAPI : 10 Security firewall: check token is valid & user permissions\n    deactivate BileMoAPI\n\n    alt [Access denied]\n      BileMoAPI --> User : 11 403 Forbidden\n    else [Token expired]\n      BileMoAPI --> User : 12 401 Unauthorized\n    else [Token valid & permission granted]\n      activate BileMoAPI\n      BileMoAPI --> BileMoDB : 13 Get products results\n      BileMoDB --> BileMoAPI : 14 Results query response (Products object)\n      BileMoAPI --> BileMoAPI : 15 Serialize(normalize+encode) results object to JSON\n      deactivate BileMoAPI\n      BileMoAPI --> User : 16 Response 200 Serialized JSON results\n    end\n  end\nend\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2301,
+    "completion_tokens": 460,
+    "total_tokens": 2761
+  }
+}

@@ -1,0 +1,44 @@
+```plantuml
+@startuml
+
+actor Service
+
+box "Access token guard"
+participant "Access token guard" as ATG
+end box
+
+box "Auth microservice" #YellowGreen
+participant "Session module" as SM
+participant "Auth module" as AM
+end box
+
+Service -> ATG : request
+ATG -> ATG : get headers
+ATG -> ATG : check authentication header existence
+
+alt [Authentication header is undefined]
+    ATG -->> Service : 401
+end
+
+ATG <- SM : get access token from header
+ATG -> AM : validate access token
+ATG <- AM : result of validation
+
+alt [Access token is Invalid]
+    ATG -->> Service : 401
+end
+
+ATG -> AM : get embedded client id from access token
+AM -> AM : extract id
+
+alt [Client id is missing]
+    ATG <- AM : error
+    ATG -->> Service : 401
+end
+
+ATG <- AM : client id
+ATG -> ATG : modify request with client id
+ATG -->> Service : modified request
+
+@enduml
+```

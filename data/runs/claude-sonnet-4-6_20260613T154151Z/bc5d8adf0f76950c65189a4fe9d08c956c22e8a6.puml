@@ -1,0 +1,54 @@
+@startuml
+actor user
+
+participant FindWorkbookUI
+participant UIController
+participant FindWorkbooksController
+participant StartWorkbooksSearch
+participant "fw : FindWorkbooks" as fw
+participant Paths
+participant Files
+participant Cleansheets
+
+user -> FindWorkbookUI : startWorkbooksSearch()
+FindWorkbookUI -> FindWorkbooksController : create()
+
+alt [adicionar]
+  loop [todas as adicoes]
+    FindWorkbookUI -> FindWorkbooksController : add(path)
+  end
+else [remover]
+  loop [todas as remocoes]
+    FindWorkbookUI -> FindWorkbooksController : remover(path)
+  end
+end
+
+FindWorkbookUI -> FindWorkbooksController : startWorkbooksSearch()
+
+loop [todas as paths]
+  FindWorkbooksController -> StartWorkbooksSearch : create(path, WorkbooksFoundList)
+  FindWorkbooksController -> StartWorkbooksSearch : startWorkbooksSearch()
+  StartWorkbooksSearch -> fw : create()
+  note right of fw
+    this create() call represents
+    the creation of a new thread
+    of this same class
+  end note
+  fw -> fw : start()
+  fw -> fw : run()
+  fw -> Paths : create()
+  fw -> Paths : p : get()
+  fw -> Files : walkFileTree(p, fw)
+end
+
+user -> FindWorkbookUI : openFoundWorkbook()
+FindWorkbookUI -> UIController : app : getApp()
+note over FindWorkbookUI
+  f represents a file that is created when
+  the user selects a workbook to open from
+  the list of found workbooks
+end note
+FindWorkbookUI -> Cleansheets : w : getWorkbook(f)
+FindWorkbookUI -> UIController : setActiveWorkbook(w)
+
+@enduml

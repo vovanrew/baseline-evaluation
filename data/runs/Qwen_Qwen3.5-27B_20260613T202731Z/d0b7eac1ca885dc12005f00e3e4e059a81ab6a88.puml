@@ -1,0 +1,65 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "Admin" as Admin
+participant ":RemoveScooterUI" as UI
+participant ":RemoveScooterScooterController" as Controller
+participant "pharmServ\n:PharmacyService" as PharmService
+participant "pharmDB\n:PharmacyDB" as PharmDB
+participant "scootServ\n:ScooterService" as ScootService
+participant "scootDB\n:ScooterDB" as ScootDB
+
+Admin -> UI : 1 Sends a request regarding the update of an electric scooter's data
+activate UI
+UI -> Controller : 2 showPharmacies()
+activate Controller
+Controller -> PharmService : 3 create()
+activate PharmService
+PharmService -> PharmDB : 4 create()
+activate PharmDB
+PharmDB --> PharmService : 5 lstPharmacies = getPharmacies()
+deactivate PharmDB
+PharmService --> Controller : 6 lstPharmacies = getPharmacies()
+deactivate PharmService
+ref right of PharmDB : SD_CONNECTIONS
+Controller --> UI : 7 Shows the list of pharmacies and asks to choose one
+deactivate Controller
+deactivate UI
+Admin -> UI : 8 Chooses the pharmacy
+activate UI
+UI -> Controller : 9 showScooterList(pharmacyId)
+activate Controller
+Controller -> ScootService : 10 create()
+activate ScootService
+ScootService -> ScootDB : 11 create()
+activate ScootDB
+ScootDB --> ScootService : 12 lstScooters = getScootersList(pharmacyId)
+deactivate ScootDB
+ScootService --> Controller : 13 lstScooters = getScootersList(pharmacyId)
+deactivate ScootService
+ref right of ScootDB : SD_CONNECTIONS
+Controller --> UI : 14 Shows the list of eletric scooters and asks to choose one
+deactivate Controller
+deactivate UI
+Admin -> UI : 15 Chooses the eletric scooter
+activate UI
+UI --> Admin : 16 Shows the information about the scooter, asking to update
+deactivate UI
+Admin -> UI : 17 Updates the information
+activate UI
+UI -> Controller : 18 updateScooter(batteryPerc, chargingStatus,\npotency, weight, batteryCapacity, maxPayload, pharmacyId)
+activate Controller
+Controller -> ScootService : 19 updateScooter(batteryPerc, chargingStatus,\npotency, weight, batteryCapacity, maxPayload, pharmacyId)
+activate ScootService
+ScootService -> ScootDB : 20 updateScooterFromDB(batteryPerc, chargingStatus,\npotency, weight, batteryCapacity, maxPayload, pharmacyId)
+activate ScootDB
+ref right of ScootDB : SD_Connections
+deactivate ScootDB
+deactivate ScootService
+deactivate Controller
+deactivate UI
+UI --> Admin : 21 Validates all the information, informing of the success of the operation
+
+@enduml
+```

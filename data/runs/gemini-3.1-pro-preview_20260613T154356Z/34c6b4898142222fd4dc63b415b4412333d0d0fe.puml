@@ -1,0 +1,87 @@
+```plantuml
+@startuml
+title AU2048 Demo Mode Button Sequence Diagram
+
+actor User
+entity MainActivity
+control Controller
+entity MainActivityFragment
+participant BoardView
+database Model
+
+User -> MainActivity : Starts App
+activate MainActivity
+
+MainActivity -> Controller : onCreate()
+activate Controller
+
+MainActivity -> MainActivityFragment : onCreate()
+activate MainActivityFragment
+
+MainActivityFragment -> BoardView : onCreateView()
+activate BoardView
+
+loop watntstoContinue == true
+    User -> MainActivity : Press Demo Mode
+    MainActivity -> Controller : ResetClick(View)
+    Controller -> Controller : reset()
+    Controller -> Model : setArr()
+    Controller -> Model : setScore()
+    Model --> Controller : doesWantToContinue()
+    MainActivity -> MainActivityFragment : setupArrView()
+    MainActivity -> MainActivityFragment : setArrView()
+    MainActivityFragment -> BoardView : onCreateView()
+    BoardView --> MainActivityFragment : BoardView
+
+    alt demo == true
+        alt button_direction == up
+            MainActivity -> MainActivity : UpClick(View)
+        else button_direction == left
+            MainActivity -> MainActivity : LeftClick(View)
+        else button_direction == down
+            MainActivity -> MainActivity : DownClick(View)
+        else button_direction == right
+            MainActivity -> MainActivity : RightClick(View)
+        end
+
+        alt button_direction == up
+            Controller -> Controller : shiftUp()
+        else button_direction == left
+            Controller -> Controller : shiftLeft()
+        else button_direction == down
+            Controller -> Controller : shiftDown()
+        else button_direction == right
+            Controller -> Controller : shiftRight()
+        end
+
+        Controller -> Model : setArr()
+        Controller -> Model : setScore()
+        Model --> Controller : doesWantToContinue()
+        MainActivity -> MainActivityFragment : setupArrView()
+        MainActivity -> MainActivityFragment : setArrView()
+        MainActivityFragment -> BoardView : onCreateView()
+        BoardView --> MainActivityFragment : BoardView
+
+        alt noMovesPossible == false
+            Controller --> MainActivity : checkWin()
+            Controller --> MainActivity : win()
+            Controller --> MainActivity : reset()
+        else noMovesPossible == true
+            Controller --> MainActivity : noMovesPossible()
+            Controller --> MainActivity : gameover()
+            Controller -> MainActivity : Action.DOWN
+            Controller --> MainActivity : reset()
+        end
+    end
+end
+
+MainActivityFragment -> BoardView : onDestroy()
+destroy BoardView
+
+MainActivity -> MainActivityFragment : onDestroy()
+destroy MainActivityFragment
+
+destroy MainActivity
+
+@enduml
+```

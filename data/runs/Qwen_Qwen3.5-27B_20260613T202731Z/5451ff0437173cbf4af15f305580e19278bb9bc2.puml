@@ -1,0 +1,66 @@
+```plantuml
+@startuml
+title 基于GitHub的实验管理平台--选择课程用例的顺序图
+
+actor "教师" as Teacher
+participant "系统" as System
+participant "课程信息" as CourseInfo
+participant "选课信息" as EnrollmentInfo
+participant "实验信息" as ExperimentInfo
+participant "评分细则信息" as GradingCriteriaInfo
+participant "实验评分信息" as ExperimentScoreInfo
+
+Teacher -> System: 发起评分请求
+activate System
+System -> CourseInfo: 查询本学期当前教师所教授的课程
+activate CourseInfo
+CourseInfo -->> System: 返回课程信息
+deactivate CourseInfo
+System -->> Teacher: 返回课程信息
+deactivate System
+
+Teacher -> System: 选择需要评分的课程
+activate System
+System -> EnrollmentInfo: 查询选择本课程的学生信息
+activate EnrollmentInfo
+EnrollmentInfo -->> System: 返回学生信息
+deactivate EnrollmentInfo
+System -->> Teacher: 返回学生信息
+deactivate System
+
+loop 
+    Teacher -> System: 选择需要评分的学生
+    activate System
+    System -> ExperimentInfo: 查询当前课程的实验信息
+    activate ExperimentInfo
+    ExperimentInfo -->> System: 返回当前课程的实验信息
+    deactivate ExperimentInfo
+    
+    System -> GradingCriteriaInfo: 查询每个实验的评分细则信息
+    activate GradingCriteriaInfo
+    GradingCriteriaInfo -->> System: 返回评分细则信息
+    deactivate GradingCriteriaInfo
+    
+    System -> ExperimentScoreInfo: 查询本学生当前课程已被评分的细则信息
+    activate ExperimentScoreInfo
+    ExperimentScoreInfo -->> System: 返回信息
+    deactivate ExperimentScoreInfo
+    
+    System -->> Teacher: 返回本学生当前课程的实验信息
+    Teacher -> System: 进行评分
+    System -> ExperimentScoreInfo: 存储评分
+    activate ExperimentScoreInfo
+    ExperimentScoreInfo -->> System: 存储成功
+    deactivate ExperimentScoreInfo
+    
+    System -> EnrollmentInfo: 统计课程总分数
+    activate EnrollmentInfo
+    EnrollmentInfo -->> System: 统计成功
+    deactivate EnrollmentInfo
+    
+    System -->> Teacher: 评分成功
+    deactivate System
+end
+
+@enduml
+```

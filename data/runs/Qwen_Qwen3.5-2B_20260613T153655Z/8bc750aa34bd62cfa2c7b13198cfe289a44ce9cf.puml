@@ -1,0 +1,124 @@
+@startuml
+skinparam sequenceDiagram
+    participant mobile
+    participant www
+    participant endpoint
+    participant haproxy
+    participant ipfs
+    participant postgraphile
+    participant CITY
+    participant Custom Net
+    participant logstash
+    participant dApp
+    participant postgres
+    participant elastic
+    participant prometheus
+    participant kibana
+
+    note over mobile, www
+        sign & send events
+        browser ext or mobile wallet
+        HTTPS gateway & peer tcp/4001
+        User makes deposit / signs entry to trigger events.
+    end note
+
+    rect webUI
+        sign & send events
+        browser ext or mobile wallet
+        HTTPS gateway & peer tcp/4001
+        /ipfs/{CID}
+        HTTPS (oauth by EC Address)
+        User makes deposit / signs entry to trigger events.
+    end rect
+
+    rect api - Admin/Write api
+        /v2 - read/write factom api
+        /ipfs/{CID} - readonly gateway
+        /graphql - readonly graphql queries
+        livefeed log
+        index event logs
+        dApp specific events
+        Query/Sign
+        read/write signed factom entries
+        sign and dispatch requests
+    end rect
+
+    rect dashboard
+        dashboard query
+        poll()
+        Monitor(FA2XXXXXXXX) Balance changes
+        HTTP GET /metrics
+        HTTP GET /metrics
+        dApp specific rollup
+        metrics query
+        dispatch on-chain event
+        dApp specific logging
+        pin entry content on IPFS
+    end rect
+
+    rect dApp - controller
+        pin entry content on IPFS
+        dApp specific logging
+        dispatch on-chain event
+    end rect
+
+    actor mobile
+    website www
+    endpoint
+    haproxy
+    ipfs
+    postgraphile
+    CITY
+    Custom Net
+    logstash
+    dApp
+    postgres
+    elastic
+    prometheus
+    kibana
+
+    mobile -> ipfs: sign & send events
+    ipfs -> haproxy: /ipfs/{CID}
+    haproxy -> ipfs: HTTPS (oauth by EC Address)
+    ipfs -> postgraphile: livefeed log
+    postgraphile -> ipfs: index event logs
+    postgraphile -> ipfs: dApp specific events
+    ipfs -> postgraphile: Query/Sign
+    postgraphile -> ipfs: read/write signed factom entries
+    ipfs -> postgraphile: sign and dispatch requests
+    postgraphile -> dashboard: dashboard query
+    dashboard -> postgraphile: poll()
+    postgraphile -> dashboard: Monitor(FA2XXXXXXXX) Balance changes
+    postgraphile -> dashboard: HTTP GET /metrics
+    dashboard -> postgraphile: HTTP GET /metrics
+    postgraphile -> dashboard: dApp specific rollup
+    dashboard -> postgraphile: metrics query
+    postgraphile -> dashboard: dispatch on-chain event
+    dashboard -> dApp: dApp specific logging
+    dApp -> postgraphile: pin entry content on IPFS
+    dApp -> postgraphile: dApp specific logging
+    dApp -> postgraphile: dispatch on-chain event
+
+    website www -- ipfs: sign & send events
+    website www -- haproxy: /ipfs/{CID}
+    website www -- ipfs: HTTPS (oauth by EC Address)
+    website www -- postgraphile: livefeed log
+    website www -- postgraphile: index event logs
+    website www -- postgraphile: dApp specific events
+    website www -- postgraphile: Query/Sign
+    website www -- postgraphile: read/write signed factom entries
+    website www -- postgraphile: sign and dispatch requests
+    website www -- dashboard: dashboard query
+    website www -- dashboard: poll()
+    website www -- dashboard: Monitor(FA2XXXXXXXX) Balance changes
+    website www -- dashboard: HTTP GET /metrics
+    website www -- dashboard: HTTP GET /metrics
+    website www -- dashboard: dApp specific rollup
+    website www -- dashboard: metrics query
+    website www -- dashboard: dispatch on-chain event
+    website www -- dApp: dApp specific logging
+    website www -- dApp: pin entry content on IPFS
+    website www -- dApp: dApp specific logging
+    website www -- dApp: dispatch on-chain event
+
+@enduml

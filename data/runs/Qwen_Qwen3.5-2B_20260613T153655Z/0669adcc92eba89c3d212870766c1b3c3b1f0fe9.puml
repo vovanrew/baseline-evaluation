@@ -1,0 +1,81 @@
+@startuml
+participant "I Beverage" as IBeverage
+    IBeverage <<Interface>>
+    IBeverage["string Description"]
+    IBeverage["void GetDescription()"]
+    IBeverage["double Cost()"]
+
+participant "CondimentDecorator" as CCondimentDecorator
+    CCondimentDecorator <<Abstract>>
+    CCondimentDecorator["I Beverage _beverage"]
+    CCondimentDecorator["string Description"]
+    CCondimentDecorator["string GetDescription()"]
+    CCondimentDecorator["double Cost()"]
+
+participant "HouseBlend" as CHouseBlend
+    CHouseBlend <<Concrete>>
+    CHouseBlend["C"]
+    CHouseBlend["HouseBlend"]
+
+participant "DarkRoast" as CDarkRoast
+    CDarkRoast <<Concrete>>
+    CDarkRoast["C"]
+    CDarkRoast["DarkRoast"]
+
+participant "Espresso" as CEspresso
+    CEspresso <<Concrete>>
+    CEspresso["C"]
+    CEspresso["Espresso"]
+
+participant "Milk" as CMilk
+    CMilk <<Concrete>>
+    CMilk["C"]
+    CMilk["Milk(I Beverage beverage)"]
+
+participant "Mocha" as CMocha
+    CMocha <<Concrete>>
+    CMocha["C"]
+    CMocha["Mocha(I Beverage beverage)"]
+
+participant "Whip" as CWhip
+    CWhip <<Concrete>>
+    CWhip["C"]
+    CWhip["Whip(I Beverage beverage)"]
+
+note right of IBeverage
+    すべてのオブジェクトはこの抽象インタフェースを起点に操作する
+    特定の具象コンポーネントに対する操作がしたい時は設計を見直す必要がある。
+    例えば、HouseBlendのみ割引引いた時とか、
+    裝飾により型の情報が破損されているので。。
+@endnote
+
+note right of CCondimentDecorator
+    I Beverageを実装する理由は
+    スーパークラスの型を取得するため。
+    これを継承するクラスはBeverageを装飾することができる
+@endnote
+
+note left of IBeverage
+    すべてのオブジェクトはこの抽象インタフェースを起点に操作する
+    特定の具象コンポーネントに対する操作がしたい時は設計を見直す必要がある。
+    例えば、HouseBlendのみ割引引いた時とか、
+    裝飾により型の情報が破損されているので。。
+@endnote
+
+IBeverage.. CHouseBlend
+IBeverage.. CDarkRoast
+IBeverage.. CEspresso
+
+CCondimentDecorator.. CMilk
+CCondimentDecorator.. CMocha
+CCondimentDecorator.. CWhip
+
+CCondimentDecorator.. CHouseBlend
+CCondimentDecorator.. CDarkRoast
+CCondimentDecorator.. CEspresso
+
+CCondimentDecorator.. CMilk
+CCondimentDecorator.. CMocha
+CCondimentDecorator.. CWhip
+
+@enduml

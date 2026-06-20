@@ -5,8 +5,13 @@ Tests under tests/ import scorers (chrf, element_f1, ...) and runners
 runners themselves import their siblings inside evaluation/. Adding the
 directory to sys.path here matches what Python does automatically when a
 runner is invoked as `python evaluation/<runner>.py` from the project root.
+
+The project root is also added so the Phase-3 analysis package imports as
+`from analysis.<module> import ...` (a proper package, unlike evaluation/).
 """
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent / "evaluation"))
+ROOT = Path(__file__).parent
+sys.path.insert(0, str(ROOT / "evaluation"))
+sys.path.insert(0, str(ROOT))

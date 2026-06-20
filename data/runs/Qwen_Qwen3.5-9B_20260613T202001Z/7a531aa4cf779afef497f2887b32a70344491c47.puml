@@ -1,0 +1,25 @@
+@startuml
+left to right direction
+autonumber
+
+rectangle "HostApp" as HostApp
+rectangle "NanoRep" as NanoRep
+rectangle "NSURLConnection" as NSURLConnection
+rectangle "NSUserDefaults" as NSUserDefaults
+
+HostApp --> NanoRep : (any request)
+
+alt [Check if the session id is stored]
+  NanoRep --> NSUserDefaults : fetch the session id
+else [Send request for session id]
+  NanoRep --> NSURLConnection : 
+  NSURLConnection --> NanoRep : session id from server
+  NanoRep --> NSUserDefaults : store session id
+  NanoRep --> NSURLConnection : keep alive request
+  NSURLConnection --> NanoRep : keep alive response
+end
+
+NanoRep --> NSURLConnection : (any request)
+NSURLConnection --> HostApp : response for the (any request)
+
+@enduml

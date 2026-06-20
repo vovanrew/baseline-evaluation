@@ -1,0 +1,52 @@
+```plantuml
+@startuml
+
+title ブリッジパターン
+
+package "main" {
+  class main {
+  }
+}
+
+package "Bridge" {
+  class Display <<C>> {
+    impl
+    --
+    open(arg): void
+    print(arg): void
+    close(arg): void
+    display(arg): void
+  }
+
+  abstract class DisplayImpl <<A>> {
+    {abstract} raw_open(arg): void
+    {abstract} raw_print(arg): void
+    {abstract} raw_close(arg): void
+  }
+
+  class CountDisplay <<C>> {
+    multi_display(arg): void
+  }
+
+  class StringDisplayImpl <<C>> {
+    raw_open(arg): void
+    raw_print(arg): void
+    raw_close(arg): void
+  }
+}
+
+main --> Display : Uses
+main --> StringDisplayImpl : Create
+
+Display o--> DisplayImpl
+
+Display <|-- CountDisplay
+
+DisplayImpl <|-- StringDisplayImpl
+
+CountDisplay --> StringDisplayImpl
+
+StringDisplayImpl --> DisplayImpl : Uses
+
+@enduml
+```

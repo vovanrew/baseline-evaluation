@@ -1,0 +1,22 @@
+{
+  "id": "63c07a6c-efd5-466b-99ff-a8473a7eab59",
+  "object": "chat.completion",
+  "created": 1781398016,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant generate_delta_main.cc as \"generate_delta_main.cc\"\nparticipant delta_diff_generator.cc as \"delta_diff_generator.cc\"\nparticipant payload_file.cc as \"payload_file.cc\"\nparticipant payload_generation_config.cc as \"payload_generation_config.cc\"\n\n\"generate_delta_main.cc\" ..|> \"payload_generation_config.cc\" : \"--dynamic_partition_info_file\"\n\n\"generate_delta_main.cc\" ..|> \"payload_generation_config.cc\" : brillo::KeyValueStore.Load(file)\n\n\"generate_delta_main.cc\" ..|> \"payload_generation_config.cc\" : payload_config.target.LoadDynamicPartitionMetadata(store)\n\n\"generate_delta_main.cc\" ..|> \"payload_generation_config.cc\" : payload_config.target.ValidateDynamicPartitionMetadata()\n\n\"generate_delta_main.cc\" ..|> \"delta_diff_generator.cc\" : GenerateUpdatePayloadFile()\n\n\"delta_diff_generator.cc\" ..|> \"payload_file.cc\" : payload.Init(config)\n\n\"payload_file.cc\" ..|> \"payload_generation_config.cc\" : manifest_.dynamic_partition_metadata\n\n\"payload_file.cc\" ..|> \"delta_diff_generator.cc\" : generate payload data\n\n\"delta_diff_generator.cc\" ..|> \"payload_file.cc\" : payload.WritePayload()\n\n\"payload_file.cc\" ..|> \"payload_generation_config.cc\" : manifest_.SerializeToString()\n\n\"payload_file.cc\" ..|> \"payload_generation_config.cc\" : Write(serialized_manifest.data())\n\n\"generate_delta_main.cc\" ..|> \"delta_diff_generator.cc\" : done\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1468,
+    "completion_tokens": 319,
+    "total_tokens": 1787
+  }
+}

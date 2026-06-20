@@ -1,0 +1,34 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing true
+skinparam sequence {
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6F2
+  BoxBorderColor #000000
+  BoxBackgroundColor #FFFFFF
+  ArrowColor #000000
+  ActorBorderColor #666666
+  ActorBackgroundColor #E6E6F2
+}
+
+participant "./zbox start-repair" as zbox
+participant "gosdk" as gosdk
+
+zbox -> gosdk : StartRepair(localRootPath, repairPath, statusBar)
+
+gosdk -> gosdk : check initialized allocation
+gosdk -> gosdk : get list result with repair path
+gosdk -> gosdk : create repair request
+gosdk -> gosdk : process repair
+gosdk -> gosdk : check for cancel repair
+gosdk -> gosdk : iteratively get directory and files separately till no more directories left
+
+alt [not empty statusCB]
+  gosdk -> zbox : repair completed and return
+end
+
+@enduml
+```

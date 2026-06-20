@@ -1,0 +1,21 @@
+@startuml
+left to right direction
+actor "客户端" as client
+participant "认证中心" as auth
+participant "网关" as gateway
+participant "缓存" as cache
+participant "业务服务" as service
+
+client -> auth : 1 认证请求
+auth --> client : 2 JWT
+client -> gateway : 3 服务请求 (带JWT)
+gateway --> auth : 4 请求公钥
+auth --> gateway : 5 JWK
+gateway --> gateway : 6 验证签名
+gateway --> cache : 7 请求用户权限
+cache --> gateway : 8 返回用户权限列表
+gateway --> gateway : 9 鉴权
+gateway --> service : 10 服务请求
+service --> client : 11 服务响应
+
+@enduml

@@ -1,0 +1,70 @@
+@startuml
+title 認証のシーケンス
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #777777
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F2
+  BoxBorderColor #6AA6B8
+  BoxBackgroundColor #BFE3EE
+}
+
+participant "ブラウザ" as Browser
+
+box "フロントエンド(React)" #BFE3EE
+participant "ContextProvider" as ContextProvider
+participant "_app" as App
+participant "Login" as Login
+end box
+
+participant "バックエンド" as Backend
+database "DB" as DB
+
+Browser -> Login : ログイン要求(email, password)
+Login -> App : （フレームワークの振る舞い）
+App -> ContextProvider : コンポーネントとして呼び出し
+
+note left of ContextProvider
+※ログイン時はとくに
+なにもしてない。
+end note
+
+ContextProvider ..> App
+App ..> Login
+
+Login -> Backend : ログイン要求(email, password)
+Backend -> DB : select(email, password)
+DB ..> Backend : ユーザー情報
+
+note right of Backend
+ユーザー ID をもとに
+JWT を生成。
+response の cookie に
+{token: JWT} を載せる。
+end note
+
+Backend ..> Login : ログイン結果(結果, cookie, ユーザー情報)
+
+Login -> ContextProvider : dispatch
+
+note left of ContextProvider
+(必要あれば)
+取得したユーザー情報を
+state に保持。
+end note
+
+ContextProvider ..> Login
+Login ..> Browser : ログイン結果(結果, cookie)
+
+note left of Browser
+ブラウザの cookie に
+{token: JWT} が保存される。
+今後のリクエストには
+この情報が付与される。
+end note
+
+@enduml

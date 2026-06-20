@@ -1,0 +1,18 @@
+@startuml
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 30
+  BoxPadding 10
+}
+
+participant "用户信息正确请求URL" as User
+participant "UrlFilterSecurityInterceptor" as Interceptor
+participant "UrlMetadataSourceService" as Metadata
+participant "UrlConfigAttribute" as ConfigAttr
+participant "UrlAccessDecisionManager" as DecisionMgr
+
+User -> Interceptor : Authentication Request
+Interceptor -> Metadata : getAttributes(Object object)
+Metadata -> ConfigAttr : UrlConfigAttribute(HttpServletRequest httpServletRequest)
+Metadata -> DecisionMgr : decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes)
+@enduml

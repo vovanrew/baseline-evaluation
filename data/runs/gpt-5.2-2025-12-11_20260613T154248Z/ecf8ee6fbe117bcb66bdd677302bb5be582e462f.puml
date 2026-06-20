@@ -1,0 +1,107 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #333333
+  LifeLineBorderColor #999999
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F6
+  BoxBorderColor #333333
+  BoxBackgroundColor #FFFFFF
+  NoteBackgroundColor #FFF7CC
+  NoteBorderColor #C9B458
+}
+
+participant ConfigurationClassPostProcessor as CCP
+participant ConfigurationClassParser as CCPa
+participant ComponentScanAnnotationParser as CSAP
+participant AdviceModeImportSelector as AMIS
+participant TransactionManagementConfigurationSelector as TMCS
+participant ConfigurationClass as CC
+participant ConfigurationClassBeanDefinitionReader as CCBDR
+participant AutoProxyRegistrar as APR
+participant AopConfigUtils as ACU
+
+CCP -> CCP : postProcessBeanDefinitionRegistry
+CCP -> CCPa : parse(AnnotationMetadata metadata,\nString beanName)
+activate CCPa
+CCPa -> CCPa : processConfigurationClass(ConfigurationClass configClass)
+CCPa -> CCPa : doProcessConfigurationClass(ConfigurationClass configClass,\nSourceClass sourceClass)
+
+alt 当前解析的类Class上有@ComponentScan注解，进行扫描
+  CCPa -> CSAP : parse(AnnotationAttributes componentScan,\nfinal String declaringClass)
+  activate CSAP
+  CSAP -> CSAP : parse(String className,\nString beanName)
+  CSAP --> CCPa : processConfigurationClass(ConfigurationClass configClass)\n递归解析扫描到的类
+  deactivate CSAP
+end
+
+CCPa -> CCPa : processImports(configClass, sourceClass,\ngetImports(sourceClass), true)
+
+group 解析处理@EnableTransactionManagement import bean相关
+  CCPa -> TMCS : selectImports(AnnotationMetadata)
+  activate TMCS
+  TMCS -> AMIS : selectImports(AdviceMode)
+  activate AMIS
+  AMIS --> TMCS
+  deactivate AMIS
+  TMCS --> CCPa
+  deactivate TMCS
+
+  note left of CCPa
+    获取到AutoProxyRegistrar、ProxyTransactionManagementConfiguration
+  end note
+
+  group 注册处理AutoProxyRegistrar、ProxyTransactionManagementConfiguration
+    note left of CCPa
+      通过AutoProxyRegistrar、AspectJAutoProxyRegistrar引入Bean\n（最终把@EnableTransactionManagement的类\n的ImportBeanDefinitionRegistrar注册到容器）
+    end note
+    CCPa -> CC : addImportBeanDefinitionRegistrar
+    CCPa -> CCPa : processConfigurationClass
+    note left of CCPa
+      按照普通配置类处理ProxyTransactionManagementConfiguration
+    end note
+  end
+end
+
+group 加载配置类的Bean定义
+  CCPa -> CCBDR : loadBeanDefinitions
+  activate CCBDR
+  CCBDR -> CCBDR : loadBeanDefinitionsForConfigurationClass
+  CCBDR -> CCBDR : registerBeanDefinitionForImportedConfigurationClass
+
+  note right of CCBDR
+    如果是由配置类导入的，直接注册到beanFactory
+  end note
+
+  group 处理ProxyTransactionManagementConfiguration，导入了BeanFactoryTransactionAttributeSourceAdvisor
+    CCBDR -> CCBDR : loadBeanDefinitionsForBeanMethod
+    note left of CCBDR
+      加载@Bean标记的方法为Bean
+    end note
+    CCBDR -> CCBDR : loadBeanDefinitionsFromImportedResources
+    note left of CCBDR
+      处理@ImportResource
+    end note
+  end
+
+  group 处理AutoProxyRegistrar，注册了InfrastructureAdvisorAutoProxyCreator
+    note left of CCBDR
+      处理@Import，导入的ImportBeanDefinitionRegistrar
+    end note
+    CCBDR -> CCBDR : loadBeanDefinitionsFromRegistrars
+    CCBDR -> APR : registerBeanDefinitions
+    activate APR
+    note right of APR
+      注册InfrastructureAdvisorAutoProxyCreator
+    end note
+    APR -> ACU : registerAutoProxyCreatorIfNecessary
+    deactivate APR
+  end
+
+  deactivate CCBDR
+end
+
+deactivate CCPa
+@enduml

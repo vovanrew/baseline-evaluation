@@ -1,0 +1,33 @@
+@startuml
+title **SDP Initiated Request/Response\nPattern with Correlation ID**
+
+box "SDP" #lightgrey
+participant "**SERVER\nNODE 1**" as SN1 #orange
+participant "**SERVER\nNODE 2**" as SN2 #orange
+participant "**STATE\nCACHE**" as SC #orange
+participant "**BROKER**" as BR #orange
+end box
+
+box "TBM/HU" #lightgrey
+participant "**APP**" as APP #orange
+end box
+
+SN1 -> SN1 : new request/response\ninteraction
+SN1 -> SN1 : create interaction\ncontext
+SN1 -> SC : newMessageID =\nnextMessageID()
+SN1 -> SC : put(newMessageID,\ninteraction context)
+SN1 -> SN1 : create message
+SN1 -> SN1 : message.messageID =\nnewMessageID
+SN1 -> BR : publish message
+
+BR -> APP : read message
+APP -> APP : create response
+APP -> APP : response.correlationID =\nmessage.messageID
+APP -> BR : publish response
+
+BR -> SN2 : read response
+SN2 -> SC : interaction context =\nget(response.correlationID)
+SN2 -> SN2 : process response
+SN2 -> SC : delete(response.correlationID)
+
+@enduml

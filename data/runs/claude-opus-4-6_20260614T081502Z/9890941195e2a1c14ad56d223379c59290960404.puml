@@ -1,0 +1,53 @@
+```plantuml
+@startuml
+
+package "Sistema_de_Cobranças" {
+
+  class Cliente {
+    □ id: Int
+    ◇ nome: String
+    ◇ cobranças: List<Cobrança>
+    --
+    ● fazerPagamento()
+  }
+
+  class Cobrança {
+    □ id: Int
+    ◇ cliente: Client
+    ◇ quitada: Boolean
+    --
+    ● gerarBoleto()
+    ● consultaBoleto(): Boolean
+  }
+
+  class Boleto {
+    □ id: Int
+    ◇ validade: Date
+    ◇ valor: Float
+    ◇ quitado: Boolean
+    --
+    ● foiQuitado(): Boolean
+    ● setQuitado(Boolean: foiQuitado)
+    ● informaStatusDoBoleto()
+  }
+
+  interface FazerCobrança <<interface>> {
+    Cobrança ..|> FazerCobrança
+    --
+    ● gerarBoleto()
+    ● consultaBoleto(): Boolean
+  }
+
+  interface PagarBoleto <<interface>> {
+    ● fazerPagamento()
+  }
+
+  Cliente "1" o-- "0..*" Cobrança
+  Cobrança "1" *-- "1" Boleto
+  Cobrança ..|> PagarBoleto
+  Cobrança ..|> FazerCobrança
+
+}
+
+@enduml
+```

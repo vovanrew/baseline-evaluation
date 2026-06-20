@@ -1,0 +1,22 @@
+{
+  "id": "1b5cdfb6-5e3f-48c5-95fe-c99d0e715b11",
+  "object": "chat.completion",
+  "created": 1781493366,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle SDP Initiated Request/Response Pattern with Correlation ID\n\nparticipant \"SERVER NODE 1\" as Node1\nparticipant \"SERVER NODE 2\" as Node2\nparticipant \"STATE CACHE\" as Cache\nparticipant \"BROKER\" as Broker\nparticipant \"APP\" as App\n\ngroup SDP\n    participant \"SERVER NODE 1\" as Node1\n    participant \"SERVER NODE 2\" as Node2\n    participant \"STATE CACHE\" as Cache\n    participant \"BROKER\" as Broker\nend\n\ngroup TBM/HU\n    participant \"APP\" as App\nend\n\nNode1 -> Node1: new request/response interaction\nactivate Node1\nNode1 -> Node1: create interaction context\nNode1 -> Cache: newMessageID = nextMessageID()\nNode1 -> Cache: put(newMessageID, interaction context)\nNode1 -> Node1: create message\nNode1 -> Node1: message.messageID = newMessageID\nNode1 -> Broker: publish message\ndeactivate Node1\n\nBroker -> App: read message\nactivate App\nApp -> App: create response\nApp -> App: response.correlationID = message.messageID\nApp -> Broker: publish response\ndeactivate App\n\nBroker -> Node2: read response\nactivate Node2\nNode2 -> Cache: interaction context = get(response.correlationID)\nNode2 -> Node2: process response\nNode2 -> Cache: delete(response.correlationID)\ndeactivate Node2\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2399,
+    "completion_tokens": 321,
+    "total_tokens": 2720
+  }
+}

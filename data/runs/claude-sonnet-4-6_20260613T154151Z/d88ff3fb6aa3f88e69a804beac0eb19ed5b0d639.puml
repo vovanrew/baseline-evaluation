@@ -1,0 +1,107 @@
+@startuml
+actor Admin
+
+participant AddEventPage
+participant AddEventFormContainer
+participant AddClassPopupContainer
+participant ClassForm
+participant "ClassService (Frontend)" as ClassServiceFE
+participant "ShiftService (Frontend)" as ShiftServiceFE
+participant Router
+participant ClassHTTPTransport
+participant ClassEndpoint
+participant ClassService
+participant ClassCommand
+participant ClassQuery
+participant TransactionGRPCTransport
+participant "StorageGRPC Transport" as StorageGRPCTransport
+participant MaterialService
+participant NatsStreaming
+
+Admin -> AddEventPage : Click "Attach New Class" Button
+AddEventPage -> AddEventFormContainer : attachClass()
+AddEventPage -> AddEventFormContainer : attach
+Admin -> AddEventPage : Render "Add Class Popup" Container
+AddEventFormContainer -> AddClassPopupContainer : render
+AddClassPopupContainer --> AddEventFormContainer : rendered
+
+Admin -> AddEventPage : choose date
+AddClassPopupContainer -> ClassForm : handleDateChange(value)
+ClassForm -> ShiftServiceFE : fetchAvailableShifts(date)
+ShiftServiceFE --> ClassForm : shifts
+ClassForm --> AddClassPopupContainer : form data
+
+Admin -> AddEventPage : form data
+Admin -> AddEventPage : choose shift
+AddClassPopupContainer -> ClassForm : handleShiftChange()
+ClassForm -> ShiftServiceFE : fetchAvailableShifts(date, [shift])
+ShiftServiceFE --> ClassForm : rooms
+ClassForm --> AddClassPopupContainer : form data
+
+Admin -> AddEventPage : form data
+Admin -> AddEventPage : Fill Form
+AddEventPage -> AddClassPopupContainer : form data
+Admin -> AddEventPage : form data
+Admin -> AddEventPage : Click "Create Class" Button
+AddClassPopupContainer -> ClassForm : handleClassFormSubmitted()
+ClassForm --> AddClassPopupContainer
+AddClassPopupContainer -> ClassServiceFE : bookingClass(payload)
+ClassServiceFE -> Router : route("GET", "/v2/booking")
+Router -> ClassHTTPTransport : BookingClass(ClassService, [ServerOption])
+ClassHTTPTransport -> ClassEndpoint : BookingClass(ClassService, withPaginated)
+ClassEndpoint -> ClassService : Create(context, params)
+ClassService -> ClassCommand : Validate()
+ClassCommand --> ClassService
+
+alt [Data Valid]
+ClassService -> TransactionGRPCTransport : IsValidTransaction(ProtoBuffer)
+TransactionGRPCTransport --> ClassService : ProtoResponse
+
+alt [Is Valid Transaction]
+ClassService -> ClassCommand : class := ClassModel()
+ClassCommand --> ClassService
+ClassService -> ClassCommand : Create(context, class)
+ClassCommand --> ClassService : uuid
+
+opt [has materials]
+ClassService -> StorageGRPCTransport : CommitFile(context, ProtoBuffer)
+StorageGRPCTransport --> ClassService : link
+ClassService -> StorageGRPCTransport : Create(context, payload)
+StorageGRPCTransport --> ClassService : isCreated
+end
+
+ClassService -> ClassQuery : Find(context, [SliceConditions])
+ClassQuery --> ClassService : classes
+ClassService -> NatsStreaming : publishClassCreated(context, data)
+NatsStreaming --> ClassService : published
+
+ClassService --> ClassEndpoint : BadRequest
+ClassEndpoint --> ClassHTTPTransport : BadRequest
+ClassHTTPTransport --> Router : BadRequest
+Router --> ClassServiceFE : BadRequest
+ClassServiceFE --> AddClassPopupContainer : BadRequest
+AddClassPopupContainer --> AddEventFormContainer : BadRequest
+AddEventFormContainer --> Admin : BadRequest
+end
+
+end
+
+ClassService --> ClassEndpoint : UnprocessableEntity
+ClassEndpoint --> ClassHTTPTransport : UnprocessableEntity
+ClassHTTPTransport --> Router : UnprocessableEntity
+Router --> ClassServiceFE : UnprocessableEntity
+ClassServiceFE --> AddClassPopupContainer : UnprocessableEntity
+AddClassPopupContainer --> AddEventFormContainer : UnprocessableEntity
+AddEventFormContainer --> Admin : UnprocessableEntity
+
+ClassService -> ClassCommand : class
+ClassCommand --> ClassService : response := Response(class, nil)
+ClassService --> ClassEndpoint : response
+ClassEndpoint --> ClassHTTPTransport : response
+ClassHTTPTransport --> Router : response
+Router --> ClassServiceFE : response
+ClassServiceFE --> AddClassPopupContainer : response
+AddClassPopupContainer --> AddEventFormContainer : response
+AddEventFormContainer --> Admin : response
+
+@enduml

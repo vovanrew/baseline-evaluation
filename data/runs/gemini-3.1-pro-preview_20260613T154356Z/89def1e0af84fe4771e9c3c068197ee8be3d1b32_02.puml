@@ -1,0 +1,48 @@
+```plantuml
+@startuml
+title Scheduled Events
+
+actor "Recording Staff" as RS
+actor Coach
+collections "IP/Mobile Cams" as Cams
+collections "Consumer Apps" as Apps
+participant "Security Gateway" as SG
+control "Control Domain\n(win10/linux)" as CD
+participant "Streaming Service\n(encoder)" as SS
+entity "Media\n(mediaID)" as Media
+participant "Transfer Service" as TS
+
+Apps -> SG : authenticate(ID)
+SG --> Apps : return(token)
+
+Cams -> CD : register(endpoint)
+Apps -> CD : register(token, priority)
+
+RS -> CD : createEvent(configuration{description, sources, consumers{priorities}})
+CD --> CD : create(newEvent)
+activate CD
+
+RS -> CD : start(newEvent)
+CD -> SS : encode()
+CD --> Apps : notify(recording)
+
+RS -> CD : stop(newEvent)
+deactivate CD
+
+CD -> SS : saveAs(mediaID)
+SS -> Media : save(mediaID)
+
+CD -> TS : host(mediaID, consumers{token, priority})
+CD --> Apps : notify(newMediaAvailable, mediaID, transferServiceEndpoint)
+
+alt auto-download enabled
+    Apps -> TS : fetchMedia(token, mediaID)
+    TS --> Apps : returnByPriority(mediaStream)
+else manual-download enabled
+    Coach -> Apps : showMedia(token)
+    Apps -> TS : fetchMedia(token, mediaID)
+    TS --> Apps : returnByPriority(mediaStream)
+end
+
+@enduml
+```

@@ -1,0 +1,29 @@
+@startuml
+participant "User" as User
+participant "Frontend" as Frontend
+participant "API Gateway" as APIGateway
+participant "Matching Service" as MatchingService
+    participant "Controller" as Controller
+    participant "Service" as Service
+participant "Matching Database" as MatchingDatabase
+    participant "Questions" as Questions
+    participant "MatchRequests" as MatchRequests
+
+User -> Frontend : PUT /api/find/match
+Frontend -> APIGateway : PUT /api/find/match
+APIGateway -> MatchingService : PUT /api/find/match
+MatchingService -> Controller : checkForMatch(requestId)
+Controller -> MatchingDatabase : find user's MatchRequest with requestId
+MatchingDatabase -> MatchingService : user's MatchRequest
+MatchingService -> MatchingDatabase : find another MatchRequest
+MatchingDatabase -> MatchingService : another MatchRequest
+MatchingService -> Questions : get a random question
+Questions -> MatchingService : Question
+MatchingService -> MatchingDatabase : create sessionInfo and attach to each MatchRequest
+MatchingService -> MatchingDatabase : update the 2 MatchRequests
+MatchingService -> Controller : user's MatchRequest
+Controller -> APIGateway : 200 OK
+APIGateway -> Frontend : 200 OK
+Frontend -> User : switch to session page
+
+@enduml

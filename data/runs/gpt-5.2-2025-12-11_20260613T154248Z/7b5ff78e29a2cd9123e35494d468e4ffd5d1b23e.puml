@@ -1,0 +1,89 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide methods
+
+class "app_translation\n((Translations))" as app_translation << (I,#4A90E2) >>
+class "app_action_button_translation\n((Translations))" as app_action_button_translation << (I,#4A90E2) >>
+
+class "language" as language << (T,#BDBDBD) >>
+
+class "app_action_button\n(App action buttons)" as app_action_button << (T,#F5A3A3) >>
+class "app_template\n(App templates)" as app_template << (T,#F5A3A3) >>
+class "app\n(Apps)" as app << (T,#F5A3A3) >>
+
+class "integration" as integration << (T,#BDBDBD) >>
+class "acl_role" as acl_role << (T,#BDBDBD) >>
+class "custom_field_set" as custom_field_set << (T,#BDBDBD) >>
+class "webhook" as webhook << (T,#BDBDBD) >>
+
+app_translation : <u>label</u> string
+app_translation : description longText
+app_translation : privacyPolicyExtensions longText
+app_translation : <u>createdAt</u> createdAt
+app_translation : updatedAt updatedAt
+app_translation : **appId** foreignKey
+app_translation : **languageId** foreignKey
+
+app_action_button_translation : <u>label</u> string
+app_action_button_translation : <u>createdAt</u> createdAt
+app_action_button_translation : updatedAt updatedAt
+app_action_button_translation : **appActionButtonId** foreignKey
+app_action_button_translation : **languageId** foreignKey
+
+app_action_button : **id** id
+app_action_button : <u>entity</u> string
+app_action_button : <u>view</u> string
+app_action_button : <u>url</u> string
+app_action_button : <u>action</u> string
+app_action_button : <u>openNewTab</u> bool
+app_action_button : label translated
+app_action_button : <u>appId</u> foreignKey
+app_action_button : <u>createdAt</u> createdAt
+app_action_button : updatedAt updatedAt
+app_action_button : translated json
+
+app_template : **id** id
+app_template : <u>template</u> longText
+app_template : <u>path</u> string
+app_template : <u>active</u> bool
+app_template : <u>appId</u> foreignKey
+app_template : <u>createdAt</u> createdAt
+app_template : updatedAt updatedAt
+
+app : **id** id
+app : <u>name</u> string
+app : <u>path</u> string
+app : author string
+app : copyright string
+app : license string
+app : <u>active</u> bool
+app : <u>configurable</u> bool
+app : privacy string
+app : <u>version</u> string
+app : iconRaw blob
+app : icon string
+app : appSecret string
+app : modules list
+app : cookies list
+app : label translated
+app : description translated
+app : privacyPolicyExtensions translated
+app : <u>integrationId</u> foreignKey
+app : <u>aclRoleId</u> foreignKey
+app : <u>createdAt</u> createdAt
+app : updatedAt updatedAt
+app : translated json
+
+app_translation --> language
+app_action_button_translation --> language
+
+app_action_button_translation --> app_action_button
+app_action_button --> app
+app_template --> app
+app_translation --> app
+
+app --> integration
+app --> acl_role
+app --> custom_field_set
+app --> webhook
+@enduml

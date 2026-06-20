@@ -1,0 +1,44 @@
+@startuml
+hide footbox
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #777777
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #000000
+  ParticipantBackgroundColor #E9E9F6
+  ActorBorderColor #000000
+  ActorBackgroundColor #E9E9F6
+  DatabaseBorderColor #000000
+  DatabaseBackgroundColor #E9E9F6
+  ArrowColor #000000
+  BoxBorderColor #000000
+  BoxBackgroundColor transparent
+}
+
+actor Nutzer as U
+participant Webshop as W
+database Webshopdatenbank as DB
+
+U -> W : 1 Zahlungsdaten löschen
+W -> DB : 2 Zahlungsdaten abrufen
+DB --> W : 3 Zahlungsdaten
+W -> W : 4 Zahlungsdaten prüfen
+
+alt [keine weiteren Zahlungsdaten vorhanden]
+  W -> W : Aboboxen prüfen
+
+  alt [Abobox vorhanden]
+    W --> U : Error
+  else [keine Abobox vorhanden]
+    W -> DB : Daten löschen
+    DB --> W : Succes
+    W --> U : Bestätigung
+  end
+
+else [weitere Zahlungsdaten vorhanden]
+  W -> DB : Daten löschen
+  DB --> W : Succes
+  W --> U : Bestätigung
+end
+@enduml

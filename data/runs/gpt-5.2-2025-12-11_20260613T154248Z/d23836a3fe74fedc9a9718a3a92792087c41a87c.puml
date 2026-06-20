@@ -1,0 +1,73 @@
+@startuml
+title github.weichware10.util.gui
+
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+package "github" {
+  package "weichware10" {
+    package "util" {
+      package "gui" {
+
+        class "AbsScene" as AbsScene {
+          {method} InitResult initialize(URL fxml)
+          {method} void setMenuBar(MenuBar menuBar, Parent root)
+          {method} InitResult start(Stage primaryStage, URL fxml, Parent root, AbsSceneController controller, String title, MenuBar menuBar, Integer width, Integer height, String icon)
+        }
+
+        class "AbsScene$InitResult" as InitResult {
+          {field} Parent root
+          {field} AbsSceneController controller
+          {method} InitResult(Parent root, AbsSceneController controller)
+        }
+
+        class "Log" as Log {
+          {field} Stage logStage
+          {field} Parent root
+          {field} SimpleBooleanProperty visibleProperty
+          {field} ObservableBooleanValue visible
+          --
+          {method} void start(String icon)
+          {method} boolean isVisible()
+          {method} void show()
+          {method} void hide()
+          {method} void close()
+          {method} void log(String content, String type)
+        }
+
+        class "AbsSceneController" as AbsSceneController {
+          {field} ResourceBundle resources
+          {field} URL location
+          --
+          {method} void initialize()
+        }
+
+        class "LogController" as LogController {
+          {field} ResourceBundle resources
+          {field} URL location
+          {field} TextField logInput
+          {field} TextArea logArea
+          {field} Pane logPane
+          {field} MenuButton logMenuButton
+          --
+          {method} void initialize()
+          {method} void setLogType(ActionEvent event)
+          {method} void inputKeyPress(KeyEvent event)
+          {method} void log()
+        }
+
+        AbsScene *-- InitResult
+        InitResult o-- AbsSceneController
+
+        LogController --|> AbsSceneController
+
+        AbsScene <|-- Log
+
+        LogController .. Log : Verbindung über Bindings
+
+      }
+    }
+  }
+}
+@enduml

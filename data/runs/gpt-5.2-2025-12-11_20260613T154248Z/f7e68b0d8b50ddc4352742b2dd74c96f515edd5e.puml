@@ -1,0 +1,80 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+
+interface "DataBase" as DataBase
+
+class "Repository" as Repository << (C,#A9D18E) >>
+Repository : Repository(DataBase, ProjectFabric)
+
+class "RepositoryCache" as RepositoryCache << (C,#A9D18E) >>
+RepositoryCache : RepositoryCache(ProjectManager)
+
+interface "RepositoryManager" as RepositoryManager
+RepositoryManager : createProject(project name)
+RepositoryManager : deleteProject(project name)
+RepositoryManager : getProject(project name) ProjectManager
+
+class "ProjectFabric" as ProjectFabric << (C,#A9D18E) >>
+ProjectFabric : createProjectObject(map[versionName]code, projectGUID, name) Project
+
+class "Project" as Project << (C,#A9D18E) >>
+Project : map[apiVersion]ProjectVersion
+Project : map[entityName][]UniqueField
+Project : DataBase
+
+interface "ProjectManager" as ProjectManager
+ProjectManager : CreateVersion(versionName, code) ok
+ProjectManager : GetVersion(versionName) ProjectVersion
+ProjectManager : UpdateVersion(versionName, code) ok
+ProjectManager : DeleteVersion(versionName) ok
+ProjectManager : SetUniqFields(map[entityName][]UniqueField)
+ProjectManager : GetUniqFields() map[entityName][]UniqueField
+
+class "ProjectVersion" as ProjectVersion << (C,#A9D18E) >>
+ProjectVersion : Code
+ProjectVersion : map[nameEntity]
+ProjectVersion : map[path]map[method]ast
+ProjectVersion : DataBase Ref
+
+interface "ProjectVersionManager" as ProjectVersionManager
+ProjectVersionManager : GetUniqueFields() map[entityName][]UniqueField
+ProjectVersionManager : ExecRequest(path, method, params, accessToken)
+
+Repository --> RepositoryManager
+RepositoryCache --> RepositoryManager
+
+Project --> ProjectManager
+ProjectVersion --> ProjectVersionManager
+
+note top of DataBase
+интерфейс баз данных
+end note
+
+note top of Repository
+Класс для работы с
+проектами в базе данных
+end note
+
+note top of RepositoryCache
+Обёртка над репозиторием для
+кэширования данных
+end note
+
+note top of ProjectFabric
+фабрика для создания
+объекта project
+end note
+
+note top of Project
+У всех версий в итоге
+работает одна схема
+уникальных и неуникальных
+полей: если среди версий
+находится указание на
+уникальность поля, то оно
+становится уникальным для
+всех
+end note
+
+@enduml

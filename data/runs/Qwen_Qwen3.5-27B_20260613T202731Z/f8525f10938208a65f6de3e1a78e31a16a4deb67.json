@@ -1,0 +1,22 @@
+{
+  "id": "7c8d6f9d-00ef-4ed0-8a91-701871c946d2",
+  "object": "chat.completion",
+  "created": 1781440490,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle US029 \u2013 As Project Manager, I want to start a sprint.\n\nactor \"Project Manager\" as PM\nparticipant \"StartSprintRoute\" as Route\nparticipant \"StartSprintController\" as Controller\nparticipant \"StartSprintService\" as Service\nparticipant \"dto : SprintDTO\" as DTO\nparticipant \": Project\" as Project\nparticipant \": SprintDomainService\" as DomainService\nparticipant \": SprintStore\" as Store\nparticipant \": ResourceStore\" as ResStore\n\nPM -> Route: Asks to start a Sprint\nactivate Route\nRoute ..> Controller: startSprint(sprintDTO)\ndeactivate Route\nactivate Controller\nController -> Service: startSprint(sprintDTO)\nactivate Service\nService -> Project: getProjectTeam()\nactivate Project\nProject ..> Service: projectTeam\ndeactivate Project\nService -> Project: getSprintDuration()\nactivate Project\nProject ..> Service: sprintDuration\ndeactivate Project\nService -> Store: startSprint(dto.projectID, dto.sprintID, dto.startDate,\\nprojectTeam, sprintDuration)\nactivate Store\nStore -> Store: findAllSprintByProjectID (projectID)\nactivate Store\ndeactivate Store\nStore -> Store: findSprintByID (sprintID)\nactivate Store\ndeactivate Store\nStore -> DomainService: validateStartDate(startDate)\nactivate DomainService\nDomainService ..> Store: true\ndeactivate DomainService\nStore -> ResStore: validateProjectTeam(startDate, sprintDuration)\nactivate ResStore\nResStore -> ResStore: getProductOwnerByStartDate(startDate, sprintDuration)\nactivate ResStore\ndeactivate ResStore\nResStore -> ResStore: getScrumMasterByStartDate(startDate, sprintDuration)\nactivate ResStore\ndeactivate ResStore\nResStore ..> Store: true\ndeactivate ResStore\nStore -> Store: setStartDate(startDate)\nactivate Store\ndeactivate Store\nStore ..> Service: true\ndeactivate Store\ndeactivate Service\nController ..> Route: true\ndeactivate Controller\nRoute ..> PM: Informs Operation Success\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1615,
+    "completion_tokens": 445,
+    "total_tokens": 2060
+  }
+}

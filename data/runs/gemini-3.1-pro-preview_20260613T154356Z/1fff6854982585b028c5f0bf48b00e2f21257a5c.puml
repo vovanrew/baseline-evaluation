@@ -1,0 +1,81 @@
+```plantuml
+@startuml
+package observer {
+  package pattern {
+    abstract class Observable {
+      + attach(Observer): void
+      + detach(Observer): void
+      + notifyObservers(): void
+      + getUpdate(): Object
+    }
+    class CourseData {
+      + addCourseRecord(CourseRecord): void
+      + changeCourseRecord(String, int): void
+      + getUpdate(): Vector<CourseRecord>
+    }
+    interface Observer {
+      + update(Observable): void
+    }
+    class CourseController {
+      + CourseController(CourseData)
+      + addCourse(CourseRecord): void
+      + update(Observable): void
+      + actionPerformed(ActionEvent): void
+      + stateChanged(ChangeEvent): void
+      + main(String[]): void
+    }
+    class BarChartObserver {
+      + BarChartObserver(CourseData)
+      + paint(Graphics): void
+      + update(Observable): void
+    }
+    package java {
+      package awt {
+        package event {
+          class ActionListener
+        }
+      }
+    }
+    package javax {
+      package swing {
+        package event {
+          class ChangeListener
+        }
+        class JPanel
+      }
+    }
+  }
+}
+
+package javax as javax_top {
+  package swing as swing_top {
+    package event as event_top {
+      interface ChangeListener as ChangeListener_top {
+        + stateChanged(ChangeEvent): void
+      }
+    }
+    class JPanel as JPanel_top
+  }
+}
+
+package java as java_top {
+  package awt as awt_top {
+    package event as event_top2 {
+      interface ActionListener as ActionListener_top {
+        + actionPerformed(ActionEvent): void
+      }
+    }
+  }
+}
+
+Observable <|-- CourseData
+Observable --> Observer : observers
+Observer <|.. CourseController
+Observer <|.. BarChartObserver
+CourseController ..|> ActionListener
+CourseController ..|> ChangeListener
+CourseController --|> JPanel
+BarChartObserver --|> JPanel
+
+@enduml
+```

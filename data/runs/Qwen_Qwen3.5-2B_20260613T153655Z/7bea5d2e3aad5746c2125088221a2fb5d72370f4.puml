@@ -1,0 +1,47 @@
+@startuml
+skinparam sequenceDiagram
+
+participant RtpSenderEgress as "RtpSenderEgress"
+participant ModuleRtpRtcpImpl as "ModuleRtpRtcpImpl"
+participant PacketRouter as "PacketRouter"
+participant ProcessThreadImpl as "ProcessThreadImpl"
+participant PacingController as "PacingController"
+participant PacedSender as "PacedSender"
+participant RTPSender as "RTPSender"
+participant RTPSenderAudio as "RTPSenderAudio"
+
+participant AudioCodingModuleImpl as "AudioCodingModuleImpl"
+participant ChannelReceive as "ChannelReceive"
+participant ChannelSend as "ChannelSend"
+participant AcmReceiver as "AcmReceiver"
+
+participant AudioSendStream as "AudioSendStream"
+participant AudioMixerImpl as "AudioMixerImpl"
+participant AudioTransportImpl as "AudioTransportImpl"
+
+participant AudioDeviceBuffer as "AudioDeviceBuffer"
+participant AudioTrackJni as "AudioTrackJni"
+participant AudioRecordJni as "AudioRecordJni"
+
+participant DataRecorded0 as "DataRecorded0"
+
+RtpSenderEgress ->> ModuleRtpRtcpImpl: SendPacket()
+ModuleRtpRtcpImpl ->> PacketRouter: SendPacket()
+PacketRouter ->> ProcessThreadImpl: SendPacket()
+ProcessThreadImpl ->> PacingController: Process()
+PacingController ->> PacedSender: EnqueuePackets()
+PacedSender ->> RTPSender: SendAudio()
+RTPSender ->> RTPSenderAudio: SendToNetwork()
+RTPSenderAudio ->> AudioCodingModuleImpl: Add10MsData()
+AudioCodingModuleImpl ->> ChannelReceive: Encode()
+ChannelReceive ->> ChannelSend: SendData()
+ChannelSend ->> AcmReceiver: SendRtpAudio()
+AcmReceiver ->> AudioSendStream: SendAudio()
+AudioSendStream ->> AudioTransportImpl: ProcessAndEncodeAudio()
+AudioTransportImpl ->> AudioMixerImpl: SendAudioData()
+AudioMixerImpl ->> AudioDeviceBuffer: DeliverRecordedData()
+AudioDeviceBuffer ->> AudioTrackJni: RecordedDataIsAvailable()
+AudioTrackJni ->> AudioRecordJni: DeliveredData()
+AudioRecordJni ->> DataRecorded0: DataRecorded0()
+
+@enduml

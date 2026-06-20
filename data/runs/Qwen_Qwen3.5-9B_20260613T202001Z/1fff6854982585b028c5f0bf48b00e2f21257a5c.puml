@@ -1,0 +1,91 @@
+@startuml
+!theme plain
+
+package "observer" {
+  package "pattern" {
+    package "java" {
+      package "awt" {
+        package "event" {
+          class "ActionListener" as awtActionListener {
+            <<interface>>
+            + actionPerformed(ActionEvent): void
+          }
+        }
+      }
+    }
+    package "javax" {
+      package "swing" {
+        package "event" {
+          class "ChangeListener" as swingChangeListener {
+            <<interface>>
+            + stateChanged(ChangeEvent): void
+          }
+          class "JPanel" as swingJPanel
+        }
+      }
+    }
+    class "CourseController" as courseController {
+      + CourseController(CourseData)
+      + addCourse(CourseRecord): void
+      + update(Observable): void
+      + actionPerformed(ActionEvent): void
+      + stateChanged(ChangeEvent): void
+      + main(String[]): void
+    }
+    class "BarChartObserver" as barChartObserver {
+      + BarChartObserver(CourseData)
+      + paint(Graphics): void
+      + update(Observable): void
+    }
+    class "CourseData" as courseData {
+      + addCourseRecord(CourseRecord): void
+      + changeCourseRecord(String, int): void
+      + getUpdate(): Vector<CourseRecord>
+    }
+    class "Observable" as observable {
+      <<interface>>
+      + attach(Observer): void
+      + detach(Observer): void
+      + notifyObservers(): void
+      + getUpdate(): Object
+    }
+    class "Observer" as observer {
+      <<interface>>
+      + update(Observable): void
+    }
+    courseController --> swingJPanel
+    courseController ..> swingChangeListener
+    courseController ..> awtActionListener
+    courseController ..> observer
+    courseData --> observable
+    courseData --> observer
+    barChartObserver ..> observer
+  }
+}
+
+package "java" {
+  package "swing" {
+    package "event" {
+      class "ChangeListener" as swingChangeListener2 {
+        <<interface>>
+        + stateChanged(ChangeEvent): void
+      }
+      class "JPanel" as swingJPanel2
+    }
+  }
+}
+
+package "java" {
+  package "awt" {
+    package "event" {
+      class "ActionListener" as awtActionListener2 {
+        <<interface>>
+        + actionPerformed(ActionEvent): void
+      }
+    }
+  }
+}
+
+observable ..> observer : observers
+
+@enduml

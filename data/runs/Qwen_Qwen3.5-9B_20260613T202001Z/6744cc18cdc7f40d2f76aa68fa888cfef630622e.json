@@ -1,0 +1,22 @@
+{
+  "id": "772ba8c7-e1e1-4af7-a16e-3446d0fbe652",
+  "object": "chat.completion",
+  "created": 1781415499,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nskinparam sequenceMessageAlign center\nskinparam note {\n  BackgroundColor #FFFFE0\n  BorderColor #FFD700\n}\n\nparticipant \"Mojaloop Adapter\" as MA\nparticipant \"API\" as API\nparticipant \"api / Handler\" as Handler\nparticipant \"Application Layer (domain / service / facade)\" as AppLayer\nparticipant \"TigerBeetle Client\" as TBClient\nparticipant \"TigerBeetle Cluster\" as TBCluster\nparticipant \"MySQL\" as MySQL\n\nnote right of MA: Hub operator or DFSP interactions\nnote right of API: NodeJS interface invokes REST API\nnote right of Handler: JSON request decoded & processed via handler\nnote right of AppLayer: Expose service functions & handle database interactions\n\nrectangle \"Central-Settlement\" {\n  API\n  Handler\n  AppLayer\n}\n\nrectangle \"Storage\" {\n  TBClient\n  TBCluster\n  MySQL\n}\n\nrectangle \"Update Settlement\" {\n  MA -> API: 1 JSON (settlement data)\n  API -> Handler: 2 Invoke handler\n  Handler -> AppLayer: 3 Invoke application layer\n  AppLayer -> MySQL: 4 Retrieve settlement data (excluding accounts)\n  AppLayer -> MySQL: 5 Retrieve accounts for all Transfers for a settlement window\n  AppLayer -> MySQL: 6 Update settlement data (excluding accounts)\n  AppLayer -> AppLayer: 7 Settlement state processing\n  AppLayer -> TBClient: 8 Invoke account creation based on settlement state of each Transfer\n  TBClient -> TBCluster: 9 Create settlement accounts & return result\n  TBClient -> AppLayer: 10 Return settlement result\n  AppLayer -> MySQL: 11 Update final settlement state & return result\n  AppLayer -> Handler: 12 Return result\n  Handler -> API: 13 Return result\n  API -> MA: 14 Return result with settlementData\n}\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2105,
+    "completion_tokens": 424,
+    "total_tokens": 2529
+  }
+}

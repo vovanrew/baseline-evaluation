@@ -1,0 +1,43 @@
+@startuml
+participant "LCM" as LCM
+participant "Class\nApplicationProperty" as AP #lightgreen
+participant "Class\nDscResourceBase" as DRB #lightblue
+participant "Function\nConvertTo-HashtableFromObject" as CTH #lightblue
+participant "Function\nTest-DscParameterState" as TDP #lightblue
+
+LCM -> AP : ApplicationProperty.Test()
+activate AP
+
+AP -> DRB : ([DscResourceBase] $this).Test()
+activate DRB
+
+DRB -> CTH : $this
+activate CTH
+CTH --> DRB : Return Type: [Hashtable]
+deactivate CTH
+
+DRB -> DRB : $actual = $this.Get()
+activate DRB
+deactivate DRB
+
+DRB -> CTH : $actual
+activate CTH
+CTH --> DRB : Return Type: [Hashtable]
+deactivate CTH
+
+DRB -> TDP : Parameter: both Hashtables
+activate TDP
+note right of TDP
+  DscResourceBase must determine which properties
+  are optional to exclude them the comparison.
+end note
+TDP --> DRB : Return Type: [Boolean]
+deactivate TDP
+
+DRB --> AP : Return Type: [Boolean]
+deactivate DRB
+
+AP --> LCM : Return Type: [Boolean]
+deactivate AP
+
+@enduml

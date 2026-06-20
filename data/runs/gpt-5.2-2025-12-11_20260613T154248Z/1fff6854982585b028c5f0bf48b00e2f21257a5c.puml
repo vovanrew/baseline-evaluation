@@ -1,0 +1,76 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+package "observer" {
+  package "pattern" {
+
+    abstract class Observable <<abstract>> {
+      +attach(Observer): void
+      +detach(Observer): void
+      +notifyObservers(): void
+      +getUpdate(): Object
+    }
+
+    interface Observer {
+      +update(Observable): void
+    }
+
+    class CourseData {
+      +addCourseRecord(CourseRecord): void
+      +changeCourseRecord(String, int): void
+      +getUpdate(): Vector<CourseRecord>
+    }
+
+    class CourseController {
+      +CourseController(CourseData)
+      +addCourse(CourseRecord): void
+      +update(Observable): void
+      +actionPerformed(ActionEvent): void
+      +stateChanged(ChangeEvent): void
+      +main(String[]): void
+    }
+
+    class BarChartObserver {
+      +BarChartObserver(CourseData)
+      +paint(Graphics): void
+      +update(Observable): void
+    }
+
+    Observable <|-- CourseData
+    Observer <|.. CourseController
+    Observer <|.. BarChartObserver
+
+    Observable --> Observer : observers
+
+    CourseController ..> CourseData
+  }
+}
+
+package "javax" {
+  package "swing" {
+    package "event" {
+      interface ChangeListener {
+        +stateChanged(ChangeEvent): void
+      }
+    }
+    class JPanel
+  }
+}
+
+package "java" {
+  package "awt" {
+    package "event" {
+      interface ActionListener {
+        +actionPerformed(ActionEvent): void
+      }
+    }
+  }
+}
+
+CourseController ..|> "java.awt.event.ActionListener"
+CourseController ..|> "javax.swing.event.ChangeListener"
+CourseController --|> "javax.swing.JPanel"
+
+@enduml

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Hd4uAwEQQnTZLtUo8euWBk",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor \"laboratory coordinator\" as lc\n\nparticipant \":LabCoordinatorUI\" as UI\nparticipant \":ValidateTestReportController\" as Ctrl\nparticipant \":Company\" as Company\nparticipant \"rp : TestStore\" as TestStore\nparticipant \"rp : Test\" as Test\nparticipant \"rp : TestReportStore\" as TRStore\nparticipant \"rp : TestReport\" as TestReport\nparticipant \":TestDiagnosis\" as TestDiagnosis\n\nlc -> UI : 1 asks to validate report and diagnosis\nactivate UI\n\nUI -> Ctrl : 2 createTestList()\nactivate Ctrl\n\nCtrl -> Company : 3 get = testReportsToValidate()\nactivate Company\n\nCompany -> TestStore : 4 get = testReportsToValidate()\nactivate TestStore\n\nTestStore -> Test : 5 get = getTestList()\nactivate Test\ndeactivate Test\n\ndeactivate TestStore\n\nCompany -> TestStore : 6 get = testReportsToValidate()\nactivate TestStore\n\nTestStore -> TRStore : 7 get = getTestReportList()\nactivate TRStore\ndeactivate TRStore\n\nTestStore -> TestDiagnosis : 8 get = getTestDiagnosis()\nactivate TestDiagnosis\ndeactivate TestDiagnosis\n\ndeactivate TestStore\n\ndeactivate Company\n\nref over Ctrl, Company : US15_SD_testReportsDTO.puml\n\nCtrl --> UI : 9\ndeactivate Ctrl\n\nUI --> lc : 10 shows the available test reports and diagnosis and requests selection\ndeactivate UI\n\nlc -> UI : 11 chooses all tests\nactivate UI\n\nUI --> lc : 12 asks for confirmation\ndeactivate UI\n\nlc -> UI : 13 confirms selection\nactivate UI\n\nUI -> Ctrl : 14 validateAllTestReport();\nactivate Ctrl\n\nloop\nCtrl -> TestStore : 15 validateTestReport(testId);\nactivate TestStore\n\nTestStore -> TestReport : 16 setState(VALIDATED);\nactivate TestReport\ndeactivate TestReport\n\nTestStore -> TestReport : 17 registerValidationDate(date);\nactivate TestReport\n\nTestReport -> TestReport : 18 setValidationDate(date);\n\ndeactivate TestReport\n\ndeactivate TestStore\nend\n\nCtrl --> UI : 19 informs operation success\ndeactivate Ctrl\n\nUI --> lc\ndeactivate UI\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432037,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 589,
+    "prompt_tokens": 1608,
+    "total_tokens": 2197
+  }
+}

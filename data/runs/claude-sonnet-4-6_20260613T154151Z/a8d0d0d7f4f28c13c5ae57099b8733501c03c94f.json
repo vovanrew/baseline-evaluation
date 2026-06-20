@@ -1,0 +1,21 @@
+{
+  "id": "msg_01YQJG65pg19tNS7oG5qgcEJ",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Fabric Private Chaincode - Enclave registry - Current approach\n\nactor Admin\nparticipant ECC\nparticipant ERCC\nactor IAS\nparticipant Orderer\nparticipant Peers\n\nnote over Peers\n**Drawbacks**\n- Single-endorser policy only + Custom validation at every peer\n- ERCC must contact IAS (Internet connection and IAS credentials needed)\n- Current impl: No way to securely pass credentials to ERCC only\n- for EPID attestation SPID is needed when quote is created (ECC must provide this)\nend note\n\nbox \"instantiation\"\nAdmin -> ECC: install\nAdmin -> ECC: instantiate (expected_mrenclave)\nECC -> ERCC: putState(ecc.MRENCLAVE, expected_mrenclave)\nERCC --> ECC: \nECC --> Admin: success / error\nend box\n\nAdmin -> Orderer: submit instantiate transaction\nOrderer -> Peers: when next block ready\nPeers -> Peers: broadcast block\nPeers -> Peers: Validation\n\nbox \"register new enclave\"\nAdmin -> ECC: setup\nECC -> ECC_Enclave ** : create\nECC -> ECC_Enclave: getQuote(SPID)\nECC_Enclave --> ECC: quote, ECC_s_pk\nECC -> ERCC: register(quote, ECC_s_pk)\nERCC -> IAS: send quote\nIAS --> ERCC: Attestation\nERCC -> ERCC: putState(ercc.ECC_s_pk, Attestation)\nERCC --> ECC: success / error\nECC --> Admin: success / error\nend box\n\nAdmin -> Orderer: submit setup transaction\nOrderer -> Peers: when next block ready\n\nbox \"register validation\"\nPeers -> Peers: broadcast block\nPeers -> Peers: Normal validation\nPeers -> ERCC_VSCC: Custom ERCC validation\nERCC_VSCC -> ERCC_VSCC: expected_mrenclave = getState(ecc.MRENCLAVE)\nERCC_VSCC -> ERCC_VSCC: check attestation signature\nERCC_VSCC -> ERCC_VSCC: check attestation ECC_s_pk and mrenclave\nend box\n\nactor Admin\nparticipant ECC\nparticipant ECC_Enclave <<green>>\nparticipant ERCC\nactor IAS\nparticipant Orderer\nparticipant Peers\nparticipant ERCC_VSCC\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371641,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 606,
+    "prompt_tokens": 1636,
+    "total_tokens": 2242
+  }
+}

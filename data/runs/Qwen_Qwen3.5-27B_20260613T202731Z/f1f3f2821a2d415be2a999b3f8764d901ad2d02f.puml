@@ -1,0 +1,66 @@
+```plantuml
+@startuml
+skinparam class {
+  BackgroundColor White
+  BorderColor Black
+}
+skinparam package {
+  BackgroundColor White
+  BorderColor Black
+}
+
+package "Documents" as docs {
+  interface Document
+  class StringDocument
+  class URLDocument
+  class FileDocument
+}
+
+package "Indexes" as indexes {
+  interface SimilarityIndex
+  class CachingSimilarityIndex
+  class JaacardIndex
+}
+
+package "Shingles" as shingles {
+  interface Shinglizer
+  class WordShinglizer
+}
+
+package "MinHash" as minhash {
+  class HashGenerator
+  class MinHash
+}
+
+' Relationships
+StringDocument ..|> Document
+URLDocument ..|> Document
+FileDocument ..|> Document
+
+CachingSimilarityIndex ..|> SimilarityIndex
+JaacardIndex ..|> SimilarityIndex
+
+WordShinglizer ..|> Shinglizer
+
+JaacardIndex o-- Shinglizer
+JaacardIndex *-- HashGenerator
+JaacardIndex *-- MinHash
+
+SimilarityIndex o-- Document
+
+' Styling for interfaces and classes
+interface Document #LightPink
+interface SimilarityIndex #LightGreen
+interface Shinglizer #LightBlue
+
+class StringDocument #LightGreen
+class URLDocument #LightGreen
+class FileDocument #LightGreen
+class CachingSimilarityIndex #LightGreen
+class JaacardIndex #LightGreen
+class WordShinglizer #LightGreen
+class HashGenerator #LightGreen
+class MinHash #LightGreen
+
+@enduml
+```

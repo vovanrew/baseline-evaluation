@@ -1,0 +1,65 @@
+```plantuml
+@startuml
+
+title github.weichware10.util.gui
+
+package "github" {
+  package "weichware10" {
+    package "util" {
+      package "gui" {
+
+        class AbsScene {
+          + InitResult initialize(URL fxml)
+          + void setMenuBar(MenuBar menuBar, Parent root)
+          + InitResult start(Stage primaryStage, URL fxml, Parent root, AbsSceneController controller, String title, MenuBar menuBar, Integer width, Integer height, String icon)
+        }
+
+        class AbsScene$InitResult <<(C,#90B050)>> {
+          ~ Parent root
+          ~ AbsSceneController controller
+          ~ InitResult(Parent root, AbsSceneController controller)
+        }
+
+        class Log <<(C,#90B050)>> {
+          - Stage logStage
+          - Parent root
+          - SimpleBooleanProperty visibleProperty
+          ~ ObservableBooleanValue visible
+          + void start(String icon)
+          + boolean isVisible()
+          + void show()
+          + void hide()
+          + void close()
+          + void log(String content, String type)
+        }
+
+        class AbsSceneController <<(C,#90B050)>> {
+          ~ ResourceBundle resources
+          ~ URL location
+          ~ void initialize()
+        }
+
+        class LogController <<(C,#90B050)>> {
+          - ResourceBundle resources
+          - URL location
+          - TextField logInput
+          - TextArea logArea
+          - Pane logPane
+          - MenuButton logMenuButton
+          ~ void initialize()
+          # void setLogType(ActionEvent event)
+          # void inputKeyPress(KeyEvent event)
+          # void log()
+        }
+
+        AbsScene *-- AbsScene$InitResult
+        AbsScene$InitResult o-- Log
+        LogController --|> AbsSceneController
+        Log .. LogController : Verbindung über Bindings
+      }
+    }
+  }
+}
+
+@enduml
+```

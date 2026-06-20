@@ -1,0 +1,21 @@
+{
+  "id": "msg_01FhFBoc6CEFYD7ArC6hSLWU",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor \"Specialist Doctor\" as SD\n\nparticipant \":CreateReportUI\" as UI\nparticipant \":CreateReportController\" as Controller\nparticipant \":Company\" as Company\nparticipant \":TestDiagnosis\" as TestDiagnosis\nparticipant \"obj : diagnosis\" as Diagnosis\nparticipant \"rp : TestReportStore\" as TestReportStore\nparticipant \"rp : TestReport\" as TestReport\n\nSD -> UI : 1 asks to create a new diagnosis\n\nref over UI : US4_SD_testsDTO.puml\n\nUI --> SD : 2 requests to choose a given test\nSD -> UI : 3 chooses a given test\n\nUI -> Controller : 4 createTestDiagnosis(idTest)\nController -> Company : 5 createTestDiagnosis(test)\nCompany -> TestDiagnosis : 6 createTestDiagnosis(testParameterList)\ncreate Diagnosis\nTestDiagnosis --> Diagnosis : obj : diagnosis\n\nController -> Company : 7 getDiagnosis()\nCompany --> Controller : 8 getDiagnosis()\n\nController --> UI : \nUI --> SD : 9 shows the diagnosis done automatically and requests the data for the report\nSD -> UI : 10 types the requested data\n\nUI -> Controller : 11 createReport(idTest, diagnosis, report)\nController -> Controller : 12 store = getTestReportStore()\n\nController -> TestReportStore : 13 createReport(idTest, diagnosis, report)\nTestReportStore -> TestReport : 14 create(idTest, diagnosis, report)\ncreate TestReport\n\nTestReportStore -> TestReport : 15 validateReport()\nTestReport --> TestReportStore :\n\nTestReportStore --> Controller :\nController --> UI :\nUI --> SD : 16 shows the typed data and asks for confirmation\nSD -> UI : 17 confirms the data\n\nUI -> Controller : 18 saveReport(report)\nController -> TestReportStore : 19 saveReport(report)\nTestReportStore -> TestReportStore : 20 saveReport(report)\n\nTestReportStore -> TestReportStore : 21 validateReport(report)\nTestReportStore -> TestReportStore : 22 addReport(report)\n\nTestReportStore --> Controller :\nController --> UI :\nUI --> SD : 23 informs operation success\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371863,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 557,
+    "prompt_tokens": 1646,
+    "total_tokens": 2203
+  }
+}

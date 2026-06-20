@@ -1,0 +1,89 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+package "security" {
+    package "auth" {
+        class "@Roles"
+        class "type Role = 'ADMIN' | 'MITARBEITER' | 'KUNDE'" as RoleType
+        @Roles --> RoleType
+    }
+}
+
+package "auto" {
+    package "entity" {
+        class "Auto" as AutoEntity {
+            <<entity>>
+        }
+    }
+
+    package "rest" {
+        class "AutoWriteController" {
+            <<control>>
+            @@Controller()
+            @@UseGuards()
+            @@UseInterceptors()
+            
+            +@Post() @Roles() async create(@Body() auto: Auto, @Req() req: Request, @Res() res: Response): Promise<Response>
+            +@Put() @Roles() async update(@Body() auto: Auto, @Param() id: string, @Headers() version: string, @Res() res: Response): Promise<Response>
+            +@Delete() @Roles() async delete(@Param() id: string, @Res() res: Response): Promise<Response>
+        }
+        
+        package "service" {
+            class "AutoWriteService" {
+                <<control>>
+            }
+            class "AutoReadService" {
+                <<control>>
+            }
+        }
+    }
+}
+
+package "express" {
+    class "Request"
+    class "Response"
+}
+
+package "@nestjs/common" {
+    class "@Controller"
+    class "@UseGuards"
+    class "@UseInterceptors"
+    class "@Post"
+    class "@Put"
+    class "@Delete"
+    class "@Req"
+    class "@Res"
+    class "@Param"
+    class "@Body"
+    class "@Headers"
+}
+
+class "Promise" as PromiseInterface {
+    <<interface>>
+}
+
+AutoWriteController ..> AutoEntity : 
+AutoWriteController ..> AutoWriteService : service
+AutoWriteController ..> AutoReadService : readService
+AutoWriteController ..> Request : 
+AutoWriteController ..> Response : 
+AutoWriteController ..> PromiseInterface : 
+
+AutoWriteController ..> @Controller : 
+AutoWriteController ..> @UseGuards : 
+AutoWriteController ..> @UseInterceptors : 
+AutoWriteController ..> @Post : 
+AutoWriteController ..> @Put : 
+AutoWriteController ..> @Delete : 
+AutoWriteController ..> @Req : 
+AutoWriteController ..> @Res : 
+AutoWriteController ..> @Param : 
+AutoWriteController ..> @Body : 
+AutoWriteController ..> @Headers : 
+AutoWriteController ..> @Roles : 
+AutoWriteController ..> RoleType : 
+
+note bottom of page "(c) Juergen Zimmermann"
+@enduml
+```

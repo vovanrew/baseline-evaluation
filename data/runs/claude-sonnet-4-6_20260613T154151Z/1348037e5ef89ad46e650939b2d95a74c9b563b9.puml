@@ -1,0 +1,174 @@
+```plantuml
+@startuml
+
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+
+package "time_intervals_adapter" {
+  class TimeIntervalsAdapter <<C>> {
+    o max_gap
+    o connect_timestamps(df, epsilon=1)
+    o create_time_intervals(symbolic_time_series)
+  }
+}
+
+package "kfold" {
+  class KFold <<C>> {
+    - nb_folds
+    - entity_class_relations
+    o divide_dataset(dataset)
+  }
+}
+
+package "preprocessing" {
+  class Transformation <<C>> {
+    o transform(dataset)
+  }
+  class PAA <<C>> {
+    o window_size
+    o transform(dataset)
+  }
+  class OutliersRemover <<C>> {
+    o std_coef
+    o transform(dataset)
+  }
+  Transformation <|-- PAA
+  Transformation <|-- OutliersRemover
+}
+
+package "abstraction_per_property" {
+  class AbstractionPerProperty <<C>> {
+    o preprocessing_params_df
+    o temporal_abstraction_params_df
+    o preprocessing_per_property(dataset)
+    o temporal_abstraction_per_property(dataset, entity_class_relations=None, states=None)
+    o intervalization_per_property(symbolic_time_series)
+    o generate_preprocessing_by_name(params_row)
+    o generate_abstraction_by_name(params_row, entity_class_relations=None, states=None)
+  }
+}
+
+package "temporal_abstraction" {
+  abstract class TemporalAbstraction <<A>> {
+    o discretize_property(prop_df)
+    o discretize_to_bins(cutpoints, values)
+    o create_symbolic_time_series(states, time_point_series)
+    o extract_cutpoints_from_states(states)
+  }
+
+  class Gradient <<C>> <<Node>> {
+    o window_size
+    o states
+    o discretize_property(prop_df)
+    o gradient(df, window_size, states)
+    o derivative(df, gradient_window_size)
+  }
+
+  class KnowledgeBased <<C>> <<Node>> {
+    o states
+    o discretize_property(prop_df)
+    o knowledge_based(states, prop_df)
+  }
+
+  package "discretization" {
+    abstract class Discretization <<A>> {
+      o nb_bins
+      o generate_cutpoints(prop_df)
+      o discretize_property(prop_df)
+      o create_prop_states(prop_id, cutpoints, scores)
+    }
+
+    abstract class Unsupervised <<A>> {
+    }
+
+    abstract class Supervised <<A>> {
+      o entity_class_relations
+    }
+
+    package "methods" {
+      package "td4c_persist" {
+        class Persist <<C>> {
+          o persist(...)
+          o all_states_persistence()
+          o single_state_persistence()
+          o calc_state_probabilities()
+          o calc_marginal_probabilities()
+        }
+
+        class SharedFunctions <<C>> <<shared functions>> {
+          o candidate_selection()
+          o generate_candidate_cutpoints()
+          o symmetric_kullback_leibler()
+        }
+
+        abstract class TD4C <<A>> {
+          o DDM_scoring_function(df, cutoffs, entity_class_relations)
+          o distance_measure(p, q)
+        }
+
+        class TD4CCosine <<C>> {
+          o distance_measure(p, q)
+        }
+
+        class TD4CKullbackLeibler <<C>> {
+          o distance_measure(p, q)
+        }
+
+        class TD4CEntropy <<C>> {
+          o distance_measure(p, q)
+        }
+
+        class TD4CEntropyIG <<C>> {
+          o distance_measure(p, q)
+        }
+
+        TD4C <|-- TD4CCosine
+        TD4C <|-- TD4CKullbackLeibler
+        TD4C <|-- TD4CEntropy
+        TD4C <|-- TD4CEntropyIG
+      }
+
+      class EqualWidth <<C>> {
+        o generate_cutpoints(...) : List[cutpoints]
+        o equal_width(...)
+      }
+
+      class EqualFrequency <<C>> {
+        o generate_cutpoints(...) : List[cutpoints]
+        o equal_frequency(...)
+      }
+
+      class KMeans <<C>> {
+        o generate_cutpoints(...) : List[cutpoints]
+        o kmeans_adapter(...)
+      }
+
+      class SAX <<C>> {
+        o generate_cutpoints(...) : List[cutpoints]
+        o sax(...)
+      }
+    }
+
+    Discretization <|-- Unsupervised
+    Discretization <|-- Supervised
+    Unsupervised <|-- EqualWidth
+    Unsupervised <|-- EqualFrequency
+    Unsupervised <|-- KMeans
+    Unsupervised <|-- SAX
+    Supervised <|-- Persist
+    Supervised <|-- TD4C
+    Supervised <|-- SharedFunctions
+  }
+
+  TemporalAbstraction <|-- Gradient
+  TemporalAbstraction <|-- KnowledgeBased
+  TemporalAbstraction <|-- Discretization
+}
+
+AbstractionPerProperty --> TemporalAbstraction
+AbstractionPerProperty --> KFold
+TimeIntervalsAdapter --> TemporalAbstraction
+AbstractionPerProperty --> preprocessing.Transformation
+
+@enduml
+```

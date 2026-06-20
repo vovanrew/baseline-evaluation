@@ -1,0 +1,22 @@
+{
+  "id": "e5d72e66-b571-4e3c-9520-56ac38d70b85",
+  "object": "chat.completion",
+  "created": 1781414073,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"Nurse\" as nurse\nparticipant \": RecordAdverseReactionUI\" as ui\nparticipant \": RecordAdverseReactionController\" as controller\nparticipant \": Company\" as company\nparticipant \": AdverseReactionStore\" as store\nparticipant \": AdverseReactionDTO\" as dto\nparticipant \": AdverseReactionMapper\" as mapper\nparticipant \": WaitingRoomStore\" as waitingRoomStore\nparticipant \": AdverseReaction\" as adverseReaction\n\nnurse -> ui: 1 Starts recording adverse reaction\nactivate ui\nui -> nurse: 2 asks for data(SNS Number, Adverse Reaction Text)\nnurse --> ui: 3 types requested data\ndeactivate ui\n\nui -> controller: 4 createAdverseReaction(SNSNumber, advReact)\nactivate controller\ncontroller -> waitingRoomStore: 5 wstore = getWaitingRoomStore()\ncontroller -> waitingRoomStore: 6 store = getRecordAdverseReactionStore()\ncontroller -> waitingRoomStore: 7 snsus = getSNSUserInTheWaitingRoomByItsSNSNumber(snsuserNumber)\ncontroller -> waitingRoomStore: 8 vc = getVaccinationCenterBySNSNumber(snsuserNumber)\ncontroller -> store: 9 ar = createAdverseReaction(snsus, advReact, vc)\nactivate store\nstore -> adverseReaction: 10 create(snsus,advReact,vc)\ndeactivate store\n\ncontroller -> store: 11 validateAdverseReaction(ar)\nactivate store\ndeactivate store\n\ncontroller -> mapper: 12 toDTO(ar)\nactivate mapper\nmapper --> controller: 13 arDTO\ndeactivate mapper\n\ncontroller --> ui: 14 arDTO\ndeactivate controller\n\nui -> nurse: 15 shows SNS User correspondent to the SNS Number and adverse reaction waiting for approval\nnurse --> ui: 16 confirms action\nactivate ui\nui -> controller: 17 saveAdverseReaction()\nactivate controller\ncontroller -> store: 18 saveAdverseReaction(ar)\nactivate store\nstore -> store: 19 validateAdverseReaction(ar)\ndeactivate store\nstore -> store: 20 addAdverseReaction(ar)\ndeactivate store\n\ncontroller --> nurse: 21 informs oppertion success\ndeactivate ui\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1272,
+    "completion_tokens": 490,
+    "total_tokens": 1762
+  }
+}

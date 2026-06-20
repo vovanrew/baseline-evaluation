@@ -1,0 +1,39 @@
+@startuml
+participant "Customer" as C
+participant "Frontend" as F
+participant "Backend" as B
+participant "Database" as DB
+
+section "Make Event"
+    C -> F: Presses the "Make new Event"-button
+    F -> B: Request to open new window
+    B -> F: Opens new window
+    F -> C: Enters event information
+    F -> B: Presses "Create"-button
+    B -> F: Request to validate input
+
+    alt [Successful case]
+        B -> B: Validation successful
+        B -> DB: Adds event to database
+        DB -> B: Adds event to list
+        B -> F: Closes window
+        F -> B: Selects newly added event from list
+        B -> F: Displays eventinformation to user
+        F -> C: Displays eventinformation to user
+    endalt
+
+    [Validation failed]
+        B -> B: Validation failed
+        B x
+        B -> F: Displays alert of type ERROR
+        F -> C: Lists up fields with errors
+        F -> B: Closes alertbox
+
+section "Cancel"
+    C -> F: Presses the "Cancel"-button
+    F -> B: Request to close process
+    B -> B: Deletes event-object
+    B -> F: Closes window
+    F -> B: Selects first event in list
+    F -> C: Displays list of events
+@enduml

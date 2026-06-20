@@ -1,0 +1,20 @@
+@startuml
+actor Actor
+participant "AuthController" as AuthController
+database JwtTokenProvider
+entity JwtAuthenticationResponse
+
+Actor ->> AuthController : authenticateUser()
+activate AuthController
+    AuthController->JwtTokenProvider: generateToken(user)
+    activate JwtTokenProvider
+        return token
+    deactivate JwtTokenProvider
+    
+    create object of JwtAuthenticationResponse #white 
+    note right on link\nnew instance created endnote 
+    
+return responseDto  
+deactivate  authcontroller  
+
+@enduml

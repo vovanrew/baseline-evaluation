@@ -1,0 +1,47 @@
+@startuml
+left to right direction
+actor Administrator
+participant "SpecifyNewVaccineUI" as UI
+participant "SpecifyNewVaccineController" as Controller
+participant "Company" as Company
+participant "VaccineStore" as Store
+participant "VaccineTypeStore" as TypeStore
+participant "VaccineType" as Type
+participant "vc_Vaccine" as VC
+participant "admPro_AdministrationProcess" as AdminProcess
+
+' Main flow
+Administrator -> UI: 1 starts specifying a new vaccine and its administration process
+UI -> Controller: 2 create(Vaccine)
+Controller -> Company: 3 typeList = get(VaccineTypeList)
+Company -> TypeStore: 4 get(VaccineTypeList)
+TypeStore --> Company: 4 get(VaccineTypeList)
+
+UI -> Administrator: 6 request data (name, manufacturer, type, age groups,doses,plasing interval, dosage) and show VaccineType list
+Administrator -> UI: 7 types requested data
+
+Controller -> Company: 8 create(VaccineId,name,manufacturer,type,administrationProcess)
+Company -> Controller: 9 create(VaccineId,name,manufacturer,type,administrationProcess)
+Controller -> Store: 10 create(VaccineId,name,manufacturer,type,administrationProcess)
+Store -> VC: 11 vc = create(VaccineId,name,manufacturer,type,administrationProcess)
+
+loop For all age groups
+  AdminProcess -> VC: 12 administrationProcess(minAge,maxAge,maxNumberOfDoses,dosage,timeElapsed)
+  VC -> AdminProcess: 13 validate(Vaccine)
+end
+
+Store -> VC: 14 update(VaccineId)
+VC -> Store: 14 update(VaccineId)
+
+UI -> Administrator: 15 shows data and request confirmation
+Administrator -> UI: 16 confirms data
+
+Controller -> Store: 17 save(Vaccine)
+Store -> Controller: 18 save(Vaccine)
+Controller -> Company: 19 save(Vaccine)
+Company -> Store: 20 add(VaccineId)
+Store -> Company: 20 add(VaccineId)
+
+UI -> Administrator: 21 informs operation (in)success
+
+@enduml

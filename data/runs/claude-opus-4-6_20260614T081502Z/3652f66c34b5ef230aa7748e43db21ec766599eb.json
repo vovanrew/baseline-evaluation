@@ -1,0 +1,21 @@
+{
+  "id": "msg_01X2Av8cJu5Ykiph6cjYoimZ",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor User\nactor JobManager\nparticipant \"Process/Application\" as PA\nparticipant \"ESDM\" as ESDM\nentity \"Post Processing\" as PP\ndatabase \"Storage System\" as SS\nactor Observer\n\n== Observer ==\n\nObserver -> Observer : collects observations\nObserver -> SS : (may write directly)\nObserver -> ESDM : write observation t\nESDM -> ESDM : (transform for efficiency)\nESDM -> SS : write container for observation t\n\n== Simulation Runs ==\n\nUser -> User : periodically submit job(IN=t, OUT)\nUser -> JobManager : allocates resources and calls\nJobManager -> ESDM : read IN=x\nESDM -> SS : read\nSS --> ESDM : return\nESDM --> JobManager : return\nJobManager -> JobManager : compute\nJobManager -> ESDM : write async OUT=y\n\n== Value-added products ==\n\nESDM -> SS : make available\nPP -> PP : perform analysis\nPP -> SS : (may write directly)\nPP --> ESDM : return result\nESDM --> JobManager : return\n\nnote over JobManager, ESDM : multiple iterations\n\n== Finalise ==\n\nUser <-- SS : OUT files become visible\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781430224,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 309,
+    "prompt_tokens": 1654,
+    "total_tokens": 1963
+  }
+}

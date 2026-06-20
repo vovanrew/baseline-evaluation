@@ -1,0 +1,71 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam classIconSize 24
+
+class "UmlReverseApp" {
+}
+
+class "MainController" {
+}
+
+class "Stage" {
+}
+
+class "Scene" {
+}
+
+class "BorderPane" {
+}
+
+class "MenuBar" {
+}
+
+class "TabPane" {
+}
+
+class "MenuItem" {
+}
+
+class "TreeFileManagerView" {
+}
+
+class "IDiagramMenu" {
+}
+
+class "IDiagramEditor" {
+}
+
+class "diagram" {
+  class "visitor" {
+    class "IDiagramVisitor" {
+      + visit(ClassDiagram visitor) : void
+      + visit(SequenceDiagram visitor) : void
+      + visit(UseCaseDiagram visitor) : void
+      + visit(DiagramManager visitor) : void
+    }
+    class "ToViewVisitor" {
+      + getDiagramMenu() : IDiagramMenu
+      + getDiagramEditor() : IDiagramEditor
+    }
+  }
+}
+
+UmlReverseApp --> MainController : controller
+UmlReverseApp --> Stage : stage
+UmlReverseApp ..> IDiagramVisitor
+
+Stage --> Scene : scene
+Scene --> BorderPane : borderpane
+BorderPane --> MenuBar : north
+BorderPane --> TabPane : center
+BorderPane --> TreeFileManagerView : fileManagerView
+BorderPane --> IDiagramMenu : est
+TabPane --> MenuItem : items
+TabPane --> IDiagramEditor : editors
+IDiagramVisitor <|-- ToViewVisitor
+
+MenuItem ..> MenuBar : 1..n
+IDiagramEditor ..> TabPane : 0..*
+
+@enduml

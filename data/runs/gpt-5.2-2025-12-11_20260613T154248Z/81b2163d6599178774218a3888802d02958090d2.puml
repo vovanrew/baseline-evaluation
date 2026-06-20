@@ -1,0 +1,33 @@
+@startuml
+hide footbox
+skinparam sequenceMessageAlign center
+skinparam ParticipantPadding 40
+skinparam BoxPadding 10
+
+actor Usager
+actor "Bibliothécaire" as Bibliothecaire
+participant "SIGB" as SIGB
+
+Bibliothecaire -> SIGB : Saisir un nouvel exemplaire
+Bibliothecaire -> SIGB : Valider la couverture de l'exemplaire
+Bibliothecaire -> SIGB : Valider la mise en rayon
+
+Usager -> SIGB : Demander une réservation
+SIGB -> Bibliothecaire : Avertir d'une demande de réservation
+
+alt [réservation validée]
+  Bibliothecaire -> SIGB : Valider une réservation
+  SIGB -> Usager : Avertir de la validation
+
+  alt [réservation récupérée]
+    Usager -> Bibliothecaire : Demande de réservation
+    Bibliothecaire -> SIGB : Enregistrer l'emprunt
+  else [délai dépassé]
+    SIGB -> Bibliothecaire : Avertir d'une réservation à remettre en rayon
+  end
+else [réservation invalide]
+  Bibliothecaire -> SIGB : Refuser une réservation
+  SIGB -> Usager : Avertir de l'indisponibilité
+end
+
+@enduml

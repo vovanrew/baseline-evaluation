@@ -1,0 +1,69 @@
+@startuml
+title orderList表示
+
+actor "配達員" as User1 at top left
+participant Courieridform.jsp as JSP1 #D3E5F8#04679B
+participant OrderListServlet as Servlet #FFC2A9#CC6600
+participant CourierDAO as DAO_Courier #FFEFD5#CDAA7D
+participant Courier as Model_Courier #FFFACD#DAEEAD
+participant Session as Sess #FAEBD7#DEB887
+participant OrderDAO as DAO_Order #FFFFE0#EEE8AA
+participant Order as Model_Order #DCDCDC#FFFFFF
+participant DetailDAO as DAO_Detail #ADD8E6#00CED1
+participant Detail as Model_Detail #AFEEEE#DB7093
+participant Request as Req #DDA0DD#BA55D3
+participant orderedlist.jsp as JSP2 #D3E5F8#04679B
+actor "配達員" as User2 at bottom right
+
+
+User1 -> JSP1 : courierID入力\n(緑色矢印)
+JSP1 --> Servlet : リンク
+activate Servlet
+    note over Servlet: findByCourierId() 呼び出し
+    
+    activate DAO_Courier 
+        DAO_Courier ->> Model_Courier : 生成
+        
+        return Model_Courier to Servlet  
+        
+    deactivate DAO_Courier 
+    
+    rect rgb(240,240,240)    
+      alt セッションに存在しない場合のみ実行される処理
+          Servlet ->> Sess : setAttribute(Courier)\nセッション保存          
+      end      
+    endrect    
+    
+    note over Servlet: findAll() 呼び出し
+    
+    activate DAO_Order   
+       DAO_Order->Model_Order: 生成       
+           
+           loop for each(Order o in list){\n   findById(o.getId())}            
+               DAO_Order-->DAO_Detail:findByOrderId()\n注文詳細取得               
+                activate DAO_Detail                
+                    DAO_Detail-->>Model_Detail:list作成                    
+                   return ArrayList<Detail>\nto DAO_Order                   
+                 deactivate DAO_Detail                 
+                  DAO_Order->Model_Oder:setDetails(ArrayList<detail>)              
+            endloop
+            
+         return ArrayList<Order>\nto Servlet         
+     deactivate DAO_Order     
+             
+             Servlet->Req:setAttribute(\nArrayList<Order>)             
+     
+deactivate Servlet 
+
+Rectangle "" {
+note over Servlet,JSP2:#fefece|フォワード
+}
+
+
+
+return JSP2toUser2:\n表示
+
+
+
+
+@enduml

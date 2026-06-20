@@ -1,0 +1,75 @@
+@startuml
+title FragmentVideoChat Sequence Diagram
+
+participant "FragmentVideoChat" as FVC
+participant "LicodeConnector" as LC
+participant "PeerConnectionFactory\nFactory" as PCF
+participant "RoomObserver" as RObs
+participant "MediaStream" as MS
+participant "PeerConnection" as PConn
+participant "StreamDescription" as SDesc
+participant "LicodeSdpObserver" as LSdpo
+participant "LicodeServer" as LServ
+participant "SocketIOClient" as SIOC
+
+
+== Init ==
+activate FVC
+    note over FVC : configureConnector
+    
+    activate LC 
+        init ->>PCF:init
+        
+        addObseverer(RoomObsrever) -->RObs:initializeAndroidGlobals    
+        
+    deactivate LC  
+deactivate FVC 
+
+group Publish 
+    
+   startCastView.onClick-->LC:requestPublish
+   
+   
+     triggerPubishAllowed<--LServ:onPublishAllwoed
+     
+     
+      doPublish->MS:startPublish
+      
+      
+       makeVideoview<-FVC:pulbish(VideoStreamsView)       
+end group 
+
+
+group  publish-create media
+  
+ createLocalMediastream <-LC:createMediaConstraints
+ 
+ getvideoCapturer <--createVideoSource(videoCapture.MediaConstraint):getvideocaptuer 
+ 
+ createtrackstring(videosource)<-addtrack:addTrack()
+ 
+ createsaudiosources(Mediaconstraint)->createtAudioTracks(string,Audiosource):addtracks 
+  
+ end group  
+
+group publis -Create offer  
+  
+makePcconstraints <---setmedia:setlocaldescription
+
+initRemote(Peerconnection,Sdoobserver)-->:oncreatesuccess
+
+
+
+sendSDPSocket("publish")<----onsesucccess:Lserv
+
+
+
+
+endsubscribe success ---> setremotedescription:Pconn  
+
+
+end group 
+
+
+
+@enduml

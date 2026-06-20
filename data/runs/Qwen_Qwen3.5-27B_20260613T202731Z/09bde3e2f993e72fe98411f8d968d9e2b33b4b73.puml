@@ -1,0 +1,42 @@
+```plantuml
+@startuml
+skinparam sequence {
+    ArrowColor cyan
+    ActorBorderColor cyan
+    ActorBackgroundColor transparent
+    ParticipantBorderColor cyan
+    ParticipantBackgroundColor cyan
+    LifeLineBorderColor cyan
+    LifeLineBackgroundColor transparent
+}
+
+title Please use '!option handwritten true' to enable handwritten
+
+actor developer as dev
+participant "DEV" as DEV
+participant "TEST" as TEST
+participant "MASTER" as MASTER
+participant "HOTFIX" as HOTFIX
+
+activate DEV
+DEV ->> TEST: 1 增量换包到TEST
+activate TEST
+TEST --> MASTER: 2 测试通过后，基于TEST打tag
+TEST --> MASTER: 3 check release分支
+TEST --> MASTER: 4 将release分支合并到MASTER
+activate MASTER
+MASTER --> HOTFIX: 5，线上紧急问题，基于MASTER check HOTFIX分支
+activate HOTFIX
+HOTFIX --> HOTFIX: 6，开发基于HOTFIX分支check本地分支修复问题
+HOTFIX --> HOTFIX: 7 修复完成后合回HOTFIX分支
+HOTFIX --> TEST: 8 用CMP工具基于HOTFIX打包换到测试环境进行验证
+HOTFIX --> MASTER: 9 测试通过后，HOTFIX合回MASTER
+HOTFIX --> TEST: 10 测试通过后，HOTFIX合回TEST
+HOTFIX --> DEV: 11 测试通过后，HOTFIX合回DEV
+deactivate HOTFIX
+deactivate MASTER
+deactivate TEST
+deactivate DEV
+
+@enduml
+```

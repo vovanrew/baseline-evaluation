@@ -1,0 +1,22 @@
+{
+  "id": "c133bf9e-b102-4cd1-8712-04cd07ef05e5",
+  "object": "chat.completion",
+  "created": 1781436626,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle GameEnginePluginLifecycle\n\nparticipant \"Host Application\" as HostApp\nparticipant \"Host Application Interop\" as Interop\nparticipant \"Game Engine Plugin\" as Plugin\n\n== Initialization ==\nactivate HostApp\nHostApp -> HostApp: Initialization\nHostApp -> Interop: new\nactivate Interop\nInterop -> Interop: Load GE Plugin(s)\nInterop -> Plugin: load into memory\nactivate Plugin\nInterop -> Plugin: GEP_Initialize\nPlugin --> Interop: initialization_ok = 0\ndeactivate Plugin\ndeactivate Interop\ndeactivate HostApp\n\n== Main Loop ==\nrectangle \"loop [Repeat Every Frame Period]\" {\n    activate Interop\n    Interop -> Plugin: GEP_HandleSimulationReponseMessages\n    activate Plugin\n    Plugin --> Interop: handled_ok = 0\n    deactivate Plugin\n    \n    note right of Interop: delays\n    \n    Interop -> Plugin: GEP_HandleSimulationControlMessages\n    activate Plugin\n    Plugin --> Interop: handled_ok = 0\n    deactivate Plugin\n    deactivate Interop\n}\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2350,
+    "completion_tokens": 236,
+    "total_tokens": 2586
+  }
+}

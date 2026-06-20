@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle\n**OAuth2 Authorization Code Grant Workflow**\n//with SAML2 Post Binding for user provisioning//\nend title\n\nparticipant \"HealthCloud\" as HC #28a745\nparticipant \"Embedded Browser\" as EB #28a745\n\nbox \"HealthSphere\" #lightblue\nparticipant \"Apigee Edge\" as AE #ffc107\nparticipant \"Orion Health Platform\" as OHP #ffc107\nend box\n\nHC -> EB\nEB -> AE : GET /authorize?response_type=code\nactivate AE\nAE --> EB : //302// https://**<redirect_url>** (SAML OR token)\ndeactivate AE\n\ngroup SAML Authentication\n    EB -> AE : POST /oauth2/saml\n    activate AE\n    AE -> OHP : POST /login-auth/saml?path=/actor/current\n    activate OHP\n    OHP -> OHP : Verify SAMLResponse\n    OHP --> AE\n    deactivate OHP\n    AE -> AE : Generate authorization code\n    AE --> EB : //302// https://**<redirect_url>**?code=<code>\n    deactivate AE\nend\n\nHC -> AE : POST /token?code=<code>\nactivate AE\nAE --> HC : 200 access_token + refresh_token\ndeactivate AE\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHRBWItTAT32SRr50mXcrlfw7tDBfMKvw3Ajpz4a79K67AcO9gfZmITdTlfutN"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1161,
+    "candidatesTokenCount": 308,
+    "totalTokenCount": 1469,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1081
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "aF0xavu6NruAxN8PtcefwAI"
+}

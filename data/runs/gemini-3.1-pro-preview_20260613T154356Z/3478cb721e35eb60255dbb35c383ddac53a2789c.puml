@@ -1,0 +1,42 @@
+```plantuml
+@startuml
+title GameEnginePluginLifecycle
+
+participant "Host Application" as HostApp
+participant "Host Application Interop" as HostAppInterop
+participant "Game Engine Plugin" as GameEnginePlugin
+
+HostApp -> HostApp : Initialization
+activate HostApp
+HostApp -> HostAppInterop : new
+deactivate HostApp
+
+activate HostAppInterop
+HostAppInterop -> HostAppInterop : Load GE Plugin(s)
+HostAppInterop -> GameEnginePlugin : load into memory
+HostAppInterop -> GameEnginePlugin : GEP_Initialize
+activate GameEnginePlugin
+GameEnginePlugin --> HostAppInterop : initialization_ok = 0
+deactivate GameEnginePlugin
+deactivate HostAppInterop
+
+loop Repeat Every Frame Period
+    activate HostAppInterop
+    HostAppInterop -> GameEnginePlugin : GEP_HandleSimulationReponseMessages
+    activate GameEnginePlugin
+    GameEnginePlugin --> HostAppInterop : handled_ok = 0
+    deactivate GameEnginePlugin
+    deactivate HostAppInterop
+    
+    ... delays ...
+    
+    activate HostAppInterop
+    HostAppInterop -> GameEnginePlugin : GEP_HandleSimulationControlMessages
+    activate GameEnginePlugin
+    GameEnginePlugin --> HostAppInterop : handled_ok = 0
+    deactivate GameEnginePlugin
+    deactivate HostAppInterop
+end
+
+@enduml
+```

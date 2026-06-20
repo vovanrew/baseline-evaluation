@@ -1,0 +1,69 @@
+```plantuml
+@startuml
+skinparam shadowing false
+skinparam actor {
+  ArrowColor #AAAAAA
+  BackgroundColor #E4E5F0
+  BorderColor #000000
+}
+skinparam boundary {
+  ArrowColor #AAAAAA
+  BackgroundColor #E4E5F0
+  BorderColor #000000
+}
+skinparam control {
+  ArrowColor #AAAAAA
+  BackgroundColor #E4E5F0
+  BorderColor #000000
+}
+skinparam entity {
+  ArrowColor #AAAAAA
+  BackgroundColor #E4E5F0
+  BorderColor #000000
+}
+skinparam ext {
+  ArrowColor #AAAAAA
+  BackgroundColor #E4E5F0
+  BorderColor #000000
+}
+skinparam object {
+  ArrowColor #AAAAAA
+  BackgroundColor #E4E5F0
+  BorderColor #000000
+}
+skinparam participant {
+  ArrowColor #AAAAAA
+  BackgroundColor #E4E5F0
+  BorderColor #000000
+}
+skinparam usecase {
+  ArrowColor #AAAAAA
+  BackgroundColor #E4E5F0
+  BorderColor #000000
+}
+
+actor "TaskControl" as TaskControl
+boundary "Reins_Agent" as Reins_Agent
+control "ExecCommands" as ExecCommands
+entity "HostRegistry" as HostRegistry
+
+rectangle "loop [all_clients]" {
+  TaskControl -> Reins_Agent : [01] identified_key
+  rectangle "connection check"
+  Reins_Agent -> ExecCommands : [02] check(identified_key)
+  activate ExecCommands
+  ExecCommands -> ExecCommands : [03] varid?(identified_key)
+  deactivate ExecCommands
+  ExecCommands -x Reins_Agent : [04] status
+  Reins_Agent --x TaskControl : [05] status
+}
+rectangle "logging status"
+TaskControl -> HostRegistry : [06] rewrite_status(identified_key, status)
+activate HostRegistry
+HostRegistry -> HostRegistry : [07] set_status(identified_key, IPaddress, status)
+deactivate HostRegistry
+HostRegistry -> HostRegistry : [08] store()
+deactivate HostRegistry
+HostRegistry --x TaskControl : [09] true or false
+@enduml
+```

@@ -1,0 +1,43 @@
+```plantuml
+@startuml
+
+package "Documents" #FFD0D0 {
+  interface "Document" as Document
+  class "StringDocument" as StringDocument
+  class "URLDocument" as URLDocument
+  class "FileDocument" as FileDocument
+
+  StringDocument ..|> Document
+  URLDocument ..|> Document
+  FileDocument ..|> Document
+}
+
+package "Indexes" #D0FFD0 {
+  interface "SimilarityIndex" as SimilarityIndex
+  class "CachingSimilarityIndex" as CachingSimilarityIndex
+  class "JaacardIndex" as JaacardIndex
+
+  CachingSimilarityIndex ..|> SimilarityIndex
+  JaacardIndex ..|> SimilarityIndex
+}
+
+package "Shingles" #D0D0FF {
+  interface "Shinglizer" as Shinglizer
+  class "WordShinglizer" as WordShinglizer
+
+  WordShinglizer ..|> Shinglizer
+}
+
+package "MinHash" #FFD0FF {
+  class "HashGenerator" as HashGenerator
+  class "MinHash" as MinHash
+}
+
+SimilarityIndex o-- Document
+
+JaacardIndex *-- HashGenerator
+JaacardIndex *-- MinHash
+JaacardIndex o-- Shinglizer
+
+@enduml
+```

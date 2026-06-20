@@ -1,0 +1,187 @@
+```plantuml
+@startuml
+' version: 1.20201212.3
+' skinparam: https://plantuml.com/skinparam
+skinparam classAttributeIconSize 0
+
+interface IXmlSerializable {
+    + ReadXml(XmlReader reader): void
+    + WriteXml(XmlWriter writer): void
+}
+
+interface IEnumerable {
+    + GetEnumerator(): IEnumerator
+}
+
+class Form {
+}
+
+class FormLogin {
+}
+
+class FormLoader {
+}
+
+Form <|-- FormLogin : 1
+Form <|-- FormLoader : 1
+
+class LoginLogic {
+    + constructor()
+    + GetSaveAccessToken(): string
+    + SaveAccessToken(string)
+    + LoginToFacebook(): LoginResult
+    + LoginToFacebookAndSaveToken(): LoginResult
+    + ConnectToFacebook(string): LoginResult
+    + SaveRememberBox(bool)
+    + GetRememberBoxCheckedValue(): bool
+}
+
+FormLogin *-- LoginLogic : 1
+
+class AppUser {
+    - Name: string {getter}
+    - Birthday: string {getter}
+    - Gender: string {getter}
+    - Age: int {getter}
+    - UserLevelsin: string {getter}
+    - LastEducationStudyPlace: string {getter}
+    + constructor(User)
+    + GetNewsFeed(PostFilter): FacebookObjectCollection<Post>
+    + GetUserAlbums(): FacebookObjectCollection<Album>
+    + GetUserProfilePicture(): string
+    + PostToUserWall(string): string
+    + LikePhoto(string): bool
+    + CommentPhoto(string, string): bool
+}
+
+AppUser .. Album : Holds the facebook user
+AppUser .. User : 
+AppUser .. Post : 
+
+class FormMain {
+    + event MainFormLoadEventArgs
+}
+
+Form <|-- FormMain : 1
+FormMain *-- AppUser : 1
+
+class EventArgs {
+}
+
+class MainFormLoadEventArgs {
+    - FinishedLoading: bool {getter, setter}
+    - Message: string {getter, setter}
+    + constructor()
+}
+
+EventArgs <|-- MainFormLoadEventArgs : 1
+
+package "Top Photos Feature" {
+    class PictureObjectBasic {
+        - NumberOfLikes: int {getter, setter}
+        - NumberOfComment: int {getter, setter}
+        - PictureUrl: string {getter, setter}
+        - Score: int {getter, setter}
+        - Objectid: string {getter, setter}
+        + constructor(string , int , int , int , string , string)
+    }
+
+    class PictureObject {
+        + constructor(string , int , int , int , string , PictureBox )
+        + LoadInformation()
+    }
+
+    PictureObjectBasic <|-- PictureObject : 1
+
+    class SpecialPictureBox {
+        - ObjectLocation: Point {getter, setter}
+        - PictureBoxTopPhotosSize: static Size {getter}
+        - PictureObject: PictureObject {getter, setter}
+        - FatherPanel: Panel {getter}
+        - PicLabel: Label {getter}
+        + constructor(Panel)
+        + SpecialPictureBoxOnClick(object, EventArgs)
+        + UpdateNames(int)
+        + RemoveObjectFromPanel()
+        + OnMouseHover(EventArgs)
+        + OnMouseLeave(EventArgs)
+    }
+
+    PictureObject *-- SpecialPictureBox : 1
+
+    class TopPhotosFeature {
+        + constructor(AppUser , ref List<SpecialPictureBox>)
+        + RankUserPhotos()
+        + LoadTopPhotos()
+    }
+
+    SpecialPictureBox -- TopPhotosFeature : 1
+    PictureObject -- TopPhotosFeature : 1
+    PictureObjectBasic -- TopPhotosFeature : 1
+
+    class PopularPanelMgt {
+        - CurrentObjectid: string {getter, setter}
+        - InformationLabel: Label {getter, setter}
+        - InformationTextBox: TextBox {getter, setter}
+        - PictureObjectList: List<SpecialPictureBox> {getter}
+        + Instance: static PopularPanelMgt {getter}
+        + SetPanel(Panel, Panel)
+        + TryAddToPanel(SpecialPictureBox): bool
+        + getNextFreeLocationInContainer(Size, out Point): bool
+    }
+
+    class PictureBox {
+    }
+
+    PopularPanelMgt o-- PictureBox : 1
+}
+
+package "Post Filtering Feature" {
+    class FilterItem {
+        + constructor()
+        + constructor(Rexex)
+        + IsMatch(Post): bool
+    }
+
+    class FilterGroup {
+        - List<FilterItem>
+        - Name: string {getter, setter}
+        + constructor()
+        + AddItem(FilterItem)
+        + RemoveItem(FilterItem)
+        + IsMatch(Post): bool
+    }
+
+    FilterItem --> FilterGroup : 1
+    IEnumerable <|.. FilterGroup : 1
+
+    class PostFilter {
+        - FilterGroups: List<FilterGroup> {getter, setter}
+        + constructor()
+        + AddGroup(FilterGroup)
+        + RemoveGroup(FilterGroup)
+        + Save()
+    }
+
+    FilterGroup *-- PostFilter : 1
+
+    class FormPostFilterSettings {
+        - PosFilter: PostFilter {getter, setter}
+    }
+
+    PostFilter *-- FormPostFilterSettings : 1
+
+    class FormFilterGroup {
+        - GroupFilter: FilterGroup {getter, setter}
+    }
+
+    FormFilterGroup *-- FilterGroup : 1
+    FormFilterGroup *-- PostFilter : 1
+    FormFilterGroup *-- FormPostFilterSettings : 1
+    Form <|-- FormFilterGroup : 1
+    IXmlSerializable <|.. FormFilterGroup : 1
+    IEnumerable <|.. FormFilterGroup : 1
+}
+
+@enduml
+```

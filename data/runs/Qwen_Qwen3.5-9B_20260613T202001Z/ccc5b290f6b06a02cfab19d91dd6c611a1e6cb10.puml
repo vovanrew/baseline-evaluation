@@ -1,0 +1,85 @@
+@startuml
+left to right direction
+actor "CenterCoordinator" as CC
+participant "DataFromLegacySystemUI" as UI
+participant "DataFromLegacySystemController" as Controller
+participant "ReadLegacyDataFile" as Reader
+participant "Company" as Company
+participant "SNSUserStore" as Store
+participant "App" as App
+participant "VaccinationCenter" as Center
+participant "vaccinationCentersStore" as Store2
+
+CC -> UI: 1 Asks to load a CSV file with legacy data
+UI -> Controller: 2 DataFromLegacySystemController()
+Controller -> Store2: 3 getVaccinationCentersStore()
+Store2 --> Controller: 4 returns the store
+Controller -> Center: 5 getVaccinationCenterAssociatedToCoordinator(id)
+Center --> Controller: 6 returns the vaccination center
+Controller -> Reader: 7 ReadLegacyDataFile(center)
+Reader --> Controller: 8 request path of the CSV file
+Controller -> UI: 9 types path
+UI -> Reader: 10 readFile(path)
+Reader -> Reader: 11 readFile(String path)
+alt while csv has new lines
+  Reader -> Store: 12 validateFileLegacy(SNSUserNumber, firstDate, secondDate, thirdDate, fourthDate)
+  Store --> Reader: 13 Saves data into an ArrayList<String> called legacyDataList
+  Reader -> Store: 14 getSNSUserList()
+  Store --> Reader: 15 returns list
+  Reader -> Store: 16 returns list
+  Reader -> Store: 17 returns list
+  Reader -> Store: 18 returns list
+  Reader -> Store: 19 returns list
+  alt while legacyDataList has new lines
+    Reader -> Store: 20 findPosOfSNSUserInSNSUserList, values, positionInSNSUserList
+    Store --> Reader: 21 findPosOfVaxxVaccineList, values, positionInVaccinesList
+    Reader -> Store: 22 checksDuplicates(updatedList, snsUsersList, vaccineList, positionInSNSUserList, positionInVaccinesList, lineOfTheData)
+    Store --> Reader: 23 Saves data into an ArrayList<String> called updatedList
+    Reader -> Center: 24 createArrival()
+    Center --> Reader: 25 returns Arrival
+    Center -> Store2: 26 returns Arrival
+    Store2 --> Reader: 27 Saves arrival into List<Arrival> called arrivalsList
+    Store2 -> Store2: 28 genericsArrivals.binaryFileWrite(Constants.FILE_PATH_ARRIVALS, arrivalsList)
+    Reader -> Center: 29 createDeparture()
+    Center --> Reader: 30 returns departure
+    Center -> Store2: 31 returns departure
+    Store2 --> Reader: 32 Saves departure into List<Departure> called departuresList
+    Store2 -> Store2: 33 genericsDeparture.binaryFileWrite(Constants.FILE_PATH_DEPARTURES, departuresList)
+  end
+end
+Controller -> Reader: 34 returns updatedList
+Reader -> UI: 35 returns updatedList
+UI -> Controller: 36 requests the option to sort
+Controller -> UI: 37 selects option
+UI -> Controller: 38 chooseCriteriaToSortOption()
+Controller -> Reader: 39 setListOption()
+alt while updatedList has new lines
+  Reader -> Reader: 40 Saves data to a List<LocalDateTime> called listToSort
+end
+alt algorithmToBeUsed = "InsertionSort", option = "0" - Ascending
+  UI -> Controller: 41 requests the order of the sort
+  Controller -> UI: 42 selects order
+  UI -> Controller: 43 getAlgorithm()
+  Controller -> App: 44 getSortingAlgorithm()
+  App --> Controller: 45 returns algorithm
+  Controller -> Reader: 46 returns algorithm
+  Reader -> Reader: 47 sortListWithAlgorithmToBeUsed(option)
+  Reader -> Reader: 48 insertionSortAscending()
+  Reader --> Reader: 49 returns sortedList
+  Reader -> UI: 50 returns sortedList
+  UI -> UI: 51 prints sortedList
+end
+alt algorithmToBeUsed = "InsertionSort", option = "1" - Descending
+  UI -> Controller: 52 selects order
+  Controller -> App: 53 getAlgorithm()
+  App --> Controller: 54 returns algorithm
+  Controller -> Reader: 55 returns algorithm
+  Reader -> Reader: 56 returns algorithm
+  Reader -> Reader: 57 sortListWithAlgorithmToBeUsed(option)
+  Reader -> Reader: 58 insertionSortDescending()
+  Reader --> Reader: 59 returns sortedList
+  Reader -> UI: 60 returns sortedList
+  UI -> UI: 61 prints sortedList
+end
+
+@enduml

@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle Shared memory receiver behaviour\n\nparticipant \"Shared memory receiver\" as SMR\nentity \"Semaphore coord\" as SC\n\nbox \"Coordination struct\" #LightGray\nentity \"Reader count var\" as RCV\nentity \"locks_active\" as LA\nentity \"locks_leaving\" as LL\nentity \"Semaphore copy\" as SCopy\nend box\n\nentity \"Copy buff\" as CB\n\ngroup create\n    activate SMR\n    alt \"Coordination semaphore doesn't exist\"\n        SMR -> SC : Create semaphore\n    end\n    SMR -> SC : wait\n    SC <-->] : Writer sets up sharedmemory\n    SC <-] : Writer is ready\n    SC -> SMR : ok\n    SMR -> RCV : reincrease\n    note right: this way all readers access the memory,\\nthey will fail on the copy sem\n    SMR -> SMR : MMap coordination struct\n    SMR -> SCopy : Trylock copy semaphore\n    alt fail\n        SCopy --> SMR : Can't lock\n        SMR -->] : Fail\n    else success\n        SCopy --> SMR : Success\n        SMR -> SMR : MMap copy buffer\n        SMR -> SMR : read_flag to true\n        SMR -> LL : Lock leaving[1]\n        activate LL\n        LL --> SMR\n        deactivate LL\n        SMR -> RCV : Signal reader ready\n    end\n    SMR -> SMR : Close coordination semaphore file\n    SMR -->] : Success\n    deactivate SMR\nend\n\ngroup ready\n    -> SMR : ready?\n    activate SMR\n    alt finished flag set\n        SMR -->] : False\n    else has read current chunk\n        SMR -> LA : lock next chunk (reading)\n        activate LA\n        note right: Blocks until next\\nchunk is written\n        LA --> SMR\n        deactivate LA\n        SMR -> LL : Release previous leaving\n        SMR -> SMR : Change active\n        SMR -> SMR : reset read flag\n        SMR -> CB : get chunk size\n        activate CB\n        CB --> SMR : c_size\n        deactivate CB\n        SMR -->] : c_size > 0\n    else Yet to read current and no finished flag\n        SMR -->] : True\n    end\n    alt finished\n        note left: This is done before\\nactually returning\n        SMR -> SMR : Set finished flag\n        SMR -> LA : Release lock\n    end\n    deactivate SMR\nend\n\ngroup buff size\n    activate SMR\n    SMR -> SMR : get buff_size from coord\n    <-- SMR : buff_size\n    deactivate SMR\nend\n\ngroup receive\n    activate SMR\n    note right: This is called after ready so I am already on the correct\\nchunk and it has data to read\n    alt read_flag_set or finished flag set\n        SMR -->] : Fail\n    end\n    SMR -> CB : Read data in current chunk\n    activate CB\n    CB --> SMR : vector\n    deactivate CB\n    SMR -> SMR : set read flag\n    SMR -> LL : lock leaving\n    activate LL\n    LL --> SMR\n    deactivate LL\n    SMR -> LA : release active\n    <-- SMR : vector\n    deactivate SMR\nend\n\ngroup destructor\n    -> SMR : Destroy\n    activate SMR\n    alt not finished\n        alt read_flag set\n            SMR -> LL : unlock\n        else read_flag false\n            SMR -> LA : unlock\n        end\n    end\n    SMR -> RCV : Notify left\n    SMR -> SMR : Unmap memory\n    SMR -> SMR : Close files\n    deactivate SMR\nend\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHf+t6yI2HmCkGm+TTjJAT1cVcJBCkl16cl/qWNxl6WiNH8oBCaSJ5CQvq235/"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1158,
+    "candidatesTokenCount": 854,
+    "totalTokenCount": 2012,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1078
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "TmAxavT5OcmM28oPrM3J-QI"
+}

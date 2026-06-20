@@ -1,0 +1,21 @@
+{
+  "id": "msg_016PsH4vE7rwg4AadFBndj5L",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nparticipant \"UI\" as UI\nparticipant \"sessionRoute\" as SR\nparticipant \"passport\" as passport\nparticipant \"SessionController\" as SC\ndatabase \"innoDB\" as DB\n\nUI -> SR : GET() \"/session\"\\nAuth: Bearer token\\n{userID, DASS21_SCORES, sessionDetails}\nSR -> passport : \"/save\", authenticate(\"jwt\")\n\nalt [Success: Authenticated]\n    passport --> SR : done(null, user)\n    SR -> SC : Request Products\n    SC -> SC : Validate info\n\n    alt [Success: Required info provided]\n        SC -> DB : saveSession()\n        DB --> SC : session\n        SC --> SR : httpResponse(200)\\nsession\n        SR --> UI : httpResponse(200)\\nallProducts\n    else [Failure: missing information]\n        SC --> SR : {\"msg\":\"missing required\\ninformation\"}(400)\n        SR --> UI : http Response(400)\\n{\"msg\":\"missing required information\"}\n    end\n\nelse [Failure: Unauthorized]\n    passport --> SR : done(null,false)\n    SR --> UI : http Response(401)\\nUnauthorized\nend\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781430954,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 278,
+    "prompt_tokens": 1650,
+    "total_tokens": 1928
+  }
+}

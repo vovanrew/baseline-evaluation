@@ -1,0 +1,32 @@
+@startuml
+participant "Nutzer" as User
+
+participant "ServiceFactory" as ServiceFactory
+
+participant "PruefHandler" as PruefHandler
+
+participant "PersonenServiceImpl" as PersonenServiceImpl
+
+participant "Proxy" as Proxy
+
+section Initialisierung
+    User -> ServiceFactory : 1 getPersonenService()
+    ServiceFactory -> PruefHandler : 2 create
+    PruefHandler -> PersonenServiceImpl : 3 create
+    PersonenServiceImpl -> PruefHandler : 4 ziel
+    PruefHandler -> ServiceFactory : 5 instanz
+    ServiceFactory -> Proxy : 6 create
+    Proxy -> PersonenServiceImpl : 7 PersonenService
+    ServiceFactory -> User : 8 service
+end section
+
+section service.neu
+    User -> Proxy : 9 neu
+    Proxy -> PruefHandler : 10 invoke
+    PruefHandler -> PersonenServiceImpl : 11 neu
+    PersonenServiceImpl -> PruefHandler : 12 Person
+    PruefHandler -> Proxy : 13 Person
+    Proxy -> User : 14 Person
+end section
+
+@enduml

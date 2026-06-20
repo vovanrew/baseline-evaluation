@@ -1,0 +1,113 @@
+```plantuml
+@startuml
+class FilingSystem <<FilingSystem>> {
+  data_storage: bool
+  storage_limited: bool
+}
+
+class TechnicalMeasure <<TechnicalMeasure>> {
+  stereotype: GENERIC_STEREOTYPE
+  category: TECHNOLOGY_CATEGORY
+}
+
+class Controller <<Controller>> {
+  processor: bool
+}
+
+class ProcessingSystem <<ProcessingSystem>> {
+  confidentiality: bool
+  integrity: bool
+  availability: bool
+  resilient: bool
+  pseudonymity: bool
+  data_minimization: bool
+  redundancies: bool
+  tested: bool
+}
+
+class ProcessingTask <<ProcessingTask>> {
+  logged: bool
+}
+
+class ProcessingLog <<Artifact>> #palegreen {
+  name: bool
+  contact_details: bool
+  personal_data_category: bool
+  data_storage_period: bool
+  technical_measures: bool
+  recipients: Array
+}
+
+class Processor <<Processor>>
+class Recipient <<Recipient>>
+class ThirdParty <<ThirdParty>>
+
+class DataHandler
+
+class DataSubject <<DataSubject>> {
+  minor: false
+}
+
+class PersonalData <<PersonalData>> {
+  category: DATA_CATEGORY
+}
+
+class Purpose <<Purpose>> {
+  consent: CLASS consent
+  contract_performance: bool
+  controller_legal_obligation: bool
+  vital_interest_protection: bool
+  public_interest: bool
+  legitimate_interest: bool
+}
+
+class SpecialPurpose <<SpecialPurpose>> {
+  consent: CLASS consent
+  employment_purpose: bool
+  social_purpose: bool
+  vital_interest: bool
+  nonprofit_body: bool
+  public_from_subject: bool
+  legal_claim: bool
+  public_interest: bool
+  preventive_medicine: bool
+  occupational_medicine: bool
+  public_health: bool
+  archiving: bool
+  statistical_purposes: bool
+}
+
+class Consent <<Consent>>
+
+class ConsentAgreement <<Artifact>> #palegreen {
+  clear_purpose: bool
+  unambiguous: bool
+  affirmative_action: bool
+  distinguishable: bool
+  specific: bool
+  withdrawable: bool
+  freely_given: bool
+}
+
+FilingSystem --|> ProcessingSystem
+TechnicalMeasure -- ProcessingSystem : secures >
+Controller -- ProcessingSystem : implements >
+Controller --|> DataHandler
+Processor --|> DataHandler
+Recipient --|> DataHandler
+ThirdParty --|> DataHandler
+
+ProcessingSystem -- ProcessingTask : performs >
+ProcessingTask -- ProcessingLog : manifests >
+
+DataHandler -- PersonalData : receives >
+DataSubject -- PersonalData : provides >
+
+PersonalData -- SpecialPurpose
+PersonalData -- Consent : requires >
+Purpose -- Consent
+
+Consent -- ConsentAgreement : manifests >
+
+@enduml
+```

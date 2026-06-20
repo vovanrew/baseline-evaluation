@@ -1,0 +1,49 @@
+```plantuml
+@startuml
+skinparam shadowing false
+skinparam actor {
+  ArrowColor BLACK
+  BackgroundColor LightSteelBlue
+  BorderColor BLACK
+}
+skinparam participant {
+  ArrowColor BLACK
+  BackgroundColor LightSteelBlue
+  BorderColor BLACK
+}
+skinparam database {
+  ArrowColor BLACK
+  BackgroundColor LightSteelBlue
+  BorderColor BLACK
+}
+
+actor "User" as User
+participant "WebSite" as WebSite
+participant "Server" as Server
+database "phonebook" as phonebook
+
+User -> WebSite : select contact
+User -> WebSite : click button "DeleteContact"
+activate WebSite
+WebSite -> Server : deleteContact()
+activate Server
+Server -> phonebook : Update()
+activate phonebook
+phonebook --> Server : ok
+deactivate phonebook
+Server --> WebSite : ok
+deactivate Server
+deactivate WebSite
+activate WebSite
+WebSite -> Server : getAllContacts()
+activate Server
+Server -> phonebook : findAll()
+activate phonebook
+phonebook --> Server : ContactsList
+deactivate phonebook
+Server --> WebSite : ContactsList
+deactivate Server
+deactivate WebSite
+
+@enduml
+```

@@ -1,0 +1,50 @@
+```plantuml
+@startuml
+hide circle
+skinparam sequence {
+  ArrowColor Black
+  ActorBorderColor Black
+  LifeLineBorderColor Black
+  LifeLineBackgroundColor LightGray
+}
+
+title Please use '!option handwritten true' to enable handwritten
+
+actor "User" as User
+rectangle "NSheets Client" {
+  participant "HomeView" as HomeView
+  participant "HomePresenter" as HomePresenter
+}
+rectangle "Server" {
+  participant "NoteServices" as NoteServices
+  participant "ListNoteController" as ListNoteController
+  participant "NoteService" as NoteService
+  participant "NoteRepository" as NoteRepository
+}
+rectangle "Database" {
+  database "Database" as Database
+}
+
+User -> HomePresenter: onReveal() / navigate to page
+activate HomePresenter
+HomePresenter -> NoteServices: getNotes()
+activate NoteServices
+NoteServices -> ListNoteController: listNotes()
+activate ListNoteController
+ListNoteController -> NoteService: allNotes()
+activate NoteService
+NoteService -> NoteRepository: findAll()
+activate NoteRepository
+NoteRepository -> Database: fetch
+activate Database
+deactivate Database
+deactivate NoteRepository
+deactivate NoteService
+deactivate ListNoteController
+NoteServices -> HomePresenter: onSuccess()
+deactivate NoteServices
+HomePresenter -> HomeView: setContents()
+deactivate HomePresenter
+
+@enduml
+```

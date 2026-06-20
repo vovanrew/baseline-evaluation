@@ -1,0 +1,63 @@
+@startuml
+title 解析处理@EnableTransactionManagement注解
+
+participant "ConfigurationClassPostProcessor" as ConfigClassPostProcessor
+participant "ConfigurationClassParser" as ConfigClassParser
+participant "ComponentScanAnnotationParser" as ComponentScanAnnotationParser
+participant "AdviceModelImportSelector" as AdviceModelImportSelector
+participant "TransactionManagementConfigurationSelector" as TransactionManagementConfigurationSelector
+participant "ConfigurationClass" as ConfigurationClass
+participant "ConfigurationClassBeanDefinitionReader" as ConfigurationClassBeanDefinitionReader
+participant "AutoProxyRegistrar" as AutoProxyRegistrar
+participant "AopConfigUtils" as AopConfigUtils
+
+participant "配置类PostProcessor" as ConfigClassPostProcessor
+participant "配置类解析器" as ConfigClassParser
+participant "组件扫描注解解析器" as ComponentScanAnnotationParser
+participant "Advice模型导入选择器" as AdviceModelImportSelector
+participant "事务管理配置选择器" as TransactionManagementConfigurationSelector
+participant "配置类" as ConfigurationClass
+participant "配置类Bean定义读取器" as ConfigurationClassBeanDefinitionReader
+participant "自动代理注册器" as AutoProxyRegistrar
+participant "Aop配置工具" as AopConfigUtils
+
+postProcessBeanDefinitionRegistry as postProcessBeanDefinitionRegistry
+
+postProcessBeanDefinitionRegistry
+    :parseAnnotationMetadata metadata, String beanName
+    :processConfigurationClass(ConfigurationClass configClass)
+    :doProcessConfigurationClass(ConfigurationClass configClass, SourceClass sourceClass)
+
+alt [根据被解析的Class@ComponentScan注解，进行扫描]
+    :@ComponentScan扫描
+    :parseAnnotationAttributes componentScan, final String declaringClass
+    :parseString className, String beanName
+    :processConfigurationClass(ConfigurationClass configClass)
+    :通过解析扫描到的类
+    :获取到AutoProxyRegistrar, ProxyTransactionManagementConfiguration
+    :selectImports(AnnotationMetadata)
+    :selectImports(AdviceMode)
+    :添加AutoProxyRegistrar, AspectAutoProxyRegistrar到关联配置类
+    :即标记@EnableTransactionManagement的类
+    :将ImportBeanDefinitionRegistrs属性中
+    :按照普通配置类处理ProxyTransactionManagementConfiguration
+    :解析完配置类
+    :加载配置类的配置信息
+    :loadBeanDefinitions
+end
+
+alt 配置类PostProcessor
+    :loadBeanDefinitionsForConfigurationClass
+    :registerBeanDefinitionForImportedConfigurationClass
+    :处理ProxyTransactionManagementConfiguration，导入了切面beanFactoryTransactionAttributeSourceAdvisor
+    :加载BeanDefinitionsForBeanMethod
+    :加载BeanDefinitionsFromImportedResources
+    :处理@Bean标记的注册方法
+    :处理AutoProxyRegistrar，注册了InfrastructureAdvisorAutoProxyCreator
+    :处理@Import, 导入了ImportBeanDefinitionRegistrar类
+    :registerBeanDefinitions
+    :注册InfrastructureAdvisorAutoProxyCreator
+    :registerAutoProxyCreatorIfNecessary
+end
+
+@enduml

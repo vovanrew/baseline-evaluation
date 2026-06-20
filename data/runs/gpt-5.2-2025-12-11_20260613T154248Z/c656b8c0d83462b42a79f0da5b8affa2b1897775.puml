@@ -1,0 +1,60 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6F2
+  ActorBorderColor #666666
+  ActorBackgroundColor #E6E6F2
+  DatabaseBorderColor #666666
+  DatabaseBackgroundColor #E6E6F2
+  BoxBorderColor #000000
+  BoxBackgroundColor transparent
+  GroupBorderColor #000000
+  GroupBackgroundColor transparent
+}
+
+actor Customer
+participant Frontend
+participant Backend
+database Database
+
+box "Make Event"
+  Customer -> Frontend : Presses the "Make new Event"-button
+  Frontend -> Backend : Request to open new window
+  Backend -> Backend : Generates empty event-object
+  Backend --> Frontend : Opens new window
+  Customer -> Frontend : Enters event information
+  Customer -> Frontend : Presses "Create"-button
+  Frontend -> Backend : Request to validate input
+
+  alt [Successful case]
+    Backend -> Backend : Validation successful
+    Backend -> Database : Adds event to database
+    Backend --> Frontend : Adds event to list
+    Backend -> Frontend : Closes window
+    Frontend -> Frontend : Selects newly added event from list
+    Frontend --> Customer : Displays eventinformation to user
+  else [Validation failed]
+    Backend -> Backend : Validation failed
+    destroy Backend
+    Backend -> Frontend : Displays alert of type ERROR
+    Frontend -> Customer : Lists up fields with errors
+    Customer -> Frontend : Closes alertbox
+  end
+end box
+
+box "Cancel"
+  Customer -> Frontend : Presses the "Cancel"-button
+  Frontend -> Backend : Request to close process
+  Backend -> Backend : Deletes event-object
+  Backend -> Frontend : Closes window
+  Frontend -> Frontend : Selects first event in list
+  Frontend --> Customer : Displays list of events
+end box
+
+@enduml
+```

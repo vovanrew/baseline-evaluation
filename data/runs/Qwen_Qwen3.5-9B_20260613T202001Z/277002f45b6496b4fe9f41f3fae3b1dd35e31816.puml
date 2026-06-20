@@ -1,0 +1,76 @@
+@startuml
+!theme plain
+
+interface CommandInt {
+  +Execute(): void
+}
+
+class Commands {
+  - shape : string
+  + Commands(shape:string)
+  + Undo(): void
+  + Redo(): void
+  + PrintSVG(): void
+  + CreateSVG(): void
+  - «override» ToString(): string
+}
+
+class AddCMD {
+  - shape : string
+  + AddCMD(shape:String, history:List<String>)
+  + Execute(): void
+}
+
+class UndoCMD {
+  - history:List<String>
+  - redoList:List<String>
+  + UndoCMD(history:List<String>, redoList:List<String>)
+  + Execute(): void
+}
+
+class RedoCMD {
+  - history:List<String>
+  - redoList:List<String>
+  + RedoCMD(history:List<String>, redoList:List<String>)
+  + Execute(): void
+}
+
+class PrintSVGCMD {
+  - history:List<String>
+  + PrintSVGCMD(history:List<String>)
+  + Execute(): void
+}
+
+class CreateSVGCMD {
+  - history:List<String>
+  + CreateSVGCMD(history:List<String>)
+  + Execute(): void
+}
+
+class List {
+  - history:List<String>
+  - redoList:List<String>
+}
+
+Commands --|> CommandInt
+AddCMD --|> CommandInt
+UndoCMD --|> CommandInt
+RedoCMD --|> CommandInt
+PrintSVGCMD --|> CommandInt
+CreateSVGCMD --|> CommandInt
+
+Commands --> AddCMD
+Commands --> UndoCMD
+Commands --> RedoCMD
+Commands --> PrintSVGCMD
+Commands --> CreateSVGCMD
+
+AddCMD --> List : history<String>
+UndoCMD --> List : history<String>
+UndoCMD --> List : redoList<String>
+RedoCMD --> List : history<String>
+RedoCMD --> List : redoList<String>
+PrintSVGCMD --> List : history<String>
+CreateSVGCMD --> List : history<String>
+
+@enduml

@@ -1,0 +1,75 @@
+```plantuml
+@startuml
+title US004 – As Administrator, I want to search for users
+
+actor "Administrator" as Admin
+participant "SearchUsersByParamsRoute" as Route
+participant "inDto : SearchUserDto" as InDto
+participant "UsersController" as Controller
+participant "SearchUsersByParamsService" as Service
+participant "SystemUserRepo" as UserRepo
+participant "UserProfileRepo" as ProfileRepo
+participant "usersFound : List<SystemUser>" as UsersFound
+participant "usersFoundDto : List<UserDto>" as UsersFoundDto
+participant "user : SystemUser" as User
+participant "SystemUserMapper" as Mapper
+participant "userDto : OutputUserDto" as UserDto
+participant "usersJson : ResponseEntity" as Json
+
+Admin -> Route: 1 GET /users?name={name}&email={email}&profile={profile}&func={func}
+note right of Admin: The parameters (name, email, profile and function) will be in the query of the request. At least, one of than must be typed or chosen.
+
+activate Route
+activate InDto
+activate Controller
+
+Route --> Controller: 2 searchUsersByTypedParams(inDto)
+deactivate Route
+deactivate InDto
+
+Controller -> Service: 3 searchUsersByTypedParams(inDto)
+activate Service
+
+opt if the request has a profile
+    Service -> ProfileRepo: 4 result : existsUserProfileId(profile)
+    activate ProfileRepo
+    deactivate ProfileRepo
+end
+
+alt depending on which params came from inputDto, the service class will invoke the respective method
+    Service -> UserRepo: 5 findAllBy...()
+    activate UserRepo
+    UserRepo ..> UsersFound: 6 create()
+    deactivate UserRepo
+    UsersFound --> Service: 7 usersFound
+end
+
+Service -> UsersFoundDto: 8 create()
+activate UsersFoundDto
+
+loop for each user found at the list
+    Service -> User: 9 model2Dto(user)
+    activate User
+    User -> Mapper: 10 create()
+    activate Mapper
+    Mapper ..> UserDto: 
+    deactivate Mapper
+    UserDto ..> Service: 11 userDto
+    deactivate User
+    Service -> UsersFoundDto: 12 addUserDto()
+end
+
+UsersFoundDto --> Controller: 13 usersFoundDto
+deactivate UsersFoundDto
+deactivate Service
+
+Controller -> Json: 14 create(usersFoundDto)
+activate Json
+Json ..> Controller: 15 usersJson
+deactivate Json
+
+Controller --> Admin: 16 Show the list of user found by typed/chosen parameters
+deactivate Controller
+
+@enduml
+```

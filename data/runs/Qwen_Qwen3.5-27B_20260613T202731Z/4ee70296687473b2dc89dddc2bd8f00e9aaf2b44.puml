@@ -1,0 +1,30 @@
+```plantuml
+@startuml
+title Sequence diagram for the whole CCX (external) data pipeline
+
+actor "Smart Proxy" as SmartProxy
+participant "3Scale" as ThreeScale
+package "Insights operator" {
+    participant "Control logic" as ControlLogic
+    database "IO memory cache" as Cache
+}
+participant "CRD" as CRD
+participant "OCP WebConsole" as OCPWebConsole
+
+== Pulling data from Smart Proxy ==
+ControlLogic -> ThreeScale: Get recommendations\norg ID\ncluster ID
+ThreeScale -> SmartProxy: Get recommendations\norg ID\ncluster ID
+SmartProxy --> ThreeScale: Recommendations for cluster
+ThreeScale --> ControlLogic: Recommendations for cluster
+
+== Exposing recommendations ==
+ControlLogic -> Cache: Store recommendations
+Cache -> CRD: Expose recommendations
+
+== Pulling from OCP WebConsole ==
+OCPWebConsole -> CRD: Read recommendations
+CRD --> OCPWebConsole: Here are required data
+
+note bottom: Copyright © 2020 Red Hat, Inc. Author: Pavel Tisnovsky
+@enduml
+```

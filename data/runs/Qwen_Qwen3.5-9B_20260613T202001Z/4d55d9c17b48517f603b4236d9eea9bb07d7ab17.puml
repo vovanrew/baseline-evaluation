@@ -1,0 +1,53 @@
+@startuml
+left to right direction
+actor "User" as User
+rectangle "LoginPartialView" as LoginPartialView
+rectangle "MicrosoftIdentityLibrary" as MicrosoftIdentityLibrary
+rectangle "HomeController" as HomeController
+database "StudieTipsDB" as StudieTipsDB
+
+User -> LoginPartialView: clicks on "Register"
+activate LoginPartialView
+LoginPartialView -> MicrosoftIdentityLibrary: sends action
+activate MicrosoftIdentityLibrary
+MicrosoftIdentityLibrary: Creates RegisterView
+deactivate MicrosoftIdentityLibrary
+
+loop [While user not registered]
+  User -> MicrosoftIdentityLibrary: inputs e-mail, password and password confirmation
+  activate MicrosoftIdentityLibrary
+  alt [E-mail is invalid]
+    MicrosoftIdentityLibrary: Display 'The Email field is not a valid e-mail address'.
+  else [Password is less than 6 or greater than 100 characters]
+    MicrosoftIdentityLibrary: Display 'The password must be at least 6 and at max 100 chracters long.'
+  else [Password and confirmation password do not match]
+    MicrosoftIdentityLibrary: Display 'The password and confirmation password do not match'
+  end
+  deactivate MicrosoftIdentityLibrary
+
+  User -> MicrosoftIdentityLibrary: User clicks register button
+  activate MicrosoftIdentityLibrary
+  alt [Password does not contain at least one symbol]
+    MicrosoftIdentityLibrary: Display 'Passwords must have at least one non alphanumeric character'.
+  else [Passord does not contain at least one digit]
+    MicrosoftIdentityLibrary: Display 'Passwords must have at least one digit ('0'-'9')'.
+  else [Password does not contain uppercase letters]
+    MicrosoftIdentityLibrary: Display 'Passwords must have at least one uppercase ('A'-'Z').
+  else [Password does not contain 4 different characters]
+    MicrosoftIdentityLibrary: Display 'Passwords must use at least 4 different characters.'
+  else [E-mail is already in use]
+    MicrosoftIdentityLibrary: Display 'Username 'E-mail' is already taken.'
+  end
+  deactivate MicrosoftIdentityLibrary
+
+  MicrosoftIdentityLibrary -> StudieTipsDB: Creates user with e-mail and password
+  activate StudieTipsDB
+  deactivate StudieTipsDB
+end
+
+MicrosoftIdentityLibrary -> HomeController: returns action
+activate HomeController
+HomeController: Create home view
+deactivate HomeController
+
+@enduml

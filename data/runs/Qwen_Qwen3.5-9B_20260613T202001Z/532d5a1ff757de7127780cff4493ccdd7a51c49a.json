@@ -1,0 +1,22 @@
+{
+  "id": "7a28f21c-1b9b-4f7a-832d-2c81574c2b20",
+  "object": "chat.completion",
+  "created": 1781415130,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"Sales Clerk\" as clerk\nrectangle \"Presentation\" as presentation {\n  rectangle \"OrderDeliveredUI\" as ui\n}\nrectangle \"Application\" as application {\n  rectangle \"OrderDeliveredController\" as controller\n}\nrectangle \"Service\" as service {\n  rectangle \"OrderDeliveredService\" as service_impl\n}\nrectangle \"Persistence\" as persistence {\n  rectangle \"PersistenceContext\" as persistence_context\n}\nrectangle \"Factory\" as factory {\n  rectangle \"RepositoryFactory\" as factory_impl\n}\nrectangle \"Repository\" as repository {\n  cylinder \"orderRepository : Repository\" as repo\n}\nrectangle \"Domain\" as domain {\n  rectangle \"orderList : List<Order>\" as order_list\n}\nrectangle \"DTO\" as dto {\n  rectangle \"orderDTOList : List<OrderDTO>\" as order_dto_list\n}\nrectangle \"DTO\" as dto2 {\n  rectangle \"orderDTO : OrderDTO\" as order_dto\n}\nrectangle \"DTO\" as dto3 {\n  rectangle \"selectedOrderDTOList : List<OrderDTO>\" as selected_order_dto_list\n}\nrectangle \"Domain\" as domain2 {\n  rectangle \"order : Order\" as order_domain\n}\n\nnote right of clerk\n  The Sales Clerk initializes\n  the process of updating the status of the order\nend note\n\nactivate ui\nactivate controller\nactivate service_impl\nactivate persistence_context\nactivate factory_impl\nactivate repo\nactivate order_list\nactivate order_dto_list\nactivate order_dto\nactivate selected_order_dto_list\nactivate order_domain\n\nui -> controller : create\ncontroller -> service_impl : create\nservice_impl -> persistence_context : repositories()\npersistence_context -> factory_impl : factory\nfactory_impl -> repo : create\npersistence_context -> factory_impl : orderRepository()\nfactory_impl -> repo : create\npersistence_context -> order_list : create\n\nservice_impl -> controller : listAllDispatchedOrders()\ncontroller -> service_impl : listAllDispatchedOrders()\nservice_impl -> order_list : getAllDispatchedOrders()\norder_list -> order_dto_list : create\n\nloop (foreach)\n  order_list -> order_dto : getNext()\n  order_dto -> order_dto : create\n  order_dto -> order_domain : toDTO(order)\n  order_domain -> order_dto : create\n  order_dto -> order_dto_list : add(orderDTO)\nend\n\norder_dto_list -> controller : orderDTOList\ncontroller -> ui : orderDTOList\n\nnote right of clerk\n  The System presents a list of Orders to the\n  Sales Clerk whose Status are \"Preparation\"\n  and asks the Sales Clerk to choose Orders\n  whose Status will be updated to \"Delivered\".\nend note\n\nnote right of clerk\n  The Sales Clerk selects the Orders whose\n  Status are to be updated:\nend note\n\nactivate ui\nactivate controller\nactivate service_impl\nactivate persistence_context\nactivate factory_impl\nactivate repo\nactivate order_list\nactivate order_dto_list\nactivate order_dto\nactivate selected_order_dto_list\nactivate order_domain\n\nui -> controller : updateStatus(selectedOrderDTOList)\ncontroller -> service_impl : updateStatusAndPersist(selectedOrderDTOList)\nservice_impl -> order_dto_list : getNext()\norder_dto_list -> order_dto : getNext()\norder_dto -> order_domain : toOrder(orderDTO)\norder_domain -> order_dto : create\norder_dto -> order_domain : changeStatusToDelivered()\norder_domain -> order_dto : create\norder_dto -> repo : update(order)\n\nrepo -> order_dto : create\n\nnote right of clerk\n  The System updates the Status of the selected Orders\n  and informs the Sales Clerk of the operation success.\nend note\n\ndeactivate ui\ndeactivate controller\ndeactivate service_impl\ndeactivate persistence_context\ndeactivate factory_impl\ndeactivate repo\ndeactivate order_list\ndeactivate order_dto_list\ndeactivate order_dto\ndeactivate selected_order_dto_list\ndeactivate order_domain\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1321,
+    "completion_tokens": 867,
+    "total_tokens": 2188
+  }
+}

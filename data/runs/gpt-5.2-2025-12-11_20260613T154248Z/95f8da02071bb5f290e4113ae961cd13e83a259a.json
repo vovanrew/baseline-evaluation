@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLoEBVyKmJ7MVtGJbG7kF3A6pdAF",
+  "object": "chat.completion",
+  "created": 1781369262,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam sequenceMessageAlign left\nskinparam shadowing false\n\nactor Administrative\n\nparticipant \":AddScooterUI\" as AddScooterUI\nparticipant \":AddScooterController\" as AddScooterController\nparticipant \":Pharmacy\" as Pharmacy\nparticipant \"ls:ListScooters\" as ListScooters\nparticipant \"sc:Scooter\" as Scooter\nparticipant \"bat:Battery\" as Battery\ndatabase \"scdb:ScooterDB\" as ScooterDB\ndatabase \"batdb:BatteryDB\" as BatteryDB\n\nAdministrative -> AddScooterUI : 1 begins the process of adding a scooter\nAddScooterUI -> Administrative : 2 asks for the necessary data(id_Scooter, qrCode, status, id_Battery, capacity)\nAdministrative -> AddScooterUI : 3 inserts the solicited data\n\nAddScooterUI -> AddScooterController : 4 newScooter(id_Scooter, qrCode, status, id_Battery, capacity)\nactivate AddScooterController\n\nAddScooterController -> Pharmacy : 5 ls = getListScooters()\nactivate Pharmacy\nPharmacy --> AddScooterController : 5 ls\ndeactivate Pharmacy\n\nAddScooterController -> ListScooters : 6 sc=newScooter(id_Scooter, qrCode, status, id_Battery, capacity)\nactivate ListScooters\n\nListScooters -> Scooter : 7 create(id_Scooter, qrCode, status, id_Battery, capacity)\nactivate Scooter\n\nScooter -> Battery : 8 create(id_Battery, capacity)\nactivate Battery\n\nBattery -> Battery : 9 validateBattery(bat)\ndeactivate Battery\n\ndeactivate Scooter\n\nAddScooterController -> ListScooters : 10 validateScooter(sc)\ndeactivate ListScooters\n\nAddScooterUI --> Administrative : 11 validates the data, presents it and asks the administrator for its confirmation\nAdministrative -> AddScooterUI : 12 confirms\n\nAddScooterUI -> AddScooterController : 13 registerScooter()\nactivate AddScooterController\n\nAddScooterController -> ListScooters : 14 registerScooter(sc)\nactivate ListScooters\n\nListScooters -> ListScooters : 15 validateScooter(sc)\nListScooters -> ListScooters : 16 addScooter(sc)\nListScooters -> Scooter : 17 save(sc)\nactivate Scooter\n\nScooter -> ScooterDB : 18 save(sc)\nactivate ScooterDB\ndeactivate ScooterDB\n\nScooter -> BatteryDB : 19 save(bat)\nactivate BatteryDB\ndeactivate BatteryDB\n\ndeactivate Scooter\ndeactivate ListScooters\ndeactivate AddScooterController\n\nAddScooterUI --> Administrative : 20 adds the scooter to a list of scooters\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1203,
+    "completion_tokens": 573,
+    "total_tokens": 1776,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

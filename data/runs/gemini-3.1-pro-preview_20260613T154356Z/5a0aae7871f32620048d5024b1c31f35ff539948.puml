@@ -1,0 +1,91 @@
+```plantuml
+@startuml
+participant DefaultResultSetHandler
+participant DefaultResultSetHandler1
+participant DefaultResultSetHandler2
+participant DefaultResultSetHandler3
+participant DefaultResultSetHandler4
+participant DefaultResultSetHandler5
+participant DefaultResultSetHandler6
+participant DefaultResultSetHandler7
+participant DefaultResultSetHandler8
+
+DefaultResultSetHandler -> DefaultResultSetHandler1 : handleResultSets()
+activate DefaultResultSetHandler1
+
+loop
+    DefaultResultSetHandler1 -> DefaultResultSetHandler2 : 1. handleResultSet() : 使用mappedStatement指定的ResultMap将结果集映射成对象
+    activate DefaultResultSetHandler2
+    
+    DefaultResultSetHandler2 -> DefaultResultSetHandler3 : handleRowValues() : 映射结果集
+    activate DefaultResultSetHandler3
+    
+    alt 映射包含嵌套子映射的结果集
+        DefaultResultSetHandler3 -> DefaultResultSetHandler4 : handleRowValuesForNestedResultMap()
+        activate DefaultResultSetHandler4
+        
+        loop
+            DefaultResultSetHandler4 -> DefaultResultSetHandler5 : getRowValue()
+            activate DefaultResultSetHandler5
+            
+            DefaultResultSetHandler5 -> DefaultResultSetHandler6 : 1. createResultObject() : 使用构造器属性映射构造对象
+            DefaultResultSetHandler5 -> DefaultResultSetHandler6 : 2. applyAutomaticMappings() : 使用自动映射映射没有定义映射的
+            DefaultResultSetHandler5 -> DefaultResultSetHandler6 : 3. applyPropertyMappings() : 使用映射映射属性对应的列
+            
+            loop
+                DefaultResultSetHandler6 -> DefaultResultSetHandler7 : getPropertyMappingValue()
+                activate DefaultResultSetHandler7
+                
+                alt 属性的值是内嵌的子查询结果（可能是懒查询）
+                    DefaultResultSetHandler7 -> DefaultResultSetHandler8 : getNestedQueryMappingValue()
+                else 属性的值需要使用resultSet属性指定的结果集来映射（延迟映射的钩子）
+                    DefaultResultSetHandler7 -> DefaultResultSetHandler8 : addPendingChildRelation()
+                else 属性的值直接从结果集中获取
+                    DefaultResultSetHandler7 -> DefaultResultSetHandler8 : typeHandler.getResult()
+                end
+                
+                DefaultResultSetHandler7 --> DefaultResultSetHandler6 : 通过反射将值设置到宿主对象的属性上
+                deactivate DefaultResultSetHandler7
+            end
+            
+            DefaultResultSetHandler5 -> DefaultResultSetHandler6 : 4. applyNestedResultMappings() : 使用内嵌子映射映射生成属性对象（会调用getRowValue()方法）
+            
+            DefaultResultSetHandler5 --> DefaultResultSetHandler4 : 收集映射生成的对象，并且返回
+            deactivate DefaultResultSetHandler5
+        end
+        deactivate DefaultResultSetHandler4
+        
+    else 映射没有嵌套子映射的结果集
+        DefaultResultSetHandler3 -> DefaultResultSetHandler4 : handleRowValuesForSimpleResultMap()
+        activate DefaultResultSetHandler4
+        
+        loop
+            DefaultResultSetHandler4 -> DefaultResultSetHandler5 : getRowValue()
+            activate DefaultResultSetHandler5
+            
+            DefaultResultSetHandler5 -> DefaultResultSetHandler6 : 1. createResultObject() : 使用构造器属性映射构造对象
+            DefaultResultSetHandler5 -> DefaultResultSetHandler6 : 2. applyAutomaticMappings() : 使用自动映射映射没有定义映射的
+            DefaultResultSetHandler5 -> DefaultResultSetHandler6 : 3. applyPropertyMappings() : 使用映射映射属性对应的列
+            
+            DefaultResultSetHandler5 --> DefaultResultSetHandler4 : 收集映射生成的对象，并且返回
+            deactivate DefaultResultSetHandler5
+        end
+        deactivate DefaultResultSetHandler4
+    end
+    deactivate DefaultResultSetHandler3
+    deactivate DefaultResultSetHandler2
+end
+
+loop
+    DefaultResultSetHandler1 -> DefaultResultSetHandler2 : 2. handleResultSet() : 使用resultMapping指定的ResultMap将resultMapping指定的结果集映射成对象（属性值）
+    activate DefaultResultSetHandler2
+    
+    DefaultResultSetHandler2 -> DefaultResultSetHandler3 : 过程与上面完全一样，不同的是收集结果对象：此流程将生成的结果对象设置到宿主属性上
+    deactivate DefaultResultSetHandler2
+end
+
+DefaultResultSetHandler1 --> DefaultResultSetHandler : done
+deactivate DefaultResultSetHandler1
+
+@enduml
+```

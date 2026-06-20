@@ -1,0 +1,249 @@
+```plantuml
+@startuml
+title Interactions between the Control Plane (master node) and the Worker Node
+
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #999999
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #333333
+  ParticipantFontColor #000000
+  ParticipantBackgroundColor #BFE3F2
+  BoxBorderColor #333333
+  BoxBackgroundColor #FFFFFF
+  GroupBorderColor #333333
+  GroupBackgroundColor #FFFFFF
+  NoteBorderColor #333333
+}
+
+actor Georgina
+
+participant "API-Server" as apiserver #BFE3F2
+database "etcd" as etcd #BFE3F2
+participant "Controller Manager" as cm #BFE3F2
+participant "Scheduler" as sched #BFE3F2
+participant "Power Operator" as pop #BFE3F2
+participant "Kubelet" as kubelet #A8E6A3
+participant "Power Node Agent" as pna #A8E6A3
+participant "Power Optimization Library" as pol #A8E6A3
+participant "K8s Objects" as k8sobj #A8E6A3
+participant "Kube-Proxy" as kubeproxy #A8E6A3
+
+legend right
+|= Legend |
+|<#BFE3F2> Control Plane ~ Master Node |
+|<#A8E6A3> Worker Node |
+|<#D9D9D9> Power Manager System Setup |
+|<#FFF2CC> Power Manager Configuration |
+|<#F4B183> Power Manager Deployment |
+endlegend
+
+== Kubernetes Initialization ==
+
+Georgina -> apiserver : 1 kubectl create -f pod.yaml
+apiserver -> etcd : 2 save new state
+apiserver -> cm : 3 check for changes
+sched -> apiserver : 4 watch for unassigned pods(s)
+apiserver -> sched : 5 notify about pod w nodename=""
+sched -> apiserver : 6 assign pod to node
+apiserver -> etcd : 7 save new state
+kubelet -> apiserver : 8 look for newly assigned pod(s)
+apiserver -> kubelet : 9 bind pod to node
+kubelet -> pna : 10 start container
+kubelet -> apiserver : 11 update pod status
+apiserver -> etcd : 12 save new state
+
+== Power Manager Initialization ==
+
+kubelet -> kubeproxy : 1 Ensure correct proxy configuration
+kubelet -> kubelet : 2 Confirm CPU Manager policy
+note right of kubelet #D9D9D9
+cpuManagerPolicy = "static"
+end note
+kubelet -> kubelet : 3 Reserve System CPUs
+note right of kubelet #D9D9D9
+reservedSystemCPUs = "0"
+end note
+
+kubelet -> pna : 4 Create Namespace
+note right of pna #FFF2CC
+apply config/rbac/namespace.yaml
+end note
+
+kubelet -> pna : 5 Create RBAC and Service Accounts
+note right of pna #FFF2CC
+apply config/rbac/rbac.yaml
+end note
+
+kubelet -> k8sobj : 6 Create CRDs
+note right of k8sobj #FFF2CC
+make
+end note
+
+kubelet -> k8sobj : 7 Label nodes
+note right of k8sobj #FFF2CC
+label node <NODE_NAME> feature.node.kubernetes.io/power-node="true"
+end note
+
+== Power Manager Deployment ==
+
+kubelet -> pna : 1 Deploy Controller Manager
+note right of pna #F4B183
+apply config/manager/manager.yaml
+end note
+
+kubelet -> pol : 2 Deploy the config
+note right of pol #F4B183
+examples/example-powerconfig.yaml
+end note
+
+kubelet -> pol : 3 Set Shared Profile
+note right of pol #F4B183
+examples/example-shared-profile.yaml
+end note
+
+kubelet -> pol : 4 Deploy th Workload
+note right of pol #F4B183
+examples/example-shared-workload.yaml
+end note
+
+kubelet -> pol : 5 Deploy Pod
+note right of pol #F4B183
+examples/example-pod.yaml
+end note
+
+== Power Manager additional functionality ==
+
+=== Uncore ===
+kubelet -> kubelet : 1 Confirm Kernel verson
+note right of kubelet #D9D9D9
+kernel 5.6+ required for uncore
+end note
+
+kubelet -> pol : 2 Set Freq in Die and Pkg
+note right of pol #F4B183
+examples/example-uncore
+end note
+
+kubelet -> pna : 3 Deploy Controller Manager
+note right of pna #F4B183
+apply config/manager/manager.yaml
+end note
+
+kubelet -> pol : 4 Deploy the config
+note right of pol #F4B183
+examples/example-powerconfig.yaml
+end note
+
+kubelet -> pol : 5 Set Shared Profile
+note right of pol #F4B183
+examples/example-shared-profile.yaml
+end note
+
+kubelet -> pol : 6 Deploy th Workload
+note right of pol #F4B183
+examples/example-shared-workload.yaml
+end note
+
+kubelet -> pol : 7 Deploy Pod
+note right of pol #F4B183
+examples/example-pod.yaml
+end note
+
+kubelet -> pol : 8 Set Time of Day functionality
+note right of pol #F4B183
+examples/example-timeofday
+end note
+
+=== P-State ===
+kubelet -> pna : 1 Deploy Controller Manager
+note right of pna #F4B183
+apply config/manager/manager.yaml
+end note
+
+kubelet -> pol : 2 Deploy the config
+note right of pol #F4B183
+examples/example-powerconfig.yaml
+end note
+
+kubelet -> pol : 3 Set Shared Profile\nand configure the P-state governor
+note right of pol #F4B183
+examples/example-shared-profile.yaml
+end note
+
+kubelet -> pol : 4 Deploy th Workload
+note right of pol #F4B183
+examples/example-shared-workload.yaml
+end note
+
+kubelet -> pol : 5 Deploy Pod
+note right of pol #F4B183
+examples/example-pod.yaml
+end note
+
+=== C-State ===
+kubelet -> pna : Deploy Controller Manager
+note right of pna #F4B183
+apply config/manager/manager.yaml
+end note
+
+kubelet -> pol : Deploy the config
+note right of pol #F4B183
+examples/example-powerconfig.yaml
+end note
+
+kubelet -> pol : Set Shared Profile
+note right of pol #F4B183
+examples/example-shared-profile.yaml
+end note
+
+kubelet -> pol : Deploy th Workload
+note right of pol #F4B183
+examples/example-shared-workload.yaml
+end note
+
+kubelet -> pol : Deploy Pod
+note right of pol #F4B183
+examples/example-pod.yaml
+end note
+
+kubelet -> pol : Set C-State functionality
+note right of pol #F4B183
+examples/example-cstates
+end note
+
+=== Time of Day ===
+kubelet -> pna : Deploy Controller Manager
+note right of pna #F4B183
+apply config/manager/manager.yaml
+end note
+
+kubelet -> pol : Deploy the config
+note right of pol #F4B183
+examples/example-powerconfig.yaml
+end note
+
+kubelet -> pol : Set Shared Profile
+note right of pol #F4B183
+examples/example-shared-profile.yaml
+end note
+
+kubelet -> pol : Deploy th Workload
+note right of pol #F4B183
+examples/example-shared-workload.yaml
+end note
+
+kubelet -> pol : Deploy Pod
+note right of pol #F4B183
+examples/example-pod.yaml
+end note
+
+kubelet -> pol : Set Time of Day functionality
+note right of pol #F4B183
+examples/example-timeofday
+end note
+
+@enduml
+```

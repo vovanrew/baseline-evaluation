@@ -1,0 +1,51 @@
+```plantuml
+@startuml
+
+package "UI" {
+  class LoginUI {
+  }
+}
+
+package "Controller" {
+  class LoginController {
+    +login(email,password)
+  }
+
+  class ApplicationPOT {
+    +static getInstance()
+    +clearCurrentSession()
+  }
+}
+
+package "Model" {
+  package "Service" {
+    class UserService {
+      +UserService()
+      +newUserSession()
+    }
+  }
+
+  class UserSession {
+    -String email
+    +UserSession()
+  }
+
+  abstract class User {
+    -Integer id
+    -String email
+    -String password
+    -Integer nif
+    -String name
+    +User(email,password,nif,name)
+  }
+}
+
+LoginUI ..> LoginController
+LoginController ..> ApplicationPOT
+ApplicationPOT "1" -- "1" UserSession : has
+UserService "1" --> "*" UserSession : creates
+UserSession "1" --> "1" User : allocates
+LoginController ..> UserService
+
+@enduml
+```

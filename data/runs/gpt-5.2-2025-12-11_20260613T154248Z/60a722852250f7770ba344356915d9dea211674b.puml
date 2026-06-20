@@ -1,0 +1,41 @@
+```plantuml
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 40
+skinparam BoxPadding 10
+
+actor ": Teacher" as Teacher
+boundary ": UpdateRollCallForm" as Form
+control ": StudentController" as Controller
+entity ": RollCall" as RollCall
+entity ": ClassroomMember" as Member
+
+Teacher -> Form : 1 // request update roll call
+activate Form
+Form -> Controller : 2 // request update roll call
+activate Controller
+Controller -> Member : 3 // checking information is valid
+activate Member
+
+alt [information is valid]
+  Member --> Controller : 5 // Information is valid
+  deactivate Member
+  Controller -> RollCall : 6 // Request make roll call
+  activate RollCall
+  deactivate RollCall
+  Controller --> Form : 8 // Roll call update done
+  deactivate Controller
+  Form --> Teacher : 9 // Roll call done
+  deactivate Form
+else [information is not valid]
+  Member --> Controller : 5.1 // Information is not valid
+  deactivate Member
+  Controller --> Form : 5.2 // Roll call update failed
+  deactivate Controller
+  Form --> Teacher : 5.3 // Roll call failed,\ncheck information again
+  deactivate Form
+end
+
+@enduml
+```

@@ -1,0 +1,219 @@
+@startuml
+left to right direction
+package "LanguageServices" as langServices {
+  [LanguageUtils] as langUtils
+  [DecisionGraphServices] as decisionGraphServices
+  [PolicySpaceServices] as policySpaceServices
+  [ValueInferenceServices] as valueInferenceServices
+}
+
+[DecisionGraphFileManager] as decisionGraphFileManager
+[PolicySpaceFileManager] as policySpaceFileManager
+[ValueInferenceFileManager] as valueInferenceFileManager
+
+[LanguageServicesFacade] as languageServicesFacade
+[CacheQueries] as cacheQueries
+[LanguageServices] as languageServices
+[FileManagerFactory] as fileManagerFactory
+[FileManager] as fileManager
+[DecisionGraphFileManagerNaive] as decisionGraphFileManagerNaive
+[PolicySpaceFileManagerNaive] as policySpaceFileManagerNaive
+[ValueInferenceFileManagerNaive] as valueInferenceFileManagerNaive
+[DecisionGraphFileManagerWithCache] as decisionGraphFileManagerWithCache
+[PolicySpaceFileManagerWithCache] as policySpaceFileManagerWithCache
+[ValueInferenceFileManagerWithCache] as valueInferenceFileManagerWithCache
+[LanguageServicesWithCache] as languageServicesWithCache
+
+langUtils ..> decisionGraphServices : uses
+langUtils ..> policySpaceServices : uses
+langUtils ..> valueInferenceServices : uses
+
+decisionGraphFileManager ..> langUtils : uses
+policySpaceFileManager ..> langUtils : uses
+valueInferenceFileManager ..> langUtils : uses
+
+languageServicesFacade ..> languageServices : uses
+languageServices ..> fileManagerFactory : uses
+fileManagerFactory ..> fileManager : creates
+
+fileManager ..> decisionGraphFileManagerNaive : implements
+fileManager ..> policySpaceFileManagerNaive : implements
+fileManager ..> valueInferenceFileManagerNaive : implements
+
+decisionGraphFileManagerNaive ..> decisionGraphFileManagerWithCache : extends
+policySpaceFileManagerNaive ..> policySpaceFileManagerWithCache : extends
+valueInferenceFileManagerNaive ..> valueInferenceFileManagerWithCache : extends
+
+languageServices ..> languageServicesWithCache : extends
+
+languageServicesFacade ..> cacheQueries : implements
+
+note right of languageServicesFacade
+  uriPathMap: Map<String, String>
+  services: LanguageServices
+end note
+
+note right of cacheQueries
+  getAllDefinitionsDGNode(cache: PolicyModelEntity[], name: string): Location[]
+  getAllReferencesDGNode(cache: PolicyModelEntity[], name: string, sourceOfEntity: string): Location[]
+  getAllDefinitionsSlot(cache: PolicyModelEntity[], name: string): Location[]
+  getAllReferencesSlot(cache: PolicyModelEntity[], name: string, sourceOfEntity: string): Location[]
+  getAllFoldingRanges(cache: PolicyModelEntity[]): Location[]
+  getAutoCompleteDecisionGraph(cache: PolicyModelEntity[], currentFile: string, importMap: ImportMap): CompletionList
+  getAutoCompletePolicySpace(cache: PolicyModelEntity[]): CompletionList
+end note
+
+note right of languageServices
+  fileManagers: Map<String, FileManager>
+  parsers: Map<PolicyModelsLanguage, Parser>
+  addDocs(docs: PMTextDocument[]): void
+  updateDoc(doc: PMTextDocument): void
+  removeDoc(doc: string): void
+  initParsers(parserPath: string): Promise<void>
+  getParserByExtension(extension: string): Parser
+  populateMaps(docs: PMTextDocument[]): void
+  getFileManager(doc: PMTextDocument, extension: string): FileManager
+  getFileManagerByLocation(location: Location): FileManager
+  getDeclarations(location: Location): Location[]
+  getReferences(location: Location): Location[]
+  getRangeOfDoc(path: string): Range
+  createPolicyModelEntity(location: Location): PolicyModelEntity
+  getFoldingRanges(path: string): Location[]
+  getCompletion(location: Location): CompletionList
+  init(docs: PMTextDocument[], pluginDir: string): Promise<LanguageServices>
+end note
+
+note right of fileManagerFactory
+  create(doc: PMTextDocument, parser: Parser, language: PolicyModelsLanguage, cacheVersion?: boolean): FileManager
+end note
+
+note right of fileManager
+  tree: Tree
+  path: string
+  errorNodes: SyntaxNode[]
+  updateTree(newTree: Tree): void
+  getCache(): PolicyModelEntity[]
+  isLocationInDoc(location: Location): boolean
+  getNodeFromLocation(location: Location): SyntaxNode
+  rangeArray2LocationArray(ranges: Range[]): Location[]
+  getAllDefinitions(entity: PolicyModelEntity): Location[]
+  getAllReferences(entity: PolicyModelEntity): Location[]
+  getAllSyntaxErrors(): { location: Location, source: string, message: string }[]
+  createPolicyModelEntity(location: Location): PolicyModelEntity
+  getAllDefinitionsDGNode(name: string, source: string): Location[]
+  getAllDefinitionsSlot(name: string): Location[]
+  getAllDefinitionsSlotValue(name: string): Location[]
+  getAllReferencesDGNode(name: string, currentFile: string, sourceOfEntity: string): Location[]
+  getAllReferencesSlot(name: string, sourceOfEntity: string): Location[]
+  getAllReferencesSlotValue(name: string, sourceOfEntity: string): Location[]
+  getFoldingRanges(): Location[]
+  getAutoComplete(location: Location, allCaches: PolicyModelEntity[]): CompletionList
+end note
+
+note right of decisionGraphFileManagerNaive
+  createPolicyModelEntity(location: Location): PolicyModelEntity
+  getAllDefinitionsDGNode(name: string, source: string): Location[]
+  getAllDefinitionsSlot(name: string): Location[]
+  getAllDefinitionsSlotValue(name: string): Location[]
+  getAllReferencesDGNode(name: string, currentFile: string, sourceOfEntity: string): Location[]
+  getAllReferencesSlot(name: string, sourceOfEntity: string): Location[]
+  getAllReferencesSlotValue(name: string, sourceOfEntity: string): Location[]
+  getFoldingRanges(): Location[]
+  getAutoComplete(location: Location, allCaches: PolicyModelEntity[]): CompletionList
+end note
+
+note right of policySpaceFileManagerNaive
+  createPolicyModelEntity(location: Location): PolicyModelEntity
+  getAllDefinitionsDGNode(name: string, source: string): Location[]
+  getAllDefinitionsSlot(name: string): Location[]
+  getAllDefinitionsSlotValue(name: string): Location[]
+  getAllReferencesDGNode(name: string, currentFile: string, sourceOfEntity: string): Location[]
+  getAllReferencesSlot(name: string, sourceOfEntity: string): Location[]
+  getAllReferencesSlotValue(name: string, sourceOfEntity: string): Location[]
+  getFoldingRanges(): Location[]
+  getAutoComplete(location: Location, allCaches: PolicyModelEntity[]): CompletionList
+end note
+
+note right of valueInferenceFileManagerNaive
+  createPolicyModelEntity(location: Location): PolicyModelEntity
+  getAllDefinitionsDGNode(name: string, source: string): Location[]
+  getAllDefinitionsSlot(name: string): Location[]
+  getAllDefinitionsSlotValue(name: string): Location[]
+  getAllReferencesDGNode(name: string, currentFile: string, sourceOfEntity: string): Location[]
+  getAllReferencesSlot(name: string, sourceOfEntity: string): Location[]
+  getAllReferencesSlotValue(name: string, sourceOfEntity: string): Location[]
+  getFoldingRanges(): Location[]
+  getAutoComplete(location: Location, allCaches: PolicyModelEntity[]): CompletionList
+end note
+
+note right of decisionGraphFileManagerWithCache
+  cache: PolicyModelEntity[]
+  importMap: ImportMap
+  updateTree(newTree: Tree): void
+  getCache(): PolicyModelEntity[]
+  createPolicyModelEntity(location: Location): PolicyModelEntity
+  getAllDefinitionsDGNode(name: string, source: string): Location[]
+  getAllDefinitionsSlot(name: string): Location[]
+  getAllDefinitionsSlotValue(name: string): Location[]
+  getAllReferencesDGNode(name: string, currentFile: string, sourceOfEntity: string): Location[]
+  getAllReferencesSlot(name: string, sourceOfEntity: string): Location[]
+  getAllReferencesSlotValue(name: string, sourceOfEntity: string): Location[]
+  getFoldingRanges(): Location[]
+  getAutoComplete(location: Location, allCaches: PolicyModelEntity[]): CompletionList
+end note
+
+note right of policySpaceFileManagerWithCache
+  cache: PolicyModelEntity[]
+  updateTree(newTree: Tree): void
+  getCache(): PolicyModelEntity[]
+  createPolicyModelEntity(location: Location): PolicyModelEntity
+  getAllDefinitionsDGNode(name: string, source: string): Location[]
+  getAllDefinitionsSlot(name: string): Location[]
+  getAllDefinitionsSlotValue(name: string): Location[]
+  getAllReferencesDGNode(name: string, currentFile: string, sourceOfEntity: string): Location[]
+  getAllReferencesSlot(name: string, sourceOfEntity: string): Location[]
+  getAllReferencesSlotValue(name: string, sourceOfEntity: string): Location[]
+  getFoldingRanges(): Location[]
+  getAutoComplete(location: Location, allCaches: PolicyModelEntity[]): CompletionList
+end note
+
+note right of valueInferenceFileManagerWithCache
+  cache: PolicyModelEntity[]
+  updateTree(newTree: Tree): void
+  getCache(): PolicyModelEntity[]
+  createPolicyModelEntity(location: Location): PolicyModelEntity
+  getAllDefinitionsDGNode(name: string, source: string): Location[]
+  getAllDefinitionsSlot(name: string): Location[]
+  getAllDefinitionsSlotValue(name: string): Location[]
+  getAllReferencesDGNode(name: string, currentFile: string, sourceOfEntity: string): Location[]
+  getAllReferencesSlot(name: string, sourceOfEntity: string): Location[]
+  getAllReferencesSlotValue(name: string, sourceOfEntity: string): Location[]
+  getFoldingRanges(): Location[]
+  getAutoComplete(location: Location, allCaches: PolicyModelEntity[]): CompletionList
+end note
+
+note right of languageServicesWithCache
+  getFileManager(doc: PMTextDocument, extension: string): FileManager
+  getCompletion(location: Location): CompletionList
+  init(docs: PMTextDocument[], pluginDir: string): Promise<LanguageServicesWithCache>
+end note
+
+note right of languageServicesFacade
+  addToUriPathMaps(docs: PMTextDocument[]): void
+  addDocs(docs: PMTextDocument[]): void
+  updateDoc(doc: PMTextDocument): void
+  removeDoc(doc: string): void
+  onDefinition(params: DeclarationParams): Location[]
+  onReferences(params: ReferenceParams): Location[]
+  onPrepareRename(params: PrepareRenameParams): Range
+  onRenameRequest(params: RenameParams): Location[]
+  onCompletion(params: TextDocumentPositionParams): CompletionList
+  onCompletionResolve(params: CompletionItem): CompletionItem
+  onFoldingRanges(params: FoldingRangeParams): Location[]
+  convertUri2Path(locationToConvert: Location, uri2path?: boolean): Location
+  convertUri2Path(locationLinkToConvert: LocationLink, uri2path?: boolean): LocationLink
+  convertUri2PathPMTextDocumentToConvert: PMTextDocument, uri2path?: boolean): PMTextDocument
+  init(docs: PMTextDocument[], pluginDir: string): Promise<LanguageServicesFacade>
+end note
+
+@enduml

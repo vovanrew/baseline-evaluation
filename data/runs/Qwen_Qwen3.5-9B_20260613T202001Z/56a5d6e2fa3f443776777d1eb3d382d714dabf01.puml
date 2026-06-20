@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+actor "TaskControl" as TC
+interface "Reins_Agent" as RA
+usecase "ExecCommands" as EC
+usecase "HostRegistry" as HR
+
+loop [all_clients]
+  TC -> RA : [01] identified_key
+  activate RA
+  RA -> EC : [02] check(identified_key)
+  activate EC
+  EC -> EC : [03] varid?(identified_key)
+  EC --x EC : [04] status
+  deactivate EC
+  RA -- TC : [05] status
+  deactivate RA
+  note right of EC : connection check
+  note right of EC : logging status
+  TC -> HR : [06] rewrite_status(identified_key, status)
+  activate HR
+  HR -> HR : [07] set_status(identified_key, IPaddress, status)
+  HR -> HR : [08] store()
+  HR -- TC : [09] true or false
+  deactivate HR
+end loop
+
+@enduml

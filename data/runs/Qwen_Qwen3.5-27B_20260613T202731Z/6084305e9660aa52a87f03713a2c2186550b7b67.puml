@@ -1,0 +1,49 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "Main" as Main
+
+rectangle "YAMLConfiguration" as YAMLConfig {
+}
+
+rectangle "BufrParser" as BufrParser {
+}
+
+rectangle "DataContainer" as DataContainer {
+}
+
+rectangle "IodaEncoder" as IodaEncoder {
+}
+
+Main -> YAMLConfig : YAMLConfiguration(confPath)
+activate Main
+activate YAMLConfig
+deactivate YAMLConfig
+
+Main -> BufrParser : BufrParser(conf)
+activate BufrParser
+
+Main -> BufrParser : parse
+note right of BufrParser: See Query Collecting Data sequence.
+activate BufrParser
+
+BufrParser -> DataContainer : DataContainer()
+activate DataContainer
+deactivate DataContainer
+
+BufrParser --> Main : dataContainer
+deactivate BufrParser
+
+Main -> IodaEncoder : IodaEncoder(conf)
+activate IodaEncoder
+
+Main -> IodaEncoder : encode(dataContainer)
+note right of IodaEncoder: See Query Getting Data sequence.
+activate IodaEncoder
+deactivate IodaEncoder
+deactivate IodaEncoder
+deactivate Main
+
+@enduml
+```

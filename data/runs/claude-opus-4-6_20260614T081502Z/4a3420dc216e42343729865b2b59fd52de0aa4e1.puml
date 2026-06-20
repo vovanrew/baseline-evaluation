@@ -1,0 +1,63 @@
+```plantuml
+@startuml
+
+participant "Client" as Client
+participant "TEAPServer" as TEAPServer
+participant "MASA" as MASA
+
+TEAPServer -> Client : EAP-Request/\nType=Identity
+
+Client -> TEAPServer : EAP-Response/\nType=Identity
+
+rnote left of TEAPServer #FFFFE0
+(1)
+end rnote
+TEAPServer -> Client : EAP-Request/\nType=TEAP,\nTEAP Start,\nAuthority-ID TLV
+
+Client -> TEAPServer : EAP-Response/\nType=TEAP,\nTLS(ClientHello)
+
+TEAPServer -> Client : EAP-Request/\nType=TEAP,\nTLS(ServerHello,\nCertificate,\nServerKeyExchange,\nCertificateRequest,\nServerHelloDone)
+
+Client -> TEAPServer : EAP-Response/\nType=TEAP,\nTLS(Certificate\nClientKeyExchange,\nCertificateVerify,\nChangeCipherSpec,\nFinished)
+
+TEAPServer -> Client : EAP-Request/\nType=TEAP,\nTLS(ChangeCipherSpec,\nFinished),\n{Crypto-Binding TLV,\nResult TLV=Success}
+
+Client -> TEAPServer : EAP-Response/\n,Type=TEAP,\n{Crypto-Binding TLV,\nResult TLV=Success}
+
+note over Client, TEAPServer #FFFFE0
+At this stage the outer TLS tunnel is established
+The following message exchanges are for BRSKI
+end note
+
+rnote left of TEAPServer #FFFFE0
+(2)
+end rnote
+TEAPServer -> Client : EAP-Request/\nType=TEAP,\n{Request-Action TLV:\nStatus=Failure,\nAction=Process-TLV,\nTLV=Request-Voucher,\nTLV=Trusted-Server-Root,\nTLV=CSR-Attributes,\nTLV=PKCS#10}
+
+rnote left of TEAPServer #FFFFE0
+(3)
+end rnote
+Client -> TEAPServer : EAP-Response/\nType=TEAP,\n{Request-Voucher TLV}
+
+TEAPServer -> MASA : RequestVoucher
+
+MASA -> TEAPServer : Voucher
+
+rnote left of TEAPServer #FFFFE0
+(4)
+end rnote
+TEAPServer -> Client : EAP-Request/\nType=TEAP,\n{Voucher TLV}
+
+Client -> TEAPServer : EAP-Response/\nType=TEAP,{Trusted-Server-Root TLV}
+
+rnote left of TEAPServer #FFFFE0
+(5)
+end rnote
+TEAPServer -> Client : EAP-Request/\nType=TEAP,\n{Trusted-Server-Root TLV}
+
+Client -> TEAPServer : EAP-Response/\nType=TEAP,{CSR-Attributes TLV}
+
+TEAPServer -> Client : EAP-Request/\nType=TEAP,\n{CSR-Attributes TLV}
+
+@enduml
+```

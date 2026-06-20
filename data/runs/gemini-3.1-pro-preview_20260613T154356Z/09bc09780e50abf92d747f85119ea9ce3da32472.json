@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nparticipant JCallGraph\nparticipant CliManager\nparticipant MethodCallsList\nparticipant CalledFromList\nparticipant File\nparticipant JarFile\nparticipant ZipEntry\nparticipant ClassParser\nparticipant ClassVisitor\nparticipant Runner\n\nactivate JCallGraph\nJCallGraph -> CliManager : new CliManager()\nactivate CliManager\nJCallGraph -> CliManager : main(args)\ndeactivate CliManager\n\nJCallGraph -> MethodCallsList : getMethodCallsList()\nactivate MethodCallsList\nMethodCallsList -> JCallGraph : MethodCallsList\ndeactivate MethodCallsList\n\nJCallGraph -> File : new File\nactivate File\nFile -> JCallGraph : File\ndeactivate File\n\nJCallGraph -> JarFile : new JarFile(File)\nactivate JarFile\nJarFile -> JCallGraph : JarFile\ndeactivate JarFile\n\nJCallGraph -> JCallGraph : enumerationAsStream(Enumeration<T> e)\nnote right: Jar en formato stream\n\nloop forEach\n    alt isDirectory() and getName().endsWith(\".class\")\n        JCallGraph -> ClassParser : new ClassParser(String, String)\n        activate ClassParser\n        ClassParser -> JCallGraph : cp = ClassParser\n        deactivate ClassParser\n\n        JCallGraph -> JCallGraph : getClassVisitor()\n\n        JCallGraph -> ClassVisitor : apply(ClassParser)\n        JCallGraph -> ClassVisitor : start()\n        activate ClassVisitor\n        ClassVisitor -> JCallGraph : HashMap<MethodReport, List<MethodReport>>\n        deactivate ClassVisitor\n\n        alt != null\n            JCallGraph -> MethodCallsList : add(HashMap<MethodReport, List<MethodReport>>)\n        end\n    end\n    JCallGraph -> Runner : main(String[])\n    JCallGraph -> JCallGraph : exportFiles();\nelse catch\n    JCallGraph -> JCallGraph : printStackTrace()\nend\n\ndeactivate JCallGraph\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHhTHnLSjysgmUGFL6H5epo/FjsylLMQHb2f/bhVan3q9CQq7DWxfrDDja6PFG"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1172,
+    "candidatesTokenCount": 421,
+    "totalTokenCount": 1593,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1092
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "w14xaoy1EPGH28oP1bC_mQ4"
+}

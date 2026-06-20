@@ -1,0 +1,32 @@
+@startuml
+left to right direction
+actor "User" as User
+rectangle "DomainModel" as DomainModel {
+  rectangle "UIBFF" as UIBFF
+  rectangle "CommandBus" as CommandBus
+  rectangle "Aggregate" as Aggregate
+  rectangle "ProcessManager" as ProcessManager
+  rectangle "EventBus" as EventBus
+  rectangle "QueryManager" as QueryManager
+  rectangle "Projectors" as Projectors
+}
+database "ReadModels" as ReadModels
+
+User -> UIBFF : http commands
+UIBFF -> CommandBus : commands
+CommandBus -> Aggregate : commands
+Aggregate -> EventBus : events
+EventBus -> ProcessManager : events
+ProcessManager -> CommandBus : commands
+EventBus -> Projectors : events
+Projectors -> ReadModels : write
+EventBus -> UIBFF : events
+UIBFF -> User : push
+User -> UIBFF : http queries
+UIBFF -> QueryManager : queries
+QueryManager -> ReadModels : results
+ReadModels -> QueryManager : results
+QueryManager -> UIBFF : results
+UIBFF -> User : results
+
+@enduml

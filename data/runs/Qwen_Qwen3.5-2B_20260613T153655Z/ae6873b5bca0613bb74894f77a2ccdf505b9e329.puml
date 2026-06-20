@@ -1,0 +1,32 @@
+@startuml
+participant "halon" as Halon
+participant "ios1" as IOS1
+participant "ios2" as IOS2
+participant "client" as Client
+
+Halon --> IOS1 : m0_spiel_repair_abort
+Halon --> IOS2 : m0_spiel_repair_abort
+
+Halon --> IOS1 : repair status request
+Halon --> IOS2 : repair status request
+
+IOS1 --> IOS2 : repair status reply
+IOS2 --> IOS1 : repair status reply
+
+Halon --> Client : notify [(pool, PREVIOUS_STATE), (disk, PREVIOUS_STATE)]
+
+Halon --> IOS1 : loop
+loop [until all IOS are in [IDLE,FAILED]]
+Halon --> IOS1 : repair status request
+IOS1 --> Halon : repair status reply
+Halon --> IOS2 : repair status request
+IOS2 --> Halon : repair status reply
+end loop
+
+Halon --> IOS1 : SNS operation
+Halon --> IOS2 : SNS operation
+
+Halon --> IOS1 : X
+Halon --> IOS2 : X
+
+@enduml

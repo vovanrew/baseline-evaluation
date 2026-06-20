@@ -1,0 +1,22 @@
+{
+  "id": "33bc3dea-218d-4597-b623-94ee679de093",
+  "object": "chat.completion",
+  "created": 1781485425,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nleft to right direction\nskinparam monochrome true\n\nactor \"Sales Clerk\" as SalesClerk\nparticipant \"OrderDeliveredUI\" as UI <<Presentation>>\nparticipant \"OrderDeliveredController\" as Controller <<Application>>\nparticipant \"OrderDeliveredService\" as Service <<Service>>\nparticipant \"PersistenceContext\" as Persistence <<Persistence>>\nparticipant \"RepositoryFactory\\nfactory : RepositoryFactory\" as Factory <<Factory>>\ndatabase \"Repository\\norderRepository : Repository\" as Repository\nparticipant \"List<Order>\\norderList\" as OrderList <<Domain>>\nparticipant \"List<OrderDTO>\\norderDTOList\" as OrderDTOList <<DTO>>\nparticipant \"OrderMapper\\n: OrderMapper\" as Mapper <<DTO>>\nparticipant \"OrderDTO\\norderDTO : OrderDTO\" as OrderDTO <<DTO>>\nparticipant \"List<OrderDTO>\\nselectedOrderDTOList\" as SelectedOrderDTOList <<DTO>>\nparticipant \"Order\\norder : Order\" as Order <<Domain>>\n\nnote over SalesClerk: The Sales Clerk initializes\\nthe process of updating the status of the order\n\nSalesClerk -> UI: create\nactivate UI\nUI -> Controller: create\nactivate Controller\nController -> Service: repositories()\nactivate Service\nService -> Persistence: create\nactivate Persistence\nPersistence --> Service: factory\ndeactivate Persistence\nService -> Factory: orderRepository()\nactivate Factory\nFactory -> Repository: create\nactivate Repository\nRepository --> Factory: orderRepository\ndeactivate Repository\ndeactivate Factory\nService --> Controller: orderRepository\ndeactivate Service\nController -> Service: listAllDispatchedOrders()\nactivate Service\nService -> Repository: getAllDispatchedOrders()\nactivate Repository\nRepository --> Service: orderList\ndeactivate Repository\nService -> OrderList: create\nactivate OrderList\nOrderList --> Service: create\ndeactivate OrderList\n\nrect rgb(200, 200, 255)\n    note left: loop\n    note right: {break}\\ngetNext()\n    Service -> OrderList: getNext()\n    activate OrderList\n    OrderList --> Service: order\n    deactivate OrderList\n    Service -> Mapper: toDTO(order)\n    activate Mapper\n    Mapper -> OrderDTO: create\n    activate OrderDTO\n    OrderDTO --> Mapper: orderDTO\n    deactivate OrderDTO\n    deactivate Mapper\n    Service -> OrderDTOList: add(orderDTO)\n    activate OrderDTOList\n    OrderDTOList --> Service: \n    deactivate OrderDTOList\nend rect\n\nService --> Controller: orderDTOList\ndeactivate Service\nController --> UI: orderDTOList\ndeactivate Controller\ndeactivate UI\n\nnote over SalesClerk: The System presents a list of Orders to the\\nSales Clerk whose Status are \"Preparation\"\\nand asks the Sales Clerks to choose Orders\\nwhose Status will be updated to \"Delivered\".\n\nnote over SalesClerk: The Sales Clerk selects the Orders whose\\nStatus are to be updated.\n\nSalesClerk -> UI: updateStatus(selectedOrderDTOList)\nactivate UI\nUI -> Controller: updateStatusAndPersist(selectedOrderDTOList)\nactivate Controller\nController -> Service: updateStatusAndPersist(selectedOrderDTOList)\nactivate Service\n\nrect rgb(200, 200, 255)\n    note left: loop\n    note right: {break}\\ngetNext()\n    Service -> SelectedOrderDTOList: getNext()\n    activate SelectedOrderDTOList\n    SelectedOrderDTOList --> Service: orderDTO\n    deactivate SelectedOrderDTOList\n    Service -> Mapper: toOrder(orderDTO)\n    activate Mapper\n    Mapper --> Service: order\n    deactivate Mapper\n    Service -> Order: changeStatusToDelivered()\n    activate Order\n    Order --> Service: \n    deactivate Order\n    Service -> Repository: update(order)\n    activate Repository\n    Repository --> Service: \n    deactivate Repository\nend rect\n\nService --> Controller: \ndeactivate Service\nController --> UI: \ndeactivate Controller\ndeactivate UI\n\nnote over SalesClerk: The System updates the Status of the selected Orders\\nand informs the Sales Clerk of the operation success.\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1321,
+    "completion_tokens": 886,
+    "total_tokens": 2207
+  }
+}

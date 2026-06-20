@@ -1,0 +1,44 @@
+@startuml
+title UML Sequence Diagram: Database Connection Pooling
+
+participant "User" as User
+participant "BaseExecutor" as BaseExecutor
+participant "JdbcTransaction" as JdbcTransaction
+participant "PooledDataSource" as PooledDataSource
+participant "PooledConnection" as PooledConnection
+participant "Proxy" as Proxy
+participant "Connection" as Connection
+
+participant "User" as User1
+participant "BaseExecutor" as BaseExec1
+participant "JdbcTransaction" as JdbcTrans1
+participant "PooledDataSource" as PooledData1
+participant "PooledConnection" as PooledConn1
+participant "Proxy" as Proxy1
+participant "Connection" as Conn1
+
+User1 ..> BaseExec1 : getConnection
+BaseExec1 ..> JdbcTrans1 : getConnection
+JdbcTrans1 ..> PooledData1 : openConnection
+PooledData1 ..> PooledConn1 : getConnection
+PooledData1 ..> PooledConn1 : popConnection
+PooledData1 ..> PooledConn1 : <create>
+PooledConn1 ..> Proxy1 : newProxyInstance
+Proxy1 ..> PooledConn1 : 创建Connection代理类对象
+PooledConn1 ..> PooledData1 : 返回PooledConnection实例
+PooledData1 ..> PooledConn1 : isValid
+PooledConn1 ..> PooledData1 : pingConnection
+PooledData1 ..> PooledConn1 : 检测连接是否有效
+PooledData1 ..> PooledConn1 : 连接是否有效标识
+PooledData1 ..> PooledConn1 : getProxyConnection
+PooledConn1 ..> PooledData1 : 返回代理连接
+JdbcTrans1 ..> PooledData1 : 返回代理连接
+JdbcTrans1 ..> PooledData1 : setTransactionIsolation
+PooledData1 ..> Connection : 设置隔离级别
+JdbcTrans1 ..> PooledData1 : setDesiredAutoCommit
+JdbcTrans1 ..> BaseExec1 : 设置提交模式
+JdbcTrans1 ..> BaseExec1 : 获取连接
+JdbcTrans1 ..> BaseExec1 : 通过jdbc获取数据库连接
+BaseExec1 ..> User1 : 返回数据库连接
+
+@enduml

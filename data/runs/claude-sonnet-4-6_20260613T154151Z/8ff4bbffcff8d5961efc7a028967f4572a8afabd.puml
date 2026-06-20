@@ -1,0 +1,26 @@
+@startuml
+participant "File" as File
+participant "LexicalAnalysisDriver" as LAD
+participant "LexicalAnalysisJava" as LAJ
+participant "JavaSyntaxLib" as JSL
+participant "TypeCheck" as TC
+participant "ColorCode" as CC
+participant "ErrorCheck" as EC
+
+File -> LAD : invokes
+LAD -> LAJ : Calls
+LAJ -> JSL : Calls
+JSL --> LAJ : 
+LAJ -> TC : SyntaxTypeCheck()
+TC --> File : Return(TypeCheck)
+LAJ -> CC : SyntaxColorCheck()
+CC --> File : Return(ColorCode)
+LAJ -> EC : SyntaxErrorCheck()
+
+alt [successful case]
+    EC --> File : Error Free
+else [Error Case]
+    EC --> File : Return Error Message
+end
+
+@enduml

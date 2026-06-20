@@ -1,0 +1,22 @@
+{
+  "id": "822fc93d-dd85-4928-ace3-86f0213a2a43",
+  "object": "chat.completion",
+  "created": 1781413134,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle US029 \u2013 As Project Manager, I want to start a sprint.\n\nactor \"Project Manager\" as PM\nparticipant \": StartSprintRoute\" as Route\nparticipant \": StartSprintController\" as Controller\nparticipant \": StartSprintService\" as Service\nparticipant \"dto : SprintDTO\" as DTO\nparticipant \": Project\" as Project\nparticipant \": SprintDomainService\" as DomainService\nparticipant \": SprintStore\" as Store\nparticipant \": ResourceStore\" as ResourceStore\n\nPM -> Route: Asks to start a Sprint\nRoute -> Controller: startSprint(sprintDTO)\nController -> Service: startSprint(sprintDTO)\nService -> Project: getProjectTeam()\nProject --> Service: projectTeam\nService -> Project: getSprintDuration()\nProject --> Service: sprintDuration\nService -> Store: startSprint(dto.projectID, dto.sprintID, dto.startDate, projectTeam, sprintDuration)\nStore -> Store: findAllSprintByProjectID (projectID)\nStore -> Store: findSprintByID (sprintID)\nStore -> Service: validateStartDate(startDate)\nService --> Store: true\nStore -> ResourceStore: validateProjectTeam(startDate, sprintDuration)\nResourceStore --> Service: true\nService -> Store: getProductOwnerByStartDate(startDate, sprintDuration)\nStore --> Service: true\nService -> Store: getScrumMasterByStartDate(startDate, sprintDuration)\nStore --> Service: true\nService -> Store: setStartDate(startDate)\nStore --> Service: true\nService --> Controller: true\nController --> PM: Informs Operation Success\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1615,
+    "completion_tokens": 337,
+    "total_tokens": 1952
+  }
+}

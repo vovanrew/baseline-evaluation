@@ -1,0 +1,90 @@
+```plantuml
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F6
+  BoxBorderColor #666666
+  BoxBackgroundColor #FFFFFF
+  NoteBackgroundColor #FFF9C4
+  NoteBorderColor #888888
+}
+
+' Participants
+participant "Mojaloop Adapter" as MA #B9D7F5
+participant "API" as API #E9E9F6
+participant "api / Handler" as H #E9E9F6
+participant "Application Layer\n(domain / service / facade)" as AL #E9E9F6
+participant "TigerBeetle Client" as TBC #DFF0D8
+participant "TigerBeetle Cluster" as TBS #DFF0D8
+database "MySQL" as MYSQL
+
+' Group headers (as in diagram)
+box "Central-Settlement" #FFFDF2
+  participant API
+  participant H
+  participant AL
+end box
+
+box "Storage" #F3FFF3
+  participant TBC
+  participant TBS
+  database MYSQL
+end box
+
+' Top explanatory notes
+note left of MA
+Hub operator or
+DFSP interactions
+end note
+
+note right of API
+NodeJS interface
+invokes REST API
+end note
+
+note right of H
+JSON request decoded &
+processed via handler
+end note
+
+note right of AL
+Expose service functions &
+handle database interactions
+end note
+
+' Main interaction frame
+group Update Settlement
+  MA -> API : 1 JSON\n(settlement data)
+  API -> H  : 2 Invoke handler
+  H  -> AL  : 3 Invoke application layer
+
+  AL -> MYSQL : 4 Retrieve settlement data\n(excluding accounts)
+  AL -> TBC   : 5 Retrieve accounts for all\nfor a settlement window
+  note right of AL
+  Transfers
+  end note
+
+  AL -> MYSQL : 6 Update settlement data\n(excluding accounts)
+
+  AL -> AL : 7 Settlement state\nprocessing
+
+  AL -> TBC : 8 Invoke account creation based on\nsettlement state of each Transfer
+  TBC -> TBS : 9 Create settlement accounts\n& return result
+  TBS --> TBC : 9 Create settlement accounts\n& return result
+
+  TBC --> AL : 10 Return settlement result
+
+  AL -> MYSQL : 11 Update final settlement state\n& return result
+
+  AL --> H : 12 Return result
+  H  --> API : 13 Return result
+  API --> MA : 14 Return result with\nsettlementData
+end group
+
+@enduml
+```

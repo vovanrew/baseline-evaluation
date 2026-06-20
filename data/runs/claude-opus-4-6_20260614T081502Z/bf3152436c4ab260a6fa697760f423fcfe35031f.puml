@@ -1,0 +1,34 @@
+```plantuml
+@startuml
+title Policy Authorization flow between Smart Edge Open and 5G core
+
+caption Proprietary and Confidential
+
+actor "User/Admin" as user
+
+box "Smart Edge Open Controller Components" #lightblue
+    participant "CLI" as cli #lightgreen
+    participant "Af Microservice" as af #lightblue
+end box
+
+box "5G Core Components" #lightgreen
+    participant "NEF" as nef #lightgreen
+    participant "NGC CP Function" as ngc #lightgreen
+end box
+
+note over nef : Smart Edge Open provided\nCore component with\nlimited functionality
+
+group Policy Authorization - Application Session Context GET flow
+
+    user -> cli : Get app session context with\nappSessionId
+    cli -> af : /af/v1/policy-authorization/app-sessions/{appSessionId}\nGET
+    af -> ngc : /npcf-policyauthorization/v1/app-sessions/{appSessionId}\nGET
+    af <.. ngc : 200 OK: app-session\ninformation \\ ERROR
+    cli <.. af : 200 OK: app-session\ninformation\\ ERROR
+    user <.. cli : Success: app-session\ninformation
+
+end
+
+footer Intel Corporation
+@enduml
+```

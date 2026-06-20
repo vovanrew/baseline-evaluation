@@ -1,0 +1,22 @@
+{
+  "id": "0e603afe-cb8f-4682-877d-564aa470c5f1",
+  "object": "chat.completion",
+  "created": 1781915165,
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle create order sequence diagram\n\nactor Customer\nparticipant \"Cashier\" as Cashier #90EEF5 \ndatabase \":Inventory System\\n\" as InventorySystem  { }  \nentity :Order   { }   \ncontrol :Product    { }    \nboundary :Stock     { }     \ncollections :Invoice      { }      \nqueue :Transaction        { }       \n\nCustomer ->> Cashier:1. Request order product \\n2. Receive order \n\nactivate Cashier  \n\ngroup alt [IF (stock.qty > order.qty)]{\n\tCashier->>+InventorySystem:3.requestCreateOrder()\t\n\tInventorySystem->>+Product:3.1 selectProduct()\\n3.4 return product\n\t\n\tgroup Product Stock Interaction {\t\t\n\t\t activate Product \t\t\n\t\t  Product->>+Stock:3.2 checkStock()\t\t  \n\t\t   Stock-->-Product:3.3 return stock \t\t  \t\t \t  \t    \t    \t\t    \t\t\n\t\t    deactivate Stock\t\t    \n\t\t    \tdeactivate Product\t\t    \t\t    \t\t\t    \t\n\t\t    \t    \t\t    \t\t\t\t    \t\t    \t\t\t\t\t    \t\t    \t   \t\t\t        \t\t        \t\t\t\t\t        \t\t\t        \t\t\t\t        \n\t\t\t\t         \t\t\t\t\t\t           \t\t\t\t\t\t\t            \t\t\t\t\t\t\t\t            \t          \t            \t\t            \t\t           \t\t               \t\t\t               \t\t\t           \t\t\t\t           \t\t\t\t       \t\t\t       \t\t\t\t\t       \t\t\t\t\t   \t\t\t\t\t\t   \t\t\t\t\t\t\t   \t\t\t\t\t\t\t\t\t   \t\t        \t        \t\n\t\t        \t\t\t\n\t\t        end group\n\t\t\n\talt IF(stock.qty <order.qty) then else ELSE[ELSE]\n\t    loop for each item in cart do       \n\t        note right of OrderItem:\\t\\t\\tsave to DB         \n\t    \tendloop\t    \t      \t      \t     \t\t      \t\t     \t\t\t      \t\t\t     \t\t\t    \t\t\t   \t\t\t  \t\t\t \t\t\t \n\t  endif\t  \t  \t          \n\t  \nend group\n\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1762,
+    "completion_tokens": 311,
+    "total_tokens": 2073
+  }
+}

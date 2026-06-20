@@ -1,0 +1,74 @@
+```plantuml
+@startuml
+
+package "surcharge" {
+
+  package "seat" {
+
+    enum SeatType {
+      FreeSeat
+      ReservedSeat
+      --
+      {abstract} + createSeat(superExpress : SuperExpress) : Seat
+    }
+
+    interface Seat {
+      + getSeatSurcharge()
+    }
+
+    class FreeSeat <<C>> {
+      - Hikari
+      --
+      + getSeatSurcharge() : Yen
+    }
+
+    class ReservedSeat <<C>> {
+      - SuperExpress
+      --
+      + getSeatSurcharge() : Yen
+    }
+
+    SeatType o--> Seat
+    Seat <|.. FreeSeat
+    Seat <|.. ReservedSeat
+  }
+
+  package "superexpress" {
+
+    enum ShinkansenType {
+      Hikari
+      Nozomi
+      --
+      {abstract} + createSuperExpress(destination : Destination) : SuperExpress
+    }
+
+    interface SuperExpress {
+      + getSuperExpressSurcharge() : Yen
+    }
+
+    enum Hikari <<E>> {
+      ShinOsaka
+      Himeji
+      --
+      + getSuperExpressSurcharge() : Yen
+    }
+
+    enum Nozomi <<E>> {
+      ShinOsaka
+      Himeji
+      --
+      + getSuperExpressSurcharge() : Yen
+    }
+
+    ShinkansenType --> SuperExpress
+    SuperExpress <|.. Hikari
+    SuperExpress <|.. Nozomi
+  }
+
+  ReservedSeat --> SuperExpress
+  FreeSeat --> Hikari
+
+}
+
+@enduml
+```

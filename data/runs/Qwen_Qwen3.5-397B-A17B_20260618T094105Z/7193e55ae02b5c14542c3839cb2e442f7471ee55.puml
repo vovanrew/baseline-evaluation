@@ -1,0 +1,17 @@
+@startuml
+title Dubbo 获取zk注册中心实例
+
+participant "RegistryProtocol" as RP1 #lightblue
+participant "AbstractRegistryFactory\n(抽象工厂)" as ARF #orange
+participant "ZookeeperRegistryFactory\n(ZK实现类)" as ZRF #green
+
+RP1 ->> ARF : [01] registryFactory.getRegistry(registryUrl) \n// RegistryProtocol调用getRegistry()方法，\n// getRegistry内部会先检查缓存中是否有该url对应的registry对象。如果没有则创建并放入缓存。\nactivate ARF 
+
+ARF ->> ZRF : [02] createRegistry(url); // AbstractRegistryFactory的createRegistry是模板方法,\n由子类具体实现如何创建一个具体的Registry.\ndeactivate ARF 
+note right of ZRF: ZookeeperRegistryFactory继承自AbstractRegistryFactory,<br/>重写了其父类的protected abstract method<br/><b><font color=red>@Override</font></b>\n<code style="color:red">public class ZooKeeperService extends Service implements ApplicationListener<ApplicationEvent>{...}</code>.  
+
+return new <u>ZookeepeRRegistery()</u>;  
+deactivate all;
+
+
+@enduml

@@ -1,0 +1,22 @@
+{
+  "id": "3f1ad64f-5f46-4d97-b66f-21ecddc9469e",
+  "object": "chat.completion",
+  "created": 1781494384,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nautonumber\n\nparticipant \"halon\" as halon\nparticipant \"ios1\" as ios1\nparticipant \"ios2\" as ios2\nparticipant \"client\" as client\n\nbox \"SNS operation start\" #LightGray\n  note right of halon: notification [(pool, repair), (disk, repair)]\n  \n  rect \"loop [until all ios are ready]\" #White\n    halon -> ios2 : repair status request\n    ios2 --> halon : repair status reply\n  end\n  \n  halon -> ios2 : spiel_repair_start\nend\n\nnote right of halon: repair process\n\nalt \"sucessful case\"\n  ios1 -> halon : notify [(pool, repaired), (disk, repaired)]\n  \n  box \"SNS status query\" #LightGray\n    rect \"loop [unil all ios are in IDLE]\" #White\n      halon -> ios2 : repair status request\n      ios2 --> halon : repair status reply [IDLE, IDLE]\n    end\n    \n    halon -> client : notify [(pool, REPAIRED), (disk, REPAIRED)]\n  end\nelse \"partial repair\"\n  ios1 -> halon : notify [(pool, repair), (disk, repair)]\n  note right of halon: Abort SNS operation\nelse \"transient disk\"\n  ios1 -> halon : notify [(disk, transient)]\n  note right of halon: Pause SNS operation\nelse \"failed disk\"\n  ios1 -> halon : notify [(disk, failed)]\n  note right of halon: Abort SNS operation\nend\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2056,
+    "completion_tokens": 359,
+    "total_tokens": 2415
+  }
+}

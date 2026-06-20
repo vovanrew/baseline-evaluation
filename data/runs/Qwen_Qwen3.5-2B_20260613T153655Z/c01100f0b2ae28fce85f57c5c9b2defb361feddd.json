@@ -1,0 +1,22 @@
+{
+  "id": "af19dcb8-6090-4bfd-94e6-f5f203a51db4",
+  "object": "chat.completion",
+  "created": 1781402723,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n\nparticipant \"Customer\" as C\nparticipant \"Device\" as D\nparticipant \"DeviceProvisioningService\" as DPS\nparticipant \"ProductIoTHub\" as PIH\nparticipant \"FWProvider\" as FWP\n\nnote over D, PIH, FWP: Device was registered for this product before\nnote over C: First start\n\nC ->> D: Switch On/Power Up\nD ->> DPS: registerDevice(callback)\nD <- DPS: callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)\nD ->> DPS: setProperties\nD ->> DPS: iamNewToYou(deviceId, firmwareversion)\n\nopt [Firmware needs to be updated]\nD ->> DPS: updateFWMandatory(URL)\nD ->> PIH: URL.get(OLDFW)\nD <- PIH: FW, Checksum\nD ->> DPS: CheckChecksum\nD ->> DPS: update\nD ->> DPS: restart\nD ->> DPS: Booting up\nD ->> DPS: iamNewToYou(deviceId, firmwareversion)\nD ->> DPS: youMayStartSending()\nD ->> PIH: sendData(Data)\n\nnote over D: Working\nnote over C: Claim/Remove\n\nC ->> D: youMustRetire()\nD ->> C: waits\n\nopt [if Device was not reached]\nD ->> PIH: sendData(Data)\nD ->> PIH: Not registered\nD ->> DPS: registerDevice(callback)\nD <- DPS: callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ERROR, null, null)\nD ->> C: NobodyLovesMeMode()\n\nloop [once a day]\nD ->> DPS: registerDevice(callback)\nloop [several times]\nD ->> PIH: sendData(Data)\nD ->> PIH: NotAvailable/Network Error\nD ->> DPS: registerDevice(callback)\nD ->> DPS: callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)\nD ->> DPS: compare IoTHub and change if necessary\nnote over D: if connection is now successful, go on. If not and IoT Hub has not changed\\nrepeat with low frequency. Also if DPS is not available.\nend loop\nend loop\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1860,
+    "completion_tokens": 500,
+    "total_tokens": 2360
+  }
+}

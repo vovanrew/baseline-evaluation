@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Uw6yWVyD9GXeRarJr9bL2p",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceMessageAlign left\nskinparam maxMessageSize 200\n\ntitle \u89e3\u6790\u5904\u7406@EnableTransactionManagement\u6ce8\u89e3\n\nparticipant \"ConfigurationClassPostProcessor\" as CCPP\nparticipant \"ConfigurationClassParser\" as CCP\nparticipant \"ComponentScanAnnotationParser\" as CSAP\nparticipant \"AdviceModeImportSelector\" as AMIS\nparticipant \"TransactionManagementConfigurationSelector\" as TMCS\nparticipant \"ConfigurationClass\" as CC\nparticipant \"ConfigurationClassBeanDefinitionReader\" as CCBDR\nparticipant \"AutoProxyRegistrar\" as APR\nparticipant \"AopConfigUtils\" as ACU\n\nCCPP -> CCP : postProcessBeanDefinitionRegistry\nCCP -> CCP : parse(AnnotationMetadata metadata, String beanName)\nCCP -> CCP : processConfigurationClass(ConfigurationClass configClass)\nCCP -> CCP : doProcessConfigurationClass(ConfigurationClass configClass, SourceClass sourceClass)\n\nalt [\u5f53\u524d\u88ab\u89e3\u6790\u7684Class\u88ab@ComponentScan\u6807\u6ce8\uff0c\u8fdb\u884c\u626b\u63cf]\n  note over CCP : @ComponentScan\u626b\u63cf\n  CCP -> CSAP : parse(AnnotationAttributes componentScan, final String declaringClass)\n  CSAP -> CCP : parse(String className, String beanName)\n  CCP -> CCP : processConfigurationClass(ConfigurationClass configClass)\u9010\u884c\u89e3\u6790\u626b\u63cf\u5230\u7684\u7c7b\n  CCP -> CCP : processImports(configClass, sourceClass, getImports(sourceClass), true)\n\n  note over CCP,AMIS : \u83b7\u53d6\u5230AutoProxyRegistrar\u3001ProxyTransactionManagementConfiguration\n  CCP -> AMIS : selectImports(AnnotationMetadata)\n  AMIS -> TMCS : selectImports(AdviceMode)\n\n  note over CCP,APR : \u9010\u5f52\u5904\u7406AutoProxyRegistrar\u3001ProxyTransactionManagementConfiguration\n  note over CCP : \u6dfb\u52a0AutoProxyRegistrar\u3001AspectJAutoProxyRegistrar\u5230\u5173\u8054\u914d\u7f6e\u7c7b\\n\uff08\u5373\u6807\u8bb0@EnableTransactionManagement\u7684\u7c7b\uff09\\n\u7684ImportBeanDefinitionRegistrars\u5c5e\u6027\u4e2d\n  CCP -> APR : addImportBeanDefinitionRegistrar\n\n  note over CCP : \u6309\u7167\u666e\u901a\u914d\u7f6e\u7c7b\u5904\u7406ProxyTransactionManagementConfiguration\n  CCP -> CC : processConfigurationClass\n  CC -> CCP : \u89e3\u6790\u5b8c\u914d\u7f6e\u7c7b\nend\n\nnote over CCPP,CC : \u52a0\u8f7d\u914d\u7f6e\u7c7b\u7684\u914d\u7f6e\u4fe1\u606f\nCCPP -> CCBDR : loadBeanDefinitions\nCCBDR -> CCBDR : loadBeanDefinitionsForConfigurationClass\nCCBDR -> CCBDR : registerBeanDefinitionForImportedConfigurationClass\n\nnote over CCBDR : \u5982\u679c\u662f\u7531\u914d\u7f6e\u7c7b\u5bfc\u5165\u7684\uff0c\u76f4\u63a5\u6ce8\u518c\u5230beanfactory\n\nnote over CCBDR,ACU : \u5904\u7406ProxyTransactionManagementConfiguration\uff0c\u5bfc\u5165\u4e86\u5207\u9762BeanFactoryTransactionAttributeSourceAdvisor\nnote over CCBDR : \u52a0\u8f7d@Bean\u6807\u8bb0\u7684\u6ce8\u518c\u65b9\u6cd5\nCCBDR -> CCBDR : loadBeanDefinitionsForBeanMethod\n\nnote over CCBDR : \u5904\u7406@ImportResource\nCCBDR -> CCBDR : loadBeanDefinitionsFromImportedResources\n\nnote over CCBDR,ACU : \u5904\u7406AutoProxyRegistrar\uff0c\u6ce8\u518c\u4e86InfrastructureAdvisorAutoProxyCreator\nnote over CCBDR : \u5904\u7406@Import\uff0c\u5bfc\u5165\u7684ImportBeanDefinitionRegistrar\u7c7b\nCCBDR -> CCBDR : loadBeanDefinitionsFromRegistrars\nCCBDR -> CCBDR : registerBeanDefinitions\n\nnote over ACU : \u6ce8\u518cInfrastructureAdvisorAutoProxyCreator\nACU -> ACU : registerAutoProxyCreatorIfNecessary\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781372259,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 966,
+    "prompt_tokens": 1384,
+    "total_tokens": 2350
+  }
+}

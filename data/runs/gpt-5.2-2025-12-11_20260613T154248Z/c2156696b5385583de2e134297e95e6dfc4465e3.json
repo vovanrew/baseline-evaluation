@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLrG5HQ3X20ubfrwEA8Eaas94efF",
+  "object": "chat.completion",
+  "created": 1781369450,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  ParticipantPadding 25\n  BoxPadding 15\n  LifeLineBorderColor #888888\n  LifeLineBackgroundColor transparent\n  MessageAlign center\n}\nskinparam BoxBackgroundColor #e6e6e6\nskinparam BoxBorderColor #b0b0b0\n\nparticipant Client as Client\n\nbox \"Master\" #e6e6e6\n  participant Dispatcher as Dispatcher\n  database Database as Database\n  participant RSyncServer as RSyncServer\n  participant Arbiter as Arbiter\nend box\n\nbox \"Worker\" #e6e6e6\n  participant Worker as Worker\n  participant Slave as Slave\nend box\n\nClient -> Dispatcher : Create a taskset\nClient -> Dispatcher : Enqueue tasks\nClient -> Dispatcher : Taskset request\n\nDispatcher -> Worker : Taskset dispatch\nWorker -> Database : Log the worker participation\n\n== RSync ==\nRSyncServer -> Worker : RSync\n\n== Setup ==\nRSyncServer -> Worker : Setup\nWorker -> Worker : Worker setup\nWorker -> Database : Add a worker setup log\n\nalt [setup failed]\n  Worker -> Arbiter : Fail request\n  Arbiter -> Database : Mark the taskset as failed\n  Arbiter -> Worker : Notify the taskset is marked as failed\nend\n\n== Testing ==\nWorker -> Slave : Spawn slaves\nSlave -> Slave : Slave setup\n\nDatabase -> Worker : Dequeue a task\nDatabase --> Worker : Return a task\nWorker -> Database : Add a trial\nWorker -> Slave : Execute a task\nWorker -> Database : Add a trial result\nWorker -> Arbiter : Notify the trial result\nArbiter -> Database : Query the trial result\nDatabase --> Arbiter : Respond to the query\n\nalt [passed or pending]\n  Arbiter -> Database : Mark the task as finished\nelse [retry needed]\n  Arbiter -> Database : Enqueue the task\nelse [no more retries]\n  Arbiter -> Database : Mark the task as failed\nend\n\nDatabase -> Worker : Dequeue a task\nDatabase --> Worker : No tasks left\nWorker -> Arbiter : Check request\nArbiter -> Arbiter : Check whether all tasks are finished\n\nalt [some tasks are left]\n  Arbiter -> Database : Enqueue the tasks\nend\n\nArbiter -> Database : Mark the taskset as finished\nArbiter -> Worker : Notify the taskset is marked as finished\nWorker -> Database : Add slave logs\nWorker -> Slave : Kill slaves\n\nClient -> Dispatcher : Query the status of the taskset\nDispatcher --> Client : Respond to the query\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1849,
+    "completion_tokens": 562,
+    "total_tokens": 2411,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLj80BNCVX68Olr6QYtylduPfrLU",
+  "object": "chat.completion",
+  "created": 1781368946,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam backgroundColor #FFFFFF\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #333333\n  LifeLineBorderColor #999999\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #E9F7FF\n  BoxBorderColor #B0B0B0\n  BoxBackgroundColor #F7F7F7\n  GroupBorderColor #B0B0B0\n  GroupBackgroundColor #F7F7F7\n  ActorBorderColor #666666\n  ActorBackgroundColor #E9F7FF\n}\n\n' --- Upstream ---\nbox \"Upstream\" #F7F7F7\nparticipant \"C Producer\" as U_Producer\nparticipant \"C Adapter\" as U_Adapter\nend box\n\nparticipant \"S Transport\" as U_Transport\n\nparticipant \"C Adapter\" as U2_Adapter\nparticipant \"C Consumer\" as U_Consumer\n\nbox \"JobExecution\" #D9FFFF\nparticipant \"C GatewayJobHandler\" as GatewayJobHandler\nend box\n\n' --- Gateway ---\nparticipant \"C Gateway\" as Gateway\nparticipant \"C Producer\" as G_Producer\nparticipant \"C Adapter\" as G_Adapter\n\nparticipant \"S Transport\" as G_Transport\n\nbox \"Downstream\" #F7F7F7\nparticipant \"C Adapter\" as D_Adapter\nparticipant \"C Consumer\" as D_Consumer\nend box\n\nbox \"JobExecution\" #D9FFFF\nparticipant \"C DownstreamJobHandler\" as DownstreamJobHandler\nend box\n\nparticipant \"S Lower Layer\" as LowerLayer\n\n' --- Sequence ---\nU_Producer -> U_Adapter : publish(command)\nU_Adapter -> U_Transport : publish(command)\nU_Transport -> U2_Adapter : execute(command)\nU2_Adapter -> U_Consumer : handler(command, done)\n\nU_Producer <- U_Adapter : resolves()\nU_Adapter -> U_Transport : subscribe(handler)\nU_Transport <- U_Adapter : subscribe(\"response\")\n\nU_Consumer -> GatewayJobHandler : subscribe(\"done\")\nU_Consumer -> GatewayJobHandler : emit(\"command\", GatewayJobHandler)\n\nGatewayJobHandler -> Gateway : publish(command)\nGateway -> G_Producer : publish(command)\nG_Producer -> G_Adapter : publish(command)\nG_Adapter -> G_Transport : publish(command)\nG_Transport -> D_Adapter : execute(command)\nD_Adapter -> D_Consumer : handler(command, done)\n\nG_Producer <- G_Adapter : resolves()\nG_Adapter -> G_Transport : subscribe(handler)\nG_Transport <- G_Adapter : subscribe(\"response\")\n\nD_Adapter -> G_Transport : getDelay(command)\nG_Transport -> D_Adapter : done(response)\nD_Adapter -> D_Consumer : done(response)\n\nD_Consumer -> DownstreamJobHandler : subscribe(\"done\")\nD_Consumer -> DownstreamJobHandler : emit(\"command\", GatewayJobHandler)\n\nDownstreamJobHandler -> LowerLayer : done()\nGatewayJobHandler <- Gateway : done()\n\nGateway -> G_Producer : resolve(response)\nG_Producer -> G_Adapter : handler(\"response\")\nG_Adapter -> G_Producer : emit(\"response\", response)\nG_Producer -> G_Adapter : onTimeOut(getDelay())\nG_Producer -> G_Adapter : unsubscribe()\n\nU2_Adapter -> U_Transport : done(response)\nU_Transport -> U_Adapter : done(response)\nU_Adapter -> U_Producer : emit(\"response\", response)\nU_Adapter -> U_Producer : emit(\"response\", response)\nU_Producer -> U_Adapter : handler(\"response\")\nU_Producer -> U_Adapter : handler(\"response\")\nU_Producer -> U_Adapter : onTimeOut(getDelay())\nU_Producer -> U_Adapter : unsubscribe()\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1203,
+    "completion_tokens": 799,
+    "total_tokens": 2002,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

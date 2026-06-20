@@ -1,0 +1,21 @@
+{
+  "id": "msg_01XiZQEpBnseWzzsv9RbWf3e",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Retrieve Part value\n\nactor User\n\nbox \"driftd service\" #lightblue\nparticipant \"libdrift\" as libdrift\nparticipant \"Advertisement channel\" as advchan\nparticipant \"Control channel\" as ctrlchan\nparticipant \"driftd\" as driftd\nend box\n\nparticipant \"Neo4j\" as neo4j\nparticipant \"MongoDB\" as mongodb\n\nUser -> libdrift : get Part value\n\nnote left of libdrift\nRetrieval message contains\nindex specifier\nindex value\nend note\n\nlibdrift -> advchan : send retrieval message\nlibdrift <-- advchan : ACK\n\nadvchan -> driftd : get Part value\n\ndriftd -> driftd : Lookup Part UUID in index\ndriftd -> neo4j : Get Part info\n\nalt [Composite Part]\n  loop [foreach Part]\n    driftd -> neo4j : Get Part metadata with UUID\n    driftd -> mongodb : Get Part values\n  end\nelse [Simple Part]\n  driftd -> neo4j : Get Part metadata with UUID\n  driftd -> mongodb : Get Part values\nend\n\ndriftd -> driftd : build update message\nadvchan <-- driftd : Update messages for Part values\nlibdrift <-- advchan : receive update message\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370694,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 311,
+    "prompt_tokens": 1636,
+    "total_tokens": 1947
+  }
+}

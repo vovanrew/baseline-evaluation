@@ -1,0 +1,34 @@
+```plantuml
+@startuml
+title Sequence diagram for the whole CCX (external) data pipeline
+
+box "Insights operator" #LightGreen
+participant "Control logic" as CL
+database "IO memory cache" as IO
+end box
+
+participant "Smart\nProxy" as SP #LightBlue
+participant "3Scale" as TS
+participant "CRD" as CRD
+participant "OCP\nWebConsole" as OCP #LightBlue
+
+== Pulling data from Smart Proxy ==
+
+CL -> SP : Get\nrecommendations\norg ID\ncluster ID
+SP -> TS : Get\nrecommendations\norg ID\ncluster ID
+TS --> SP : Recommendations\nfor cluster
+SP --> CL : Recommendations\nfor cluster
+
+== Exposing recommendations ==
+
+CL -> IO : Store\nrecommendations
+IO -> CRD : Expose\nrecommendations
+
+== Pulling from OCP WebConsole ==
+
+CRD -> OCP : Read\nrecommendations
+CRD --> OCP : Here are\nrequired data
+
+caption Copyright © 2020 Red Hat, Inc. Author: Pavel Tisnovsky
+@enduml
+```

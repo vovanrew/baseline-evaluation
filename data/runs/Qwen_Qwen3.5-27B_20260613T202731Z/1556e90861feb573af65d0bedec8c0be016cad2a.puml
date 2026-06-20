@@ -1,0 +1,42 @@
+```plantuml
+@startuml
+title Initialize cloud connection info.
+
+actor "User" as User
+rectangle "Tumblebug" as Tumblebug
+database "tumblebug db" as tumblebug_db
+rectangle "Spider" as Spider
+database "spider db" as spider_db
+
+User -> Spider: POST/driver\n{name,csp,driver}
+activate Spider
+Spider <--> spider_db: {driver}
+Spider --> User: {driver}
+deactivate Spider
+
+User -> Spider: POST/region\n{name,csp,reigin,zone}
+activate Spider
+Spider <--> spider_db: {region}
+Spider --> User: {region}
+deactivate Spider
+
+User -> Spider: POST/credential\n{name,csp,credentials}
+activate Spider
+Spider <--> spider_db: {credential}
+Spider --> User: {credential}
+deactivate Spider
+
+User -> Spider: POST/connectionconfig]\n{name,csp,driver,credential,region}
+activate Spider
+Spider <--> spider_db: {config}
+Spider --> User: {config}
+deactivate Spider
+
+User -> Tumblebug: POST/ns\n{name}
+activate Tumblebug
+Tumblebug <--> tumblebug_db: {ns}
+Tumblebug --> User: {ns}
+deactivate Tumblebug
+
+@enduml
+```

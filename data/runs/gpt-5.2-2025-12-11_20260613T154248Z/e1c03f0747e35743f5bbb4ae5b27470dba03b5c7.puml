@@ -1,0 +1,26 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+interface IVersionedMonoBehaviourInternal {
+  UpgradeFromUnityThread() : void
+}
+
+class MonoBehaviour
+
+class ISerializationCallbackReceiver
+
+abstract class VersionedMonoBehaviour {
+  version : int = 0
+  --
+  «virtual» Awake() : void
+  «virtual» Reset() : void
+  OnBeforeSerialize() : void
+  OnAfterDeserialize() : void
+  «virtual» OnUpgradeSerializedData(version:int, unityThread:bool) : int
+  UpgradeFromUnityThread() : void
+}
+
+VersionedMonoBehaviour ..|> IVersionedMonoBehaviourInternal
+VersionedMonoBehaviour --|> MonoBehaviour
+VersionedMonoBehaviour --|> ISerializationCallbackReceiver
+@enduml

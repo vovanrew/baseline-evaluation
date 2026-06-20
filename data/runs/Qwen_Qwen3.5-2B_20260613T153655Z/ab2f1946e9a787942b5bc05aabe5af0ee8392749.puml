@@ -1,0 +1,26 @@
+@startuml
+participant "loggedInOrgAdmin" as Admin1
+participant "loggedInOrgAdmin" as Admin2
+
+participant "frontend" as Frontend1
+participant "frontend" as Frontend2
+
+participant "UserController" as UserCtrl1
+participant "UserController" as UserCtrl2
+
+participant "UserService" as UserSvc1
+participant "UserService" as UserSvc2
+
+participant "AclUpdateHelper" as AclUpdateHelper1
+participant "AclUpdateHelper" as AclUpdateHelper2
+
+Admin1 ..> Frontend1 : add coach role for myself
+Admin2 ..> Frontend2 : add coach role for myself
+
+Frontend1 ..> UserCtrl1 : addCoachRoleToOrgAdmin(org_id)
+UserCtrl1 ..> UserCtrl2 : addCoachRoleToLoggedInUser(org_id) (Check user is org admin)
+UserCtrl2 ..> UserSvc1 : add acl permission to user
+UserSvc1 ..> AclUpdateHelper1 : add acl permission to user
+AclUpdateHelper1 ..> AclUpdateHelper2 : add acl permission to user
+
+@enduml

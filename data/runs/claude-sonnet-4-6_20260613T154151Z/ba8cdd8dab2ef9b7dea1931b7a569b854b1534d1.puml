@@ -1,0 +1,23 @@
+@startuml
+actor "Admin\nSAV Manager\nSAV Technician\nScooter Owner" as Actor
+boundary "verifyEmail" as verifyEmail
+control "VerificationController" as VerificationController
+entity "User" as User
+
+Actor -> verifyEmail : FillVerifyEmailForm(email,token)
+verifyEmail --> Actor : FormFilled
+
+verifyEmail -> verifyEmail : VerifyVerifyEmailForm(email,token)
+verifyEmail --> verifyEmail : FormVerified
+
+alt [FormVerified is true]
+    verifyEmail -> VerificationController : verifyUser(email,code)
+    VerificationController -> User : verifyUser(email,code)
+    User --> VerificationController : user enabled
+    VerificationController --> verifyEmail : user enabled
+    verifyEmail --> Actor : user enabled
+else [FormVerified is false]
+    verifyEmail --> Actor : showErrorMessage
+end
+
+@enduml

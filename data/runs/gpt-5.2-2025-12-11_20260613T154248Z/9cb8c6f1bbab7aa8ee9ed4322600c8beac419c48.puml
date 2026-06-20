@@ -1,0 +1,45 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 30
+  BoxPadding 10
+  LifeLineBorderColor #888888
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor transparent
+  MessageAlign left
+}
+
+participant Application
+participant Node
+participant Composed_VStack
+participant VStack
+participant State
+participant NodeBuilder
+participant "Control.Layer" as ControlLayer
+participant Renderer
+
+== 布局树构建过程 ==
+
+Application -> Node : build
+Node -> Composed_VStack : buildNode
+Composed_VStack -> VStack : setupStateProperties
+Composed_VStack -> VStack : setupEnvironmentProperties
+Composed_VStack -> Node : addNode
+
+alt [LayoutRoot]
+  Node -> VStack : loadData
+end
+
+== 布局更新构建过程 ==
+
+State -> State : set
+State -> Application : invalidateNode
+Application -> Application : scheduleUpdate
+Application -> Application : update
+Application -> Node : update
+Node -> NodeBuilder : updateNode
+NodeBuilder -> ControlLayer : invalidate
+Application -> Renderer : update
+
+@enduml

@@ -1,0 +1,93 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+  FontColor Black
+}
+
+class "Brain" as Brain {
+  [C]
+  python_default, python2_default, python3_default
+  pip_default, pip2_default, pip3_default
+  get stored into the Brain's report objects'
+  defaults = {}
+  defaults.python
+  defaults.python2
+  defaults.python3
+  defaults.pip
+  defaults.pip2
+  defaults.pip3
+  attributes, respectively.
+}
+
+class "Pip" as Pip {
+  [C]
+  site_package_path
+  python = []
+  analyse()
+  analyse_version()
+  report()
+}
+
+class "Python" as Python {
+  [C]
+  result_shell_site_info
+  result_shell_run_pip_as_module
+  sys_path = []
+  pip_module_version
+  pip_module_site_package_path
+  pips = []
+  analyse()
+}
+
+class "Site" as Site {
+  [C]
+  path = path
+  python = Set
+  pips = Set
+}
+
+class "Base" as Base {
+  [C]
+  path = path
+  paths_all = Set
+  is_default = false
+  is_default2 = false
+  is_default3 = false
+  result_shell_ls
+  result_shell_version
+  result_shell_file_size
+  version
+  size
+  warnings = []
+  report_obj = {}
+  get exists()
+  analyse()
+  report()
+}
+
+note top of Brain
+  Brain's attributes
+  python_default, python2_default, python3_default
+  pip_default, pip2_default, pip3_default
+  get stored into the Brain's report objects'
+  defaults = {}
+  defaults.python
+  defaults.python2
+  defaults.python3
+  defaults.pip
+  defaults.pip2
+  defaults.pip3
+  attributes, respectively.
+end note
+
+Brain --> Pip : pips *
+Brain --> Python : python *
+Brain --> Site : sites *
+Pip --> Base
+Python --> Base
+
+@enduml

@@ -1,0 +1,22 @@
+{
+  "id": "697a70fd-e8e7-42f0-9b7f-d2e82c3516ce",
+  "object": "chat.completion",
+  "created": 1781439134,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nautonumber 0\n\nparticipant \"generate_delta_main.cc\" as generate_delta_main\nparticipant \"delta_diff_generator.cc\" as delta_diff_generator\nparticipant \"payload_file.cc\" as payload_file\nparticipant \"payload_generation_config.cc\" as payload_generation_config\n\nactivate generate_delta_main\nnote left of generate_delta_main: \"--dynamic_partition_info_file\"\ngenerate_delta_main -> generate_delta_main : brillo::KeyValueStore.Load(file)\nactivate generate_delta_main\ndeactivate generate_delta_main\ngenerate_delta_main -> payload_generation_config : payload_config.target.LoadDynamicPartitionMetadata(store)\nactivate payload_generation_config\ndeactivate payload_generation_config\ngenerate_delta_main -> payload_generation_config : payload_config.target.ValidateDynamicPartitionMetadata()\nactivate payload_generation_config\ndeactivate payload_generation_config\ngenerate_delta_main -> delta_diff_generator : GenerateUpdatePayloadFile()\nactivate delta_diff_generator\ndelta_diff_generator -> payload_file : payload.Init(config)\nactivate payload_file\npayload_file -> payload_file : manifest_dynamic_partition_metadata\nactivate payload_file\ndeactivate payload_file\ndelta_diff_generator <-- payload_file\ndelta_diff_generator --> delta_diff_generator : generate payload data\ndelta_diff_generator -> payload_file : payload.WritePayload()\nactivate payload_file\npayload_file -> payload_file : manifest_SerializeToString()\nactivate payload_file\ndeactivate payload_file\npayload_file -> payload_file : Write(serialized_manifest.data())\nactivate payload_file\ndeactivate payload_file\ndelta_diff_generator <-- payload_file\ndeactivate delta_diff_generator\ngenerate_delta_main <-- delta_diff_generator\ndeactivate generate_delta_main\nnote left of generate_delta_main: done\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1468,
+    "completion_tokens": 337,
+    "total_tokens": 1805
+  }
+}

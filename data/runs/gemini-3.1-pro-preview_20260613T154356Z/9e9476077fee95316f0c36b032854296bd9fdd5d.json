@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nheader\nAuthors: pw@zoi.de\nVersion: 0.1\nendheader\n\ntitle Sequence Diagram: Internal state synchronization\n\nbox \"Internal Service\" #LightGray\nparticipant Sender\nparticipant IoTClient\nparticipant ShadowCallback\nend box\n\nbox \"AWS Cloud\" #LightGreen\nparticipant ShadowService\nend box\n\n== client connection ==\n\nSender -> IoTClient : connect()\nIoTClient -> ShadowCallback : on_conncet_wrapper()\nShadowCallback -> IoTClient : subscribe(\"AWS Shadow Topics\")\nIoTClient -> ShadowService : subscribe()\nIoTClient -> ShadowCallback : on_subscribe_wrapper()\nactivate ShadowCallback #Pink\nShadowCallback -> ShadowCallback : request_desired_state()\n\n== state retrival ==\n\nShadowCallback -> ShadowService : publish(\"myClient/shadow/get\")\nactivate IoTClient #LightSalmon\nShadowService -> IoTClient : on_message(\"myClient/shadow/get/accepted\", state)\ndeactivate ShadowCallback\nIoTClient -> ShadowCallback : on_message_wrapper(rawState)\ndeactivate IoTClient\nShadowCallback -> ShadowCallback : on_desired_state_change(rawState)\n\n== state synchronization ==\n\nShadowCallback -> Sender : set_state(desiredState)\nSender -> ShadowCallback : on_set_state_wrapper()\nactivate ShadowCallback #Pink\nShadowCallback -> ShadowCallback : publish_new_state()\nShadowCallback -> IoTClient : publish(\"myClient/shadow/update\", reportedState)\nactivate IoTClient #LightSalmon\nIoTClient -> ShadowService : publish(\"myClient/shadow/update\", state)\ndeactivate ShadowCallback\ndeactivate IoTClient\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHhn3CrsdS5OXY9e5ltUwvwLNJ7jQSm+kzOBfSwkDh6RdMD+7fvvMjwlL8kDwN"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1165,
+    "candidatesTokenCount": 363,
+    "totalTokenCount": 1528,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1085
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "wV0xaoXvBd6y28oP-8Kp8Ak"
+}

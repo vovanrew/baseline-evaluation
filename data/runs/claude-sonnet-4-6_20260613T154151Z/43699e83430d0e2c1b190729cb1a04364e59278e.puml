@@ -1,0 +1,110 @@
+```plantuml
+@startuml
+title MultiCameraCore Class Diagram
+
+package "platform" {
+
+  class MultiCameraCore_Configuration {
+    {field} - LOGGER : Logger
+    {field} - id : String
+    {field} - cameraConfigurationFiles : List<String>
+    {field} - multiCameraGoals : List<MultiCameraGoal>
+    {field} - additionalFields : Map<String, Object>
+    {field} + xstream : XStream
+    {field} + XML_HEADER : String
+    --
+    + MultiCameraCore_Configuration()
+    + writeConfigurationToXML()
+    + readMCPConfig()
+    + createMCAppFromMCPConfigurationFile()
+  }
+
+  class MultiCameraCore {
+    {field} - multiCameraGoals : List<MultiCameraGoal>
+    {field} - additionalFields : Map<String, Object>
+    {field} - agentActions : List<CommunicationAction>
+    --
+    + MultiCameraCore()
+    + setup()
+    + initDependencyObjects()
+    + buildMCAFromConfigFile()
+    + init()
+    + executeMAPELoop()
+    {field} - removeNewInfo()
+    + monitor()
+    + analyse()
+    + plan()
+    + execute()
+    + createGlobalMap()
+    + getWorkingCameras()
+  }
+
+  package "cameraManager" {
+    class CameraManager {
+      {field} - id : String
+      {field} - cameras : List<Camera>
+      {field} - cameraIdMap : Map<String, Camera>
+      --
+      + CameraManager()
+      + initCameras()
+      + heartbeat()
+      + reinitNotWorkingCameras()
+      + initCamera()
+      + getWorkingCameras()
+      + getNotWorkingCameras()
+      + testSimpleAllCameras()
+      + addAndInitCameras()
+    }
+  }
+
+  package "utilities" {
+    class Heartbeat {
+      {field} △ timer : int
+      {field} - cameraHeartbeatReceived : HashMap<String, Boolean>
+      --
+      + Heartbeat()
+      + init()
+      + recordHeartbeat()
+      + checkHeartBeats()
+    }
+  }
+
+  package "adaptation" {
+    class AdaptationTypeManager {
+      {field} - stringToAdaptationMap : HashMap<String, AdaptivePolicy>
+      --
+      + AdaptationTypeManager()
+      + getAdaptivePolicy()
+    }
+  }
+
+  package "imageAnalysis" {
+    class AnalysisTypeManager {
+      {field} - stringToAnalysisMap : HashMap<String, ImageProcessor>
+      --
+      + AnalysisTypeManager()
+      + getImageProcessObject()
+    }
+  }
+
+  package "map" {
+    class GlobalMap {
+      {field} - swLong : double
+      {field} - swLat : double
+      {field} - neLong : double
+      {field} - neLat : double
+      --
+      + GlobalMap()
+    }
+  }
+
+  MultiCameraCore o-- MultiCameraCore_Configuration : mcp_application
+  MultiCameraCore o-- CameraManager : cameraManager
+  MultiCameraCore o-- Heartbeat : heartbeat
+  MultiCameraCore o-- AdaptationTypeManager : adaptationTypeManager
+  MultiCameraCore o-- AnalysisTypeManager : analysisTypeManager
+  MultiCameraCore o-- GlobalMap : globalMap
+
+}
+@enduml
+```

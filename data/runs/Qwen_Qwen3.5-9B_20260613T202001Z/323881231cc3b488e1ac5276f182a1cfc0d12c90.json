@@ -1,0 +1,22 @@
+{
+  "id": "9c00bbd0-e7e9-4197-9240-e8682acda3f4",
+  "object": "chat.completion",
+  "created": 1781425575,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Search Product by ID\n\nactor \"User\" as User\nparticipant \"\u00abmain\u00bb Main\" as Main\nparticipant \"\u00abframe\u00bb MainMenu\" as MainMenu\nparticipant \"\u00abdialog\u00bb ProductReportDialog\" as ProductReportDialog\nparticipant \"\u00abDAO\u00bb ProductDatabaseDAO\" as ProductDatabaseDAO\nparticipant \"Database\" as Database\nparticipant \"\u00abdomain\u00bb Product :product\" as Product\nparticipant \"SimpleListModel :model\" as SimpleListModel\n\nUser -> MainMenu: clicks 'View Products'\nactivate MainMenu\nMainMenu -> ProductReportDialog: \u00abcreate\u00bb\nactivate ProductReportDialog\nProductReportDialog -> ProductDatabaseDAO: \u00abcreate\u00bb\nactivate ProductDatabaseDAO\nnote right of ProductReportDialog: as shown in 'View Products' diagram\nend note\nProductReportDialog --> User: list of products displayed\ndeactivate ProductDatabaseDAO\ndeactivate ProductReportDialog\ndeactivate MainMenu\n\nUser -> ProductReportDialog: user types productID into field; clicks \"Search\"\nactivate ProductReportDialog\nProductReportDialog -> ProductDatabaseDAO: findProd(productID)\nactivate ProductDatabaseDAO\nProductDatabaseDAO -> Database: search product by ID\nactivate Database\nDatabase --> ProductDatabaseDAO: resultSet\ndeactivate Database\nProductDatabaseDAO -> ProductDatabaseDAO: extract product details from ResultSet into variables\nProductDatabaseDAO -> Product: \u00abconstruct\u00bb\nProductDatabaseDAO -> Product: set products fields from variables\ndeactivate ProductDatabaseDAO\n\nProductReportDialog -> SimpleListModel: \u00abconstruct\u00bb\nactivate SimpleListModel\nProductReportDialog -> SimpleListModel: updateItems(products)\nactivate SimpleListModel\nSimpleListModel -> ProductReportDialog: jList.setModel(model)\ndeactivate SimpleListModel\nProductReportDialog --> User: product displayed\ndeactivate ProductReportDialog\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2448,
+    "completion_tokens": 365,
+    "total_tokens": 2813
+  }
+}

@@ -1,0 +1,48 @@
+```plantuml
+@startuml
+actor "Crapchat user" as user1
+actor "Another Crapchat user" as user2
+participant "Crapchat REST API" as api
+participant "Crapchat identity provider" as idp
+database "Crapchat storage" as db
+
+group Search user
+    activate user1
+    user1 --> api : HTTP POST request with search query
+    activate api
+    api -> idp : HTTP request with search query
+    activate idp
+    idp --> api : HTTP response with list of users
+    deactivate idp
+    api --> user1 : HTTP response with array of users
+    deactivate api
+end
+
+group Send follow request
+    user1 -> user1 : Clicks follow button
+    user1 --> api : HTTP request with ID of the user to follow
+    activate api
+    api -> db : SQL insert query
+    activate db
+    db -> api : Success response
+    deactivate db
+    api -> user2 : Notify with follow request
+    activate user2
+    api -> user1 : HTTP OK response
+    deactivate api
+    deactivate user1
+end
+
+group Accept follow request
+    user2 --> api : HTTP request to accept
+    activate api
+    api -> db : SQL update query
+    activate db
+    db -> api : Success response
+    deactivate db
+    api --> user2 : HTTP OK response
+    deactivate api
+    deactivate user2
+end
+@enduml
+```

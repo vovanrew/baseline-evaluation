@@ -1,0 +1,31 @@
+@startuml
+participant "Crapchat user" as User1
+participant "Another Crapchat user" as User2
+participant "Crapchat REST API" as RESTAPI
+participant "Crapchat identity provider" as IdentityProvider
+participant "Crapchat storage" as Storage
+
+section Search user
+    User1 --> RESTAPI : HTTP POST request with search query
+    RESTAPI --> IdentityProvider : HTTP request with search query
+    IdentityProvider --> RESTAPI : HTTP response with list of users
+    RESTAPI --> User1 : HTTP response with array of users
+end section
+
+section Send follow request
+    User1 --> RESTAPI : Clicks follow button
+    User1 --> RESTAPI : HTTP request with ID of the user to follow
+    RESTAPI --> Storage : SQL insert query
+    RESTAPI --> User2 : Success response
+    RESTAPI --> User1 : Notify with follow request
+    User1 --> RESTAPI : HTTP OK response
+end section
+
+section Accept follow request
+    User2 --> RESTAPI : HTTP request to accept
+    RESTAPI --> Storage : SQL update query
+    RESTAPI --> User2 : Success response
+    RESTAPI --> User2 : HTTP OK response
+end section
+
+@enduml

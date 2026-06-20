@@ -1,0 +1,42 @@
+@startuml
+title Update PractitionerRole
+
+actor "Integrating application user" as User1 at 0%
+participant "<color:white> Integrating application </color>" as App1 #6495ED at 23%
+participant "<FHIR API> HPI\n<white><size:8>\n</size></white>" as FhirApi #6495ED at 70%
+database "HPI Practitioner Role database \n <white><size:8>\n</size></white>" as Db #6495ED at 90%
+
+
+User1 -> App1 :Update PractitionerRole using hpi-practitionerrrole-id 
+App1->FhirApi:<b>PUT<b/> <<Endpoint>> /PractitionerRole/[hpi-practitionerrrole-id] 
+
+activate FhirApi  
+    activate App1
+    
+        note right of FhirApi::Validate[]\n
+        
+            validate practitioner role data
+            
+            
+        
+         endnote 
+    
+     loop Validate[ ]    
+          alt Valid Data   
+             else Invalid Data     
+                return Error response       
+           endif      
+      endloop
+      
+       request Request to DB from FhirApi over Db
+     
+return HTTP 200 reponse 
+
+
+deactivate FhirApi  
+
+'== End ==
+
+
+
+@enduml

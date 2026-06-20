@@ -1,0 +1,39 @@
+@startuml
+participant AddressPanel : JPanel
+participant ContactsController
+note right of ContactsController
+  double clicks on
+  the contact to open a window
+end note
+
+actor AddressPanel : JPanel
+participant ContactsController
+
+participant addressFrame : JFrame
+participant Persistence
+participant RepositoryFactory
+participant ContactsRepository
+participant BufferedReader
+participant FileReader
+
+ContactsController ..> addressFrame : new (contact)
+
+ContactsController ..> addressFrame : tmp = validatePostalCode(postalCode)
+
+ContactsController ..> BufferedReader : create()
+
+ContactsController ..> BufferedReader : create(file_name)
+
+loop [while there are lines to read]
+  ContactsController ..> BufferedReader : readline()
+end loop
+
+alt [tmp == true]
+  ContactsController ..> addressFrame : updateAddress(contact, main_address, secondary_address)
+  ContactsController ..> RepositoryFactory : getRepositoryFactory()
+  RepositoryFactory ..> Persistence : newInstance()
+  ContactsController ..> ContactsRepository : getContactsRepository()
+  ContactsController ..> ContactsRepository : update(contact)
+end alt
+
+@enduml

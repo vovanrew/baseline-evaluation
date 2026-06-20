@@ -1,0 +1,89 @@
+@startuml
+title 自販機システム_クラス図
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+
+note left of BuyResult
+自動販売機クラスの「商品を購入する」メソッドが
+以下3種類を返却する。
+
+SUCCESS：商品の購入成功を示す
+NOT_ENOUGH_MONEY：投入金額不足を示す
+ZERO_STOCK：指定された商品の在庫切れを示す
+end note
+
+enum BuyResult << (E,#f4a08a) >> {
+  SUCCESS
+  NOT_ENOUGH_MONEY
+  ZERO_STOCK
+}
+
+class UserInterface << (C,#b7e1b0) >> {
+  int 希望金額
+  int 商品番号
+  --
+  UserInterface()
+  --
+  void 初期画面を表示する()
+  void 機能を呼び出す()
+  void 金額入力()
+  void 商品番号入力()
+}
+
+class 自動販売機 << (C,#b7e1b0) >> {
+  int 投入金額
+  --
+  void 商品情報を追加する(Integer 商品番号, Product 商品情報)
+  void 在庫を補充する(Integer 商品番号, Integer 在庫数)
+  --
+  boolean お金を投入する(int 希望金額)
+  BuyResult 商品を購入する(int 商品番号)
+  int 返金を受け取る()
+  void 自販機を終了する()
+  --
+  int get投入金額()
+  int get在庫数(int 商品番号)
+  Product get商品情報(int 商品番号)
+}
+
+class Product << (C,#b7e1b0) >> {
+  int 商品番号
+  String 商品名
+  int 単価
+  --
+  Product()
+  --
+  int get商品番号()
+  String get商品名()
+  int get単価()
+}
+
+class Storage << (C,#b7e1b0) >> {
+  Product<Integer 商品番号, Product 商品情報> 商品情報マップ
+  Map<Integer 商品番号, Integer 在庫数> 在庫数マップ
+  --
+  void 商品情報を追加する(Integer 商品番号, Product 商品情報)
+  void 在庫を補充する(Integer 商品番号, Integer 在庫数)
+  Product get商品情報(int 商品番号)
+  int get在庫数(int 商品番号)
+  void 在庫数を減らす(int 商品番号)
+}
+
+class チェッカー << (C,#b7e1b0) >> {
+  final int 投入金額の上限
+  --
+  boolean 投入金額の上限に達していないかチェックする(int 希望金額, int 投入金額)
+  boolean 指定された商品を買える金額かチェックする(Product 商品情報, int 投入金額)
+}
+
+UserInterface -- 自動販売機
+自動販売機 -- BuyResult
+
+Storage o-- Product
+自動販売機 -- Storage
+
+自動販売機 ..> チェッカー
+
+@enduml

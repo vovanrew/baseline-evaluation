@@ -1,0 +1,84 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #777777
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #777777
+  ParticipantBackgroundColor #E9E9F6
+  BoxBorderColor #000000
+  BoxBackgroundColor #FFFFFF
+  ArrowColor #000000
+  ActorBorderColor #777777
+  ActorBackgroundColor #E9E9F6
+}
+
+participant NavBar
+participant ReduxStore
+participant UserActions
+participant UserReducer
+participant ProfileMiddleware
+participant "Solid.js" as Solidjs
+database POD
+
+NavBar -> ReduxStore : loadEmailRequest()
+activate ReduxStore
+
+ReduxStore -> UserActions : dispatch(loadEmailRequest())
+activate UserActions
+
+UserActions -> ProfileMiddleware : loadEmailRequest()
+destroy UserActions
+activate ProfileMiddleware
+
+ProfileMiddleware -> Solidjs : getEmail()
+activate Solidjs
+
+Solidjs -> POD : getEmail()
+activate POD
+POD --> Solidjs : email
+destroy POD
+deactivate Solidjs
+
+ProfileMiddleware -> UserReducer : loadEmailRequest()
+activate UserReducer
+UserReducer --> ReduxStore : state
+destroy UserReducer
+deactivate ReduxStore
+
+alt email successfully loaded
+  ProfileMiddleware --> Solidjs : email
+  destroy Solidjs
+
+  ReduxStore -> UserActions : dispatch(loadEmailSuccess(email))
+  activate UserActions
+  UserActions -> UserReducer : loadEmailSuccess(email)
+  destroy UserActions
+  activate UserReducer
+  UserReducer -> UserReducer : updateState(email)
+  UserReducer --> ReduxStore : updated state with email
+  destroy UserReducer
+else error at loading email
+  ProfileMiddleware --> Solidjs : error
+  destroy Solidjs
+
+  ReduxStore -> UserActions : dispatch(loadEmailError(error))
+  activate UserActions
+  UserActions -> UserReducer : loadEmailError(error)
+  destroy UserActions
+  activate UserReducer
+  UserReducer -> UserReducer : updateState(error)
+  UserReducer --> ReduxStore : updated state
+  destroy UserReducer
+end
+
+destroy ProfileMiddleware
+
+ReduxStore --> NavBar : state
+deactivate ReduxStore
+
+legend right
+line = method
+dash line = data
+endlegend
+@enduml

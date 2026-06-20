@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLkMXg4gk5EmXEKzUn1OuEg8qVzE",
+  "object": "chat.completion",
+  "created": 1781369022,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam sequenceMessageAlign center\nskinparam responseMessageBelowArrow true\n\nactor Member\nparticipant \":TicketDetailPage\" as TicketDetailPage\nparticipant \":TicketDetailContainer\" as TicketDetailContainer\nparticipant \":AttendanceService (Frontend)\" as AttendanceServiceFrontend\nparticipant \":Router\" as Router\nparticipant \":AttendanceHTTPTransport\" as AttendanceHTTPTransport\nparticipant \":AttendanceEndpoint\" as AttendanceEndpoint\nparticipant \":AttendanceService\" as AttendanceService\nparticipant \":RequesterService\" as RequesterService\nparticipant \":AttendanceCommand\" as AttendanceCommand\nparticipant \":AttendanceQuery\" as AttendanceQuery\n\nMember -> TicketDetailPage : Click \"Yes\" Button\nTicketDetailPage -> TicketDetailContainer : handleConfirmation(input)\nTicketDetailContainer -> AttendanceServiceFrontend : confirmAttendance(classId, payload)\nAttendanceServiceFrontend -> Router : route(\"PATCH\", \"v2/class/{class_id}/attendance/confirmation\")\nRouter -> AttendanceHTTPTransport : Confirmation(AttendanceService, IServerOption)\nAttendanceHTTPTransport -> AttendanceEndpoint : Confirmation(AttendanceService)\nAttendanceEndpoint -> AttendanceService : Confirmation(context, payload)\nAttendanceService -> AttendanceService : Validate()\n\nalt [\"Data Valid\"]\n  AttendanceService -> AttendanceQuery : GetPureModel(context, ISliceCondition)\n  AttendanceQuery --> AttendanceService : ticket\n\n  alt [\"Ticket Status is Accepted\"]\n    AttendanceService -> AttendanceCommand : Register(context, [[payload]])\n    AttendanceCommand --> AttendanceService : is updated\n    AttendanceService -> RequesterService : UpdateRequestStatus(context, ticket)\n    RequesterService --> AttendanceService : is updated\n    AttendanceService --> AttendanceEndpoint : response := Response(is updated, nil)\n  end\n\n  AttendanceEndpoint --> AttendanceHTTPTransport : response\n  AttendanceHTTPTransport --> Router : response\n  Router --> AttendanceServiceFrontend : response\n  AttendanceServiceFrontend --> TicketDetailContainer : response\n  TicketDetailContainer --> TicketDetailPage : response\n  TicketDetailPage --> Member : response\nelse\n  AttendanceService --> AttendanceEndpoint : UnprocessableEntity\n  AttendanceEndpoint --> AttendanceHTTPTransport : UnprocessableEntity\n  AttendanceHTTPTransport --> Router : UnprocessableEntity\n  Router --> AttendanceServiceFrontend : UnprocessableEntity\n  AttendanceServiceFrontend --> TicketDetailContainer : UnprocessableEntity\n  TicketDetailContainer --> TicketDetailPage : UnprocessableEntity\n  TicketDetailPage --> Member : UnprocessableEntity\nend\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1261,
+    "completion_tokens": 486,
+    "total_tokens": 1747,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

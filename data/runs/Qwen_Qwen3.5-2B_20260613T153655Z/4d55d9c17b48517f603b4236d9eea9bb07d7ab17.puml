@@ -1,0 +1,37 @@
+@startuml
+participant "User" as User
+participant "LoginPartialView" as LoginPartialView
+participant "MicrosoftIdentityLibrary" as MicrosoftIdentityLibrary
+participant "HomeController" as HomeController
+participant "StudieTipsDB" as StudieTipsDB
+
+User -> LoginPartialView : clicks on "Register"
+LoginPartialView -> MicrosoftIdentityLibrary : sends action
+MicrosoftIdentityLibrary -> LoginPartialView : Creates RegisterView
+
+loop [While user not registered]
+    inputs e-mail, password and password confirmation
+    alt [E-mail is invalid]
+        MicrosoftIdentityLibrary -> LoginPartialView : Display 'The Email field is not a valid e-mail address'
+    else [Password is less than 6 or greater than 100 characters]
+        MicrosoftIdentityLibrary -> LoginPartialView : Display 'The password must be at least 6 and at max 100 chacters long.'
+    else [Password and confirmation password do not match]
+        MicrosoftIdentityLibrary -> LoginPartialView : Display 'The password and confirmation password do not match'
+    end
+    User -> MicrosoftIdentityLibrary : User clicks register button
+    alt [Password does not contain at least one symbol]
+        MicrosoftIdentityLibrary -> LoginPartialView : Display 'Passwords must have at least one non alphanumeric character'
+    else [Password does not contain at least one digit]
+        MicrosoftIdentityLibrary -> LoginPartialView : Display 'Passwords must have at least one digit ('0'-'9')'
+    else [Password does not contain uppercase letters]
+        MicrosoftIdentityLibrary -> LoginPartialView : Display 'Passwords must have at least one uppercase ('A'-'Z')'
+    else [Password does not contain 4 different characters]
+        MicrosoftIdentityLibrary -> LoginPartialView : Display 'Passwords must use at least 4 different characters'
+    else [E-mail is already in use]
+        MicrosoftIdentityLibrary -> LoginPartialView : Display 'Username 'E-mail' is already taken.'
+    end
+    MicrosoftIdentityLibrary -> StudieTipsDB : Creates user with e-mail and password
+    MicrosoftIdentityLibrary -> HomeController : returns action
+    HomeController -> MicrosoftIdentityLibrary : Create home view
+    MicrosoftIdentityLibrary -> StudieTipsDB : Create user with e-mail and password
+@enduml

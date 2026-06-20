@@ -1,0 +1,65 @@
+@startuml
+
+package "java" {
+  package "time" {
+    class LocalDate <<C>>
+  }
+  package "util" {
+    interface List <<I>> {
+    }
+    class URL <<C>>
+  }
+}
+
+package "org" {
+  package "springframework" {
+    package "hateoas" {
+      class RepresentationModel <<C>> {
+      }
+    }
+  }
+}
+
+package "com" {
+  package "acme" {
+    package "filiale" {
+      package "rest" {
+        class KundeModel <<entity>> {
+          name : String
+          email : String
+          kategorie: Int
+          hasNewsletter: Boolean
+          geburtsdatum: LocalDate
+          homepage: URL
+          geschlecht: GeschlechtType
+          familienstand: FamilienstandType
+          interessen: List<InteresseType>
+        }
+      }
+
+      package "entity" {
+        class Kunde <<C>>
+        class Umsatz <<C>>
+        class Adresse <<C>>
+        enum GeschlechtType <<E>>
+        enum FamilienstandType <<E>>
+        enum InteresseType <<E>>
+      }
+    }
+  }
+}
+
+KundeModel ..|> RepresentationModel
+
+KundeModel ..> LocalDate : <<use>>
+KundeModel ..> List : <<use>>
+KundeModel ..> URL : <<use>>
+
+KundeModel --> Kunde : ""
+KundeModel "1" --> "0..1" Umsatz : umsatz
+KundeModel "1" --> "1" Adresse : adresse
+KundeModel ..> GeschlechtType : <<use>>
+KundeModel ..> FamilienstandType : <<use>>
+KundeModel ..> InteresseType : <<use>>
+
+@enduml

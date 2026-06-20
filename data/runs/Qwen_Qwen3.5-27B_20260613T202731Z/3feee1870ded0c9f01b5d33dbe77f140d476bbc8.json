@@ -1,0 +1,22 @@
+{
+  "id": "f76b5132-c71f-4492-a6c2-5fbbe0cb5fe2",
+  "object": "chat.completion",
+  "created": 1781436784,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nactor \"User\" as User\nrectangle \"BileMo API\" as API\ndatabase \"BileMo Database\" as DB\n\nUser -> API: 1 Authentication Request (email, plain password)\nAPI -> DB: 2 Find user with matching email & password combination\n\nalt invalid credentials\n    DB --> API: 3 null\n    API --> User: 4 JSON Authentication response: 401 Invalid credentials\nelse valid credentials\n    DB --> API: 5 User object\n    API --> User: 6 JSON Authentication Response: 200 JWT token\n    \n    User -> API: 7 Show products list (JWT token)\n    activate API\n    API -> API: 8 Check route & query parameters are valid\n    \n    alt Route does not exist\n        API --> User: 9 404 Route not found\n    else Route found\n        API -> API: 10 Security firewall: check token is valid & user permissions\n        \n        alt Access denied\n            API --> User: 11 403 Forbidden\n        else Token expired\n            API --> User: 12 401 Unauthorized\n        else Token valid & permission granted\n            API -> DB: 13 Get products results\n            DB --> API: 14 Results query response (Products object)\n            API -> API: 15 Serialize(normalize+encode) results object to JSON\n            API --> User: 16 Response 200 Serialized JSON results\n        end\n    end\n    deactivate API\nend\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2301,
+    "completion_tokens": 335,
+    "total_tokens": 2636
+  }
+}

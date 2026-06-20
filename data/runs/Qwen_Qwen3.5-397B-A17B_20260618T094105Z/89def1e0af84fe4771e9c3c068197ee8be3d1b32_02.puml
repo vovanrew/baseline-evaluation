@@ -1,0 +1,34 @@
+@startuml
+title Scheduled Events
+
+actor "Recording Staff" as RS1
+participant Coach as C1
+box "" #LightBlue2
+  participant IP/MobileCams as IMC1
+end box
+package ConsumerApps {
+    participant Apps as A1 
+}
+database SecurityGateway as SGW1
+
+
+RS1 -> ControlDomain : createEvent(configuration{description, sources, consumers{priorities}}) 
+
+activate ControlDomain  
+ControlDomain->StreamingService:create(newEvent)    
+deactivate StreamingService   
+return()     
+deactivate ControlDomain  
+
+alt auto-download enabled [auto-downloaded]
+   activate RecordingStaff      
+      Recorder --> MediaStorage: fetchMedia(token, mediaID)       
+       returnByPriority(mediaStream)        
+     deactivate RecordingStaff         
+else manual download[manual -downloaded ]          
+        showmedia( token )           
+endif         
+
+
+
+@enduml

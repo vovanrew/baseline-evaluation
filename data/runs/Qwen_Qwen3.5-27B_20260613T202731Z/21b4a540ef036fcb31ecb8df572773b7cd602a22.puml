@@ -1,0 +1,56 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "User" as User
+rectangle "DomainModel" {
+    participant "UIBFF" as UIBFF
+    participant "CommandBus" as CommandBus
+    participant "Aggregate" as Aggregate
+    participant "ProcessManager" as ProcessManager
+    participant "EventBus" as EventBus
+    participant "QueryManager" as QueryManager
+}
+participant "Projectors" as Projectors
+database "ReadModels" as ReadModels
+
+User -> UIBFF : http commands
+activate UIBFF
+UIBFF -> CommandBus : commands
+activate CommandBus
+CommandBus -> Aggregate : commands
+activate Aggregate
+Aggregate -> EventBus : events
+activate EventBus
+EventBus -> ProcessManager : events
+activate ProcessManager
+ProcessManager -> CommandBus : commands
+deactivate ProcessManager
+deactivate CommandBus
+deactivate Aggregate
+EventBus -> Projectors : events
+activate Projectors
+Projectors -> ReadModels : write
+activate ReadModels
+deactivate ReadModels
+deactivate Projectors
+EventBus -> UIBFF : events
+deactivate EventBus
+UIBFF -> User : push
+deactivate UIBFF
+
+User -> UIBFF : http queries
+activate UIBFF
+UIBFF -> QueryManager : queries
+activate QueryManager
+QueryManager -> ReadModels : results
+activate ReadModels
+ReadModels -> QueryManager : results
+deactivate ReadModels
+QueryManager -> UIBFF : results
+deactivate QueryManager
+UIBFF -> User : results
+deactivate UIBFF
+
+@enduml
+```

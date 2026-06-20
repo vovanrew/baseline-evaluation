@@ -1,0 +1,48 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 20
+  LifeLineBorderColor #777777
+  LifeLineBackgroundColor transparent
+  LifeLineBorderThickness 1
+  MessageAlign left
+  DividerBorderThickness 2
+  DividerBorderColor black
+  DividerBackgroundColor white
+  GroupBorderThickness 2
+  GroupBorderColor black
+  GroupBackgroundColor white
+}
+
+participant Admin
+participant "Webhook\nServer" as WS
+participant Consumer
+
+== Register webhook ==
+
+Admin -> WS : 1 Register webhook\nconsumer
+WS --> Admin : 2 OK
+
+== Event received ==
+
+Admin -> WS : 3 Event
+WS -> WS : 4 Store event\nin DB
+
+== Consumer connected ==
+
+Consumer -> WS : 5 Connect over WS
+
+loop
+  WS -> WS : 6 Load webhooks\nfrom DB
+  WS -> Consumer : 7 Forward forwarding events
+end
+
+loop
+  Consumer --> WS : 8 Ack messages\nby webhook ID
+end
+
+@enduml
+```

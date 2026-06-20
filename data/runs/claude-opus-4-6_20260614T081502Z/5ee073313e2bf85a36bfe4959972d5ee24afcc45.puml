@@ -1,0 +1,39 @@
+```plantuml
+@startuml
+title create order sequence diagram
+
+actor Customer
+actor Cashier
+participant ":Inventory System" as IS
+participant ":Order" as Order
+participant ":Product" as Product
+participant ":Stock" as Stock
+participant ":Invoice" as Invoice
+participant ":Transaction" as Transaction
+
+Customer -> Cashier : 1. Request order product
+Cashier --> Customer : 2. Receive order
+Cashier -> IS : 3. requestCreateOrder()
+IS -> Product : 3.1 selectProduct()
+Product -> Stock : 3.2 checkStock()
+Stock --> Product : 3.3 return stock
+Product --> IS : 3.4 return product
+
+alt [IF (stock.qty > order.qty)]
+    IS -> Order : 3.5 createOrder(order)
+    Order -> Stock : 3.6 updateStock()
+    Stock --> Order : 3.7 return update stock
+    Order -> Invoice : 3.8 systemCreateInvoice()
+    Invoice -> Transaction : 3.9 printInvoice()
+    Transaction --> Invoice
+    Invoice --> Order : 3.10 return invoice
+    Order --> IS : 3.11 return order
+else [ELSE]
+    IS --> IS : 3.12 can't create order
+end
+
+IS --> Cashier : 4. response create order status
+Cashier --> Customer : 5. Invoice
+
+@enduml
+```

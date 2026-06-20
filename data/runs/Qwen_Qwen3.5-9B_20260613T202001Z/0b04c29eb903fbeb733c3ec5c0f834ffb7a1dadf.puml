@@ -1,0 +1,399 @@
+@startuml
+title Keyple 2.0 - Adapter of keyple-service-resource-java-lib - 2.0.0 (21/06/2021)
+
+' Colors legend
+legend
+  External public API references :
+  calypsonet-terminal-reader-java-api
+  keyple-service-java-lib
+endlegend
+
+package "org.eclipse.keyple.core.service.resource" {
+
+  class "final CardResourceServiceProvider" as CardResourceServiceProvider {
+    ...
+  }
+
+  class "final CardResourceServiceAdapter" as CardResourceServiceAdapter {
+    <<CardResourceService>>
+    <<PluginObserverSpi>>
+    <<CardReaderObserverSpi>>
+    CardResourceServiceAdapter getInstance()
+    String getCardResourceInfo(CardResource cardResource)
+    ReaderManagerAdapter getReaderManager(Reader reader)
+    void registerPoolResource(CardResource cardResource, PoolPlugin poolPlugin)
+    void configure(CardResourceServiceConfiguratorAdapter configurator)
+    CardResourceServiceConfigurator getConfigurator()
+    MinimalCardResourceServiceConfigurator getMinimalConfigurator()
+    void start()
+    void stop()
+    CardResource getCardResource(String cardResourceProfileName)
+    CardResource getCardResource()
+    void releaseCardResource(CardResource cardResource)
+    void removeCardResource(CardResource cardResource)
+    void onPluginEvent(PluginEvent pluginEvent)
+    void onReaderEvent(CardReaderEvent readerEvent)
+  }
+
+  class "CardResourceService" as CardResourceService {
+    CardResourceServiceConfigurator getConfigurator()
+    MinimalCardResourceServiceConfigurator getMinimalConfigurator()
+    void start()
+    void stop()
+    CardResource getCardResource(String cardResourceProfileName)
+    CardResource getCardResource()
+    void releaseCardResource(CardResource cardResource)
+    void removeCardResource(CardResource cardResource)
+    void onPluginEvent(PluginEvent pluginEvent)
+    void onReaderEvent(CardReaderEvent readerEvent)
+  }
+
+  class "CardReaderObserverSpi" as CardReaderObserverSpi {
+    void onPluginEvent(PluginEvent pluginEvent)
+    void onReaderEvent(CardReaderEvent readerEvent)
+  }
+
+  class "final CardResourceServiceConfiguratorAdapter" as CardResourceServiceConfiguratorAdapter {
+    CardResourceServiceConfiguratorAdapter()
+    CardResourceServiceConfigurator
+    MinimalCardResourceServiceConfigurator
+  }
+
+  class "CardResourceServiceConfigurator" as CardResourceServiceConfigurator {
+    <<CardResourceServiceConfigurator>>
+    <<MinimalCardResourceServiceConfigurator>>
+    <<AllocationStrategyStep>>
+    <<UsageTimeoutStep>>
+    <<PluginStep>>
+    <<PluginMonitoringStep>>
+    <<PoolAllocationStrategyStep>>
+    <<PoolPluginStep>>
+    <<AllocationTimingParameterStep>>
+    <<ProfileStep>>
+    <<ProfileParameterStep>>
+    <<ConfigurationStep>>
+  }
+
+  class "final CardProfileManagerAdapter" as CardProfileManagerAdapter {
+    CardProfileManagerAdapter(CardProfile cardProfile, CardResourceServiceConfiguratorAdapter globalConfiguration)
+    void removeCardResource(CardResource cardResource)
+    void onReaderConnected(ReaderManagerAdapter readerManager)
+    void onCardInserted(ReaderManagerAdapter readerManager)
+    CardResource getCardResource()
+  }
+
+  class "final ReaderManagerAdapter" as ReaderManagerAdapter {
+    ReaderManagerAdapter(Reader reader, Plugin plugin, ReaderConfiguratorSpi readerConfiguratorSpi, int usageTimeoutMillis)
+    Reader getReader()
+    Plugin getPlugin()
+    Set<CardResource> getCardResources()
+    boolean isActive()
+    void activate()
+    boolean matches(CardResourceProfileExtension extension)
+    boolean lock(CardResource cardResource, CardResourceProfileExtension extension)
+    void unlock()
+    void removeCardResource(CardResource cardResource)
+  }
+
+  class "final CardResourceAdapter" as CardResourceAdapter {
+    <<CardResource>>
+    CardResource(CardReader reader, SmartCard smartCard)
+    CardResource getReader()
+    SmartCard getSmartCard()
+  }
+
+  CardResourceServiceProvider ..> CardResourceServiceAdapter : provide
+  CardResourceServiceAdapter <|-- CardResourceService
+  CardResourceServiceAdapter <|-- CardReaderObserverSpi
+  CardResourceServiceConfiguratorAdapter <|-- CardResourceServiceConfigurator
+  CardResourceServiceConfiguratorAdapter <|-- MinimalCardResourceServiceConfigurator
+  CardResourceServiceConfiguratorAdapter --> CardProfileManagerAdapter : 1
+  CardProfileManagerAdapter --> ReaderManagerAdapter : 1..N
+  ReaderManagerAdapter --> CardResourceAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> ReaderManagerAdapter : 0..N
+  CardResourceAdapter --> CardProfileManagerAdapter : 0..N
+  CardResourceAdapter --> CardResourceServiceConfiguratorAdapter : 0..N
+  CardResourceAdapter --> Reader

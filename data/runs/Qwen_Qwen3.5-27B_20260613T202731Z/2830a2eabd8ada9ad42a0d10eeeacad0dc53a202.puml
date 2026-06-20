@@ -1,0 +1,80 @@
+```plantuml
+@startuml
+skinparam componentStyle rectangle
+
+package "Upstream" {
+    component Producer as P1 <<(C,green)>>
+    component Adapter as A1 <<(A,green)>>
+}
+
+component Transport as T1 <<(S,green)>>
+
+package "Gateway" {
+    component Adapter as A2 <<(A,green)>>
+    component Consumer as C1 <<(C,green)>>
+    
+    package "JobExecution" {
+        component GatewayJobHandler as GJH <<(C,green)>>
+    }
+}
+
+component Gateway as GW <<(C,green)>>
+component Producer as P2 <<(C,green)>>
+component Adapter as A3 <<(A,green)>>
+
+component Transport as T2 <<(S,green)>>
+
+package "Downstream" {
+    component Adapter as A4 <<(A,green)>>
+    component Consumer as C2 <<(C,green)>>
+}
+
+package "JobExecution" {
+    component DownstreamJobHandler as DJH <<(C,green)>>
+}
+
+component LowerLayer as LL <<(S,green)>>
+
+P1 -> A1 : publish(command)
+A1 -> T1 : publish(command)
+T1 -> A2 : execute(command)
+A2 -> C1 : handler(command, done)
+C1 ..> GJH : subscribe("done")
+GJH ..> GW : emit("command", GatewayJobHandler)
+GW -> P2 : publish(command)
+P2 -> A3 : publish(command)
+A3 -> T2 : publish(command)
+T2 -> A4 : execute(command)
+A4 -> C2 : handler(command, done)
+C2 ..> DJH : subscribe("done")
+DJH ..> LL : emit("command", GatewayJobHandler)
+LL -> DJH : done()
+DJH ..> C2 : emit("done")
+C2 -> A4 : done(response)
+A4 -> T2 : getDelay(command)\n(done(response))
+T2 -> A3 : emit("response", response)
+A3 -> P2 : handler("response")
+P2 -> A3 : onTimeout(getDelay())\n.....\nunsubscribe()
+A3 -> GW : resolve(responses)
+GW -> GJH : done()
+GJH ..> C1 : emit("done")
+C1 -> A2 : done(response)
+A2 -> T1 : done(response)
+T1 -> A1 : emit("response", response)
+A1 -> P1 : handler("response")
+P1 -> A1 : onTimeout(getDelay())\n.....\nunsubscribe()
+A1 -> T1 : emit("response", response)
+T1 -> A1 : getDelay(command)
+A1 -> P1 : handler("response")
+P1 -> A1 : onTimeout(getDelay())\n.....\nunsubscribe()
+A1 -> P1 : resolve()
+P1 -> A1 : subscribe(handler)
+A1 -> T1 : subscribe("response")
+T1 -> A1 : resolve()
+A3 -> P2 : resolve()
+P2 -> A3 : subscribe(handler)
+A3 -> T2 : subscribe("response")
+T2 -> A3 : resolve()
+
+@enduml
+```

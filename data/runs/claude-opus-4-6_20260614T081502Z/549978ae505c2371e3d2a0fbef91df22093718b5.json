@@ -1,0 +1,21 @@
+{
+  "id": "msg_019mQwpgDc6KLSQiZogqxV2y",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\ninterface Observer {\n  + notify(event: ManagerEvent)\n}\n\nclass EntityManager {\n  ~ entities: List<Entity>\n  ~ systems: Set<Observer>\n  + subscribe(system: Observer)\n  + addEntity(entity: Entity)\n  + removeEntity(id: Int)\n  - notifySystems(event: ManagerEvent)\n}\n\nclass System {\n  ~ managedTypes: List<ComponentType>\n  ~ filteredEntities: List<Entity>\n  + addEntityRef(): Unit\n  + removeEntityRef(): Unit\n  + update(): Unit\n  - checkEntityISCompatible(): Unit\n}\n\nclass Entity <<Product Type>> {\n  ~ ID : Int\n  ~ components : Map<ComponentType,\\nComponent>\n}\n\nclass Component <<Product Type>> {\n  ~ type: ComponentType\n}\n\nenum ComponentType {\n  DIRECTION,\n  POSITION,\n  SPEED,\n  SPAWN,\n  ...\n}\n\nSystem -up-|> Observer\n\nEntityManager -left- \"0..*\" Observer\n\nEntityManager *-down- \"0..*\" Entity : 1\n\nSystem \"0..*\" o-right- \"0..*\" Entity\n\nEntity *-down- \"0..*\" Component : 1\n\nComponent -left-* \"1\" ComponentType\n\nSystem *-down- \"1..*\" ComponentType\n\nnote right of Entity : Module + Case Class\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781426230,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 345,
+    "prompt_tokens": 1664,
+    "total_tokens": 2009
+  }
+}

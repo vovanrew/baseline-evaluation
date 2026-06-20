@@ -1,0 +1,60 @@
+@startuml
+hide footbox
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #888888
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #888888
+  ParticipantBackgroundColor #E9E9F6
+  ParticipantFontColor black
+  ParticipantPadding 20
+  BoxBorderColor #888888
+  BoxBackgroundColor #E9E9F6
+  NoteBackgroundColor #FFF9CC
+  NoteBorderColor #888888
+  NoteFontColor black
+  ArrowColor black
+  MessageAlign left
+}
+
+participant "finest level" as Finest
+participant "intermediate level(s)" as Inter
+participant "base level" as Base
+
+note over Finest: U(k,2) -> F(U(k,2))
+Finest -> Finest : SDC
+note over Finest: U(k',2) -> F(U(k',2))
+Finest -> Inter : restrict
+
+note over Inter: U(k,1) -> F(U(k,1))
+Inter -> Inter : FAS
+note over Inter: tau = Q(1)*F(U(k,1)) - R*Q(2)*F(U(k',2))
+Inter -> Inter : SDC with FAS
+note over Inter: U(k',1) -> F(U(k',1))
+Inter -> Base : restrict
+
+note over Base: U(k,0) -> F(U(k,0))
+Base -> Base : FAS
+note over Base: tau = Q(0)*F(U(k,0)) - R*Q(1)*F(U(k',1))
+Base -> Base : SDC with FAS
+note over Base: U(k+,0) -> F(U(k+,0))
+Base -> Base : coarse correction
+note over Base: c(0) = U(k+,0) - R*U(k',1)
+
+Base -> Inter : prolongate
+Inter -> Inter : correct
+note over Inter: U(k'',1) = U(k',1) + P*c(0)
+Inter -> Inter : SDC
+note over Inter: U(k+,1) -> F(U(k+,1))
+Inter -> Inter : coarse correction
+note over Inter: c(1) = U(k+,1) - R*U(k',2)
+
+Inter -> Finest : prolongate
+Finest -> Finest : correct
+note over Finest: U(k'',2) = U(k',2) + P*c(1)
+Finest -> Finest : SDC
+note over Finest: U(k+,2) -> F(U(k+,2))
+
+@enduml

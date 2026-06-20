@@ -1,0 +1,36 @@
+@startuml
+title agregar jugadores a la partida
+
+actor jugador as J1
+participant "VistaNuevaPartida" as VNP
+participant "SubVistaSeleccionEquipos" as SVSE
+participant "ControladorNuevaPartida" as CNP
+entity Jugador as JUG
+
+
+J1 ->> VNP : click agregar jugador 
+activate VNP 
+
+alt [jugadores<4]  
+    activate CNP   
+        VNP -->  CNP    
+            activate CNP     
+                CNP->>+JUG: obtenerJugadorAleatorio()        
+                    deactivate JUG      
+                        return jugador jug       
+                            CNP-->CNP:+agregarJugador(jug)            
+                                deactivate CNP                
+                                    CNP-->>+SVSE:agregarVistainfojuguadpr(jug)                    
+                                        deactivate SVSE                        
+                                            SVSE -->>-J1:muestra el nuevo \njugdor agregado                            
+                                                alt[vista seleccion equipos activada ]                                
+                                                    activate CNP                                    
+                                                        CNP - >> +SVSE:agregajugador(Jugador jug )                                        
+                                                            deactivate SVSE                                            
+                                                                SVSE --->>-J1:muesra nuwvo juagdor\nagrgegado en equipo                                                            
+                                                                                                 else[de lo contrario]                                                             
+                                                                    CNP ---->>>++vnp:: mostrarMensaje("Maximo 4 jugadores.")                                                               vnp---->-- j1 :: muestra mensaje de maximo 4 jugadores end  
+
+
+
+@enduml

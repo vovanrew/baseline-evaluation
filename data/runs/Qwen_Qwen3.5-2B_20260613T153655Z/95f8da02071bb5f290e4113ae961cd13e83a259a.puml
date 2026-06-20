@@ -1,0 +1,45 @@
+@startuml
+participant "Administrative" as Admin
+participant ":AddScooterUI" as AddScooterUI
+participant ":AddScooterController" as AddScooterController
+participant ":Pharmacy" as Pharmacy
+participant ":ListScooters" as ListScooters
+participant "scdb:ScooterDB" as scdb:ScooterDB
+participant "batdb:BatteryDB" as batdb:BatteryDB
+
+participant "sc:Scooter" as sc:Scooter
+participant "bat:Battery" as bat:Battery
+
+Admin ..> AddScooterUI :begins the process of adding a scooter
+AddScooterUI ..> AddScooterUI :asks for the necessary data(id_Scooter, qrCode, status, id_Battery, capacity)
+
+AddScooterUI ..> Admin :inserts the solicited data
+
+AddScooterUI ..> AddScooterController :newScooter(id_Scooter, qrCode, status, id_Battery, capacity)
+AddScooterController ..> AddScooterController :newScooter(id_Scooter, qrCode, status, id_Battery, capacity)
+AddScooterController ..> AddScooterController :create(id_Scooter, qrCode, status, id_Battery, capacity)
+AddScooterController ..> sc:Scooter :create(id_Scooter, qrCode, status, id_Battery, capacity)
+AddScooterController ..> sc:Scooter :create(id_Scooter, qrCode, status, id_Battery, capacity)
+AddScooterController ..> bat:Battery :create(id_Battery, capacity)
+AddScooterController ..> bat:Battery :create(id_Battery, capacity)
+AddScooterController ..> bat:Battery :validateBattery(bat)
+
+AddScooterController ..> ListScooters :validateScooter(sc)
+ListScooters ..> ListScooters :validateScooter(sc)
+ListScooters ..> ListScooters :addScooter(sc)
+ListScooters ..> sc:Scooter :save(sc)
+ListScooters ..> bat:Battery :save(bat)
+
+AddScooterUI ..> AddScooterController :registerScooter()
+AddScooterController ..> AddScooterController :registerScooter(sc)
+AddScooterController ..> ListScooters :registerScooter(sc)
+ListScooters ..> ListScooters :validateScooter(sc)
+ListScooters ..> ListScooters :addScooter(sc)
+ListScooters ..> sc:Scooter :save(sc)
+ListScooters ..> bat:Battery :save(bat)
+
+Admin ..> AddScooterUI :confirms
+AddScooterUI ..> Admin :validates the data, presents it and asks the administrator for its confirmation
+Admin ..> AddScooterUI :adds the scooter to a list of scooters
+
+@enduml

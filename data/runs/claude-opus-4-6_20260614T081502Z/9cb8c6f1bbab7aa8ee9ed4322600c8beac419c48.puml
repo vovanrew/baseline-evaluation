@@ -1,0 +1,38 @@
+```plantuml
+@startuml
+
+participant Application
+participant Node
+participant Composed_VStack
+participant VStack
+participant State
+participant NodeBuilder
+participant "Control.Layer" as ControlLayer
+participant Renderer
+
+== 布局树构建过程 ==
+
+Application -> Composed_VStack : build
+Composed_VStack -> VStack : buildNode
+VStack -> NodeBuilder : setupStateProperties
+VStack -> NodeBuilder : setupEnvironmentProperties
+VStack -> Node : addNode
+
+alt LayoutRoot
+    VStack -> NodeBuilder : loadData
+end
+
+== 布局更新构建过程 ==
+
+State <- State : set
+State -> Application : invalidateNode
+Application -> Application : scheduleUpdate
+Application -> Application : update
+Application -> Composed_VStack : update
+Composed_VStack -> NodeBuilder : updateNode
+NodeBuilder -> ControlLayer : invalidate
+ControlLayer -> Renderer : invalidate
+Application -> Application : update
+
+@enduml
+```

@@ -1,0 +1,49 @@
+```plantuml
+@startuml
+
+class ServiceFault {
+    code
+    description
+}
+
+class ServiceFaultFactory
+
+class RuntimeException
+
+class SoapFaultMappingExceptionResolver
+
+class WsdlConfig {
+    + exceptionResolver()
+}
+
+class ServiceFaultException {
+    ServiceFault getServiceFault()
+}
+
+class DetailSoapFaultDefinitionExceptionResolver
+
+class InternalServerException
+
+class ServerValidateException
+
+enum ApiExceptionCodes {
+    code
+    description
+    SERVICE_NETWORK_EXCEPTION
+    SERVER_VALIDATE_EXCEPTION
+    INTERNAL_SERVER_ERROR
+}
+
+ServiceFaultFactory o-- ServiceFault
+ServiceFaultException o-- ServiceFaultFactory
+ServiceFaultException --|> RuntimeException
+DetailSoapFaultDefinitionExceptionResolver --|> SoapFaultMappingExceptionResolver
+WsdlConfig *-- DetailSoapFaultDefinitionExceptionResolver
+DetailSoapFaultDefinitionExceptionResolver o-- ServiceFaultException
+InternalServerException --|> ServiceFaultException
+ServerValidateException --|> ServiceFaultException
+InternalServerException --> ApiExceptionCodes
+ServerValidateException --> ApiExceptionCodes
+
+@enduml
+```

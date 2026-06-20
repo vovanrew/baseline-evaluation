@@ -1,0 +1,27 @@
+```plantuml
+@startuml
+
+actor "ユーザ" as user
+boundary "ブラウザ" as browser
+control "web.php" as web
+control "Kouka2_1Controller" as controller
+entity "Restdata" as restdata
+boundary "index.blade.php" as index
+boundary "show.blade.php" as show
+
+user -> browser : 該当ページをリクエスト[/kouka2_1]
+browser -> web : GET[/kouka2_1]
+web -> controller : @index
+controller -> restdata : all()
+restdata --> controller
+controller -> index
+
+user -> browser : 検索ボタンを押下
+browser -> web : GET[/kouka2_1/find]
+web -> controller : @find
+controller -> restdata : where()->first()
+restdata --> controller
+controller -> show
+
+@enduml
+```

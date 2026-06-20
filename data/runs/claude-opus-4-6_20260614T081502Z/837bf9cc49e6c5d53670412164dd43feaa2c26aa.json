@@ -1,0 +1,21 @@
+{
+  "id": "msg_014d2e6f7FbRDkNdV8XWSWy8",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\ndatabase \"tuple\" as tuple\nactor \"Upper\\nlayer\" as upper\n\nbox \"IP Layer\" #LightGray\nparticipant \"IPv4\\nlayer\" as ipv4layer\ndatabase \"Routing\\ntable\" as routing\nend box\n\nbox \"IPv4 Ineterface\" #LightGray\nparticipant \"IPv4\\ninterface\" as ipv4if\nparticipant \"ARP\" as arp\nend box\n\nactor \"Lower\\nlayer\" as lower\n\nnote left of upper #LightYellow\nIPv4.dst=192.0.2.1\nIPv4.src=198.51.100.2\nend note\n\nupper -> ipv4layer : IPdata\n\nnote over ipv4layer #LightYellow\nAllocate\nIPv4\nheader\nend note\n\nipv4layer -> routing : dst=192.0.2.1\nrouting ..> ipv4layer\n\nipv4layer ..> tuple\n\nnote left of ipv4layer #LightYellow\nIPv4.oif=ifp1\nIPv4.gw=198.51.100.1\nend note\n\nipv4layer -> ipv4if\n\nipv4if -> arp : gw=198.51.100.1\n\nnote right of arp #LightYellow\nenqueue\npacket\nend note\n\narp <.. lower : ARP request\narp -> lower : ARP request\n\nlower -> arp : ARP response\narp <- lower : ARP response\n\narp ..> ipv4if : resolved\\npackets\n\nipv4if -> ipv4if : send as\\nsend\\nthread\n\nipv4if <- lower\nipv4if -> lower\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781430457,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 407,
+    "prompt_tokens": 1650,
+    "total_tokens": 2057
+  }
+}

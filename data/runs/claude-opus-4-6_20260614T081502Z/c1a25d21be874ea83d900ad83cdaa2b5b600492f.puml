@@ -1,0 +1,29 @@
+```plantuml
+@startuml
+
+participant "A" as A
+participant "CircuitBreaker" as CB
+participant "B" as B
+
+alt no errors
+    A -> CB : call()
+    CB -> B : call()
+    activate B
+    B --> CB : response
+    deactivate B
+    CB --> A : response
+else errors
+    A -> CB : call()
+    loop while err_count < max_errors
+        CB ->x B : call()
+        CB -> CB : err_count ++
+        CB -> CB : sleep(timeout)
+        CB ->x B : call()
+        CB -> CB : sleep(timeout*2)
+        CB ->x B : call()
+    end
+    CB --> A : error
+end
+
+@enduml
+```

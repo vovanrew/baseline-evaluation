@@ -4,6 +4,17 @@ Methodological record for the zero-shot benchmark runs: the inference-side
 protocol applied identically to every model. Metric definitions are recorded in
 `evaluation-framework.md`; test-set construction in `test-set-construction.md`.
 
+## Model set
+
+The benchmark comprises two arms evaluated under the identical protocol below.
+The frontier reference set is each lab's reigning general-purpose flagship as of
+2026-02-28: `gpt-5.2-2025-12-11` (OpenAI), `claude-opus-4-6` (Anthropic), and
+`gemini-3.1-pro-preview` (Google) — one per lab. The open arm is the Qwen3.5 family — the
+fine-tuning target of the subsequent work — across the dense 2B / 9B / 27B sizes
+and the 397B-A17B mixture-of-experts (397B total parameters, ~17B active).
+Open-model results are reported for Qwen3.5 specifically; the frontier models are
+reference points, not matched competitors.
+
 ## 1. Prompt
 
 Every model receives a single zero-shot prompt, identical across models and
@@ -53,10 +64,10 @@ reasoning configuration (§3) and the usage fields the harness validates
   `--token-field`, recorded in `run_meta.json`) and returns HTTP 400 rather
   than a truncated completion when generation reaches the cap, so a
   cap-exhausting generation is stored as an `http_error` failure record. Featherless serves Qwen3.5-2B in FP16
-  and Qwen3.5-9B/27B in FP8 (provider listings, 2026-06-11); all three
+  and Qwen3.5-9B/27B/397B-A17B in FP8 (provider listings); all four
   sizes ingest the 1,568 px image standard without downscaling
   (`util/probe_image_tokens.py`; test-set-construction.md §7).
-- **Anthropic (`claude-sonnet-4-6`)** — Anthropic's OpenAI-compatible
+- **Anthropic (`claude-opus-4-6`)** — Anthropic's OpenAI-compatible
   endpoint (`https://api.anthropic.com/v1/chat/completions`), which
   documents passthrough of the native `thinking` request parameter and
   returns `usage.prompt_tokens`/`completion_tokens` and `image_url` content
@@ -107,13 +118,14 @@ run's `run_meta.json`:
 | Model | Setting | Reasoning state |
 |---|---|---|
 | `gpt-5.2-2025-12-11` | `reasoning_effort: "none"` | off (also the model default; "does not perform reasoning") |
-| `claude-sonnet-4-6` | `thinking: {"type": "disabled"}` | off |
+| `claude-opus-4-6` | `thinking: {"type": "disabled"}` | off |
 | `gemini-3.1-pro-preview` | `thinking_level: "low"` | minimum available — thinking cannot be disabled on the Pro tier (`minimal` is unsupported there); `low` is the floor, below the dynamic `high` default |
-| Qwen3.5-2B / 9B / 27B | `chat_template_kwargs: {"enable_thinking": false}` | off |
+| Qwen3.5-2B / 9B / 27B / 397B-A17B | `chat_template_kwargs: {"enable_thinking": false}` | off |
 
 Qwen3.5 is a hybrid thinking family whose default differs by size: 2B
-defaults to non-thinking while 9B and 27B default to thinking, so the
-non-thinking flag is sent explicitly and uniformly to all three sizes
+defaults to non-thinking while 9B, 27B, and the 397B-A17B mixture-of-experts
+default to thinking, so the non-thinking flag is sent explicitly and uniformly
+to all four sizes
 (the 2B chat template enables thinking only on an explicit `true`, so the
 uniform flag is a no-op there). The flag follows the official model-card
 usage; Featherless passes `chat_template_kwargs` through as a documented

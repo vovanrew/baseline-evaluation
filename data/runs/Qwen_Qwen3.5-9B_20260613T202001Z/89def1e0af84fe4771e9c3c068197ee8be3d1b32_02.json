@@ -1,0 +1,22 @@
+{
+  "id": "a719b08c-2732-48ea-ae8b-cfe764bc0fd0",
+  "object": "chat.completion",
+  "created": 1781410712,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Scheduled Events\n\nactor \"Recording Staff\" as rs\nactor \"Coach\" as coach\npackage \"IP/Mobile Cams\" as cams\npackage \"Consumer Apps\" as apps\npackage \"Security Gateway\" as sg\npackage \"Streaming Service (encoder)\" as ss\npackage \"Transfer Service\" as ts\npackage \"Control Domain (win10/linux)\" as cd\npackage \"Media (mediaID)\" as media\n\ncd -> ss : host(sources{endpoints})\ncd -> ss : host(mediaID, consumers{token, priority})\n\napps -> sg : authenticate(ID)\nsg --> apps : return(token)\n\ncams -> cd : register(endpoint)\napps -> cd : register(token, priority)\n\ncd -> cd : create(newEvent)\ncd -> ss : encode()\ncd -> media : saveAs(mediaID)\nmedia --> cd : save(mediaID)\n\ncd -> apps : notify(recording)\ncd -> apps : notify(newMediaAvailable, mediaID, transferServiceEndpoint)\n\ncd -> apps : fetchMedia(token, mediaID)\napps --> cd : returnByPriority(mediaStream)\n\ncd -> apps : showMedia(token)\napps --> cd : fetchMedia(token, mediaID)\ncd --> apps : returnByPriority(mediaStream)\n\ncd -> rs : start(newEvent)\ncd -> rs : stop(newEvent)\n\nalt [auto-download enabled]\n  cd -> apps : fetchMedia(token, mediaID)\n  apps --> cd : returnByPriority(mediaStream)\nelse [manual-download enabled]\n  apps -> cd : showMedia(token)\n  cd -> apps : fetchMedia(token, mediaID)\n  cd --> apps : returnByPriority(mediaStream)\nend\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1762,
+    "completion_tokens": 365,
+    "total_tokens": 2127
+  }
+}

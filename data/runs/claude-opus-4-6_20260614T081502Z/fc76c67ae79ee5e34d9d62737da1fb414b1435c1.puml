@@ -1,0 +1,98 @@
+```plantuml
+@startuml
+
+abstract class Directory {
+  Directory表示一些扁平(没有子目录)文件的集合, 这些文件都只能在创建时写入一次。\n写入之后，就只能读或者删除，不可再修改。
+  --
+  // 返回目录下所有文件
+  + String[] listAll()
+  + void deleteFile(String name)
+  + long fileLength(String name)
+  \t// 创建一个新文件
+  + IndexOutput createOutput(String name, IOContext context)
+  \t// 创建一个临时文件
+  + IndexOutput createTempOutput(String prefix, String suffix, IOContext context)
+  \t// 确保对这些文件所有的写入都被转移到稳定的存储介质上去。
+  + void sync(Collection<String> names)
+  \t// 重命名文件
+  + void rename(String source, String dest)
+  \t// 持久化Directory的元数据
+  + void syncMetaData()
+  \t// 打开一个文件
+  + IndexInput openInput(String name, IOContext context)
+  \t// 获取锁
+  + Lock obtainLock(String name)
+}
+
+class FileSwitchDirectory {
+  // ?????
+}
+
+abstract class BaseDirectory {
+  // Directory具体实现的基类，使用LockFactory来获取锁
+  ~ LockFactory lockFactory
+}
+
+abstract class FSDirectory {
+  // 在文件系统上的实现
+  --
+  // 根据当前的环境来选择使用哪一种实现。
+  + FSDirectory open(Path path, LockFactory lockFactory)
+  ~ Path directory
+}
+
+class RAMDirectory {
+  // 在内存中的实现
+}
+
+class SimpleFSDirectory {
+  //
+}
+
+class MMapDirectory <<Important>> #lightgreen {
+  // 使用mmap来读取数据
+}
+
+class NIOFSDirectory {
+}
+
+abstract class FilterDirectory {
+  // 装饰
+}
+
+class NRTCachingDirectory {
+}
+
+class LockValidatingDirectoryWrapper {
+  // 在一些写操作进行之前，提供锁的校验
+}
+
+class TrackingDirectoryWrapper {
+  // 可以记录创建了哪些文件
+  + Set<String> getCreatedFiles()
+}
+
+class SleepingLockWrapper {
+  // 如果获取锁失败，则休眠一段时间后重试。
+}
+
+Directory <|-- FileSwitchDirectory
+Directory <|-- BaseDirectory
+Directory <|-- FilterDirectory
+
+BaseDirectory <|-- FSDirectory
+BaseDirectory <|-- RAMDirectory
+
+FSDirectory <|-- SimpleFSDirectory
+FSDirectory <|-- MMapDirectory
+FSDirectory <|-- NIOFSDirectory
+
+FilterDirectory <|-- NRTCachingDirectory
+FilterDirectory <|-- LockValidatingDirectoryWrapper
+FilterDirectory <|-- TrackingDirectoryWrapper
+FilterDirectory <|-- SleepingLockWrapper
+
+FilterDirectory --> FilterDirectory
+
+@enduml
+```

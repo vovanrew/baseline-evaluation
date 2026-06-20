@@ -1,0 +1,34 @@
+```plantuml
+@startuml
+title カレンダー表示機能
+
+actor "ユーザー" as user
+participant "カレンダー表示機能" as calendar
+database "画像DB" as db
+
+ref over user, db
+  画像取得 from Locix
+end ref
+
+user -> calendar : カレンダー表示
+
+group 画像取得
+  calendar -> db : 日付単位で画像取得
+  calendar <-- db : レスポンス
+end
+
+group カレンダー表示
+  alt [画像取得中]
+    user <-- calendar : ローディングインジケーター表示
+  else [画像取得完了]
+    user <-- calendar : カレンダーを表示
+  end
+end
+
+group 一覧表示
+  user -> calendar : 撮影日付選択
+  user <-- calendar : 画像一覧を撮影時間の降順で表示
+end
+
+@enduml
+```

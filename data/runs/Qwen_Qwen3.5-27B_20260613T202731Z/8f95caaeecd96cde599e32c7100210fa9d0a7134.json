@@ -1,0 +1,22 @@
+{
+  "id": "1a4b77f4-dc21-4f8c-bae6-fbdd3d9c3d88",
+  "object": "chat.completion",
+  "created": 1781488055,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Prebid.js and GAM/AdX Integration Sequence Diagram\n\nactor User\nparticipant \"pub.com\" as Pub\nparticipant \"prebid.js\" as Prebid\nparticipant \"prebid_[SSP_MODULE].js\" as SSPModule\nparticipant \"SSPs\" as SSPs\nparticipant \"DSPs\" as DSPs\nparticipant \"gam.js\" as GAM\nparticipant \"GAM/AdX\" as AdX\n\nUser -> Pub: 1. navigates browser to pub.com\nactivate Pub\nPub -> Prebid: 2. load, configure, execute prebid.js\nactivate Prebid\nPrebid -> SSPModule: 3. invoke SSP bid adapter\nactivate SSPModule\nSSPModule -> SSPs: 4. ad request\nactivate SSPs\nSSPs -> SSPs: 5. traffic quality controls\nSSPs -> DSPs: 6. make bid requests\nactivate DSPs\nDSPs --> SSPs: 7. respond with bids\ndeactivate DSPs\nSSPs -> SSPs: 8. pub ad controls\nSSPs --> SSPModule: 9. ad w/price\ndeactivate SSPs\nSSPModule --> Prebid: 10. ad w/price\ndeactivate SSPModule\nPrebid -> Prebid: 11. select appropriate ad\nPrebid -> GAM: 12. configure k/v pair for selected ad\nactivate GAM\nGAM --> Prebid: 13. wait for ad slot to load\ndeactivate GAM\ndeactivate Prebid\n\nnote over Pub,GAM: At this point control over the ad loading process is transferred from Prebid.js to GAM (final selection layer)\n\nPub -> GAM: 14. load slot\nGAM -> AdX: 15. ad request\nactivate AdX\nAdX --> GAM: 16. respond with winning ad, which may be prebid.js line item\ndeactivate AdX\n\nalt [GAM/AdX highest bid]\n    GAM -> GAM: 17.1 render GAM/AdX result\nelse [Prebid.js highest bid]\n    GAM -> Pub: 17.2 render selected SSP ad\nend\n\nPub --> User: 18. show highest value advertisement\ndeactivate Pub\ndeactivate GAM\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1272,
+    "completion_tokens": 494,
+    "total_tokens": 1766
+  }
+}

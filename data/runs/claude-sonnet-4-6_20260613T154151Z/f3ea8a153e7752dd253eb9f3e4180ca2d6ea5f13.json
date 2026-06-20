@@ -1,0 +1,21 @@
+{
+  "id": "msg_0116THhvKzPyfagPLJe7fwPY",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nbox \"User application\" #lavender\nparticipant Main\nend box\n\nparticipant Propagator\nparticipant Integrator\nparticipant DifferentialEquations\nparticipant OrbitType\nparticipant TimesDerivative\nparticipant \"Force Model i\" as ForceModel\nparticipant NewtonianAttraction\n\nMain -> Propagator : propagate\nPropagator -> DifferentialEquations : create\nPropagator -> TimesDerivative : create\n\nPropagator -> Integrator : integrate\n\nloop [for n steps]\n    Integrator -> DifferentialEquations : computeDerivatives\n    DifferentialEquations -> OrbitType : mapArrayToOrbit\n\n    loop [for all perturbation force models]\n        DifferentialEquations -> ForceModel : addContribution\n        ForceModel -> TimesDerivative : addAcceleration\n    end\n\n    DifferentialEquations -> NewtonianAttraction : addContribution\n    NewtonianAttraction -> TimesDerivative : addKeplerContribution\nend\n\nPropagator --> Main : final state\nIntegrator --> Propagator : final state\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781372288,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 263,
+    "prompt_tokens": 1646,
+    "total_tokens": 1909
+  }
+}

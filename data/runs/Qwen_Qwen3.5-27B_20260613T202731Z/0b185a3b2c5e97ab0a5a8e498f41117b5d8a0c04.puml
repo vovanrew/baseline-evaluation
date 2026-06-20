@@ -1,0 +1,97 @@
+```plantuml
+@startuml
+skinparam sequence {
+    ArrowColor DarkSlateGray
+    LifeLineBorderColor Black
+    LifeLineBackgroundColor LightGray
+    ActorBorderColor Black
+    ActorBackgroundColor WhiteSmoke
+}
+
+participant "producer" as P
+participant "consumer" as C
+participant "broker" as B
+participant "NameServer" as NS1
+participant "NameServer" as NS2
+
+box "NameServer 启动流程" #LightGray
+    activate NS1
+    note right of NS1: 1 启动 NameServer 服务器
+    activate NS1
+    note right of NS1: 2 启动监听
+    note right of NS1: 监听 broker 链接\n监听 producer 链接\n监听 consumer 链接
+    deactivate NS1
+    note right of NS1: 3
+    deactivate NS1
+    note left of NS1: 4
+end box
+
+box "broker 启动流程" #LightGray
+    activate B
+    note right of B: 5 启动 broker 服务器
+    activate B
+    note right of B: 6 每个 broker 与 每个 NameServer 建立长链接
+    activate NS1
+    note left of B: 7
+    deactivate NS1
+    note left of B: 8
+    deactivate B
+    note right of B: 9 每 30 秒发送心跳
+end box
+
+box "producer 启动/发消息流程" #LightGray
+    activate P
+    note right of P: 10 启动
+    activate P
+    note right of P: 11 先与一台 NameServer 建立长链接
+    activate NS1
+    note left of P: 12
+    deactivate NS1
+    note right of P: 13 获取路由信息，获取 topic 与 broker queue 的对应关系
+    activate NS1
+    note left of P: 14
+    deactivate NS1
+    note left of P: 15
+    note right of P: 16 每 30 秒更新一次路由信息
+    note right of P: 17 发送消息
+    activate P
+    note right of P: 18 随机选择一个 queue，并发送消息
+    activate B
+    note left of P: 19
+    deactivate B
+    note left of P: 20
+    deactivate P
+end box
+
+box "consumer 启动/pull消息流程" #LightGray
+    activate C
+    note right of C: 21 启动
+    activate C
+    note right of C: 22 与一台 NameServer 建立长链接
+    activate NS1
+    note left of C: 23
+    deactivate NS1
+    note right of C: 24 获取 topic 的路由信息
+    activate NS1
+    note left of C: 25
+    deactivate NS1
+    note right of C: 26 建立长链接并获取 queue
+    activate B
+    note left of C: 27
+    deactivate B
+    note left of C: 28
+    deactivate C
+    note right of C: 29 每 30 秒发送心跳，确保 broker 存活
+    note right of C: 30 每 30 秒更新路由信息
+    note right of C: 31 消息消费
+    activate C
+    note right of C: 32 拉取消息消费
+    activate B
+    note left of C: 33
+    deactivate B
+    note left of C: 34
+    deactivate C
+end box
+
+@enduml
+```

@@ -1,0 +1,21 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "user" as User
+rectangle "app" as App
+rectangle "firestore" as Firestore
+
+User -> App : press "New Case"
+App --> User : show case creation screen
+User -> App : enter details, press save
+App -> Firestore : send CaseTemporary(name, summary)
+activate Firestore
+Firestore -[right]-> Firestore : save
+deactivate Firestore
+Firestore --> App : return Case(id, name, summary, created_at, updated_at, submitted_at, submitted)
+App -[left]-> App : update local case details
+App --> User : transition to story list screen/case details screen
+
+@enduml
+```

@@ -1,0 +1,43 @@
+@startuml
+participant "DefaultMQProducerImpl" as DefaultMQProducerImpl
+participant "Validators" as Validators
+participant "MQClientManager" as MQClientManager
+participant "MQClientAPIImpl" as MQClientAPIImpl
+participant "PullMessageService" as PullMessageService
+participant "RebalanceService" as RebalanceService
+
+note right of DefaultMQProducerImpl
+start
+@endnote
+
+DefaultMQProducerImpl --> Validators: checkConfig
+
+Validators <--> DefaultMQProducerImpl: result
+
+DefaultMQProducerImpl --> MQClientManager: getInstance
+
+MQClientManager --> MQClientManager: getAndCreateMQClientInstance
+
+MQClientManager --> MQClientInstance: new
+
+MQClientManager <--> DefaultMQProducerImpl: mQClientFactory: MQClientInstance
+
+DefaultMQProducerImpl --> MQClientInstance: registerProducer
+
+MQClientInstance --> MQClientAPIImpl: start
+
+MQClientAPIImpl --> MQClientAPIImpl: startScheduledTask
+
+MQClientAPIImpl <--> MQClientInstance: start
+
+MQClientInstance --> PullMessageService: start
+
+MQClientInstance --> RebalanceService: start
+
+MQClientInstance --> DefaultMQProducerImpl: start
+
+MQClientInstance --> MQClientInstance: sendHeartbeatToAllBrokerWithLock
+
+DefaultMQProducerImpl <--> MQClientInstance: start
+
+@enduml

@@ -1,0 +1,250 @@
+@startuml
+participant "CenterCoordinator" as CenterCoordinator
+participant "DataFromLegacySystemUI" as DataFromLegacySystemUI
+participant "DataFromLegacySystemController" as DataFromLegacySystemController
+participant "Company" as Company
+participant "SNSUserStore" as SNSUserStore
+participant "App" as App
+participant "VaccinationCenter" as VaccinationCenter
+participant "Arrival" as Arrival
+participant "Departure" as Departure
+participant "vaccinationCentersStore" as vaccinationCentersStore
+
+participant "DataFromLegacySystemUI" as DataFromLegacySystemUI
+
+CenterCoordinator -> DataFromLegacySystemUI: 1 Asks to load a CSV file with legacy data
+DataFromLegacySystemUI -> DataFromLegacySystemController: 2 DataFromLegacySystemController
+DataFromLegacySystemController -> vaccinationCentersStore: 3 getVaccinationCentersStore()
+DataFromLegacySystemController -> vaccinationCentersStore: 4 returns the store
+DataFromLegacySystemController -> vaccinationCentersStore: 5 getVaccinationCenter(AssociatedToCoordinator(id))
+DataFromLegacySystemController -> vaccinationCentersStore: 6 returns the vaccination center
+DataFromLegacySystemUI -> ReadLegacyDataFile: 7 ReadLegacyDataFile(center)
+DataFromLegacySystemUI -> ReadLegacyDataFile: 8 request path of the CSV file
+DataFromLegacySystemUI -> ReadLegacyDataFile: 9 types path
+DataFromLegacySystemUI -> ReadLegacyDataFile: 10 readFile(path)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 11 readFile(String path)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 12 while csv has new lines
+DataFromLegacyDataFile -> ReadLegacyDataFile: 13 validateFile(legacy(SNSUserNumber, firstName, secondDate, thirdDate, fourthDate))
+DataFromLegacyDataFile -> ReadLegacyDataFile: 14 Saves data into an ArrayList<String> called legacyDataList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 15 getSNSUserList()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 16 returns list
+DataFromLegacyDataFile -> ReadLegacyDataFile: 17 returns list
+DataFromLegacyDataFile -> ReadLegacyDataFile: 18 getVaccineList()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 19 returns list
+DataFromLegacyDataFile -> ReadLegacyDataFile: 20 while legacyDataList has new lines
+DataFromLegacyDataFile -> ReadLegacyDataFile: 21 findPos(OTPax(vaccineList, values, positionInSNSUserList, values.positionInSNSUserList, positionInVaccinesList, lineOfTheData)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 22 checksDuplicates(updatedList, snsUsersList, vaccineList, positionInSNSUserList, positionInVaccinesList, lineOfTheData)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 23 Saves data into an ArrayList<String> called updatedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 24 createArrival()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 25 createArrival()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 26 returns Arrival
+DataFromLegacyDataFile -> ReadLegacyDataFile: 27 Saves arrival into List<Arrival> called arrivalsList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 28 genericsArrivals.binaryFileWrite(Constants.FILE_PATH_ARRIVALS, arrivalsList)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 29 createDeparture()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 30 createDeparture()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 31 returns departure
+DataFromLegacyDataFile -> ReadLegacyDataFile: 32 Saves departure into List<Departure> called departedDepartureList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 33 genericsDeparture.binaryFileWrite(Constants.FILE_PATH_DEPARTURES, departedDepartureList)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 34 returns updatedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 35 returns updatedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 36 requests the option to sort
+DataFromLegacyDataFile -> ReadLegacyDataFile: 37 selects option
+DataFromLegacyDataFile -> ReadLegacyDataFile: 38 chooseCriteriaToSort(option)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 39 setList(Option)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 40 while updatedList has new lines
+DataFromLegacyDataFile -> ReadLegacyDataFile: 41 a List<LocalDateTime> called listToSort
+DataFromLegacyDataFile -> ReadLegacyDataFile: 42 selects order
+DataFromLegacyDataFile -> ReadLegacyDataFile: 43 getAlgorithm()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 44 getSortingAlgorithm()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 45 returns algorithm
+DataFromLegacyDataFile -> ReadLegacyDataFile: 46 returns algorithm
+DataFromLegacyDataFile -> ReadLegacyDataFile: 47 sortListWithAlgo(algorithmToBeUsed.option)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 48 insertionSortAscending()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 49 returns sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 50 returns sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 51 prints sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 52 selects order
+DataFromLegacyDataFile -> ReadLegacyDataFile: 53 getAlgorithm()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 54 getSortingAlgorithm()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 55 returns algorithm
+DataFromLegacyDataFile -> ReadLegacyDataFile: 56 returns algorithm
+DataFromLegacyDataFile -> ReadLegacyDataFile: 57 sortListWithAlgo(algorithmToBeUsed.option)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 58 insertionSortDescending()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 59 returns sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 60 returns sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 61 prints sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 62 while csv has new lines
+DataFromLegacyDataFile -> ReadLegacyDataFile: 63 validateFile(legacy(SNSUserNumber, firstName, secondDate, thirdDate, fourthDate))
+DataFromLegacyDataFile -> ReadLegacyDataFile: 64 Saves data into an ArrayList<String> called legacyDataList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 65 getSNSUserList()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 66 returns list
+DataFromLegacyDataFile -> ReadLegacyDataFile: 67 returns list
+DataFromLegacyDataFile -> ReadLegacyDataFile: 68 getVaccineList()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 69 returns list
+DataFromLegacyDataFile -> ReadLegacyDataFile: 70 while legacyDataList has new lines
+DataFromLegacyDataFile -> ReadLegacyDataFile: 71 findPos(OTPax(vaccineList, values, positionInSNSUserList, values.positionInSNSUserList, positionInVaccinesList, lineOfTheData)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 72 checksDuplicates(updatedList, snsUsersList, vaccineList, positionInSNSUserList, positionInVaccinesList, lineOfTheData)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 73 Saves data into an ArrayList<String> called updatedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 74 createArrival()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 75 createArrival()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 76 returns Arrival
+DataFromLegacyDataFile -> ReadLegacyDataFile: 77 Saves arrival into List<Arrival> called arrivalsList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 78 genericsArrivals.binaryFileWrite(Constants.FILE_PATH_ARRIVALS, arrivalsList)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 79 createDeparture()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 80 createDeparture()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 81 returns departure
+DataFromLegacyDataFile -> ReadLegacyDataFile: 82 Saves departure into List<Departure> called departedDepartureList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 83 genericsDeparture.binaryFileWrite(Constants.FILE_PATH_DEPARTURES, departedDepartureList)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 84 returns updatedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 85 returns updatedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 86 requests the option to sort
+DataFromLegacyDataFile -> ReadLegacyDataFile: 87 selects option
+DataFromLegacyDataFile -> ReadLegacyDataFile: 88 chooseCriteriaToSort(option)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 89 setList(Option)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 90 while updatedList has new lines
+DataFromLegacyDataFile -> ReadLegacyDataFile: 91 a List<LocalDateTime> called listToSort
+DataFromLegacyDataFile -> ReadLegacyDataFile: 92 selects order
+DataFromLegacyDataFile -> ReadLegacyDataFile: 93 getAlgorithm()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 94 getSortingAlgorithm()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 95 returns algorithm
+DataFromLegacyDataFile -> ReadLegacyDataFile: 96 returns algorithm
+DataFromLegacyDataFile -> ReadLegacyDataFile: 97 sortListWithAlgo(algorithmToBeUsed.option)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 98 insertionSortAscending()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 99 returns sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 100 returns sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 101 prints sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 102 selects order
+DataFromLegacyDataFile -> ReadLegacyDataFile: 103 getAlgorithm()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 104 getSortingAlgorithm()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 105 returns algorithm
+DataFromLegacyDataFile -> ReadLegacyDataFile: 106 returns algorithm
+DataFromLegacyDataFile -> ReadLegacyDataFile: 107 sortListWithAlgo(algorithmToBeUsed.option)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 108 insertionSortDescending()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 109 returns sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 110 returns sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 111 prints sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 112 while csv has new lines
+DataFromLegacyDataFile -> ReadLegacyDataFile: 113 validateFile(legacy(SNSUserNumber, firstName, secondDate, thirdDate, fourthDate))
+DataFromLegacyDataFile -> ReadLegacyDataFile: 114 Saves data into an ArrayList<String> called legacyDataList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 115 getSNSUserList()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 116 returns list
+DataFromLegacyDataFile -> ReadLegacyDataFile: 117 returns list
+DataFromLegacyDataFile -> ReadLegacyDataFile: 118 getVaccineList()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 119 returns list
+DataFromLegacyDataFile -> ReadLegacyDataFile: 120 while legacyDataList has new lines
+DataFromLegacyDataFile -> ReadLegacyDataFile: 121 findPos(OTPax(vaccineList, values, positionInSNSUserList, values.positionInSNSUserList, positionInVaccinesList, lineOfTheData)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 122 checksDuplicates(updatedList, snsUsersList, vaccineList, positionInSNSUserList, positionInVaccinesList, lineOfTheData)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 123 Saves data into an ArrayList<String> called updatedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 124 createArrival()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 125 createArrival()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 126 returns Arrival
+DataFromLegacyDataFile -> ReadLegacyDataFile: 127 Saves arrival into List<Arrival> called arrivalsList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 128 genericsArrivals.binaryFileWrite(Constants.FILE_PATH_ARRIVALS, arrivalsList)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 129 createDeparture()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 130 createDeparture()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 131 returns departure
+DataFromLegacyDataFile -> ReadLegacyDataFile: 132 Saves departure into List<Departure> called departedDepartureList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 133 genericsDeparture.binaryFileWrite(Constants.FILE_PATH_DEPARTURES, departedDepartureList)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 134 returns updatedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 135 returns updatedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 136 requests the option to sort
+DataFromLegacyDataFile -> ReadLegacyDataFile: 137 selects option
+DataFromLegacyDataFile -> ReadLegacyDataFile: 138 chooseCriteriaToSort(option)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 139 setList(Option)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 140 while updatedList has new lines
+DataFromLegacyDataFile -> ReadLegacyDataFile: 141 a List<LocalDateTime> called listToSort
+DataFromLegacyDataFile -> ReadLegacyDataFile: 142 selects order
+DataFromLegacyDataFile -> ReadLegacyDataFile: 143 getAlgorithm()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 144 getSortingAlgorithm()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 145 returns algorithm
+DataFromLegacyDataFile -> ReadLegacyDataFile: 146 returns algorithm
+DataFromLegacyDataFile -> ReadLegacyDataFile: 147 sortListWithAlgo(algorithmToBeUsed.option)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 148 insertionSortAscending()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 149 returns sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 150 returns sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 151 prints sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 152 selects order
+DataFromLegacyDataFile -> ReadLegacyDataFile: 153 getAlgorithm()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 154 getSortingAlgorithm()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 155 returns algorithm
+DataFromLegacyDataFile -> ReadLegacyDataFile: 156 returns algorithm
+DataFromLegacyDataFile -> ReadLegacyDataFile: 157 sortListWithAlgo(algorithmToBeUsed.option)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 158 insertionSortDescending()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 159 returns sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 160 returns sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 161 prints sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 162 while csv has new lines
+DataFromLegacyDataFile -> ReadLegacyDataFile: 163 validateFile(legacy(SNSUserNumber, firstName, secondDate, thirdDate, fourthDate))
+DataFromLegacyDataFile -> ReadLegacyDataFile: 164 Saves data into an ArrayList<String> called legacyDataList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 165 getSNSUserList()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 166 returns list
+DataFromLegacyDataFile -> ReadLegacyDataFile: 167 returns list
+DataFromLegacyDataFile -> ReadLegacyDataFile: 168 getVaccineList()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 169 returns list
+DataFromLegacyDataFile -> ReadLegacyDataFile: 170 while legacyDataList has new lines
+DataFromLegacyDataFile -> ReadLegacyDataFile: 171 findPos(OTPax(vaccineList, values, positionInSNSUserList, values.positionInSNSUserList, positionInVaccinesList, lineOfTheData)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 172 checksDuplicates(updatedList, snsUsersList, vaccineList, positionInSNSUserList, positionInVaccinesList, lineOfTheData)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 173 Saves data into an ArrayList<String> called updatedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 174 createArrival()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 175 createArrival()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 176 returns Arrival
+DataFromLegacyDataFile -> ReadLegacyDataFile: 177 Saves arrival into List<Arrival> called arrivalsList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 178 genericsArrivals.binaryFileWrite(Constants.FILE_PATH_ARRIVALS, arrivalsList)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 179 createDeparture()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 180 createDeparture()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 181 returns departure
+DataFromLegacyDataFile -> ReadLegacyDataFile: 182 Saves departure into List<Departure> called departedDepartureList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 183 genericsDeparture.binaryFileWrite(Constants.FILE_PATH_DEPARTURES, departedDepartureList)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 184 returns updatedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 185 returns updatedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 186 requests the option to sort
+DataFromLegacyDataFile -> ReadLegacyDataFile: 187 selects option
+DataFromLegacyDataFile -> ReadLegacyDataFile: 188 chooseCriteriaToSort(option)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 189 setList(Option)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 190 while updatedList has new lines
+DataFromLegacyDataFile -> ReadLegacyDataFile: 191 a List<LocalDateTime> called listToSort
+DataFromLegacyDataFile -> ReadLegacyDataFile: 192 selects order
+DataFromLegacyDataFile -> ReadLegacyDataFile: 193 getAlgorithm()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 194 getSortingAlgorithm()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 195 returns algorithm
+DataFromLegacyDataFile -> ReadLegacyDataFile: 196 returns algorithm
+DataFromLegacyDataFile -> ReadLegacyDataFile: 197 sortListWithAlgo(algorithmToBeUsed.option)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 198 insertionSortAscending()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 199 returns sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 200 returns sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 201 prints sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 202 selects order
+DataFromLegacyDataFile -> ReadLegacyDataFile: 203 getAlgorithm()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 204 getSortingAlgorithm()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 205 returns algorithm
+DataFromLegacyDataFile -> ReadLegacyDataFile: 206 returns algorithm
+DataFromLegacyDataFile -> ReadLegacyDataFile: 207 sortListWithAlgo(algorithmToBeUsed.option)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 208 insertionSortDescending()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 209 returns sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 210 returns sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 211 prints sortedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 212 while csv has new lines
+DataFromLegacyDataFile -> ReadLegacyDataFile: 213 validateFile(legacy(SNSUserNumber, firstName, secondDate, thirdDate, fourthDate))
+DataFromLegacyDataFile -> ReadLegacyDataFile: 214 Saves data into an ArrayList<String> called legacyDataList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 215 getSNSUserList()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 216 returns list
+DataFromLegacyDataFile -> ReadLegacyDataFile: 217 returns list
+DataFromLegacyDataFile -> ReadLegacyDataFile: 218 getVaccineList()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 219 returns list
+DataFromLegacyDataFile -> ReadLegacyDataFile: 220 while legacyDataList has new lines
+DataFromLegacyDataFile -> ReadLegacyDataFile: 221 findPos(OTPax(vaccineList, values, positionInSNSUserList, values.positionInSNSUserList, positionInVaccinesList, lineOfTheData)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 222 checksDuplicates(updatedList, snsUsersList, vaccineList, positionInSNSUserList, positionInVaccinesList, lineOfTheData)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 223 Saves data into an ArrayList<String> called updatedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 224 createArrival()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 225 createArrival()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 226 returns Arrival
+DataFromLegacyDataFile -> ReadLegacyDataFile: 227 Saves arrival into List<Arrival> called arrivalsList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 228 genericsArrivals.binaryFileWrite(Constants.FILE_PATH_ARRIVALS, arrivalsList)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 229 createDeparture()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 230 createDeparture()
+DataFromLegacyDataFile -> ReadLegacyDataFile: 231 returns departure
+DataFromLegacyDataFile -> ReadLegacyDataFile: 232 Saves departure into List<Departure> called departedDepartureList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 233 genericsDeparture.binaryFileWrite(Constants.FILE_PATH_DEPARTURES, departedDepartureList)
+DataFromLegacyDataFile -> ReadLegacyDataFile: 234 returns updatedList
+DataFromLegacyDataFile -> ReadLegacyDataFile: 235 returns updatedList
+Data

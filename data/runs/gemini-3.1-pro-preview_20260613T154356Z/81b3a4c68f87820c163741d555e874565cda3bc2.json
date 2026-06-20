@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle Authorization token with auth_code\n\nparticipant web\n\nbox \"K8S_ZONE\"\nparticipant bff_web_api\nparticipant authorization_api\ndatabase k8s_redis\nend box\n\nactivate web\nnote left of web\nReuqest header\nContent-Type: application/json\n\nRequest body\n- auth_code: xxxxxx\nend note\n\nweb -> bff_web_api: /api/v1/auth/token\nactivate bff_web_api\n\nbff_web_api -> bff_web_api: validate request\n\nnote left of bff_web_api\nRequest header\nContent-Type: application/x-www-form-urlencoded\n\nRequest body\n- auth_code\n\nnote:\n- handler late limit (brute force attack)\nend note\n\nbff_web_api -> authorization_api: /api/v1/oauth/token\nactivate authorization_api\n\nauthorization_api -> authorization_api: validate request\n\nauthorization_api -> k8s_redis: check auth_code from k8s_redis\nactivate k8s_redis\n\nnote right of k8s_redis\nKey:\n- auth_code\n\nRedis object\n- user_id\n- scope\nend note\n\nk8s_redis --> authorization_api: return redis object\ndeactivate k8s_redis\n\nnote left of authorization_api\nAccess token:\n{\n    header\n    - alg: rsa256\n    - typ: JWT\n\n    payload\n    - iss\n    - jti\n    - user_id\n    - iat\n    - exp\n    - roles\n\n    signature\n}\nend note\n\nauthorization_api -> authorization_api: generate JWT Token with private key\n\nnote left of authorization_api\nttl: 300000 milliseconds (5 min)\n\nKey: user_id:xxxxx\n\nRedis object value:\n- access_token\n- refrech_token\nend note\n\nauthorization_api -> k8s_redis: put user session into k8s_redis\nactivate k8s_redis\n\nk8s_redis -> k8s_redis: save data\n\nk8s_redis --> authorization_api\ndeactivate k8s_redis\n\nauthorization_api --> bff_web_api: return\ndeactivate authorization_api\n\nnote right of bff_web_api\nResponse header\nContent-Type: application/json\n\nResponse body\n- accessToken\n- RefreshToken\nend note\n\nbff_web_api --> web: return\ndeactivate bff_web_api\ndeactivate web\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHEyudPYFfdq5En5XXg6ved/IWX8qyn30SMzDVVDCV191F7JZRpFIbFqyYBxVw"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1165,
+    "candidatesTokenCount": 574,
+    "totalTokenCount": 1739,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1085
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "IWAxarubNaOavdIPzI_huAY"
+}

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01VvVuF2PvztM8XhW34CPCqc",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"main\" as main\nparticipant \"bkup.BackupFacade\" as facade\nparticipant \"srcrepo.SourceRepository\" as srcrepo\nparticipant \"dstrepo.DestinationRepository\" as dstrepo\nparticipant \"metarepo.MetadataRepository\" as metarepo\nparticipant \"scanner.AllFileScanner\" as scanner\ndatabase \"FileSystem\" as fs\ndatabase \"SQLite3\" as sqlite\n\nmain -> facade : execute()\n\nbox \"Get all files\"\nfacade -> scanner : get_all_files()\nscanner -> fs : \nfs --> scanner : \nscanner --> facade : all_files\nend box\n\nbox \"Get source files\"\nfacade -> srcrepo : get_files_matching_criteria(all_files)\nsrcrepo --> facade : src_files\nend box\n\nbox \"Cleanup of metadata corresponding to already deleted files\"\nfacade -> metarepo : get_uncontained_keys(src_files)\nmetarepo -> sqlite : SELECT\nsqlite --> metarepo : result\nmetarepo --> facade : uncontained_keys\nfacade -> metarepo : remove_metadatas(uncontained_keys)\nloop [until the generator finishes]\nmetarepo -> sqlite : DELETE\nmetarepo --> facade : yield removed_metadata <return value is discarded>\nend\nend box\n\nbox \"Create backup and update metadata\"\nfacade -> facade : _get_backup_list(src_files)\nfacade --> facade : \nfacade <-- facade : backup_list\nfacade -> dstrepo : create_backups(backup_list)\nloop [until the generator finishes]\ndstrepo -> fs : shutil.copy2(src_file, dst_file)\ndstrepo --> facade : yield backed_up_src_file\nfacade -> metarepo : update_metadata(backed_up_src_file)\nmetarepo -> sqlite : REPLACE INTO\nend\nend box\n\nbox \"Discard old backups\"\nfacade -> dstrepo : get_discard_list(today, all_files)\ndstrepo --> facade : discard_list\nfacade -> dstrepo : remove_backups(discard_list)\nloop [until the generator finishes]\ndstrepo -> fs : os.remove(file_to_be_removed)\ndstrepo --> facade : yield removed_file <return value is discarded>\nend\nend box\n\nfacade --> main : return\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371695,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 567,
+    "prompt_tokens": 1654,
+    "total_tokens": 2221
+  }
+}

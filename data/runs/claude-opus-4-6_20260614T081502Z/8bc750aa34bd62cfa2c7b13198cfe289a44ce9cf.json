@@ -1,0 +1,21 @@
+{
+  "id": "msg_01CvEUABQZfzCs6vxie8N2yb",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor mobile\nparticipant \"www\" as www\nparticipant \"endpoint\" as endpoint\nparticipant \"haproxy\" as haproxy\nparticipant \"ipfs\" as ipfs\nparticipant \"postgraphile\" as postgraphile\nparticipant \"CITY Custom Net\" as citynet\nparticipant \"logstash\" as logstash\nparticipant \"dApp\" as dapp\ndatabase \"postgres\" as postgres\ndatabase \"elastic\" as elastic\nparticipant \"prometheus\" as prometheus #khaki\nparticipant \"kibana\" as kibana #khaki\n\n== webUI ==\n\nmobile -> www : sign & send events\nnote left of www #khaki : browser ext or mobile wallet\nwww -> endpoint : HTTPS gateway & peer tcp/4001\nwww -> ipfs : /ipfs/{CID}\nwww -> endpoint : HTTPS (oauth by EC Address)\nnote left of www #khaki : User makes deposit / signs entry to trigger events.\n\n== api \u2013 Admin/Write api ==\n\nendpoint -> haproxy : /v2 \u2013 read/write factom api\nendpoint -> haproxy : /ipfs/{CID} \u2013 readonly gateway\nendpoint -> haproxy : /graphql \u2013 readonly graphql queries\nhaproxy -> citynet : livefeed log\nhaproxy -> logstash : index event logs\nhaproxy -> dapp : dApp specific events\nhaproxy -> citynet : Query/Sign\ndapp -> haproxy : sign and dispatch requests\nhaproxy -> citynet : read/write signed factom entries\n\n== dashboard ==\n\nelastic -> kibana : dashboard query\nprometheus -> prometheus : poll()\nhaproxy -> citynet : Monitor(FA2XXXXXXXXX) Balance changes\nhaproxy -> citynet : HTTP GET /metrics\nhaproxy -> postgraphile : HTTP GET /metrics\nprometheus -> elastic : metrics query\nprometheus -> elastic : dApp specific rollup\n\n== dApp \u2013 controller ==\n\nhaproxy -> dapp : dispatch on-chain event\nhaproxy -> logstash : dApp specific logging\nhaproxy -> ipfs : pin entry content on IPFS\n\nactor mobile as mobile2\nparticipant \"www\" as www2\nparticipant \"endpoint\" as endpoint2\nparticipant \"haproxy\" as haproxy2\nparticipant \"ipfs\" as ipfs2\nparticipant \"postgraphile\" as postgraphile2\nparticipant \"CITY Custom Net\" as citynet2\nparticipant \"logstash\" as logstash2\nparticipant \"dApp\" as dapp2\ndatabase \"postgres\" as postgres2\ndatabase \"elastic\" as elastic2\nparticipant \"prometheus\" as prometheus2 #khaki\nparticipant \"kibana\" as kibana2 #khaki\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431914,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 614,
+    "prompt_tokens": 1656,
+    "total_tokens": 2270
+  }
+}

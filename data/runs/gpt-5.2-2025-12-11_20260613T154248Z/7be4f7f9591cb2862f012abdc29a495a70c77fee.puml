@@ -1,0 +1,63 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+
+package "test" as pkg_test {
+  package "usecase_test" as pkg_usecase_test {
+    class BrowseItemUseCaseTest
+  }
+
+  package "mock_repository" as pkg_mock_repository {
+    class ItemRepositoryMock
+  }
+}
+
+package "presentation" as pkg_presentation {
+  package "api" as pkg_api {
+    class router
+  }
+}
+
+package "infrastructure" as pkg_infra {
+  package "db" as pkg_db {
+    class ItemRepositoryDbMysql
+  }
+}
+
+package "application" as pkg_app {
+  package "usecase" as pkg_usecase {
+    class BrowseItemUseCase
+  }
+  package "dto" as pkg_dto {
+    class BrowseItemDto
+  }
+}
+
+package "domain" as pkg_domain {
+  package "repository" as pkg_repo {
+    interface ItemRepository
+  }
+  package "model" as pkg_model {
+    class ItemEntity
+  }
+}
+
+' Relationships
+BrowseItemUseCaseTest --> ItemRepositoryMock
+BrowseItemUseCaseTest --> BrowseItemUseCase
+
+router --> BrowseItemUseCase
+
+BrowseItemUseCase --> BrowseItemDto
+BrowseItemUseCase --> ItemRepository
+BrowseItemUseCase --> ItemEntity
+
+ItemRepositoryMock ..|> ItemRepository
+ItemRepositoryDbMysql ..|> ItemRepository
+
+BrowseItemDto --> ItemEntity
+
+ItemRepository --> ItemEntity
+ItemRepositoryDbMysql --> ItemEntity
+@enduml

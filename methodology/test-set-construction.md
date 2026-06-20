@@ -148,12 +148,12 @@ image is actually encoded; larger inputs are silently downscaled to it):
 |---|---|---|
 | GPT-5.x (high detail) | ~2,048 px long edge (tiled) | — |
 | Gemini 3.1 Pro (media_resolution HIGH) | ~1,536 px long edge | — |
-| Claude Sonnet 4.6 | **1,568 px long edge (~1,568 tokens, ~1.19 MP)** | 8,000 x 8,000 px |
+| Claude Opus 4.6 | **1,568 px long edge (~1,568 tokens, ~1.19 MP)** | 8,000 x 8,000 px |
 | Qwen3.5 / Qwen3-VL (hosted) | configurable, ceiling ~16 MP (16,384 tokens) | ~16 MP |
 
-The binding floor is **Claude Sonnet 4.6 at a 1,568 px long edge (~1.19 MP)**.
+The binding floor is **Claude Opus 4.6 at a 1,568 px long edge (~1.19 MP)**.
 Per the Claude vision documentation, high-resolution support (2,576 px long
-edge) exists only on Claude Opus 4.7/4.8; Sonnet 4.6 falls under "other models"
+edge) exists only on Claude Opus 4.7/4.8; Opus 4.6 falls under "other models"
 and downscales any larger input to a 1,568 px long edge / ~1,568 image tokens
 (`width x height / 750`), confirmed by the documented cost table (1,092 x 1,092
 through 2,000 x 1,500 px all map to the ~1,568-token ceiling).

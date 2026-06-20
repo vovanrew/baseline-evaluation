@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Mh1nfB7Es43iiCVsE9WFYP",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Scheduled Events\n\nactor \"Recording Staff\" as RS\nactor \"Coach\" as Coach\nboundary \"IP/Mobile Cams\" as Cams\nboundary \"Consumer Apps\" as ConsumerApps\nboundary \"Security Gateway\" as SecGW\ncontrol \"Control Domain\\n(win10/linux)\" as CD\nboundary \"Streaming Service\\n(encoder)\" as SS\nentity \"Media\\n(mediaID)\" as Media\nboundary \"Transfer Service\" as TS\n\nConsumerApps -> SecGW : authenticate(ID)\nSecGW --> ConsumerApps : return(token)\n\nCD -> SS : host(sources{endpoints})\n\nCams -> CD : register(endpoint)\nConsumerApps -> CD : register(token, priority)\n\nRS -> CD : createEvent(configuration{description, sources, consumers{priorities}})\nCD --> CD : create(newEvent)\n\nRS -> CD : start(newEvent)\nCD -> SS : encode()\nCD --> ConsumerApps : notify(recording)\n\nRS -> CD : stop(newEvent)\nCD -> SS : saveAs(mediaID)\nSS -> Media : save(mediaID)\n\nCD -> TS : host(mediaID, consumers{token, priority})\nCD --> ConsumerApps : notify(newMediaAvailable, mediaID, transferServiceEndpoint)\n\nalt [auto-download enabled]\n    ConsumerApps -> TS : fetchMedia(token, mediaID)\n    TS --> ConsumerApps : returnByPriority(mediaStream)\nelse [manual-download enabled]\n    Coach -> ConsumerApps : showMedia(token)\n    ConsumerApps -> TS : fetchMedia(token, mediaID)\n    TS --> ConsumerApps : returnByPriority(mediaStream)\nend\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370205,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 415,
+    "prompt_tokens": 1647,
+    "total_tokens": 2062
+  }
+}

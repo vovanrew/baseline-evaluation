@@ -1,0 +1,24 @@
+@startuml
+hide footbox
+skinparam sequence {
+  ParticipantPadding 30
+  BoxPadding 10
+}
+
+participant SendMessageController
+participant SendMessageEngine
+participant SendMessageSender
+participant ObjectOutputStream
+participant Socket
+
+SendMessageController -> SendMessageEngine : sendMessage(message)
+SendMessageEngine -> SendMessageSender : create(message, port)
+SendMessageSender -> Socket : create(message.getInetAddress(), port))
+SendMessageEngine -> SendMessageSender : sendMessage()
+SendMessageSender -> ObjectOutputStream : create(socket.getOutputStream())
+SendMessageSender -> ObjectOutputStream : writeObject(message.getSheetTalkMessage())
+SendMessageSender -> ObjectOutputStream : flush()
+SendMessageSender -> ObjectOutputStream : close()
+SendMessageSender -> Socket : close()
+
+@enduml

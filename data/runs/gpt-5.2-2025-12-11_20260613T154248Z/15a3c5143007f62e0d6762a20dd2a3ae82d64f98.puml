@@ -1,0 +1,35 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 60
+  BoxPadding 20
+  LifeLineBorderColor #000000
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #000000
+  ParticipantBackgroundColor #E6E6FA
+  ActivationBorderColor #000000
+  ActivationBackgroundColor #FFFFFF
+  ArrowColor #000000
+  ArrowThickness 2
+  MessageAlign left
+  FontSize 24
+}
+skinparam defaultFontSize 24
+
+participant "«Tariff»\nAgileTariff" as AgileTariff
+participant "Scheduler" as Scheduler
+
+AgileTariff -> AgileTariff : poll()
+
+alt [AgileTariff periods updated]
+  AgileTariff -> Scheduler : getNextCheck
+  Scheduler --> AgileTariff : getNextCheck
+
+  alt [earliest new AgileTariff period is before nextCheck]
+    AgileTariff -> Scheduler : setNextCheck(now)
+    Scheduler --> AgileTariff
+  end
+end
+
+@enduml

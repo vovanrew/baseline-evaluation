@@ -1,0 +1,46 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+interface "SessionRepository" as SessionRepository << (I,#b7a7ff) >>
+note top of SessionRepository
+S extends Session
+end note
+SessionRepository : S createSession();
+SessionRepository : void save(S session);
+SessionRepository : S getSession(String id);
+SessionRepository : void delete(String id);
+
+interface "Session" as Session << (I,#b7a7ff) >>
+
+class "MapSessionRepository" as MapSessionRepository << (C,#bfe6bf) >>
+
+interface "FindByIndexNameSessionRepository" as FindByIndexNameSessionRepository << (I,#b7a7ff) >>
+FindByIndexNameSessionRepository : Map<String, S> findByIndexNameAndIndexValue(String indexName, String indexValue);
+
+interface "ExpiringSession" as ExpiringSession << (I,#b7a7ff) >>
+
+class "JdbcOperationsSessionRepository" as JdbcOperationsSessionRepository << (C,#bfe6bf) >>
+class "MongoOperationsSessionRepository" as MongoOperationsSessionRepository << (C,#bfe6bf) >>
+
+class "RedisSession" as RedisSession << (C,#bfe6bf) >>
+
+class "RedisOperationsSessionRepository" as RedisOperationsSessionRepository << (C,#bfe6bf) >>
+note top of RedisOperationsSessionRepository
+RedisSession
+end note
+
+SessionRepository --> Session
+
+MapSessionRepository ..|> SessionRepository
+
+ExpiringSession --|> Session
+
+FindByIndexNameSessionRepository --|> SessionRepository
+
+JdbcOperationsSessionRepository ..|> FindByIndexNameSessionRepository
+MongoOperationsSessionRepository ..|> FindByIndexNameSessionRepository
+RedisOperationsSessionRepository ..|> FindByIndexNameSessionRepository
+
+RedisSession ..|> ExpiringSession
+RedisSession --> RedisOperationsSessionRepository
+@enduml

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01GEFy9u7wxh2Vs5o95ki4D9",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor Client\nparticipant Dispatcher\ndatabase Database\nparticipant RSyncServer\nparticipant Arbiter\nparticipant Slave\nparticipant Worker\n\nbox \"Master\"\nparticipant Dispatcher\ndatabase Database\nparticipant RSyncServer\nparticipant Arbiter\nend box\n\nbox \"Worker\"\nparticipant Slave\nparticipant Worker\nend box\n\nClient -> Dispatcher : Create a taskset\nClient -> Dispatcher : Enqueue tasks\nClient -> Dispatcher : Taskset request\nDispatcher -> Worker : Taskset dispatch\nDispatcher -> Database : Log the worker participation\n\n== RSync ==\nDispatcher -> Worker : RSync\n\n== Setup ==\nWorker -> Worker : Worker setup\nWorker -> Database : Add a worker setup log\n\nalt [setup failed]\n  Worker -> Dispatcher : Fail request\n  Dispatcher -> Database : Mark the taskset as failed\n  Dispatcher -> Worker : Notify the taskset is marked as failed\nend\n\n== Testing ==\nWorker -> Slave : Spawn slaves\nSlave -> Slave : Slave setup\n\nDispatcher -> Database : Dequeue a task\nDatabase --> Dispatcher : Return a task\nDispatcher -> Database : Add a trial\nWorker -> Worker : Execute a task\nWorker -> Database : Add a trial result\nWorker -> Dispatcher : Notify the trial result\nDispatcher -> Database : Query the trial result\nDatabase --> Dispatcher : Respond to the query\n\nalt [passed or pending]\n  Dispatcher -> Database : Mark the task as finished\nelse [retry needed]\n  Dispatcher -> Database : Enqueue the task\nelse [no more retries]\n  Dispatcher -> Database : Mark the task as failed\nend\n\nDispatcher -> Database : Dequeue a task\nDatabase --> Worker : No tasks left\nWorker -> Dispatcher : Check request\nDispatcher -> Database : Check whether all tasks are finished\nDatabase --> Dispatcher :\n\nalt [some tasks are left]\n  Dispatcher -> Database : Enqueue the tasks\nend\n\nDispatcher -> Database : Mark the taskset as finished\nDispatcher -> Worker : Notify the taskset is marked as finished\nWorker -> Slave : Kill slaves\nWorker -> Database : Add slave logs\n\nClient -> Dispatcher : Query the status of the taskset\nDispatcher --> Client : Respond to the query\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371875,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 504,
+    "prompt_tokens": 1646,
+    "total_tokens": 2150
+  }
+}

@@ -1,0 +1,23 @@
+@startuml
+actor browser
+participant proxy
+participant backend
+participant component_config
+participant subscription_map
+participant normalized_object_map
+participant normalized_object
+
+browser -> browser : 1 get_state(\n    configuration_name,\n    geo_bounding_box\n    )
+browser -> proxy : 2 +TENANT_HEADER
+proxy -> backend : 2 +TENANT_HEADER
+backend -> component_config : 3 component_config[configuration_name]\n.subscription_usages
+component_config --> backend : 4 [ subscription_usage_config ]
+backend -> subscription_map : 5 forEach subscription_usage_config.subscription_id
+subscription_map --> backend : 6 subscription_map[subscription_id] (= normalized_object_map)
+backend -> normalized_object_map : 7 forEach key
+normalized_object_map --> backend : 8 normalized_object
+backend -> normalized_object : 9 forEach normalized_object:\n    if object.in(geo_bounding_box):\n        object.to_dto(\n            subscription_usage_config\n        )
+normalized_object --> backend : 10 object_dto
+backend --> proxy : 11 [ object_dto ]
+proxy --> browser : 12
+@enduml

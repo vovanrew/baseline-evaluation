@@ -1,0 +1,61 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+interface QuestReward {
+    <<interface>> since QuestRewards need to have RewardPlayer but that logic will vary from reward to reward
+    + void RewardPlayer()
+    + String ToString() so that the reward can be described in text in the quest window
+}
+
+class Quest {
+    - bool isActive
+    - bool isComplete
+    - [SerializeField] string name
+    - [SerializeField] string description
+    - [SerializeField] List<QuestReward> questRewards
+    make sure it does not derive from monobehaviour
+    all classes that inherit from quest need the [Serializable] attribute
+}
+
+class RivalQuest {
+    <<abstract>> rival quests will need their own unique logic and AI
+}
+
+class CountQuest {
+    - int currentCount
+    - [SerializeField] int completionCount
+    + void checkWin() sets isComplete to true if currentCount == completionCount
+}
+
+class CountQuestTypes {
+    <<enumeration>> GrindTime, Graffiti, SpeedMeter, Coins, Enemies
+}
+
+class QuestGiver {
+    <<component>> attaches to NPC objects, derives from monobehaviour
+    - [SerializeField] Quest questToGive;
+    - [SerializeField] GameObject questWindow
+    - [SerializeField] TextMeshProUGUI titleText
+    - [SerializeField] TextMeshProUGUI descText
+    - [SerializeField] TextMeshProUGUI rewardText;
+    not sure if the player will need its own new quest script of if questing logic can go in an existing one
+    - PlayerReference player;
+    + void OpenQuestWindow()
+    + void AcceptQuest()
+    + void CompleteQuest()
+}
+
+class MonoBehaviour {
+    <<component>> Unity MonoBehaviour
+}
+
+QuestReward *-- Quest : has
+Quest <|-- RivalQuest : inherits from
+Quest <|-- CountQuest : inherits from
+CountQuest *-- CountQuestTypes : has
+Quest *-- QuestGiver : gives
+QuestGiver <|-- MonoBehaviour : inherits from
+
+@enduml
+```

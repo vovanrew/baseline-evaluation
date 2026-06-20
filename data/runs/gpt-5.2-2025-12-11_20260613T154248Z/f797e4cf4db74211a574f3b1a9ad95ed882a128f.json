@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLvIMxJ0nFR6WNZcyBCifJUkiFkv",
+  "object": "chat.completion",
+  "created": 1781369700,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle PB-749 UC4 - Update a Banner on System Management\n\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #000000\n  LifeLineBorderColor #666666\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #E9E9F7\n  BoxBorderColor #999999\n  BoxBackgroundColor #E6E6E6\n  GroupBorderColor #000000\n  GroupBackgroundColor #FFFFFF\n  NoteBorderColor #666666\n  NoteBackgroundColor #FFF9C4\n}\n\nnote top\n<b>Abstract:</b>\nThis use case will be responsible to update an existing banner on Next.\nThis endpoint is not responsible for deleting a record. To do this, it\nmust use the use case 5 - Delete a Banner on System Management.\nHowever, in this use case, SM may enable or disable Banner.\nend note\n\nactor \"System Management\" as SM\n\nbox \"Next Platform\" #E6E6E6\n  participant \"Core Next\" as CN\n  database \"Next Database\" as DB\nend box\n\nparticipant \"Core Bradesco\" as CB\n\nSM -> CN : 1 PUT /v1/notification/banner/{bannerID}\nnote right of CN\nSystem Management will call this new endpoint\npassing all the fields necessary to update an\nexisting Banner. The fields are:\n1. BANNER_ID\n2. BUSINESS_EVENT_TYPE_ID\n3. TEMPLATE_HEADER\n4. TEMPLATE_BODY\n5. ENABLE_IND\nend note\n\nCN -> DB : 2 check if this Banner exists on BANNER table\nnote right of CN\nCore Next will check if this Banner exists on BANNER table\nend note\nDB --> CN : 3 response\n\nalt [if the Banner exists]\n  CN -> DB : 4 check if exists an enabled Banner associated with that BUSINESS_EVENT_TYPE received on requisition on BANNER table\n  note right of CN #F9A825\n  <b>Note to developers</b>\n  Core Next will check if exists any Banner linked to a BUSINESS_EVENT_TYPE on BANNER\n  table. We can only have one enabled Banner linked to a BUSINESS_EVENT_TYPE. For this\n  rule, we should disregard the records that are with DELETE_FLG enabled and the Card itself.\n  end note\n  DB --> CN : 5 response\n\n  alt [if exists an enabled Banner associated with that BUSINESS_EVENT_TYPE]\n    CN --> SM : 6 error\n    note left of SM #F8BBD0\n    <b>HTTP code: 422</b>\n    end note\n    note right of CN\n    If exists any Banner linked to a BUSINESS_EVENT_TYPE passed by App,\n    we will throw back an error to App side.\n    end note\n  else [if don't exists an enabled Banner associated with that BUSINESS_EVENT_TYPE]\n    note right of CN\n    If the defensive checks pass, then we will update the register on BANNER table.\n    end note\n    CN -> DB : 7 update the register on BANNER table\n    DB --> CN : 8 success\n    CN --> SM : 9 success\n    note left of SM #B3E5FC\n    <b>HTTP code: 200</b>\n    end note\n  end\nelse [if the Banner don't exists]\n  CN --> SM : 10 error\n  note left of SM #F8BBD0\n  If the Banner don't exists on\n  BANNER table, then we will\n  throw back an error to SM.\n  <b>HTTP code: 404</b>\n  end note\nend\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2594,
+    "completion_tokens": 784,
+    "total_tokens": 3378,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

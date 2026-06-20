@@ -1,0 +1,28 @@
+@startuml
+participant "Team Member" as TM
+participant "CreateTaskUI" as CTUI
+participant "CreateTaskController" as CTR
+participant "DataManagement" as DM
+participant "projectStore : ProjectStore" as PStore
+participant "project : Project" as Project
+
+TM -> CTUI: 1 Starts the Task creation in User Story
+CTUI <- TM: 2 request the project code
+CTUI -> TM: 3 Inserts the project code
+CTUI -> TM: 4 request sprint id
+CTUI -> CTUI: 5 Inserts the sprint id
+CTUI -> TM: 6 request user story id
+CTUI -> CTUI: 7 Inserts the user story id
+CTUI -> TM: 8 request the task information: name, description, type, startDate, endDate
+TM -> CTUI: 9 Inserts request the task information: name, description, type, startDate, endDate
+CTUI -> CTUI: 10 createTaskInUserStory(code, sprintID, userStoryID, name, description, type, startDate, endDate)
+CTUI -> PStore: 11 projectStore = getProjectStore()
+PStore <- CTUI: 12 projectStore
+CTUI -> PStore: 13 project = getProjectByCode(code)
+PStore -> CTUI: 14 project
+CTUI -> Project: 15 getSprintByID(sprintID)
+Project -> CTUI: ref TaskCreationInUserStory
+CTUI -> CTUI: 16 true
+CTUI -> TM: 18 Task created successfully
+
+@enduml

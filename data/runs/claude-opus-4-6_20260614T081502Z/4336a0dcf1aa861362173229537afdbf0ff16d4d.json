@@ -1,0 +1,21 @@
+{
+  "id": "msg_01XX3ah1EHGdURJ9uQZjDomv",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor Member\n\nparticipant \":TicketDetailPage\" as TDP\nparticipant \":TicketDetailContainer\" as TDC\nparticipant \":AttendanceService (Frontend)\" as ASF\nparticipant \":Router\" as Router\nparticipant \":AttendanceHTTPTransport\" as AHT\nparticipant \":AttendanceEndpoint\" as AE\nparticipant \":AttendanceService\" as AS\nparticipant \":RequesterService\" as RS\nparticipant \":AttendanceCommand\" as AC\nparticipant \":AttendanceQuery\" as AQ\n\nMember -> TDP : Click \"Yes\" Button\nTDP -> TDC : handleConfirmation(input)\nTDC -> ASF : confirmAttendance(classId, payload)\nASF -> Router : route(\"PATCH\", \"v2/class/{class_id}/attendance/confirmation\")\nRouter -> AHT : Confirmation(AttendanceService, []ServerOption)\nAHT -> AE : Confirmation(AttendanceService)\nAE -> AS : Confirmation(context, payload)\nAS -> AS : Validate()\n\nalt [\"Data Valid\"]\n    AS -> AQ : GetPureModel(context, []SliceCondition)\n    AQ --> AS : ticket\n    \n    alt [\"Ticket Status is Accepted\"]\n        AS -> AC : Register(context, []payload)\n        AS -> RS : UpdateRequestStatus(context, ticket)\n        RS --> AS : is updated\n    end\n    \n    AS -> AS : is updated\n    AS -> AS : response := Response(is updated, nil)\n    AS --> AE : response\n    AE --> AHT : response\n    AHT --> Router : response\n    Router --> ASF : response\n    ASF --> TDC : response\n    TDC --> TDP : response\n    TDP --> Member : response\n\nelse\n    AS --> AQ : UnprocessableEntity\n    AQ --> AE : UnprocessableEntity\n    AE --> AHT : UnprocessableEntity\n    AHT --> Router : UnprocessableEntity\n    Router --> ASF : UnprocessableEntity\n    ASF --> TDC : UnprocessableEntity\n    TDC --> TDP : UnprocessableEntity\n    TDP --> Member : UnprocessableEntity\nend\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431493,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 542,
+    "prompt_tokens": 1384,
+    "total_tokens": 1926
+  }
+}

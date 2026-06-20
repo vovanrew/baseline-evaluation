@@ -1,0 +1,54 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+
+class "InMemoryRepository<T, I>" as InMemoryRepository <<C>> {
+}
+note top of InMemoryRepository
+eapli.framework.infrastructure.repositories.impl.inmemory
+end note
+
+class "InMemoryDomainRepository" as InMemoryDomainRepository <<C>> {
+  + InMemoryDomainRepository()
+  + InMemoryDomainRepository(Function<?, I> identityGenerator)
+  + Optional<T> ofIdentity(Comparable id)
+  + void deleteOfIdentity(Comparable id)
+}
+note top of InMemoryDomainRepository
+eapli.framework.infrastructure.repositories.impl.inmemory
+end note
+
+interface "AggregateRoot" as AggregateRoot <<I>>
+note top of AggregateRoot
+eapli.framework.domain.model
+end note
+
+interface "Comparable" as Comparable <<I>>
+note top of Comparable
+java.lang
+end note
+
+interface "DomainRepository<I, T>" as DomainRepository <<I>>
+note top of DomainRepository
+eapli.framework.domain.repositories
+end note
+
+class "Object" as Object <<C>>
+note top of Object
+java.lang
+end note
+
+interface "ActiveRecord" as ActiveRecord <<I>>
+note top of ActiveRecord
+eapli.framework.domain.activerecord
+end note
+
+InMemoryDomainRepository -|> InMemoryRepository
+
+InMemoryDomainRepository ..> AggregateRoot
+InMemoryDomainRepository ..> Comparable
+InMemoryDomainRepository ..> DomainRepository
+DomainRepository ..> Object
+InMemoryDomainRepository ..> ActiveRecord
+
+@enduml

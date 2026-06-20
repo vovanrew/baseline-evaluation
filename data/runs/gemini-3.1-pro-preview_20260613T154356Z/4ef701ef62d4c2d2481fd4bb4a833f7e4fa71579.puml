@@ -1,0 +1,30 @@
+```plantuml
+@startuml
+hide footbox
+
+participant "Notebook\nAE" as NotebookAE
+
+box "CSE & Hosted Resources" #F5F5F5
+participant "CSE" as CSE
+participant "StreetLight-AE-1\nLight-Container-1" as SL1 #F59D2A
+participant "StreetLight-AE-2\nLight-Container-2" as SL2 #F59D2A
+end box
+
+NotebookAE -> CSE : RETRIEVE <m2m:cb>\nrcn=child-resources\nfilterCriteria: ty=container, lbl=opt
+activate CSE
+
+CSE -> SL1 : RETRIEVE <container>\ncse-in/StreetLight-AE-1/Light-Container-1
+activate SL1
+SL1 -> CSE : Response
+deactivate SL1
+
+CSE -> SL2 : RETRIEVE <container>\ncse-in/StreetLight-AE-2/Light-Container-2
+activate SL2
+SL2 -> CSE : Response
+deactivate SL2
+
+CSE -> NotebookAE : Response (list of containers retrieved)
+deactivate CSE
+
+@enduml
+```

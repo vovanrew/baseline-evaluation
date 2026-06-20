@@ -1,0 +1,35 @@
+```plantuml
+@startuml
+hide footbox
+skinparam participantPadding 30
+skinparam BoxPadding 10
+
+box "host" #FFFFFF
+participant "MultiDisplayService" as MDS
+end box
+
+box "rcv" #FFFFFF
+participant "IMultipleDisplaysUiController" as UI
+participant "IMultipleDisplaysDelegate" as DEL
+end box
+
+box "controller" #FFFFFF
+participant "DisplaysSwapViewController" as VC
+participant "DisplaysSwapPresenter" as PRES
+end box
+
+MDS -> MDS : onDisplayAdded
+MDS -> UI : updateDisplayInfos
+MDS -> MDS : onDisplayRemoved
+MDS -> UI : updateDisplayInfos
+
+VC -> PRES : swap()
+PRES -> UI : swap()
+
+DEL -> PRES : onUpdateDisplayInfo(IMultipleDisplaysUiController var1, EMultipleDisplaysAction var2)
+DEL -> MDS : onUpdateDisplayInfo(IMultipleDisplaysUiController var1, EMultipleDisplaysAction var2)
+PRES -> PRES : loadMonitorsIndicator()
+MDS -> MDS : notifyMultiDisplayChanged(type: MultiDisplayChangeType,displayId: Int)
+
+@enduml
+```

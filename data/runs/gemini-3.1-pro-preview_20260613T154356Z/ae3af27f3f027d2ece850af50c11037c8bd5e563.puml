@@ -1,0 +1,62 @@
+```plantuml
+@startuml
+participant main
+participant "bkup.BackupFacade" as bkup
+participant "srcrepo.SourceRepository" as srcrepo
+participant "dstrepo.DestinationRepository" as dstrepo
+participant "metarepo.MetadataRepository" as metarepo
+participant "scanner.AllFileScanner" as scanner
+database FileSystem
+database SQLite3
+
+main -> bkup : execute()
+
+group Get all files
+    bkup -> scanner : _get_all_files()
+    scanner -> FileSystem
+    FileSystem --> scanner
+    scanner --> bkup : all_files
+end
+
+group Get source files
+    bkup -> srcrepo : _get_files_matching_criteria(all_files)
+    srcrepo --> bkup : src_files
+end
+
+group Cleanup of metadata corresponding to already deleted files
+    bkup -> metarepo : _get_uncontained_keys(src_files)
+    metarepo -> SQLite3 : SELECT
+    SQLite3 --> metarepo : result
+    metarepo --> bkup : uncontained_keys
+    bkup -> metarepo : remove_metadatas(uncontained_keys)
+    loop until the generator finishes
+        metarepo -> SQLite3 : DELETE
+        metarepo --> bkup : yield removed_metadata <return value is discarded>
+    end
+end
+
+group Create backup and update metadata
+    bkup -> bkup : _get_backup_list(src_files)
+    bkup --> bkup : backup_list
+    bkup -> dstrepo : create_backups(backup_list)
+    loop until the generator finishes
+        dstrepo -> FileSystem : shutil.copy2(src_file, dst_file)
+        dstrepo --> bkup : yield backed_up_src_file
+        bkup -> metarepo : update_metadata(backed_up_src_file)
+        metarepo -> SQLite3 : REPLACE INTO
+    end
+end
+
+group Discard old backups
+    bkup -> dstrepo : _get_discard_list(today, all_files)
+    dstrepo --> bkup : discard_list
+    bkup -> dstrepo : remove_backups(discard_list)
+    loop until the generator finishes
+        dstrepo -> FileSystem : os.remove(file_to_be_removed)
+        dstrepo --> bkup : yield removed_file <return value is discarded>
+    end
+end
+
+bkup --> main : return
+@enduml
+```

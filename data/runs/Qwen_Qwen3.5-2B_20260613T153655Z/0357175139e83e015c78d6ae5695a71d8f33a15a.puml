@@ -1,0 +1,489 @@
+@startuml
+package "rugged" as rugged {
+    interface Tile {
+        method interpolateElevation(φ, λ)
+        method pixelIntersection(NormalizedGeodeticPoint, los, φ index, λ index)
+    }
+
+    interface IntersectionAlgorithm {
+        method intersection(ellipsoid, position, los)
+        method refineIntersection(ellipsoid, position, los, closeGuess)
+    }
+
+    interface Rugged {
+        method directLocation(sensorName, line)
+    }
+
+    interface LineSensor {
+    }
+}
+
+package "mission" as mission {
+    actor UserMain
+}
+
+package "api" as api {
+    actor Rugged
+}
+
+package "utils" as utils {
+    interface ExtendedEllipsoid {
+        method pointAtLatitude(position, los, φ, closereference)
+        method pointAtLongitude(position, los, λ)
+        method pointAtAltitude(position, los, h)
+        method pointOnGround(position, los)
+    }
+
+    interface SpacecraftToObservedBody {
+    }
+}
+
+package "linesensor" as linesensor {
+    actor LineSensor
+}
+
+package "raster" as raster {
+    interface Tile
+}
+
+package "intersection" as intersection {
+    interface IntersectionAlgorithm
+}
+
+rugged --> raster : evaluate DEM
+rugged --> intersection : compute grid points crossings
+rugged --> api : delegate DEM intersection
+api --> linesensor : getLOS(date, pixel)
+api --> linesensor : getDate(line)
+api --> utils : convert geodetic points
+api --> utils : convert positions/directions
+utils --> intersection : refineIntersection
+utils --> extendedEllipsoid : pointAtLatitude
+utils --> extendedEllipsoid : pointAtLongitude
+utils --> extendedEllipsoid : pointAtAltitude
+utils --> extendedEllipsoid : pointOnGround
+utils --> spacecraftToObservedBody : SpacecraftToObservedBody
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : pointAtAltitude
+linesensor --> extendedEllipsoid : pointAtLatitude
+linesensor --> extendedEllipsoid : pointAtLongitude
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid : convert geodetic points
+linesensor --> extendedEllipsoid : convert positions/directions
+linesensor --> extendedEllipsoid : pointOnGround
+linesensor --> extendedEllipsoid

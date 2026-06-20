@@ -1,0 +1,45 @@
+@startuml
+participant as ScooterOwner as "ScooterOwner"
+participant as SavManager as "SavManager"
+participant as SavTechnicien as "SavTechnicien"
+participant as Claims as "Claims"
+participant as ClaimsService as "ClaimsService"
+participant as Claim as "Claim"
+
+participant as ScooterOwner as "ScooterOwner"
+participant as SavManager as "SavManager"
+participant as SavTechnicien as "SavTechnicien"
+participant as Claims as "Claims"
+participant as ClaimsService as "ClaimsService"
+participant as Claim as "Claim"
+
+ScooterOwner ..> Claims : getClaimDetail(Id)
+
+Claims ..> ClaimsService : getClaimDetail(Id)
+
+ClaimsService ..> Claim : getClaimDetail(Id)
+
+alt [claim is found]
+    Claim ..> ClaimsService : claimDetail
+    ClaimsService ..> Claims : claimDetail
+    Claims ..> ScooterOwner : claimDetail
+    alt [claim is not found]
+        Claim ..> ClaimsService : claimNotFound
+        ClaimsService ..> Claims : claimNotFound
+        Claims ..> ScooterOwner : claimNotFound
+    end
+end
+
+ScooterOwner ..> Claims : getClaimTechnicienHistory()
+
+Claims ..> ClaimsService : toggleTechnicienHistory()
+
+ClaimsService ..> Claims : technicienHistory
+
+ScooterOwner ..> Claims : getClaimStatusHistory()
+
+Claims ..> ClaimsService : toggleStatusHistory()
+
+ClaimsService ..> Claims : statusHistory
+
+@enduml

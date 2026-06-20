@@ -1,0 +1,43 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "Service" as Service
+participant "Access token guard" as Guard
+package "Auth microservice" #LightGreen {
+    participant "Session module" as Session
+    participant "Auth module" as Auth
+}
+
+Service -> Guard: request
+activate Guard
+Guard -> Guard: get headers
+Guard -> Guard: check authentication header existence
+
+alt [Authentication header is undefined]
+    Guard --x Service: 401
+end
+
+Guard -> Guard: get access token from header
+Guard -> Auth: validate access token
+Auth --> Guard: result of validation
+
+alt [Access token is Invalid]
+    Guard --x Service: 401
+end
+
+Guard -> Auth: get embedded client id from access token
+Auth -> Auth: extract id
+
+alt [Client id is missing]
+    Auth -> Guard: error
+    Guard --x Service: 401
+end
+
+Auth -> Guard: client id
+Guard -> Guard: modify request with client id
+Guard --x Service: modified request
+deactivate Guard
+
+@enduml
+```

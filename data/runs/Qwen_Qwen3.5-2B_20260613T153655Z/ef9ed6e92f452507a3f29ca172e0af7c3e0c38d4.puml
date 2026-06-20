@@ -1,0 +1,21 @@
+@startuml
+left to right direction
+
+participant <<Android>> AAOSHAL as Actor1
+participant <<Android>> AAOSCarAPI as AAOSCarAPI1
+participant AACS_CarControlHandler as AACS_CarControlHandler1
+participant AACS_CarControlBroadcastReceiver as AACS_CarControlBroadcastReceiver1
+participant AACS_CoreService as AACS_CoreService1
+participant AutoSDK as AutoSDK1
+
+Actor1 ..> AAOSCarAPI1 : HVAC_FAN_SPEED = (0x0500|SYSTEM|3|SEAT)
+
+AAOSCarAPI1 ..> AACS_CarControlHandler1 : True/Throw Exception
+
+AACS_CarControlHandler1 ..> AACS_CarControlBroadcastReceiver1 : True/False
+
+AACS_CarControlBroadcastReceiver1 ..> AACS_CoreService1 : Success/Failure (Intent)
+
+AACS_CoreService1 ..> AutoSDK1 : SetRangeControllerValue Reply (AASB Message)
+
+@enduml

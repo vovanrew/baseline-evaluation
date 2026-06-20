@@ -1,0 +1,35 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "ユーザ" as User
+participant "ブラウザ" as Browser
+participant "web.php" as WebPHP
+participant "PersonController" as Controller
+participant "Person" as PersonModel
+participant "person.find.blade" as BladeTemplate
+
+User -> Browser: 該当ページをリクエスト[person/find]
+Browser -> WebPHP: GET[person/find]
+WebPHP -> Controller: @find
+activate Controller
+Controller -> BladeTemplate: 
+deactivate Controller
+
+User -> BladeTemplate: findボタン押下
+BladeTemplate -> WebPHP: POST
+WebPHP -> Controller: @search
+activate Controller
+Controller -> PersonModel: find()
+activate PersonModel
+PersonModel --> Controller: 
+deactivate PersonModel
+Controller -> BladeTemplate: 
+BladeTemplate -> PersonModel: getData()
+activate PersonModel
+PersonModel --> BladeTemplate: 
+deactivate PersonModel
+deactivate Controller
+
+@enduml
+```

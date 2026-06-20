@@ -1,0 +1,21 @@
+{
+  "id": "msg_015hKf22zfnes77cm1EwM7R6",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Capture Credit Card Payment\n\nparticipant Client\nparticipant Shop\nparticipant PAYONE\n\nClient -> Shop : POST prepare.php\nactivate Shop\nShop --> Client : 302 capture.php\ndeactivate Shop\nClient -> Shop : GET capture.php\nactivate Shop\n\nalt [No Pseudo Card PAN present]\n  Shop --> Client : 200 Credit Card Form\n  deactivate Shop\n  Client -> PAYONE : POST Card PAN\n  activate PAYONE\n  PAYONE --> Client : 200 Pseudo Card PAN\n  deactivate PAYONE\n  Client -> Shop : POST capture.php\n  activate Shop\nend\n\nShop -> PAYONE : POST request=authorization\nactivate PAYONE\n\nalt [With 3-D Secure]\n  PAYONE --> Shop : 302 3-D Secure Form\n  deactivate PAYONE\n  Shop --> Client : 302 3-D Secure Form\n  deactivate Shop\n  Client -> PAYONE : POST 3-D Secure Password\n  activate PAYONE\n  PAYONE -> Shop : POST notify.php txaction=appointed\n  activate Shop\n  Shop -> Shop : Set Payment Status to \"captured\"\n  Shop --> PAYONE : 200 TSOK\n  deactivate Shop\n  PAYONE --> Client : 302 done.php\n  deactivate PAYONE\n\nelse [No 3-D Secure]\n  PAYONE --> Shop : 200 status=APPROVED\n  activate Shop\n  Shop -> Shop : Set Payment Status to \"pending\"\n  Shop --> Client : 302 done.php\n  deactivate Shop\nend\n\nClient -> Shop : GET done.php\nactivate Shop\nShop --> Client : 200 Thanks\ndeactivate Shop\n\nalt [No 3-D Secure]\n  note over Client, PAYONE : some time later\n  PAYONE -> Shop : POST notify.php txaction=appointed transaction_status=completed\n  activate Shop\n  Shop -> Shop : Set Payment Status to \"captured\"\n  Shop --> PAYONE : 200 TSOK\n  deactivate Shop\nend\n\nnote over Client, PAYONE : some time later\n\nPAYONE -> Shop : POST notify.php txaction=paid\nactivate Shop\nShop --> PAYONE : 200 TSOK\ndeactivate Shop\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781372154,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 548,
+    "prompt_tokens": 1664,
+    "total_tokens": 2212
+  }
+}

@@ -1,0 +1,86 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #EDEDED
+  BoxBorderColor #666666
+  BoxPadding 10
+}
+
+box "Main process" #BFE3F2
+participant Hook_StartActivity as HSA
+participant VirtualCore as VC
+participant VActivityManager as VAM
+end box
+
+box "Server process" #8EF08E
+participant VActivityManagerService as VAMS
+participant VPackageManagerService as VPMS
+participant ProviderCaller as PC
+end box
+
+box "App Client process" #6F6F6F
+participant StubContentProvider as SCP
+end box
+
+participant VRedirectActRequest as VRAR
+participant VActRedirectResult as VARR
+
+HSA -> VC : resolveActivityInfo
+activate VC
+deactivate VC
+
+HSA -> VRAR : new VRedirectActRequest
+activate VRAR
+VRAR --> HSA : req
+deactivate VRAR
+
+HSA -> VAM : redirectTargetActivity
+activate VAM
+VAM -> VAMS : redirectTargetActivity
+activate VAMS
+
+VAMS -> VAMS : redirectTargetActivityLocked
+VAMS -> VAMS : startProcessLocked
+VAMS -> VAMS : queryFreeStubForProcess
+VAMS -> VAMS : performStartProcessLocked
+
+VAMS -> VPMS : querySharedPackages
+activate VPMS
+VPMS --> VAMS : sharedPackages : List<String>
+deactivate VPMS
+
+VAMS -> VPMS : queryContentProviders
+activate VPMS
+VPMS --> VAMS : providers : List<ProviderInfo>
+deactivate VPMS
+
+VAMS -> VPMS : getSharedLibraries
+activate VPMS
+VPMS --> VAMS : usesLibraries : List<String>
+deactivate VPMS
+
+VAMS -> PC : call(MethodConstants.INIT_PROCESS)
+activate PC
+PC -> SCP : call
+activate SCP
+SCP -> SCP : initProcess
+deactivate SCP
+deactivate PC
+
+note over VAMS, SCP
+StubContentProvider.java中定义了20个静态内部类C1到C20，都是StubContentProvider的子类，并且在AndroidManifest.xml的stub中声明了process字段，与对应的StubActivity一致。
+VA的服务进程取出一个空的stubContentProvider，借助Android ContentProvider机制，系统会创建一个新进程出来，然后被作为双开应用的容身之所。这个偷梁换柱的过程由VA服务进程完成。
+end note
+
+VAMS -> VAMS : fetchStubActivityInfo
+VAMS --> VAM : result = new VActRedirectResult
+deactivate VAMS
+VAM --> HSA : result = new VActRedirectResult
+deactivate VAM
+
+@enduml

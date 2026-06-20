@@ -1,0 +1,35 @@
+@startuml
+title **Request Order Change**
+
+actor Buyer
+actor Grower
+actor Manager
+boundary System
+database db
+
+Buyer -> Manager : Make **Order Change Request**
+Manager -> db : Insert **Order\nChange Request**
+Manager <- System : Email **Order\nChange Request**
+
+box "**Confirmation process**"
+Manager -> Buyer : Confirm details of **Order\nChange Request** over email
+Manager -> Grower : Confirm details of **Order\nChange Request** over email
+end box
+
+group [All agreed?]
+  Manager -> System : Edit **Order**
+  System -> db : Update **Order**
+  System -> db : Update **Order\nChange Request**
+  Manager <- System : Email details **Order Change**
+  Buyer <- System : Email details **Order Change**
+end
+
+group [Not agreed to?]
+  note over System, db : Nothing to do here unless we add a\n**Change Request** editing function
+end
+
+note bottom of System
+  1. //Email// could also mean text message,\nphone call or face to face
+end note
+
+@enduml

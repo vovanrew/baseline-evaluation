@@ -1,0 +1,48 @@
+```plantuml
+@startuml
+title Credential Issuance Flow
+
+participant "User Agent" as UA
+rectangle "Wallet" {
+    participant "Frontend" as WF
+    participant "Backend" as WB
+}
+rectangle "Issuer" {
+    participant "Metadata" as IM
+    participant "Web Site" as IW
+    participant "Token Endpoint" as ITE
+    participant "Credential Endpoint" as ICE
+}
+
+UA -> IW : get credential
+activate IW
+note right of IW: prepare credential issuance
+IW --> WF : Issuance Initiation Request\n(pre-authz-code, credential_type, expected_key_types, issuer)
+WF --> WB : Issuance Initiation Request\n(pre-authz-code, credential_type, expected_key_types, issuer)
+
+WB -> WB : gen DPoP key
+WB -> WB : gen DPoP proof for issuer token endpoint
+WB -> WB : get nonce (for app attestation)
+WB <- WB : nonce
+WB -> WB : obtain app attestation (nonce)
+WB -> WB : get assertion for code exchange\n(hash(pre-authz-code), app attestation)
+WB -> WB : check app_attestation
+WB -> WB : generate assertion\n(iss=wallet backend, pre_authz_code_hash, client_id)
+WB -> WF : assertion
+WF -> IM : get issuer metadata
+WF -> ITE : token request\n(pre-authz-code, pin, client_id, assertion, dpop_proof)
+
+note over WF,ITE: wallet authenticates with issuer as OAuth Client using the assertion issued by its backend (RFC 7523)\nissuer checks wallet backend id and key against trust registry
+note over ITE: Token Endpoint validates pre-authorized code and creates corresponding access token
+ITE --> WF : token response\n(access_token, c_nonce)
+
+WF -> WF : gen key : key, key_attestation
+WF -> WF : create proof of posssion (c_nonce)
+WF -> WF : create DPoP proof for issuance request
+WF -> ICE : issue credential\n(access_token, credential_type, format, proof, key_policy, dpop_proof)
+
+note over ICE: Credential Endpoint Token checks whether the access token is good for requested credential type and\nwhether the proof of possession is valid
+ICE --> WF : credential response (credential, format)
+deactivate IW
+@enduml
+```

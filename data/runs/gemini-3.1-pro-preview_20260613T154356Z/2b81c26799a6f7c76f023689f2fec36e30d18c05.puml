@@ -1,0 +1,67 @@
+```plantuml
+@startuml
+actor Administrator
+participant ":SpecifyNewVaccineUI" as UI
+participant ":SpecifyNewVaccineController" as Controller
+participant ":Company" as Company
+participant ":VaccineStore" as VaccineStore
+participant "vc:Vaccine" as Vaccine
+participant "admPro:AdministrationProcess" as AdministrationProcess
+participant ":VaccineTypeStore" as VaccineTypeStore
+participant ":VaccineType" as VaccineType
+
+activate Administrator
+Administrator -> UI : 1 starts specifying a new vaccine and its administration process
+activate UI
+UI -> Controller : 2 createVaccine()
+activate Controller
+Controller -> Company : 3 typeList = getVaccineTypeList()
+activate Company
+Company -> VaccineTypeStore : 4 getVaccineTypeList()
+activate VaccineTypeStore
+loop for all known vaccineTypes
+    VaccineTypeStore -> VaccineType : 5 VaccineType(code,name)
+    activate VaccineType
+    deactivate VaccineType
+end
+deactivate VaccineTypeStore
+deactivate Company
+UI --> Administrator : 6 request data (name, manufacturer, type, age groups, doses, elapsing interval, dosage) and show vaccineType list
+deactivate Controller
+Administrator -> UI : 7 types requested data
+UI -> Controller : 8 createVaccine(id,name,manufacturer,type,administrationProcess)
+activate Controller
+Controller -> Company : 9 createVaccine(id,name,manufacturer,type,administrationProcess)
+activate Company
+Company -> VaccineStore : 10 createVaccine(id,name,manufacturer,type,administrationProcess)
+activate VaccineStore
+VaccineStore -> Vaccine ** : 11 vc = createVaccine(id,name,manufacturer,type,administrationProcess)
+activate Vaccine
+loop for all age groups
+    Vaccine -> AdministrationProcess ** : 12 administrationProcess(minAge,maxAge,numberOfDoses,dosage,timeElapsed)
+    activate AdministrationProcess
+    deactivate AdministrationProcess
+end
+VaccineStore -> Vaccine : 13 validateVaccine()
+deactivate Vaccine
+VaccineStore --> Company : 14 validateVaccine(vc)
+deactivate VaccineStore
+deactivate Company
+UI --> Administrator : 15 shows data and request confirmation
+deactivate Controller
+Administrator -> UI : 16 confirms data
+UI -> Controller : 17 saveVaccine()
+activate Controller
+Controller -> Company : 18 saveVaccine()
+activate Company
+Company -> VaccineStore : 19 saveVaccine()
+activate VaccineStore
+VaccineStore -> VaccineStore : 20 addVaccine(vc)
+deactivate VaccineStore
+deactivate Company
+UI --> Administrator : 21 informs operation (in)success
+deactivate Controller
+deactivate UI
+deactivate Administrator
+@enduml
+```

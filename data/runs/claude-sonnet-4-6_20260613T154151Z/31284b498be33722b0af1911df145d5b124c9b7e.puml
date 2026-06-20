@@ -1,0 +1,166 @@
+```plantuml
+@startuml
+title Gestion de la cinématique de connexion et de navigation entre les applications
+
+actor User
+participant Portal
+participant "IAM Cognito" as IAM
+participant SSO
+participant "Manager Backend" as Manager
+participant "Reality Backend" as RBackend
+participant "Reality Frontend" as RFrontend
+
+note over IAM, SSO
+**Question:**
+Validation de l'utilisateur dans la plateforme Cognito créé par l'administrateur ?
+**Réponse:**
+Désactivé dans Cognito, la validation de l'utilisateur par l'administrateur
+end note
+
+group "S'inscrire"
+  User -> Portal: S'enregistrer sur la plateforme
+  Portal -> SSO: 
+  note over SSO
+  **"Création de l'utilisateur"**
+  Remplir le formulaire
+  end note
+  SSO --> Portal: 
+  note over SSO #lightyellow
+  email
+  nom, prenom
+  end note
+  SSO -> IAM: Créer l'utilisateur
+  IAM -> RBackend: Enregistre l'utilisateur\ndans la base de données
+  RBackend --> IAM: 
+  IAM -> IAM: Enregistre l'utilisateur\nCognito avec un mot\nde passe temporaire
+  IAM --> SSO: 
+
+  alt [success]
+    SSO --> Portal: Retour de l'id de l'utilisateur
+    note over SSO #lightyellow
+    **Suggestion:**
+    Email de confirmation ?
+    Changer le mot de passe cors de sa première connexion
+    end note
+  else [failure]
+    SSO --> Portal: Retour de l'erreur\n- utilisateur existe déjà\n- formulaire non valide
+  end
+end
+
+group "Login cognito"
+  User -> Portal: Se connecte
+  Portal -> SSO: est redirigé vers le SSO
+  SSO --> Portal: Redirection
+  Portal -> SSO: est redirigé via Passport
+  SSO --> Portal: Redirection
+  SSO -> User: Page d'authentification
+  User -> SSO: Saisi ses identifiants
+
+  alt [success]
+    SSO -> IAM: Utilisateur authentifié\navec le token Cognito
+    IAM -> SSO: Demande de décoder
+    SSO -> SSO: Decode le token Cognito (Passport.js)\npour récupérer l'email et l'identifiant
+    SSO -> RBackend: Vérification de l'utilisateur grace\nà son email et son/ses identifiant(s) (identities)
+
+    alt [success]
+      RBackend --> SSO: Utilisateur est autorisé
+      SSO -> SSO: Création du token plateforme
+      note over SSO #lightyellow
+      email
+      firstname
+      lastname
+      application ?
+      end note
+      note over SSO #lightyellow
+      **Utiliser un token SSO au lieu du JWT**
+      end note
+      SSO -> SSO: Stocke le token plateforme en session\ndu navigateur
+      SSO -> RBackend: Stocke le token plateforme en BDD (PG)
+      RBackend --> SSO: 
+      SSO --> Portal: Redirige vers l'application\net transmet le token plateforme au frontend
+      Portal -> Portal: Stocke le token sur sa session
+      Portal --> User: Accède à l'application\navec son token plateforme
+      note over Portal #lightyellow
+      **Question:**
+      Doit-on aussi envoyer le token Cognito ?
+      end note
+      Portal -> Manager: Appel Manager pour récupérer les droits\nhauts pour l'utilisateur
+
+      alt [success]
+        Manager --> Portal: Renvoie les droits hauts (applications disponibles)
+        Portal --> User: Renvoie la page à l'utilisateur
+      else [failure]
+        note over Portal #lightyellow
+        **Question:**
+        Peut-on avoir un utilisateur sans droits hauts ?
+        end note
+        Portal --> User: Retour vers la page de login du SSO
+      end
+
+      note over Portal #lightyellow
+      **Rien n'est encore affiché**
+      end note
+      note over Portal #lightyellow
+      **Question:**
+      Gestion des droits haut niveau de manière automatique ?
+      end note
+      Portal -> User: Met à disposition les applications\nauxquelles l'utilisateur à accès
+      User -> User: L'utilisateur peut naviguer\nentre les applications
+
+    else [failure]
+      RBackend --> SSO: Utilisateur non autorisé
+      SSO --> Portal: Redirige vers la page d'accueil du portail avec un message (non autorisé, pas de droits suffisant)
+      note over Portal #lightyellow
+      **Question:**
+      Doit-on créer son compte sur la plateforme ?
+      end note
+    end
+
+  else [failure]
+    IAM --> SSO: Utilisateur non authentifié
+    SSO --> Portal: Erreur de connexion sur la page Cognito
+  end
+end
+
+group "Naviguer entre les applications"
+  User -> Portal: Aller vers l'application
+  RFrontend -> SSO: **Redirection** route d'authentification
+  SSO --> RFrontend: **Redirection** vers le SSO
+  SSO -> SSO: Check du token en session (navigateur)
+  SSO --> RFrontend: 
+
+  alt [success]
+    SSO -> RFrontend: **Redirection** avec le token en query (pour le récupérer avec l'URL)
+    RFrontend -> RFrontend: **Redirection** sur le callback de login avec\nle token en query
+    RFrontend -> RFrontend: Stocke le token plateforme en local storage
+    RFrontend -> RBackend: Demande de récupération des droits fins\nde l'utilisateur (appel simple)
+    RBackend -> RBackend: Récupération des droits fins\ndans sa propre BDD
+    RBackend --> RFrontend: Retour des droits utilisateur
+    RFrontend -> RFrontend: Stockage des droits utilisateur\nen session
+    RFrontend --> User: Redirection vers la page\nprincipale de l'application
+    User --> RFrontend: 
+
+  else [failure]
+    note over SSO #lightyellow
+    **Question:**
+    La durée du token Cognito de l'utilisateur ?
+    30 min pour le token
+    Comment faire la gestion du refresh du token ?
+    - Tous les x temps ?
+    Pas connecté (token expiré ?) ou pas autorisé
+    end note
+    SSO -> RFrontend: Eject de la connexion
+    RFrontend --> Portal: Redirection vers la page de connexion du portail
+  end
+end
+
+actor User
+participant Portal
+participant "IAM Cognito" as IAM2
+participant SSO
+participant "Manager Backend" as Manager2
+participant "Reality Backend" as RBackend2
+participant "Reality Frontend" as RFrontend2
+
+@enduml
+```

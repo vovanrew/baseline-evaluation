@@ -1,0 +1,46 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+note "全てのオブジェクトはこの抽象インタフェースを起点に操作する\n特定の具象コンポーネントに対する操作がしたい時は設計を見直す必要がある。\n例えば、HouseBlendのみ割引したい時とか、\n装飾により型の情報は破壊されているので。" as N1
+note "IBeverageを実装する理由は\nスーパークラスの型を取得するため。\nこれを継承するクラスはIBeverageを装飾することができる" as N2
+
+interface IBeverage {
+  string Description
+  void GetDescription()
+  double Cost()
+}
+
+class HouseBlend
+class DarkRoast
+class Espresso
+
+abstract class CondimentDecorator {
+  IBeverage _beverage
+  string Description
+  string GetDescription()
+  double Cost()
+}
+
+class Milk {
+  Milk(IBeverage beverage)
+}
+class Mocha {
+  Mocha(IBeverage beverage)
+}
+class Whip {
+  Whip(IBeverage beverage)
+}
+
+N1 .. IBeverage
+N2 .. CondimentDecorator
+
+HouseBlend ..|> IBeverage
+DarkRoast ..|> IBeverage
+Espresso ..|> IBeverage
+
+CondimentDecorator ..|> IBeverage
+
+Milk --|> CondimentDecorator
+Mocha --|> CondimentDecorator
+Whip --|> CondimentDecorator
+@enduml

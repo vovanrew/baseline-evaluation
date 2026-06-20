@@ -1,0 +1,21 @@
+{
+  "id": "msg_016c8s5SeyY2cnGipbWQL9Bk",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor \"Sales Clerk\" as SalesClerk\n\nparticipant \"<<Presentation>>\\nOrderDeliveredUI\" as UI\nparticipant \"<<Application>>\\nOrderDeliveredController\" as Controller\nparticipant \"<<Service>>\\n: OrderDeliveredService\" as Service\nparticipant \"<<Persistence>>\\n: PersistenceContext\" as Persistence\nparticipant \"<<Factory>>\\nfactory : RepositoryFactory\" as Factory\nparticipant \"<<Repository>>\\norderRepository : Repository\" as Repository\nparticipant \"<<Domain>>\\norderList : List<Order>\" as OrderList\nparticipant \"<<DTO>>\\norderDTOList : List<OrderDTO>\" as OrderDTOList\nparticipant \"<<DTO>>\\n: OrderMapper\" as OrderMapper\nparticipant \"<<DTO>>\\norderDTO : OrderDTO\" as OrderDTO\nparticipant \"<<DTO>>\\nselectedOrderDTOList : List<OrderDTO>\" as SelectedOrderDTOList\nparticipant \"<<Domain>>\\norder : Order\" as Order\n\nnote left of SalesClerk\nThe Sales Clerk initializes\nthe process of updating the status of the order\nend note\n\nSalesClerk -> UI : create\nactivate UI\n\nUI -> Controller : create\nactivate Controller\n\nController -> Persistence : repositories()\nactivate Persistence\nPersistence -> Factory : create\nactivate Factory\nPersistence --> Controller : factory\ndeactivate Persistence\n\nController -> Factory : orderRepository()\nactivate Factory\nFactory -> Repository : create\nactivate Repository\nFactory --> Controller : orderRepository\ndeactivate Factory\n\ndeactivate Repository\ndeactivate Factory\n\ndeactivate Controller\n\nSalesClerk -> UI : listAllDispatchedOrders()\nactivate UI\n\nUI -> Controller : listAllDispatchedOrders()\nactivate Controller\n\nController -> Repository : getAllDispatchedOrders()\nactivate Repository\nRepository -> OrderList : create\nactivate OrderList\nRepository --> Controller : orderList\ndeactivate Repository\n\nController -> OrderDTOList : create\nactivate OrderDTOList\n\nloop foreach()\n    Controller -> OrderList : getNext()\n    OrderList --> Controller : order\n    Controller -> OrderMapper : toDTO(order)\n    activate OrderMapper\n    OrderMapper -> OrderDTO : create\n    activate OrderDTO\n    OrderMapper --> Controller : orderDTO\n    deactivate OrderMapper\n    Controller -> OrderDTOList : add(orderDTO)\nend\n\ndeactivate OrderList\n\nController --> UI : orderDTOList\ndeactivate Controller\ndeactivate OrderDTOList\n\nUI --> SalesClerk : orderDTOList\ndeactivate UI\n\nnote left of SalesClerk\nThe System presents a list of Orders to the\nSales Clerk whose Status are \"Preparation\"\nand asks the Sales Clerk to choose Orders\nwhose Status will be updated to \"Delivered\".\nend note\n\nnote left of SalesClerk\nThe Sales Clerk selects the Orders whose\nStatus are to be updated.\nend note\n\nSalesClerk -> UI : updateStatus(selectedOrderDTOList)\nactivate UI\n\nUI -> Controller : updateStatusAndPersist(selectedOrderDTOList)\nactivate Controller\n\nloop foreach()\n    Controller -> SelectedOrderDTOList : getNext()\n    activate SelectedOrderDTOList\n    SelectedOrderDTOList --> Controller : orderDTO\n    deactivate SelectedOrderDTOList\n    Controller -> OrderMapper : toOrder(orderDTO)\n    activate OrderMapper\n    OrderMapper --> Controller : order\n    deactivate OrderMapper\n    Controller -> Order : changeStatusToDelivered()\n    activate Order\n    deactivate Order\n    Controller -> Repository : update(order)\n    activate Repository\n    deactivate Repository\nend\n\ndeactivate Controller\ndeactivate UI\ndeactivate OrderDTO\n\nnote left of SalesClerk\nThe System updates the Status of the selected Orders\nand informs the Sales Clerk of the operation success.\nend note\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431570,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 917,
+    "prompt_tokens": 1636,
+    "total_tokens": 2553
+  }
+}

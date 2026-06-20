@@ -1,0 +1,21 @@
+{
+  "id": "msg_015eh7Gz1gZvfN2p37wMvFDE",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nparticipant \"Requester\" as Requester\nparticipant \"PageLocsMgr\" as PageLocsMgr\nentity \"MgrQueue\" as MgrQueue\nparticipant \"StateTask\" as StateTask\nentity \"StateQueue\" as StateQueue\nentity \"RetrieveQueue\" as RetrieveQueue\nparticipant \"RetrieverTask\" as RetrieverTask\n\nRequester -> PageLocsMgr : Startup\nRequester -> StateTask : Startup\nRequester -> StateTask : start(doc, first_item, item_count)\n\nnote left of StateTask\nThe document retrieval\noptimizes the order of\nthe items considering\nhow the user interacts.\nend note\n\nStateTask -> RetrieverTask : start_document(...)\n\nloop [All Items]\n    StateTask -> RetrieveQueue : retrieve(item)\n    RetrieveQueue -> RetrieverTask : retrieve(item)\n    RetrieverTask -> RetrieverTask : do item\n    RetrieverTask -> StateQueue : item_retrieved(item)\n    StateQueue -> StateTask : item_retrieved(item)\nend\n\n== Item already known ==\n\nRequester -> PageLocsMgr : get_page_loc(item, offset)\nPageLocsMgr -> Requester : got_it(start_offset, size)\n\n== Item needs to be retrieved (no yet in the list) ==\n\nRequester -> PageLocsMgr : get_page_loc(item, offset)\nPageLocsMgr -> StateTask : retrieve_asap(item)\nStateTask -> RetrieveQueue : retrieve_asap(item)\nRetrieveQueue -> RetrieverTask : retrieve(item)\nRetrieverTask -> RetrieverTask : retrieve(item)\nRetrieverTask -> RetrieverTask : do item\nRetrieverTask -> StateQueue : item_retrieved(item)\nStateQueue -> StateTask : item_retrieved(item)\nStateTask -> MgrQueue : got_asap(item)\nMgrQueue -> PageLocsMgr : got_asap(item)\nPageLocsMgr -> Requester : got_it(start_offset, size)\n\nStateTask -> MgrQueue : end_document()\nMgrQueue -> PageLocsMgr : end_document()\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432372,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 545,
+    "prompt_tokens": 1654,
+    "total_tokens": 2199
+  }
+}

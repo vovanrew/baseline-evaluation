@@ -1,0 +1,150 @@
+```plantuml
+@startuml
+package "events" {
+    package "cdc" {
+        package "connector" {
+            package "db" {
+                package "transaction" {
+                    package "log" {
+                        package "converter" {
+                            class TransactionLogEntryConverter {
+                                <<interface>>
+                                + Optional<TLM> convert(TransactionLogEntry)
+                            }
+
+                            class TransactionLogEntryConverterFactory {
+                                <<factory>>
+                            }
+
+                            class TransactionLogEntryToMessageWithDestinationConverter {
+                                <<converter>>
+                                + IBCGenerator getGenerator()
+                                + Optional<MessageWithDestination> convert(TransactionLogEntry)
+                            }
+
+                            class TransactionLogEntryToEventWithSourcingConverter {
+                                <<converter>>
+                                + IBCGenerator getGenerator()
+                                + Optional<EventWithSourcing> convert(TransactionLogEntry)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+package "messaging" {
+    class TransactionLogMessage {
+        <<interface>>
+        + Optional<TransactionLogOffset> getTransactionLogOffset()
+    }
+
+    class MessageWithDestination {
+        - String destination
+        - String payload
+        - Map<String,String> headers
+        - TransactionLogOffset transactionLogOffset
+        + String getDestination()
+        + String getPayload()
+        + Optional<String> getPartition()
+        + Optional<String> getHeader(String)
+        + String getHeadersAsJsonString()
+        + boolean hasHeader(String)
+        + Map<String,String> getHeaders()
+        + void setHeader(String)
+        + void setHeaders(Map<String,String>)
+        + void setHeader(String,String)
+        + void removeHeader(String)
+        + String toJson()
+        + Optional<TransactionLogOffset> getTransactionLogOffset()
+    }
+
+    class EventWithSourcing {
+        - String entryId
+        - String entryType
+        - String eventData
+        - String eventType
+        - TransactionLogOffset transactionLogOffset
+        - Optional<String> metadata
+        + String get()
+        + void setId(String)
+        + void setEntryType(String)
+        + void setEntryType(String)
+        + void setEventData(String)
+        + void setEventType(String)
+        + void setMetadata(String)
+        + String getEntryId()
+        + String getEntryType()
+        + String getEventData()
+        + String getEventType()
+        + Optional<String> getMetadata()
+        + void setMetadata(Optional<String>)
+        + Optional<TransactionLogOffset> getTransactionLogOffset()
+        + void setTransactionLogOffset(TransactionLogOffset)
+    }
+}
+
+package "offset" {
+    class OffsetProcessor {
+        <<interface>>
+        - Logger logger
+        - AtomicBoolean processingOffsets
+        - ConcurrentLinkedDeque<Optional<OFFSET>> offsets
+        - GenericOffsetTableFuture<OFFSET> offsetTable
+        - Consumer<Exception, OFFSET> exceptionHandler
+        - Executor executor
+        + void saveOffset(CompletableFuture<Optional<OFFSET>>)
+        + void processOffsets(Runnable, Optional<OFFSET>, Throwable)
+        + void processOffsets(Runnable, Optional<OFFSET>)
+        + void closeMessageStream()
+        + Optional<OFFSET> getOffset(CompletableFuture<Optional<OFFSET>>)
+        + boolean isDone(CompletableFuture<Optional<OFFSET>>)
+        + AtomicInteger getInProgressOffsetCount()
+    }
+
+    class GenericOffsetTable {
+        <<interface>>
+        + void save(OFFSET)
+    }
+
+    class OffsetStore {
+        <<interface>>
+        + Optional<TransactionLogOffset> getLastTransactionLogOffset()
+        + void save(TransactionLogOffset)
+    }
+}
+
+package "entry" {
+    class TransactionLogEntryHandler {
+        <<interface>>
+        - SchemaAndTable schemaAndTable
+        - TransactionLogEntryConverter<TLM> transactionLogEntryConverter
+        - Function<TLM,CompletableFuture<Void>> publisher
+        + String getQualifiedTable()
+        + SchemaAndTable getSchemaAndTable()
+        + boolean isPrimaryKeyNull(TLM)
+        + CompletableFuture<Void> publish(TransactionLogEntry)
+    }
+
+    class TransactionLogEntry {
+        - Object getColumnName()
+        - TransactionLogOffset getTransactionLogOffset()
+        - boolean getIsNewColumn(String)
+        - Long getLongColumn(String)
+        - String getOnlyColumn(String)
+    }
+}
+
+TransactionLogEntryConverter ..|> TransactionLogEntryConverterFactory : creates
+TransactionLogEntryToMessageWithDestinationConverter ..|> TransactionLogEntryConverter : implements
+TransactionLogEntryToEventWithSourcingConverter ..|> TransactionLogEntryConverter : implements
+MessageWithDestination ..|> TransactionLogMessage : implements
+EventWithSourcing ..|> TransactionLogMessage : implements
+OffsetProcessor ..|> GenericOffsetTable : uses
+OffsetStore ..|> OffsetProcessor : uses
+TransactionLogEntryHandler ..|> TransactionLogEntry : processes
+
+@enduml
+```

@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLvjeKAyMa6t1mpGt7o4pMs4ctBx",
+  "object": "chat.completion",
+  "created": 1781369727,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Project - Staff - Update\n\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #333333\n  LifeLineBorderColor #bbbbbb\n  LifeLineBackgroundColor transparent\n  ParticipantBorderColor #e74c3c\n  ParticipantBackgroundColor #ff6b57\n  ParticipantFontColor white\n  ParticipantPadding 18\n  BoxBorderColor #666666\n  BoxBackgroundColor transparent\n}\nskinparam NoteBackgroundColor #bff5e8\nskinparam NoteBorderColor #2e8b7a\nskinparam NoteFontColor #0b3d33\n\nparticipant Client\nparticipant ProjectService\nparticipant RedisCache\nparticipant \"Kafka()\" as Kafka\nparticipant PersisterService\nparticipant IndexerService\nparticipant ErrorService\nparticipant ElasticSearch\ndatabase Database\n\nClient -> ProjectService : /project/staff/v1/_update\nactivate ProjectService\nProjectService -> ProjectService : Validate request body\n\nalt [request validation fails]\n  ProjectService -> ProjectService : Request validation failed\n  note left of ProjectService\n    Error Code: REQUEST_VALIDATION_FAILED\n  end note\n  ProjectService --> Client : HttpStatus: 400 with appropriate error code\nelse\n  ProjectService -> ProjectService : Request validation successful\n\n  alt [record doesn't exist]\n    ProjectService -> RedisCache : Search record based on serverGeneratedId\n    activate RedisCache\n    RedisCache --> ProjectService : 0 rows\n    deactivate RedisCache\n\n    ProjectService -> Database : Search record based on serverGeneratedId\n    activate Database\n    Database --> ProjectService : 0 row\n    deactivate Database\n\n    note left of ProjectService\n      Error Code: RECORD_NOT_FOUND\n    end note\n    ProjectService --> Client : HttpStatus: 400 with appropriate error code\n  else\n    alt [record doesn't exists in cache]\n      ProjectService -> RedisCache : Search record based on serverGeneratedId\n      activate RedisCache\n      RedisCache --> ProjectService : 0 rows\n      deactivate RedisCache\n\n      ProjectService -> Database : Search record based on serverGeneratedId\n      activate Database\n      Database --> ProjectService : 1 row\n      deactivate Database\n\n      ProjectService -> RedisCache : 1 record\n      activate RedisCache\n      deactivate RedisCache\n    end\n\n    ProjectService -> RedisCache : Fetch the existing record\n    activate RedisCache\n    RedisCache --> ProjectService : 1 row\n    deactivate RedisCache\n\n    alt [incorrect rowVersion]\n      ProjectService -> ProjectService : Compare rowVersion between request and db\n      ProjectService -> ProjectService : Incorrect rowVersion [request: should be +1 only]\n      note left of ProjectService\n        Error Code: BAD_REQUEST\n      end note\n      ProjectService --> Client : HttpStatus: 400 with appropriate error code\n    else\n      ProjectService -> ProjectService : Compare rowVersion between request and db\n      ProjectService -> ProjectService : rowVersion in request = rowVersion in db + 1\n\n      ProjectService -> Kafka : Project Staff Data  /update_topic\n      activate Kafka\n\n      ProjectService -> RedisCache : Update new record in cache against serverGeneratedId\n      activate RedisCache\n      deactivate RedisCache\n\n      ProjectService --> Client : HttpStatus: 202 ACCEPTED\n\n      group async\n        Kafka -> Kafka : Consume Project Staff Data\n        Kafka -> PersisterService : Consume Project Staff Data\n        activate PersisterService\n        PersisterService -> Database : Update Project Staff Data\n        activate Database\n        Database --> PersisterService\n        deactivate Database\n        deactivate PersisterService\n\n        Kafka -> IndexerService : Store Project Staff Data\n        activate IndexerService\n        IndexerService -> ElasticSearch\n        activate ElasticSearch\n        ElasticSearch --> IndexerService\n        deactivate ElasticSearch\n        deactivate IndexerService\n      end\n      deactivate Kafka\n    end\n  end\nend\n\ndeactivate ProjectService\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2346,
+    "completion_tokens": 827,
+    "total_tokens": 3173,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

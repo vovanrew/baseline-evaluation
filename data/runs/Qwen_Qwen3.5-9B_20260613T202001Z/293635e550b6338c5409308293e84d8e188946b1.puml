@@ -1,0 +1,56 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam sequenceMessageSize 100
+
+actor "Admin" as Admin
+participant "Sqoop" as Sqoop
+database "Metastore DB" as MetastoreDB
+package "HDFS" as HDFS
+participant "Hive SQL" as HiveSQL
+database "Hive" as HiveDB
+participant "Hive Table" as HiveTable
+participant "Ambari" as Ambari
+
+note right of Admin
+  This process should be run several days
+  BEFORE the actual upgrade to reduce the downtime
+  of the upgrade.
+
+  And should be run just BEFORE the upgrade and
+  AFTER all users have been cleared from the system
+  to ensure no tables are modified after this runs.
+end note
+
+Admin -> Sqoop: Run "Collect the Metadata"
+Sqoop -> MetastoreDB: Extracts from
+Sqoop -> HDFS: Saves to
+Admin -> HiveTable: Run "Build Supporting Tables"
+
+Admin -> HiveTable: Run "Distinct Serdes"
+Admin -> HiveTable: Fix Tables with Serde Issues
+Admin -> HiveTable: Run "Check Partition Location"
+Admin -> HiveTable: Run "Non-Managed Table Locations"
+Admin -> HiveTable: Run "Managed Table Locations"
+Admin -> HiveTable: Run "Missing HDFS Directories Check"
+Admin -> HiveTable: Correct "Missing Directories"
+Admin -> HiveTable: Run "Table Migration Check"
+Admin -> HiveTable: Run "Acid Table Conversions"
+Admin -> HiveTable: Run "Conversion Table Directories"
+
+Admin -> HiveTable: Run "Acid Table Compaction Check"
+Admin -> HiveTable: Run "Acid Table Compaction Required"
+Admin -> HiveTable: TUNE THE COMPACTOR for estimated compaction needs
+Admin -> HiveTable: Run the compaction script. Break it apart if needed.
+
+Admin -> HiveTable: Run "Acid Table Locations". Save artifact for Upgrade.
+
+Admin -> Ambari: Review and Run ALL previous steps and collect details.
+Admin -> Ambari: Decision to intervene with Ambari Process based on volumes indicated through research
+Admin -> Ambari: Hack Pre/Post Processes
+Admin -> Ambari: Run Compaction Routine one last time.
+Admin -> Ambari: Start Upgrade
+Admin -> Ambari: Run the Post Upgrade Planning Output to convert tables.
+Admin -> Ambari: Complete Upgrade
+
+@enduml

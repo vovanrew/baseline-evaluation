@@ -1,0 +1,28 @@
+@startuml
+
+participant "TaskExecutionStrategy" as TES #GreenYellow
+participant "Action" as ACT #GreenYellow
+participant "Connection" as CON
+participant "SSH client/server connection" as SSH
+participant "ssh daemon (or winrm service)" as SSHD
+
+TES -> ACT : init(..)
+TES -> ACT : init(..)
+TES -> ACT : run()
+ACT -> CON : put_file()
+CON -> SSH : transfer module data
+SSH -> SSHD : 
+note right of SSHD : save module to disk
+SSHD --> SSH :
+SSH --> CON : transfer complete
+CON --> ACT : return remote path
+ACT -> CON : exec_command()
+CON -> SSH : run module remotely
+SSH -> SSHD :
+note right of SSHD : execute shell command
+SSHD --> SSH :
+SSH --> CON : return response code, stdout, stderr
+CON --> ACT : return response code, stdout, stderr
+ACT --> TES : return JSON
+
+@enduml

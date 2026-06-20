@@ -1,0 +1,71 @@
+```plantuml
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Organization Employee" as User
+participant ":CreateTaskUI" as UI
+participant ":CreateTaskController" as Controller
+participant "ApplicationPOT" as POT
+participant "app :ApplicationPOT" as App
+participant "session :UserSession" as Session
+participant ":Platform" as Platform
+participant "org :Organization" as Org
+participant "cat :Category" as Category
+participant "lc :List<Category>" as LC
+participant "task :Task" as Task
+
+User -> UI: 1 asks to create a new task
+activate UI
+UI --> User: 2 requests data (reference, designation, informal description, technical description, duration, cost)
+User -> UI: 3 types requested data
+UI -> Controller: 4 lc=getTaskCategories()
+activate Controller
+Controller -> Platform: 5 lc=getTaskCategories()
+activate Platform
+deactivate Platform
+deactivate Controller
+UI --> User: 6 shows task categories list and ask to select one
+User -> UI: 7 selects a task category
+UI -> Controller: 8 createTask(ref,designation,informalDesc,technicalDesc,duration,cost,categoryId)
+activate Controller
+Controller -> Platform: 9 cat=getCategoryId(categoryId)
+activate Platform
+deactivate Platform
+Controller -> App: 10 app = getInstance()
+activate App
+deactivate App
+Controller -> Session: 11 session = getCurrentSession()
+activate Session
+deactivate Session
+Controller -> Session: 12 email = getUserEmail()
+activate Session
+deactivate Session
+Controller -> Platform: 13 org = getOrganizationByUserEmail(email)
+activate Platform
+deactivate Platform
+Controller -> Org: 14 task=createTask(ref,designation,informalDesc,technicalDesc,duration,cost,cat)
+activate Org
+Org -> Task: 15 create(ref,designation,informalDesc,technicalDesc,duration,cost,cat)
+activate Task
+deactivate Task
+Org -> Org: 16 validateTask(task)
+Org --> Controller: 17 result
+deactivate Org
+deactivate Controller
+UI --> User: 18 shows all data and requests confirmation
+User -> UI: 19 confirms the data
+UI -> Controller: 20 saveTask()
+activate Controller
+Controller -> Org: 21 saveTask(task)
+activate Org
+Org -> Org: 22 validateTask(task)
+Org -> Org: 23 addTask(task)
+Org --> Controller: 24 result
+deactivate Org
+deactivate Controller
+UI --> User: 25 informs operation success
+deactivate UI
+
+@enduml
+```

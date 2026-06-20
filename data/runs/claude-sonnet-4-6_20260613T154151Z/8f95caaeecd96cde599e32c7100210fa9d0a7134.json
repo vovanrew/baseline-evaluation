@@ -1,0 +1,21 @@
+{
+  "id": "msg_015C24XYJzdJpusW8XsTHcbT",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"User\" as User\nparticipant \"pub.com\" as pub\nparticipant \"prebid.js\" as prebid\nparticipant \"prebid_[SSP_MODULE].js\" as sspmodule\nparticipant \"SSPs\" as SSPs\nparticipant \"DSPs\" as DSPs\nparticipant \"gam.js\" as gam\nparticipant \"GAM/AdX\" as GAMAdX\n\nUser -> pub : 1. navigates browser to pub.com\npub -> prebid : 2. load, configure, execute prebid.js\nprebid -> sspmodule : 3. invoke SSP bid adapter\nsspmodule -> SSPs : 4. ad request\nSSPs -> SSPs : 5. traffic quality controls\nSSPs -> DSPs : 6. make bid requests\nDSPs -> SSPs : 7. respond with bids\nSSPs -> SSPs : 8. pub ad controls\nSSPs -> sspmodule : 9. ad w/price\nsspmodule -> prebid : 10. ad w/price\nprebid -> prebid : 11. select appropriate ad\nprebid -> gam : 12. configure k/v pair for selected ad\ngam -> prebid : 13. wait for ad slot to load\n\nnote over User, gam : At this point control over the ad loading process is transferred from Prebid.js to GAM (final selection layer)\n\npub -> GAMAdX : 14. load slot\nGAMAdX -> GAMAdX : 15. ad request\nGAMAdX -> gam : 16. respond with winning ad, which may be prebid.js line item\n\nalt [GAM/AdX highest bid]\n    GAMAdX -> gam : 17.1 render GAM/AdX result\nelse [Prebid.js highest bid]\n    gam -> pub : 17.2 render selected SSP ad\nend\n\ngam -> User : 18. show highest value advertisement\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371494,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 461,
+    "prompt_tokens": 1664,
+    "total_tokens": 2125
+  }
+}

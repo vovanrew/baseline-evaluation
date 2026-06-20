@@ -1,0 +1,26 @@
+```plantuml
+@startuml
+title 数字人民币支付流程
+
+participant "消费者" as Consumer
+participant "监管消费者服务端" as Service
+database "db" as DB1
+participant "数字人民币" as DigiRMB
+database "DB" as DB2
+
+Consumer -> Service: 购买课程
+Service -> DB1: 生成订单号并保存
+Service -> DigiRMB: 获取付款二维码
+Service --> Consumer: 返回订单号和付款二维码
+Consumer -> DigiRMB: 支付
+Service -> DigiRMB: 轮询查询支付状况
+
+alt 查询到成功支付
+    Service -> DB2: 修改订单状态，划拨
+    Service --> Consumer: 通知页面跳转
+else 到达最大等待时间仍未查询到成功支付
+    Service -> DB2: 修改订单状态为关闭
+end
+
+@enduml
+```

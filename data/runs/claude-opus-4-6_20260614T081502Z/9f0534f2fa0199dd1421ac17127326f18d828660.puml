@@ -1,0 +1,213 @@
+```plantuml
+@startuml
+
+skinparam packageStyle rectangle
+
+package "«aggregate» ProductOrder" {
+  circle "C" as PO_C1
+  circle "C" as PO_C2
+  circle "C" as PO_C3
+  circle "C" as PO_C4
+  circle "C" as PO_C5
+  circle "C" as PO_C6
+  circle "C" as PO_C7
+  circle "C" as PO_C8
+  circle "E" as PO_E1
+  circle "E" as PO_E2
+}
+
+package "«aggregate» AGV" {
+  circle "C" as AGV_C1
+  circle "C" as AGV_C2
+  circle "C" as AGV_C3
+  circle "C" as AGV_C4
+  circle "C" as AGV_C5
+  circle "C" as AGV_C6
+  circle "C" as AGV_C7
+  circle "E" as AGV_E1
+  circle "E" as AGV_E2
+}
+
+remove PO_C1
+remove PO_C2
+remove PO_C3
+remove PO_C4
+remove PO_C5
+remove PO_C6
+remove PO_C7
+remove PO_C8
+remove PO_E1
+remove PO_E2
+remove AGV_C1
+remove AGV_C2
+remove AGV_C3
+remove AGV_C4
+remove AGV_C5
+remove AGV_C6
+remove AGV_C7
+remove AGV_E1
+remove AGV_E2
+
+@enduml
+```
+
+Let me redo this properly:
+
+```plantuml
+@startuml
+
+skinparam packageStyle rectangle
+skinparam classFontSize 12
+
+package "«aggregate» ProductOrder" {
+  class "©TotalPriceWithoutVAT" as p1
+  class "©TotalVolume" as p2
+  class "©BillingAddress" as p3
+  class "ⒺOrderItem" as p4
+  class "©Status" as p5
+  class "©DeliveryAddress" as p6
+  class "ⒺProductOrder" as p7
+  class "©TotalPriceWithVAT" as p8
+  class "©TotalWeight" as p9
+}
+
+package "«aggregate» AGV" {
+  class "©AGVStatus" as a1
+  class "©AGVPosition" as a2
+  class "©Model" as a3
+  class "©MaxVolumeCapacity" as a4
+  class "©BriefDescription" as a5
+  class "©MaxWeightCapacity" as a6
+  class "©Range" as a7
+  class "ⒺAGV" as a8
+  class "ⒺAGVTask" as a9
+  class "©AGVId" as a10
+}
+
+hide p1 methods
+hide p1 fields
+hide p2 methods
+hide p2 fields
+hide p3 methods
+hide p3 fields
+hide p4 methods
+hide p4 fields
+hide p5 methods
+hide p5 fields
+hide p6 methods
+hide p6 fields
+hide p7 methods
+hide p7 fields
+hide p8 methods
+hide p8 fields
+hide p9 methods
+hide p9 fields
+hide a1 methods
+hide a1 fields
+hide a2 methods
+hide a2 fields
+hide a3 methods
+hide a3 fields
+hide a4 methods
+hide a4 fields
+hide a5 methods
+hide a5 fields
+hide a6 methods
+hide a6 fields
+hide a7 methods
+hide a7 fields
+hide a8 methods
+hide a8 fields
+hide a9 methods
+hide a9 fields
+hide a10 methods
+hide a10 fields
+
+class "BriefDescription" as BriefDescription <<value object>> {
+  -briefDescription
+}
+
+class "Model" as Model <<value object>> {
+  -model
+}
+
+class "AGVPosition" as AGVPosition <<value object>> {
+  -agvPosition
+}
+
+class "AGVStatus" as AGVStatus <<value object>> {
+  -taskState
+}
+
+class "AGV" as AGV <<entity>> <<root>> {
+  -state
+}
+
+class "AGVTask" as AGVTask <<entity>> {
+  -id
+  -agvTaskDescription
+}
+
+class "AGVId" as AGVId <<value object>> {
+  -id
+}
+
+class "Range" as Range <<value object>> {
+  -range
+}
+
+class "MaxWeightCapacity" as MaxWeightCapacity <<value object>> {
+  -maxWeightCapacity
+}
+
+class "MaxVolumeCapacity" as MaxVolumeCapacity <<value object>> {
+  -volume
+}
+
+class "ProductOrder" as ProductOrder <<entity>> <<root>> {
+  -numericIdentifier
+  -dateOfOrder
+  -shipmentMethod
+  -paymentMethod
+}
+
+class "OrderItem" as OrderItem <<entity>> {
+  -itemQuantity
+}
+
+class "TotalPriceWithVAT" as TotalPriceWithVAT <<value object>>
+
+class "DeliveryAddress" as DeliveryAddress <<value object>>
+
+class "BillingAddress" as BillingAddress <<value object>>
+
+class "Status" as Status <<value object>>
+
+class "TotalVolume" as TotalVolume <<value object>>
+
+class "TotalWeight" as TotalWeight <<value object>>
+
+class "TotalPriceWithoutVAT" as TotalPriceWithoutVAT <<value object>>
+
+AGV "1" -- "1" BriefDescription : characterized by >
+AGV "1" -- "1" Model : has >
+AGV "1" -- "1" AGVPosition : located in >
+AGV "1" -- "1..*" AGVStatus : collects >
+AGV "1" -- "1" AGVTask : associated >
+AGVTask "1" -- "1..*" ProductOrder : composed by >
+AGV "1" -- "1" AGVId : has >
+AGV "1" -- "1" Range : respects >
+AGV "1" -- "1" MaxWeightCapacity : respects >
+AGV "1" -- "1" MaxVolumeCapacity : respects >
+
+ProductOrder "1" -- "1..*" OrderItem : composed by >
+ProductOrder "1" -- "1" TotalPriceWithVAT : is marked >
+ProductOrder "1" -- "1" DeliveryAddress : associated with >
+ProductOrder "1" -- "1" BillingAddress : is in >
+ProductOrder "1" -- "1" Status : associated with >
+ProductOrder "1" -- "1" TotalVolume : associated with >
+ProductOrder "1" -- "1" TotalWeight : associated with >
+ProductOrder "1" -- "1" TotalPriceWithoutVAT : is marked >
+
+@enduml
+```

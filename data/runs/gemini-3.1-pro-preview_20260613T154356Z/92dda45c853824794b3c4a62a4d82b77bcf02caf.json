@@ -1,0 +1,45 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nactor \"User Agent\" as UA\nboundary \"Content Upload API\" as API\ndatabase \"Content database\" as DB\nboundary \"CAFF Parser\" as Parser\n\nUA --> API : Upload request (HTTP POST),\\ncontains a single CAFF file in its body.\nactivate API\nnote right of API\n  **MUST** also include a CSRF token to prevent users of other,\n  potentially XSS vulnerable sites to take part in a massive distributed spam or DoS operation.\nend note\n\nAPI -> Parser : Validate upload request\nactivate Parser\nParser -> API : Return result\ndeactivate Parser\n\nalt Failed to validate uploaded content\n  API --> UA : Return an HTTP status code that signals validation failure.\\nExact value depends on how the validation failed.\nelse Request is deemed valid\n  note right of API\n    Uploads should be validated by at **LEAST**:\n    * Content-Size header against max file size.\n    * All size fields against their respective supported bounds.\n    * Structure of all fields match expectations from the spec.\n    * Number of bytes from the upload matches number of bytes expected from in-file metadata.\n  end note\n  API -> DB : Store content in database\n  activate DB\n  DB -> API : Return result of request\n  deactivate DB\n  \n  alt Upload succeeded\n    API --> UA : Return HTTP 201 Created\n  else\n    API --> UA : Return HTTP status code signaling the reason for failure.\n  end\nend\ndeactivate API\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHlB4meQEF8GZQI6ZhfINxlYLCk5azCdA66T28VVB55sfZqo8TrzsGgjnHXvqP"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "citationMetadata": {
+        "citationSources": [
+          {
+            "startIndex": 760,
+            "endIndex": 1085,
+            "uri": "https://github.com/realmoriss/grumpy-free-jaguars",
+            "license": ""
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1140,
+    "candidatesTokenCount": 335,
+    "totalTokenCount": 1475,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1060
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "ZF0xapqJFMy1vdIPhf2l6AY"
+}

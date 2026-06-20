@@ -1,0 +1,34 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #999999
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #D2B48C
+  ParticipantBackgroundColor #F5DEB3
+  ParticipantFontColor #000000
+  ParticipantPadding 20
+  BoxPadding 10
+  ArrowColor #000000
+}
+
+participant "«Android»\nAAOSHAL" as AAOSHAL1
+participant "«Android»\nAAOSCarAPI" as AAOSCarAPI1
+participant "AACS_CarControlHandler" as Handler1
+participant "AACS_CarControlBroadcastReceiver" as Receiver1
+participant "AACS_CoreService" as Core1
+participant "AutoSDK" as AutoSDK1
+
+AAOSHAL1 -> AAOSCarAPI1 : HVAC_FAN_SPEED = (0x0500|SYSTEM|3|SEAT)
+AAOSCarAPI1 -> Handler1 : True/Throw Exception
+Handler1 -> Receiver1 : True/False
+Receiver1 -> Core1 : Success/Failure (Intent)
+Core1 -> AutoSDK1 : SetRangeControllerValue Reply (AASB Message)
+
+participant "«Android»\nAAOSHAL" as AAOSHAL2
+participant "«Android»\nAAOSCarAPI" as AAOSCarAPI2
+participant "AACS_CarControlHandler" as Handler2
+participant "AACS_CarControlBroadcastReceiver" as Receiver2
+participant "AACS_CoreService" as Core2
+participant "AutoSDK" as AutoSDK2
+@enduml

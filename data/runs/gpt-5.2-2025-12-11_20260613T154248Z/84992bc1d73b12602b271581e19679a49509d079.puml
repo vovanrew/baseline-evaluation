@@ -1,0 +1,58 @@
+@startuml
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+
+package "UmlReverseApp" as P_UmlReverseApp {
+  class UmlReverseApp
+}
+
+class MainController
+
+package "javafx" as P_javafx {
+  class Stage
+  class Scene
+  class BorderPane
+  class MenuBar
+  class TabPane
+  class MenuItem
+}
+
+package "diagram" as P_diagram {
+  package "visitor" as P_visitor {
+    interface IDiagramVisitor {
+      +visit(ClassDiagram visitor) : void
+      +visit(SequenceDiagram visitor) : void
+      +visit(UseCaseDiagram visitor) : void
+      +visit(DiagramManager visitor) : void
+    }
+
+    class ToViewVisitor {
+      +getDiagramMenu() : IDiagramMenu
+      +getDiagramEditor() : IDiagramEditor
+    }
+
+    ToViewVisitor ..|> IDiagramVisitor
+  }
+}
+
+class TreeFileManagerView
+interface IDiagramMenu
+interface IDiagramEditor
+
+UmlReverseApp "1" o--> "1" MainController : controller
+UmlReverseApp "1" o--> "1" Stage : stage
+
+Stage "1" o--> "1" Scene : scene
+Scene "1" o--> "1" BorderPane : borderpane
+
+BorderPane "1" o--> "1" MenuBar : north
+BorderPane "1" o--> "1" TabPane : center
+BorderPane "1" o--> "1" TreeFileManagerView : fileManagerView
+BorderPane "1" o--> "1" IDiagramMenu : est
+
+MenuBar "1..n" o--> "0..n" MenuItem : items
+TabPane "1" o--> "0..*" IDiagramEditor : editors
+
+UmlReverseApp ..> IDiagramVisitor
+@enduml

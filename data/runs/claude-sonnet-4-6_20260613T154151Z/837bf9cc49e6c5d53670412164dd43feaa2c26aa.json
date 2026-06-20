@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Et3bSUEQYGPGVpPbfMwCsT",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceMessageAlign left\nskinparam backgroundColor white\nskinparam participantBackgroundColor #E8E8E8\nskinparam participantBorderColor #888888\nskinparam sequenceLifeLineBorderColor #888888\nskinparam sequenceLifeLineBorderStyle dashed\nskinparam boxBackgroundColor #D8D8D8\nskinparam boxBorderColor #888888\n\nparticipant \"tuple\" as tuple <<database>>\nactor \"Upper\\nlayer\" as upper\nbox \"IP Layer\" #D8D8D8\nparticipant \"IPv4\\nlayer\" as ipv4layer <<database>>\nparticipant \"Routing\\ntable\" as routing <<database>>\nend box\nbox \"IPv4 Ineterface\" #D8D8D8\nparticipant \"IPv4\\ninterface\" as ipv4if <<database>>\nparticipant \"ARP\" as arp <<database>>\nend box\nactor \"Lower\\nlayer\" as lower\n\nnote left of tuple\nIPv4.dst=192.0.2.1\nIPv4.src=198.51.100.2\nend note\n\nupper -> ipv4layer : IPdata\n\nnote over ipv4layer\nAllocate\nIPv4\nheader\nend note\n\nipv4layer -> routing : dst=192.0.2.1\nrouting --> ipv4layer :\n\nipv4layer --> upper :\n\nnote left of upper\nIPv4.oif=ifp1\nIPv4.gw=198.51.100.1\nend note\n\nipv4layer -> ipv4if :\n\nipv4if -> arp : gw=198.51.100.1\n\nnote over arp\nenqueue\npacket\nend note\n\narp --> ipv4if : ARP request\nipv4if -> lower :\n\nlower -> ipv4if : ARP response\nipv4if -> arp :\n\narp --> ipv4if : resolved\\npackets\n\nnote over ipv4if\nsend as\nsend\nthread\nend note\n\nipv4if -> ipv4if :\nipv4if -> lower :\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370174,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 499,
+    "prompt_tokens": 1650,
+    "total_tokens": 2149
+  }
+}

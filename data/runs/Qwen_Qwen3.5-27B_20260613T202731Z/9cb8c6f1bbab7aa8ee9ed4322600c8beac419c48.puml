@@ -1,0 +1,50 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+title 布局树构建与更新流程
+
+participant "Application" as App
+participant "Node" as Node
+participant "Composed_VStack" as CVStack
+participant "VStack" as VStack
+participant "State" as State
+participant "NodeBuilder" as Builder
+participant "Control.Layer" as Control
+participant "Renderer" as Renderer
+
+== 布局树构建过程 ==
+
+App -> Node: build
+activate Node
+Node -> CVStack: buildNode
+activate CVStack
+CVStack -> VStack: setupStateProperties
+CVStack -> VStack: setupEnvironmentProperties
+CVStack -> Node: addNode
+deactivate CVStack
+
+alt [LayoutRoot]
+    Node -> VStack: loadData
+end alt
+
+deactivate Node
+
+== 布局更新构建过程 ==
+
+State -> State: set
+State -> App: invalidateNode
+activate App
+App -> App: scheduleUpdate
+App -> App: update
+App -> Node: update
+activate Node
+Node -> Builder: updateNode
+activate Builder
+Builder -> Control: invalidate
+deactivate Builder
+deactivate Node
+App -> Renderer: update
+
+@enduml
+```

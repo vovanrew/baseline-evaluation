@@ -1,0 +1,51 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nactor Admin\nparticipant \":DivisionPage\" as DivisionPage\nparticipant \":DivisionTableContainer\" as DivisionTableContainer\nparticipant \":DivisionTable\" as DivisionTable\nparticipant \":DivisionService (Frontend)\" as DivisionServiceFrontend\nparticipant \":Router\" as Router\nparticipant \":DivisionHTTPTransport\" as DivisionHTTPTransport\nparticipant \":DivisionEndpoint\" as DivisionEndpoint\nparticipant \":DivisionService\" as DivisionService\nparticipant \":DivisionCommand\" as DivisionCommand\nparticipant \":DivisionQuery\" as DivisionQuery\n\nAdmin -> DivisionPage : Open \"Manage Division\" Page\nDivisionPage -> DivisionTableContainer : Render \"Division Table\" Container\nDivisionTableContainer -> DivisionTable : Render \"Division Table\"\nDivisionTable --> DivisionTableContainer : rendered\nDivisionTableContainer --> DivisionPage : rendered\nDivisionPage --> Admin : rendered\n\nAdmin -> DivisionPage : Mark \"Division\"\nDivisionPage -> DivisionTableContainer : Mark \"Division\"\nDivisionTableContainer -> DivisionTable : Mark \"Division\"\nDivisionTable --> DivisionTableContainer : marked\nDivisionTableContainer --> DivisionPage : marked\nDivisionPage --> Admin : marked\n\nAdmin -> DivisionPage : Click \"Delete Selected\" Button\nDivisionPage -> DivisionTableContainer : showDeleteConfirmation(item)\n\nalt [\"Cancel Delete\"]\n    DivisionTableContainer --> DivisionPage : Close Dialog\n    DivisionPage --> Admin : Close Dialog\nelse\n    DivisionTableContainer -> DivisionTableContainer : handleDeleteConfirmation(item)\n    DivisionTableContainer -> DivisionServiceFrontend : deleteDivision([]payload)\n    DivisionServiceFrontend -> Router : route(\"DELETE\", \"v2/divisions\", formData)\n    Router -> DivisionHTTPTransport : DeleteDivisions(DivisionService, []ServerOption)\n    DivisionHTTPTransport -> DivisionEndpoint : DeleteMany(DivisionService)\n    DivisionEndpoint -> DivisionService : DeleteDivisions(context, []uuid)\n    \n    loop [\"for each uuid\"]\n        DivisionService -> DivisionQuery : Find(context, uuid)\n        DivisionQuery --> DivisionService : division\n        DivisionService -> DivisionCommand : Delete(context, division)\n        DivisionCommand --> DivisionService : isDeleted\n    end\n    \n    DivisionService --> DivisionEndpoint : isDeleted\n    DivisionEndpoint -> DivisionEndpoint : response := Response(isDeleted, nil)\n    DivisionEndpoint --> DivisionHTTPTransport : response\n    DivisionHTTPTransport --> Router : response\n    Router --> DivisionServiceFrontend : response\n    DivisionServiceFrontend --> DivisionTableContainer : response\n    DivisionTableContainer --> DivisionPage : response\n    DivisionPage --> Admin : response\nend\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHRpxVFtuKOP5cpM1oEVSBubSKSGH7QeKfW9vtKlT9wSUzXxt3GJsYvcLbRWDM"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "citationMetadata": {
+        "citationSources": [
+          {
+            "startIndex": 257,
+            "endIndex": 1532,
+            "uri": "https://github.com/fwidjaya20/fazzlearning-uml",
+            "license": ""
+          },
+          {
+            "startIndex": 1621,
+            "endIndex": 2443,
+            "uri": "https://github.com/fwidjaya20/fazzlearning-uml",
+            "license": ""
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1184,
+    "candidatesTokenCount": 537,
+    "totalTokenCount": 1721,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1104
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "R1kyaqOME-mAxs0PxOraaA"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "8231b199-fee1-4a6c-a638-4fb94fb21f0f",
+  "object": "chat.completion",
+  "created": 1781418806,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nskinparam sequenceMessageAlign center\n\nactor \"arm_io_storage\" as arm_io_storage\nactor \"io_storage\" as io_storage\nactor \"io_fip\" as io_fip\nactor \"io_memmap\" as io_memmap\n\nactivate arm_io_storage\nactivate io_storage\nactivate io_fip\nactivate io_memmap\n\nnote right of arm_io_storage: arm_io_setup()\nnote right of io_storage: io dev registration\n\narm_io_storage -> io_storage: register_io_dev_fip(&fip_dev_con)\nio_storage -> io_fip: io_register_device(&dev_info_pool[])\nnote right of io_storage: devices[dev_count] = (fip_)dev_info_pool\\n dev_count++\n\narm_io_storage -> io_memmap: register_io_dev_memmap(&memmap_dev_con)\nio_memmap -> io_storage: io_register_device(&memmap_dev_info)\nnote right of io_storage: devices[dev_count] = memmap_dev_info\\n dev_count++\n\narm_io_storage -> io_storage: io_dev_open(fip_dev_con, NULL, fip_dev_handle)\nio_storage -> io_storage: dev_open(dev_con, dev_spec, handle)\n\nopt [dev_open() on fip device]\nio_storage -> io_fip: fip_dev_open(dev_spec, dev_info)\nnote right of io_fip: dev_info = one of the\\n\"fip_dev_info\" from\\n dev_info_pool[]\nend\n\narm_io_storage -> io_storage: io_dev_open(memmap_dev_con, NULL, memmap_dev_handle)\nio_storage -> io_storage: dev_open(dev_con, dev_spec, handle)\n\nopt [dev_open() on memmap device]\nio_storage -> io_memmap: memmap_dev_open(dev_spec, dev_info)\nnote right of io_memmap: dev_info = memmap_dev_info\nend\n\ndeactivate arm_io_storage\ndeactivate io_storage\ndeactivate io_fip\ndeactivate io_memmap\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1860,
+    "completion_tokens": 425,
+    "total_tokens": 2285
+  }
+}

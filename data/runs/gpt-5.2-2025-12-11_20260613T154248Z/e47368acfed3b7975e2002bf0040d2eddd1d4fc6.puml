@@ -1,0 +1,84 @@
+```plantuml
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F7
+  ActorBorderColor #666666
+  ActorBackgroundColor #E9E9F7
+  NoteBackgroundColor #FFFDE6
+  NoteBorderColor #666666
+  BoxBackgroundColor #DDDDDD
+  BoxBorderColor #666666
+  ArrowColor #222222
+}
+
+' Left side
+database "tuple" as T
+actor "Upper\nlayer" as U
+
+' Middle boxes
+box "IP Layer" #DDDDDD
+  participant "IPv4\nlayer" as IPV4
+  database "Routing\ntable" as RT
+end box
+
+box "IPv4 Inetreface" #DDDDDD
+  participant "IPv4\ninterface" as IF
+  database "ARP" as ARP
+  actor "Lower\nlayer" as L
+end box
+
+' Notes on tuple lifeline
+note right of T
+IPv4.dst=192.0.2.1
+end note
+
+' Upper layer sends IPdata to IPv4 layer
+U -> IPV4 : IPdata
+
+' Allocate header note
+note right of IPV4
+Allocate\nIPv4\nheader
+end note
+
+' Routing lookup
+IPV4 -> RT : dst=192.0.2.1
+RT --> IPV4
+
+' Return routing decision to tuple (dashed)
+IPV4 --> T
+
+note right of T
+IPv4.oif=ifp1\nIPv4.gw=198.51.100.1
+end note
+
+' Call into IPv4 interface (solid)
+IPV4 -> IF
+
+' Return to tuple (dashed)
+IF --> T
+
+note right of T
+IPv4.src=198.51.100.2
+end note
+
+' ARP query/response
+IF -> ARP : gw=198.51.100.1
+ARP --> IF : mac=00:00:0e:00:00:01
+
+' Return to tuple (dashed)
+IF --> T
+
+note right of T
+Ether.dst = 00:00:0e:00:00:01
+end note
+
+' Final send to lower layer
+IF -> L
+
+@enduml
+```

@@ -1,0 +1,97 @@
+@startuml
+' Define custom styles to match the original diagram's appearance
+skinparam class {
+  BackgroundColor WhiteSmoke
+  BorderThickness 1
+}
+
+skinparam enumBackgroundColor #FFCCCC
+skinparam stereotypeCBackgroundColor LightGreen
+skinparam attributeIconSize 0
+
+class Team <<Class>> {
+    name: string
+    description: string
+    ownerId: User
+    participants: Participant[]
+    topics: Topic[]
+}
+
+class ChallengeReport <<Class>> {
+    userId: User
+    challengeId: Challenge
+    answer: string[]
+    answeredCorrectly: boolean
+}
+
+class Participant <<Class>> {
+    userId: User
+    points: number
+    status: ParticipantStatus
+}
+
+enum ParticipantStatus <<EnumerationType>> {
+    PENDING
+    ACCEPTED
+    DISABLED
+}
+
+class Subtopic <<Class>> {
+    name: string
+    description: string
+    challenges: Challenge[]
+}
+
+class EducationalBackground <<EnumerationType>> {
+    MIDDLE_INCOMPLETE
+    MIDDLE_ONGOING
+    MIDDLE_COMPLETE
+    HIGH_INCOMPLETE
+    HIGH_ONGOING
+    HIGH_COMPLETE
+    GRADUATION_INCOMPLETE
+    GRADUATION_ONGOING
+    GRADUATION_COMPLETE
+}
+
+class User <<Class>> {
+    name: string
+    email: string
+    educationalInstitution: string
+    educationalBackground: EducationalBackground
+    birthDate: Date
+    points: number
+}
+
+class Challenge <<Class>> {
+    name: string
+    body: string
+    type: ChallengeType
+    selection: string[]
+    correct: string[]
+    points: number
+    feedback: string
+}
+
+enum ChallengeType <<EnumerationType>> {
+    INPUT
+    RADIO
+    CHECKBOX
+}
+
+class Topic <<Class>> {
+    name: string
+    icon: string
+    isSequential: boolean
+    subtopics: Subtopic[]
+}
+
+
+Team "1" *-- "0..n" Topic : 
+ChallengeReport "1" --* "1" User : 
+Participant "1" o--> "status" ParticipantStatus : 
+Subtopic "1" --> "challenges" Challenge : 
+User "1" -> "educationalBackground" EducationalBackground : 
+Topic "1" diamond-up "subtopics" Subtopic : 
+
+@enduml

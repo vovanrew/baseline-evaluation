@@ -1,0 +1,87 @@
+```plantuml
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 20
+  MessageAlign left
+  LifeLineBorderColor #888888
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor transparent
+  ActorBorderColor #666666
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6E6
+  NoteBackgroundColor #FFF9C4
+  NoteBorderColor #888888
+  GroupBorderColor #000000
+  GroupHeaderBackgroundColor #FFFFFF
+  GroupBackgroundColor #FFFFFF
+  ArrowColor #000000
+}
+
+title
+
+participant "Line of Business" as LOB
+participant "ESB" as ESB
+
+box "Compliance IT" #90EE90
+  participant "Scoring" as Scoring
+  participant "Recertification" as Recert
+end box
+
+group "Customer On-Boarding: Open a New Account"
+  LOB -> ESB : UpdatePartyKYC\nincludeScore=true
+  alt "Recertification completed"
+    LOB -> ESB : UpdatePartyKYC\nincludeScore=true\nrecertificationStatus=completed\nactor=<userid>\nreason=<one of client-initiated trigger codes>
+  end
+end
+
+ESB -> Scoring : 1 score
+
+note over ESB,Scoring
+Schedule a new recertification and calculate its due date
+OR retrieve due date of an existing recertification if
+one has been previously scheduled and not yet
+completed or cancelled
+end note
+
+Scoring -> Recert : 2 recertify
+activate Recert
+Recert -> Recert : 3 evaluate rules
+
+group "Recertification"
+  alt "Recertification is Needed"
+    group "Establish a Recertification"
+      Recert -> Recert : 4 schedule a new recertification
+      alt "Existing Recertification"
+        Recert -> Recert : 5 retrieve a previously\nscheduled recertification\nthat hasn't been completed or cancelled
+      end
+    end
+
+    alt "Complete a Recertification"
+      Recert -> Recert : 6 complete an established recertification
+      note right of Recert
+      Immediately complete the
+      recertification if the LOB
+      told us it was already done
+      end note
+    end
+
+    Recert --> Scoring : 7 recertification details
+    note left of Scoring
+    Due date, status, recert id
+    end note
+
+    Scoring --> LOB : 8 score + recertification
+  end
+
+  alt "Recertification is Not Needed"
+    Recert --> Scoring : 9 no recertification
+    Scoring --> LOB : 10 score
+  end
+end
+
+deactivate Recert
+@enduml
+```

@@ -1,0 +1,44 @@
+```plantuml
+@startuml
+title 認証のシーケンス
+
+participant "ブラウザ" as Browser
+rectangle "フロントエンド(React)" {
+    participant "ContextProvider" as ContextProvider
+    participant "_app" as App
+    participant "Login" as LoginComponent
+}
+participant "バックエンド" as Backend
+database "DB" as Database
+
+Browser -> LoginComponent: ログイン要求(email, password)
+activate LoginComponent
+LoginComponent --> App: (フレームワークの振る舞い)
+activate App
+App -> ContextProvider: コンポーネントとして呼び出し
+activate ContextProvider
+note left of ContextProvider: ※ログイン時はとくに\nなにもしていない。
+ContextProvider --> App: 
+deactivate ContextProvider
+App --> LoginComponent: 
+deactivate App
+LoginComponent -> Backend: ログイン要求(email, password)
+activate Backend
+Backend -> Database: select(email, password)
+activate Database
+Database --> Backend: ユーザー情報
+deactivate Database
+note right of Backend: ユーザー ID をもとに\nJWT を生成。\nresponse の cookie に\n{token: JWT} を載せる。
+Backend --> LoginComponent: ログイン結果(結果, cookie, ユーザー情報)
+deactivate Backend
+LoginComponent -> ContextProvider: dispatch
+activate ContextProvider
+note left of ContextProvider: (必要あれば)\n取得したユーザー情報を\nstate に保持。
+ContextProvider --> LoginComponent: 
+deactivate ContextProvider
+LoginComponent --> Browser: ログイン結果(結果, cookie)
+deactivate LoginComponent
+note left of Browser: ブラウザの cookie に\n{token: JWT} が保存される。\n今後のリクエストには\nこの情報が付与される。
+
+@enduml
+```

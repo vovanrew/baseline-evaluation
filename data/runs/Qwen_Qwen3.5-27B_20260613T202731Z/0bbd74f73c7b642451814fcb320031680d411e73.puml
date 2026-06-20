@@ -1,0 +1,81 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "sidetree-core-go" as Client1
+participant "Instance 1" as Instance1 {
+    participant "Operation Queue" as OpQueue1
+}
+participant "orb.operation" as OrbOp as queue
+database "op-queue DB" as DB
+participant "Instance 2" as Instance2 {
+    participant "Operation Queue" as OpQueue2
+}
+
+Client1 -> OpQueue1 : Add(op1)
+activate OpQueue1
+OpQueue1 -> OrbOp : Publish(op1)
+activate OrbOp
+OrbOp --> OpQueue1 : ok
+deactivate OrbOp
+OpQueue1 --> Client1 : ok
+deactivate OpQueue1
+
+Client1 -> OpQueue2 : Add(op2)
+activate OpQueue2
+OpQueue2 -> OrbOp : Publish(op2)
+activate OrbOp
+OrbOp --> OpQueue2 : ok
+deactivate OrbOp
+OpQueue2 --> Client1 : ok
+deactivate OpQueue2
+
+OpQueue1 <- OrbOp : op2
+activate OpQueue1
+OpQueue1 --> OrbOp : ok
+deactivate OpQueue1
+
+OpQueue1 -> DB : Put(op2,handler1ID,expiry)
+activate DB
+DB --> OpQueue1 : ok
+deactivate DB
+
+OpQueue1 -> OrbOp : Ack(op2)
+activate OrbOp
+OrbOp --> OpQueue1 : ok
+deactivate OrbOp
+
+OpQueue2 <- OrbOp : op1
+activate OpQueue2
+OpQueue2 --> OrbOp : ok
+deactivate OpQueue2
+
+OpQueue2 -> DB : Put(op1,handler2ID,expiry)
+activate DB
+DB --> OpQueue2 : ok
+deactivate DB
+
+OpQueue2 -> OrbOp : Ack(op1)
+activate OrbOp
+OrbOp --> OpQueue2 : ok
+deactivate OrbOp
+
+' Subscriptions
+OpQueue1 -> OrbOp : Subscribe
+activate OrbOp
+OrbOp --> OpQueue1 : ok
+deactivate OrbOp
+
+OpQueue2 -> OrbOp : Subscribe
+activate OrbOp
+OrbOp --> OpQueue2 : ok
+deactivate OrbOp
+
+actor "sidetree-core-go" as Client2
+participant "Operation Queue" as OpQueue3
+participant "orb.operation" as OrbOp2 as queue
+database "op-queue DB" as DB2
+participant "Operation Queue" as OpQueue4
+
+@enduml
+```

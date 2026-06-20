@@ -1,0 +1,30 @@
+```plantuml
+@startuml
+actor Usager
+actor Bibliothécaire
+participant SIGB
+
+Bibliothécaire -> SIGB : Saisir un nouvel exemplaire
+Bibliothécaire -> SIGB : Valider la couverture de l'exemplaire
+Bibliothécaire -> SIGB : Valider la mise en rayon
+Usager -> SIGB : Demander une réservation
+SIGB -> Bibliothécaire : Avertir d'une demande de réservation
+
+alt réservation validée
+    Bibliothécaire -> SIGB : Valider une réservation
+    SIGB -> Usager : Avertir de la validation
+    
+    alt réservation récupérée
+        Usager -> Bibliothécaire : Demande de réservation
+        Bibliothécaire -> SIGB : Enregistrer l'emprunt
+    else délai dépassé
+        SIGB -> Bibliothécaire : Avertir d'une réservation à remettre en rayon
+    end
+    
+else réservation invalide
+    Bibliothécaire -> SIGB : Refuser une réservation
+    SIGB -> Usager : Avertir de l'indisponibilité
+end
+
+@enduml
+```

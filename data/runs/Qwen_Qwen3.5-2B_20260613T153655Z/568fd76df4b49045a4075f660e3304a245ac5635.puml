@@ -1,0 +1,31 @@
+@startuml
+participant ConnectInterceptor as C1
+participant StreamAllocation as S1
+participant RealConnection as R1
+participant Http2Connection as H1
+participant CallServerInterceptor as C2
+participant Http2Codec as H2
+participant Http2Writer as H3
+participant Sink as S2
+participant Socket as S3
+participant ReaderRunnable as R2
+participant Http2Read as H4
+participant Http2Stream as H5
+participant Source as S4
+
+C1 ..> S1 : newStream
+S1 ..> R1 : connect
+R1 ..> H1 : start()
+H1 ..> C2 : writeRequestHeaders
+C2 ..> H1 : newStream
+H1 ..> H3 : synStream
+H3 ..> S2 : write
+S2 ..> S3 : write
+C2 ..> R2 : write
+R2 ..> H4 : nextFrame()
+H4 ..> H1 : handle
+H1 ..> H5 : receiveXXX()
+H5 ..> S4 : read()
+S4 ..> S3 : read()
+
+@enduml

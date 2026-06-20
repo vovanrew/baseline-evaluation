@@ -1,0 +1,141 @@
+```plantuml
+@startuml
+title Train Model Class Diagram
+
+skinparam packageStyle rectangle
+
+package "Module" {
+  package "TrainModel" {
+
+    class Train {
+      {field} ~ id : String
+      {field} ~ weight : double
+      {field} ~ height : double
+      {field} ~ length : double
+      {field} ~ width : double
+      {field} ~ numCars : int
+      {field} ~ capacity : int
+      {field} ~ lineColor : String
+      {field} ~ grade : double
+      {field} ~ gpsStatus : boolean
+      {field} ~ mboStatus : boolean
+      {field} ~ engineFailureStatus : boolean
+      {field} ~ signalFailureStatus : boolean
+      {field} ~ brakeFailureStatus : boolean
+      {field} ~ nextStationID : String
+      {field} ~ timeOfArrival : double
+      {field} ~ arrivalStatus : boolean
+      {field} ~ numPassengers : int
+      {field} ~ currentSpeed : double
+      {field} ~ CTCSpeed : double
+      {field} ~ CTCAuthority : double
+      {field} ~ powerOut : double
+      {field} ~ leftDoorStatus : boolean
+      {field} ~ rightDoorStatus : boolean
+      {field} ~ lightsStatus : boolean
+      {field} ~ temperature : int
+      {field} ~ serviceBrake : boolean
+      {field} ~ emerBrake : boolean
+      {field} ~ trainActive : boolean
+      {field} ~ force : double
+      {field} ~ normalForce : double
+      {field} ~ downwardForce : double
+      {field} ~ totalForce : double
+      {field} ~ friction : double
+      {field} ~ slope : double
+      {field} ~ finalSpeed : double
+      {field} ~ trainAcceleration : double
+      {field} ~ gpsSignal : Gps
+      {field} ~ trainModelGUI : TrainModelNewGUI
+      {field} ~ trainList : TrainModel[]
+      {method} - showTrainGUI()
+      {method} ~ updateTrainValues()
+      {method} ~ CreateNewGUI(TrainModel)
+      {method} ~ activateFailureModeTest()
+      {method} ~ endFailureModeTest()
+      {method} ~ getTrainController()
+      {method} ~ updateTrainList()
+      {method} ~ updateArrivalStatus()
+      {method} ~ setPos(double)
+      {method} ~ getPos()
+      {method} ~ getGrade(Block)
+      {method} ~ getSetpointSpeed()
+      {method} ~ setSetpointSpeed()
+      {method} ~ getAuthority()
+      {method} ~ setAuthority(double)
+      {method} ~ setLightStatus(boolean)
+      {method} ~ setLeftDoorStatus(boolean)
+      {method} ~ setRightDoorStatus(boolean)
+      {method} ~ setTemperature(int)
+      {method} ~ truncateTo(double,int)
+    }
+
+    class Gps {
+      {field} ~ line : String
+      {field} ~ currPos : double[2]
+      {method} - setGpsPos(double[2])
+      {method} - getGpsPos()
+    }
+
+    class TrainModel {
+      {field} ~ trainID : String
+      {field} ~ trainModel : TrainModel
+      {field} ~ time : SimTime
+      {field} ~ trncntrl : TrainController
+      {field} ~ trkmdl : TrackModel
+      {method} - calcDeltaTime(SimTime, SimTime) : integer
+      {method} - updateList()
+      {method} ~ timeUpdate(SimTime)
+      {method} ~ getTrainAtBlock(Block)
+      {method} ~ sendBeacon(trainID,int)
+      {method} ~ dispatchTrainToBlock(String, String, int, String[])
+      {method} ~ transmitCtcAuthority(String, double)
+      {method} ~ suggestSetpointSpeed(String, double)
+      {method} ~ setEmergencyBrake(String, boolean)
+      {method} ~ setSchedule(String, String[])
+      {method} ~ setBeacon(String, int_32)
+      {method} ~ getPosition(String) : String[2]
+      {method} ~ setPower(String, double)
+      {method} ~ setLeft(String, boolean)
+      {method} ~ setRight(String, boolean)
+      {method} ~ setService(String, boolean)
+      {method} ~ setEmergency(String, boolean)
+      {method} ~ setLights(String, boolean)
+      {method} ~ setTemperature(String, int)
+      {method} ~ setTrainPosition(String) : String[2]
+      {method} ~ setTrainActualSpeed(String) : double
+    }
+
+    class TrainModelNewGUI {
+      {field} ~ trainModel : TrainModel
+      {method} - setValuesForDisplay(TrainModel)
+      {method} - setEmerBrakeButtonPressed()
+    }
+
+  }
+}
+
+package "Shared" {
+  interface Module {
+    {method} ~ timeUpdate(SimTime) : Boolean
+  }
+
+  class SimTime {
+    {field} ~ hr : int
+    {field} ~ min : int
+    {field} ~ sec : int
+    {method} ~ toString() : String
+  }
+}
+
+class TrainModel as "TrainModel" <<C>> #lightgreen
+
+Train "contains\n1..*" --> Gps
+Train "0..*\ninstantiates" --> TrainModelNewGUI
+TrainModel .right.|> TrainModel : implements
+TrainModel "1..*" --> TrainModel
+Module ..> TrainModel : Instantiates
+TrainModel ..> SimTime : imports
+
+@enduml
+```

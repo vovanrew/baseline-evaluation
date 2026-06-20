@@ -1,0 +1,71 @@
+```plantuml
+@startuml
+title 检测计划-修改任务流程
+
+actor "省级管理员" as Admin
+participant "前端" as FE
+participant "后端" as BE
+database "数据库" as DB
+
+Admin -> FE : 1 输入需修改的任务信息(任务名称、任务描述、\n任务类型、生成时间、到期时限增减量)\n提交，发起修改任务信息请求
+activate FE
+
+FE -> FE : 2 校验修改任务信息请求参数正确性(定时任务id不能为空)
+
+FE -> BE : 3 调用后端修改任务信息接口updateTask()
+activate BE
+
+note over FE,BE
+数据是否合规:任务类型(消毒质量监测,院感数据监测)
+end note
+
+BE -> BE : 4 校验修改任务信息请求参数正确性
+BE -> DB : 5 根据任务信息数据查询定时任务表记录数(排除记录本身)
+
+alt [根据任务信息数据查询定时任务表记录数为0]
+  BE -> DB : 6 根据定时任务id查询定时任务表
+  DB --> BE #blue;line.dashed : 7 返回定时任务信息
+  BE -> BE : 8 根据线程名称关闭定时任务
+  BE -> DB : 9 修改定时任务表任务信息数据
+
+  alt [修改定时任务表任务信息数据成功]
+    DB --> BE #blue;line.dashed : 10 返回修改任务信息成功
+    BE --> FE #blue;line.dashed : 11 返回添加任务信息成功状态到前端
+  else [修改定时任务表任务信息数据失败]
+    DB --> BE #red;line.dashed : 12 返回修改任务信息失败
+    BE --> FE #red;line.dashed : 13 返回添加任务信息失败状态到前端
+  end
+
+else [根据任务信息数据查询定时任务表记录数不为0]
+  BE --> FE #red;line.dashed : 14 返回当前任务信息已存在
+end
+
+BE -> BE : 15 开启定时任务
+BE -> DB : 16 根据新建的定时任务id启用状态为启用查询定时任务表
+DB --> BE #blue;line.dashed : 17 返回定时任务信息
+BE -> DB : 18 添加推送任务信息数据到推送任务表
+
+alt [添加推送任务信息数据到推送任务表成功]
+  DB --> BE #blue;line.dashed : 19 返回添加推送任务信息成功
+  BE --> FE #blue;line.dashed : 20 返回添加推送任务信息成功状态到前端
+else [添加推送任务信息数据到推送任务表失败]
+  DB --> BE #red;line.dashed : 21 返回添加推送任务信息失败
+  BE --> FE #red;line.dashed : 22 返回添加推送任务信息失败状态到前端
+end
+
+BE -> DB : 23 根据新建的定时任务id启用状态为启用查询模板配置表
+DB --> BE #blue;line.dashed : 24 返回模板配置信息
+BE -> DB : 25 添加推送任务子信息数据到推送任务子表
+
+alt [添加推送任务子信息数据到推送任务子表成功]
+  DB --> BE #blue;line.dashed : 26 返回添加推送任务子信息成功
+  BE --> FE #blue;line.dashed : 27 返回添加推送任务子信息成功状态到前端
+else [添加推送任务子信息数据到推送任务子表失败]
+  DB --> BE #red;line.dashed : 28 返回添加推送任务子信息失败
+  BE --> FE #red;line.dashed : 29 返回添加推送任务子信息失败状态到前端
+end
+
+deactivate BE
+deactivate FE
+@enduml
+```

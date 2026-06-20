@@ -1,0 +1,86 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 30
+  BoxPadding 20
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor transparent
+  MessageAlign left
+}
+skinparam note {
+  BackgroundColor #FFF9C4
+  BorderColor #333333
+}
+skinparam actor {
+  BackgroundColor #E8E8FF
+  BorderColor #333333
+}
+skinparam database {
+  BackgroundColor #E8E8FF
+  BorderColor #333333
+}
+skinparam rectangle {
+  BackgroundColor #DDDDDD
+  BorderColor #333333
+}
+
+database "tuple" as T
+actor "Upper\nlayer" as U
+
+box "IP Layer" #DDDDDD
+  participant "IPv4\nlayer" as IPV4
+  database "Routing\ntable" as RT
+end box
+
+box "IPv4 Inetreface" #DDDDDD
+  participant "IPv4\ninterface" as IF
+  database "ARP" as ARP
+end box
+
+actor "Lower\nlayer" as L
+
+note left of U
+IPv4.dst=192.0.2.1
+IPv4.src=198.51.100.2
+end note
+
+U -> IPV4 : IPdata
+
+note over IPV4
+Allocate
+IPv4
+header
+end note
+
+IPV4 -> RT : dst=192.0.2.1
+RT --> IPV4
+
+note left of U
+IPv4.oif=ifp1
+IPv4.gw=198.51.100.1
+end note
+
+IPV4 -> IF
+
+IF -> ARP : gw=198.51.100.1
+
+note right of ARP
+enqueue
+packet
+end note
+
+ARP --> IF : ARP request
+IF -> L
+
+L -> IF : ARP response
+IF -> ARP
+
+ARP --> IF : resolved\npackets
+
+IF -> IF : send as\nsend\nthread
+
+IF -> L
+@enduml
+```

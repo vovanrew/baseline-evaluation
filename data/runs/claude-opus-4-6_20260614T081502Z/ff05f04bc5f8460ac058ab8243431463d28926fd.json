@@ -1,0 +1,21 @@
+{
+  "id": "msg_01RgFg7EyV4JzPPGwoDqXs98",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nparticipant \"beerocks_cli\" as beerocks_cli\nparticipant \"bml_internal\" as bml_internal\nparticipant \"controller\" as controller\nparticipant \"controller_db\" as controller_db\n\n[-> beerocks_cli : beerocks_cli -c\\n\"bml_clear_wifi_credentials <al-mac>\"\n\nbeerocks_cli -> beerocks_cli : cli_bml::clear_wifi_credentials_caller(args)\n\nbeerocks_cli -> beerocks_cli : cli_bml::clear_wifi_credentials(\\n args.stringArgs[0])\n\nbeerocks_cli -> beerocks_cli : bml_clear_wifi_credentials(\\n ctx,\\n al-mac.c_str())\n\nbeerocks_cli -> bml_internal : clear_wifi_credentials(\\n const sMacAddr &al_mac)\n\nbml_internal -> controller : message_com::send_cmdu(\\n m_sockMaster,\\n ACTION_BML_WIFI_CREDENTIALS_CLEAR_REQUEST)\n\ncontroller -> controller_db : clear_bss_info_configuration(\\n const sMacAddr &al_mac)\n\ncontroller -> bml_internal : message_com::send_cmdu(\\n m_sockMaster,\\n ACTION_BML_WIFI_CREDENTIALS_CLEAR_RESPONSE)\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781429229,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 333,
+    "prompt_tokens": 1496,
+    "total_tokens": 1829
+  }
+}

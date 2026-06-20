@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLtqPNk4GnGh5iyPiyDFJhVcGQK2",
+  "object": "chat.completion",
+  "created": 1781369610,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam sequenceMessageAlign left\nskinparam shadowing false\n\nactor \"Organization Employee\" as OE\nparticipant \":CreateTaskUI\" as UI\nparticipant \":CreateTaskController\" as C\nparticipant \"ApplicationPOT\" as APOT\nparticipant \"app\\n:ApplicationPOT\" as APP\nparticipant \"session\\n:UserSession\" as SES\nparticipant \":IPlatform\" as IPLAT\nparticipant \"org\\n:Organization\" as ORG\nparticipant \"task\\n:Task\" as TASK\nparticipant \"cat\\n:Category\" as CAT\nparticipant \"lc\\n:List<Category>\" as LC\n\nOE -> UI : 1 asks to create a new task\nUI -> OE : 2 requests data (reference, designation, informal\\ndescription, technical description, duration, cost)\nOE -> UI : 3 types requested data\n\nUI -> C : 4 lc=getTaskCategories()\nactivate C\nC -> IPLAT : 5 lc=getTaskCategories()\nactivate IPLAT\ndeactivate IPLAT\n\nUI -> OE : 6 shows task categories list and ask to select one\nOE -> UI : 7 selects a task category\n\nUI -> C : 8 createTask(ref,designation,informalDesc,technicalDesc,duration,cost,categoryId)\nC -> IPLAT : 9 cat=getCategoryById(categoryId)\nactivate IPLAT\ndeactivate IPLAT\n\nC -> APOT : 10 app = getInstance()\nactivate APOT\ndeactivate APOT\n\nC -> APP : 11 session = getCurrentSession()\nactivate APP\ndeactivate APP\n\nC -> SES : 12 email = getUserEmail()\nactivate SES\ndeactivate SES\n\nC -> IPLAT : 13 org = getOrganizationByUserEmail(email)\nactivate IPLAT\ndeactivate IPLAT\n\nC -> ORG : 14 task=createTask(ref,designation,informalDesc,technicalDesc,duration,cost,cat)\nactivate ORG\nORG -> TASK : 15 create(ref,designation,informalDesc,technicalDesc,duration,cost,cat)\nactivate TASK\ndeactivate TASK\nORG -> ORG : 16 validateTask(task)\ndeactivate ORG\n\nC --> UI : 17 result\ndeactivate C\n\nUI -> OE : 18 shows all data and requests confirmation\nOE -> UI : 19 confirms the data\n\nUI -> C : 20 saveTask()\nactivate C\nC -> ORG : 21 saveTask(task)\nactivate ORG\nORG -> ORG : 22 validateTask(task)\nORG -> ORG : 23 addTask(task)\ndeactivate ORG\n\nC --> UI : 24 result\ndeactivate C\n\nUI -> OE : 25 informs operation success\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1732,
+    "completion_tokens": 569,
+    "total_tokens": 2301,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

@@ -1,0 +1,63 @@
+@startuml
+title Un client loue un bus avec chauffeur par Noël PRÉVAULT
+
+participant "Client" as Client
+participant "SystèmeInformations" as System
+participant "OpérateurBancaire" as Bank
+participant "Chauffeur" as Driver
+participant "OpérateurMaintenance" as Maintenance
+
+alt [Le client n'est pas inscrit]
+  Client -> System : Inscription
+  activate System
+  System --> System : Vérification des informations
+  deactivate System
+  System --> Client : Inscription réussie
+end
+
+Client -> System : Authentification
+activate System
+System --> System : Authentification de l'utilisateur
+deactivate System
+System --> Client : Authentification réussie
+
+Client -> System : Demande de location
+System --> Client : Demande d'informations sur la location
+Client -> System : Date, durée de location et point de retour
+
+alt [Le système d'informations refuse la location si un véhicule et un chauffeur ne sont pas disponibles]
+  System --> System : Recherche la disponibilité d'un chauffeur
+  System --> Client : Annulation de la location en cours
+end
+
+alt [Le système d'informations accepte la location]
+  System --> System : Recherche les disponibilités d'un chauffeur et valide la location
+  Client -> System : Demande informations de paiement
+  Client -> System : Information de paiement (Permettant de payer le trajet)
+  System -> Bank : Demande confirmation pour le paiement
+  Bank --> System : Réponse concernant le paiement
+
+  alt [Les informations de paiement sont refusées]
+    System --> Client : Refuse le paiement de la location
+    System --> Client : Annule la location
+  end
+
+  alt [Le client annule paiement]
+    Client -> System : Annule la location
+    System --> System : Vérification si frais supplémentaires
+    System -> Bank : Demande annulation d'un montant du débit bancaire
+    System --> Client : Annule la location
+  end
+
+  alt [Les informations de paiement sont acceptées]
+    Client --> System : Valide le paiement de la location
+    System -> Driver : Notifie un chauffeur
+    Driver --> Driver : Utilise la location
+    Client --> Client : Utilise la location conduite par le chauffeur
+    Driver --> Driver : Ramène la location
+    Maintenance --> Maintenance : Réception et vérification du véhicule
+    System --> System : Validation de l'état du véhicule et mise à jour de son état
+  end
+end
+
+@enduml

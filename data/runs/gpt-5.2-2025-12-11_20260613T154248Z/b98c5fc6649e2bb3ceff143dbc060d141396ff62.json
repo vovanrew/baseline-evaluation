@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLqN0TOQlLxnxMU4ed4eb2i1hlSv",
+  "object": "chat.completion",
+  "created": 1781369395,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n' NOTE: The provided image is extremely high-density and the text is not legible enough to accurately reproduce every message label and fragment.\n' Below is a best-effort structural reproduction of the visible lifelines and major combined fragments.\n\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #333\n  LifeLineBorderColor #999\n  LifeLineBackgroundColor white\n  ParticipantBorderColor #999\n  ParticipantBackgroundColor #f7f7f7\n  BoxBorderColor #999\n  BoxBackgroundColor white\n  GroupBorderColor #666\n  GroupBackgroundColor white\n  MessageAlign left\n}\n\ntitle purchase() sequence (approx.)\n\nparticipant \"wapPurchase\\n(\u524d\u7aef)\" as wapPurchase\nparticipant \"ms-trade\" as msTrade\nparticipant \"subscribe-service\" as subscribeService\nparticipant \"ctu\" as ctu\nparticipant \"payment-service\" as paymentService\nparticipant \"cpm\" as cpm\nparticipant \"payment\" as payment\nparticipant \"upm\" as upm\nparticipant \"public-service\" as publicService\nparticipant \"product\" as product\nparticipant \"subscribe\" as subscribe\nparticipant \"charging\" as charging\nparticipant \"order\" as order\nparticipant \"proxy\" as proxy\nparticipant \"campaign\" as campaign\n\nwapPurchase -> msTrade : purchase() \u8bf7\u6c42\nmsTrade -> subscribeService : purchase() \u4e1a\u52a1\u5904\u7406\n\ngroup \u83b7\u53d6/\u5237\u65b0\u8fde\u7eed\u5305Token\u7f13\u5b58\n  alt \u7f13\u5b58\u4e0d\u5b58\u5728/\u8fc7\u671f\n    subscribeService -> subscribeService : queryContinuousTokenMemCache\\n(\u67e5\u8be2\u7f13\u5b58)\n    subscribeService -> subscribeService : updateContinuousTokenMemCache\\n(\u5237\u65b0\u7f13\u5b58)\n  else \u7f13\u5b58\u6709\u6548\n    subscribeService -> subscribeService : queryContinuousTokenMemCache\\n(\u547d\u4e2d\u7f13\u5b58)\n  end\nend\n\ngroup \u83b7\u53d6/\u521b\u5efa\u652f\u4ed8\u8d26\u6237\n  subscribeService -> paymentService : getPaymentAccountInfo()\n  paymentService -> cpm : getPaymentAccountInfo()\n  alt \u652f\u4ed8\u8d26\u6237\u4e0d\u5b58\u5728\n    subscribeService -> paymentService : createPaymentAccount()\n    paymentService -> cpm : createPaymentAccount()\n  else \u652f\u4ed8\u8d26\u6237\u5df2\u5b58\u5728\n    subscribeService <-- paymentService : accountInfo\n  end\nend\n\ngroup \u53c2\u6570\u6821\u9a8c/\u5339\u914d\n  alt \u53c2\u6570\u4e0d\u5408\u6cd5\n    subscribeService --> msTrade : \u8fd4\u56de\u9519\u8bef\n  else \u53c2\u6570\u5408\u6cd5\n    subscribeService -> publicService : matchNumberSegment()\n    subscribeService -> publicService : matchNumberSegment()\n  end\nend\n\ngroup \u8ba2\u9605/\u4e0b\u5355\u4e3b\u6d41\u7a0b\n  alt \u65b0\u8ba2\u9605\n    subscribeService -> subscribe : fetchSubscription()\n    subscribeService -> subscribe : subscribe()\n    subscribeService -> subscribe : authenticate()\n    alt \u4ef7\u683c\u8ba1\u7b97\n      subscribeService -> product : calculatePrice()\n      group \u652f\u4ed8\u6e20\u9053\u9002\u914d\n        subscribeService -> paymentService : autoAdaptPayChannels()\n        subscribeService -> paymentService : autoAdaptPayChannels()\n      end\n    end\n    subscribeService -> order : createOrder()\n  else \u7eed\u8ba2/\u53d8\u66f4\n    subscribeService -> subscribe : authenticate()\n    subscribeService -> product : calculatePrice()\n    group \u652f\u4ed8\u6e20\u9053\u9002\u914d\n      subscribeService -> paymentService : autoAdaptPayChannels()\n      subscribeService -> paymentService : autoAdaptPayChannels()\n    end\n    subscribeService -> order : createOrder()\n    subscribeService -> order : submitOrder()\n  end\nend\n\ngroup \u652f\u4ed8\n  alt \u76f4\u4ed8\n    subscribeService -> paymentService : directPayment()\n    paymentService -> payment : directPayment()\n    paymentService -> upm : directPayment()\n  else \u4ee3\u6263/\u5f02\u6b65\n    subscribeService -> paymentService : payOrder()\n    paymentService -> payment : payOrder()\n  end\nend\n\ngroup \u56de\u8c03/\u901a\u77e5\u4e0e\u8865\u507f\n  subscribeService -> subscribe : batchSubscribe()\n  subscribeService -> order : batchFetchHistoryOrders()\n  subscribeService -> paymentService : payNotifyStatus()\n  subscribeService -> proxy : topic=itemPurchase_tags=Main\n  proxy -> campaign : lotteryCampaignService.setLotteryInfo()\n  group \u8fde\u7eed\u5305\u6263\u8d39\n    subscribeService -> charging : runContinuousCharging()\n    subscribeService -> charging : runContinuousCharging()\n  end\nend\n\nmsTrade <-- subscribeService : purchase() \u54cd\u5e94\nwapPurchase <-- msTrade : purchase() \u8fd4\u56de\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2346,
+    "completion_tokens": 899,
+    "total_tokens": 3245,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

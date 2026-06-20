@@ -1,0 +1,139 @@
+@startuml
+!theme plain
+
+package "events" {
+  package "connector" {
+    package "db" {
+      package "log" {
+        package "converter" {
+          class "TransactionLogEntryConverter" {
+            - Optional<CLM> convert(TransactionLogEntry)
+          }
+          class "TransactionLogEntryConverterFactory" {
+            - Optional<CLM> convert(TransactionLogEntry)
+          }
+          class "TransactionLogEntryToMessageWithDestinationConverter" {
+            - IGenerator iGenerator
+            + Optional<MessageWithDestination> convert(TransactionLogEntry)
+          }
+          class "TransactionLogEntryToEventWithSourceConverter" {
+            - IGenerator iGenerator
+            + Optional<EventWithSource> convert(TransactionLogEntry)
+          }
+        }
+      }
+    }
+  }
+  package "messaging" {
+    class "TransactionLogMessage" {
+      - Optional<TransactionLogOffset> getTransactionLogOffset()
+    }
+    class "MessageWithDestination" {
+      + String destination
+      + String payload
+      + Map<String,String> headers
+      + TransactionLogOffset getTransactionLogOffset()
+      + String getPayload()
+      + Optional<String> getHeader(String)
+      + boolean hasHeader(String)
+      + String getHeader(String)
+      + void setPayload(String)
+      + void setHeader(Map<String,String>)
+      + void setHeader(String,String)
+      + void removeHeader(String)
+      + String toString()
+      + Optional<TransactionLogOffset> getTransactionLogOffset()
+    }
+    class "EventWithSourcing" {
+      + String id
+      + String entity
+      + String entityType
+      + String eventData
+      + String eventVersion
+      + TransactionLogOffset getTransactionLogOffset()
+      + Optional<String> metadata
+      + String getId()
+      + void setId(String)
+      + String getEntity()
+      + void setEntity(String)
+      + String getEntityType()
+      + void setEntityType(String)
+      + String getEventId()
+      + void setEventId(String)
+      + String getEventVersion()
+      + void setEventVersion(String)
+      + String getEventPayload()
+      + void setEventPayload(String)
+      + String getMetadata()
+      + Optional<String> getMetadata()
+      + void setMetadata(Optional<String>)
+      + Optional<TransactionLogOffset> getTransactionLogOffset()
+      + void setTransactionLogOffset(TransactionLogOffset)
+    }
+  }
+  package "offset" {
+    class "TransactionLogFileOffset" {
+      + String transactionLogFilename
+      + long offset
+      + int nextTopicId
+      + String getTransactionLogFilename()
+      + void setTransactionLogFilename(String)
+      + long getOffset()
+      + void setOffset(long)
+      + int getNextTopicId()
+      + void setNextTopicId(int)
+      + boolean equals(Object)
+      + int hashCode()
+      + String toString()
+    }
+    class "OffsetProcessor" {
+      - Logger logger
+      - AtomicBoolean processingOffsets
+      - ConcurrentLinkedQueue<Optional<OFFSET>> offsets
+      - GenericOffsetStore<OFFSET> offsetStore
+      - Consumer<Exception> offsetErrorExceptionHandler
+      - Executor executor
+      + void saveOffset(CompletableFuture<Optional<OFFSET>>)
+      + void processOffset(CompletableFuture<Optional<OFFSET>>, Throwable)
+      + void close()
+      + void processOffsetsWithExceptionHandling(Optional<OFFSET>)
+      + boolean isOffsetCompletedFuture(Optional<OFFSET>)
+      + boolean isOffsetCompletedFuture(Optional<OFFSET>)
+      + AtomicInteger getProcessedOffsetCount()
+    }
+    class "GenericOffsetStore" {
+      + void save(OFFSET)
+    }
+    class "OffsetStore" {
+      - Optional<TransactionLogOffset> getTransactionLogOffset()
+      + void setTransactionLogOffset(TransactionLogOffset)
+    }
+  }
+  package "entry" {
+    class "TransactionLogEntryHandler" {
+      - SchemaAndTable schemaAndTable
+      - TransactionLogEntryConverter<CLM> transactionLogEntryConverter
+      - Function<CLM,CompletableFuture<Void>> dbPublisher
+      - SchemaAndTable getSchemaAndTable()
+      - boolean isSchemaAndTable()
+      - CompletableFuture<Void> publish(TransactionLogEntry)
+    }
+    class "TransactionLogEntry" {
+      - Object getColumnsAndData()
+      - TransactionLogOffset getTransactionLogOffset()
+      - boolean getBeforeColumn(String)
+      - long getLongColumn(String)
+      - String getBytesColumn(String)
+    }
+  }
+}
+
+"TransactionLogEntryConverter" ..> "TransactionLogEntryConverterFactory"
+"TransactionLogEntryToMessageWithDestinationConverter" ..> "TransactionLogEntryConverter"
+"TransactionLogEntryToEventWithSourceConverter" ..> "TransactionLogEntryConverter"
+"TransactionLogMessage" ..> "MessageWithDestination"
+"TransactionLogMessage" ..> "EventWithSourcing"
+"OffsetProcessor" ..> "GenericOffsetStore"
+"OffsetStore" ..> "TransactionLogOffset"
+
+@enduml

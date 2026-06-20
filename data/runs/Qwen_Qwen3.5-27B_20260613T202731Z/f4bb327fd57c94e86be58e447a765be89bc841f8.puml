@@ -1,0 +1,66 @@
+```plantuml
+@startuml
+title 日志系统架构时序图
+
+participant "Database" as DB
+participant "ManageLogDemo" as Demo
+participant "ManageLogReceiveFacade" as ReceiveFacade
+participant "ManageLogReceiveProvider" as ReceiveProvider
+participant "ManageLogCommon" as Common
+participant "AnotherJavaProject" as JavaProject
+participant "ManageLogUploadFacade" as UploadFacade
+participant "AnotherProject" as Project
+participant "ManageLogQueryProvider" as QueryProvider
+participant "ManageLogQueryFacade" as QueryFacade
+
+rectangle "rpc 上传日志" {
+    Demo -> ReceiveFacade: aspect 获取数据
+    activate ReceiveFacade
+    ReceiveFacade -> ReceiveProvider: rpc/http/kafka，数据为业务数据，configName
+    activate ReceiveProvider
+    ReceiveProvider -> Common: 使用工具类
+    activate Common
+    Common --> Common: 抓取配置
+    deactivate Common
+    ReceiveProvider --> Demo: 落地数据
+    deactivate ReceiveProvider
+    deactivate ReceiveFacade
+}
+
+rectangle "自主使用 facade 上传日志" {
+    JavaProject -> ReceiveFacade: 自己组装数据，使用 facade 提供的策略上传
+    activate ReceiveFacade
+    ReceiveFacade -> UploadFacade: rpc/http/kafka，数据为业务数据，configName
+    activate UploadFacade
+    UploadFacade -> Common: 使用工具类
+    activate Common
+    Common --> Common: 抓取配置
+    deactivate Common
+    UploadFacade --> JavaProject: 落地数据
+    deactivate UploadFacade
+    deactivate ReceiveFacade
+}
+
+rectangle "自主上传日志" {
+    Project -> ReceiveProvider: http/kafka，数据为业务数据，configName
+    activate ReceiveProvider
+    ReceiveProvider -> Common: 使用工具类
+    activate Common
+    Common --> Common: 抓取配置
+    deactivate Common
+    ReceiveProvider --> Project: 落地数据
+    deactivate ReceiveProvider
+}
+
+rectangle "日志查询" {
+    Demo -> QueryProvider: 获取数据
+    activate QueryProvider
+    QueryProvider -> QueryFacade: rpc 提供
+    activate QueryFacade
+    QueryFacade --> QueryProvider: http 提供（默认）
+    deactivate QueryFacade
+    deactivate QueryProvider
+}
+
+@enduml
+```

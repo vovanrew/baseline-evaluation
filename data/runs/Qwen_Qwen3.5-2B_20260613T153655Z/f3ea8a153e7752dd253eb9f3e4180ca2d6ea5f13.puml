@@ -1,0 +1,43 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "User application" as UserApp
+
+actor Main as Main
+
+participant Propagator as Propagator
+
+participant Integrator as Integrator
+
+participant DifferentialEquations as DifferentialEquations
+
+participant OrbitType as OrbitType
+
+participant TimesDerivative as TimesDerivative
+
+participant Force Model i as Force Model i
+
+participant NewtonianAttraction as NewtonianAttraction
+
+Main ->> Propagator: propagate
+
+Propagator -> DifferentialEquations: create
+
+Propagator -> TimesDerivative: create
+
+Propagator -> Integrator: integrate
+
+loop [for n steps]
+    Propagator -> DifferentialEquations: computeDerivatives
+    DifferentialEquations -> OrbitType: mapArrayToOrbit
+    loop [for all perturbation force models]
+        DifferentialEquations -> Force Model i: addContribution
+        Force Model i -> TimesDerivative: addAcceleration
+        DifferentialEquations -> NewtonianAttraction: addContribution
+        NewtonianAttraction -> TimesDerivative: addKeplerContribution
+    end
+    Integrator -> Propagator: final state
+end
+
+UserApp -> Propagator: final state
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+actor User
+
+participant QuerySet
+participant QueryParser
+participant Tokenizer
+participant Query
+participant QueryComponent
+
+User -> QuerySet : **1** QuerySet()
+User -> QuerySet : **2** add("longitude", "*/CLON")
+QuerySet -> QueryParser : **3** parse(queryString)
+QueryParser -> Tokenizer : **4** tokenize(queryString)
+Tokenizer --> QueryParser : **5** tokens
+
+loop [all sub-queries]
+    QueryParser -> Query : **6** Query()
+    loop [all components]
+        QueryParser -> QueryComponent : **7** QueryComponent()
+        QueryParser -> Query : **8** push_back(component)
+    end
+end
+
+QueryParser --> QuerySet : **9** queries
+
+@enduml

@@ -1,0 +1,89 @@
+```plantuml
+@startuml
+header Last updated 15/10/2020
+title
+**Ski Championships**
+**Management**
+end title
+
+package Scm {
+
+  class Event {
+    - id: int
+    - location: string
+    - startDate: Date
+    - endDate: Date
+    + create(): Event
+    + update()
+    + delete(): bool
+    + {static} list(): Event[]
+    + export(): bool
+    + import(): bool
+  }
+
+  class Result {
+    - time: Time
+    + create(): Result
+    + delete(): bool
+    + {static} list(): Result[]
+  }
+
+  class Run {
+    - number: int
+    - time: Time
+    .. Getters and setters ..
+    + getId()
+    .. Other methods ..
+    + create(): Run
+    + delete(): bool
+  }
+
+  class Competitor {
+    - id: int
+    - lastName: string
+    - firstName: string
+    - birthDate: Date
+    - bibNumber: int
+    - email: string
+    - photo: resource
+    + create(): Competitor
+    + update()
+    + delete(): bool
+    + {static} list(): Competitor[]
+  }
+
+  abstract class Metadata {
+    # id: int
+    # name: string
+    # description: string
+    # create()
+    # update()
+    # delete(): bool
+    # list(): Metadata
+  }
+
+  class Category {
+  }
+
+  class Profile {
+  }
+
+  Event "1" *-- "0..n" Competitor : takes part
+  (Event, Competitor) .. Result : obtains
+  (Event, Competitor) .. Run : runs
+
+  Competitor "0..n" o-- "1" Category : > belongs to
+  Competitor "0..n" o-- "1" Profile : < has
+
+  Category -|> Metadata
+  Profile -|> Metadata
+
+}
+
+footer
+Ski Championships Management
+Class Diagram
+Bertrand C
+end footer
+@enduml
+```

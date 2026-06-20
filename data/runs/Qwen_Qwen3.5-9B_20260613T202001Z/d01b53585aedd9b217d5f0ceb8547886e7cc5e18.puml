@@ -1,0 +1,50 @@
+@startuml
+title RqP - Request Resource
+
+actor "Requesting Party (RqP)" as RqP
+
+participant "Client Application (CA)\n«Custom Application»" as CA
+participant "Resource Server (RS)\n«Custom Application»" as RS
+participant "Authorization Server (AS)\nForgeRock Access Manager" as AS
+participant "Content Server (CS)\n«Custom Application»" as CS
+
+CA -> CA : User Interface
+RS -> RS : REST API
+RS -> RS : Resource
+RS -> RS : Credential
+AS -> AS : AM API
+AS -> AS : UMA API
+AS -> AS : OAuth API
+CS -> CS : REST API
+CS -> CS : Data
+
+RqP -> AS : Authenticate
+AS --> RqP : Authenticated
+
+RqP -> CA : Access Interface
+CA -> CA : Obtain Resource Id\n(maybe from Discover Resources)
+CA -> RS : GET /share/resources/{resourceId}\nscopes (no valid RPT)
+
+RS -> RS : Get_id
+RS --> RS : meta data
+RS -> AS : Get PAT
+AS --> RS : PAT
+
+CA -> AS : Get permission ticket for the resource and scope
+AS -> AS : POST /am/uma/permission_request\nresource_id + scopes
+AS --> CA : permission ticket
+
+CA -> CA : permission ticket + AS URI
+CA -> AS : Get client auth basic
+AS -> AS : POST /am/oauth2/access_token\nscope=openid\nSSO session
+AS --> CA : claim token
+
+CA -> AS : Get Requesting Party Token (RPT)\nusing the permission ticket and claim token
+AS -> AS : POST /am/oauth2/access_token\ngrant_type=urn:ietf:params:oauth:grant-type:uma-ticket\nscope=..., ticket=..., claim_token=..., claim_token_format=...
+AS -> AS : Check Access
+AS -> AS : No Policy for RqP + Resource + scopes\nCreate Access Request for Resource Owner
+AS --> AS : No Access, request Submitted
+
+CA --> RqP : Error: Request Submitted
+
+@enduml

@@ -1,0 +1,22 @@
+{
+  "id": "55c0724f-0f52-429f-b005-5fbab2aa96f8",
+  "object": "chat.completion",
+  "created": 1781417510,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle End Screen Action Sequences\n\nactor \"User\" as User\n\npackage \"Views\" {\n  participant \"Game\" as Game\n  participant \"End\" as End\n  participant \"HighScore\" as HighScore\n  participant \"Start\" as Start\n}\n\npackage \"User Interface Control\" {\n  participant \"Navigation\" as Navigation\n}\n\npackage \"Back End\" {\n  participant \"Settings\" as Settings\n  participant \"JoggleCube\" as JoggleCube\n  participant \"HighScores\" as HighScores\n  participant \"Score\" as Score\n  participant \"Cube\" as Cube\n  participant \"Block\" as Block\n}\n\nUser -> Game: btnHighScoreClicked()\nGame -> End: show(ScreenType.HighScore)\nEnd -> Navigation: prepView()\nEnd -> HighScores: getOverallHighScores()\nHighScores -> JoggleCube: getScores()\nJoggleCube -> JoggleCube: scores\nJoggleCube -> End: scores\nEnd -> JoggleCube: getCurrentCubeHighScores()\nJoggleCube -> JoggleCube: getScores()\nJoggleCube -> JoggleCube: scores\nJoggleCube -> End: scores\nEnd -> Navigation: hideOverlay(ScreenType.End)\nNavigation -> End: scores\n\nUser -> Game: btnMenuClicked()\nGame -> Start: show(ScreenType.Start)\nStart -> Navigation: prepView()\nStart -> Settings: getCurrLang()\nSettings -> Settings: English\nSettings -> Start: English\nStart -> Navigation: hideOverlay(ScreenType.End)\nNavigation -> Start: English\n\nUser -> Game: replayGrid()\nGame -> Start: show(ScreenType.GAME)\nStart -> Navigation: prepView()\nStart -> JoggleCube: getCubeData()\nJoggleCube -> Cube: getCube()\nCube -> Cube: cube[3][3][3]\nCube -> Start: cube[3][3][3]\nStart -> Navigation: hideOverlay(ScreenType.End)\nNavigation -> Start: cube[3][3][3]\n\nUser -> Game: btnSaveClicked()\nGame -> JoggleCube: savGrid(filename)\nJoggleCube -> Cube: saveCube(outfile)\nCube -> Block: loop [foreach Block]\nBlock -> Block: getLetter()\nBlock -> Cube: getLetter()\nCube -> JoggleCube: saveScore(outfile)\nJoggleCube -> Score: loop [foreach score]\nScore -> Score: save(outfile)\nScore -> JoggleCube: save(outfile)\nJoggleCube -> Game: save(outfile)\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1909,
+    "completion_tokens": 542,
+    "total_tokens": 2451
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "4e977aae-cdec-46be-bbcb-3a252fd51cbe",
+  "object": "chat.completion",
+  "created": 1781411286,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"havenarbeider\" as havenarbeider\nactor \"douane en voedselinspectie\" as douane\nactor \"scheepsagent\" as scheepsagent\nparticipant \"Api gateway\" as api_gateway\nparticipant \"kapiteinsdienst\" as kapiteinsdienst\nparticipant \"administratie\" as administratie\nparticipant \"containerbeheer en -transport\" as containerbeheer\n\nrectangle \"per schip\" {\n  scheepsagent -> api_gateway: registerVessel\n  api_gateway -> kapiteinsdienst: registerVessel\n  kapiteinsdienst -> administratie: requestOffer\n  administratie -> kapiteinsdienst: offerCreated\n  administratie -> containerbeheer: newContainerList\n\n  opt [deleteOffer] {\n    scheepsagent -> api_gateway: offerConfirmation(isConfirmed == false)\n    api_gateway -> kapiteinsdienst: offerConfirmation(isConfirmed == false)\n    kapiteinsdienst -> administratie: deleteOffer\n  }\n\n  douane -> api_gateway: getDocuments\n  api_gateway -> administratie: getDocuments\n  administratie --> api_gateway: \n  api_gateway --> douane: \n}\n\nrectangle \"per havenarbeider\" {\n  havenarbeider -> api_gateway: timeBadging\n  api_gateway -> administratie: timeBadging\n  havenarbeider -> api_gateway: getPayCheck\n  api_gateway -> administratie: getPayCheck\n  administratie --> api_gateway: \n  api_gateway --> havenarbeider: \n}\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1419,
+    "completion_tokens": 334,
+    "total_tokens": 1753
+  }
+}

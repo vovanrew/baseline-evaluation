@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nactor Actor\nboundary Dashboard\ncontrol DashboardController\ncontrol IssuesDetailController\ncontrol IssuesService\ncontrol IssuesEntityService\ncontrol EntityService\ncontrol IssuesRepository\ncontrol IssueRepository\n\nactivate Actor\nActor -> Dashboard : /issues\nactivate Dashboard\nDashboard -> DashboardController : createIssues()\nactivate DashboardController\ndestroy Dashboard\nboundary Table\nDashboardController -> Table : new / redirect\nactivate Table\ndeactivate DashboardController\n\npar\n    Table --> Actor\n    Table -> IssuesDetailController : getIssues()\n    activate IssuesDetailController\n    IssuesDetailController -> IssuesService : createIssuesStatistics()\n    activate IssuesService\n    IssuesService -> IssuesEntityService : findAll()\n    activate IssuesEntityService\n    IssuesEntityService -> EntityService : selectAllIssues()\n    activate EntityService\n    EntityService -> IssuesRepository : findAll()\n    activate IssuesRepository\n    loop\n        entity Issues\n        IssuesRepository -> Issues : new\n        loop\n            IssuesRepository -> IssueRepository : findById(id)\n            activate IssueRepository\n            entity Issue\n            IssueRepository -> Issue : new\n            IssueRepository <-- IssueRepository : Issue\n            deactivate IssueRepository\n        end\n    end\n    EntityService <-- IssuesRepository : Set<Issues>\n    deactivate IssuesRepository\n    IssuesEntityService <-- EntityService : Set<Issues>\n    deactivate EntityService\n    IssuesService <-- IssuesEntityService : Set<Issues>\n    deactivate IssuesEntityService\n    IssuesDetailController <-- IssuesService : IssuesStatistics\n    deactivate IssuesService\n    Table <-- IssuesDetailController : IssuesStatistics\n    deactivate IssuesDetailController\nend\n\nActor -> Table : select report\nTable -> DashboardController : details\nactivate DashboardController\ndestroy Table\nboundary Details\nDashboardController -> Details : new / redirect\nactivate Details\ndeactivate DashboardController\n\npar\n    Details --> Actor\n    Details -> IssuesDetailController : getCategories(origin, reference)\n    activate IssuesDetailController\n    IssuesDetailController -> IssuesService : createDistributionByCategory(origin, reference)\n    activate IssuesService\n    IssuesService -> IssuesEntityService : findByPrimaryKey(origin, reference)\n    activate IssuesEntityService\n    IssuesEntityService -> EntityService : select(origin, reference)\n    activate EntityService\n    EntityService -> IssuesRepository : findById(origin, reference)\n    activate IssuesRepository\n    IssuesRepository -> Issues : new\n    loop\n        IssuesRepository -> IssueRepository : findById(id)\n        activate IssueRepository\n        IssueRepository -> Issue : new\n        IssueRepository <-- IssueRepository : Issue\n        deactivate IssueRepository\n    end\n    EntityService <-- IssuesRepository : Issues\n    deactivate IssuesRepository\n    IssuesEntityService <-- EntityService : Issues\n    deactivate EntityService\n    IssuesService <-- IssuesEntityService : Issues\n    deactivate IssuesEntityService\n    IssuesDetailController <-- IssuesService : IssuePropertyDistribution\n    deactivate IssuesService\n    Details <-- IssuesDetailController : IssuePropertyDistribution\n    deactivate IssuesDetailController\nend\n\ndeactivate Details\ndeactivate Actor\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbH1ylOp7jqnfdUXY+zxtJmk0SWKjqWHv3vQ9rYySc8G+x+w13wsEAPq+lGQ49G"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1160,
+    "candidatesTokenCount": 655,
+    "totalTokenCount": 1815,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1080
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "YF8xau7RIOTzvdIP_e3zyAY"
+}

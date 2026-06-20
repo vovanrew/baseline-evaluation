@@ -1,0 +1,37 @@
+```plantuml
+@startuml
+skinparam componentStyle rectangle
+
+participant "Digdag" as Digdag
+participant "Slack" as Slack
+participant "DB" as DB
+participant "Solr" as Solr
+
+activate Slack
+Digdag -> Slack : 開始通知
+Slack --> Digdag
+deactivate Slack
+
+activate Digdag
+activate DB
+Digdag -> DB : extract database
+deactivate DB
+deactivate Digdag
+
+Digdag -> DB : abc
+DB --> Digdag : def
+
+activate Slack
+Digdag -> Slack : index
+deactivate Slack
+
+Digdag -> Solr : index.sh
+Solr --> Digdag
+
+activate Slack
+Digdag -> Slack : 終了通知
+Slack --> Digdag
+deactivate Slack
+
+@enduml
+```

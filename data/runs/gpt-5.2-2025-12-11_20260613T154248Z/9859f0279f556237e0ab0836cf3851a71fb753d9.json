@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLoPjvWNlAW6gp4B1cACLcS5OIf7",
+  "object": "chat.completion",
+  "created": 1781369273,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  ParticipantPadding 40\n  BoxPadding 20\n  LifeLineBorderColor #666666\n  LifeLineBackgroundColor #FFFFFF\n  ActorBorderColor #000000\n  ParticipantBorderColor #000000\n  ParticipantBackgroundColor #E6E6E6\n  BoxBorderColor #000000\n  BoxBackgroundColor #DDDDDD\n  ArrowColor #000000\n  ArrowThickness 2\n}\n\nbox \"FAMPClient\" #DDDDDD\nparticipant \"AudioBundleAssembler\" as ABA\nparticipant \"UDPBundleReceiver\" as UBR\nend box\n\nbox \"FAMPServer\" #DDDDDD\nparticipant \"UDPBundleSender\" as UBS\nparticipant \"QUdpSocket\" as QUS\nend box\n\nactivate ABA\nABA -> UBR : rozpocznij watek\\nodbierajacy\nABA -> UBS : rozpocznij wysylanie\\npaczek\nactivate UBS\nUBS -> QUS : grupa 50 paczek\n\nloop [dopoki nie pobrano wszystkich paczek]\n  loop [dopoki dostepne sa datagramy]\n    ABA -> UBR : przekaz pobrane\\ndotychczas datagramy\n    activate UBR\n    UBR --> ABA : dane\n    deactivate UBR\n    ABA -> ABA : odczytaj id paczki i zapisz\n  end\n\n  alt [nie wszystkie paczki wyslane]\n    ABA -> UBS : wyslij nastepny zestaw paczek\n    activate UBS\n    UBS -> QUS : grupa 50 paczek\n    UBS --> ABA : czy to ostatni zestaw\n  else [istnieja paczki do retransmisji]\n    UBS -> QUS : wyslij zestaw brakujacych paczek\n  end\nend\n\nABA -> ABA : posortuj paczki\nABA -> ABA : zapisz paczki do pliku\ndeactivate ABA\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2783,
+    "completion_tokens": 426,
+    "total_tokens": 3209,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

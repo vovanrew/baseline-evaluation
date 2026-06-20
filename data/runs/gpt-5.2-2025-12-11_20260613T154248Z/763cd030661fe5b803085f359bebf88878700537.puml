@@ -1,0 +1,74 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam linetype ortho
+skinparam packageStyle rectangle
+
+package "«aggregate» Product" as AggProduct {
+  class Product <<entity>> as Agg_Product_Product
+  class ShortDescription <<C>> as Agg_Product_ShortDescription
+  class LongDescription <<C>> as Agg_Product_LongDescription
+  class TechnicalDescription <<C>> as Agg_Product_TechnicalDescription
+
+  class Barcode <<C>> as Agg_Product_Barcode
+  class ProductionCode <<C>> as Agg_Product_ProductionCode
+  class PriceWithoutVAT <<C>> as Agg_Product_PriceWithoutVAT
+  class PriceWithVAT <<C>> as Agg_Product_PriceWithVAT
+
+  class Reference <<C>> as Agg_Product_Reference
+  class Weight <<C>> as Agg_Product_Weight
+  class Volume <<C>> as Agg_Product_Volume
+  class Photo <<C>> as Agg_Product_Photo
+
+  class BrandName <<C>> as Agg_Product_BrandName
+}
+
+package "«aggregate» Category" as AggCategory {
+  class Category <<E>> as Agg_Category_Category
+  class AlphanumericCode <<C>> as Agg_Category_AlphanumericCode
+
+  class Description <<C>> as Agg_Category_Description
+  class SuperCategory <<C>> as Agg_Category_SuperCategory
+}
+
+class ProductEntity <<entity>> as ProductEntity {
+  +uniqueInternalCode
+}
+
+class ShortDescriptionVO <<value object>> as VO_ShortDescription
+class LongDescriptionVO <<value object>> as VO_LongDescription
+class TechnicalDescriptionVO <<value object>> as VO_TechnicalDescription
+class BarcodeVO <<value object>> as VO_Barcode
+class ProductionCodeVO <<value object>> as VO_ProductionCode
+class PriceWithoutVATVO <<value object>> as VO_PriceWithoutVAT
+class PriceWithVATVO <<value object>> as VO_PriceWithVAT
+class ReferenceVO <<value object>> as VO_Reference
+class WeightVO <<value object>> as VO_Weight
+class VolumeVO <<value object>> as VO_Volume
+class PhotoVO <<value object>> as VO_Photo
+class BrandNameVO <<value object>> as VO_BrandName
+
+class CategoryEntity <<entity>> as CategoryEntity
+class AlphanumericCodeVO <<value object>> as VO_AlphanumericCode
+class DescriptionVO <<value object>> as VO_Description
+class SuperCategoryVO <<value object>> as VO_SuperCategory
+
+ProductEntity "1" -- "1" VO_ShortDescription : characterized by
+ProductEntity "1" -- "1" VO_LongDescription : characterized by
+ProductEntity "1" -- "1" VO_TechnicalDescription : characterized by
+ProductEntity "1" -- "1" VO_Barcode : characterized by
+ProductEntity "1" -- "1" VO_ProductionCode : characterized by
+ProductEntity "1" -- "0..1" VO_PriceWithoutVAT : identified by
+ProductEntity "1" -- "0..1" VO_PriceWithVAT : identified by
+ProductEntity "1" -- "1" VO_Reference : associated
+ProductEntity "1" -- "1" VO_Weight : associated
+ProductEntity "1" -- "1" VO_Volume : characterized by
+ProductEntity "1" -- "1" VO_Photo : described
+ProductEntity "1" -- "1" VO_BrandName : made by
+
+ProductEntity "1" -- "1" CategoryEntity : organized by
+
+CategoryEntity "1" -- "1" VO_AlphanumericCode : identified by
+CategoryEntity "1" -- "1" VO_Description : characterized by
+CategoryEntity "1" -- "1" VO_SuperCategory : belongs to
+@enduml

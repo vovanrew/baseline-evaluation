@@ -1,0 +1,65 @@
+```plantuml
+@startuml
+actor Client
+participant RegisterClientUI
+participant RegisterClientController
+participant ApplicationPOT
+participant "app\n:ApplicationPOT" as app
+participant "clientService\n:ClientService" as clientService
+participant "clientDB\n:ClientDB" as clientDB
+participant "client\n:Client" as client
+participant "user\n:User" as user
+participant EncryptPassword
+participant Address
+participant CreditCard
+participant EmailSender
+participant DataHandler
+
+activate Client
+Client -> RegisterClientUI : 1 Engages the register feature/button
+activate RegisterClientUI
+RegisterClientUI --> Client : 2 Asks for all the information required\nfor the register (i.e. name,nif,email,password,latitude,longitude,altitude,\nstreetName,doorNumber,postalCode,locality,country,creditCardNr,validityDate,\nCCV)
+Client -> RegisterClientUI : 3 Fills all the information required
+RegisterClientUI --> Client : 4 Presents the data and asks for a confirmation
+Client -> RegisterClientUI : 5 Confirms
+RegisterClientUI -> RegisterClientController : 6 registerNewClient(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+activate RegisterClientController
+RegisterClientController -> clientService ** : 7 create()
+activate clientService
+clientService -> clientDB ** : 8 create()
+activate clientDB
+RegisterClientController -> clientDB : 9 validateInput(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+
+alt if all the information given as input has a valid format
+    RegisterClientController -> clientService : 10 newClient(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+    clientService -> client ** : 11 create(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+    activate client
+    client -> user ** : 12 create(email,password,nif,name)
+    activate user
+    user -> EncryptPassword : 13 encryptPasswordMD5(password)
+    activate EncryptPassword
+    EncryptPassword --> user
+    deactivate EncryptPassword
+    deactivate user
+    client -> Address ** : 14 create(latitude,longitude,altitude,streetName,doorNumber,postalCode,locality,country)
+    client -> CreditCard ** : 15 create(creditCardNr,validityDate,CCV)
+    deactivate client
+    RegisterClientController -> clientService : 16 registerNewClient(client)
+    clientService -> clientDB : 17 addClientToDB(client)
+    activate clientDB
+    ref over clientDB : SD_CONNECTIONS
+    deactivate clientDB
+    clientService -> EmailSender : 18 sendEmail(email,subject,body)
+    activate EmailSender
+    EmailSender --> clientService
+    deactivate EmailSender
+    RegisterClientController --> RegisterClientUI : 19 Validates and informs about the success of the operation
+else if any information does not have a valid format
+    RegisterClientController --> RegisterClientUI : 20 Informs the User that the operation\nwas not successful
+end
+
+deactivate RegisterClientController
+deactivate RegisterClientUI
+deactivate Client
+@enduml
+```

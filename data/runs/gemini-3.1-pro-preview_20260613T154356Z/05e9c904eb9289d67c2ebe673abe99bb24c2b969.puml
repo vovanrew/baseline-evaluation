@@ -1,0 +1,35 @@
+```plantuml
+@startuml
+participant Cache
+participant DiskLruCache
+participant JournalFile
+participant "DiskLruCache.Entry" as DiskLruCacheEntry
+participant LinkedHashMap
+participant Snapshot
+participant "Cache.Entry" as CacheEntry
+participant Response
+participant CacheResponseBody
+
+Cache -> DiskLruCache : get()
+activate DiskLruCache
+DiskLruCache -> DiskLruCache : initialize
+DiskLruCache -> JournalFile : read
+JournalFile -> DiskLruCacheEntry
+DiskLruCacheEntry --> DiskLruCache
+DiskLruCache -> LinkedHashMap : put()
+deactivate DiskLruCache
+
+DiskLruCache -> LinkedHashMap : get()
+LinkedHashMap -> DiskLruCacheEntry
+DiskLruCacheEntry --> DiskLruCache
+
+DiskLruCache -> Snapshot
+Snapshot --> Cache
+
+Cache -> CacheEntry : response()
+CacheEntry -> Response
+Response -> CacheResponseBody
+Response --> Cache
+
+@enduml
+```

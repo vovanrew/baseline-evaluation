@@ -1,0 +1,133 @@
+@startuml
+left to right direction
+actor "Sales Clerk" as clerk
+rectangle "Presentation" as presentation {
+  rectangle "OrderDeliveredUI" as ui
+}
+rectangle "Application" as application {
+  rectangle "OrderDeliveredController" as controller
+}
+rectangle "Service" as service {
+  rectangle "OrderDeliveredService" as service_impl
+}
+rectangle "Persistence" as persistence {
+  rectangle "PersistenceContext" as persistence_context
+}
+rectangle "Factory" as factory {
+  rectangle "RepositoryFactory" as factory_impl
+}
+rectangle "Repository" as repository {
+  cylinder "orderRepository : Repository" as repo
+}
+rectangle "Domain" as domain {
+  rectangle "orderList : List<Order>" as order_list
+}
+rectangle "DTO" as dto {
+  rectangle "orderDTOList : List<OrderDTO>" as order_dto_list
+}
+rectangle "DTO" as dto2 {
+  rectangle "orderDTO : OrderDTO" as order_dto
+}
+rectangle "DTO" as dto3 {
+  rectangle "selectedOrderDTOList : List<OrderDTO>" as selected_order_dto_list
+}
+rectangle "Domain" as domain2 {
+  rectangle "order : Order" as order_domain
+}
+
+note right of clerk
+  The Sales Clerk initializes
+  the process of updating the status of the order
+end note
+
+activate ui
+activate controller
+activate service_impl
+activate persistence_context
+activate factory_impl
+activate repo
+activate order_list
+activate order_dto_list
+activate order_dto
+activate selected_order_dto_list
+activate order_domain
+
+ui -> controller : create
+controller -> service_impl : create
+service_impl -> persistence_context : repositories()
+persistence_context -> factory_impl : factory
+factory_impl -> repo : create
+persistence_context -> factory_impl : orderRepository()
+factory_impl -> repo : create
+persistence_context -> order_list : create
+
+service_impl -> controller : listAllDispatchedOrders()
+controller -> service_impl : listAllDispatchedOrders()
+service_impl -> order_list : getAllDispatchedOrders()
+order_list -> order_dto_list : create
+
+loop (foreach)
+  order_list -> order_dto : getNext()
+  order_dto -> order_dto : create
+  order_dto -> order_domain : toDTO(order)
+  order_domain -> order_dto : create
+  order_dto -> order_dto_list : add(orderDTO)
+end
+
+order_dto_list -> controller : orderDTOList
+controller -> ui : orderDTOList
+
+note right of clerk
+  The System presents a list of Orders to the
+  Sales Clerk whose Status are "Preparation"
+  and asks the Sales Clerk to choose Orders
+  whose Status will be updated to "Delivered".
+end note
+
+note right of clerk
+  The Sales Clerk selects the Orders whose
+  Status are to be updated:
+end note
+
+activate ui
+activate controller
+activate service_impl
+activate persistence_context
+activate factory_impl
+activate repo
+activate order_list
+activate order_dto_list
+activate order_dto
+activate selected_order_dto_list
+activate order_domain
+
+ui -> controller : updateStatus(selectedOrderDTOList)
+controller -> service_impl : updateStatusAndPersist(selectedOrderDTOList)
+service_impl -> order_dto_list : getNext()
+order_dto_list -> order_dto : getNext()
+order_dto -> order_domain : toOrder(orderDTO)
+order_domain -> order_dto : create
+order_dto -> order_domain : changeStatusToDelivered()
+order_domain -> order_dto : create
+order_dto -> repo : update(order)
+
+repo -> order_dto : create
+
+note right of clerk
+  The System updates the Status of the selected Orders
+  and informs the Sales Clerk of the operation success.
+end note
+
+deactivate ui
+deactivate controller
+deactivate service_impl
+deactivate persistence_context
+deactivate factory_impl
+deactivate repo
+deactivate order_list
+deactivate order_dto_list
+deactivate order_dto
+deactivate selected_order_dto_list
+deactivate order_domain
+
+@enduml

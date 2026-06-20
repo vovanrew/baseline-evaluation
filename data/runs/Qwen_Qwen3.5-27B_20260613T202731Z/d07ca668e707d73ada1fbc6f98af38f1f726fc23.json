@@ -1,0 +1,22 @@
+{
+  "id": "d91ec933-2c2d-4cd5-981c-f259be1d46b3",
+  "object": "chat.completion",
+  "created": 1781492295,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle AddMemberToGroupSequenceDiagram\n\nparticipant \"IntegrationTest\" as IntegrationTest\nparticipant \"Spring Application\" as SpringApplication\nparticipant \"De\\nSerializer\" as DeSerializer\nparticipant \"ctrl:AddMemberToGroupController\" as Controller\nparticipant \"AddMemberRequestAssembler\" as RequestAssembler\nparticipant \"AddMemberResponseDTOAssembler\" as ResponseAssembler\nparticipant \"srv:AddMemberToGroupService\" as Service\n\nnote right of Service: Continues through next Diagram\n\nIntegrationTest -> SpringApplication: POST 1 /groups/\"Family\"/members/\"ana@gmail.com\"\n\nactivate SpringApplication\n    SpringApplication -> DeSerializer: 1.1 deserialize(\"groupDesc\":\"Family\", \"personEmail\":\"ana@gmail.com\")\n    \n    activate DeSerializer\n        DeSerializer -> DeSerializer: 1.1.1 create (groupDesc, PersonEmail)\n        box #EEE \"info:AddMemberRequestInfoDTO\"\n            endbox\n        deactivate DeSerializer\n    \n    SpringApplication -> Controller: 1.2 addMember(info)\n    \n    activate Controller\n        Controller -> RequestAssembler: addMemberMapToDTO 1.2.1 (info.getGroupDescription(), info.getPersonEmail())\n        \n        activate RequestAssembler\n            RequestAssembler -> RequestAssembler: 1.2.1.1 create\n            box #EEE \"requestDTO: AddMemberRequestDTO\"\n                endbox\n            deactivate RequestAssembler\n        \n        Controller -> Service: 1.2.2 addMemeber(requestDTO)\n        \n        activate Service\n            Service --> Controller: 1.2.3 groupDTO\n            deactivate Service\n        \n        Controller -> ResponseAssembler: 1.2.4 mapToGroupResponseDTO(GroupDTO)\n        \n        activate ResponseAssembler\n            ResponseAssembler -> ResponseAssembler: 1.2.4.1 create\n            box #EEE \"groupRespDTO: GroupResponseDTO\"\n                endbox\n            ResponseAssembler --> Controller: 1.2.5 groupRespDTO\n            deactivate ResponseAssembler\n        \n        Controller --> SpringApplication: 1.2.6 ResponseEntity(groupRespDTO, HttpStatus.OK)\n        deactivate Controller\n    \n    SpringApplication -> DeSerializer: 1.3 serialize(ResponseEntity(groupRespDTO, HttpStatus.OK))\n    \n    activate DeSerializer\n        DeSerializer --> SpringApplication: 1.4 HttpResponse\n        deactivate DeSerializer\n    \n    SpringApplication --> IntegrationTest: 1.5 HttpResponse\ndeactivate SpringApplication\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1027,
+    "completion_tokens": 518,
+    "total_tokens": 1545
+  }
+}

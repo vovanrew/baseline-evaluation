@@ -1,0 +1,43 @@
+```plantuml
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 40
+skinparam BoxPadding 15
+
+skinparam sequence {
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #b22222
+  ParticipantBackgroundColor #fff7cc
+  ActorBorderColor #b22222
+  ActorBackgroundColor #fff7cc
+  ArrowColor #000000
+}
+
+actor User
+participant QuerySet
+participant QueryParser
+participant Tokenizer
+participant Query
+participant QueryComponent
+
+User -> QuerySet : 1 QuerySet()
+User -> QuerySet : 2 add("longitude", "*/CLON")
+QuerySet -> QueryParser : 3 parse(queryString)
+activate QueryParser
+QueryParser -> Tokenizer : 4 tokenize(queryString)
+Tokenizer --> QueryParser : 5 tokens
+
+loop all sub-queries
+  QueryParser -> Query : 6 Query()
+  loop all components
+    QueryParser -> QueryComponent : 7 QueryComponent()
+    QueryParser -> Query : 8 push_back(component)
+  end
+end
+
+QueryParser --> QuerySet : 9 queries
+deactivate QueryParser
+@enduml
+```

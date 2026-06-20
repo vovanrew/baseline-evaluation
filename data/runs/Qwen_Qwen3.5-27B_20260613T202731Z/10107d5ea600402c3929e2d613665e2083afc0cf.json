@@ -1,0 +1,22 @@
+{
+  "id": "ee684032-93d3-496d-bb70-4a6a17bbeb98",
+  "object": "chat.completion",
+  "created": 1781429444,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\nparticipant \"client\" as client\nparticipant \"fastAPI\" as fastAPI\nparticipant \"JobsCollection\" as JobsCollection\nparticipant \"Poller\" as Poller\nparticipant \"IngestService\" as IngestService\nparticipant \"MappingIngester\" as MappingIngester\nparticipant \"MongoSerializer\" as MongoSerializer\nparticipant \"DatabrokerCollections\" as DatabrokerCollections\nparticipant \"SciCatIngester\" as SciCatIngester\nparticipant \"Catamel\" as Catamel\n\nclient --> fastAPI : file ready to ingest\nactivate fastAPI\nfastAPI --> JobsCollection : create Job\ndeactivate fastAPI\nactivate JobsCollection\nJobsCollection <.. Poller : poll for job\ndeactivate JobsCollection\nactivate Poller\nPoller --> IngestService : ingest\ndeactivate Poller\nactivate IngestService\nIngestService ..> MappingIngester : ingest\nactivate MappingIngester\nMappingIngester ..> MongoSerializer : send docs\ndeactivate MappingIngester\nactivate MongoSerializer\nMongoSerializer ..> DatabrokerCollections : Persist docstream\ndeactivate MongoSerializer\nIngestService ..> SciCatIngester : ingest\nactivate SciCatIngester\nSciCatIngester ..> Catamel : many messages\ndeactivate SciCatIngester\ndeactivate IngestService\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 831,
+    "completion_tokens": 288,
+    "total_tokens": 1119
+  }
+}

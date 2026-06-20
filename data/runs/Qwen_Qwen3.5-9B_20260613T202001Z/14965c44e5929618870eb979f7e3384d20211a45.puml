@@ -1,0 +1,43 @@
+@startuml
+left to right direction
+skinparam sequenceMessageAlign center
+
+actor "bruger" as user
+participant "index.jsp" as index
+participant "resultat.jsp" as resultat
+
+participant "BmiUtil" as bmiUtil
+participant "PresentationLayer" as presentationLayer
+participant "LogicFacade" as logicFacade
+participant "DBAccess" as dbAccess
+participant "BmiDB" as bmiDB
+
+participant "Initializer" as initializer
+participant "FrontController" as frontController
+participant "Command" as command
+participant "Resultat" as resultatObj
+participant "LogicFacade" as logicFacadeObj
+participant "BmiMapper" as bmiMapper
+
+note over presentationLayer, logicFacade: Initialization
+note over presentationLayer, logicFacade: Beregn BMI
+
+user -> index: 1 start
+index -> bmiUtil: 2 getSportList()
+bmiUtil --> index: 3 ArrayList<Sport>
+
+user -> frontController: 4 doPost()
+frontController -> frontController: 5 processRequest()
+frontController -> command: 6 from()
+command --> frontController: 7 Resultat
+frontController -> resultatObj: 8 execute()
+resultatObj -> logicFacade: 9 insertBmiItem()
+logicFacade -> dbAccess: 10 insertBmiItem()
+dbAccess -> bmiDB: 11 executeQuery()
+bmiDB --> dbAccess: 12 OK
+dbAccess --> logicFacade: 13 OK
+logicFacade --> frontController: 14 OK
+frontController --> index: 15 resultat
+index --> user: 16 forward()
+
+@enduml

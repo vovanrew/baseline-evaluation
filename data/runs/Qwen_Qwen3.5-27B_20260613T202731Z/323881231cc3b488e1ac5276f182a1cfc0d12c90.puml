@@ -1,0 +1,81 @@
+```plantuml
+@startuml
+title Search Product by ID
+
+actor "User" as user
+participant "Main" as main
+database "Database" as db
+
+box MainMenu #LightGrey {
+    participant "MainMenu" as menu
+}
+
+box ProductReportDialog #LightGrey {
+    participant "ProductReportDialog" as dialog
+}
+
+box ProductDatabaseDAO #LightGrey {
+    participant "ProductDatabaseDAO" as dao
+}
+
+box Product #LightGrey {
+    participant "Product\n:product" as product
+}
+
+box SimpleListModel #LightGrey {
+    participant "SimpleListModel\n:model" as model
+}
+
+user -> main : <<main>>
+activate main
+main -> menu : <<create>>
+activate menu
+
+menu -> user : clicks 'View Products'
+menu -> dialog : <<create>>
+activate dialog
+
+dialog -> dao : <<create>>
+activate dao
+
+note right of dialog: as shown in\n'View Products'\ndiagram
+
+dao --> menu : list of products displayed
+deactivate dao
+deactivate dialog
+
+user -> dialog : user types productID\ninto field; clicks "Search"
+activate dialog
+
+dialog -> dao : findProd(productID)
+activate dao
+
+dao -> db : search product by ID
+activate db
+db -->> dao : resultSet
+deactivate db
+
+dao -> dao : extract product details\nfrom ResultSet into variables
+
+dao -> product : <<construct>>
+activate product
+
+dao -> product : set products fields\nfrom variables
+deactivate product
+
+dialog -> model : <<construct>>
+activate model
+
+dialog -> model : updateItems(products)
+deactivate model
+
+dialog -> dialog : jList.setModel(model)
+
+dialog --> user : product displayed
+deactivate dialog
+deactivate dao
+deactivate menu
+deactivate main
+
+@enduml
+```

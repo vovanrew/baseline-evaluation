@@ -1,0 +1,21 @@
+{
+  "id": "msg_015KfrA7kgcX5AJo8ig2pb1F",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle 3.1.0 Get Participant Callback Details\n\nbox \"ML API Adapter Service\" #LightBlue\nparticipant \"ML-API-ADAPTER\" as MLAPI\nend box\n\nbox \"Central Services\" #LightYellow\nparticipant \"Central Service API\" as CSAPI\nparticipant \"Participant Handler\" as PH\nparticipant \"Participant DAO\" as PDAO\ndatabase \"Central Store\" as CS\nend box\n\ngroup Get Callback Details\nMLAPI -> CSAPI: 1 Request to get callback details - GET - /participants/{name}/endpoints?type={typeValue}\nCSAPI -> PH: 2 Fetch Callback details for Participant\n\nPH -> PDAO: 3 Fetch Participant\\n<color:red>Error code: 3200</color>\nPDAO -> CS: 4 Fetch Participant\nCS --> PDAO: participant\nPDAO --> PH: 5 Retrieved Participant\nPH --> CSAPI: 6 Return Participant\nPH -> PH: 7 Validate DFSP\n\nalt Validate participant (success)\nPH -> PH: 8 check if \"type\" parameter is sent\n\nalt Check if \"type\" parameter is sent (Sent)\nPH -> PDAO: 9 Fetch Callback details for Participant and type\\n<color:red>Error code: 3000</color>\nPDAO -> CS: 10 Fetch Callback details for Participant and type\\nnote right\\nCondition:\\nisActive = 1\\n{endpointTypeId = <type>}\\nend note\nCS --> PDAO: participantEndpoint\nPDAO --> PH: 11 Retrieved Callback details for Participant and type\nPH --> CSAPI: 12 Return Callback details for Participant and type\\nnote left\\nMessage:\\n{\\n  endpoints: {type: <type>, value: <value>}\\n}\\nend note\nCSAPI --> MLAPI: 13 Return Callback details for Participant\nMLAPI <-- CSAPI: 14 Return Callback details for Participant\n\nelse Check if \"type\" parameter is sent (Not Sent)\nPH -> PDAO: 15 Fetch Callback details for Participant\\n<color:red>Error code: 3000</color>\nPDAO -> CS: 16 Fetch Callback details for Participant\\nnote right\\nCondition:\\nisActive = 1\\nend note\nCS --> PDAO: participantEndpoint\nPDAO --> PH: 17 Retrieved Callback details for Participant\nPH --> CSAPI: 18 Return Callback details for Participant\\nnote left\\nMessage:\\n{\\n  endpoints: [\\n    {type: <type>, value: <value>},\\n    {type: <type>, value: <value>}\\n  ]\\n}\\nend note\nCSAPI --> MLAPI: 19 Return Callback details for Participant\nMLAPI <-- CSAPI: 20 Return Callback details for Participant\nend\n\nelse Validate participant (failure)/ Error\nPH -> PH: <back:red><color:white>Validation failure/ Error</color></back>\\nnote right\\nMessage:\\n{\\n  \"errorInformation\": {\\n    \"errorCode\": <errorCode>,\\n    \"errorDescription\": <ErrorMessage>,\\n  }\\n}\\nend note\nPH --> CSAPI: 21 Return <color:red>Error code: 3000, 3200</color>\nCSAPI --> MLAPI: 22 Return <color:red>Error code: 3000, 3200</color>\nend\n\nend\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781371086,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 904,
+    "prompt_tokens": 1650,
+    "total_tokens": 2554
+  }
+}

@@ -1,0 +1,57 @@
+@startuml
+title PB-428 UC12 View fund details
+
+actor Next Customer as NextCustomer
+interface Core Next as CoreNext
+interface Next Database as NextDB
+interface Core Bradesco as CoreBradesco
+
+database Next Database as NextDB
+
+note right of NextCustomer
+The App will make a call to Core Next to get all the details for a fund. It will pass required input:
+- Fund ID
+note right of NextCustomer
+Note to Dev
+Please check if the input parameter Fund ID is the Product ID or the External_Core_Product_ID. From what I can see, there are two product records with the same External_Core_Product_ID (Next Simples) and this may create issues.
+endnote
+
+note right of CoreNext
+ref
+Use existing methodology to get complete details for a fund.
+endnote
+
+note right of CoreNext
+Core Next will retrieve additional data from the PRODUCT table and return them to the App:
+1. FundCategory (new)
+2. RequireFundTC (new)
+3. RiskScore (existing field in table, but needs to be added in response)
+4. IncomeValue (new)
+5. IncomeDescription (new)
+6. isNextSimples (new)
+endnote
+
+note right of NextCustomer
+Core Next will return all existing fields in the response + the following new response fields:
+1. FundCategory (new)
+2. RequireFundTC (new)
+3. RiskScore (existing field in table, but needs to be added in response)
+4. IncomeValue (new)
+5. IncomeDescription (new)
+6. isNextSimples (new)
+All of these fields will come from the PRODUCT table.
+endnote
+
+NextCustomer ->> CoreNext: 1 HTTP GET /investments/funds/completeDetails
+
+CoreNext ->> NextDB: 2 GET additional fields from Product table
+
+NextDB ->> CoreNext: 3 Response
+
+CoreNext ->> NextCustomer: 4 Response
+
+CoreNext ..> NextDB : ref
+
+CoreNext ..> CoreBradesco : ref
+
+@enduml

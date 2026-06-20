@@ -1,0 +1,23 @@
+@startuml
+title Toggle Switch
+
+participant Ctc
+participant TrackController
+box "Track System" #lightgrey
+participant TrackModel
+participant Block
+participant Switch
+end box
+
+Ctc -> Ctc : Select Block
+Ctc -> TrackController : setSwitchStatus(Block,direction)
+TrackController -> TrackModel : setSwitchStatus(Block,direction)
+TrackModel -> TrackModel : getBlock()
+TrackModel -> Block : getSwitch()
+Block -> Switch : setSwitchState("normal" or "alternate")
+Switch -->> TrackController : *new switch status*
+TrackController -> TrackController : updateSwitchStatus(Block,status)
+TrackController -->> Ctc : *new switch status*
+Ctc -> Ctc : updateSwitchStatus(Block,status)
+
+@enduml

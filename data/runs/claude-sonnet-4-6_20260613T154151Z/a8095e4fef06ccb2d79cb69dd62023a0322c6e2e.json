@@ -1,0 +1,21 @@
+{
+  "id": "msg_01LgkrzPGsLjN5P6YbvcAegi",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nskinparam classAttributeIconSize 0\nskinparam classFontStyle normal\nskinparam classHeaderBackgroundColor #e8e8e8\nskinparam backgroundColor white\nskinparam class {\n    BorderColor #888888\n    BackgroundColor #f0f0f0\n}\n\ninterface QuestReward {\n    /interface since QuestRewards need to have RewardPlayer but that logic will vary from reward to reward/\n    + void RewardPlayer()\n    + String ToString() //so that the reward can be described in text in the quest window//\n}\n\nabstract class Quest {\n    ~ bool isActive\n    ~ bool isComplete\n    ~ [SerializedField] string name\n    ~ [SerializedField] string description\n    ~ [SerializedField] List<QuestReward> questRewards\n    /make sure it does not derive from monobehaviour/\n    /all classes that inherit from quest need the [Serializable] attribute/\n}\n\nclass RivalQuest {\n    /rival quests will need their own unique logic and AI/\n}\n\nclass CountQuest {\n    - int currentCount\n    - [SerializedField] int completionCount\n    + void checkWin() //sets isComplete to true if currentCount == completionCount//\n}\n\nenum CountQuestTypes {\n    GrindTime, Graffiti, SpeedMeter, Coins, Enemies\n}\n\nclass QuestGiver {\n    /attaches to NPC objects, derives from monobehaviour/\n    - [SerializedField] Quest questToGive;\n    - [SerializedField] GameObject questWindow\n    - [SerializedField] TextMeshProUGUI titleText\n    - [SerializedField] TextMeshProUGUI descText\n    - [SerializedField] TextMeshProUGUI rewardText;\n    /not sure if the player will need its own new quest script of if questing logic can go in an existing one/\n    - PlayerReference player;\n    + void OpenQuestWindow()\n    + void AcceptQuest()\n    + void CompleteQuest()\n}\n\nclass MonoBehaviour {\n    /Unity MonoBehaviour/\n}\n\nQuestReward <.. Quest : has\nQuestReward <.. RivalQuest : has\nQuestReward <.. CountQuest : has\n\nQuest <|-- RivalQuest : inherits from\nQuest <|-- CountQuest : inherits from\n\nCountQuestTypes <-- CountQuest : has\n\nQuest <-- QuestGiver : gives\n\nMonoBehaviour <|-- QuestGiver : inherits from\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781368215,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 629,
+    "prompt_tokens": 1636,
+    "total_tokens": 2265
+  }
+}

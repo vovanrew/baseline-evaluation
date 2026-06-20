@@ -1,0 +1,72 @@
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 40
+skinparam BoxPadding 10
+
+participant Client
+participant Oauth
+participant "Login Endpoint" as Login
+participant "Consent Endpoint" as Consent
+
+== Open page ==
+
+Client -> Oauth : Initiate authorize code or implicit flow
+Oauth -> Oauth : No user session (not authenticated)
+Oauth -> Login : Redirect to login endpoint with <login_challenge>
+note right of Login #ffffdd
+GET https://<LOGIN_ENDPOINT>/login?login_challenge=7bb518c4eec2454dbb289f5fdb4c0ee2
+end note
+
+== Login ==
+
+Client -> Login : Input user/password
+Login -> Login : Verify user/password
+Login -> Oauth : Fetch login request info with <login_challenge>
+note right of Login #ffffdd
+GET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login?login_challenge=<challenge>
+end note
+note right of Login #ffffdd
+PUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login/accept?login_challenge=<challenge>
+{
+  "acr": "string",
+  "context": {},
+  "force_subject_identifier": "string",
+  "remember": true,
+  "remember_for": 3600,
+  "subject": "string"
+}
+end note
+Login -> Oauth : Accept login
+Oauth --> Login : Return redirect url
+Login --> Oauth : Redirect
+
+== Consent ==
+
+Oauth -> Oauth : First time that client asks user for permission
+Oauth -> Consent : Redirect with <consent_challenge>
+Consent -> Consent : Asking users permission to grant application access
+Consent -> Oauth : Fetch consent info
+note right of Consent #ffffdd
+GET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent?consent_challenge=<challenge>
+end note
+note right of Consent #ffffdd
+PUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent/accept?consent_challenge=<challenge>
+{
+  "grant_scope": ["openid", "offline_access"],
+  "handled_at": "2019-08-24T14:15:22Z",
+  "session": {
+    "access_token": {
+      "foo": "This field will be available when introspecting the Access Token"
+    },
+    "id_token": {
+      "bar": "This field will be available as a claim in the ID Token"
+    }
+  }
+}
+end note
+Consent -> Oauth : Accept
+Oauth --> Consent : Return redirect url
+Consent --> Oauth : Redirect page
+
+@enduml

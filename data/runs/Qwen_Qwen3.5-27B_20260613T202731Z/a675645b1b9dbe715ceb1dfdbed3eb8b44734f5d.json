@@ -1,0 +1,22 @@
+{
+  "id": "8c9348d7-743d-4d37-8250-4a95af6c1d8c",
+  "object": "chat.completion",
+  "created": 1781489474,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Authorization Code or Implicit Flow\n\nparticipant \"Client\" as Client\nparticipant \"Oauth\" as Oauth\nparticipant \"Login Endpoint\" as LoginEndpoint\nparticipant \"Consent Endpoint\" as ConsentEndpoint\n\n== Open page ==\nClient -> Oauth: Initiate authorize code or implicit flow\nactivate Oauth\nOauth -> Oauth: No user session (not authenticated)\nOauth -> LoginEndpoint: Redirect to login endpoint with <login_challenge>\nnote right of LoginEndpoint: GET https://<LOGIN_ENDPOINT>/login?login_challenge=7bb518c4eec2454dbb289f5fdb4c0ee2\n\n== Login ==\nClient -> LoginEndpoint: Input user/password\nactivate LoginEndpoint\nLoginEndpoint -> LoginEndpoint: Verify user/password\nLoginEndpoint --> Oauth: Fetch login request info with <login_challenge>\nnote right of LoginEndpoint: GET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login?login_challenge=<challenge>\nLoginEndpoint -> LoginEndpoint: PUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login/accept?login_challenge=<challenge>\\n{\\n  \"acr\": \"string\",\\n  \"context\": {},\\n  \"force_subject_identifier\": \"string\",\\n  \"remember\": true,\\n  \"remember_for\": 3600,\\n  \"subject\": \"string\"\\n}\nLoginEndpoint --> Oauth: Accept login\nLoginEndpoint --> Oauth: Return redirect url\ndeactivate LoginEndpoint\nOauth -> Client: Redirect\n\n== Consent ==\nOauth -> Oauth: First time that client asks user for permission\nOauth -> ConsentEndpoint: Redirect with <consent_challenge>\nactivate ConsentEndpoint\nConsentEndpoint -> ConsentEndpoint: Asking users permission to grant application access\nConsentEndpoint --> Oauth: Fetch consent info\nnote right of ConsentEndpoint: GET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent?consent_challenge=<challenge>\nConsentEndpoint -> ConsentEndpoint: PUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent/accept?consent_challenge=<challenge>\\n{\\n  \"grant_scope\": [\"openid\", \"offline_access\"],\\n  \"handled_at\": \"2019-08-24T14:15:22Z\",\\n  \"session\": {\\n    \"access_token\": {\\n      \"foo\": \"This field will be available when introspecting the Access Token\"\\n    },\\n    \"id_token\": {\\n      \"bar\": \"This field will be available as a claim in the ID Token\"\\n    }\\n  }\\n}\nConsentEndpoint --> Oauth: Accept\nConsentEndpoint --> Oauth: Return redirect url\ndeactivate ConsentEndpoint\nOauth -> Client: Redirect page\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1762,
+    "completion_tokens": 624,
+    "total_tokens": 2386
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "4d6a833b-22ee-454b-9f5a-bc56dc851567",
+  "object": "chat.completion",
+  "created": 1781484480,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nactor \"Member\" as Member\nparticipant \":TicketDetailPage\" as TicketDetailPage\nparticipant \":TicketDetailContainer\" as TicketDetailContainer\nparticipant \":AttendanceService (Frontend)\" as AttendanceServiceFE\nparticipant \":Router\" as Router\nparticipant \":AttendanceHTTPTransport\" as AttendanceHTTPTransport\nparticipant \":AttendanceEndpoint\" as AttendanceEndpoint\nparticipant \":AttendanceService\" as AttendanceServiceBE\nparticipant \":RequesterService\" as RequesterService\nparticipant \":AttendanceCommand\" as AttendanceCommand\nparticipant \":AttendanceQuery\" as AttendanceQuery\n\nMember -> TicketDetailPage: Click \"Yes\" Button\nTicketDetailPage -> TicketDetailContainer: handleConfirmationInput()\nTicketDetailContainer -> AttendanceServiceFE: confirmAttendance(classId, payload)\nAttendanceServiceFE -> Router: route(\"PATCH\", \"/v2/class/{class_id}/attendance/confirmation\")\nRouter -> AttendanceHTTPTransport: Confirmation(AttendanceService, [IServerOption])\nAttendanceHTTPTransport -> AttendanceEndpoint: Confirmation(AttendanceService)\nAttendanceEndpoint -> AttendanceServiceBE: Confirmation(context, payload)\nactivate AttendanceServiceBE\nAttendanceServiceBE -> AttendanceServiceBE: Validate()\nalt \"Data Valid\"\n    AttendanceServiceBE -> AttendanceQuery: GetPureModel(context, [ISliceCondition])\n    activate AttendanceQuery\n    AttendanceQuery --> AttendanceServiceBE: ticket\n    deactivate AttendanceQuery\n    alt \"Ticket Status is Accepted\"\n        AttendanceServiceBE -> RequesterService: Register(context, [Ipayload])\n        activate RequesterService\n        RequesterService --> AttendanceServiceBE: UpdateRequestStatus(context, ticket)\n        deactivate RequesterService\n        RequesterService --> AttendanceServiceBE: is updated\n    end\n    AttendanceServiceBE --> AttendanceEndpoint: is updated\n    AttendanceServiceBE --> AttendanceEndpoint: response := Response(is updated, nil)\n    deactivate AttendanceServiceBE\nelse\n    AttendanceServiceBE --> AttendanceEndpoint: UnprocessableEntity\n    deactivate AttendanceServiceBE\nend\nAttendanceEndpoint --> AttendanceHTTPTransport: response\nAttendanceHTTPTransport --> Router: response\nRouter --> AttendanceServiceFE: response\nAttendanceServiceFE --> TicketDetailContainer: response\nTicketDetailContainer --> TicketDetailPage: response\nTicketDetailPage --> Member: response\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1076,
+    "completion_tokens": 468,
+    "total_tokens": 1544
+  }
+}

@@ -1,0 +1,37 @@
+@startuml
+left to right direction
+actor nsq
+participant "GuideTaskCrmVisitAssignListener" as listener
+participant "guideTaskCrmVisitAssignProcessor" as processor
+participant "GuideTaskAssignDomainService" as domainService
+participant "ShoppingGuideReadApi" as readApi
+participant "GuideTaskDepartmentAssignStrategy" as strategy
+participant "GuideTaskAssignFactory" as factory
+participant "GuideTaskAssignRepository" as assignRepo
+participant "GuideTaskRepository" as taskRepo
+participant "NsqProducer" as nsqProducer
+
+listener -> listener : 1 下发任务
+listener -> processor : 2 开始处理
+processor -> domainService : 3 任务分配
+domainService -> readApi : 4 查询下发对象 department
+readApi -> strategy : 5 分配任务
+strategy -> factory : 6 创建分配的任务实体
+factory -> assignRepo : 7 保存分配状态 status flow 任务流转至 分配完成
+assignRepo -> taskRepo : 8 保存分配状态 status flow 任务流转至 待启动
+taskRepo -> nsqProducer : 9 发送下发完成消息，准备启动任务
+
+note right of domainService
+  下发给所有部门
+end note
+
+note right of strategy
+  只有任务下发给导购的时候
+  才创建导购的任务明细
+end note
+
+note over domainService,nsqProducer
+  Transaction
+end note
+
+@enduml

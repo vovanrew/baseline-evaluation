@@ -1,0 +1,22 @@
+{
+  "id": "eaed4899-c090-4831-b98c-dc65834d9f27",
+  "object": "chat.completion",
+  "created": 1781486967,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle RTP Audio Transmission Sequence Diagram\n\n' Define participants with their groupings\nrectangle \"RTP\" #LightSalmon {\n    participant \"RtpSenderEgress\" as RtpSenderEgress\n    participant \"ModuleRtpRtcpImpl\" as ModuleRtpRtcpImpl\n    participant \"PacketRouter\" as PacketRouter\n    participant \"ProcessThreadImpl\" as ProcessThreadImpl\n    participant \"PacingController\" as PacingController\n    participant \"PacedSender\" as PacedSender\n    participant \"RTPSender\" as RTPSender\n    participant \"RTPSenderAudio\" as RTPSenderAudio\n}\n\nrectangle \"Call\" #LightSalmon {\n    participant \"AudioCodingModuleImpl\" as AudioCodingModuleImpl\n    participant \"ChannelReceive\" as ChannelReceive\n    participant \"ChannelSend\" as ChannelSend\n    participant \"AcmReceiver\" as AcmReceiver\n}\n\nrectangle \"NetEq\" #LightSalmon {\n    participant \"AudioSendStream\" as AudioSendStream\n    participant \"AudioMixerImpl\" as AudioMixerImpl\n    participant \"AudioTransportImpl\" as AudioTransportImpl\n}\n\nrectangle \"Audio\" #LightSalmon {\n    participant \"AudioDeviceBuffer\" as AudioDeviceBuffer\n    participant \"AudioTrackJni\" as AudioTrackJni\n    participant \"AudioRecordJni\" as AudioRecordJni\n}\n\n' Sequence of interactions from right to left (as shown in diagram)\nactivate AudioRecordJni\nAudioRecordJni -> AudioRecordJni: DataIsRecorded()\ndeactivate AudioRecordJni\n\nactivate AudioTrackJni\nAudioRecordJni -> AudioTrackJni: DeliverRecordedData()\ndeactivate AudioTrackJni\n\nactivate AudioDeviceBuffer\nAudioTrackJni -> AudioDeviceBuffer: RecordedDataIsAvailable()\ndeactivate AudioDeviceBuffer\n\nactivate AudioTransportImpl\nAudioDeviceBuffer -> AudioTransportImpl: SendAudioData()\ndeactivate AudioTransportImpl\n\nactivate AudioSendStream\nAudioTransportImpl -> AudioSendStream: ProcessAndEncodeAudio()\ndeactivate AudioSendStream\n\nactivate ChannelSend\nAudioSendStream -> ChannelSend: Add10MsData()\ndeactivate ChannelSend\n\nactivate AudioCodingModuleImpl\nChannelSend -> AudioCodingModuleImpl: Encode()\ndeactivate AudioCodingModuleImpl\n\nactivate ChannelSend\nAudioCodingModuleImpl -> ChannelSend: SendData()\ndeactivate ChannelSend\n\nactivate ChannelReceive\nChannelSend -> ChannelReceive: SendRtpAudio()\ndeactivate ChannelReceive\n\nactivate RTPSenderAudio\nChannelReceive -> RTPSenderAudio: SendAudio()\ndeactivate RTPSenderAudio\n\nactivate RTPSender\nRTPSenderAudio -> RTPSender: SendToNetwork()\ndeactivate RTPSender\n\nactivate PacedSender\nRTPSender -> PacedSender: EnqueuePackets()\ndeactivate PacedSender\n\nactivate PacingController\nPacedSender -> PacingController: ProcessPackets()\ndeactivate PacingController\n\nactivate ProcessThreadImpl\nPacingController -> ProcessThreadImpl: SendRtpPacket()\ndeactivate ProcessThreadImpl\n\nactivate PacketRouter\nProcessThreadImpl -> PacketRouter: SendPacket()\ndeactivate PacketRouter\n\nactivate ModuleRtpRtcpImpl\nPacketRouter -> ModuleRtpRtcpImpl: TrySendPacket()\ndeactivate ModuleRtpRtcpImpl\n\nactivate RtpSenderEgress\nModuleRtpRtcpImpl -> RtpSenderEgress: SendPacket()\ndeactivate RtpSenderEgress\n\nRtpSenderEgress -> RtpSenderEgress: SendPacketToNetwork()\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 782,
+    "completion_tokens": 763,
+    "total_tokens": 1545
+  }
+}

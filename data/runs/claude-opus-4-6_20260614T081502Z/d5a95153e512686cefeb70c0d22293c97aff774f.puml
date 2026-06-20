@@ -1,0 +1,256 @@
+@startuml
+title US031 - As Team Member, I want to create a task in a user story
+
+actor TeamMember
+participant "CreateUSTaskUI" as CreateUSTaskUI
+participant "CreateUSTaskController" as CreateUSTaskController
+participant "Company" as Company
+participant "taskTypeStore\n: TaskTypeStore" as taskTypeStore
+participant "taskTypeList\n: List<TaskType>" as taskTypeList
+participant "taskType\n: TaskType" as taskType
+participant "taskTypeNames\n: List<String>" as taskTypeNames
+participant "pStore\n: ProjectStore" as pStore
+participant "proj : Project" as proj
+participant "sList\n: SprintList" as sList
+participant "sprint : Sprint" as sprint
+participant "sprintBacklog" as sprintBacklog
+participant "UserStoryList" as UserStoryList
+participant "Us" as Us
+participant "usTaskList\n: TaskList" as usTaskList
+participant "taskList\n: List<Task>" as taskList
+participant "task : Task" as task
+participant "taskNames\n: List<String>" as taskNames
+participant "projectTeam\n: ProjectTeam" as projectTeam
+participant "projectTeam\n: List<Resource>" as projectTeamList
+participant "resource : Resource" as resource
+participant "currentResNames\n: List<String>" as currentResNames
+participant "TaskMapper" as TaskMapper
+participant "createTaskDTO\n: CreateTaskDTO" as createTaskDTO
+participant "newIsTask : Task" as newIsTask
+
+activate TeamMember
+TeamMember -> CreateUSTaskUI : 1 Ask to create a task of a user story
+activate CreateUSTaskUI
+
+CreateUSTaskUI -> CreateUSTaskController : 2 getTaskTypes()
+activate CreateUSTaskController
+
+CreateUSTaskController -> Company : 3 getTaskTypeStore()
+activate Company
+Company --> CreateUSTaskController : 4 taskTypeStore
+deactivate Company
+
+CreateUSTaskController -> taskTypeStore : 5 getTaskTypeNames()
+activate taskTypeStore
+
+taskTypeStore -> taskTypeNames : 6 create()
+activate taskTypeNames
+note right : taskTypeNames\n: List<String>
+
+loop [for each know task type]
+taskTypeStore -> taskTypeList : 7 get(i)
+activate taskTypeList
+taskTypeList --> taskTypeStore : 8 taskType
+deactivate taskTypeList
+taskTypeStore -> taskType : 9 getName()
+activate taskType
+taskType --> taskTypeStore : 10 typeName
+deactivate taskType
+taskTypeStore -> taskTypeNames : 11 add(typeName)
+activate taskTypeNames
+deactivate taskTypeNames
+taskTypeStore --> taskTypeStore : 12 true
+end
+
+taskTypeStore --> CreateUSTaskController : 13 taskTypeNames
+deactivate taskTypeStore
+deactivate taskTypeNames
+
+CreateUSTaskController --> CreateUSTaskUI : 14 taskTypeNames
+deactivate CreateUSTaskController
+
+CreateUSTaskUI --> TeamMember : 15 Show a list of task types
+TeamMember -> CreateUSTaskUI : 16 Selects task type
+
+CreateUSTaskUI -> CreateUSTaskController : 17 getUSTask(projCode, sprintID, usID)
+activate CreateUSTaskController
+
+CreateUSTaskController -> Company : 18 getProjectStore()
+activate Company
+Company --> CreateUSTaskController : 19 pStore
+deactivate Company
+
+CreateUSTaskController -> pStore : 20 getProjectByCode(projCode)
+activate pStore
+pStore --> CreateUSTaskController : 21 proj
+deactivate pStore
+
+CreateUSTaskController -> proj : 22 getSprints()
+activate proj
+proj --> CreateUSTaskController : 23 sList
+deactivate proj
+
+CreateUSTaskController -> sList : 24 getSprintBySprintID()
+activate sList
+sList --> CreateUSTaskController : 25 sprint
+deactivate sList
+
+CreateUSTaskController -> sprint : 26 getBacklog
+activate sprint
+sprint --> CreateUSTaskController : 27 sprintBacklog
+deactivate sprint
+
+CreateUSTaskController -> sprintBacklog : 28 getUSList
+activate sprintBacklog
+sprintBacklog --> CreateUSTaskController : 29 usList
+deactivate sprintBacklog
+
+CreateUSTaskController -> UserStoryList : 30 getUs(usID)
+activate UserStoryList
+UserStoryList --> CreateUSTaskController : 31 us
+deactivate UserStoryList
+
+CreateUSTaskController -> Us : 32 getTaskList()
+activate Us
+Us --> CreateUSTaskController : 33 usTaskList
+deactivate Us
+
+CreateUSTaskController -> usTaskList : 34 getTaskNames()
+activate usTaskList
+
+usTaskList -> taskNames : 35 create()
+activate taskNames
+note right : taskNames\n: List<String>
+
+loop [for each know task]
+usTaskList -> taskList : 36 get(i)
+activate taskList
+taskList --> usTaskList : 37 task
+deactivate taskList
+usTaskList -> task : 38 getName()
+activate task
+task --> usTaskList : 39 taskName
+deactivate task
+usTaskList -> taskNames : 40 add(taskName)
+activate taskNames
+deactivate taskNames
+usTaskList --> usTaskList : 41 true
+end
+
+usTaskList --> CreateUSTaskController : 42 taskNames
+deactivate usTaskList
+deactivate taskNames
+
+CreateUSTaskController --> CreateUSTaskUI : 43 taskNames
+deactivate CreateUSTaskController
+
+CreateUSTaskUI --> TeamMember : 44 Show a list of current tasks\n(to choose a predecessor, if want)
+TeamMember -> CreateUSTaskUI : 45 Selects precedence (optional)
+
+CreateUSTaskUI -> CreateUSTaskController : 46 getCurrentProjectTeam()
+activate CreateUSTaskController
+
+CreateUSTaskController -> proj : 47 getProjectTeam()
+activate proj
+proj --> CreateUSTaskController : 48 projectTeam
+deactivate proj
+
+CreateUSTaskController -> projectTeam : 49 getCurrentResourceNames()
+activate projectTeam
+
+projectTeam -> currentResNames : 50 create()
+activate currentResNames
+note right : currentResNames\n: List<String>
+
+loop [for each know resource]
+projectTeam -> projectTeamList : 51 get(i)
+activate projectTeamList
+projectTeamList --> projectTeam : 52 resource
+deactivate projectTeamList
+projectTeam -> resource : 53 isCurrent()
+activate resource
+resource --> projectTeam : 54 result
+deactivate resource
+
+alt [result = true]
+projectTeam -> resource : 55 getName()
+activate resource
+resource --> projectTeam : 56 resourceName
+deactivate resource
+projectTeam -> currentResNames : 57 add(resourceName)
+activate currentResNames
+deactivate currentResNames
+end
+projectTeam --> projectTeam : 58 true
+end
+
+projectTeam --> CreateUSTaskController : 59 currentResourceNames
+deactivate projectTeam
+deactivate currentResNames
+
+CreateUSTaskController --> CreateUSTaskUI : 60 currentResourceNames
+deactivate CreateUSTaskController
+
+CreateUSTaskUI --> TeamMember : Shows resource list and request data
+note left : 61 name, description, effortEstimate,\n   taskType, responsibles
+
+TeamMember -> CreateUSTaskUI : 62 Choose and typed requested data
+
+CreateUSTaskUI -> CreateUSTaskController : 63 createUSTask(createUSTaskDTO)
+activate CreateUSTaskController
+
+CreateUSTaskController -> TaskMapper : 64 createUSTask(createUSTaskDTO)
+activate TaskMapper
+
+TaskMapper -> usTaskList : 65 toModel(createUSTaskDTO)
+activate usTaskList
+
+usTaskList -> createTaskDTO : 66 name = getName()
+activate createTaskDTO
+deactivate createTaskDTO
+
+usTaskList -> createTaskDTO : 67 description = getDescription()
+activate createTaskDTO
+deactivate createTaskDTO
+
+usTaskList -> createTaskDTO : 68 effortEstimate = getEffortEstimate()
+activate createTaskDTO
+deactivate createTaskDTO
+
+usTaskList -> createTaskDTO : 69 taskType = getTaskType()
+activate createTaskDTO
+deactivate createTaskDTO
+
+usTaskList -> createTaskDTO : 70 responsible = getResponsible()
+activate createTaskDTO
+deactivate createTaskDTO
+
+usTaskList -> newIsTask : 71 createTask(name, description,\n   effortEstimate, taskType, responsible)
+activate newIsTask
+note right : newIsTask : Task
+deactivate newIsTask
+
+usTaskList -> usTaskList : 72 newIsTask
+usTaskList -> taskList : 73 saveTask(newIsTask)
+activate taskList
+deactivate taskList
+
+usTaskList -> usTaskList : 74 validate(newIsTask)
+
+usTaskList -> taskList : 75 add(newIsTask)
+activate taskList
+deactivate taskList
+
+deactivate usTaskList
+deactivate TaskMapper
+
+CreateUSTaskController --> CreateUSTaskUI : 76 true
+deactivate CreateUSTaskController
+
+CreateUSTaskUI --> TeamMember : 77 created and saved successfully
+deactivate CreateUSTaskUI
+
+TeamMember --> TeamMember : 78 created and saved successfully
+deactivate TeamMember
+
+@enduml

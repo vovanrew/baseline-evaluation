@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLd7TPjHgOIXj5QhiZWMI0ci7O4m",
+  "object": "chat.completion",
+  "created": 1781368573,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle OAuth2 Authorization Code Grant Workflow\\nwith SAML2 Post Binding for user provisioning\n\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor black\n  LifeLineBorderColor gray\n  LifeLineBackgroundColor white\n  ParticipantBorderColor black\n  ParticipantBackgroundColor white\n  BoxBorderColor black\n  BoxBackgroundColor #BFE3EE\n}\n\nparticipant \"HealthCloud\" as HC #3CB54A\nparticipant \"Embedded Browser\" as EB #3CB54A\n\nbox \"HealthSphere\" #BFE3EE\n  participant \"Apigee Edge\" as AE #F2B400\n  participant \"Orion Health Platform\" as OHP #F2B400\nend box\n\nHC -> EB : \nEB -> AE : GET /authorize?response_type=code\nAE --> EB : 302 https://<redirect_url> (SAML OR token)\n\ngroup SAML Authentication\n  EB -> AE : POST /oauth2/saml\n  AE -> OHP : POST /login-auth/saml?path=/actor/current\n  activate OHP\n  OHP -> OHP : Verify SAMLResponse\n  OHP --> AE\n  deactivate OHP\n\n  activate AE\n  AE -> AE : Generate authorization code\n  deactivate AE\n\n  AE --> EB : 302 https://<redirect_url>?code=<code>\nend group\n\nHC -> AE : POST /token?code=<code>\nAE --> HC : 200 access_token + refresh_token\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1497,
+    "completion_tokens": 324,
+    "total_tokens": 1821,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

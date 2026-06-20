@@ -1,0 +1,22 @@
+{
+  "id": "b52b1b67-d79f-4f8f-8eda-65c888663231",
+  "object": "chat.completion",
+  "created": 1781486925,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam sequence {\n  ArrowColor DarkSlateGray\n  LifeLineBorderColor DarkSlateGray\n  LifeLineShadowColor none\n  ActorBorderColor DarkSlateGray\n  ParticipantBorderColor DarkSlateGray\n}\n\nactor sdx_downstream as SDX\nactor downstream_quarantine as DQ\nparticipant \"Downstream\" as Downstream\nparticipant \"Store\" as Store\nparticipant \"TransformCS\" as TransformCS\nparticipant \"Sequence\" as Sequence\ndatabase Postgres\nnode FTP\n\nSDX -> Downstream: Consume tx_id\nactivate Downstream\nDownstream -> Store: GET /responses/{tx_id}\nactivate Store\nStore ..> Postgres: \nStore --> Downstream: return response json\ndeactivate Store\nbox [error]\n  break\n    Downstream <- DQ: \n  endbreak\nendbox\nDownstream -> Sequence: GET /sequence\nactivate Sequence\nSequence ..> Postgres: \nSequence --> Downstream: return number\ndeactivate Sequence\nbox [error]\n  break\n    Downstream <- DQ: \n  endbreak\nendbox\nalt [common-software]\n  Downstream -> TransformCS: POST /common-software/{sequence_no}\n  activate TransformCS\nelse [cora]\n  Downstream -> TransformCS: POST /cora/{sequence_no}\nelse [cord]\n  Downstream -> TransformCS: POST /cord/{sequence_no}\nend\nTransformCS -> Sequence: GET /image-sequence?n\nactivate Sequence\nSequence ..> Postgres: \nSequence --> TransformCS: return list\ndeactivate Sequence\nTransformCS --> Downstream: Return Zip\ndeactivate TransformCS\nbox [error]\n  break\n    Downstream <- DQ: \n  endbreak\nendbox\nDownstream -> Downstream: Unzip\nDownstream ..> FTP: Send files\ndeactivate Downstream\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2007,
+    "completion_tokens": 413,
+    "total_tokens": 2420
+  }
+}

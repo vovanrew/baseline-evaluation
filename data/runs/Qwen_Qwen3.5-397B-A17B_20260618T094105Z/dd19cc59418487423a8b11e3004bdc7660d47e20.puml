@@ -1,0 +1,59 @@
+@startuml
+skinparam sequenceMessageAlign center
+
+participant "UI" as UI #LightBlue200
+box "" #WhiteSmoke
+  participant sessionRoute #LightPurple150
+end box
+actor passport #LavenderBlush3
+entity SessionController #Thistle4
+database innoDB #AliceBlue
+
+
+== == 
+activate UI 
+
+note over UI : GET() "/session"\nAuth: Bearer token\n{userID, DASS21_SCORES,\nsessionDetails} 
+
+
+alt [Success: Authenticated]  
+    activate sessionRoute
+    
+     note right of sessionRoute:"/save", authenticate("jwt") 
+    
+      alt[Failure: Unauthorized ]   
+        deactivate passport
+        
+         done(null,false) <--passport 
+        
+          http Response(401)\nUnauthorized ..> UI
+      
+       else    
+        
+            done(null,user)<--passport
+            
+             Request Products -->SessionController 
+            
+              Validate info ->>+SessionController
+                
+                saveSession()->+innoDB
+                    
+                    return session
+                        
+                        httpResponse(200)\nsession-->-sessionRoute
+                        
+                            httpRequestResponse(UI,"allProducts","httpResponse(200)")
+                            
+                                end if     
+                                
+                                      
+                                    elseif [ Failure: missing information]
+                                    
+                                        {"msg":"missing required \ninformation"}(400)..>-sessionRoute
+                                        
+                                            http Response(400){\n\"msg\":\"missing required information\"\n}\n..>--UI
+                                            
+                                                endif
+                                                
+                                                    end
+@enduml

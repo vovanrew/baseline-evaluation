@@ -1,0 +1,123 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+
+class "«FilingSystem»\nFilingSystem" as FilingSystem {
+  data_storage: bool
+  storage_limited bool
+}
+
+class "«TechnicalMeasure»\nTechnicalMeasure" as TechnicalMeasure {
+  stereotype: GENERIC_STEREOTYPE
+  category: TECHNOLOGY_CATEGORY
+}
+
+class "«Controller»\nController" as Controller {
+  processor: bool
+}
+
+class "«ProcessingSystem»\nProcessingSystem" as ProcessingSystem {
+  confidentiality: bool
+  integrity: bool
+  availability: bool
+  resilient: bool
+  pseudonymity: bool
+  data_minimization: bool
+  redundancies: bool
+  tested: bool
+}
+
+class "«ProcessingTask»\nProcessingTask" as ProcessingTask {
+  logged : bool
+}
+
+class "«Artifact»\nProcessingLog" as ProcessingLog #A8FFA8 {
+  name: bool
+  contact_details: bool
+  personal_data_category: bool
+  data_storage_period: bool
+  technical_measures: bool
+  recipients: Array
+}
+
+class "«Processor»\nProcessor" as Processor {
+}
+
+class "«Recipient»\nRecipient" as Recipient {
+}
+
+class "«ThirdParty»\nThirdParty" as ThirdParty {
+}
+
+class "DataHandler" as DataHandler {
+}
+
+class "«DataSubject»\nDataSubject" as DataSubject {
+  minor : false
+}
+
+class "«PersonalData»\nPersonalData" as PersonalData {
+  category: DATA_CATEGORY
+}
+
+class "«Purpose»\nPurpose" as Purpose {
+  consent: CLASS consent
+  contract_performance: bool
+  controller_legal_obligation: bool
+  vital_interest_protection: bool
+  public_interest: bool
+  legitimate_interest: bool
+}
+
+class "«SpecialPurpose»\nSpecialPurpose" as SpecialPurpose {
+  consent: CLASS consent
+  employment_purpose: bool
+  social_purpose: bool
+  vital_interest: bool
+  nonprofit_body: bool
+  public_from_subject: bool
+  legal_claim: bool
+  public_interest: bool
+  preventive_medicine: bool
+  occupational_medicine: bool
+  public_health: bool
+  archiving: bool
+  statistical_purposes: bool
+}
+
+class "«Consent»\nConsent" as Consent {
+}
+
+class "«Artifact»\nConsentAgreement" as ConsentAgreement #A8FFA8 {
+  clear_purpose: bool
+  unambiguous: bool
+  affirmative_action: bool
+  distinguishable: bool
+  specific: bool
+  withdrawable: bool
+  freely_given: bool
+}
+
+FilingSystem --> ProcessingSystem
+
+TechnicalMeasure --> ProcessingSystem : secures
+Controller --> ProcessingSystem : implements
+
+ProcessingSystem --> ProcessingTask : performs
+ProcessingTask --> ProcessingLog : manifests
+
+Controller --> DataHandler
+Processor --> DataHandler
+Recipient --> DataHandler
+ThirdParty --> DataHandler
+
+DataHandler --> PersonalData : receives
+DataSubject --> PersonalData : provides
+
+PersonalData --> Consent : requires
+Purpose --> Consent
+PersonalData --> SpecialPurpose
+Consent --> ConsentAgreement : manifests
+@enduml
+```

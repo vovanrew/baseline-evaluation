@@ -1,0 +1,46 @@
+@startuml
+participant "Invoker" as Invoker
+participant "Command" as Command
+participant "ConcreteCommand" as ConcreteCommand
+participant "Client" as Client
+participant "Receiver" as Receiver
+
+Invoker -> Command : 调用命令对象的execute()
+Invoker -> Command : 并在某刻调用execute()
+
+Command -> Receiver : 让接收者进行动作
+
+Client -> ConcreteCommand : 创建一个ConcreteCommand
+Client -> Receiver : 设置其接受者
+
+ConcreteCommand -> Receiver : 定义动作和接收者之间的绑定关系
+ConcreteCommand : execute()
+ConcreteCommand : undo()
+
+Receiver : action()
+
+note right of Invoker
+调用者持有命令对象，
+并在某刻调用execute()
+end note
+
+note above of Command
+调用命令对象的execute()
+就可以让接收者进行动作
+end note
+
+note right of Client
+这个客户负责创建一个ConcreteCommand，
+并设置其接受者
+end note
+
+note right of ConcreteCommand
+定义了动作和接收者之间的绑定关系，
+调用者只需要调用execute()就可以发出请求
+end note
+
+note right of Receiver
+接收者知道如何实现这个请求
+end note
+
+@enduml

@@ -1,0 +1,83 @@
+@startuml
+!theme base
+
+package "tictactoe" {
+  package "controllers" {
+    class "Controller" as Controller {
+      <<interface>>
+      Controller(Game)
+      +getToken(Coordinate): Token
+    }
+
+    class "Logic" as Logic {
+      Logic()
+      +getMaxPlayers(): int
+      +setUsers(int)
+      +getToken(): Token
+      +next()
+      +isBoardComplete(): boolean
+      +isTicTacToe(): boolean
+      +isUser(): boolean
+      +put(Coordinate): Error
+      +move(Coordinate, Coordinate): Error
+      +getToken(Coordinate): Token
+      +resume()
+    }
+
+    class "StartController" as StartController {
+      StartController(Game)
+      +setUsers(int)
+      +getMaxPlayers(): int
+    }
+
+    class "ResumeController" as ResumeController {
+      ResumeController(Game)
+      +resume()
+    }
+
+    class "PlayController" as PlayController {
+      PlayController(Game)
+      +isBoardComplete(): boolean
+      +isTicTacToe(): boolean
+      +getToken(): Token
+      +isUser(): boolean
+      +put(Coordinate): Error
+      +move(Coordinate, Coordinate): Error
+    }
+  }
+
+  class "usanatecla.tictactoe.models.Game" as Game {
+    <<class>>
+  }
+
+  class "usanatecla.tictactoe.models.Coordinate" as Coordinate {
+    <<class>>
+  }
+
+  class "usanatecla.tictactoe.types.Error" as Error {
+    <<class>>
+  }
+
+  class "usanatecla.tictactoe.types.Token" as Token {
+    <<class>>
+  }
+}
+
+Controller <|-- StartController
+Controller <|-- ResumeController
+Controller <|-- PlayController
+
+Logic --* Game
+Logic --* Coordinate
+Logic --* Error
+Logic --* Token
+
+StartController --* Game
+ResumeController --* Game
+PlayController --* Game
+
+StartController ..> Game
+ResumeController ..> Game
+PlayController ..> Game
+
+@enduml

@@ -1,0 +1,61 @@
+@startuml
+left to right direction
+autonumber
+skinparam sequenceMessageAlign center
+
+participant "Client" as Client
+participant "Oauth" as Oauth
+participant "Login Endpoint" as LoginEndpoint
+participant "Consent Endpoint" as ConsentEndpoint
+
+rectangle "Open page" {
+    Client -> Oauth: Initiate authorize code or implicit flow
+    activate Oauth
+    Oauth --> Client: No user session (not authenticated)
+    Oauth --> LoginEndpoint: Redirect to login endpoint with <login_challenge>
+    activate LoginEndpoint
+    LoginEndpoint --> Client: GET https://<LOGIN_ENDPOINT>/login?login_challenge=7bb518c4eec2454dbb289f5fdb4c0ee2
+    deactivate LoginEndpoint
+}
+
+rectangle "Login" {
+    Client -> LoginEndpoint: Input user/password
+    activate LoginEndpoint
+    LoginEndpoint --> LoginEndpoint: Verify user/password
+    deactivate LoginEndpoint
+    LoginEndpoint --> Oauth: Fetch login request info with <login_challenge>
+    activate Oauth
+    Oauth --> LoginEndpoint: GET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login?login_challenge=<challenge>
+    deactivate Oauth
+    LoginEndpoint --> Oauth: PUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login/accept?login_challenge=<challenge>
+    activate Oauth
+    Oauth --> Client: Accept login
+    deactivate Oauth
+    Oauth --> LoginEndpoint: Return redirect url
+    activate LoginEndpoint
+    LoginEndpoint --> Client: Redirect
+    deactivate LoginEndpoint
+}
+
+rectangle "Consent" {
+    Client --> Oauth: First time that client asks user for permission
+    activate Oauth
+    Oauth --> Client: Redirect with <consent_challenge>
+    deactivate Oauth
+    Client --> ConsentEndpoint: Asking users permission to grant application access
+    activate ConsentEndpoint
+    ConsentEndpoint --> Oauth: Fetch consent info
+    activate Oauth
+    Oauth --> ConsentEndpoint: GET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent?consent_challenge=<challenge>
+    deactivate Oauth
+    ConsentEndpoint --> Oauth: PUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent/accept?consent_challenge=<challenge>
+    activate Oauth
+    Oauth --> Client: Accept
+    deactivate Oauth
+    Oauth --> ConsentEndpoint: Return redirect url
+    activate ConsentEndpoint
+    ConsentEndpoint --> Client: Redirect page
+    deactivate ConsentEndpoint
+}
+
+@enduml

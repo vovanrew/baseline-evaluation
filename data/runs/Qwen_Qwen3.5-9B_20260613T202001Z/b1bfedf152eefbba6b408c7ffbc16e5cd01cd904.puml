@@ -1,0 +1,46 @@
+@startuml
+left to right direction
+skinparam sequenceMessageAlign center
+
+participant "Resident" as Resident
+participant "WeResident" as WeResident
+participant "WeID" as WeID
+participant "WeService" as WeService
+
+activate WeResident
+Resident -> WeResident: Send username:password /login
+alt [Provider already exist]
+  WeResident -> WeID: Get Token by username:password /oauth/authorize
+  WeID --> WeResident: Return Token to WeResident
+  WeResident --> Resident: Return {"token": "jwt-token"}
+end
+deactivate WeResident
+
+activate WeResident
+WeResident -> WeService: Query services including token /weservices/services\nHeader\nAuthorization: Bear {jwt-token}
+note right of WeResident: Query Service schema\n{"query":"string","status":12}
+alt [above token is valid]
+  WeID --> WeResident: verify token
+  WeID --> WeResident: 200
+  WeService --> WeResident: Response services data
+  note right of WeService: Service Data Array schema\n[{"id":"string","company":"string","name":"string","rate":4.2,"image":"image.png"},{}],\n"total":10,"currentPage":1,"perPage":5}
+else [Token is expired/invalid]
+  WeID --> WeResident: verify token
+  WeID --> WeResident: 400
+  WeService --> WeResident: Response 401 status
+end
+deactivate WeResident
+
+activate WeResident
+WeResident -> WeService: Create Service\nPOST: /weservices/service/{serviceID}/order
+note right of WeResident: Order Request schema\n{"resident":"$userID",\n"service":"$serviceID",\n"pricingModel":{},\n"noteDetail":"string",\n"address":"string",\n"schedule":Time}
+WeID --> WeResident: verify token
+WeID --> WeResident: 200
+WeService --> WeResident: Response Service Data(JSON)
+WeResident -> WeService: Comment(chat) in Order\nPOST: /weservices/order/{orderID}/comment
+note right of WeResident: Comment Data\n{"content":"string"}
+WeID --> WeResident: verify token
+WeID --> WeResident: 200
+WeService --> Resident: 200
+
+@enduml

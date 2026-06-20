@@ -1,0 +1,20 @@
+@startuml
+participant "subject" as subject
+participant "blockchain" as blockchain
+participant "issuer" as issuer
+
+subject -> blockchain : look up issuer DID
+blockchain ..> subject : issuer public key
+subject -> subject : encrypt request with issuer public key
+subject -> subject : sign request with subject private key
+subject -> issuer : request credential
+issuer -> blockchain : look up subject DID
+blockchain ..> issuer : subject public key
+issuer -> issuer : validate request signature
+issuer -> issuer : decrypt request with issuer private key
+issuer -> issuer : validate facts of requested credential
+issuer -> issuer : create Verified Credential (VC)
+issuer -> issuer : sign VC with issuer private key
+issuer ..> subject : verified credential
+subject -> subject : store credential
+@enduml

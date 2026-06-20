@@ -1,0 +1,21 @@
+{
+  "id": "msg_01GMTRuUbJ9EJiQ3XeUUxRRs",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle RqP \u2013 Request Resource\n\nactor \"Requesting Party\\n(RqP)\" as RqP\n\nbox \"Client Application (CA)\\n\u00abCustom Application\u00bb\" #lightgreen\nparticipant \"User Interface\" as UI\nend box\n\nbox \"Resource Server (RS)\\n\u00abCustom Application\u00bb\" #moccasin\nparticipant \"REST API\" as RS_API\ndatabase \"Resource\" as Resource\ndatabase \"Credential\" as Credential\nend box\n\nbox \"Authorization Server (AS)\\nForgeRock Access Manager\" #moccasin\nparticipant \"AM API\" as AM_API\nparticipant \"UMA API\" as UMA_API\nparticipant \"OAuth API\" as OAuth_API\nend box\n\nbox \"Content Server (CS)\\n\u00abCustom Application\u00bb\" #lightcyan\nparticipant \"REST API\" as CS_API\ndatabase \"Data\" as Data\nend box\n\nRqP -> AM_API : Authenticate\nAM_API --> RqP : Authenticated\n\nRqP -> UI : Access Interface\nUI -> UI : Obtain Resource Id\\n(maybe from Discover Resources)\n\nUI -> RS_API : GET /share/resources/{resourceId}\\nscopes (no valid RPT)\n\nRS_API -> Resource : Get _id\nResource --> RS_API : meta data\n\nRS_API -> Credential : Get PAT\nCredential --> RS_API : PAT\n\nnote over RS_API : Get permission ticket for the\\nresource and scope\n\nRS_API -> UMA_API : POST /am/uma/permission_request\\nresource_id + scopes\nUMA_API --> RS_API : permission ticket\n\nRS_API --> UI : permission ticket + AS URI\n\nUI -> Credential : Get client auth basic\nCredential --> UI\n\nnote over RqP : Get claim token for the\\nRequesting Party (RqP)\n\nUI -> OAuth_API : POST /am/oauth2/access_token\\nscope=openid\\nSSO session\nOAuth_API -> AM_API : Validate SSO session\nAM_API --> OAuth_API\nOAuth_API --> UI : claim token\n\nnote over RqP : Get Requesting Party Token (RPT)\\nusing the permission ticket\\nand claim token\n\nUI -> OAuth_API : POST /am/oauth2/access_token\\ngrant_type=urn:ietf:params:oauth:grant-type:uma-ticket\\nscope=..., ticket=..., claim_token=..., claim_token_format=...\n\nOAuth_API -> UMA_API : Check Access\n\nnote over UMA_API : No Policy for RqP + Resource + scopes\\nCreate Access Request for Resource Owner\nUMA_API --> OAuth_API : No Access, request Submitted\n\nOAuth_API --> UI : Error: Request Submitted\nUI --> RqP\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371967,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 652,
+    "prompt_tokens": 1647,
+    "total_tokens": 2299
+  }
+}

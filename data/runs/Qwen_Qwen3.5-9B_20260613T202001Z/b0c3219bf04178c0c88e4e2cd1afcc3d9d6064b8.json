@@ -1,0 +1,22 @@
+{
+  "id": "05876344-b7b2-46ee-a08a-14f0b11e0e5c",
+  "object": "chat.completion",
+  "created": 1781417903,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"Crapchat user\" as user1\nactor \"Another Crapchat user\" as user2\nparticipant \"Crapchat REST API\" as api\nparticipant \"Crapchat identity provider\" as idp\ndatabase \"Crapchat storage\" as storage\n\nrectangle \"Search user\" {\n  user1 -> api: HTTP POST request with search query\n  activate api\n  api -> idp: HTTP request with search query\n  activate idp\n  idp --> api: HTTP response with list of users\n  deactivate idp\n  api --> user1: HTTP response with array of users\n  deactivate api\n}\n\nrectangle \"Send follow request\" {\n  user1 -> user1: Clicks follow button\n  user1 -> api: HTTP request with ID of the user to follow\n  activate api\n  api -> storage: SQL insert query\n  activate storage\n  storage --> api: Success response\n  deactivate storage\n  api -> user2: Notify with follow request\n  api --> user1: HTTP OK response\n  deactivate api\n}\n\nrectangle \"Accept follow request\" {\n  user2 -> api: HTTP request to accept\n  activate api\n  api -> storage: SQL update query\n  activate storage\n  storage --> api: Success response\n  deactivate storage\n  api --> user2: HTTP OK response\n  deactivate api\n}\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1958,
+    "completion_tokens": 302,
+    "total_tokens": 2260
+  }
+}

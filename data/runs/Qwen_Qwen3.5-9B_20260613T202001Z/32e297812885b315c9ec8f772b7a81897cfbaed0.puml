@@ -1,0 +1,50 @@
+@startuml
+left to right direction
+actor "Webブラウザ" as browser
+participant "CCM GUI (Web)" as ccm_gui_web
+participant "CCM GUI (WebSocket)" as ccm_gui_ws
+participant "CCM SDK (IPC)" as ccm_sdk_ipc
+
+activate browser
+activate ccm_gui_web
+activate ccm_gui_ws
+activate ccm_sdk_ipc
+
+ccm_sdk_ipc -> ccm_sdk_ipc : ネットワーク情報変更通知 受信 (RegistRecieveNetworkInfoHandler)
+
+note right of ccm_gui_ws
+{
+  "command": "NetworkInfo",
+  "type": "notify",
+  "data": {
+    "ID": "xxx",
+    "CellularInfo": [{
+      "SignalStrength": "...",
+      "SignalStrengthUnit": "...",
+      "Operator": "...",
+      "PLMN": "...",
+      "Band": "...",
+      "CellID": "...",
+      "AirInterface": "...",
+      "Manufacture": "...",
+      "ModelName": "...",
+      "IMEI": "..."
+    }],
+    "QosInterfaceType": {
+      "key1": "val1",
+      ...
+    }
+  }
+}
+end note
+
+ccm_gui_ws --> ccm_gui_web : ネットワーク情報変更通知 [notify]
+
+ccm_gui_web --> browser : 1秒間隔で保持データを画面に表示
+
+deactivate browser
+deactivate ccm_gui_web
+deactivate ccm_gui_ws
+deactivate ccm_sdk_ipc
+
+@enduml

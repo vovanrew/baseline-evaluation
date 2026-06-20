@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nskinparam maxMessageSize 150\nskinparam sequenceMessageAlign left\n\ntitle HashedTimelockERC20 contract: normal flow - receiver withdraws with preimage before the timelock expires\n\nbox \"Ethereum Network\" #B0C4DE\nparticipant Sender <<Account>>\nparticipant Receiver <<Account>>\nparticipant HashedTimelockERC20 <<Smart Contract>>\nparticipant ERC20Contract <<Smart Contract>>\nparticipant Events\nend box\n\nnote over HashedTimelockERC20\nState stored for each HTLC:\n  address sender;\n  address receiver;\n  address tokenContract;\n  uint amount;\n  bytes32 hashlock;\n  uint timelock; // UNIX ts\n  bool withdrawn;\n  bool refunded;\n  bytes32 preimage;\nend note\n\nSender -> ERC20Contract: approve(htlc address, amount)\nactivate ERC20Contract\nERC20Contract -> Sender\ndeactivate ERC20Contract\n\nSender -> HashedTimelockERC20: newContract(\\n  receiver,\\n  hashlock,\\n  timelock,\\n  tokenContract,\\n  amount\\n)\nactivate HashedTimelockERC20\nHashedTimelockERC20 -> ERC20Contract: transferFrom(sender, htlc address, amount)\nactivate ERC20Contract\nERC20Contract -> HashedTimelockERC20\ndeactivate ERC20Contract\nHashedTimelockERC20 -> Events: LogHTLCERC20New(contractId, locks, values, etc.)\nHashedTimelockERC20 -> Sender: contractId\ndeactivate HashedTimelockERC20\n\nSender -> Receiver: reveals contractId\n\nReceiver -> Receiver: knows/obtains secret preimage\\n[sha256(secret preimage) == hashlock]\n\nReceiver -> HashedTimelockERC20: withdraw(contractId, secret preimage)\nactivate HashedTimelockERC20\nHashedTimelockERC20 -> ERC20Contract: transfer(receiver, amount)\nactivate ERC20Contract\nERC20Contract -> HashedTimelockERC20\ndeactivate ERC20Contract\nHashedTimelockERC20 -> Events: LogHTLCERC20Withdraw(contractId)\ndeactivate HashedTimelockERC20\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbH4Ab2JrG9EMoDXPFMD+zuMw+1KojVtn6Ryq8vK7x/gTYxCpoT7XQ87rBq2Cku"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1165,
+    "candidatesTokenCount": 529,
+    "totalTokenCount": 1694,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1085
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "vGExauT0CdnZvdIP2oiq0Q4"
+}

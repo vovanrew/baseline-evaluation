@@ -1,0 +1,22 @@
+{
+  "id": "746ff513-ba8b-4e6a-ad93-46214765dfe7",
+  "object": "chat.completion",
+  "created": 1781417545,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Fabric Private Chaincode - Enclave registry - Current approach\n\nactor Admin\nparticipant ECC\nparticipant ERCC\nparticipant IAS\nparticipant Orderer\nparticipant Peers\n\nnote right of Peers\n  **Drawbacks**\n  - Single-endorser policy only + Custom validation at every peer\n  - ERCC must contact IAS (Internet connection and IAS credentials needed)\n  - Current impl: No way to securely pass credentials to ERCC only\n  - for EPID attestation SPID is needed when quote is created (ECC must provide this)\nend note\n\nrectangle \"instantiation\" {\n  Admin -> ECC: install\n  Admin -> ECC: instantiate (expected_mrenclave)\n  ECC -> ERCC: putState(ecc.MRENCLAVE, expected_mrenclave)\n  ERCC --> ECC: success / error\n}\n\nAdmin -> Orderer: submit instantiate transaction\n\nnote right of Orderer\n  when next block ready\nend note\n\nOrderer -> Peers: broadcast block\nPeers --> Peers: Validation\n\nrectangle \"register new enclave\" {\n  Admin -> ECC: setup\n  ECC -> ECC_Enclave: create\n  ECC -> ERCC: getQuote(SPID)\n  ERCC --> ECC: quote, ECC_s_pk\n  ECC -> ERCC: register(quote, ECC_s_pk)\n  ERCC -> Orderer: send quote\n  Orderer -> ERCC: Attestation\n  ERCC -> ERCC: putState(ercc.ECC_s_pk, Attestation)\n  ERCC --> ECC: success / error\n  ECC --> Admin: success / error\n}\n\nAdmin -> Orderer: submit setup transaction\n\nnote right of Orderer\n  when next block ready\nend note\n\nrectangle \"register validation\" {\n  Orderer -> Peers: broadcast block\n  Peers --> Peers: Normal validation\n  Peers -> ERCC_VSCC: Custom ERCC validation\n  ERCC_VSCC -> ERCC_VSCC: expected_mrenclave = getState(ecc.MRENCLAVE)\n  ERCC_VSCC --> ERCC_VSCC: check attestation signature\n  ERCC_VSCC --> ERCC_VSCC: check attestation ECC_s_pk and mrenclave\n}\n\nECC_Enclave as ECC_Enclave\nERCC_VSCC as ERCC_VSCC\n\nnote bottom of ECC_Enclave\n  ECC_Enclave\nend note\n\nnote bottom of ERCC_VSCC\n  ERCC_VSCC\nend note\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2056,
+    "completion_tokens": 553,
+    "total_tokens": 2609
+  }
+}

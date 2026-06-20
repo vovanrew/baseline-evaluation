@@ -1,0 +1,22 @@
+{
+  "id": "c5490fdb-3232-4b9c-addb-0c47823131d9",
+  "object": "chat.completion",
+  "created": 1781502410,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\nactor \"laboratory coordinator\" as lab_coord\nparticipant \":LabCoordinatorUI\" as UI\nparticipant \":ValidateTestReportController\" as Controller\nparticipant \":Company\" as Company\nparticipant \"rp : TestStore\" as TestStore\nparticipant \"rp : Test\" as Test\nparticipant \"rp : TestReportStore\" as TestReportStore\nparticipant \"rp : TestReport\" as TestReport\nparticipant \":TestDiagnosis\" as Diagnosis\n\nlab_coord -> UI: 1 asks to validate report and diagnosis\nactivate UI\nUI -> Controller: 2 createTestList()\nactivate Controller\nController -> Company: 3 get = testReportsToValidate()\nactivate Company\nCompany -> TestStore: 4 get = testReportsToValidate()\nactivate TestStore\nTestStore -> Test: 5 get = getTestList()\nactivate Test\ndeactivate Test\ndeactivate TestStore\nCompany -> TestReportStore: 6 get = testReportsToValidate()\nactivate TestReportStore\nTestReportStore -> TestReport: 7 get = getTestReportList()\nactivate TestReport\nTestReport -> Diagnosis: 8 get = getTestDiagnosis()\nactivate Diagnosis\ndeactivate Diagnosis\ndeactivate TestReport\ndeactivate TestReportStore\ndeactivate Company\nref right of Controller: US15_SD_testReportsDTO.puml\nController --> UI: 9\ndeactivate Controller\ndeactivate UI\nUI --> lab_coord: 10 shows the available test reports and diagnosis and requests selection\nactivate UI\nlab_coord -> UI: 11 chooses all tests\nactivate UI\nUI --> lab_coord: 12 asks for confirmation\nlab_coord -> UI: 13 confirms selection\nactivate UI\nUI -> Controller: 14 validateAllTestReport()\nactivate Controller\ngroup loop\n    Controller -> Test: 15 validateTestReport(testId);\n    activate Test\n    Test -> Test: 16 setState(VALIDATED);\n    deactivate Test\n    Controller -> Test: 17 registerValidationDate(date);\n    activate Test\n    Test -> Test: 18 setValidationDate(date);\n    deactivate Test\nend\ndeactivate Controller\ndeactivate UI\nUI --> lab_coord: 19 informs operation success\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1272,
+    "completion_tokens": 487,
+    "total_tokens": 1759
+  }
+}

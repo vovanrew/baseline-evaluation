@@ -1,0 +1,35 @@
+```plantuml
+@startuml
+title **Initialization**
+
+box "service process" #LightBlue
+participant ConcreteImpl #PeachPuff
+participant DBusAdapter #LightGreen
+end box
+
+participant DBus #LightGray
+
+box "client process" #LightBlue/LightSteelBlue
+participant DBusProxy #LightGreen
+end box
+
+DBusAdapter <- DBusAdapter : Init(ConcreteImpl)
+DBusAdapter -> DBus : Export
+
+... ...
+
+DBusProxy <- DBusProxy : Init
+
+note right of DBusProxy
+Tries to fetch all properties
+including "ready" property
+end note
+
+DBus <- DBusProxy : ConnectToRemoteObject
+DBus <- DBusProxy : GetAllProperties
+ConcreteImpl <- DBusAdapter : GetAllProperties
+ConcreteImpl ..> DBusAdapter : return properties
+DBus ..> DBusProxy : return properties
+
+@enduml
+```

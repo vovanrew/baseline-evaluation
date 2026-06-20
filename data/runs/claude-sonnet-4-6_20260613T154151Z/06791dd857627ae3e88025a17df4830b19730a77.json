@@ -1,0 +1,21 @@
+{
+  "id": "msg_01GExRw4GtCWLi8EgVAPF3om",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor User\nparticipant Frontend\nparticipant \"API Gateway\" as APIGateway\n\nbox \"Matching Service\"\nparticipant Controller\nparticipant Service\nend box\n\nbox \"Matching Database\"\nparticipant Questions\nparticipant MatchRequests\nend box\n\nUser -> Frontend : PUT /api/find/match\\npayload: {requestId}\nFrontend -> APIGateway : PUT /api/find/match\\npayload: {requestId}\nAPIGateway -> Controller : PUT /api/find/match\\npayload: {requestId}\nController -> Service : checkForMatch(requestId)\nService -> MatchRequests : find user's MatchRequest with requestId\nMatchRequests --> Service : user's MatchRequest\nService -> MatchRequests : find another MatchRequest\nMatchRequests --> Service : another MatchRequest\nService -> Questions : get a random question\nQuestions --> Service : Question\nService -> Service : create sessionInfo and attach to each MatchRequest\nService -> MatchRequests : update the 2 MatchRequests\nMatchRequests --> Service :\nService --> Controller : user's MatchRequest\nController --> APIGateway : 200 OK\\npayload: {user's MatchRequest}\nAPIGateway --> Frontend : 200 OK\\npayload: {user's MatchRequest}\nFrontend -> Frontend : switch to session page\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781369841,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 322,
+    "prompt_tokens": 1656,
+    "total_tokens": 1978
+  }
+}

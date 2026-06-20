@@ -1,0 +1,81 @@
+@startuml
+actor Customer
+participant "Device" as Device
+participant "DeviceProvisioningService" as DPS #cyan
+participant "ProductIoTHub" as Hub #magenta
+participant "FWProvider" as FW #magenta
+
+note over Device, FW #lightyellow
+Device was registered for this product before
+end note
+
+== First start ==
+
+Customer -> Device: 1 Switch On/Power Up
+
+Device -> Device: Booting up
+
+Device -> DPS: 2 registerDevice(callback)
+DPS -> Device: 3 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)
+Device -> Device: 4 setProperties
+Device -> Hub: 5 iamNewToYou(deviceId, firmwareversion)
+
+opt [Firmware needs to be updated]
+    Hub -> Device: 6 updateFWMandantory(URL)
+    Device -> FW: 7 URL.get(OLDFW)
+    FW --> Device: 8 FW, Checksum
+
+    Device -> Device: Downloading
+
+    Device -> Device: 9 CheckChecksum
+    Device -> Device: 10 update
+
+    Device -> Device: Installing
+
+    Device -> Device: 11 restart
+
+    Device -> Device: Booting up
+
+    Device -> Hub: 12 iamNewToYou(deviceId, firmwareversion)
+end
+
+Hub -> Device: 13 youMayStartSending()
+Device -> Hub: 14 sendData(Data)
+
+Device -> Device: Working
+
+== Claim/Remove ==
+
+Hub -> Device: 15 youMustRetire()
+Device -> Device: 16 waits
+
+opt [if Device was not reached]
+    Device -> Hub: 17 sendData(Data)
+    Hub --> Device: 18 Not registered
+
+    Device -> DPS: 19 registerDevice(callback)
+    DPS --> Device: 20 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ERROR, null, null)
+    Device -> Device: 21 NobodyLovesMeMode()
+
+    loop [once a day]
+        Device -> DPS: 22 registerDevice(callback)
+    end
+end
+
+== IoT Hub not available ==
+
+loop [several times]
+    Device -> Hub: 23 sendData(Data)
+    Hub --> Device: 24 NotAvailable/Network Error
+end
+
+Device -> DPS: 25 registerDevice(callback)
+DPS --> Device: 26 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)
+Device -> Device: 27 compare IoTHub and change if necessary
+
+note over Device, FW #lightyellow
+if connection is now successfull, go on. If not and IoT Hub has not changed
+repeat with low frequence. Also if DPS is not available.
+end note
+
+@enduml

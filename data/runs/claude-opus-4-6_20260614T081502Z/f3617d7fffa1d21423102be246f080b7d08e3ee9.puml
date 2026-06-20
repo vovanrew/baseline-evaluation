@@ -1,0 +1,46 @@
+```plantuml
+@startuml
+
+box "Kjede"
+actor Bruker
+participant "Kjedesystem" as Kjedesystem
+participant "Identity Provider" as IdP
+end box
+
+box "DIFA"
+participant "DifaGUI" as DifaGUI
+participant "Tilgangskontroll" as Tilgangskontroll
+end box
+
+database "HPR-DB" as HPRDB
+participant "HDIR" as HDIR
+
+HDIR --> HPRDB : Oppdatert\nhelsepersonellregister
+
+Bruker -> Kjedesystem : Velg DIFA operasjon fra meny
+Kjedesystem --> Bruker : Redirect
+Bruker -> DifaGUI : Utfør operasjon
+DifaGUI --> Bruker : Krever pålogging – redirect
+Bruker -> IdP : Logg på
+IdP --> Bruker : Access token
+Bruker -> DifaGUI : Access token
+
+DifaGUI -> Tilgangskontroll : Autoriser bruker
+Tilgangskontroll -> DifaGUI : Access token
+DifaGUI --> Tilgangskontroll : JWT
+
+note left of Tilgangskontroll : token er en signert JSON payload
+
+Tilgangskontroll -> DifaGUI : «cached» Hent kjedesertifikat
+
+Tilgangskontroll -> Tilgangskontroll : Verifiser token signatur
+Tilgangskontroll -> Tilgangskontroll : Hent HPR nr fra token (+ roller)
+Tilgangskontroll -> HPRDB : HPR nummer
+HPRDB --> Tilgangskontroll : Autorisasjon (eks "farmasøyt")
+Tilgangskontroll -> Tilgangskontroll : Avgjør tilgang
+
+Tilgangskontroll -> DifaGUI : utfør operasjon
+DifaGUI --> Bruker
+
+@enduml
+```

@@ -1,0 +1,83 @@
+```plantuml
+@startuml
+class Comercio {
+  - Productos[] productos;
+  - Historial [] operaciones;
+  + public crearInsumo();
+  + public crearServicioDeArmado();
+  + public crearServicioDeReparacion();
+  + public buscarProductoPorNombre();
+  + public modificarPrecioListaProducto ();
+  + public addOperacion();
+  + public mostrarHistorialDeOperaciones();
+  + public mostrarProductoDisponibleParaVenta();
+}
+
+interface Matematica {
+  + Double resultado;
+  + Double delta;
+  public default sumarPorcentaje();
+}
+
+class Operaciones {
+  - String nombre;
+  - String fechaVenta;
+  - double precioLista;
+}
+
+abstract class Productos {
+  # String nombre;
+  # double precioLista;
+  {abstract} clonar()
+  {abstract} precioDeVenta()
+  {abstract} devolverMontoFacturacion()
+}
+
+class Insumos {
+  - String tipo;
+  - Double procentajeGanancia;
+  + devolverMontoFacturacion();
+}
+
+abstract class Servicios {
+  # Double horasOcupaServicio;
+  {abstract} devolverMontoFacturacion();
+}
+
+enum Tipo {
+  PERIFERICO
+  HARDWARE
+  LIMPIEZA
+  - String descripcionTipo;
+  - int nivelTipo;
+}
+
+enum Dificultad {
+  SIMPLE
+  NORMAL
+  COMPLEJO
+  AVANZADO
+  EXPERTO
+  - String descripcion;
+  - int nivel;
+}
+
+class ServicioReparacion {
+  - Dificultad dificultad;
+}
+
+class ServicioArmado {
+}
+
+Comercio "1" -- "1..*" Operaciones
+Comercio "1" -- "1..*" Productos
+Matematica <|.. Insumos
+Productos <|-- Insumos
+Productos <|-- Servicios
+Insumos ..> Tipo
+Servicios <|-- ServicioReparacion
+Servicios <|-- ServicioArmado
+Dificultad <.. ServicioReparacion
+
+@enduml
+```

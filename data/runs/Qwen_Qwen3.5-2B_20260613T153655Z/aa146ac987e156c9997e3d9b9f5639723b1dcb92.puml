@@ -1,0 +1,38 @@
+@startuml
+participant "Client" as Client
+
+participant "Mobile" as Mobile
+
+participant "SMS Gateway" as SMSGateway
+
+participant "Push Gateway" as PushGateway
+
+participant "DigitalDB" as DigitalDB
+
+participant "Keycloak + Extension" as Keycloak
+
+Client -- Mobile : 1 Enter PhoneNumber, Birthday
+Client -- Mobile : 2 Enter Password
+Mobile -> Keycloak : 3 POST /auth/signup (PhoneNumber, Birthday)
+Keycloak -> DigitalDB : 4 findClientRecord(PhoneNumber, Birthday): ClientRecord
+DigitalDB ..> Keycloak : 5 ClientRecord
+alt [ClientRecord is NOT found]
+Keycloak -> Mobile : 6 HTTP 202
+Mobile -> Keycloak : 7 saveInOTPContext(ClientRecord.id)
+Keycloak -> Mobile : 8 generateAndSaveOTP(): OTP
+Mobile -> Keycloak : 9 HTTP 202
+Keycloak -> SMSGateway : 10 sendSMS(phone=PhoneNumber, data=OTP)
+SMSGateway -> Mobile : 11 SMS with OTP
+Mobile -> Keycloak : 12 getPushToken(): Push Token
+PushGateway -> Keycloak : 13 Push Token
+Mobile -> Keycloak : 14 generateKeys(): [PublicKey, PrivateKey]
+Client -> Mobile : 15 Enter OTP
+Mobile -> Keycloak : 16 POST /auth/signup/complete (OTP, Password, Push Token, PublicKey)
+Keycloak -> Mobile : 17 validateOTP(OTP)
+Mobile -> Keycloak : 18 updateUser(ClientId, KeycloakUserId)
+Keycloak -> Mobile : 19
+Mobile -> Keycloak : 20 createMobileDevice(ClientId, Push Token, PublicKey)
+Keycloak -> Mobile : 21
+Mobile -> Keycloak : 22 generateJWT(scope="regular_user"): JWT
+Keycloak -> Mobile : 23 HTTP 200 {jwt: JWT}
+@enduml

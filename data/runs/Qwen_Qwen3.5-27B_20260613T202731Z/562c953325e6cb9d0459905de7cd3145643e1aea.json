@@ -1,0 +1,22 @@
+{
+  "id": "cfaf99db-d0b9-4226-a334-86ff73611f22",
+  "object": "chat.completion",
+  "created": 1781437162,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\nactor \"Service\" as Service\nparticipant \"Access token guard\" as Guard\npackage \"Auth microservice\" #LightGreen {\n    participant \"Session module\" as Session\n    participant \"Auth module\" as Auth\n}\n\nService -> Guard: request\nactivate Guard\nGuard -> Guard: get headers\nGuard -> Guard: check authentication header existence\n\nalt [Authentication header is undefined]\n    Guard --x Service: 401\nend\n\nGuard -> Guard: get access token from header\nGuard -> Auth: validate access token\nAuth --> Guard: result of validation\n\nalt [Access token is Invalid]\n    Guard --x Service: 401\nend\n\nGuard -> Auth: get embedded client id from access token\nAuth -> Auth: extract id\n\nalt [Client id is missing]\n    Auth -> Guard: error\n    Guard --x Service: 401\nend\n\nAuth -> Guard: client id\nGuard -> Guard: modify request with client id\nGuard --x Service: modified request\ndeactivate Guard\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2007,
+    "completion_tokens": 235,
+    "total_tokens": 2242
+  }
+}

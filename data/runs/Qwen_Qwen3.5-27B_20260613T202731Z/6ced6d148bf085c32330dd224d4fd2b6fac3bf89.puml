@@ -1,0 +1,63 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+package "CNBRPfwPlayCtl" as p1 {
+    interface INBRPlayCCSink
+    class CNBRPfwPlayCtl
+}
+
+participant "CNBRPfwUICtrl" as p2
+
+package "CNBRUIMgr" as p3 {
+    interface INBRCommand
+    class CNBRUIMgr
+}
+
+participant "CNBRPlayMgr" as p4
+participant "CNBRPlayBar" as p5
+participant "CWbxBmpButton" as p6
+
+box "nmac notify nbr_pfw mute message" as b1
+
+INBRPlayCCSink -> CNBRPfwPlayCtl: NotifyInfo
+activate INBRPlayCCSink
+activate CNBRPfwPlayCtl
+
+INBRPlayCCSink --> CNBRPfwPlayCtl: NotifyInfo
+deactivate INBRPlayCCSink
+
+CNBRPfwPlayCtl -> p2: OnMixerMuteNotify
+activate p2
+
+note right of CNBRPfwPlayCtl: NBR_CC_PFW_INFO_MUTE_STATE
+
+p2 -> INBRCommand: OnHandleCommand
+activate INBRCommand
+
+note right of p2: NBR2_PLAY_UI_MIXER_MUTE_NOTIFY
+
+INBRCommand --> CNBRUIMgr: OnHandleCommand
+deactivate INBRCommand
+activate CNBRUIMgr
+
+note right of INBRCommand: NBR2_PLAY_UI_MIXER_MUTE_NOTIFY
+
+CNBRUIMgr -> p4: HandleMixerMuteNotify
+activate p4
+
+p4 -> p5: MuteVolume
+activate p5
+
+p5 -> p6: SetChecked
+activate p6
+
+deactivate p6
+deactivate p5
+deactivate p4
+deactivate CNBRUIMgr
+deactivate p2
+deactivate CNBRPfwPlayCtl
+
+@enduml
+```

@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle Update Relationship Event Handler UML\n\nbox \"SNS\" #D87093\nparticipant \"Event Dispatcher Topic\" as SNS\nend box\n\nbox \"Lambda\" #FF8C00\nparticipant \"Update Relationship Event Handler\" as Lambda\nend box\n\nbox \"DynamoDB\" #4169E1\nparticipant \"Relationship Owner Table\" as OwnerTable\nparticipant \"Relationship Commitment Table\" as CommitmentTable\nend box\n\nactivate SNS\nSNS -> Lambda : filter on\\nRelationship::Update Event\nactivate Lambda\n\nLambda -> Lambda : [SessionDecorator.puml]\nactivate Lambda\ndeactivate Lambda\n\nLambda -> Lambda : [TrackEventHandlerWrapper.puml]\nactivate Lambda\ndeactivate Lambda\n\nLambda -> Lambda : extract Message from Event\nactivate Lambda\ndeactivate Lambda\n\nLambda -> Lambda : validate Message\nactivate Lambda\ndeactivate Lambda\n\nLambda -> Lambda : validate event-name\nactivate Lambda\ndeactivate Lambda\n\nLambda -> Lambda : validate event-version\nactivate Lambda\ndeactivate Lambda\n\nLambda -> Lambda : validate stage\nactivate Lambda\ndeactivate Lambda\n\nLambda -> OwnerTable : Get Existing Relationship\nactivate OwnerTable\nOwnerTable --> Lambda\ndeactivate OwnerTable\n\nLambda -> Lambda : Generate Relationship Dict\nactivate Lambda\ndeactivate Lambda\n\nLambda -> Lambda : Combine Existing Relationship\\nAttributes With New Changes\nactivate Lambda\ndeactivate Lambda\n\nopt if missing required schema key\n    Lambda -> Lambda : <color:red>Error Handling</color>\n    activate Lambda\n    deactivate Lambda\nend\n\nLambda -> Lambda : Get AdditionalAttributes\nactivate Lambda\ndeactivate Lambda\n\nalt if Relationship contains description and AdditionalAttributes\\ndoesn't contain completed signal\n    Lambda -> OwnerTable : update Relationship\n    activate OwnerTable\n    OwnerTable --> Lambda\n    deactivate OwnerTable\nelse\n    Lambda -> Lambda : <color:red>Error Handling</color>\n    activate Lambda\n    deactivate Lambda\nend\n\nLambda -> Lambda : Generate commitments to add or delete\nactivate Lambda\ndeactivate Lambda\n\nalt if Commitment Operations Exist\n    Lambda -> Lambda : Generate starting indexes based on AdditionalAttributes\n    activate Lambda\n    deactivate Lambda\n\n    Lambda -> CommitmentTable : Batch_Write() RelationshipCommitments\n    activate CommitmentTable\n    CommitmentTable --> Lambda\n    deactivate CommitmentTable\nelse\n    Lambda -> Lambda : <color:red>Error Handling</color>\n    activate Lambda\n    deactivate Lambda\nend\n\nLambda -> Lambda : Track Event Handler Wrapper\nactivate Lambda\ndeactivate Lambda\n\nLambda -> Lambda : Error Handler Wrapper\nactivate Lambda\ndeactivate Lambda\n\ndeactivate Lambda\ndeactivate SNS\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbH4ZA53bGG5CkuSso6wDag0Gd33b4coINFze3qnlYE3Xq/dRrhASEWUOgoD2R0"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1172,
+    "candidatesTokenCount": 567,
+    "totalTokenCount": 1739,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1092
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "SF8xaorjD6ibvdIPyKSDqA4"
+}

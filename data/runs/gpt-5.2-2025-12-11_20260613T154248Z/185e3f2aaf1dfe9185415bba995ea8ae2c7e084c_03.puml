@@ -1,0 +1,30 @@
+@startuml
+title c12 Comprar Libro - Flujo normal
+
+actor Cliente
+participant Sistema
+
+Cliente -> Sistema : libros = iniciar_compra(cliente)
+activate Cliente
+activate Sistema
+
+Cliente -> Sistema : seleccionar_libro(libro)
+activate Sistema
+Sistema -> Sistema : ok = calcular_costo(libro)
+
+Sistema -> Cliente : obtener_informacion_pago()
+activate Cliente
+Cliente -> Sistema : pago(info)
+deactivate Cliente
+
+Sistema -> Sistema : ok = actualizar_stock(libro)
+Sistema -> Sistema : ok = descontar_costo(libro)
+Sistema -> Sistema : ok = cambiar_categoria_cliente(cliente)
+Sistema -> Sistema : ok = guardar_datos_compra(cliente, libro)
+
+Sistema --> Cliente : datos_compra
+
+deactivate Sistema
+deactivate Sistema
+deactivate Cliente
+@enduml

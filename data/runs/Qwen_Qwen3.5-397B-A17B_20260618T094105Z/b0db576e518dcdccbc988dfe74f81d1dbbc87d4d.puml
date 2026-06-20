@@ -1,0 +1,42 @@
+@startuml
+title Sequência de Simulação
+
+actor "Usuário" as User1 at 0
+participant "Simulação\n<<interface>>\n#FFFFFF #DDDDFF \n--\nsimula()" as Simulation1 at 256
+database DB <<Database>> { } as Database1 at 489
+
+
+User1 ->> Simulation1 : Inicia a simulação 
+activate Simulation1 
+
+Simulation1->>Database1: Busca dados  
+activate Database1  
+
+note right of Database1   
+Os dados retornados são aqueles ainda não utilizados em nomeações e alocações anteriores.    
+end note   
+
+return "\"Volumes, PO, Viagens\"" from Database1 to Simulation1 deactivate Database1 
+
+
+loop Calcula Nomeacoes     
+    alt [Nomeação]        
+        activate Simulation1         
+        return ""       
+        deactivate Simulation1      
+    end if     
+    
+     loop Alocação          
+         alt Alocacao              
+             activate Simulation1               
+              return ""            
+               deactivate simulation           
+            endif             
+          else                
+           break                 
+       End Loop    
+
+   Return Resultados From Simulation To user Deactivatesimulation  
+
+
+@enduml

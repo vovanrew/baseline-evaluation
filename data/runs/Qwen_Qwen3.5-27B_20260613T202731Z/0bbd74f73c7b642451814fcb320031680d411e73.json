@@ -1,0 +1,22 @@
+{
+  "id": "4b49a5e3-9018-4c8c-b26f-216b929d8534",
+  "object": "chat.completion",
+  "created": 1781440959,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\nactor \"sidetree-core-go\" as Client1\nparticipant \"Instance 1\" as Instance1 {\n    participant \"Operation Queue\" as OpQueue1\n}\nparticipant \"orb.operation\" as OrbOp as queue\ndatabase \"op-queue DB\" as DB\nparticipant \"Instance 2\" as Instance2 {\n    participant \"Operation Queue\" as OpQueue2\n}\n\nClient1 -> OpQueue1 : Add(op1)\nactivate OpQueue1\nOpQueue1 -> OrbOp : Publish(op1)\nactivate OrbOp\nOrbOp --> OpQueue1 : ok\ndeactivate OrbOp\nOpQueue1 --> Client1 : ok\ndeactivate OpQueue1\n\nClient1 -> OpQueue2 : Add(op2)\nactivate OpQueue2\nOpQueue2 -> OrbOp : Publish(op2)\nactivate OrbOp\nOrbOp --> OpQueue2 : ok\ndeactivate OrbOp\nOpQueue2 --> Client1 : ok\ndeactivate OpQueue2\n\nOpQueue1 <- OrbOp : op2\nactivate OpQueue1\nOpQueue1 --> OrbOp : ok\ndeactivate OpQueue1\n\nOpQueue1 -> DB : Put(op2,handler1ID,expiry)\nactivate DB\nDB --> OpQueue1 : ok\ndeactivate DB\n\nOpQueue1 -> OrbOp : Ack(op2)\nactivate OrbOp\nOrbOp --> OpQueue1 : ok\ndeactivate OrbOp\n\nOpQueue2 <- OrbOp : op1\nactivate OpQueue2\nOpQueue2 --> OrbOp : ok\ndeactivate OpQueue2\n\nOpQueue2 -> DB : Put(op1,handler2ID,expiry)\nactivate DB\nDB --> OpQueue2 : ok\ndeactivate DB\n\nOpQueue2 -> OrbOp : Ack(op1)\nactivate OrbOp\nOrbOp --> OpQueue2 : ok\ndeactivate OrbOp\n\n' Subscriptions\nOpQueue1 -> OrbOp : Subscribe\nactivate OrbOp\nOrbOp --> OpQueue1 : ok\ndeactivate OrbOp\n\nOpQueue2 -> OrbOp : Subscribe\nactivate OrbOp\nOrbOp --> OpQueue2 : ok\ndeactivate OrbOp\n\nactor \"sidetree-core-go\" as Client2\nparticipant \"Operation Queue\" as OpQueue3\nparticipant \"orb.operation\" as OrbOp2 as queue\ndatabase \"op-queue DB\" as DB2\nparticipant \"Operation Queue\" as OpQueue4\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1811,
+    "completion_tokens": 527,
+    "total_tokens": 2338
+  }
+}

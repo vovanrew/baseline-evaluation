@@ -1,0 +1,54 @@
+```plantuml
+@startuml
+
+participant CommandLine
+participant AppSolver
+participant DataReader
+participant PreVerification
+participant Model
+participant Solver
+participant PostVerification
+participant Solution
+participant Exception
+participant Terminate
+
+CommandLine -> AppSolver : Launch App
+CommandLine <-- AppSolver : Arguments valid
+
+AppSolver -> DataReader : Read data
+AppSolver <-- DataReader : Read successfully
+
+DataReader -> PreVerification : Verify the data
+DataReader -> Model : Generate the model
+DataReader <-- PreVerification : Data is ok
+
+AppSolver <-- Model : Construct successfully
+
+Model -> Solver : Solve the problem
+Model <-- Solver : Solve successfully
+
+Solver -> PostVerification : Verify the solution
+Solver <-- PostVerification : Solution is accepted
+
+PostVerification -> Solution : Export
+PostVerification <-- Solution : Export successfully
+
+Solution -> Exception : Export failed, show the fatal error
+Solution -> Terminate : Finish, exit normally
+
+CommandLine <-- AppSolver : Invalid Arguments, then display Usage
+
+AppSolver -> Exception : Read failed, show the fatal error
+
+PreVerification -> Exception : Data isn't valid
+
+Model -> Exception : Construct failed, show the fatal error
+
+Solver -> Exception : Solve failed, show the reason
+
+PostVerification -> Exception : Solution is rejected
+
+Exception -> Terminate : Exit with error
+
+@enduml
+```

@@ -1,0 +1,138 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+package "Client" as Client {
+  interface "InfoPraiaFonte" as InfoPraiaFonte {
+    {field} key: String
+    {field} number
+  }
+
+  interface "InfoPontoPrevisãoResponse" as InfoPontoPrevisaoResponse {
+    {field} hours: InfoPonto[]
+  }
+
+  interface "InfoPonto" as InfoPonto {
+    {field} tempo: String
+    {field} alturaOnda: InfoPraiaFonte
+    {field} direcaoOnda: InfoPraiaFonte
+    {field} alturaOndulacao: InfoPraiaFonte
+    {field} direcaoOndulacao: InfoPraiaFonte
+    {field} periodoOndulacao: InfoPraiaFonte
+    {field} velocidadeVento: InfoPraiaFonte
+    {field} direcaoVento: InfoPraiaFonte
+  }
+
+  class "ApiInfoPraia" as ApiInfoPraia << (C,#BFE6BF) >> {
+    {field} parameters: []
+    {field} request: Class Request
+    --
+    {method} buscarPonto(lat, lng): I<IPrevisãoPonto[]>
+    {method} normalizarResponso(points: InfoPontoPrevisãoResponse): IPrevisãoPonto[]
+    {method} pontoVálido(point: I<InfoPonto>): Boolean
+  }
+
+  interface "IPrevisãoPonto" as IPrevisaoPonto {
+    {field} tempo: String
+    {field} alturaOnda: Number
+    {field} direcaoOnda: Number
+    {field} alturaOndulacao: Number
+    {field} direcaoOndulacao: Number
+    {field} periodoOndulacao: Number
+    {field} velocidadeVento: Number
+    {field} direcaoVento: Number
+  }
+
+  class "Request" as Request << (C,#BFE6BF) >> {
+    {field} request: {}
+    --
+    {method} get(url)
+  }
+
+  note top of ApiInfoPraia
+    parameters: [alturaOnda, direçãoOnda, alturaOndulação,
+    direçãoOndulação, períodoOndulação,
+    velocidadeVento, direçãoVento]
+  end note
+}
+
+package "Models" as Models {
+  interface "IPraia" as IPraia {
+    {field} id: Integer
+    {field} name: String
+    {field} position[1]: Position
+    {field} lat: Integer
+    {field} lng: Integer
+    {field} user: String
+  }
+
+  class "Position" as Position << (E,#F6C7C7) >> {
+    {field} N
+    {field} S
+    {field} L
+    {field} O
+  }
+
+  interface "IUser" as IUser {
+    {field} id: String
+    {field} name: String
+    {field} email: String
+    {field} password: String
+  }
+
+  interface "PraiaModel" as PraiaModel
+  interface "ModelUser" as ModelUser
+
+  class "Praia" as Praia << (C,#BFE6BF) >>
+}
+
+package "Middlewares" as Middlewares {
+}
+
+package "Services" as Services {
+  interface "IPraia" as S_IPraia
+  interface "IPrevisãoPonto" as S_IPrevisaoPonto
+  interface "ITempoPrevisão" as ITempoPrevisao {
+    {field} tempo: String
+    {field} previsão: IPrevisãoPraia[]
+  }
+
+  class "Previsão" as Previsao << (C,#BFE6BF) >> {
+    {field} apiInfoPraia: ApiInfoPraia
+    {field} servicoAvaliacao: Avaliacao
+    --
+    {method} processandoPrevisãoPorPraia(praia): <ITempoPrevisão[]>
+  }
+
+  interface "IPrevisãoPraia" as IPrevisaoPraia {
+    {field} avaliação: Number
+  }
+}
+
+package "Controllers" as Controllers {
+  class "PraiasController" as PraiasController << (C,#F6C7C7) >> {
+    {field} praia: Praia
+    {field} resultado: mensagem
+    --
+    {method} create(req, res)
+    {method} novaPraia(req, body)
+    {method} praia.save()
+  }
+}
+
+' Relationships
+ApiInfoPraia ..> InfoPontoPrevisaoResponse
+ApiInfoPraia ..> IPrevisaoPonto
+ApiInfoPraia --> Request
+
+IPraia --> Position : position[1]
+PraiaModel ..> Praia : <<create>>
+PraiasController --> Praia : praia
+PraiasController --> "mensagem" : resultado
+
+Previsao --> ApiInfoPraia : apiInfoPraia
+Previsao --> "Avaliacao" : servicoAvaliacao
+Previsao ..> ITempoPrevisao
+
+@enduml

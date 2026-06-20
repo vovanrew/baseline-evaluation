@@ -1,0 +1,61 @@
+@startuml
+class "DataAnalysisCLI" as DataAnalysisCLI {
+  +data: DataFrame
+  +reader: KeyboardReader
+  +DataAnalysisCLI()
+  +run(): void
+  +main(args: String[]): void
+}
+
+class "DataFrame" as DataFrame {
+  -fileName: String
+  -headerNames: String[]
+  -numOfRows: int
+  -numOfCols: int
+  -csvData: double[][]
+  +DataFrame(fileName: String)
+  +toString(): String
+  +getColumnByIndex(index: int): DataSeries
+  +getHeaderNames(): String[]
+  +getNumberOfRows(): int
+  +getNumberOfCols(): int
+}
+
+class "KeyboardReader" as KeyboardReader {
+  -reader: BufferedReader
+  +KeyboardReader()
+  +getKeyboardInput(): String
+  +getKeyboardInteger(): int
+  +getKeyboardDouble(): double
+  +prompt(s: String): void
+  +display(s: String): void
+  -readKeyboard(): String
+}
+
+class "DataSeries" as DataSeries {
+  -label: String
+  -data: double[]
+  -count: int
+  +DataSeries(label: String)
+  +size(): int
+  +add(val: double): void
+  +getMin(): double
+  +getMax(): double
+  +getSum(): double
+  +getMean(): double
+  +toString(): String
+}
+
+interface "IBasicStats" as IBasicStats {
+  +getMin(): double
+  +getMax(): double
+  +getSum(): double
+  +getMean(): double
+}
+
+DataAnalysisCLI --> DataFrame : 1
+DataAnalysisCLI --> KeyboardReader : 1
+DataFrame --> DataSeries : 1
+DataSeries ..|> IBasicStats : 1
+
+@enduml

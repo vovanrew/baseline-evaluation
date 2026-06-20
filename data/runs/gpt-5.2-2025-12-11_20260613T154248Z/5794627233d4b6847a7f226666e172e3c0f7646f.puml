@@ -1,0 +1,84 @@
+@startuml
+title Weekly Rewards to Vaults
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F6
+  ActorBorderColor #666666
+  ActorBackgroundColor #E9E9F6
+  BoxBorderColor #000000
+  BoxBackgroundColor #FFFFFF
+  NoteBackgroundColor #FFFEDB
+  NoteBorderColor #666666
+  DividerBorderColor #000000
+  DividerBackgroundColor #FFFFFF
+  DividerFontStyle bold
+}
+
+actor User
+actor Ops
+
+participant "«mStable»\nEmissions Controller" as EC
+participant "«mStable»\nVaults" as V
+participant "«mStable»\nMTA" as MTA
+
+User -> EC : setVoterDialWeights ([dial ids], [weights])
+EC --> User
+
+note right of EC
+proportions voting power across dials
+for future distributions
+end note
+
+== After Thursday 00:00 UTC ==
+
+Ops -> EC : calculateRewards ()
+EC --> Ops
+
+note right of EC
+Calculates and stores
+rewards for each dial
+end note
+
+Ops -> EC : distributeRewards ([dial ids])
+EC --> Ops
+
+loop [Dials]
+note left of EC
+transfer MTA
+from Emissions Controller
+to Vault
+end note
+
+EC -> MTA : transfer(vault, rewards)
+MTA --> EC
+
+EC -> V : notifyRewardAmount(rewards)
+V --> EC
+
+note right of V
+Stream MTA to Users
+end note
+end
+
+== After rewards have accrued ==
+
+User -> V : claimRewards ()
+
+note left of V
+transfer MTA
+from Vault
+to User
+end note
+
+V -> MTA : transfer(user, rewards)
+MTA --> V
+
+V --> User
+
+@enduml

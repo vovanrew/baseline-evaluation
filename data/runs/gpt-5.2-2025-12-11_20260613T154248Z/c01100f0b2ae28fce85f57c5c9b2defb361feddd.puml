@@ -1,0 +1,92 @@
+@startuml
+skinparam backgroundColor white
+skinparam sequence {
+  ArrowColor black
+  LifeLineBorderColor #999999
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #333333
+  ParticipantBackgroundColor #E6E6FA
+  ActorBorderColor #333333
+  ActorBackgroundColor #FFFFFF
+  BoxBorderColor #333333
+  BoxBackgroundColor #FFFFFF
+  NoteBackgroundColor #FFFED6
+  NoteBorderColor #999999
+  GroupBorderColor #333333
+  GroupBackgroundColor #FFFFFF
+  DividerBackgroundColor #FFFFFF
+  DividerBorderColor #333333
+}
+
+actor Customer as C
+participant Device as D #E6E6FA
+participant DeviceProvisioningService as DPS #00E5EE
+participant ProductIoTHub as HUB #00E5EE
+participant FWProvider as FW #FF00FF
+
+note over D,DPS,HUB,FW
+Device was registered for this product before
+end note
+
+== First start ==
+
+C -> D : 1 Switch On/Power Up
+note over D : Booting up
+
+D -> DPS : 2 registerDevice(callback)
+DPS --> D : 3 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)
+D -> D : 4 setProperties
+D -> HUB : 5 iamNewToYou(deviceId, firmwareversion)
+
+opt Firmware needs to be updated
+  HUB --> D : 6 updateFWMandantory(URL)
+  D -> FW : 7 URL.get(OLDFW)
+  FW --> D : 8 FW, Checksum
+  note over D : Downloading
+  D -> D : 9 CheckChecksum
+  note over D : Installing
+  D -> D : 10 update
+  D -> D : 11 restart
+  note over D : Booting up
+  D -> HUB : 12 iamNewToYou(deviceId, firmwareversion)
+end
+
+HUB --> D : 13 youMayStartSending()
+D -> HUB : 14 sendData(Data)
+note over D : Working
+
+== Claim / Remove ==
+
+HUB --> D : 15 youMustRetire()
+D -> D : 16 waits
+
+opt if Device was not reached
+  D -> HUB : 17 sendData(Data)
+  HUB --> D : 18 Not registered
+end
+
+D -> DPS : 19 registerDevice(callback)
+DPS --> D : 20 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ERROR, null, null)
+D -> D : 21 NobodyLovesMeMode()
+
+loop once a day
+  D -> DPS : 22 registerDevice(callback)
+end
+
+== IoT Hub not available ==
+
+loop several times
+  D -> HUB : 23 sendData(Data)
+  HUB --> D : 24 NotAvailable/Network Error
+end
+
+D -> DPS : 25 registerDevice(callback)
+DPS --> D : 26 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)
+D -> D : 27 compare IoTHub and change if necessary
+
+note over D,DPS,HUB,FW
+if connection is now successful, go on. If not and IoT Hub has not changed
+repeat with low frequence. Also if DPS is not available.
+end note
+
+@enduml

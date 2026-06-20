@@ -1,0 +1,46 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "Nutzer" as User
+participant "ServiceFactory" as SF
+participant "PruefHandler" as PH
+participant "PersonenServiceImpl" as PSI
+participant "Proxy" as Proxy
+
+== Initialisierung ==
+
+User -> SF: 1 getPersonenService()
+activate SF
+SF -> PH: 2 create
+activate PH
+PH -> PSI: 3 create
+activate PSI
+PSI --> PH: 4 ziel
+deactivate PSI
+PH --> SF: 5 instanz
+deactivate PH
+SF -> Proxy: 6 create
+activate Proxy
+Proxy --> SF: 7 PersonenService
+deactivate Proxy
+SF --> User: 8 service
+deactivate SF
+
+== service.neu ==
+
+User -> Proxy: 9 neu
+activate Proxy
+Proxy -> PH: 10 invoke
+activate PH
+PH -> PSI: 11 neu
+activate PSI
+PSI --> PH: 12 Person
+deactivate PSI
+PH --> Proxy: 13 Person
+deactivate PH
+Proxy --> User: 14 Person
+deactivate Proxy
+
+@enduml
+```

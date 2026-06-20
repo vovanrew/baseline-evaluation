@@ -1,0 +1,52 @@
+@startuml
+participant "user" as User
+participant "FindWorkbookUI" as FindWorkbookUI
+participant "UIController" as UIController
+participant "FindWorkbooksController" as FindWorkbooksController
+participant "StartWorkbooksSearch" as StartWorkbooksSearch
+participant "fw : FindWorkbooks" as FindWorkbooks
+participant "Paths" as Paths
+participant "Files" as Files
+participant "Cleansheets" as Cleansheets
+
+User ->> FindWorkbookUI : startWorkbooksSearch()
+
+alt [adicionar]
+    loop [todas as adicoes]
+        FindWorkbookUI ->> FindWorkbooksController : add(path)
+        FindWorkbooksController ->> FindWorkbooksController : create()
+        FindWorkbooksController ->> FindWorkbooksController : start()
+        FindWorkbooksController ->> FindWorkbooksController : run()
+        FindWorkbooksController ->> FindWorkbooksController : create()
+        FindWorkbooksController ->> Paths : p : get()
+        FindWorkbooksController ->> Files : walkFileTree(p, fw)
+    end
+    loop [todas as remocoes]
+        FindWorkbookUI ->> FindWorkbooksController : remover(path)
+        FindWorkbooksController ->> FindWorkbooksController : create()
+    end
+end
+
+FindWorkbookUI ->> FindWorkbooksController : startWorkbooksSearch()
+
+loop [todas as paths]
+    FindWorkbookUI ->> FindWorkbooksController : create(path, WorkbooksFoundList)
+    FindWorkbooksController ->> FindWorkbooksController : create()
+    FindWorkbooksController ->> FindWorkbooksController : start()
+    FindWorkbooksController ->> FindWorkbooksController : run()
+    FindWorkbooksController ->> FindWorkbooksController : create()
+    FindWorkbooksController ->> Paths : p : get()
+    FindWorkbooksController ->> Files : walkFileTree(p, fw)
+end
+
+User ->> FindWorkbookUI : openFoundWorkbook()
+
+FindWorkbookUI ->> UIController : app : getApp()
+note right of FindWorkbookUI
+    f represents a file that is created when the user selects a workbook to open from the list of found workbooks
+end note
+
+FindWorkbookUI ->> UIController : w : getWorkbook(f)
+FindWorkbookUI ->> Cleansheets : setActiveWorkbook(w)
+
+@enduml

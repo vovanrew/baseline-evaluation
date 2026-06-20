@@ -1,0 +1,36 @@
+@startuml
+box "User application" #lavender
+participant Main
+end box
+
+participant Propagator
+participant Integrator
+participant DifferentialEquations
+participant OrbitType
+participant TimesDerivative
+participant "Force Model i" as ForceModel
+participant NewtonianAttraction
+
+Main -> Propagator : propagate
+Propagator -> DifferentialEquations : create
+Propagator -> TimesDerivative : create
+
+Propagator -> Integrator : integrate
+
+loop [for n steps]
+    Integrator -> DifferentialEquations : computeDerivatives
+    DifferentialEquations -> OrbitType : mapArrayToOrbit
+
+    loop [for all perturbation force models]
+        DifferentialEquations -> ForceModel : addContribution
+        ForceModel -> TimesDerivative : addAcceleration
+    end
+
+    DifferentialEquations -> NewtonianAttraction : addContribution
+    NewtonianAttraction -> TimesDerivative : addKeplerContribution
+end
+
+Propagator --> Main : final state
+Integrator --> Propagator : final state
+
+@enduml

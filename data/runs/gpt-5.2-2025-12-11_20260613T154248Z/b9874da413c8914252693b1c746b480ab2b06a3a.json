@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLqEg4RnWCi55Yq5lcEUckdiowK7",
+  "object": "chat.completion",
+  "created": 1781369386,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequenceMessageAlign left\nskinparam NoteBackgroundColor #FFF9C4\nskinparam NoteBorderColor #BDB76B\n\nactor User\nparticipant \"executor:AnalysisExecutor\" as Exec\nparticipant \":Analysis\" as Analysis\nparticipant \":CountryCaseAPIGetter\" as CaseGetter\nparticipant \":CountryDeathAPIGetter\" as DeathGetter\nparticipant \":CountryPopulationAPIGetter\" as PopGetter\nparticipant \":APIInformationGetter\" as InfoGetter\nactor \"Covid API\" as CovidAPI\n\nUser -> Exec : runAnalysis()\nactivate Exec\n\nopt At least one country selected for analysis\n  Exec -> Analysis : analyze()\n  activate Analysis\n\n  alt CasesPerCapitaAnalysis\n    par\n      Analysis -> CaseGetter : getCases()\n      activate CaseGetter\n      CaseGetter -> InfoGetter : getDataURL()\n      activate InfoGetter\n      InfoGetter --> CaseGetter : API Endpoint URL\n      deactivate InfoGetter\n      CaseGetter -> CovidAPI : API Call\n      activate CovidAPI\n      CovidAPI --> CaseGetter : API Information\n      deactivate CovidAPI\n      CaseGetter --> Analysis : Cases in target Countries\n      deactivate CaseGetter\n\n      Analysis -> PopGetter : getPopulation()\n      activate PopGetter\n      PopGetter -> InfoGetter : getDataURL()\n      activate InfoGetter\n      InfoGetter --> PopGetter : API Endpoint URL\n      deactivate InfoGetter\n      PopGetter -> CovidAPI : API Call\n      activate CovidAPI\n      CovidAPI --> PopGetter : API Information\n      deactivate CovidAPI\n      PopGetter --> Analysis : Population of target Countries\n      deactivate PopGetter\n    end\n  else TotalCaseAnalysis\n    Analysis -> CaseGetter : getCases()\n    activate CaseGetter\n    CaseGetter -> InfoGetter : getDataURL()\n    activate InfoGetter\n    InfoGetter --> CaseGetter : API Endpoint URL\n    deactivate InfoGetter\n    CaseGetter -> CovidAPI : API Call\n    activate CovidAPI\n    CovidAPI --> CaseGetter : API Information\n    deactivate CovidAPI\n    CaseGetter --> Analysis : Cases in target Countries\n    deactivate CaseGetter\n  else MajorityCaseSexPerCapitaAnalysis\n    par\n      Analysis -> CaseGetter : getMaleCases()\n      activate CaseGetter\n      CaseGetter -> InfoGetter : getDataURL()\n      activate InfoGetter\n      InfoGetter --> CaseGetter : API Endpoint URL\n      deactivate InfoGetter\n      CaseGetter -> CovidAPI : API Call\n      activate CovidAPI\n      CovidAPI --> CaseGetter : API Information\n      deactivate CovidAPI\n      CaseGetter --> Analysis : Male cases in target Countries\n      deactivate CaseGetter\n\n      Analysis -> CaseGetter : getFemaleCases()\n      note right of CaseGetter\n        A call to the endpoint has\\nalready been made so\\nanother is not necessary\n      end note\n      CaseGetter --> Analysis : Female cases in target Countries\n\n      Analysis -> PopGetter : getMalePopulation()\n      activate PopGetter\n      PopGetter -> InfoGetter : getDataURL()\n      activate InfoGetter\n      InfoGetter --> PopGetter : API Endpoint URL\n      deactivate InfoGetter\n      PopGetter -> CovidAPI : API Call\n      activate CovidAPI\n      CovidAPI --> PopGetter : API Information\n      deactivate CovidAPI\n      PopGetter --> Analysis : Male population in target Countries\n      deactivate PopGetter\n\n      Analysis -> PopGetter : getFemalePopulation()\n      note right of PopGetter\n        A call to the endpoint has\\nalready been made so\\nanother is not necessary\n      end note\n      PopGetter --> Analysis : Female population in target Countries\n    end\n  else DeathsPerCapitaAnalysis\n    par\n      Analysis -> DeathGetter : getDeaths()\n      activate DeathGetter\n      DeathGetter -> InfoGetter : getDataURL()\n      activate InfoGetter\n      InfoGetter --> DeathGetter : API Endpoint URL\n      deactivate InfoGetter\n      DeathGetter -> CovidAPI : API Call\n      activate CovidAPI\n      CovidAPI --> DeathGetter : API Information\n      deactivate CovidAPI\n      DeathGetter --> Analysis : Deaths in target Countries\n      deactivate DeathGetter\n\n      Analysis -> PopGetter : getPopulation()\n      activate PopGetter\n      PopGetter -> InfoGetter : getDataURL()\n      activate InfoGetter\n      InfoGetter --> PopGetter : API Endpoint URL\n      deactivate InfoGetter\n      PopGetter -> CovidAPI : API Call\n      activate CovidAPI\n      CovidAPI --> PopGetter : API Information\n      deactivate CovidAPI\n      PopGetter --> Analysis : Population of target Countries\n      deactivate PopGetter\n    end\n  end\n\n  Analysis --> Exec : Analysis Result\n  deactivate Analysis\nend\n\nExec --> User : Finish (void)\ndeactivate Exec\n\nnote left of User\n  Per country analysis results\\nare stored for later rendering\nend note\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1791,
+    "completion_tokens": 1007,
+    "total_tokens": 2798,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

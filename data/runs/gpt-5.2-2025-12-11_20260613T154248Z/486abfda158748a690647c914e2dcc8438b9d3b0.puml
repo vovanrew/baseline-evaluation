@@ -1,0 +1,84 @@
+```plantuml
+@startuml
+title 票据签发
+
+participant "web" as WEB
+participant "供票服务" as SUP
+participant "文件系统" as FS
+participant "贸易背景" as TB
+participant "工作流" as WF
+participant "短信服务" as SMS
+
+WEB -> WEB : 1 点击票据签发
+WEB -> WEB : 2 填写出票人信息
+WEB -> WEB : 3 填写承兑人信息
+WEB -> WEB : 4 填写收票人信息
+WEB -> WEB : 5 填写保证人信息（非必须）
+WEB -> WEB : 6 填写票据信息
+WEB -> WEB : 7 点击下一步
+
+WEB -> SUP : 8 请求保存第一步数据
+activate SUP
+SUP -> SUP : 9 入参校验
+SUP -> SUP : 10 创建交易单（trade表,交易状态 1-初始）
+SUP -> SUP : 11 创建交易单记录（trade_detail表，预生成bill_id和bill_code）
+SUP -> SUP : 12 添加资产记录（assert表，资产状态=0初始）
+SUP -> SUP : 13 添加开票拓展记录，绑定资产id(trade_issue_ext表)
+SUP --> WEB : 14 返回trade_code
+deactivate SUP
+
+WEB -> SUP : 15 上传贸易背景资料
+activate SUP
+SUP -> FS : 16 上传贸易背景资料
+activate FS
+FS --> SUP : 17 贸易背景文件id
+deactivate FS
+SUP --> WEB : 18 贸易背景文件id
+deactivate SUP
+
+WEB -> SUP : 19 请求发票清单
+activate SUP
+SUP -> TB : 20 请求发票列表
+activate TB
+TB --> SUP : 21 可用的发票列表
+deactivate TB
+SUP --> WEB : 22 可用的发票资料
+deactivate SUP
+
+WEB -> SUP : 23 点击下一步
+activate SUP
+SUP -> SUP : 24 入参校验，若有上传发票，则校验发票金额和开票金额大小\n反之则不校验
+SUP -> TB : 25 发送选定的发票id和文件id
+activate TB
+TB -> TB : 26 校验发票是否可用
+
+alt 发票不可用
+TB -> SMS : 27 发送短信通知开票人发票不可用
+activate SMS
+deactivate SMS
+else 发票可用
+TB --> SUP : 28 贸易背景id
+end
+deactivate TB
+
+SUP -> SUP : 29 绑定贸易背景id（trade_issue_ext表）
+SUP --> WEB : 30 展示票面校对信息
+deactivate SUP
+
+WEB -> SUP : 31 确认提交
+activate SUP
+SUP -> SUP : 32 动态密码器挑战码校验
+SUP -> SUP : 33 修改trade状态，1初始->2待审核
+SUP -> WF : 34 请求开启工作流
+activate WF
+WF --> SUP : 35 返回工作流id
+deactivate WF
+SUP -> SUP : 36 保存工作流id
+SUP -> SMS : 37 发送短信通知下一审批人
+activate SMS
+deactivate SMS
+SUP --> WEB : 38 完成
+deactivate SUP
+
+@enduml
+```

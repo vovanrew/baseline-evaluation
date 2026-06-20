@@ -1,0 +1,22 @@
+{
+  "id": "b3074492-2f83-43c1-bd8b-da93c91aa8f3",
+  "object": "chat.completion",
+  "created": 1781438011,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\nparticipant \"browser\" as browser\nparticipant \"proxy\" as proxy\nactor \"backend\" as backend\nparticipant \"component_config\" as component_config\nparticipant \"subscription_map\" as subscription_map\nparticipant \"normalized_object_map\" as normalized_object_map\nparticipant \"normalized_object\" as normalized_object\n\nactivate browser\nbrowser -> proxy: 1 get_state(\\nconfiguration_name,\\ngeo_bounding_box\\n)\nactivate proxy\nproxy -> backend: 2 +TENANT_HEADER\nactivate backend\nbackend -> component_config: 3 component_config[configuration_name]\\n.subscription_usages\nactivate component_config\ncomponent_config --> backend: 4 [ subscription_usage_config ]\ndeactivate component_config\nbackend -> subscription_map: 5 forEach subscription_usage_config.subscription_id\nactivate subscription_map\nsubscription_map --> backend: 6 subscription_map[subscription_id] (= normalized_object_map)\ndeactivate subscription_map\nbackend -> normalized_object_map: 7 forEach key\nactivate normalized_object_map\nnormalized_object_map --> backend: 8 normalized_object\ndeactivate normalized_object_map\nnote right of backend: forEach normalized_object:\\nif object.in(geo_bounding_box):\\nobject.to_dto(\\nsubscription_usage_config\\n)\nbackend -> normalized_object: 9 \nactivate normalized_object\nnormalized_object --> backend: 10 object_dto\ndeactivate normalized_object\ndeactivate backend\nbackend --> proxy: 11 [ object_dto ]\ndeactivate proxy\nproxy --> browser: 12\ndeactivate browser\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1174,
+    "completion_tokens": 328,
+    "total_tokens": 1502
+  }
+}

@@ -1,0 +1,34 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 10
+  LifeLineBorderColor #777777
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor transparent
+  ArrowColor #000000
+  ActorBorderColor #777777
+  ParticipantBorderColor #777777
+  ParticipantBackgroundColor #E9E9F6
+}
+
+actor User
+participant CouponPage
+participant DB_Beanstalkd
+participant UserMail
+
+User -> CouponPage : Load merchant page with cashback
+CouponPage --> User : Return page with discounts
+
+User -> CouponPage : Clicks on cashback
+CouponPage --> User : Returns 2 tabs, on tab 1 the reflink to merchant,\non tab 2 a popup with cashback formular(email)
+
+User -> CouponPage : Fills email, submits form
+CouponPage --> DB_Beanstalkd : Saves cashback request
+
+CouponPage --> User : Sends new content for checkout popup, simultaneously\nopens reflink with uaid in a new tab(3)
+
+CouponPage --> UserMail : Sends new email with link to cashback form
+
+@enduml

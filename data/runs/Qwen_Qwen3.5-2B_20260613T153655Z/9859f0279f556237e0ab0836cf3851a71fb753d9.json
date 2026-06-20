@@ -1,0 +1,22 @@
+{
+  "id": "1b911b17-846a-4514-a8ba-f0b54eac8809",
+  "object": "chat.completion",
+  "created": 1781401825,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n    participant AudioBundleAssembler as Client\n    participant UDPBundleReceiver as Server\n    participant UDPBundleSender as Server\n    participant QudpSocket as Server\n\n    Client ->> UDPBundleReceiver: rozpocznij watek odbieraj\u0105cy\n    UDPBundleReceiver ->> UDPBundleSender: rozpocznij wysy\u0142anie paczek\n    UDPBundleSender ->> QudpSocket: grupa 50 paczek\n\n    loop [dop\u00f3ki nie pobrano wszystkich paczek]\n        loop [dop\u00f3ki dost\u0119pne sa datagramy]\n            Client ->> UDPBundleReceiver: przekaz pobrane dotychczas datagramy\n            UDPBundleReceiver <- dane\n            UDPBundleReceiver ->> Client: odczytaj id paczki i zapisz\n            Client ->> UDPBundleSender: wyslij nastepny zestaw paczek\n            UDPBundleSender ->> QudpSocket: grupa 50 paczek\n            UDPBundleSender <- czy to ostatni zestaw\n            alt [istnieje paczki do retransmisji]\n                UDPBundleSender ->> QudpSocket: wyslij zestaw brakuj\u0105cych paczek\n            end\n        end\n    end\n\n    Client ->> UDPBundleReceiver: posortuj paczki\n    UDPBundleReceiver ->> Client: zapisz paczki do pliku\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2448,
+    "completion_tokens": 291,
+    "total_tokens": 2739
+  }
+}

@@ -1,0 +1,42 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+participant "browser" as browser
+participant "proxy" as proxy
+actor "backend" as backend
+participant "component_config" as component_config
+participant "subscription_map" as subscription_map
+participant "normalized_object_map" as normalized_object_map
+participant "normalized_object" as normalized_object
+
+activate browser
+browser -> proxy: 1 get_state(\nconfiguration_name,\ngeo_bounding_box\n)
+activate proxy
+proxy -> backend: 2 +TENANT_HEADER
+activate backend
+backend -> component_config: 3 component_config[configuration_name]\n.subscription_usages
+activate component_config
+component_config --> backend: 4 [ subscription_usage_config ]
+deactivate component_config
+backend -> subscription_map: 5 forEach subscription_usage_config.subscription_id
+activate subscription_map
+subscription_map --> backend: 6 subscription_map[subscription_id] (= normalized_object_map)
+deactivate subscription_map
+backend -> normalized_object_map: 7 forEach key
+activate normalized_object_map
+normalized_object_map --> backend: 8 normalized_object
+deactivate normalized_object_map
+note right of backend: forEach normalized_object:\nif object.in(geo_bounding_box):\nobject.to_dto(\nsubscription_usage_config\n)
+backend -> normalized_object: 9 
+activate normalized_object
+normalized_object --> backend: 10 object_dto
+deactivate normalized_object
+deactivate backend
+backend --> proxy: 11 [ object_dto ]
+deactivate proxy
+proxy --> browser: 12
+deactivate browser
+
+@enduml
+```

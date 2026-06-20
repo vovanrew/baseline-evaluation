@@ -1,0 +1,70 @@
+@startuml
+!theme plain
+
+package "persistence" {
+  package "server" {
+    class "Server" as Server {
+      seq : Integer
+      name : String
+      ip : String
+    }
+  }
+
+  package "author" {
+    class "Author" as Author {
+      seq : Integer
+      name : String
+      regDate : Date
+    }
+  }
+
+  package "member" {
+    class "Member" as Member {
+      seq : Integer
+      id : String
+      password : String
+      name : String
+      type : MemberType
+    }
+
+    enum "MemberType" as MemberType {
+      USER, ADMIN
+    }
+  }
+
+  package "book" {
+    class "Book" as Book {
+      seq : Integer
+      title : String
+      author : Author
+      regDate : Date
+      expireDate : Date
+      register : Member
+      descriptionUrl : String
+      tags : List<Tag>
+    }
+
+    class "Tag" as Tag {
+      seq : Integer
+      value : String
+    }
+
+    class "ScanBook" as ScanBook {
+      fileName : String
+      fileHash : String
+      path : String
+      server : Server
+      size : Integer
+    }
+
+    class "RidiBook" as RidiBook {
+      url : String
+      ridiUserId : String
+    }
+
+    Book <|-- ScanBook
+    Book <|-- RidiBook
+  }
+}
+
+@enduml

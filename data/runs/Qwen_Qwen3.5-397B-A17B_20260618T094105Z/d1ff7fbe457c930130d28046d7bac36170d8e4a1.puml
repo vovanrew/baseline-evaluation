@@ -1,0 +1,30 @@
+@startuml
+actor User
+participant "WebSite" as WebSite #D3D6E9
+participant "Server" as Server #D3D6E9
+database phonebook #D3D6E9
+
+User ->> WebSite : select contact\n\nclick button\n\"DeleteContact\"\nactivate WebSite
+    activate WebSite 
+        WebSite->>+Server: deleteContact() \n        
+            Server-->+phonebook: Update()\n            
+                return ok
+            
+            deactivate phonebook
+        
+        return ok
+    
+deactivate WebSite 
+
+note over user,user:hidden note 1
+
+
+' second part of sequence...
+
+
+
+User --> +Website:getAllContacts()    
+   Website-->>+server:\findall ()   
+      server<--+Database:<contactsList>\n      
+return Contactslist  
+@enduml

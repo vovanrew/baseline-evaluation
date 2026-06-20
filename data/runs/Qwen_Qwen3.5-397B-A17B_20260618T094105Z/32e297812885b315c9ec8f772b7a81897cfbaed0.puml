@@ -1,0 +1,40 @@
+@startuml
+skinparam sequenceMessageAlign center
+autonumber "<b>[0]"
+
+actor "Webブラウザ" as WebBrowser1 at 25%
+participant "CCM GUI\n(Web)" as CCMGUI_Web at 43.75%
+participant "CCM GUI\n(WebSocket)" as CCMGUI_WS at 68.75%
+box "" #LightBlue
+    participant "CCM SDK\n(IPC)" as CCMSDK_IPC 
+end box
+
+
+== 
+
+activate CCMSDK_IPC
+note right of CCMSDK_IPC : ネットワーク情報変更通知 受信<br>(RegistRecieveNetworkInfoHandler)
+deactivate CCMSDK_IPC
+
+
+
+' Notify message from IPC to WebSocket component
+dotted leftward arrow over CCMSDK_IPC,CCMGUISocket:ネットワーク情報変更通知 [notify] 
+
+
+create note "{\"command\": \"NetworkInfo\",\n\"type\": \"notify\",\n\"data\": {\n   \"ID\": \"xxx\", \n   \"CellularInfo\": [{\n      \"SignalStrength\": \"...\",\n       \"SignalStrengthUnit\": \"...\",\n        \"Operator\":\"...\",\n         \"PLMN\":\"...\",\n          \"Band\":\"...\",\n           \"CellID\":\"...\",\n            \"AirInterface\":\"...\",\n             \"Manufacture\":\"...\",\n              \"ModelName\":\"...\",\n               \"IMEI\":\"...\"\n                }],\n                 \"QosInterfaceType\":{\"key1\":\"val1,\n                  ...\n                   }\n                    }}"as jsonNote float top 9px
+jsonNote -[hidden]-down:CcmGuiSocket
+
+
+
+
+group Display data on screen every second
+    
+     dotted downarrow over webbrowser,Ccmguiweb:1秒間隔で保持データを画面に表示
+     
+     
+ end group
+ 
+ 
+ 
+@enduml

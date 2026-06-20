@@ -1,0 +1,22 @@
+{
+  "id": "c08ec81f-8569-462e-a3ef-89e3b091ce97",
+  "object": "chat.completion",
+  "created": 1781398250,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n\nparticipant Test\nparticipant GrpcClient\nparticipant Front\nparticipant Edge\nparticipant HttpToGrpcMock\n\nTest->>Front: POST /send/post\nTest->>GrpcClient: instruct to wait for /external/call\nFront->>Edge: Internal communication\nEdge->>HttpToGrpcMock: http\nnote right of HttpToGrpcMock\n  Thinks is calling actual external service\nend note\nHttpToGrpcMock->>GrpcClient: grpc\nnote right of GrpcClient\n  Info about received request is forwarded to tests\nend note\nGrpcClient->>Test: Assert request\nTest->>GrpcClient: Mocked response\nHttpToGrpcMock->>Edge: http\nEdge->>Front: http\nnote right of Front\n  Responding back front may not be necessary in most cases. Maybe it would be database update or something like that\nend note\nFront->>Test: Resolve /send/post promise\nTest->>GrpcClient: Assert response\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1860,
+    "completion_tokens": 225,
+    "total_tokens": 2085
+  }
+}

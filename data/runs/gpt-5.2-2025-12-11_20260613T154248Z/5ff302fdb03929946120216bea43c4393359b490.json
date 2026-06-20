@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLlQeR2uYYfkyz23nJI9tWr2iBv2",
+  "object": "chat.completion",
+  "created": 1781369088,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #000000\n  LifeLineBorderColor #888888\n  LifeLineBackgroundColor transparent\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #E9E9F2\n  BoxBorderColor #6A9FB5\n  BoxBackgroundColor #BFE3F0\n  GroupBorderColor #000000\n  GroupBackgroundColor transparent\n  NoteBackgroundColor #FFFFDD\n  NoteBorderColor #999999\n}\n\nactor User\nparticipant Frontend\n\nbox \"Clerk\" #BFE3F0\n  participant ReservationService\n  participant TicketRepository\n  participant \"EventBus()\" as EventBus\nend box\n\nbox \"TicketMaster\" #BFE3F0\n  participant TicketMasterService\n  participant TicketMasterRepository\n  participant OrderManager\nend box\n\ndatabase DB\n\nUser -> Frontend : reserve button\nnote right of User\nPOST /reservations\n{\n  tickets: [\n    {\n      programId: 1,\n      sectorId: 1,\n      seatId: 5\n    },\n    {\n      programId: 1,\n      sectorId: 1,\n      seatId: 6\n    }\n  ]\n}\nend note\n\nFrontend -> ReservationService : POST /reservations\nactivate ReservationService\n\nReservationService -> TicketRepository : validate tickets\nTicketRepository --> ReservationService\n\nalt [invalid]\n  ReservationService --> Frontend : ReservationRejected: code, reason\nelse [valid]\n  note right of Frontend\nCreateReservation {\n  reservation: {\n    reservationId: \"abc123\"\n    tickets: [\n      {\n        programId: 1,\n        sectorId: 1,\n        seatId: 5\n      },\n      {\n        programId: 1,\n        sectorId: 1,\n        seatId: 6\n      }\n    ]\n  }\n}\n  end note\n\n  ReservationService -> ReservationService : createReservationCommand\n  ReservationService -> EventBus : publish CreateReservation\n  ReservationService --> Frontend : ReservationAccepted: reservationId\nend\ndeactivate ReservationService\n\nEventBus -> TicketMasterService : handle CreateReservation\nactivate TicketMasterService\nTicketMasterService -> TicketMasterRepository : check if all tickets are FREE\nTicketMasterRepository --> TicketMasterService\n\nalt [ticket status = FREE]\n  TicketMasterService -> TicketMasterRepository : set status of tickets to RESERVED\n  TicketMasterRepository --> TicketMasterService\n  TicketMasterService -> EventBus : publish ReservationAccepted\nelse [ticket status != FREE]\n  TicketMasterService -> EventBus : publish ReservationRejected\nend\ndeactivate TicketMasterService\n\nEventBus -> ReservationService : handle ReservationEvent\nactivate ReservationService\nalt [ReservationAccepted]\n  ReservationService -> TicketRepository : set status of tickets to RESERVED\n  TicketRepository --> ReservationService\nelse [ReservationRejected]\n  ReservationService -> ReservationService : Noop\nend\nReservationService -> Frontend : publish ReservationEvent on websocket\ndeactivate ReservationService\n\nalt [ReservationAccepted]\n  Frontend -> Frontend : redirect user to Order page\nelse [ReservationRejected]\n  Frontend -> Frontend : show error msg\nend\n\nEventBus -> OrderManager : handle ReservationAccepted\nOrderManager -> DB : save ReservedTicket object for each ticket\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2437,
+    "completion_tokens": 704,
+    "total_tokens": 3141,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

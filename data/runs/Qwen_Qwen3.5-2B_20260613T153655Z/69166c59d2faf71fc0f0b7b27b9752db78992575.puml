@@ -1,0 +1,24 @@
+@startuml
+participant Actor as "Caller"
+participant Interface as ":RoomTransactionService"
+participant Interface as ":RoomTransactionCommand"
+participant Interface as ":Nats Streaming"
+
+Actor "Caller" ..> Interface :Create(context, payload)
+
+Interface Validate()
+
+alt ["Data Not Valid"]
+    Interface UnprocessableEntity
+    end
+
+loop ["For each shift"]
+    Interface rt := RoomTransactionModel()
+    Interface Create(context, rt)
+    Interface uuid
+    end
+
+Interface publishTransactionCreated(context, []uuid)
+Interface published
+Interface created
+@enduml

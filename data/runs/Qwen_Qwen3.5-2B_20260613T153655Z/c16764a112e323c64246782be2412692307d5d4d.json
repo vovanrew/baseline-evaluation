@@ -1,0 +1,22 @@
+{
+  "id": "de00884d-3455-4172-b76d-3df2e7cd0f2f",
+  "object": "chat.completion",
+  "created": 1781402743,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"Specialist Doctor\" as Doctor\n\nparticipant \":CreateReportUI\" as CreateReportUI\n\nparticipant \":CreateReportController\" as CreateReportController\n\nparticipant \":Company\" as Company\n\nparticipant \":TestDiagnosis\" as TestDiagnosis\n\nparticipant \"rp : TestReportStore\" as TestReportStore\n\nparticipant \"obj : diagnosis\" as objDiagnosis\n\nparticipant \"rp : TestReport\" as rpTestReport\n\nnote right of CreateReportUI\n  ref\n  US4_SD_testsDTO.puml\nend note\n\n1..1\nDoctor ->| asks to create a new diagnosis | CreateReportUI\n\nCreateReportUI -> CreateReportUI : ref\nCreateReportUI ..> CreateReportUI : US4_SD_testsDTO.puml\n\n2..2\nDoctor <-| requests to choose a given test | CreateReportUI\n\n3..3\nDoctor -> CreateReportUI : chooses a given test\n\n4..4\nCreateReportUI -> CreateReportController : createTestDiagnosis(idTest)\n\n5..5\nCreateReportController -> TestDiagnosis : createTestDiagnosis(test)\n\n6..6\nTestDiagnosis -> TestDiagnosis : createTestDiagnosis(testParameterList)\nTestDiagnosis ..> TestDiagnosis : obj : diagnosis\n\n7..7\nTestDiagnosis <-| getDiagnosis() | CreateReportController\n\n8..8\nCreateReportController <-| getDiagnosis() | TestDiagnosis\n\n9..9\nCreateReportUI -> Doctor : shows the diagnosis done automatically and requests the data for the report\n\n10..10\nDoctor -> CreateReportUI : types the requested data\n\n11..11\nCreateReportUI -> CreateReportController : createReport(idTest, diagnosis, report)\n\n12..12\nCreateReportController -> Company : store = getTestReportStore()\n\n13..13\nCreateReportController -> TestReportStore : createReport(idTest, diagnosis, report)\n\n14..14\nTestReportStore -> TestReport : create(idTest, diagnosis, report)\n\n15..15\nCreateReportController -> TestReportStore : validateReport()\n\n16..16\nTestReportStore <-| shows the typed data and asks for confirmation | CreateReportController\n\n17..17\nDoctor -> CreateReportUI : confirms the data\n\n18..18\nCreateReportUI -> CreateReportController : saveReport(report)\n\n19..19\nCreateReportController -> Company : saveReport(report)\n\n20..20\nCompany -> TestReportStore : saveReport(report)\n\n21..21\nTestReportStore -> TestReport : validateReport(report)\n\n22..22\nTestReportStore -> TestReport : addReport(report)\n\n23..23\nCreateReportUI <-| informs operation success | Doctor\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1566,
+    "completion_tokens": 595,
+    "total_tokens": 2161
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "msg_011JBQRLowbPPzzdWVFTLJEG",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"Client\" as Client\nparticipant \"Oauth\" as Oauth\nparticipant \"Login Endpoint\" as LoginEndpoint\nparticipant \"Consent Endpoint\" as ConsentEndpoint\n\n== Open page ==\n\nClient -> Oauth: Initiate authorize code or implicit flow\nOauth -> Client: No user session (not authenticated)\nOauth -> LoginEndpoint: Redirect to login endpoint with <login_challenge>\nnote right of LoginEndpoint\n  GET https://<LOGIN_ENDPOINT>/login?login_challenge=7bb518c4eec2454dbb289f5fdb4c0ee2\nend note\n\n== Login ==\n\nClient -> LoginEndpoint: Input user/password\nLoginEndpoint -> Oauth: Verify user/password\nOauth --> LoginEndpoint: Fetch login request info with <login_challenge>\nnote right of LoginEndpoint\n  GET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login?login_challenge=<challenge>\nend note\nLoginEndpoint -> Oauth: Accept login\nnote right of LoginEndpoint\n  PUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login/accept?login_challenge=<challenge>\n  {\n    \"acr\": \"string\",\n    \"context\": {},\n    \"force_subject_identifier\": \"string\",\n    \"remember\": true,\n    \"remember_for\": 3600,\n    \"subject\": \"string\"\n  }\nend note\nOauth ..> LoginEndpoint: Return redirect url\nLoginEndpoint ..> Oauth: Redirect\n\n== Consent ==\n\nConsentEndpoint -> Oauth: First time that client asks user for permission\nOauth -> ConsentEndpoint: Redirect with <consent_challenge>\nConsentEndpoint -> Oauth: Asking users permission to grant application access\nOauth --> ConsentEndpoint: Fetch consent info\nnote right of ConsentEndpoint\n  GET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent?consent_challenge=<challenge>\nend note\nConsentEndpoint -> Oauth: Accept\nnote right of ConsentEndpoint\n  PUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent/accept?consent_challenge=<challenge>\n  {\n    \"grant_scope\": [\"openid\", \"offline_access\"],\n    \"handled_at\": \"2019-08-24T14:15:22Z\",\n    \"session\": {\n      \"access_token\": {\n        \"foo\": \"This field will be available when introspecting the Access Token\"\n      },\n      \"id_token\": {\n        \"bar\": \"This field will be available as a claim in the ID Token\"\n      }\n    }\n  }\nend note\nOauth ..> ConsentEndpoint: Return redirect url\nConsentEndpoint ..> Oauth: Redirect page\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371614,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 686,
+    "prompt_tokens": 1647,
+    "total_tokens": 2333
+  }
+}

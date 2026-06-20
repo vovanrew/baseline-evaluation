@@ -1,0 +1,33 @@
+@startuml
+left to right direction
+skinparam sequenceMessageAlign center
+
+participant "browser" as browser
+participant "listener" as listener
+participant "sequence_1" as sequence_1
+participant "http_inbound_travelocity" as http_inbound_travelocity
+participant "OIDC_IdP" as OIDC_IdP
+participant "http_inbound_commonauth" as http_inbound_commonauth
+participant "sequence_2" as sequence_2
+
+browser -> listener: SAML login request
+listener -> sequence_1: SAML login request
+browser -> http_inbound_travelocity: SAML login request
+http_inbound_travelocity -> sequence_1: request
+activate sequence_1
+sequence_1 --> sequence_1: SAML request process
+sequence_1 --> sequence_1: OIDC request build
+sequence_1 -> http_inbound_travelocity: Redirect to IDP
+http_inbound_travelocity -> browser: Redirect to IDP
+OIDC_IdP -> browser: login page
+browser -> OIDC_IdP: Submit credentials
+OIDC_IdP -> http_inbound_commonauth: ID token
+http_inbound_commonauth -> sequence_2: ID token
+activate sequence_2
+sequence_2 --> sequence_2: OIDC response process
+sequence_2 --> sequence_2: SAML response build
+sequence_2 -> http_inbound_commonauth: SAML response
+http_inbound_commonauth -> browser: SAML response
+deactivate sequence_2
+
+@enduml

@@ -1,0 +1,38 @@
+@startuml
+'!option handwritten true
+'!hide top
+
+actor User
+
+participant "BaseExecutor" as BaseExecutor
+participant "JdbcTransaction" as JdbcTransaction
+participant "PooledDataSource" as PooledDataSource
+participant "PooledConnection" as PooledConnection
+participant "Proxy" as Proxy
+participant "Connection" as Connection
+
+User -> BaseExecutor: getConnection
+BaseExecutor -> JdbcTransaction: getConnection
+JdbcTransaction -> JdbcTransaction: openConnection
+JdbcTransaction -> PooledDataSource: getConnection
+PooledDataSource -> PooledDataSource: popConnection
+PooledDataSource -> PooledConnection: <create>
+PooledConnection -> Proxy: newProxyInstance
+Proxy -> Proxy: 创建Connection代理类对象
+Proxy --> PooledConnection: 返回PooledConnection实例
+PooledDataSource -> PooledConnection: isValid
+PooledConnection -> PooledConnection: pingConnection
+PooledConnection --> PooledConnection: 检测连接是否有效
+PooledConnection --> PooledConnection: 连接是否有效标识
+PooledDataSource -> PooledConnection: getProxyConnection
+PooledConnection --> PooledDataSource: 返回代理连接
+PooledDataSource --> JdbcTransaction: 返回代理连接
+JdbcTransaction -> Connection: setTransactionIsolation
+Connection --> JdbcTransaction: 设置隔离级别
+JdbcTransaction -> JdbcTransaction: setDesiredAutoCommit
+JdbcTransaction -> JdbcTransaction: 设置提交模式
+JdbcTransaction -> JdbcTransaction: 获取连接
+JdbcTransaction -> BaseExecutor: 通过jdbc获取数据库连接
+BaseExecutor --> User: 返回数据库连接
+
+@enduml

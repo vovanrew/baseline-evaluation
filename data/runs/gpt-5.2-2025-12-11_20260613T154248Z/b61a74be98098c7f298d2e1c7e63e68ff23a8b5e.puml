@@ -1,0 +1,98 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #999999
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6FA
+  ActorBorderColor #666666
+  ActorBackgroundColor #FFFFFF
+  NoteBackgroundColor #FFF9C4
+  NoteBorderColor #999999
+}
+
+actor Admin
+actor User
+participant AccountManagement
+participant Broker
+participant Notifications
+participant UAA
+participant EmailSender
+
+Admin -> AccountManagement : WorkspaceInvitation
+note right of AccountManagement
+with email
+end note
+activate AccountManagement
+AccountManagement -> AccountManagement : save data to db
+deactivate AccountManagement
+
+AccountManagement --> Admin : 200 response
+
+AccountManagement -> Broker : create event "new user invited event"
+Broker -> Notifications : read event
+note right of Notifications
+with email and senderId
+end note
+Notifications -> UAA : read info about sender
+activate Notifications
+Notifications -> Notifications : generate email
+deactivate Notifications
+Notifications -> Broker : create "new email event"
+Broker -> EmailSender : read "new email event"
+EmailSender -> User : send email
+
+alt [user accepts invitation]
+  User -> AccountManagement : WorkspaceEmailValidation
+  activate AccountManagement
+  AccountManagement -> AccountManagement : check email
+  deactivate AccountManagement
+  AccountManagement --> User : WorkspaceEmailValidationResult
+
+  alt [email valid]
+    activate AccountManagement
+    AccountManagement -> AccountManagement : generate access code
+    deactivate AccountManagement
+    AccountManagement -> Broker : create event "new access code"
+    Broker -> Notifications : read event
+    note right of Notifications
+    with email and access code
+    end note
+    activate Notifications
+    Notifications -> Notifications : generate email
+    deactivate Notifications
+    Notifications -> Broker : create "new email event"
+    Broker -> EmailSender : read "new email event"
+    EmailSender -> User : send email
+  end
+
+  User -> User : get access code from email
+  User -> AccountManagement : WorkspaceAccessCodeValidation
+  AccountManagement --> User : WorkspaceAccessCodeValidationResult
+  note right of User
+  with email, access code
+  end note
+
+  alt [access code valid]
+    activate AccountManagement
+    AccountManagement -> AccountManagement : change state
+    deactivate AccountManagement
+
+    User -> UAA : WorkspaceRegistration
+    note right of UAA
+    with email, username, password and code
+    end note
+
+    UAA -> AccountManagement : check state by email
+    note left of UAA
+    with userId and email
+    end note
+    UAA -> Broker : create new event "user created event"
+    Broker -> Notifications : read event "user created event"
+    activate Notifications
+    Notifications -> Notifications : create user with email
+    deactivate Notifications
+  end
+end
+@enduml

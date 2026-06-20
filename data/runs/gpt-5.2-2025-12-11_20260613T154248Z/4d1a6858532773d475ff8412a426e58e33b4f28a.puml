@@ -1,0 +1,95 @@
+@startuml
+skinparam classAttributeIconSize 0
+left to right direction
+
+class Leistungspaket {
+  bezeichnung: String
+  preis: BigDecimal
+}
+
+class LeistungspaketBuchung {
+  leistungspaket: Leistungspaket
+  buchung: Buchung
+  anzahl: int
+}
+
+class Buchung {
+  hotelZimmer: Hotelzimmer
+  gast: Gast
+  anreiseDatum: LocalDate
+  abreiseDatum: LocalDate
+}
+
+class Hotelzimmer {
+  nummer: int
+  personen: int
+}
+
+class Gast {
+  kundenNr: int
+  name: String
+  adresse: Adresse
+}
+
+class HotelzimmerKategorie {
+  hotelZimmer: Hotelzimmer
+  kategorie: Kategorie
+}
+
+class Kategorie {
+  id: int
+  bezeichnung: String
+}
+
+class HotelzimmerMitarbeiter {
+  hotelZimmer: HotelzimmerMitarbeiter
+  mitarbeiter: Mitarbeiter
+  hotelZimmer: Hotelzimmer
+  mitarbeiter: Mitarbeiter
+  datum: LocalDate
+}
+
+class Mitarbeiter {
+  svnr: String
+  name: String
+  adresse: String
+}
+
+class Betreuer {
+  mitarbeiter: Mitarbeiter
+  fach: String
+}
+
+class LeistungspaketBetreuer {
+  leistungspaket: Leistungspaket
+  betreuer: Betreuer
+}
+
+class Luxuspaketpaket {
+  bezeichnung: String
+  leistungspaket: Leistungspaket
+}
+
+Leistungspaket "1" -- "*" Luxuspaketpaket
+
+LeistungspaketBuchung .. Buchung
+LeistungspaketBuchung .. Leistungspaket
+
+Buchung "*" --> "1" Hotelzimmer
+Buchung "*" --> "1" Gast
+
+HotelzimmerKategorie .. Hotelzimmer
+HotelzimmerKategorie .. Kategorie
+
+HotelzimmerMitarbeiter .. Hotelzimmer
+HotelzimmerMitarbeiter .. Mitarbeiter
+
+Mitarbeiter <|-- Betreuer
+
+LeistungspaketBetreuer .. Leistungspaket
+LeistungspaketBetreuer .. Betreuer
+
+note right of Hotelzimmer
+ein Luxuspaketpaket hat mehrere Einträge mit der gleichen Bezeichnung
+end note
+@enduml

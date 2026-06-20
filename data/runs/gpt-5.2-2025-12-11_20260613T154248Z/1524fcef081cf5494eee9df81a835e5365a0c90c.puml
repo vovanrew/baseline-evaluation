@@ -1,0 +1,51 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 20
+  LifeLineBorderColor #777777
+  LifeLineBackgroundColor transparent
+  LifeLineBorderThickness 1
+  MessageAlign left
+}
+skinparam NoteBackgroundColor #FFFFDD
+skinparam NoteBorderColor #777777
+
+box "sw-explorer" #DDDDDD
+participant WebApp as WA
+participant SWData as SWD
+end box
+
+box "Example background processing module" #DDDDDD
+participant Manager as M
+participant MessageQueue as MQ
+participant Worker as W
+participant Memcache as MC
+end box
+
+-> WA : fetch new collection
+WA -> SWD : fetch new collection
+SWD -> M : schedule a job
+
+note over M,MC
+This is just an example.
+We could got wi go with Celery, but sometimes it's good
+to hide the concrete engine behind the abstraction layer.
+end note
+
+M -> MQ : schedule a job
+MQ -> W : execute a job
+W -> M : update job status
+M -> MC : update job status
+W -> M : job result
+M -> MC : job result
+
+-> WA : view pending collection
+WA -> SWD : get job status
+SWD -> M : get job status
+M -> MC : get job status
+
+@enduml
+```

@@ -1,0 +1,102 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+
+class MediumDungeon << (C,#b7d7b7) >> {
+  +newBokoblin() : Bokoblin
+  +newMoblin() : Moblin
+}
+
+class EasyDungeon << (C,#b7d7b7) >> {
+  +newBokoblin() : Bokoblin
+  +newMoblin() : Moblin
+}
+
+class Encounter << (C,#b7d7b7) >> {
+  -enemies : [Monster]
+  -dungeon : Dungeon
+  +announceEnemies()
+  +moveEnemies()
+}
+
+class BlueBokoblin << (C,#b7d7b7) >> {
+  +announce()
+  +move()
+  +bludgeon()
+  +defend()
+}
+
+class BlueMoblin << (C,#b7d7b7) >> {
+  +announce()
+  +move()
+  +stab()
+  +kick()
+}
+
+class NormalBokoblin << (C,#b7d7b7) >> {
+  +announce()
+  +move()
+  +bludgeon()
+  +defend()
+}
+
+class NormalMoblin << (C,#b7d7b7) >> {
+  +announce()
+  +move()
+  +stab()
+  +kick()
+}
+
+interface Dungeon << (I,#b9b0e6) >> {
+  {abstract} +newBokoblin() : Bokoblin
+  {abstract} +newMoblin() : Moblin
+}
+
+interface Bokoblin << (I,#b9b0e6) >> {
+  {abstract} +bludgeon()
+  {abstract} +defend()
+}
+
+interface Moblin << (I,#b9b0e6) >> {
+  {abstract} +stab()
+  {abstract} +kick()
+}
+
+interface Monster << (I,#b9b0e6) >> {
+  {abstract} +announce()
+  {abstract} +move()
+}
+
+' Factory implementations
+MediumDungeon ..|> Dungeon
+EasyDungeon ..|> Dungeon
+
+' Products implement interfaces
+BlueBokoblin ..|> Bokoblin
+NormalBokoblin ..|> Bokoblin
+
+BlueMoblin ..|> Moblin
+NormalMoblin ..|> Moblin
+
+Bokoblin ..|> Monster
+Moblin ..|> Monster
+
+' Dependencies from factories to concrete products
+MediumDungeon ..> BlueBokoblin
+MediumDungeon ..> BlueMoblin
+MediumDungeon ..> NormalBokoblin
+
+EasyDungeon ..> NormalBokoblin
+EasyDungeon ..> NormalMoblin
+
+' Dungeon creates abstract products
+Dungeon ..> Bokoblin
+Dungeon ..> Moblin
+
+' Encounter aggregates/uses
+Encounter o-- Dungeon
+Encounter o-- Monster
+
+@enduml
+```

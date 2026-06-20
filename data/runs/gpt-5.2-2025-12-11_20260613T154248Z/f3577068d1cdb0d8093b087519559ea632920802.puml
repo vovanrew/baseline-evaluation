@@ -1,0 +1,34 @@
+@startuml
+title 借出图书 用例
+
+actor "图书管理员" as Librarian
+participant "账号判断" as AccountCheck
+participant "业务控制" as BizCtrl
+database "数据库" as DB
+
+box "读者账号合法性验证"
+Librarian -> AccountCheck : 1 输入读者账号信息
+activate AccountCheck
+AccountCheck -> BizCtrl : 2 获取账号信息
+activate BizCtrl
+BizCtrl -> DB : 3 比对账号密码合法性
+activate DB
+DB --> BizCtrl : 4 账号合法
+deactivate DB
+deactivate BizCtrl
+deactivate AccountCheck
+end box
+
+box "借出图书"
+Librarian -> BizCtrl : 5 输入借出图书信息
+activate BizCtrl
+BizCtrl -> DB : 6 增加借阅信息
+activate DB
+BizCtrl -> DB : 7 修改图书库存
+BizCtrl <-- DB : 8 返回操作结果
+deactivate DB
+BizCtrl -> Librarian : 9 返回借出结果
+deactivate BizCtrl
+end box
+
+@enduml

@@ -1,0 +1,46 @@
+@startuml
+skinparam sequenceMessageAlign center
+
+actor "sdx_downstream" as sdxDownstream #09C4F2
+participant downstream_quarantine #09C4F2
+box "" DownStreamParticipant #D6DBDF ##Black 
+    participant Downstream
+end box
+database Postgres #318CE7
+package FTP #5FB403 { }
+
+
+== Consume tx_id ==
+activate sdxDownstream
+downstream_quarantine ->> Downstream : GET /responses/{tx_id}
+deactivate sdxDownstream
+return response json 
+
+break [error]
+  return error message to quarantine queue  
+else
+  
+   activate SequenceService
+     downsteam->>+Sequence:GET/sequence\n[query params]\n{page_size=xxx}\n{order_by="asc"}\n...etc..
+      deactivate SequenceService
+      
+       alt common-software
+        
+        POST/common_software/{seq_no}/images?image_ids=[id,id,...]&zip=true&include_meta=false
+    
+         else cora 
+        
+          post/cora/{seq_no}?ids=id&id....&&zip=True
+     
+           else cord
+            
+            post/cord/{seq_no}&ids=&zip=Ture
+   
+   
+       
+      
+    
+     
+    
+
+@enduml

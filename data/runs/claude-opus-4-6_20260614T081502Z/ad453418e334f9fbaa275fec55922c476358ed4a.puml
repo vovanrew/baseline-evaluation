@@ -1,0 +1,39 @@
+@startuml
+
+actor Activity
+participant "BaseMediaActivity" as BMA
+participant "MediaActivity" as MA
+
+Activity -> BMA : onCreate
+BMA -> BMA : set theme
+BMA -> BMA : setup navigation drawer
+
+alt [new activity]
+    BMA -> MA : getActionBarTitle()
+    MA --> BMA
+    hnote over BMA #LightYellow : set home icon to hamburger icon
+else restore action bar
+    hnote over BMA #LightYellow : get home icon and action bar title\nfrom saved instance
+end
+
+BMA -> BMA : updateActionBar
+
+alt [no fragment in layout (new activity)]
+    BMA -> MA : createFragment()
+    MA --> BMA
+    BMA -> BMA : add fragment
+end
+
+BMA --> Activity
+
+Activity -> BMA : onCreateOptionsMenu
+hnote over BMA #LightYellow : inflate generic menu items
+BMA --> Activity
+
+hnote over MA #LightYellow : user selects media item
+
+MA -> BMA : showFragment()
+hnote over BMA #LightYellow : sets up the shared element transition\nand updates the dataholder
+BMA -> BMA : replace current fragment\nwith new fragment
+
+@enduml

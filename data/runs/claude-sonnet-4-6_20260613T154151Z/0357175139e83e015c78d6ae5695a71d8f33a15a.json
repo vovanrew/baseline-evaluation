@@ -1,0 +1,21 @@
+{
+  "id": "msg_01LUHDKSq56xQYo3aeVHgNag",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nskinparam packageStyle rectangle\nskinparam backgroundColor #E8E8D0\n\npackage \"rugged\" #E8E8D0 {\n\n  package \"raster\" #E8E8D0 {\n    interface \"Tile\" as Tile {\n      + interpolateElevation(\u03c6, \u03bb)\n      + pixelIntersection(NormalizedGeodeticPoint, los, \u03c6 index, \u03bb index)\n    }\n  }\n\n  package \"intersection\" #E8E8D0 {\n    interface \"IntersectionAlgorithm\" as IntersectionAlgorithm {\n      + intersection(ellipsoid, position, los)\n      + refineIntersection(ellipsoid, position, los, closeGuess)\n    }\n  }\n\n  package \"utils\" #E8E8D0 {\n    class \"ExtendedEllipsoid\" as ExtendedEllipsoid {\n      + pointAtLatitude(position, los, \u03c6, closereference)\n      + pointAtLongitude(position, los, \u03bb)\n      + pointAtAltitude(position, los, h)\n      + pointOnGround(position, los)\n    }\n    class \"SpacecraftToObservedBody\" as SpacecraftToObservedBody {\n    }\n  }\n\n  package \"api\" #E8E8D0 {\n    class \"Rugged\" as Rugged {\n      + directLocation(sensorName, line)\n    }\n  }\n\n  package \"linesensor\" #E8E8D0 {\n    class \"LineSensor\" as LineSensor {\n    }\n  }\n\n  package \"mission\" #E8E8D0 {\n    package \"specific\" #E8E8D0 {\n      class \"UserMain\" as UserMain {\n      }\n    }\n  }\n\n}\n\nIntersectionAlgorithm -up-> Tile : evaluate DEM\nIntersectionAlgorithm --> ExtendedEllipsoid : compute grid points crossings\nRugged -up-> IntersectionAlgorithm : delegate DEM intersection\nRugged --> ExtendedEllipsoid : convert geodetic points\nRugged --> SpacecraftToObservedBody : convert positions/directions\nRugged -down-> LineSensor : getLOS(date, pixel)\nLineSensor -up-> Rugged : getDate(line)\nUserMain --> Rugged\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781367114,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 598,
+    "prompt_tokens": 1650,
+    "total_tokens": 2248
+  }
+}

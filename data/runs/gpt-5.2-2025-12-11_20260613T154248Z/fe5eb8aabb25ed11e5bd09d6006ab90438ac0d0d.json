@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLvsk3HraoZv3KB9ROx5xPUbo5I4",
+  "object": "chat.completion",
+  "created": 1781369736,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  ParticipantPadding 40\n  BoxPadding 20\n  MessageAlign left\n  LifeLineBorderColor #888888\n  LifeLineBorderThickness 1\n  LifeLineBackgroundColor transparent\n  ActorBorderColor #666666\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #E6E6E6\n  NoteBackgroundColor #FFF9C4\n  NoteBorderColor #888888\n  GroupBorderColor #000000\n  GroupHeaderBackgroundColor #FFFFFF\n  GroupBackgroundColor #FFFFFF\n  ArrowColor #000000\n}\n\ntitle\n\nparticipant \"Line of Business\" as LOB\nparticipant \"ESB\" as ESB\n\nbox \"Compliance IT\" #90EE90\n  participant \"Scoring\" as Scoring\n  participant \"Recertification\" as Recert\nend box\n\ngroup \"Customer On-Boarding: Open a New Account\"\n  LOB -> ESB : UpdatePartyKYC\\nincludeScore=true\n  alt \"Recertification completed\"\n    LOB -> ESB : UpdatePartyKYC\\nincludeScore=true\\nrecertificationStatus=completed\\nactor=<userid>\\nreason=<one of client-initiated trigger codes>\n  end\nend\n\nESB -> Scoring : 1 score\n\nnote over ESB,Scoring\nSchedule a new recertification and calculate its due date\nOR retrieve due date of an existing recertification if\none has been previously scheduled and not yet\ncompleted or cancelled\nend note\n\nScoring -> Recert : 2 recertify\nactivate Recert\nRecert -> Recert : 3 evaluate rules\n\ngroup \"Recertification\"\n  alt \"Recertification is Needed\"\n    group \"Establish a Recertification\"\n      Recert -> Recert : 4 schedule a new recertification\n      alt \"Existing Recertification\"\n        Recert -> Recert : 5 retrieve a previously\\nscheduled recertification\\nthat hasn't been completed or cancelled\n      end\n    end\n\n    alt \"Complete a Recertification\"\n      Recert -> Recert : 6 complete an established recertification\n      note right of Recert\n      Immediately complete the\n      recertification if the LOB\n      told us it was already done\n      end note\n    end\n\n    Recert --> Scoring : 7 recertification details\n    note left of Scoring\n    Due date, status, recert id\n    end note\n\n    Scoring --> LOB : 8 score + recertification\n  end\n\n  alt \"Recertification is Not Needed\"\n    Recert --> Scoring : 9 no recertification\n    Scoring --> LOB : 10 score\n  end\nend\n\ndeactivate Recert\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2146,
+    "completion_tokens": 609,
+    "total_tokens": 2755,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

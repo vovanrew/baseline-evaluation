@@ -1,0 +1,48 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "图书管理员" as Librarian
+participant "读者" as Reader
+participant "图书目录" as Catalog
+participant "图书信息" as BookInfo
+participant "借书记录" as BorrowRecord
+
+Librarian -> Reader : 验证读者信息
+activate Reader
+deactivate Reader
+
+Librarian -> Reader : 获取读者借书数量
+activate Reader
+
+opt 超出借书数量
+    Reader -->> Librarian : 借书失败
+end
+
+activate Librarian
+Librarian -> Catalog : 获取图书目录
+activate Catalog
+Catalog -> BookInfo : 查询图书信息
+activate BookInfo
+BookInfo -->> Librarian : 返回信息
+deactivate BookInfo
+deactivate Catalog
+
+Librarian -> BorrowRecord : 存储借书记录
+activate BorrowRecord
+deactivate BorrowRecord
+
+Librarian -> Catalog : 借出图书
+activate Catalog
+Catalog -> BookInfo : 减少图书数量
+activate BookInfo
+deactivate BookInfo
+deactivate Catalog
+
+Librarian -> Reader : 减少读者可借数量
+activate Reader
+deactivate Reader
+deactivate Librarian
+
+@enduml
+```

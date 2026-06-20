@@ -1,0 +1,69 @@
+```plantuml
+@startuml
+actor "laboratory coordinator" as LC
+participant ":LabCoordinatorUI" as UI
+participant ":ValidateTestReportController" as CTRL
+participant ":Company" as COMP
+participant "rp : TestStore" as TS
+participant "rp : Test" as T
+participant "rp : TestReportStore" as TRS
+participant "rp : TestReport" as TR
+participant ":TestDiagnosis" as TD
+
+activate LC
+LC -> UI : 1 asks to validate report and diagnosis
+activate UI
+UI -> CTRL : 2 createTestList()
+activate CTRL
+CTRL -> COMP : 3 get = testReportsToValidate()
+activate COMP
+COMP -> TS : 4 get = testReportsToValidate()
+activate TS
+TS -> T : 5 get = getTestList()
+deactivate TS
+COMP -> TRS : 6 get = testReportsToValidate()
+activate TRS
+TRS -> TR : 7 get = getTestReportList()
+activate TR
+TR -> TD : 8 get = getTestDiagnosis()
+deactivate TR
+deactivate TRS
+deactivate COMP
+
+ref over UI, CTRL
+  US15_SD_testReportsDTO.puml
+end ref
+
+CTRL --> UI : 9
+deactivate CTRL
+UI --> LC : 10 shows the available test reports and diagnosis and requests selection
+deactivate UI
+
+LC -> UI : 11 chooses all tests
+activate UI
+UI --> LC : 12 asks for confirmation
+deactivate UI
+
+LC -> UI : 13 confirms selection
+activate UI
+UI -> CTRL : 14 validateAllTestReport()
+activate CTRL
+
+loop
+  CTRL -> TS : 15 validateTestReport(testId);
+  activate TS
+  TS -> T : 16 setState(VALIDATED);
+  deactivate TS
+  CTRL -> TS : 17 registerValidationDate(date);
+  activate TS
+  TS -> T : 18 setValidationDate(date);
+  deactivate TS
+end
+
+UI --> LC : 19 informs operation success
+deactivate CTRL
+deactivate UI
+deactivate LC
+
+@enduml
+```

@@ -1,0 +1,67 @@
+```plantuml
+@startuml
+title フィールド選択シーケンス図
+
+actor ユーザ
+participant Manager
+participant FieldModel
+participant FieldSelectPresenter
+participant FieldSelectView
+
+activate ユーザ
+ユーザ -> Manager
+activate Manager
+
+Manager -> FieldModel : (Child Component)
+activate FieldModel
+
+Manager -> FieldSelectPresenter : Instantiate()
+activate FieldSelectPresenter
+
+FieldSelectPresenter -> FieldSelectView : (Child Component)
+activate FieldSelectView
+
+Manager -> FieldSelectPresenter : Initialized()
+activate FieldSelectPresenter
+FieldSelectPresenter -> FieldModel : Fields
+activate FieldModel
+FieldModel --> FieldSelectPresenter
+deactivate FieldModel
+FieldSelectPresenter -> FieldSelectView : Initialized()
+activate FieldSelectView
+FieldSelectView --> FieldSelectPresenter
+deactivate FieldSelectView
+FieldSelectPresenter --> Manager
+deactivate FieldSelectPresenter
+
+opt フィールド選択時
+    ユーザ -> FieldSelectView : フィールド選択
+    activate FieldSelectView
+    FieldSelectView -> FieldSelectPresenter : OnSelectedField()
+    activate FieldSelectPresenter
+    FieldSelectPresenter --> FieldSelectView
+    deactivate FieldSelectPresenter
+    deactivate FieldSelectView
+end
+
+opt ランダムボタン押下時
+    ユーザ -> FieldSelectView : ランダムボタン押下
+    activate FieldSelectView
+    FieldSelectView -> FieldSelectPresenter : OnSelectedRundom()
+    activate FieldSelectPresenter
+    FieldSelectPresenter -> FieldSelectPresenter
+    activate FieldSelectPresenter
+    deactivate FieldSelectPresenter
+    FieldSelectPresenter --> FieldSelectView
+    deactivate FieldSelectPresenter
+    deactivate FieldSelectView
+end
+
+deactivate FieldSelectView
+deactivate FieldSelectPresenter
+deactivate FieldModel
+deactivate Manager
+deactivate ユーザ
+
+@enduml
+```

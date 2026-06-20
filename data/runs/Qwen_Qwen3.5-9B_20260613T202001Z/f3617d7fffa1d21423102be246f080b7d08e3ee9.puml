@@ -1,0 +1,52 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle circle
+skinparam databaseStyle cylinder
+
+package "Kjede" {
+  actor "Bruker"
+  participant "Kjedesystem"
+  participant "Identity Provider"
+}
+
+package "DIFA" {
+  participant "DifaGUI"
+  participant "Tilgangskontroll"
+  database "HPR-DB"
+  participant "HDIR"
+}
+
+note right of "Identity Provider" : token er en signert JSON payload
+
+"Kjedesystem" as kjedesystem
+"Identity Provider" as identityProvider
+"DifaGUI" as difaGUI
+"Tilgangskontroll" as tilgangskontroll
+"HPR-DB" as hprDB
+"HDIR" as hdir
+
+"Bruker" as bruker
+
+rel bruker -> kjedesystem : Velg DIFA operasjon fra meny
+rel kjedesystem --> bruker : Redirect
+rel bruker -> difaGUI : Utfør operasjon
+rel difaGUI --> bruker : Krever pålogging – redirect
+rel bruker -> identityProvider : Logg på
+rel identityProvider --> bruker : Access token
+rel identityProvider --> difaGUI : Access token
+rel difaGUI --> tilgangskontroll : Autoriser bruker
+rel tilgangskontroll --> identityProvider : Access token
+rel tilgangskontroll --> identityProvider : JWT
+rel tilgangskontroll --> kjedesystem : «cached» Hent kjedesertifikat
+rel tilgangskontroll --> tilgangskontroll : Verifiser token signatur
+rel tilgangskontroll --> tilgangskontroll : Hent HPR nr fra token (+ roller)
+rel tilgangskontroll --> hprDB : HPR nummer
+rel hprDB --> tilgangskontroll : Autorisasjon (eks "farmasøyt")
+rel tilgangskontroll --> tilgangskontroll : Avgjør tilgang
+rel tilgangskontroll --> difaGUI : utfør operasjon
+rel difaGUI --> bruker : 
+
+note right of "HPR-DB" : Oppdatert helsepersonellregister
+
+@enduml

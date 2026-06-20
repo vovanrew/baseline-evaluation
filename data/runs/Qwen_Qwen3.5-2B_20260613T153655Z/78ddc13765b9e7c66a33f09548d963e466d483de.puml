@@ -1,0 +1,67 @@
+@startuml
+package Supplier {
+    class Supplier {
+        +find(productName: String): Product
+        +getProducts(): Product[]
+        +getNumberOfProducts(): int
+        +getName(): String
+        +getDescription(prefix: String): String
+    }
+}
+
+package SupplierBase {
+    class SupplierBase {
+        -supplierName: String
+        +SupplierBase(sn: String)
+        +getName(): String
+        +toString(): String
+        +getDescription(prefix: String): String
+    }
+}
+
+package OneProductProducer {
+    class OneProductProducer {
+        +OneProductProducer(sn: String, p: Product)
+        +find(pn: String): Product
+        +getProducts(): Product[]
+        +getNumberOfProducts(): int
+        +getDescription(prefix: String): String
+    }
+}
+
+package Producer {
+    class Producer {
+        -template: Product[]
+        +Producer(sn: String, ps: Product)
+        +find(pn: String): Product
+        +getProducts(): Product[]
+        +getNumberOfProducts(): int
+        +getDescription(prefix: String): String
+    }
+}
+
+package Retailer {
+    class Retailer {
+        +Retailer(name: String)
+        +getNumberOfProducts(): int
+        +find(productName: String): Product
+        +getProducts(): Product[]
+        +add(s: Supplier): Retailer
+        +getDescription(prefix: String): String
+    }
+}
+
+package Product {
+    class Product {
+    }
+}
+
+Supplier <|-- SupplierBase
+SupplierBase <|-- OneProductProducer
+SupplierBase <|-- Producer
+SupplierBase <|-- Retailer
+
+OneProductProducer --* Product : -product
+Producer --* Product : -products
+Retailer o-- Supplier : suppliers
+@enduml

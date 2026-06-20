@@ -1,0 +1,57 @@
+@startuml
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam packageBorderColor black
+skinparam packageBackgroundColor #DDDDDD
+skinparam classBackgroundColor #F2F2F2
+skinparam classBorderColor #666666
+
+left to right direction
+
+package "UI" as UI {
+  class "LoginUI" as LoginUI <<C>>
+}
+
+package "Controller" as Controller {
+  class "LoginController" as LoginController <<C>> {
+    +login(email,password)
+  }
+
+  class "ApplicationPOT" as ApplicationPOT <<C>> {
+    +static getInstance()
+    +clearCurrentSession()
+  }
+}
+
+package "Model" as Model {
+  package "Service" as Service {
+    class "UserService" as UserService <<C>> {
+      +UserService()
+      +newUserSession()
+    }
+  }
+
+  class "UserSession" as UserSession <<C>> {
+    -String email
+    +UserSession()
+  }
+
+  abstract class "User" as User <<A>> {
+    -Integer id
+    -String email
+    -String password
+    -Integer nif
+    -String name
+    +User(email,password,nif,name)
+  }
+}
+
+LoginUI ..> LoginController
+LoginController ..> ApplicationPOT
+LoginController ..> UserService
+
+ApplicationPOT "1" --> "1" UserSession : has
+UserService "1" --> "*" UserSession : creates
+UserSession "1" --> "1" User : allocates
+@enduml

@@ -1,0 +1,55 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #777777
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor black
+  ParticipantBackgroundColor white
+  ActorBorderColor black
+  ActorBackgroundColor #E6E6F2
+  BoxBorderColor black
+  BoxBackgroundColor white
+  NoteBorderColor #777777
+  NoteBackgroundColor #FFFFE0
+  ArrowColor black
+  MessageAlign left
+}
+
+actor "did:...:GS1" as GS1
+actor "did:...:Manufacturer" as M
+
+box "Ausstellungsprozess der GCP" #white
+  M -> GS1 : GCP Anfrage
+  GS1 -> M : Berechtigung Prüfen
+  GS1 -> M : ISSUE
+
+  note left of GS1
+    <b>GCP Credential</b>\n
+    gcp: 4047111
+  end note
+
+  M -> M : ISSUE
+
+  note left of GS1
+    <b>Party GLN Credential</b>\n
+    urn:epc:id:pgln:4047111.00000
+  end note
+end box
+
+box "Ausstellungsprozess zertifizierter Stammdaten" #white
+  M -> GS1 : PRESENT GCP
+  M -> GS1 : Anfrage + Nachweis der Stammdaten
+  M -> GS1 : Prüfung der Stammdaten basierend auf\nDokumenten oder eigener Recherche
+  GS1 -> GS1
+  GS1 -> M : ISSUE
+
+  note left of GS1
+    <b>Stammdaten Credential (e.g.)</b>\n
+    name: European EPC Competence Center,\n
+    legal_form: GmbH,\n
+    trade_register_number: Köln HBR 61026,\n
+    . . .
+  end note
+end box
+@enduml

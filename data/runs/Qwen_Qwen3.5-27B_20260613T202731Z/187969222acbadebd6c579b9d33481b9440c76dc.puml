@@ -1,0 +1,118 @@
+```plantuml
+@startuml
+' version: 1.0.0
+' title: Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam note {
+    BackgroundColor #ffffcc
+    BorderColor #cccc99
+}
+
+class User {
+    * A
+    int id
+    string name
+    string github (github地址)
+    string sex
+    string picture
+}
+
+class Teacher {
+    * C
+    int teacherNumber (工号)
+    string office (办公室)
+    string phone
+}
+
+class Student {
+    * C
+    int studentNumber (学号)
+    string class (班级)
+}
+
+class Course {
+    * C
+    int id
+    int courseNum
+    string name
+    string term
+    float credit (学分)
+}
+
+class Experiment {
+    * C
+    int id
+    string name (实验名)
+    Date date (实验发布时间)
+    string github (实验的github地址)
+    int courseId (与Course类的id关联)
+}
+
+class Scoreitem {
+    * C
+    int id
+    int complexScore (复杂度得分)
+    int completeScore (完成度得分)
+    int answerScore (答辩得分)
+}
+
+class Experimentscore {
+    * C
+}
+
+class Login {
+    * C
+    int id
+    int username (学生账号就是学号，老师账号是工号)
+    string password
+    int role (角色)
+}
+
+class Experimentcore {
+    * C
+    int id
+    int studentId (与学生关联)
+    int scoreitemId (与scoreitem关联)
+}
+
+class TeacherCourse {
+    * C
+    int id
+    int teacherId
+    int courseId
+}
+
+class StudentCourse {
+    * C
+    int id
+    int studentId
+    int courseId
+}
+
+User <|-- Teacher
+User <|-- Student
+Teacher "1" -- "n" TeacherCourse : 
+Student "1" -- "n" StudentCourse : 
+Course "1" -- "n" TeacherCourse : 
+Course "1" -- "n" StudentCourse : 
+Course "1" -- "n" Experiment : 
+Experiment "1" -- "n" Scoreitem : 
+Scoreitem "1" -- "n" Experimentscore : 
+Student "1" -- "n" Experimentscore : 
+Login "1" -- "1" Scoreitem : 
+
+note right of Scoreitem
+    一个scoreitem实例就表示了一个学生的一个实验成绩
+end note
+
+note left of TeacherCourse
+    “老师选课”类
+end note
+
+note right of StudentCourse
+    “学生选课”类
+end note
+
+@enduml
+```

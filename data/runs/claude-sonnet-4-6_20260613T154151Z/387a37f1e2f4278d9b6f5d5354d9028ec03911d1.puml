@@ -1,0 +1,28 @@
+@startuml
+actor Nutzer
+participant ServiceFactory
+participant PruefHandler
+participant PersonenServiceImpl
+participant Proxy
+
+== Initialisierung ==
+
+Nutzer -> ServiceFactory : **1** getPersonenService()
+ServiceFactory -> PruefHandler : **2** create
+PruefHandler -> PersonenServiceImpl : **3** create
+PruefHandler <-- PersonenServiceImpl : **4** ziel
+ServiceFactory <-- PruefHandler : **5** instanz
+ServiceFactory -> Proxy : **6** create
+ServiceFactory <-- Proxy : **7** PersonenService
+Nutzer <-- ServiceFactory : **8** service
+
+== service.neu ==
+
+Nutzer -> Proxy : **9** neu
+Proxy -> PruefHandler : **10** invoke
+PruefHandler -> PersonenServiceImpl : **11** neu
+PruefHandler <-- PersonenServiceImpl : **12** Person
+Proxy <-- PruefHandler : **13** Person
+Nutzer <-- Proxy : **14** Person
+
+@enduml

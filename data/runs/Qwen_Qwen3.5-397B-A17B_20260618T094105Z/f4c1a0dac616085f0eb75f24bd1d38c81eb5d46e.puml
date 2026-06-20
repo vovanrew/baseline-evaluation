@@ -1,0 +1,44 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class SlamLauncher {
+    -int startN
+    -int drawSkip
+    -bool odometryOnly
+    -Pose2D ipose
+    -Pose2D lidarOffset
+    -SensorDataReader sreader
+    -PointCloudMap *pcmap
+    -SlamFrontEnd sfron t
+    -MapDrawer mdrawer
+    -FrameworkCustomizer fcustom
+    
+    +SlamLauncher() : startN(0), drawSkip(10), odometryOnly(false), pcmap(nullptr)
+    +~SlamLauncher()
+    
+    <<methods>>
+    +void setStartN(int n){startN = n}
+    +void setOdometryOnly(bool p){odometryOnly = p}
+    +void run()
+    +void showScans()
+    +void mapByOdometry(Scan2D *scan)
+    +bool setFilename(char *filename)
+    +void skipData(int num)
+    +void customizeFramework()
+}
+
+interface SensorDataReader {}
+interface PointCloudMap {}
+interface SlamFrontEnd {}
+interface MapDrawer {}
+interface FrameworkCustomizer {}
+
+' Relationships from attributes to interfaces using aggregation diamonds at source end
+"sensor data reader attribute":s --o "SensorDataReader:n", length=45, thickness=3
+"point cloud map pointer attribute":sw --o "PointCloudMap:ne", length=67, thickness=3
+slfrnt:s --o "SlamFrontEnd:n", length=89, thickness=3
+mdrawer:w --o "MapDrawer:e", length=111, thickness=3
+fcustom:se --o "FrameworkCustomizer:nw", length=133, thickness=3
+
+
+@enduml

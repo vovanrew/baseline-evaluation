@@ -1,0 +1,38 @@
+```plantuml
+@startuml
+hide footbox
+skinparam sequenceParticipant underline false
+skinparam sequenceLifeLineBorderColor #999999
+skinparam sequenceLifeLineBackgroundColor transparent
+skinparam ParticipantPadding 20
+
+actor User
+participant SearchWindowUI
+participant SearchOnAnotherInstanceController
+participant NetworkFactory
+participant UDP_ClientImpl
+participant Thread
+participant TCP_ClientImpl
+participant SpreadCheet
+participant UDP_ClientImpl_03
+participant TCP_ClientImpl_03
+participant SearchWindowController
+
+User -> SearchWindowUI : start searching instances
+SearchWindowUI -> SearchOnAnotherInstanceController : create(address)
+SearchOnAnotherInstanceController -> NetworkFactory : Obj = getUDPClientImpl(availableInstances)
+NetworkFactory -> UDP_ClientImpl_03 : create()
+UDP_ClientImpl -> Thread : create(obj)
+UDP_ClientImpl -> Thread : start()
+UDP_ClientImpl -> Thread : join()
+
+SearchWindowUI -> SearchOnAnotherInstanceController : checkIfIsAvailable()
+SearchOnAnotherInstanceController -> NetworkFactory : getInfo(destination)
+NetworkFactory -> TCP_ClientImpl_03 : create()
+SearchOnAnotherInstanceController -> Thread : create(Object)
+SearchOnAnotherInstanceController -> Thread : start()
+SearchOnAnotherInstanceController -> TCP_ClientImpl_03 : getInfo()
+SpreadCheet -> TCP_ClientImpl_03 : getInfo()
+TCP_ClientImpl -> Thread : join()
+@enduml
+```

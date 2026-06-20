@@ -1,0 +1,58 @@
+```plantuml
+@startuml
+skinparam sequence {
+    ArrowColor gray
+    ActorBorderColor black
+    ActorBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+}
+
+actor Admin as admin
+participant "Sqoop" as sqoop
+database "Metastore DB" as metastore
+rectangle "HDFS" as hdfs
+boundary "Hive SQL" as hive_sql
+database "Hive" as hive
+circle "Hive Table" as hive_table
+circle "Ambari" as ambari
+
+== Pre Upgrade Planning Setup ==
+admin -> sqoop : Run "Collect the Metadata"
+sqoop -> metastore : Extracts from
+sqoop -> hdfs : Saves to
+admin -> hive : Run "Build Supporting Tables"
+
+== Pre Upgrade Planning ==
+admin -> hive_sql : Run "Distinct Serdes"
+admin -> hive_table : Fix Tables with Serde Issues
+admin -> hive_sql : Run "Check Partition Location"
+admin -> hive_sql : Run "Non-Managed Table Locations"
+admin -> hive_sql : Run "Managed Table Locations"
+admin -> hive_sql : Run "Missing HDFS Directories Check"
+admin -> hive_sql : Correct "Missing Directories"
+admin -> hive_sql : Run "Table Migration Check"
+admin -> hive_sql : Run "Acid Table Conversions"
+admin -> hive_sql : Run "Conversion Table Directories"
+
+== Pre Upgrade Compaction ==
+note left of admin: This process should be run several days BEFORE the actual upgrade to reduce the downtime of the upgrade.\nAnd should be run just BEFORE the upgrade and AFTER all users have been cleared from the system to ensure no tables are modified after this runs.
+admin -> hive_sql : Run "Acid Table Compaction Check"
+admin -> hive_sql : Run "Acid Table Compaction Required"
+admin -> hive : TUNE THE COMPACTOR for estimated compaction needs
+admin -> hive_sql : Run the compaction script. Break it apart if needed.
+
+== Post Upgrade Planning ==
+admin -> hive_sql : Run "Acid Table Locations". Save artifact for Upgrade.
+
+== Upgrade ==
+admin -> admin : Review and Run ALL previous steps and collect details.
+admin -> admin : Decision to intervene with Ambari Process based on volumes indicated through research
+admin -> ambari : Hack Pre/Post Processes
+admin -> admin : Run Compaction Routine one last time.
+admin -> ambari : Start Upgrade
+admin -> admin : Run the Post Upgrade Planning Output to convert tables.
+admin -> ambari : Complete Upgrade
+
+@enduml
+```

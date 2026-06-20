@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLmHEsn8OfVeHZtWANWfq5OKIbhI",
+  "object": "chat.completion",
+  "created": 1781369141,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam shadowing false\nskinparam sequenceMessageAlign center\nskinparam responseMessageBelowArrow true\nskinparam ParticipantPadding 20\nskinparam BoxPadding 10\n\nactor Client\n\nparticipant \"RegisterClientUI\" as RegisterClientUI\nparticipant \"RegisterClientController\" as RegisterClientController\nparticipant \"ApplicationPOT\" as ApplicationPOT\nparticipant \"app\\n:ApplicationPOT\" as app\nparticipant \"clientService\\n:ClientService\" as clientService\nparticipant \"clientDB\\n:ClientDB\" as clientDB\nparticipant \"client\\n:Client\" as client\nparticipant \"user\\n:User\" as user\nparticipant \"EncryptPassword\" as EncryptPassword\nparticipant \"Address\" as Address\nparticipant \"CreditCard\" as CreditCard\nparticipant \"EmailSender\" as EmailSender\nparticipant \"DataHandler\" as DataHandler\n\nClient -> RegisterClientUI : 1 Engages the register feature /button\nClient -> RegisterClientUI : 2 Asks for all the information required\\nfor the register (i.e. name, nif,email,password,latitude,longitude,altitude,\\nstreetName,doorNumber,postalCode,locality,country,creditCardNr,validityDate,CVV)\nClient -> RegisterClientUI : 3 Fills all the information required\nRegisterClientUI -> Client : 4 Presents the data and asks for a confirmation\nClient -> RegisterClientUI : 5 Confirms\n\nRegisterClientUI -> RegisterClientController : 6 registerNewClient(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CVV)\nRegisterClientController -> ApplicationPOT : 7 create()\nApplicationPOT -> app : create()\napp -> clientService : 8 create()\nclientService -> clientDB : create()\nRegisterClientController -> app : 9 validateInput(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CVV)\n\nalt if all the information given as input has a valid format\n  RegisterClientController -> app : 10 newClient(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CVV)\n  app -> client : 11 create(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CVV)\n\n  client -> user : 12 create(email,password,nif,name)\n  user -> EncryptPassword : 13 encryptPasswordMD5(password)\n  client -> Address : 14 create(latitude,longitude,altitude,streetName,doorNumber,postalCode,locality,country)\n  client -> CreditCard : 15 create(creditCardNr,validityDate,CVV)\n\n  RegisterClientController -> clientService : 16 registerNewClient(client)\n  clientService -> clientDB : 17 addClientToDB(client)\n\n  ref SD_CONNECTIONS\n  end ref\n\n  clientService -> EmailSender : 18 sendEmail(email,subject,body)\nelse if any information does not have a valid format\n  RegisterClientUI -> Client : 19 Validates and informs about the success of the operation\\nor informs the user that the operation\\nwas not successful\n  RegisterClientUI -> Client : 20\nend\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1144,
+    "completion_tokens": 734,
+    "total_tokens": 1878,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

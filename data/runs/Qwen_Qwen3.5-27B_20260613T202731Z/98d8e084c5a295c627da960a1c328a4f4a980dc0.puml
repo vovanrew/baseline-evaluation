@@ -1,0 +1,72 @@
+```plantuml
+@startuml
+title PB-158 UC8 SQD: Get campaigns customer is eligible for
+
+actor "Next Customer" as User
+participant "P&O\n(Core Next)" as PnO
+database "P&O DB" as Database
+participant "Core Bradesco" as CoreBradesco
+
+rectangle "Next Platform" {
+    PnO
+    Database
+}
+
+note top
+#Abstract:
+This use cases describes the changes being made to an existing endpoint.
+The endpoint will be modified so that it can be called by the user and
+will return a list of campaigns that the customer is eligible for. A campaign
+logo version number will be returned, as well as a campaign logo
+image (if requested).
+end note
+
+note left of PnO
+#Endpoint:
+GET /campaigns
+
+#Current implementation:
+Currently only called by system management, returns a list of all campaigns
+with the option to specify:
+* NAME
+* PARTNER_ID
+* OFFER_ID
+
+#Required implementation:
+_Either through extension of existing API or new_, enable the user
+to call the endpoint. When a user calls the endpoint return a list of campaigns
+that that the user is eligible for. As part of the request, include an optional
+field for whether or not to return the offer logo.
+
+As part of the CAMPAIGN_RETRIEVAL response include:
+* Campaign logo version number
+* Campaign logo (optional)
+
+**ENSURE BACKWARDS COMPATIBILITY IS MAINTAINED**
+end note
+
+User -> PnO: 1 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})
+activate PnO
+group filter on {NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}
+    PnO -> Database: 2 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})
+    activate Database
+    note right of Database
+    #Note:
+    Read P&O tables:
+    * ELLIGIBLE_USER
+    * CAMPAIGN
+    end note
+    Database --> PnO: 3 Read campaigns user is eligible for
+    deactivate Database
+    Database --> PnO: 4 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)
+end
+deactivate PnO
+
+alt if user has been or is eligible for at least one campaign
+    PnO --> User: 5 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)
+else if user is not eligible for any active campaigns
+    PnO --> User: 6 Return error (MESSAGE)
+end
+
+@enduml
+```

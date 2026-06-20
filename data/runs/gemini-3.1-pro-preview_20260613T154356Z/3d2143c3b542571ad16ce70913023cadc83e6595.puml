@@ -1,0 +1,75 @@
+```plantuml
+@startuml
+!pragma handwritten true
+skinparam handwritten true
+
+title シーケンス：コンテンツフォルダ編集
+
+participant ContentFolder
+participant BcContentsBehavior
+participant Content
+
+-> ContentFolder : edit
+activate ContentFolder
+
+ContentFolder -> BcContentsBehavior : setup
+activate BcContentsBehavior
+note right of ContentFolder : hasOneでコンテンツをフォルダに繋ぎこむ
+
+ContentFolder -> BcContentsBehavior : beforeValidate
+note right of ContentFolder
+・コンテンツの初期化
+・コンテンツのバリデーション
+・バリデーション結果のマージ
+・バリデーション後のコンテンツのマージ
+end note
+BcContentsBehavior -> ContentFolder
+
+ContentFolder -> BcContentsBehavior : beforeSave
+note right of ContentFolder
+・コンテンツのバリデーションチェック
+・エラーが出ていれば終了
+end note
+BcContentsBehavior -> ContentFolder
+
+ContentFolder -> BcContentsBehavior : afterSave
+note right of BcContentsBehavior : コンテンツの生成
+
+BcContentsBehavior -> Content : save
+activate Content
+
+Content -> Content : beforeValidate
+note right of Content
+・タイトル整形
+・更新日のセット
+・URLの整形
+・トップフォルダの場合に
+URLバリデーションを除外
+・URLの重複チェック
+（重複していた場合は自動生成）
+end note
+
+Content -> Content : beforeSave
+note right of Content : 変更前の親コンテンツIDを取得
+
+Content -> Content : afterSave
+note right of Content
+・関連するキャッシュを削除
+・システムデータを更新
+・子コンテンツの更新
+・別サイトの関連するコンテンツを更新
+・親コンテンツが変更となった場合は、
+最終並び替え日時を更新
+end note
+
+Content -> BcContentsBehavior
+deactivate Content
+
+note right of ContentFolder : 生成後のContent をマージ
+BcContentsBehavior -> ContentFolder
+deactivate BcContentsBehavior
+
+deactivate ContentFolder
+
+@enduml
+```

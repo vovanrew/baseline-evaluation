@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLlIZbrtZPkuATbZiu0TmQC8eZOU",
+  "object": "chat.completion",
+  "created": 1781369080,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam sequenceMessageAlign left\nskinparam ParticipantPadding 20\nskinparam BoxPadding 10\n\nactor \"Project Manager\" as PM\nparticipant \":ProjectManagerUI\" as UI\nparticipant \"AGVServer\" as AGVS\nparticipant \"AGVServerThread\" as AGVST\nparticipant \"AVGManagerController\" as AMGC\nparticipant \"AGVDigitalTwinServer\" as DTServer\nparticipant \"AGVDigitalTwinThread\" as DTThread\nparticipant \"AGVDigitalTwinController\" as DTController\nparticipant \"CodingAndDecoding2\" as Codec\n\nPM -> UI : Wants to assign ready to go Orders to an AGV\n\nUI -> AGVS : message\nactivate AGVS\nAGVS -> UI : accept\nAGVS -> AGVST : start\nactivate AGVST\n\nAGVST -> Codec : Decoding(r)\nactivate Codec\nCodec -> AGVST : Message\nAGVST -> AMGC : FifoAGV()\nactivate AMGC\nAMGC -> AMGC : findavailableOrder()\ndeactivate AMGC\n\nloop until orderList is empty\n  AMGC -> AMGC : findavailableAGV(weight,volume)\n  AMGC -> AMGC : createTaskandSave(description,order,agv)\n  AMGC -> AMGC : doTask()\n  AMGC -> DTServer : message\n  activate DTServer\n  DTServer -> AMGC : accept\n  DTServer -> DTThread : start\n  activate DTThread\n\n  DTThread -> Codec : Decoding(r)\n  Codec -> DTThread : message\n  DTThread -> DTController : doTask(taskPerform)\n  activate DTController\n  DTController -> DTThread : TaskReportMessage\n  deactivate DTController\n\n  DTThread -> DTServer : TaskReportMessage\n  deactivate DTThread\n  DTServer -> AMGC : TaskReportMessage\n  deactivate DTServer\n\n  AMGC -> AGVST : TaskReportMessage\nend\n\nAGVST -> AGVS : ResponseMessage\ndeactivate AGVST\nAGVS -> UI : ResponseMessage\ndeactivate AGVS\nUI -> PM : Informs operation success\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2052,
+    "completion_tokens": 452,
+    "total_tokens": 2504,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

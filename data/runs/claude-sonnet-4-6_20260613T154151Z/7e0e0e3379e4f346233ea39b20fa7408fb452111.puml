@@ -1,0 +1,27 @@
+@startuml
+title Initialization
+
+box "service process" #lightblue
+participant "ConcreteImpl" as CI #moccasin
+participant "DBusAdapter" as DBA #lightgreen
+end box
+
+participant "DBus" as DB #lightgrey
+
+box "client process" #lavender
+participant "DBusProxy" as DBP #lightgreen
+end box
+
+DBA -> DBA : Init(ConcreteImpl)
+DBA -> DB : Export
+
+DBP -> DBP : Init
+note right of DBP : Tries to fetch all properties\nincluding "ready" property
+
+DBP -> DB : ConnectToRemoteObject
+DBP -> DB : GetAllProperties
+DB -> DBA : GetAllProperties
+DBA --> DB : return properties
+DB --> DBP : return properties
+
+@enduml

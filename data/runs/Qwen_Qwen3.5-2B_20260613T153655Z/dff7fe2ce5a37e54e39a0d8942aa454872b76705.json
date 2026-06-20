@@ -1,0 +1,22 @@
+{
+  "id": "c9cd86a7-683e-4f33-b2ab-b75dc12d329c",
+  "object": "chat.completion",
+  "created": 1781763755,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n\nparticipant \"SERVER NODE 1\" as S1\nparticipant \"SERVER NODE 2\" as S2\nparticipant \"STATE CACHE\" as SC\nparticipant \"BROKER\" as B\nparticipant \"TBM/HU\" as TBM\nparticipant \"APP\" as APP\n\nS1..>S1 : new request/response interaction\nS1..>S1 : create interaction context\nS1..>S1 : newMessageID = nextMessageID()\nS1..>SC : put(newMessageID, interaction context)\nS1..>S1 : create message\nS1..>S1 : message.messageID = newMessageID\nS1..>B : publish message\n\nB..>TBM : read message\nTBM..>TBM : create response\nTBM..>TBM : response.correlationID = message.messageID\nTBM..>B : publish response\n\nB..>S2 : read response\nS2..>SC : interaction context = get(response.correlationID)\nS2..>SC : process response\nS2..>SC : delete(response.correlationID)\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nes",
+  "usage": {
+    "prompt_tokens": 2399,
+    "completion_tokens": 248,
+    "total_tokens": 2647
+  }
+}

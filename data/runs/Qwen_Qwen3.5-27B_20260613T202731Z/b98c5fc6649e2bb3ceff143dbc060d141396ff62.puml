@@ -1,0 +1,382 @@
+```plantuml
+@startuml
+title 用户购买流程
+
+actor "用户" as User
+participant "appPurchase 点餐服务" as appPurchase
+participant "ms-trade" as msTrade
+participant "subscribe-service" as subscribeService
+participant "cbs" as cbs
+participant "payment-service" as paymentService
+participant "cgw" as cgw
+participant "payment" as payment
+participant "upm" as upm
+participant "public-service" as publicService
+participant "product" as product
+participant "subscribe" as subscribe
+participant "charging" as charging
+participant "order" as order
+participant "proxy" as proxy
+participant "campaign" as campaign
+
+User -> appPurchase: appPurchase 点餐服务
+activate appPurchase
+appPurchase -> msTrade: purchaseObj 点餐服务
+activate msTrade
+msTrade -> subscribeService: purchaseObj 点餐服务
+activate subscribeService
+
+group 读取缓存
+    subscribeService -> cbs: queryContinuousTokenMemCache 查询连续订阅token
+    activate cbs
+    cbs --> subscribeService: queryContinuousTokenMemCache 返回查询连续订阅token的响应
+    deactivate cbs
+    
+    subscribeService -> cbs: updateContinuousTokenMemCache 保存连续订阅token
+    activate cbs
+    cbs --> subscribeService: updateContinuousTokenMemCache 返回保存连续订阅token的响应
+    deactivate cbs
+    
+    subscribeService -> cbs: updateContinuousTokenMemCache 回滚保存连续订阅token的响应
+    activate cbs
+    cbs --> subscribeService: updateContinuousTokenMemCache 回滚保存连续订阅token的响应
+    deactivate cbs
+end
+
+subscribeService -> paymentService: getPaymentAccountInfo 获取支付号
+activate paymentService
+paymentService -> cgw: getPaymentAccountInfo 获取支付号
+activate cgw
+cgw --> paymentService: getPaymentAccountInfo 返回获取支付号的响应
+deactivate cgw
+paymentService --> subscribeService: getPaymentAccountInfo 返回获取支付号的响应
+deactivate paymentService
+
+group 拉取账号信息
+    subscribeService -> upm: getAccountInfo 查询账号的手机号
+    activate upm
+    upm --> subscribeService: getAccountInfo 返回查询账号的手机号响应
+    deactivate upm
+    
+    subscribeService -> publicService: matchNumberSegment 查询手机号归属地
+    activate publicService
+    publicService --> subscribeService: matchNumberSegment 返回查询手机号归属地的响应
+    deactivate publicService
+    
+    subscribeService -> paymentService: paymentAccountManagement 注册支付号
+    activate paymentService
+    paymentService -> cgw: getPaymentAccountInfo 获取支付号
+    activate cgw
+    cgw --> paymentService: getPaymentAccountInfo 返回获取支付号的响应
+    deactivate cgw
+    
+    paymentService -> cgw: createPaymentAccount 创建支付号
+    activate cgw
+    cgw --> paymentService: createPaymentAccount 返回创建支付号的响应
+    deactivate cgw
+    
+    paymentService --> subscribeService: paymentAccountManagement 返回注册支付号的响应
+    deactivate paymentService
+end
+
+subscribeService -> upm: isUserWhitelist 查询用户是否在白名单内
+activate upm
+upm --> subscribeService: isUserWhitelist 返回查询用户是否在白名单内的响应
+deactivate upm
+
+group 用户是否已购买
+    subscribeService -> product: purchaseObj 点餐服务-商品Id判断
+    activate product
+    product --> subscribeService: purchaseObj 点餐服务-商品Id判断
+    deactivate product
+    
+    subscribeService -> upm: matchNumberSegment 查询手机号省份和城市id
+    activate upm
+    upm --> subscribeService: matchNumberSegment 返回查询手机号省份和城市id的响应
+    deactivate upm
+    
+    subscribeService -> product: readItemQueryService.fetchItemInfo 查询产品信息
+    activate product
+    product --> subscribeService: readItemQueryService.fetchItemInfo 返回查询产品信息的响应
+    deactivate product
+end
+
+group 订单数量是1和是否是首单或首次付款成功
+    subscribeService -> subscribe: purchaseObj 点餐服务-商品ID>0判断
+    activate subscribe
+    subscribe --> subscribeService: purchaseObj 点餐服务-商品ID>0判断
+    deactivate subscribe
+end
+
+group 续包判断
+    subscribeService -> subscribe: fetchItemSubscriptions 查询已有订阅信息
+    activate subscribe
+    subscribe --> subscribeService: fetchItemSubscriptions 返回已有订阅信息
+    deactivate subscribe
+    
+    alt 上一个套餐没有到期
+        subscribeService -> subscribe: subscribe 更新已有订阅信息结束时间
+        activate subscribe
+        subscribe --> subscribeService: subscribe 返回响应
+        deactivate subscribe
+    end
+    
+    subscribeService -> subscribe: authenticate 判断是否可续包
+    activate subscribe
+    subscribe --> subscribeService: authenticate 返回是否续包
+    deactivate subscribe
+end
+
+group 计算单价乘以1
+    subscribeService -> charging: purchaseObj 点餐服务-商品ID>4900
+    activate charging
+    charging --> subscribeService: purchaseObj 点餐服务-商品ID>4900
+    deactivate charging
+    
+    subscribeService -> charging: eventCalculatorService.calculatePrice 按照市场价报价
+    activate charging
+    charging --> subscribeService: eventCalculatorService.calculatePrice 返回报价结果
+    deactivate charging
+end
+
+group 选择并配置支付方式
+    subscribeService -> payment: autoAdaptedPayChannels 适配支付方式
+    activate payment
+    payment --> subscribeService: autoAdaptedPayChannels 返回适配支付方式的响应
+    deactivate payment
+    
+    subscribeService -> payment: autoAdaptedPayChannels 适配支付方式
+    activate payment
+    payment --> subscribeService: autoAdaptedPayChannels 返回适配支付方式的响应
+    deactivate payment
+    
+    note right of subscribeService: 根据系统配置是否为支付宝或微信支付,如果是,则优先使用;如果不是,则默认使用Apple Pay,如果没有Apple Pay,则使用市场上能用的第一个支付方式
+end
+
+subscribeService -> order: createOrder 创建订单
+activate order
+order --> subscribeService: createOrder 返回创建订单的响应
+deactivate order
+
+group 计算乘以2
+    subscribeService -> subscribe: authenticate 判断是否可续包
+    activate subscribe
+    subscribe --> subscribeService: authenticate 返回是否续包
+    deactivate subscribe
+end
+
+group 计算单价乘以2
+    subscribeService -> charging: purchaseObj 点餐服务-商品ID>4900
+    activate charging
+    charging --> subscribeService: purchaseObj 点餐服务-商品ID>4900
+    deactivate charging
+    
+    subscribeService -> charging: eventCalculatorService.calculatePrice 按照市场价报价
+    activate charging
+    charging --> subscribeService: eventCalculatorService.calculatePrice 返回报价结果
+    deactivate charging
+end
+
+group 选择并配置支付方式
+    subscribeService -> payment: autoAdaptedPayChannels 适配支付方式
+    activate payment
+    payment --> subscribeService: autoAdaptedPayChannels 返回适配支付方式的响应
+    deactivate payment
+    
+    subscribeService -> payment: autoAdaptedPayChannels 适配支付方式
+    activate payment
+    payment --> subscribeService: autoAdaptedPayChannels 返回适配支付方式的响应
+    deactivate payment
+    
+    note right of subscribeService: 根据系统配置是否为支付宝或微信支付,如果是,则优先使用;如果不是,则默认使用Apple Pay,如果没有Apple Pay,则使用市场上能用的第一个支付方式
+end
+
+subscribeService -> order: createOrder 创建订单
+activate order
+order --> subscribeService: createOrder 返回创建订单的响应
+deactivate order
+
+subscribeService -> order: submitOrder 提交订单
+activate order
+order --> subscribeService: submitOrder 返回提交订单的响应
+deactivate order
+
+group 调用pay接口
+    subscribeService -> order: payOrder 支付订单
+    activate order
+    order --> subscribeService: payOrder 返回支付订单的响应
+    deactivate order
+end
+
+group 该方式未配置支付号
+    subscribeService -> subscribe: batchSubscribe 批量订阅
+    activate subscribe
+    subscribe --> subscribeService: batchSubscribe 返回批量订阅的响应
+    deactivate subscribe
+    
+    subscribeService -> payment: directPayment 代扣
+    activate payment
+    payment --> subscribeService: directPayment 返回代扣的响应
+    deactivate payment
+end
+
+group 读取缓存
+    subscribeService -> cbs: queryDailyDiscount 同步每日优惠(物品名和该章节对应的系列参数名称)
+    activate cbs
+    cbs --> subscribeService: queryDailyDiscount 返回同步每日优惠(物品名和该章节对应的系列参数名称)的响应
+    deactivate cbs
+    
+    subscribeService -> cbs: queryDailyDiscount 返回同步每日优惠(物品名和该章节对应的系列参数名称)
+    activate cbs
+    cbs --> subscribeService: queryDailyDiscount 返回同步每日优惠(物品名和该章节对应的系列参数名称)的响应
+    deactivate cbs
+    
+    subscribeService -> proxy: 发送msg.topic=ItemPurch.tags=Main
+    activate proxy
+    proxy --> subscribeService: 发送msg.topic=ItemPurch.tags=Main
+    deactivate proxy
+    
+    group 定时触发
+        subscribeService -> proxy: 发送msg.topic=ItemPurch.tags=Main
+        activate proxy
+        proxy --> subscribeService: 发送msg.topic=ItemPurch.tags=Main
+        deactivate proxy
+        
+        subscribeService -> campaign: 发送msg.topic=ItemPurch.tags=Main,刷新商品购买记录表：ord_2_itempurchase_order中的订单数,保持订单数直到后台订单商品仓库表：ord_2_item_repository中商品库存为0
+        activate campaign
+        campaign --> subscribeService: 发送msg.topic=ItemPurch.tags=Main,刷新商品购买记录表：ord_2_itempurchase_order中的订单数,保持订单数直到后台订单商品仓库表：ord_2_item_repository中商品库存为0
+        deactivate campaign
+    end
+end
+
+group 请求超时
+    subscribeService -> payment: directPayment 代扣
+    activate payment
+    payment --> subscribeService: directPayment 返回代扣的响应
+    deactivate payment
+    
+    note right of subscribeService: 支付等待回调
+end
+
+subscribeService -> order: payOrder 返回支付订单的响应
+activate order
+order --> subscribeService: payOrder 返回支付订单的响应
+deactivate order
+
+group 请求失败或者等待回调直至订单完成或超时后继续,进入自动取消流程(见支付订单取消流程)
+    subscribeService -> payment: notifyStatus 支付成功的异步回调结果
+    activate payment
+    payment --> subscribeService: notifyStatus 返回支付成功的异步回调结果的响应
+    deactivate payment
+    
+    subscribeService -> subscribe: batchSubscribe 批量订阅
+    activate subscribe
+    subscribe --> subscribeService: batchSubscribe 返回批量订阅的响应
+    deactivate subscribe
+    
+    group 读取缓存
+        subscribeService -> cbs: queryDailyDiscount 同步每日优惠(物品名和该章节对应的系列参数名称)
+        activate cbs
+        cbs --> subscribeService: queryDailyDiscount 返回同步每日优惠(物品名和该章节对应的系列参数名称)的响应
+        deactivate cbs
+        
+        subscribeService -> cbs: queryDailyDiscount 返回同步每日优惠(物品名和该章节对应的系列参数名称)
+        activate cbs
+        cbs --> subscribeService: queryDailyDiscount 返回同步每日优惠(物品名和该章节对应的系列参数名称)的响应
+        deactivate cbs
+        
+        subscribeService -> proxy: 发送msg.topic=ItemPurch.tags=Main
+        activate proxy
+        proxy --> subscribeService: 发送msg.topic=ItemPurch.tags=Main
+        deactivate proxy
+        
+        group 定时触发
+            subscribeService -> proxy: 发送msg.topic=ItemPurch.tags=Main
+            activate proxy
+            proxy --> subscribeService: 发送msg.topic=ItemPurch.tags=Main
+            deactivate proxy
+            
+            subscribeService -> campaign: 发送msg.topic=ItemPurch.tags=Main,刷新商品购买记录表：ord_2_itempurchase_order中的订单数,保持订单数直到后台订单商品仓库表：ord_2_item_repository中商品库存为0
+            activate campaign
+            campaign --> subscribeService: 发送msg.topic=ItemPurch.tags=Main,刷新商品购买记录表：ord_2_itempurchase_order中的订单数,保持订单数直到后台订单商品仓库表：ord_2_item_repository中商品库存为0
+            deactivate campaign
+        end
+    end
+    
+    subscribeService -> order: notifyStatus 返回支付成功的异步回调结果的响应
+    activate order
+    order --> subscribeService: notifyStatus 返回支付成功的异步回调结果的响应
+    deactivate order
+    
+    subscribeService -> order: batchFetchHistoryOrders 查询历史订单
+    activate order
+    order --> subscribeService: batchFetchHistoryOrders 返回查询历史订单的响应
+    deactivate order
+    
+    subscribeService -> order: batchFetchHistoryOrders 返回查询历史订单的响应
+    activate order
+    order --> subscribeService: batchFetchHistoryOrders 返回查询历史订单的响应
+    deactivate order
+end
+
+group 判断是否有取消状态的历史订单或者新购买订单
+    subscribeService -> order: purchaseObj 点餐服务-商品ID>4900
+    activate order
+    order --> subscribeService: purchaseObj 点餐服务-商品ID>4900
+    deactivate order
+end
+
+group 订单是否过期
+    subscribeService -> order: 设置订单的取消原因
+    activate order
+    order --> subscribeService: 设置订单的取消原因
+    deactivate order
+    
+    alt 该用户重新访问时
+        subscribeService -> order: 不显示有激活过的订单
+        activate order
+        order --> subscribeService: 不显示有激活过的订单
+        deactivate order
+    end
+end
+
+group 计算乘以3
+    subscribeService -> order: 如果用户有激活过的记录，将会允许购买
+    activate order
+    order --> subscribeService: 如果用户有激活过的记录，将会允许购买
+    deactivate order
+end
+
+group 尝试点击再购按钮，查看订购的套餐
+    subscribeService -> campaign: setActivityInfo 设置活动信息为已激活
+    activate campaign
+    campaign --> subscribeService: setActivityInfo 返回设置活动信息为已激活的响应
+    deactivate campaign
+    
+    subscribeService -> campaign: setActivityInfo 返回设置活动信息为已激活的响应
+    activate campaign
+    campaign --> subscribeService: setActivityInfo 返回设置活动信息为已激活的响应
+    deactivate campaign
+end
+
+group 结算支付
+    subscribeService -> charging: 查找当前套餐以判断该套餐的ChargingID(如果该套餐是周卡则以7天周期来执行WeekBilling逻辑)
+    activate charging
+    charging --> subscribeService: 查找当前套餐以判断该套餐的ChargingID(如果该套餐是周卡则以7天周期来执行WeekBilling逻辑)
+    deactivate charging
+    
+    subscribeService -> charging: continuousBilling.runContinuousCharging 处理重支付
+    activate charging
+    charging --> subscribeService: continuousBilling.runContinuousCharging 返回处理重支付的响应
+    deactivate charging
+end
+
+msTrade --> appPurchase: purchaseObj 返回点餐服务的响应
+deactivate msTrade
+appPurchase --> User: purchaseObj 返回点餐服务的响应
+deactivate appPurchase
+subscribeService --> msTrade: purchaseObj 点餐服务-返回
+deactivate subscribeService
+
+@enduml
+```

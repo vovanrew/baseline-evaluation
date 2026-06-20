@@ -1,0 +1,21 @@
+{
+  "id": "msg_01EX5EqJQD2sxg6fWMKioyCh",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor Admin\nentity Sqoop\ndatabase \"Metastore DB\" as MetastoreDB\ncollections HDFS\nentity \"Hive SQL\" as HiveSQL\nentity Hive\nentity \"Hive Table\" as HiveTable\nactor Ambari\n\n== Pre Upgrade Planning Setup ==\n\nAdmin -> Sqoop : Run \"Collect the Metadata\"\nSqoop -> MetastoreDB : Extracts from\nSqoop -> HDFS : Saves to\n\nAdmin -> MetastoreDB : Run \"Build Supporting Tables\"\n\n== Pre Upgrade Planning ==\n\nAdmin -> HiveTable : Run \"Distinct Serdes\"\nAdmin -> HiveTable : Fix Tables with Serde Issues\nAdmin -> HiveTable : Run \"Check Partition Location\"\nAdmin -> HiveTable : Run \"Non-Managed Table Locations\"\nAdmin -> HiveTable : Run \"Managed Table Locations\"\nAdmin -> HiveTable : Run \"Missing HDFS Directories Check\"\nAdmin -> HiveTable : Correct \"Missing Directories\"\nAdmin -> HiveTable : Run \"Table Migration Check\"\nAdmin -> HiveTable : Run \"Acid Table Conversions\"\nAdmin -> HiveTable : Run \"Conversion Table Directories\"\n\n== Pre Upgrade Compaction ==\n\nnote left\nThis process should be run several days\nBEFORE the actual upgrade to reduce the downtime\nof the upgrade.\n\nAnd should be run just BEFORE the upgrade and\nAFTER all users have been cleared from the system\nto ensure no tables are modified after this runs.\nend note\n\nAdmin -> HiveTable : Run \"Acid Table Compaction Check\"\n\nAdmin -> HiveTable : Run \"Acid Table Compaction Required\"\nAdmin -> HiveTable : TUNE THE COMPACTOR for estimated compaction needs\nAdmin -> HiveTable : Run the compaction script.  Break it apart if needed.\n\n== Post Upgrade Planning ==\n\nAdmin -> HiveTable : Run \"Acid Table Locations\".  Save artifact for Upgrade.\n\n== Upgrade ==\n\nAdmin -> Admin : Review and Run ALL previous steps\\nand collect details.\nAdmin -> Admin : Decision to intervene with Ambari Process\\nbased on volumes indicated through research\nAdmin -> Ambari : Hack Pre/Post Processes\nAdmin -> Ambari : Run Compaction Routine one last time.\nAdmin -> Admin : Start Upgrade\nAdmin -> HiveTable : Run the Post Upgrade Planning Output to convert tables.\nAdmin -> Admin : Complete Upgrade\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431316,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 582,
+    "prompt_tokens": 1654,
+    "total_tokens": 2236
+  }
+}

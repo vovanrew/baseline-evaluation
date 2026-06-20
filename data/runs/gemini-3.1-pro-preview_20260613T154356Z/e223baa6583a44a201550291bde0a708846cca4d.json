@@ -1,0 +1,51 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle Capture Credit Card Payment\n\nparticipant Client\nparticipant Shop\nparticipant PAYONE\n\nactivate Client\nClient -> Shop: POST prepare.php\nactivate Shop\nShop --> Client: 302 capture.php\ndeactivate Shop\nClient -> Shop: GET capture.php\n\nalt No Pseudo Card PAN present\n    Shop --> Client: 200 Credit Card Form\n    Client -> PAYONE: POST Card PAN\n    activate PAYONE\n    PAYONE --> Client: 200 Pseudo Card PAN\n    deactivate PAYONE\n    Client -> Shop: POST capture.php\nend\n\nactivate Shop\nShop -> PAYONE: POST request=authorization\nactivate PAYONE\n\nalt With 3-D Secure\n    PAYONE --> Shop: 302 3-D Secure Form\n    Shop --> Client: 302 3-D Secure Form\n    Client -> PAYONE: POST 3-D Secure Password\n    PAYONE -> Shop: POST notify.php txaction=appointed\n    Shop -> Shop: Set Payment Status to \"captured\"\n    Shop --> PAYONE: 200 TSOK\n    PAYONE --> Client: 302 done.php\nelse No 3-D Secure\n    PAYONE --> Shop: 200 status=APPROVED\n    deactivate PAYONE\n    Shop -> Shop: Set Payment Status to \"pending\"\n    Shop --> Client: 302 done.php\nend\ndeactivate Shop\n\nClient -> Shop: GET done.php\nactivate Shop\nShop --> Client: 200 Thanks\ndeactivate Shop\ndeactivate Client\n\nalt No 3-D Secure\n    ... some time later ...\n    PAYONE -> Shop: POST notify.php txaction=appointed transaction_status=completed\n    activate Shop\n    activate PAYONE\n    Shop -> Shop: Set Payment Status to \"captured\"\n    Shop --> PAYONE: 200 TSOK\n    deactivate Shop\n    deactivate PAYONE\nend\n\n... some time later ...\nPAYONE -> Shop: POST notify.php txaction=paid\nactivate Shop\nactivate PAYONE\nShop --> PAYONE: 200 TSOK\ndeactivate Shop\ndeactivate PAYONE\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHu3TjngZEBomsu59F8wZu2ZxuxDG8D9i/az8rcAbCUqTtI9rAzXRCtUTswQ1K"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "citationMetadata": {
+        "citationSources": [
+          {
+            "startIndex": 13,
+            "endIndex": 255,
+            "uri": "https://github.com/valiton/payum-payone",
+            "license": ""
+          },
+          {
+            "startIndex": 1076,
+            "endIndex": 1319,
+            "uri": "https://github.com/valiton/payum-payone",
+            "license": ""
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1187,
+    "candidatesTokenCount": 487,
+    "totalTokenCount": 1674,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1107
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "CmIxauXbEPebvdIPt_WemQY"
+}

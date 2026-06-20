@@ -1,0 +1,48 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 10
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor #FFFFFF
+  ActorBorderColor #666666
+  ActorBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F7
+  NoteBackgroundColor #FFFEDB
+  NoteBorderColor #999999
+}
+
+actor User
+participant Application
+participant "«engine»\nAuto SDK Engine" as Engine #87CEFA
+participant "«avs»\nAlexa" as Alexa #CCFFCC
+
+alt "Activating Trial"
+note over Application
+clicks `Activate Trial` button
+on screen to activate
+trial up-sell.
+end note
+Application -> Engine : Publish SendConnectivityEvent message specifying **ACTIVATE_TRIAL** event
+else "Activating Paid Plan"
+note over Application
+clicks `Activate Paid Plan` button
+on screen to activate
+paid plan up-sell.
+end note
+Application -> Engine : Publish SendConnectivityEvent message specifying **ACTIVATE_PAID_PLAN** event
+end
+
+activate Engine
+Engine -> Alexa : InitiateDataPlanSubscription event
+
+alt "Successful in sending event to Alexa"
+Engine <-- Alexa : Receive SendConnectivityEventReply message with **SUCCESS** status
+else "on failure"
+Engine <-- Alexa : Receive SendConnectivityEventReply message with **FAIL** status
+end
+deactivate Engine
+
+@enduml

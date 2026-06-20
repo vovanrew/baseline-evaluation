@@ -1,0 +1,22 @@
+{
+  "id": "686a8de9-5788-419a-a332-bdc23484376e",
+  "object": "chat.completion",
+  "created": 1781760394,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle band301\n\nparticipant BTManager as BTManager\nparticipant BTCallback as BTCallback\nparticipant BLEController as BLEController\nparticipant ScannerPresenter as ScannerPresenter\nparticipant LeScannerV21 as LeScannerV21\nparticipant WristbandManager as WristbandManager\nparticipant L2Layer as L2Layer\nparticipant L2KeyPacket as L2KeyPacket\nparticipant L2CMDPacket as L2CMDPacket\nparticipant L1Layer as L1Layer\nparticipant L1Packet as L1Packet\nparticipantGattLayer as GattLayer\nparticipant BluetoothGatt as BluetoothGatt\n\nBTManager -- BTCallback : onCreate\nBLEController -- L2Layer : new\nScannerPresenter -- LeScannerV21 : new\nLeScannerV21 -- L2Layer : new\nWristbandManager -- L2Layer : new\n\nL2Layer -- L2KeyPacket : new\nL2Layer -- L2CMDPacket : new\nL2KeyPacket -- L1Layer : new\nL2CMDPacket -- L1Layer : new\n\nL1Layer -- L1Packet : new\nL1Packet -- GattLayer : new\nGattLayer -- BluetoothGatt : new\n\n@subgraph \u641c\u7d22\u8bbe\u5907\nBTManager --> BTCallback : onCreate\nBLEController --> L2Layer : new\nScannerPresenter --> LeScannerV21 : new\nLeScannerV21 --> L2Layer : new\nWristbandManager --> L2Layer : new\n\nL2Layer --> L2KeyPacket : new\nL2Layer --> L2CMDPacket : new\nL2KeyPacket --> L1Layer : new\nL2CMDPacket --> L1Layer : new\n\nL1Layer --> L1Packet : new\nL1Packet --> GattLayer : new\nGattLayer --> BluetoothGatt : new\n\n@subgraph \u5efa\u7acbGATT\u8fde\u63a5\nConnect --> connect : Connect : \u627e\u5230\u5408\u9002\u7684\u5730\u5740\u7ebf, \u4f7f\u7528\u8be5\u5730\u5740\u8fdb\u884c\u84dd\u7259\u8fde\u63a5\nconnect --> startTxSchedule : startTxSchedule\nstartTxSchedule --> startRxSchedule : startRxSchedule\nstartRxSchedule --> connect : Connect\n\nonConnectionStateChange --> requestMtu : \u8bbe\u7f6eMTU, 240\nrequestMtu --> onMtuChanged : onMtuChanged\nonMtuChanged --> discoverServices : discoverServices\ndiscoverServices --> onServicesDiscovered : onServicesDiscovered\nonServicesDiscovered --> onDescriptorWrite : onDescriptorWrite\n\nmTransportCallback --> mGattCallback : mTransportCallback.onConnectionStateChange\nmGattCallback --> mHandler.handleMessage : mGattCallback.onConnectionStateChange\n\nMSG_STATE_CONNECTED --> mHandler.handleMessage : MSG_STATE_CONNECTED\nmHandler.handleMessage --> StartLoginProcess : StartLoginProcess\nStartLoginProcess --> RequestLogin : RequestLogin\nRequestLogin --> RequestSetNeedInfo : RequestSetNeedInfo\nRequestSetNeedInfo --> SettiserProfile : SettiserProfile\n\n@subgraph \u5c01\u88c5\u5e76\u53d1\u9001\u6570\u636e-Tx\nSettingCmdUserSetting --> preparePacket : SettingCmdUserSetting\npreparePacket --> preparePacket : preparePacket : key(1 B)data.len(2 B)\npreparePacket --> preparePacket : preparePacket : cmd(1B),version(1B)\npreparePacket --> sendData : sendData\n\nprepareDataPacket --> preparePacket : prepareDataPacket\npreparePacket --> addToFtPacketList : addToFtPacketList\naddToFtPacketList --> ThreadTx.run : ThreadTx.run\nThreadTx.run --> getFromTxPacketList : getFromTxPacketList\ngetFromTxPacketList --> UnpackSendPacket : UnpackSendPacket\nUnpackSendPacket --> sendGattLayerData : sendGattLayerData\nsendGattLayerData --> sendData : sendData\nsendData --> tellUpstackPacketSend : tellUpstackPacketSend\ntellUpstackPacketSend --> onDataSend : onDataSend\n\n@subgraph \u63a5\u6536\u6570\u636e-Rx\nonDataSend --> receiveData : receiveData\nreceiveData --> decodeReceiveData : decodeReceiveData\ndecodeReceiveData --> parseHeader : parseHeader : \u89e3\u6790\u51famagic, ack, \u603b\u957f\u5ea6, crc, sequenid\nparseHeader --> parseData : parseData : \u89e3\u6790key(1B), len(2 B) :data\nparseData --> parseData : parseData : \u89e3\u6790key(1B), len(2 B) :data\n\n@subgraph handshake\nhandshake --> handshake : handshake\nhandshake --> handshake : handshake\nhandshake --> sendData : sendData\nsendData --> onDataReceive : onDataReceive\nonDataReceive --> onHandshakeCallback : onHandshakeCallback\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nes",
+  "usage": {
+    "prompt_tokens": 1761,
+    "completion_tokens": 967,
+    "total_tokens": 2728
+  }
+}

@@ -1,0 +1,38 @@
+@startuml
+skinparam sequenceMessageAlign center
+title Example background processing module
+
+box "sw-explorer" #LightGray
+  participant WebApp
+  partition SWData {
+    ' Empty for layout purposes if needed, but usually just participants are enough inside box unless specific grouping logic requires partitions. 
+    ' However, looking at the original, there isn't an explicit partition named SWData around a component, rather SWData *is* the component next to WebApp within sw-explorer.
+    ' Let's stick to simple participants in boxes/partitions where appropriate based on visual hierarchy.
+  }
+end box
+
+participant Manager
+queue MessageQueue
+worker Worker
+database Memcache
+
+== Fetch New Collection ==
+WebApp ->> SWData : fetch new collection\nfetch new collection
+SWData ->> Manager : schedule a job\ndschedule a job
+
+note right of Manager
+ This is just an example.\nWe could got wi go with Celery,\nbut sometimes it's good\nto hide the concrete engine behind the abstraction layer.
+end note
+
+Manager ->> MessageQueue : execute a job
+Worker <- - MessageQueue : update job status
+Memcache <-- Manager : update job status
+Worker --> Manager : job result
+Memcache < -- Manager : job result
+
+== View Pending Collection ==
+WebApp ->> SWData : get job status\nget job status
+SWData ->> Manager : get job status
+Memcache < -- Manager : get job status
+
+@enduml

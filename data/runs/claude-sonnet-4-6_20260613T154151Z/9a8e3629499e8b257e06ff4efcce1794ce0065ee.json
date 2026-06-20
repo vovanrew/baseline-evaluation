@@ -1,0 +1,21 @@
+{
+  "id": "msg_01NwvgSJdMGR7vi4irLKZVmg",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor havenarbeider\nactor \"douane en voedselinspectie\" as douane\nactor scheepsagent\nparticipant \"Api gateway\" as api\nparticipant kapiteinsdienst\nparticipant administratie\nparticipant \"containerbeheer en -transport\" as containerbeheer\n\nloop per schip\n  scheepsagent -> api : registerVessel\n  api -> kapiteinsdienst : registerVessel\n  kapiteinsdienst -> administratie : requestOffer\n  administratie -> kapiteinsdienst : offerCreated\n  kapiteinsdienst -> containerbeheer : newContainerList\n\n  opt [deleteOffer]\n    scheepsagent -> api : offerConfirmation(isConfirmed == false)\n    api -> kapiteinsdienst : offerConfirmation(isConfirmed == false)\n    kapiteinsdienst -> administratie : deleteOffer\n  end\n\n  douane -> api : getDocuments\n  api -> kapiteinsdienst : getDocuments\n  kapiteinsdienst --> api : \n  api --> douane : \nend\n\nloop per havenarbeider\n  havenarbeider -> api : timeBadging\n  api -> administratie : timeBadging\n  havenarbeider -> api : getPayCheck\n  api -> administratie : getPayCheck\n  administratie --> api : \n  api --> havenarbeider : \nend\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370321,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 341,
+    "prompt_tokens": 1662,
+    "total_tokens": 2003
+  }
+}

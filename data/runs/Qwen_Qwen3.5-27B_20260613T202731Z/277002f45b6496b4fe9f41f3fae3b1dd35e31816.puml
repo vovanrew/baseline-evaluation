@@ -1,0 +1,70 @@
+```plantuml
+@startuml
+interface CommandInt {
+    +Execute() : void
+}
+
+class Commands {
+    <<C>>
+    -shape : string
+    +Commands(shape:string)
+    +Execute() : void
+    +Undo() : void
+    +Redo() : void
+    +PrintSVG() : void
+    +CreateSVG() : void
+    +«override» ToString() : string
+}
+
+class AddCMD {
+    <<C>>
+    -shape : string
+    +AddCMD(shape:String, history:List<string>)
+    +Execute() : void
+}
+
+class UndoCMD {
+    <<C>>
+    +UndoCMD(history:List<string>, redoList:List<string>)
+    +Execute() : void
+}
+
+class RedoCMD {
+    <<C>>
+    +RedoCMD(history:List<string>, redoList:List<string>)
+    +Execute() : void
+}
+
+class PrintSVGCMD {
+    <<C>>
+    +PrintSVGCMD(history:List<string>)
+    +Execute() : void
+}
+
+class CreateSVGCMD {
+    <<C>>
+    +CreateSVGCMD(history:List<string>)
+    +Execute() : void
+}
+
+class List<1> {
+    <<C>>
+}
+
+CommandInt <|-- Commands
+CommandInt <|-- AddCMD
+CommandInt <|-- UndoCMD
+CommandInt <|-- RedoCMD
+CommandInt <|-- PrintSVGCMD
+CommandInt <|-- CreateSVGCMD
+
+AddCMD --> List<1> : history<String>
+UndoCMD --> List<1> : history<String>
+UndoCMD --> List<1> : redoList<String>
+RedoCMD --> List<1> : history<String>
+RedoCMD --> List<1> : redoList<String>
+PrintSVGCMD --> List<1> : history<String>
+CreateSVGCMD --> List<1> : history<String>
+
+@enduml
+```

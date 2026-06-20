@@ -1,0 +1,26 @@
+```plantuml
+@startuml
+autonumber
+
+participant "halon" as halon
+participant "ios1" as ios1
+participant "ios2" as ios2
+participant "client" as client
+
+note right of ios2: SNS operation
+
+activate ios1
+activate ios2
+halon -> ios2 : m0_spie1_repair_abort
+deactivate ios1 #red
+deactivate ios2 #red
+
+group loop until all IOS are in [IDLE,FAILED]
+    halon -> ios2 : repair status request
+    ios2 -> halon : repair status reply
+end
+
+halon -> client : notify [(pool, PREVIOUS_STATE), (disk, PREVIOUS_STATE)]
+
+@enduml
+```

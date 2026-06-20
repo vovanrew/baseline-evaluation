@@ -1,0 +1,50 @@
+```plantuml
+@startuml
+actor "User Agent" as UA
+boundary "Content removal API" as API
+boundary "User Manager" as UM
+database "User database" as UDB
+database "Content database" as CDB
+
+note left of UA
+Should also include a CSRF token to prevent admins who are also
+visit other, potentially XSS vulnerable or malicious sites
+from helping an unkown actor remove content without authorization.
+end note
+
+UA --> API : Removal request (HTTP POST),\ncontains ID of content to be removed.
+activate API
+
+API -> UM : Retrieve role of requesting user.
+activate UM
+
+UM -> UDB : Fetch user information from database.
+activate UDB
+UDB -> UM : Return query result.
+deactivate UDB
+
+UM -> API : Return user role.
+deactivate UM
+
+alt User has admin role
+    API -> API : Validate removal request
+    alt Failed to validate removal request
+        API --> UA : Return an HTTP status code that signals validation failure.\nExact value depends on how the validation failed.
+    else Request is deemed valid
+        API -> CDB : Remove content from DB.
+        activate CDB
+        CDB -> API : Result of delete operation
+        deactivate CDB
+        alt Content has been removed succesfully
+            API --> UA : Return HTTP 204 No Content
+        else Removal failed
+            API --> UA : Return HTTP Status code to signal reason for failure.
+        end
+    end
+else User is not authorized to remove content
+    API --> UA : Return HTTP 403 Forbidden to signal that the user has no permission to request what they just did.
+end
+
+deactivate API
+@enduml
+```

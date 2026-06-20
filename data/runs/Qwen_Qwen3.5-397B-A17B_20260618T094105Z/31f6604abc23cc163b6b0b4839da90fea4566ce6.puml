@@ -1,0 +1,20 @@
+@startuml
+title Edit pet owner details
+
+actor "Vet_Central" as VetCentral
+participant "petOwner_dialog" as PetOwnerDialog
+database Database
+rectangle GoogleMapAPI { }
+
+PetOwnerDialog ->> PetOwnerDialog : 1 extract person Id from routes\n2 fetchUserDetail(personId)
+Database --> PetOwnerDialog : 3 (personDetails)\n4 setState(personDetails and disable editable form field)
+
+opt [if person detail has address]
+    PetOwnerDialog ->> GoogleMapAPI : 5 geoCodeByPlaceId(place id from db)
+    GoogleMapAPI --> PetOwnerDialog : 6 (formatted_address)
+end
+
+PetOwnerDialog -left-> VetCentral : 7 render()
+
+
+@enduml

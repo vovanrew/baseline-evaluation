@@ -1,0 +1,72 @@
+```plantuml
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam packageBorderThickness 2
+skinparam packageTitleFontStyle bold
+skinparam packageTitleFontSize 22
+skinparam packageTitleAlignment left
+
+skinparam class {
+  BackgroundColor #F7FBEA
+  BorderColor #7FBF7F
+  FontColor #0B4F6C
+  FontSize 22
+  BorderThickness 1
+}
+
+skinparam note {
+  BackgroundColor #F7FBEA
+  BorderColor #0B4F6C
+  FontSize 22
+}
+
+' --- Packages ---
+package "OpenAI-Baseline" as PBaseline {
+  class "RLImplementation" as RLImplementation
+}
+
+package "OpenAI-Gym" as PGym {
+  note as GymNote
+  GymNote : Generic interface between RL\nalgorithms and simulation\nenvironments
+
+  class "Env" as Env
+}
+
+package "atc-reinforcement-learning" as PATC {
+  class "AtcGym" as AtcGym
+  class "Airspace" as Airspace
+  class "Runway" as Runway
+  class "Airplane" as Airplane
+  class "SimParameters" as SimParameters
+  class "Corridor" as Corridor
+  class "MinimumVectoringAltitude" as MinimumVectoringAltitude
+}
+
+' --- Relationships ---
+RLImplementation --> Env
+
+GymNote ..> Env
+
+AtcGym -|> Env
+
+AtcGym *-- Airspace
+AtcGym *-- SimParameters
+AtcGym *-- "many" Airplane : 1
+
+Airspace *-- Runway
+Runway *-- Corridor
+Airspace *-- "many" MinimumVectoringAltitude : 1
+
+Airplane --> SimParameters
+
+' --- Layout hints ---
+RLImplementation -[hidden]down- Env
+Env -[hidden]down- AtcGym
+Airspace -[hidden]right- Runway
+Runway -[hidden]right- Airplane
+MinimumVectoringAltitude -[hidden]right- Corridor
+Corridor -[hidden]right- SimParameters
+@enduml
+```

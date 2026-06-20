@@ -1,0 +1,22 @@
+{
+  "id": "14acae9f-4e96-476a-9aeb-a2819ac79cff",
+  "object": "chat.completion",
+  "created": 1781419048,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle RqP - Request Resource\n\nactor \"Requesting Party (RqP)\" as RqP\n\nparticipant \"Client Application (CA)\\n\u00abCustom Application\u00bb\" as CA\nparticipant \"Resource Server (RS)\\n\u00abCustom Application\u00bb\" as RS\nparticipant \"Authorization Server (AS)\\nForgeRock Access Manager\" as AS\nparticipant \"Content Server (CS)\\n\u00abCustom Application\u00bb\" as CS\n\nCA -> CA : User Interface\nRS -> RS : REST API\nRS -> RS : Resource\nRS -> RS : Credential\nAS -> AS : AM API\nAS -> AS : UMA API\nAS -> AS : OAuth API\nCS -> CS : REST API\nCS -> CS : Data\n\nRqP -> AS : Authenticate\nAS --> RqP : Authenticated\n\nRqP -> CA : Access Interface\nCA -> CA : Obtain Resource Id\\n(maybe from Discover Resources)\nCA -> RS : GET /share/resources/{resourceId}\\nscopes (no valid RPT)\n\nRS -> RS : Get_id\nRS --> RS : meta data\nRS -> AS : Get PAT\nAS --> RS : PAT\n\nCA -> AS : Get permission ticket for the resource and scope\nAS -> AS : POST /am/uma/permission_request\\nresource_id + scopes\nAS --> CA : permission ticket\n\nCA -> CA : permission ticket + AS URI\nCA -> AS : Get client auth basic\nAS -> AS : POST /am/oauth2/access_token\\nscope=openid\\nSSO session\nAS --> CA : claim token\n\nCA -> AS : Get Requesting Party Token (RPT)\\nusing the permission ticket and claim token\nAS -> AS : POST /am/oauth2/access_token\\ngrant_type=urn:ietf:params:oauth:grant-type:uma-ticket\\nscope=..., ticket=..., claim_token=..., claim_token_format=...\nAS -> AS : Check Access\nAS -> AS : No Policy for RqP + Resource + scopes\\nCreate Access Request for Resource Owner\nAS --> AS : No Access, request Submitted\n\nCA --> RqP : Error: Request Submitted\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1713,
+    "completion_tokens": 443,
+    "total_tokens": 2156
+  }
+}

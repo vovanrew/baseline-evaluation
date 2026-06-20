@@ -1,0 +1,30 @@
+@startuml
+skinparam sequenceDiagram
+
+participant HealthCloud
+participant Embedded Browser
+participant Apigee Edge
+participant Orion Health Platform
+
+note right of HealthCloud
+OAuth2 Authorization Code Grant Workflow
+with SAML2 Post Binding for user provisioning
+end note
+
+HealthCloud ->> Embedded Browser: GET /authorize?response_type=code
+Embedded Browser ->> Apigee Edge: 302 https://<redirect_url> (SAML OR token)
+
+note right of Apigee Edge
+SAML Authentication
+end note
+
+Embedded Browser ->> Apigee Edge: POST /oauth2/saml
+Apigee Edge ->> Orion Health Platform: POST /login-auth/saml?path=/actor/current
+Orion Health Platform ->> Apigee Edge: Verify SAMLResponse
+Apigee Edge ->> Orion Health Platform: Generate authorization code
+Orion Health Platform ->> Apigee Edge: 302 https://<redirect_url>?code=<code>
+
+Apigee Edge ->> Embedded Browser: POST /token?code=<code>
+Embedded Browser ->> HealthCloud: 200 access_token + refresh_token
+
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+actor client
+participant fastAPI
+database JobsCollection
+entity Poller
+boundary IngestService
+control MappingIngestor
+queue MongoSerializer
+package DatabrokerCollections {
+}
+component SciCatIngestor
+rectangle Catamel
+
+client ->> fastAPI : file ready to ingest
+activate fastAPI
+fastAPI --> JobsCollection : create Job
+deactivate fastAPI
+Poller <-- JobsCollection : poll for job
+Poller -> IngestService : ingest
+activate IngestService
+IngestService ..>> MappingIngestor : ingest
+activate MappingIngestor
+MappingIngestor -->> MongoSerializer : send docs
+MongoSerializer -[hidden]right-> DatabrokerCollections : Persist docstream\n(deactivated)
+SciCatIngestor <-[#08547E].- IngestService : ingest
+activate SciCatIngestor
+SciCatIngestor -.->[#D6272F]> Catamel : many messages\ndisabled by default
+@enduml

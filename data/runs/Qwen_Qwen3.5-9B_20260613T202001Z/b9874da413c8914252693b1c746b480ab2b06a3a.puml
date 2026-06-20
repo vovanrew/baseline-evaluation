@@ -1,0 +1,130 @@
+@startuml
+left to right direction
+actor "User" as User
+participant "executor:AnalysisExecutor" as Executor
+participant "Analysis" as Analysis
+participant "CountryCaseAPIGetter" as CountryCaseAPIGetter
+participant "CountryDeathAPIGetter" as CountryDeathAPIGetter
+participant "CountryPopulationAPIGetter" as CountryPopulationAPIGetter
+participant "APIInformationGetter" as APIInformationGetter
+actor "Covid API" as CovidAPI
+
+User -> Executor : runAnalysis()
+
+opt [At least one country selected for analysis]
+  Executor -> Analysis : analyze()
+  
+  alt [CasesPerCapitaAnalysis]
+    par
+      Executor -> CountryCaseAPIGetter : getCases()
+      activate CountryCaseAPIGetter
+      CountryCaseAPIGetter -> CountryCaseAPIGetter : getDataURL()
+      CountryCaseAPIGetter -> CountryCaseAPIGetter : API Endpoint URL
+      CountryCaseAPIGetter -> CovidAPI : API Call
+      activate CovidAPI
+      CovidAPI -> CountryCaseAPIGetter : API Information
+      deactivate CovidAPI
+      CountryCaseAPIGetter -> Executor : Cases in target Countries
+      deactivate CountryCaseAPIGetter
+      
+      Executor -> CountryPopulationAPIGetter : getPopulation()
+      activate CountryPopulationAPIGetter
+      CountryPopulationAPIGetter -> CountryPopulationAPIGetter : getDataURL()
+      CountryPopulationAPIGetter -> CountryPopulationAPIGetter : API Endpoint URL
+      CountryPopulationAPIGetter -> CovidAPI : API Call
+      activate CovidAPI
+      CovidAPI -> CountryPopulationAPIGetter : API Information
+      deactivate CovidAPI
+      CountryPopulationAPIGetter -> Executor : Population of target Countries
+      deactivate CountryPopulationAPIGetter
+    end
+  end
+  
+  [TotalCaseAnalysis]
+  Executor -> CountryCaseAPIGetter : getCases()
+  activate CountryCaseAPIGetter
+  CountryCaseAPIGetter -> CountryCaseAPIGetter : getDataURL()
+  CountryCaseAPIGetter -> CountryCaseAPIGetter : API Endpoint URL
+  CountryCaseAPIGetter -> CovidAPI : API Call
+  activate CovidAPI
+  CovidAPI -> CountryCaseAPIGetter : API Information
+  deactivate CovidAPI
+  CountryCaseAPIGetter -> Executor : Cases in target Countries
+  deactivate CountryCaseAPIGetter
+  
+  [MajorityCasesPerCapitaAnalysis]
+  par
+    Executor -> CountryCaseAPIGetter : getMaleCases()
+    activate CountryCaseAPIGetter
+    CountryCaseAPIGetter -> CountryCaseAPIGetter : getDataURL()
+    CountryCaseAPIGetter -> CountryCaseAPIGetter : API Endpoint URL
+    CountryCaseAPIGetter -> CovidAPI : API Call
+    activate CovidAPI
+    CovidAPI -> CountryCaseAPIGetter : API Information
+    deactivate CovidAPI
+    CountryCaseAPIGetter -> Executor : Male cases in target Countries
+    deactivate CountryCaseAPIGetter
+    
+    Executor -> CountryCaseAPIGetter : getFemaleCases()
+    activate CountryCaseAPIGetter
+    note right of CountryCaseAPIGetter
+      A call to the endpoint has already been made so another is not necessary
+    end
+    CountryCaseAPIGetter -> Executor : Female cases in target Countries
+    deactivate CountryCaseAPIGetter
+    
+    Executor -> CountryPopulationAPIGetter : getMalePopulation()
+    activate CountryPopulationAPIGetter
+    CountryPopulationAPIGetter -> CountryPopulationAPIGetter : getDataURL()
+    CountryPopulationAPIGetter -> CountryPopulationAPIGetter : API Endpoint URL
+    CountryPopulationAPIGetter -> CovidAPI : API Call
+    activate CovidAPI
+    CovidAPI -> CountryPopulationAPIGetter : API Information
+    deactivate CovidAPI
+    CountryPopulationAPIGetter -> Executor : Male population in target Countries
+    deactivate CountryPopulationAPIGetter
+    
+    Executor -> CountryPopulationAPIGetter : getFemalePopulation()
+    activate CountryPopulationAPIGetter
+    note right of CountryPopulationAPIGetter
+      A call to the endpoint has already been made so another is not necessary
+    end
+    CountryPopulationAPIGetter -> Executor : Female population in target Countries
+    deactivate CountryPopulationAPIGetter
+  end
+  
+  [DeathsPerCapitaAnalysis]
+  par
+    Executor -> CountryDeathAPIGetter : getDeaths()
+    activate CountryDeathAPIGetter
+    CountryDeathAPIGetter -> CountryDeathAPIGetter : getDataURL()
+    CountryDeathAPIGetter -> CountryDeathAPIGetter : API Endpoint URL
+    CountryDeathAPIGetter -> CovidAPI : API Call
+    activate CovidAPI
+    CovidAPI -> CountryDeathAPIGetter : API Information
+    deactivate CovidAPI
+    CountryDeathAPIGetter -> Executor : Deaths in target Countries
+    deactivate CountryDeathAPIGetter
+    
+    Executor -> CountryPopulationAPIGetter : getPopulation()
+    activate CountryPopulationAPIGetter
+    CountryPopulationAPIGetter -> CountryPopulationAPIGetter : getDataURL()
+    CountryPopulationAPIGetter -> CountryPopulationAPIGetter : API Endpoint URL
+    CountryPopulationAPIGetter -> CovidAPI : API Call
+    activate CovidAPI
+    CovidAPI -> CountryPopulationAPIGetter : API Information
+    deactivate CovidAPI
+    CountryPopulationAPIGetter -> Executor : Population of target Countries
+    deactivate CountryPopulationAPIGetter
+  end
+end
+
+Executor -> Executor : Analysis Result
+
+note right of Executor
+  Per country analysis results are stored for later rendering
+endnote
+
+Executor -> User : Finish (void)
+
+@enduml

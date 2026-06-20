@@ -1,0 +1,69 @@
+```plantuml
+@startuml
+title Search for Products by ID (using DB dao)
+
+actor User
+participant "<<main>>\nAdministration" as Admin
+participant "<<frame>>\nMainMenu" as MainMenu
+participant "<<dialog>>\nProductReportDialog" as ProductReportDialog
+participant "<<ProductDAO>>\nProductDatabaseDAO" as ProductDatabaseDAO
+participant "SimpleListModel\n:model" as SimpleListModel
+database Database
+
+activate Admin
+Admin -> MainMenu : <<construct>>
+activate MainMenu
+
+User -> MainMenu : clicks 'View Products'
+MainMenu -> ProductReportDialog : <<construct>>
+activate ProductReportDialog
+
+ProductReportDialog -> ProductDatabaseDAO : <<construct>>
+ProductReportDialog -> ProductDatabaseDAO : getProducts()
+activate ProductDatabaseDAO
+
+ProductDatabaseDAO -> Database : select * from product
+activate Database
+Database -->> ProductDatabaseDAO : ResultSet
+deactivate Database
+
+ProductDatabaseDAO -> ProductDatabaseDAO : reconstruct products\nfrom ResultSet
+ProductDatabaseDAO -->> ProductReportDialog : products
+deactivate ProductDatabaseDAO
+
+ProductReportDialog -> SimpleListModel : <<construct>>
+ProductReportDialog -> SimpleListModel : updateItems(products)
+activate SimpleListModel
+deactivate SimpleListModel
+
+ProductReportDialog -> ProductReportDialog : lstProducts.setModel(model)
+note left: products now\nvisible to user
+
+User -> ProductReportDialog : enters product id into search bar
+ProductReportDialog -> ProductReportDialog : txtId.getText : id
+
+User -> ProductReportDialog : clicks "Search"
+ProductReportDialog -> ProductDatabaseDAO : search(id)
+activate ProductDatabaseDAO
+
+ProductDatabaseDAO -> Database : select * from product where product_id = id
+activate Database
+Database -->> ProductDatabaseDAO : product
+deactivate Database
+
+ProductDatabaseDAO -->> ProductReportDialog : product
+deactivate ProductDatabaseDAO
+
+ProductReportDialog -> SimpleListModel : updateItems(product)
+activate SimpleListModel
+deactivate SimpleListModel
+
+ProductReportDialog -> ProductReportDialog : lstProducts.getModel(model)
+note left: only searched product\nnow visible to user
+
+deactivate ProductReportDialog
+deactivate MainMenu
+deactivate Admin
+
+@enduml
+```

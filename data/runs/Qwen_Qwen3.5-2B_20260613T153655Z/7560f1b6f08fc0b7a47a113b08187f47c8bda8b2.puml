@@ -1,0 +1,68 @@
+@startuml
+participant "record" as record
+
+participant "configuration" as configuration
+
+participant "ekf" as ekf
+
+participant "pathgenerator" as pathgenerator
+
+participant "display" as display
+
+participant "diagnostics" as diagnostics
+
+participant "record" as record2
+
+sequenceDiagram
+    participant "record" as actor
+
+    actor actor
+    actor->>configuration: 1 Get initial configuration
+
+    rect initialize
+        actor->>ekf: 2 Create Object
+        actor->>pathgenerator: 3 Create Object
+    end
+
+    rect iterate
+        actor->>ekf: 4 Get current location
+        actor->>pathgenerator: 5 Send current location
+        pathgenerator-->>actor: 6 Return path
+        actor->>display: 7 Path addition and walker location
+        actor->>diagnostics: 8 Walker location and path status
+    end
+
+    note right of actor
+        record
+    end
+
+    note right of configuration
+        configuration
+    end
+
+    note right of ekf
+        ekf
+    end
+
+    note right of pathgenerator
+        pathgenerator
+    end
+
+    note right of display
+        display
+    end
+
+    note right of diagnostics
+        diagnostics
+    end
+
+    record2->>configuration: 1 Get initial configuration
+    configuration->>record2: 2 Create Object
+    record2->>pathgenerator: 3 Create Object
+    pathgenerator-->>record2: 4 Get current location
+    record2->>pathgenerator: 5 Send current location
+    pathgenerator-->>record2: 6 Return path
+    record2->>display: 7 Path addition and walker location
+    display->>diagnostics: 8 Walker location and path status
+
+@enduml

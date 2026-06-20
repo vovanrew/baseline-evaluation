@@ -1,0 +1,27 @@
+```plantuml
+@startuml
+skinparam sequence {
+  ArrowColor black
+  ActorBorderColor black
+  ActorBackgroundColor lightgray
+  LifeLineBorderColor black
+  LifeLineBackgroundColor white
+}
+
+actor User
+participant "Application" as App
+participant "<<engine>>\nAuto SDK Engine" as Engine
+participant "<<avs>>\nAlexa" as Alexa
+
+User -> Alexa : "Turn off AC"
+activate Engine
+Alexa -> Engine : PowerController.TurnOff directive
+Engine -> App : Receive SetPowerControllerValue message
+App -> App : Turn off AC
+App -> Engine : Publish SetControllerValueMessage Reply
+Engine -> Alexa : Alexa.Response event
+deactivate Engine
+Note right of Engine: SpeechSynthesizer.Speak directive\n«Alexa speech response»
+Alexa -> App : 
+@enduml
+```

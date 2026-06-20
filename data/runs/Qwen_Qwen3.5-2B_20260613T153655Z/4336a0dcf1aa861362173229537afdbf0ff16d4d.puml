@@ -1,0 +1,41 @@
+@startuml
+participant "Member" as Member
+participant ":TicketDetailPage" as TicketDetailPage
+participant ":TicketDetailContainer" as TicketDetailContainer
+participant ":AttendanceService (Frontend)" as AttendanceService
+participant ":Router" as Router
+participant ":AttendanceHTTPTransport" as AttendanceHTTPTransport
+participant ":AttendanceEndpoint" as AttendanceEndpoint
+participant ":AttendanceService" as AttendanceService2
+participant ":RequesterService" as RequesterService
+participant ":AttendanceCommand" as AttendanceCommand
+participant ":AttendanceQuery" as AttendanceQuery
+
+Member -> TicketDetailPage: Click "Yes" Button
+TicketDetailPage -> TicketDetailContainer: handleConfirmation(input)
+TicketDetailContainer -> AttendanceService: confirmAttendance(classId, payload)
+AttendanceService -> Router: route("PATCH", "v2/class/class_id/attendance/confirmation")
+Router -> AttendanceHTTPTransport: Confirmation(AttendanceService, [ServerOption])
+AttendanceHTTPTransport -> AttendanceEndpoint: Confirmation(AttendanceService)
+AttendanceEndpoint -> AttendanceService2: Confirmation(context, payload)
+AttendanceService2 -> AttendanceEndpoint: Validate()
+
+alt "Data Valid"
+AttendanceService2 -> AttendanceQuery: GetPureModel(context, [SliceCondition])
+AttendanceQuery -> AttendanceService2: ticket
+AttendanceService2 -> AttendanceEndpoint: Register(context, [payload])
+AttendanceEndpoint -> AttendanceService2: UpdateRequestStatus(context, ticket)
+AttendanceService2 -> AttendanceEndpoint: is updated
+AttendanceEndpoint -> AttendanceService2: response := Response(is updated, nil)
+AttendanceService2 -> AttendanceHTTPTransport: response
+AttendanceHTTPTransport -> AttendanceService: response
+AttendanceService -> AttendanceEndpoint: response
+AttendanceEndpoint -> AttendanceQuery: UnprocessableEntity
+AttendanceQuery -> AttendanceService2: UnprocessableEntity
+AttendanceService2 -> AttendanceHTTPTransport: UnprocessableEntity
+AttendanceHTTPTransport -> AttendanceEndpoint: UnprocessableEntity
+AttendanceEndpoint -> AttendanceService2: UnprocessableEntity
+AttendanceService2 -> AttendanceQuery: UnprocessableEntity
+AttendanceQuery -> AttendanceService: UnprocessableEntity
+AttendanceService -> AttendanceEndpoint: UnprocessableEntity
+@enduml

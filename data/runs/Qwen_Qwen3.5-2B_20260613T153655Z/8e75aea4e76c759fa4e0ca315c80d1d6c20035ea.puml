@@ -1,0 +1,81 @@
+@startuml
+participant nsq as "nsq"
+
+participant "GuideTaskCrmVisitAssignListener" as Listener
+participant "guideTaskCrmVisitAssignProcessor" as Processor
+participant "GuideTaskAssignDomainService" as DomainService
+participant "ShoppingGuideReadApi" as ShoppingApi
+participant "GuideTaskDepartmentAssignStrategy" as Strategy
+participant "GuideTaskAssignFactory" as Factory
+participant "GuideTaskAssignRepository" as Repository
+participant "GuideTaskRepository" as Repo
+participant "NsqProducer" as Producer
+
+rectangle "1. 下发任务" {
+    "2. 开始处理"
+    "3. 任务分配"
+    "4. 查询下发对象 department"
+    "5. 分配任务"
+    "6. 创建分配的任务实体"
+    "7. 保存分配状态 status flow 任务流 分配完成"
+    "8. 保存分配状态 status flow 任务流 分配至 待启动"
+    "9. 发送下发完成消息, 准备启动任务"
+}
+
+rectangle "Transaction" {
+    "7. 保存分配状态 status flow 任务流 分配完成"
+    "8. 保存分配状态 status flow 任务流 分配至 待启动"
+    "9. 发送下发完成消息, 准备启动任务"
+}
+
+rectangle "只有任务下发给导购的时候 才创建导购的任务明细" {
+    "6. 创建分配的任务实体"
+}
+
+rectangle "GuideTaskCrmVisitAssignListener" {
+    "1. 下发任务"
+    "2. 开始处理"
+    "3. 任务分配"
+}
+
+rectangle "guideTaskCrmVisitAssignProcessor" {
+    "3. 任务分配"
+}
+
+rectangle "GuideTaskAssignDomainService" {
+    "4. 查询下发对象 department"
+    "5. 分配任务"
+}
+
+rectangle "ShoppingGuideReadApi" {
+    "4. 查询下发对象 department"
+    "5. 分配任务"
+}
+
+rectangle "GuideTaskDepartmentAssignStrategy" {
+    "6. 创建分配的任务实体"
+}
+
+rectangle "GuideTaskAssignFactory" {
+    "6. 创建分配的任务实体"
+}
+
+rectangle "GuideTaskAssignRepository" {
+    "7. 保存分配状态 status flow 任务流 分配完成"
+    "8. 保存分配状态 status flow 任务流 分配至 待启动"
+    "9. 发送下发完成消息, 准备启动任务"
+}
+
+rectangle "GuideTaskRepository" {
+    "7. 保存分配状态 status flow 任务流 分配完成"
+    "8. 保存分配状态 status flow 任务流 分配至 待启动"
+    "9. 发送下发完成消息, 准备启动任务"
+}
+
+rectangle "NsqProducer" {
+    "7. 保存分配状态 status flow 任务流 分配完成"
+    "8. 保存分配状态 status flow 任务流 分配至 待启动"
+    "9. 发送下发完成消息, 准备启动任务"
+}
+
+@enduml

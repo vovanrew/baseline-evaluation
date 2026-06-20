@@ -1,0 +1,58 @@
+```plantuml
+@startuml
+participant AbstractApplicationContext
+participant GenericApplicationContext
+participant ApplicationContextAwareProcessor
+participant AbstractAutowireCapableBeanFactory
+participant DefaultListableBeanFactory
+
+note left of AbstractApplicationContext: 以下流程都在refresh()方法内部
+note left of AbstractApplicationContext: 第1步
+AbstractApplicationContext -> AbstractApplicationContext: 1 prepareRefresh
+note left of AbstractApplicationContext: 空方法,留给子类重写
+AbstractApplicationContext -> AbstractApplicationContext: initPropertySources()
+AbstractApplicationContext -> AbstractApplicationContext: getEnvironment()
+AbstractApplicationContext -> AbstractApplicationContext: validateRequiredProperties()
+note left of AbstractApplicationContext: 泛型ApplicationEvent
+AbstractApplicationContext -> AbstractApplicationContext: new LinkedHashSet<>()
+
+note left of AbstractApplicationContext: 第2步
+AbstractApplicationContext -> AbstractApplicationContext: 2 obtainFreshBeanFactory()
+AbstractApplicationContext -> GenericApplicationContext: refreshBeanFactory()
+GenericApplicationContext -> GenericApplicationContext: new DefaultListableBeanFactory()
+GenericApplicationContext -> GenericApplicationContext: setSerializationId(getId())
+GenericApplicationContext --> AbstractApplicationContext: 未定义变量接收返回值
+AbstractApplicationContext -> GenericApplicationContext: getBeanFactory
+GenericApplicationContext --> AbstractApplicationContext: 返回 DefaultListableBeanFactory
+
+note left of AbstractApplicationContext: 第3步
+AbstractApplicationContext -> AbstractApplicationContext: 3 prepareBeanFactory
+note left of AbstractApplicationContext: 设置BeanFactory的类加载器、支持表达式解析器
+note left of AbstractApplicationContext: 添加Bean后置处理器 例如
+AbstractApplicationContext -> ApplicationContextAwareProcessor: addBeanPostProcessor(new ApplicationContextAwareProcessor(this))
+ApplicationContextAwareProcessor -> ApplicationContextAwareProcessor: 构造器
+ApplicationContextAwareProcessor --> AbstractApplicationContext: 返回 ApplicationContextAwareProcessor
+note left of AbstractApplicationContext: 设置忽略的自动装配的接口 例如
+AbstractApplicationContext -> AbstractAutowireCapableBeanFactory: ignoreDependencyInterface(ApplicationEventPublisherAware.class)
+AbstractAutowireCapableBeanFactory -> AbstractAutowireCapableBeanFactory: ignoredDependencyInterfaces.add(ifc)
+AbstractAutowireCapableBeanFactory --> AbstractApplicationContext: 未定义变量接收返回值
+note left of AbstractApplicationContext: 注册可以解析的自动装配 例如
+AbstractApplicationContext -> DefaultListableBeanFactory: registerResolvableDependency(BeanFactory.class, beanFactory)
+note left of DefaultListableBeanFactory: params { dependencyType, autowiredValue }
+DefaultListableBeanFactory -> DefaultListableBeanFactory: resolvableDependencies.put();
+DefaultListableBeanFactory --> AbstractApplicationContext: 未定义变量接收返回值
+note left of AbstractApplicationContext: 添加ApplicationListenerDetector的Bean后置处理器
+note left of AbstractApplicationContext: 添加编译时的AspectJ ;
+note left of AbstractApplicationContext: 给BeanFactory中注册一些能用的组件
+AbstractApplicationContext -> DefaultListableBeanFactory: registerSingleton(ENVIRONMENT_BEAN_NAME / SYSTEM_PROPERTIES_BEAN_NAME) / SYSTEM_ENVIRONMENT_BEAN_NAME)
+note left of DefaultListableBeanFactory: params{beanName, singletonObject}
+DefaultListableBeanFactory -> DefaultListableBeanFactory: addSingleton();
+DefaultListableBeanFactory --> AbstractApplicationContext: 未定义变量接收返回值
+
+note left of AbstractApplicationContext: 第4步
+note left of AbstractApplicationContext: 在应用程序上下文的标准初始化之后修改其内部bean工厂
+note left of AbstractApplicationContext: 空方法 留给子类重写
+AbstractApplicationContext -> AbstractApplicationContext: postProcessBeanFactory(beanFactory);
+
+@enduml
+```

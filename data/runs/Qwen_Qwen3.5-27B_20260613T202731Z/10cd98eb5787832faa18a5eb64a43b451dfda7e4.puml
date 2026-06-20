@@ -1,0 +1,79 @@
+```plantuml
+@startuml
+skinparam sequence {
+  ArrowColor Black
+  ActorBorderColor Black
+  ActorBackgroundColor White
+  ParticipantBorderColor Black
+  ParticipantBackgroundColor White
+}
+
+participant "VideoSink" as VideoSink
+participant "VideoDecoder" as VideoDecoder
+participant "VideoReceiver" as VideoReceiver
+participant "RTSPSession" as RTSPSession
+participant "Transcoder" as Transcoder
+participant "DTLS" as DTLS
+
+activate VideoReceiver
+note over VideoReceiver: Receive RTP
+deactivate VideoReceiver
+
+activate RTSPSession
+activate Transcoder
+activate DTLS
+
+box "OutputPacket" #LightYellow
+end box
+
+box "AsyncUDP Packet" #LightBlue
+end box
+
+box "SignalReadEvent" #LightGreen
+end box
+
+box "OnDataReceived" #LightCyan
+end box
+
+box "Receive Video" #LightPink
+end box
+
+box "Resume" #LightOrange
+end box
+
+box "StartNewVideoCodec" #LightGray
+end box
+
+box "VideoDecoderWrapper" #Lavender
+end box
+
+box "VideoDecoderCallback" #Plum
+end box
+
+box "IncomingVideoStream" #Thistle
+end box
+
+box "WMRVideoStreamWrapper" #Violet
+end box
+
+box "SurfaceVideoRenderer" #Wheat
+end box
+
+VideoReceiver -> AsyncUDP Packet : OnDataReceived()
+AsyncUDP Packet -> SignalReadEvent : ReadFromAsyncUDPSocket()
+SignalReadEvent -> OutputPacket : ProcessConnection()
+OutputPacket -> Transcoder : WriteToTranscoder()
+Transcoder -> OutputPacket : OnDataReceived()
+OutputPacket -> RTSPSession : OnDataReceived()
+RTSPSession -> Transcoder : OnDataReceived()
+Transcoder -> OutputPacket : OnDataReceived()
+OutputPacket -> VideoReceiver : OnDataReceived()
+VideoReceiver -> IncomingVideoStream : StartNewVideoCodec()
+IncomingVideoStream -> VideoDecoder : OnFrame()
+VideoDecoder -> VideoDecoderCallback : OnFrame()
+VideoDecoderCallback -> VideoDecoderWrapper : OnFrame()
+VideoDecoderWrapper -> WMRVideoStreamWrapper : OnFrame()
+WMRVideoStreamWrapper -> SurfaceVideoRenderer : OnFrame()
+
+@enduml
+```

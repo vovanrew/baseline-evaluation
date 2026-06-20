@@ -1,0 +1,22 @@
+{
+  "id": "0545303e-0406-4635-ad9e-1146b6bdd49b",
+  "object": "chat.completion",
+  "created": 1781489640,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Fabric Private Chaincode \u2013 Enclave registry \u2013 Current approach\n\nactor \"Admin\" as Admin\nparticipant \"ECC\" as ECC\nparticipant \"ERCC\" as ERCC\nparticipant \"IAS\" as IAS\nparticipant \"Orderer\" as Orderer\nparticipant \"Peers\" as Peers\nparticipant \"ECC_Enclave\" as ECC_Enclave\nparticipant \"ERCC_VSCC\" as ERCC_VSCC\n\nnote right of Peers: Drawbacks\\n- Single-endorser policy only + Custom validation at every peer\\n- ERCC must contact IAS (Internet connection and IAS credentials needed)\\n- Current impl: No way to securely pass credentials to ERCC only\\n- for EPID attestation SPID is needed when quote is created (ECC must provide this)\n\nrectangle \"instantiation\" {\n  Admin -> ECC: install\n  Admin -> ECC: instantiate (expected_mrenclave)\n  ECC -> ECC: putState(ecc.MRENCLAVE, expected_mrenclave)\n  ECC --> Admin: success / error\n}\n\nAdmin -> Orderer: submit instantiate transaction\nOrderer -[hidden]-> Orderer: when next block ready\nOrderer -> Peers: broadcast block\nPeers -> Peers: Validation\n\nrectangle \"register new enclave\" {\n  Admin -> ECC: setup\n  ECC -> ECC_Enclave: create\n  ECC -> ECC_Enclave: getQuote(SPID)\n  ECC_Enclave --> ECC: quote, ECC_s_pk\n  ECC -> ERCC: register(quote, ECC_s_pk)\n  ERCC -> IAS: send quote\n  IAS --> ERCC: Attestation\n  ERCC -> ERCC: putState(ercc.ECC_s_pk, Attestation)\n  ERCC --> ECC: success / error\n  ECC --> Admin: success / error\n}\n\nAdmin -> Orderer: submit setup transaction\nOrderer -[hidden]-> Orderer: when next block ready\n\nrectangle \"register validation\" {\n  Orderer -> Peers: broadcast block\n  Peers -> Peers: Normal validation\n  Peers -> ERCC_VSCC: Custom ERCC validation\n  ERCC_VSCC -> ERCC_VSCC: expected_mrenclave = getState(ecc.MRENCLAVE)\n  ERCC_VSCC -> ERCC_VSCC: check attestation signature\n  ERCC_VSCC -> ERCC_VSCC: check attestation ECC_s_pk and mrenclave\n}\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2056,
+    "completion_tokens": 547,
+    "total_tokens": 2603
+  }
+}

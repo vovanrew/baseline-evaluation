@@ -1,0 +1,71 @@
+@startuml
+skinparam backgroundColor white
+skinparam sequence {
+  ArrowColor #6b5b4b
+  LifeLineBorderColor #9a9a9a
+  LifeLineBackgroundColor #ffffff
+  ParticipantBorderColor #b0b0b0
+  ParticipantBackgroundColor #f2f2f2
+  BoxBorderColor #b0b0b0
+  BoxBackgroundColor #f7f7f7
+}
+
+box "User application" #f3eef9
+participant Main
+end box
+
+participant Propagator
+participant Integrator
+participant DifferentialEquations
+participant OrbitType
+participant TimesDerivative
+participant "Force Model i" as ForceModeli
+participant NewtonianAttraction
+
+Main -> Propagator : propagate
+activate Propagator
+
+Propagator -> DifferentialEquations : create
+activate DifferentialEquations
+deactivate DifferentialEquations
+
+Propagator -> TimesDerivative : create
+activate TimesDerivative
+deactivate TimesDerivative
+
+Propagator -> Integrator : integrate
+activate Integrator
+
+loop for n steps
+  Integrator -> DifferentialEquations : computeDerivatives
+  activate DifferentialEquations
+
+  DifferentialEquations -> OrbitType : mapArrayToOrbit
+  activate OrbitType
+  deactivate OrbitType
+
+  loop for all perturbation force models
+    DifferentialEquations -> ForceModeli : addContribution
+    activate ForceModeli
+    ForceModeli -> TimesDerivative : addAcceleration
+    activate TimesDerivative
+    deactivate TimesDerivative
+    deactivate ForceModeli
+  end
+
+  DifferentialEquations -> NewtonianAttraction : addContribution
+  activate NewtonianAttraction
+  NewtonianAttraction -> TimesDerivative : addKeplerContribution
+  activate TimesDerivative
+  deactivate TimesDerivative
+  deactivate NewtonianAttraction
+
+  deactivate DifferentialEquations
+end
+
+Integrator --> Propagator : final state
+deactivate Integrator
+
+Propagator --> Main : final state
+deactivate Propagator
+@enduml

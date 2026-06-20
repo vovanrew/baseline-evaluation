@@ -1,0 +1,90 @@
+```plantuml
+@startuml
+
+package "observer" {
+  package "pattern" {
+    package "java" {
+      package "awt" {
+        package "event" {
+          class ActionListener <<(C,green)>>
+        }
+      }
+    }
+
+    package "javax" {
+      package "swing" {
+        package "event" {
+          class ChangeListener <<(C,green)>>
+        }
+        class JPanel <<(C,green)>>
+      }
+    }
+
+    abstract class Observable <<(A,green)>> {
+      + attach(Observer): void
+      + detach(Observer): void
+      + notifyObservers(): void
+      + getUpdate(): Object
+    }
+
+    class CourseData <<(C,green)>> {
+      + addCourseRecord(CourseRecord): void
+      + changeCourseRecord(String, int): void
+      + getUpdate(): Vector<CourseRecord>
+    }
+
+    interface Observer <<(I,green)>> {
+      + update(Observable): void
+    }
+
+    class CourseController <<(C,green)>> {
+      + CourseController(CourseData)
+      + addCourse(CourseRecord): void
+      + update(Observable): void
+      + actionPerformed(ActionEvent): void
+      + stateChanged(ChangeEvent): void
+      + {static} main(String[]): void
+    }
+
+    class BarChartObserver <<(C,green)>> {
+      + BarChartObserver(CourseData)
+      + paint(Graphics): void
+      + update(Observable): void
+    }
+
+    CourseData --|> Observable
+    Observable "1" -- "*" Observer : observers >
+    CourseController ..|> ActionListener
+    CourseController ..|> ChangeListener
+    CourseController ..|> Observer
+    CourseController --|> JPanel
+    BarChartObserver ..|> Observer
+    BarChartObserver --|> JPanel
+    CourseController ..> CourseData
+    BarChartObserver ..> CourseData
+  }
+}
+
+package "javax " {
+  package "swing " {
+    package "event " {
+      interface ChangeListener2 as "ChangeListener" <<(I,green)>> {
+        + stateChanged(ChangeEvent): void
+      }
+    }
+    class JPanel2 as "JPanel" <<(C,green)>>
+  }
+}
+
+package "java " {
+  package "awt " {
+    package "event  " {
+      interface ActionListener2 as "ActionListener" <<(I,green)>> {
+        + actionPerformed(ActionEvent): void
+      }
+    }
+  }
+}
+
+@enduml
+```

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Rabz9AtSvDfjZ4nwGUviEe",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Scheduled Events\n\nactor \"Recording Staff\" as RS\nactor \"Coach\" as Coach\nparticipant \"IP/Mobile Cams\" as Cams\nparticipant \"Consumer Apps\" as CA\nparticipant \"Security Gateway\" as SG\nentity \"Control Domain\\n(win10/linux)\" as CD\nparticipant \"Streaming Service\\n(encoder)\" as SS\nentity \"Media\\n(mediaID)\" as Media\nparticipant \"Transfer Service\" as TS\n\nCoach -> SG : authenticate(ID)\nSG --> Coach : return(token)\n\nCD -> SS : host(sources{endpoints})\n\nCams -> CD : register(endpoint)\nCA -> CD : register(token, priority)\n\nRS -> CD : createEvent(configuration{description, sources, consumers{priorities}})\n\nCD -> SS : create(newEvent)\n\nRS -> CD : start(newEvent)\nCD -> SS : encode()\nCD --> CA : notify(recording)\n\nRS -> CD : stop(newEvent)\nCD -> SS : saveAs(mediaID)\nSS -> Media : save(mediaID)\n\nCD -> TS : host(mediaID, consumers{token, priority})\n\nCD --> CA : notify(newMediaAvailable, mediaID, transferServiceEndpoint)\n\nalt auto-download enabled\n    CA -> TS : fetchMedia(token, mediaID)\n    TS --> CA : returnByPriority(mediaStream)\nelse manual-download enabled\n    Coach -> CA : showMedia(token)\n    CA -> TS : fetchMedia(token, mediaID)\n    TS --> CA : returnByPriority(mediaStream)\nend\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781430492,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 382,
+    "prompt_tokens": 1647,
+    "total_tokens": 2029
+  }
+}

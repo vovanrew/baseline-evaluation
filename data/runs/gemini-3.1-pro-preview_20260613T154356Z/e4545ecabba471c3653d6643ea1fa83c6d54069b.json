@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nactor \"User Agent\" as UA\nboundary \"Content removal API\" as API\nboundary \"User Manager\" as UM\ndatabase \"User database\" as UDB\ndatabase \"Content database\" as CDB\n\nnote left of UA\nShould also include a CSRF token to prevent admins who are also\nvisit other, potentially XSS vulnerable or malicious sites\nfrom helping an unkown actor remove content without authorization.\nend note\n\nUA --> API : Removal request (HTTP POST),\\ncontains ID of content to be removed.\nactivate API\n\nAPI -> UM : Retrieve role of requesting user.\nactivate UM\n\nUM -> UDB : Fetch user information from database.\nactivate UDB\nUDB -> UM : Return query result.\ndeactivate UDB\n\nUM -> API : Return user role.\ndeactivate UM\n\nalt User has admin role\n    API -> API : Validate removal request\n    alt Failed to validate removal request\n        API --> UA : Return an HTTP status code that signals validation failure.\\nExact value depends on how the validation failed.\n    else Request is deemed valid\n        API -> CDB : Remove content from DB.\n        activate CDB\n        CDB -> API : Result of delete operation\n        deactivate CDB\n        alt Content has been removed succesfully\n            API --> UA : Return HTTP 204 No Content\n        else Removal failed\n            API --> UA : Return HTTP Status code to signal reason for failure.\n        end\n    end\nelse User is not authorized to remove content\n    API --> UA : Return HTTP 403 Forbidden to signal that the user has no permission to request what they just did.\nend\n\ndeactivate API\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHJ7+fxT6+1KuBitsSXXWpUWUD82Xlv8MwC8Yshlt8Zh9/QY65sn1xFiZlPTXT"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1172,
+    "candidatesTokenCount": 361,
+    "totalTokenCount": 1533,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1092
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "eV4xaqy7ObLSxN8P56GFuAQ"
+}

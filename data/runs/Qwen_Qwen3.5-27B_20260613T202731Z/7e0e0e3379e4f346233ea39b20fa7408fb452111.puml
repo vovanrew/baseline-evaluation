@@ -1,0 +1,26 @@
+```plantuml
+@startuml
+title Initialization
+
+participant "service process" as SP {
+    participant "ConcreteImpl" as CI
+    participant "DBusAdapter" as DBA
+}
+
+participant "DBus" as DBus
+
+participant "client process" as CP {
+    participant "DBusProxy" as DProxy
+}
+
+DBA -> DBA: Init(ConcreteImpl)
+DBA -> DBus: Export
+DProxy -> DProxy: Init
+DProxy -> DBus: ConnectToRemoteObject
+note right of DProxy: Tries to fetch all properties\nincluding "ready" property
+DBus -> DBA: GetAllProperties
+DBA --> DBus: return properties
+DBus --> DProxy: return properties
+
+@enduml
+```

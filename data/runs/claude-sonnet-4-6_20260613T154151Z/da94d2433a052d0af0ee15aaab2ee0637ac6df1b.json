@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Pbopvar8oAz6engBB3WoUh",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant Test\nparticipant GrpcClient\nparticipant Front\nparticipant Edge\nparticipant HttpToGrpcMock\n\nTest ->> GrpcClient : POST /send/post\nTest ->> GrpcClient : instruct to wait for /external/call\nGrpcClient -> Front : Internal communication\nFront -> Edge : http\nnote right of Edge\n  Thinks is calling actual\n  external service\nend note\nHttpToGrpcMock ->> GrpcClient : grpc\nnote right of HttpToGrpcMock\n  Info about received request\n  is forwarded to tests\nend note\nGrpcClient -->> Test : \nTest -> Test : Assert request\nTest -> GrpcClient : Mocked response\nGrpcClient -> HttpToGrpcMock : \nHttpToGrpcMock ->> Edge : http\nEdge -->> Front : \nnote right of Edge\n  Responding back front may not be necessary in most cases.\n  Maybe it would be database update or something like that\nend note\nGrpcClient -->> Test : Resolve /send/post promise\nTest -> Test : Assert response\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370590,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 268,
+    "prompt_tokens": 1660,
+    "total_tokens": 1928
+  }
+}

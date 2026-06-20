@@ -1,0 +1,70 @@
+@startuml
+skinparam ClassDiagram fontname "Segoe UI"
+
+class IFileHelperService {
+    <<interface>>
+    dirPath : string
+}
+
+class FileHelperService {
+    <<class>>
+    dirPath : string
+    <<readonly>>
+}
+
+class IHostEnvironment {
+    <<interface>>
+}
+
+class IUnitOfWork {
+    <<interface>>
+}
+
+class DocumentoAula {
+    <<class>>
+}
+
+class DocumentoAulaDTO {
+    <<class>>
+}
+
+FileHelperService <|-- IFileHelperService
+
+FileHelperService <<class>>
+dirPath : string
+<<readonly>>
+
+FileHelperService(FileHelperService(environment: IHostEnvironment, uow: IUnitOfWork))
+
+FileHelperService <<async>>
+GetSingleFileAsync(documentId: long) : Task<(string, byte[])>
+
+FileHelperService <<async>>
+GetSingleFileAsync(arquivo: DocumentoAula) : Task<byte[]>
+
+FileHelperService <<async>>
+SaveFileAsync(fileDTO: FileDTO) : Task<string>
+
+FileHelperService
+GetFullPath() : string
+
+FileHelperService <<async>>
+DeleteFile(documentId: long) : Task
+
+FileHelperService <<async>>
+DeleteFile(caminhoArquivo: string) : void
+
+FileHelperService <<async>>
+GetDocumentoAula(aulaId: long) : Task<DocumentoAulaDTO>
+
+IHostEnvironment <|-- FileHelperService
+
+IUnitOfWork <|-- FileHelperService
+
+IHostEnvironment <<class>>
+dirPath : string
+
+IUnitOfWork <<class>>
+dirPath : string
+
+@enduml

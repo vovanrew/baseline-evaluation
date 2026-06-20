@@ -1,0 +1,40 @@
+@startuml
+participant IntegrationTest as IntegrationTest
+participant Spring Application as Spring Application
+participant De /nSerializer as De /nSerializer
+participant ctrl:AddMember ToGroupController as ctrl:AddMember ToGroupController
+participant AddMember RequestAssembler as AddMember RequestAssembler
+participant AddMemberResponse DTOAssembler as AddMemberResponse DTOAssembler
+participant srv:AddMember ToGroupService as srv:AddMember ToGroupService
+
+IntegrationTest ..> Spring Application : POST 1 /groups/"Family"/members/"ana@gmail.com"
+
+Spring Application ..> De /nSerializer : 1.1 deserialze("groupDesc":"Family", "personEmail":"ana@gmail.com")
+
+De /nSerializer ..> ctrl:AddMember ToGroupController : 1.1.1 create (groupDesc, PersonEmail)
+
+ctrl:AddMember ToGroupController ..> AddMember RequestAssembler : 1.2 addMember(info)
+
+AddMember RequestAssembler ..> ctrl:AddMember ToGroupController : 1.2.1 addMemberMapToDTO (info.getGroupDescription(), info.getPersonEmail())
+
+ctrl:AddMember ToGroupController ..> AddMember RequestAssembler : 1.2.2 addMemeber(requestDTO)
+
+AddMember RequestAssembler ..> srv:AddMember ToGroupService : 1.2.3 groupDTO
+
+srv:AddMember ToGroupService ..> ctrl:AddMember ToGroupController : 1.2.4 mapToGroupResponseDTO(GroupDTO)
+
+ctrl:AddMember ToGroupController ..> AddMemberResponse DTOAssembler : 1.2.4.1 create
+
+AddMemberResponse DTOAssembler ..> srv:AddMember ToGroupService : 1.2.5 groupRespDTO
+
+srv:AddMember ToGroupService ..> IntegrationTest : 1.4 HttpResponse
+
+IntegrationTest ..> Spring Application : 1.5 HttpResponse
+
+ctrl:AddMember ToGroupController ..> De /nSerializer : 1.2.6 ResponseEntity(groupRespDTO, HttpStatus.OK)
+
+De /nSerializer ..> Spring Application : 1.3 serialize(ResponseEntity(groupRespDTO, HttpStatus.OK))
+
+Spring Application ..> IntegrationTest : 1.4 HttpResponse
+
+@enduml

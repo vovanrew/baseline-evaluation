@@ -1,0 +1,22 @@
+{
+  "id": "1626adf0-0083-4a07-b0ce-4cfe796130cc",
+  "object": "chat.completion",
+  "created": 1781482985,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nautonumber\n\nparticipant \"Node\" as Node\nparticipant \"RF\" as RF\nparticipant \"Link\" as Link\nparticipant \"Hub\" as Hub\nparticipant \"testdomain.com\" as testdomain\n\nnote right of RF: BROADCAST: 256LW,R,F,KI7EST-0\nactivate RF\ndeactivate RF\n\nnote right of RF: Repeated every 5 minutes while link is idle\nnote right of RF: ...\n\nNode -> RF : CONTROL: Request Link KI7EST-1,KI7EST-0\nactivate Node\nRF -> Link : CONTROL: Request Link KI7EST-1,KI7EST-0\nactivate RF\nLink -> RF : CONTROL: Grant Link KI7EST-0,KI7EST-1\ndeactivate RF\nRF -> Node : CONTROL: Grant Link KI7EST-0,KI7EST-1\ndeactivate Node\n\nnote right of RF: First frame has Start Flag set\nNode -> RF : DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>\nactivate Node\nRF -> Link : DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>\nactivate RF\nLink -> RF : ACK: 0x0001 0x0000, _N, _R, 0C, <FEC>\ndeactivate RF\nRF -> Node : ACK: 0x0001 0x0000, _N, _R, 0C, <FEC>\ndeactivate Node\n\nnote over Node,RF: Repeat until all data frames are sent.\\nNote that last frame has end flag set\\nIf Link as response for command/packet then\\nResponse Flag will be set and second data transfer happens in reverse.\n\nNode -> RF : DATA: 0x0020 256B,4F,_S,E <FEC> <payload> <FEC>\nactivate Node\nRF -> Link : DATA: 0x0020 256B,4F,_S,E <FEC> <payload> <FEC>\nactivate RF\nLink -> Link : Final packet, assembled sequence\nactivate Link\nLink -> Link : <sig> 0001 REST KI7EST@rfnethub.net POST testdomain.com/ping\nLink -> Hub : /user/KI7EST/keys\nactivate Link\nHub -> Link : \"MTIzNDU2Nzg=MjM0NTY3ODEyMzQ1Njc4MTIzNDU2Nzg=\"\ndeactivate Link\nLink -> Link : Verify signature\nLink -> testdomain : /ping\nactivate Link\ntestdomain -> Link : 200\ndeactivate Link\ndeactivate Link\nLink -> RF : ACK: 0x0001 0x0000, _N, R, 0C, <FEC>\ndeactivate RF\nRF -> Node : ACK: 0x0001 0x0000, _N, R, 0C, <FEC>\ndeactivate Node\n\nLink -> RF : DATA: 0x0001 256B,4F,S,E <FEC> KI7EST@rfnethub.net 0001 REST 200\nactivate Link\nRF -> Node : DATA: 0x0001 256B,4F,S,E <FEC> KI7EST@rfnethub.net 0001 REST 200\nactivate RF\nNode -> RF : ACK: 0x0001 0x0000,_N,_R,0C <FEC>\ndeactivate RF\nRF -> Link : ACK: 0x0001 0x0000,_N,_R,0C <FEC>\ndeactivate Link\n\nNode -> RF : CONTROL: Close Link KI7EST-1,KI7EST-0\nactivate Node\nRF -> Link : CONTROL: Close Link KI7EST-1,KI7EST-0\nactivate RF\nLink -> RF : CONTROL: Closed Link KI7EST-0,KI7EST-1\ndeactivate RF\nRF -> Node : CONTROL: Closed Link KI7EST-0,KI7EST-1\ndeactivate Node\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2350,
+    "completion_tokens": 979,
+    "total_tokens": 3329
+  }
+}

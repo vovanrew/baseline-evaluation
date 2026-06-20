@@ -1,0 +1,18 @@
+@startuml
+left to right direction
+actor "Actor" as actor
+boundary "Boundary" as boundary
+entity "Entity" as entity
+control "Control" as control1
+control "Control" as control2
+control "Control" as control3
+
+actor -> boundary : authorization Request
+boundary -> entity : gson.fromJson(user, User.class);
+boundary -> control1 : userService.userValidation(user)
+control1 -> control2 : tokenService.createToken(user.getName())
+control2 --> control1 : Token
+control1 --> boundary : Token
+boundary --> actor : authorization Response Token
+
+@enduml

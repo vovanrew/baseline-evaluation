@@ -1,0 +1,26 @@
+@startuml
+!option handwritten true
+
+title 借出图书 用例
+
+actor "图书管理员" as librarian
+interface "账号判断" as accountCheck
+interface "业务控制" as businessControl
+database "数据库" as database
+
+rectangle "读者账号合法性验证" {
+  librarian -> accountCheck : 1 输入读者账号信息
+  accountCheck -> businessControl : 2 获取账号信息
+  businessControl -> database : 3 比对账号密码合法性
+  database --> businessControl : 4 账号合法
+}
+
+rectangle "借出图书" {
+  librarian -> businessControl : 5 输入借出图书信息
+  businessControl -> database : 6 增加借阅信息
+  businessControl -> database : 7 修改图书库存
+  database --> businessControl : 8 返回操作结果
+  businessControl --> librarian : 9 返回借出结果
+}
+
+@enduml

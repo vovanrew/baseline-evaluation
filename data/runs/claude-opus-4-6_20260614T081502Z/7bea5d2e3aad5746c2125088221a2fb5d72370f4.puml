@@ -1,0 +1,56 @@
+```plantuml
+@startuml
+
+box "RTP"
+participant RtpSenderEgress
+participant ModuleRtpRtcpImpl
+participant PacketRouter
+participant ProcessThreadImpl
+participant PacingController
+participant PacedSender
+participant RTPSender
+participant RTPSenderAudio
+end box
+
+box "Call"
+participant AudioCodingModuleImpl
+participant ChannelReceive
+participant ChannelSend
+participant AcmReceiver
+end box
+
+box "NetEq"
+participant AudioSendStream
+participant AudioMixerImpl
+participant AudioTransportImpl
+end box
+
+box "Audio"
+participant AudioDeviceBuffer
+participant AudioTrackJni
+participant AudioRecordJni
+end box
+
+AudioRecordJni -> AudioRecordJni : DataIsRecorded()
+AudioRecordJni -> AudioTrackJni : DeliverRecordedData()
+AudioTrackJni -> AudioDeviceBuffer : RecordedDataIsAvailable()
+AudioDeviceBuffer -> AudioTransportImpl : SendAudioData()
+AudioTransportImpl -> AudioSendStream : ProcessAndEncodeAudio()
+AudioSendStream -> AudioCodingModuleImpl : Add10MsData()
+AudioCodingModuleImpl -> AudioCodingModuleImpl : Encode()
+AudioCodingModuleImpl -> ChannelReceive : SendData()
+ChannelReceive -> ChannelSend : SendRtpAudio()
+ChannelSend -> RTPSenderAudio : SendAudio()
+RTPSenderAudio -> RTPSender : SendToNetwork()
+RTPSender -> PacedSender : EnqueuePackets()
+ProcessThreadImpl -> ProcessThreadImpl : Process()
+ProcessThreadImpl -> PacingController : Process()
+PacingController -> PacingController : ProcessPackets()
+PacingController -> PacingController : SendRtpPacket()
+PacingController -> PacketRouter : SendPacket()
+PacketRouter -> ModuleRtpRtcpImpl : TrySendPacket()
+ModuleRtpRtcpImpl -> RtpSenderEgress : SendPacket()
+RtpSenderEgress -> RtpSenderEgress : SendPacketToNetwork()
+
+@enduml
+```

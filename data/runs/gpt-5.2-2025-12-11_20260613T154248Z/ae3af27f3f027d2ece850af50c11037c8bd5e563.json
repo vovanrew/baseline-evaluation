@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLpn7eT21ph7uaOA8pTaYCrFEn61",
+  "object": "chat.completion",
+  "created": 1781369359,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  ParticipantPadding 25\n  BoxPadding 10\n  MessageAlign left\n}\n\nparticipant \"main\" as main\nparticipant \"bkup.BackupFacade\" as bkup\nparticipant \"srcrepo.SourceRepository\" as srcrepo\nparticipant \"dstrepo.DestinationRepository\" as dstrepo\nparticipant \"metarepo.MetadataRepository\" as metarepo\nparticipant \"scanner.AllFileScanner\" as scanner\ndatabase \"FileSystem\" as fs\ndatabase \"SQLite3\" as sqlite\n\nmain -> bkup : execute()\n\ngroup Get all files\n  bkup -> scanner : get_all_files()\n  scanner -> fs\n  fs --> scanner\n  scanner --> bkup : all_files\nend\n\ngroup Get source files\n  bkup -> srcrepo : get_files_matching_criteria(all_files)\n  srcrepo --> bkup : src_files\nend\n\ngroup Cleanup of metadata corresponding to already deleted files\n  bkup -> metarepo : get_uncontained_keys(src_files)\n  metarepo -> sqlite : SELECT\n  sqlite --> metarepo : result\n  metarepo --> bkup : uncontained_keys\n\n  bkup -> metarepo : remove_metadatas(uncontained_keys)\n  loop until the generator finishes]\n    metarepo -> sqlite : DELETE\n    metarepo --> bkup : yield removed_metadata <return value is discarded>\n  end\nend\n\ngroup Create backup and update metadata\n  bkup -> bkup : _get_backup_list(src_files)\n  bkup --> bkup : backup_list\n\n  bkup -> dstrepo : create_backups(backup_list)\n  loop until the generator finishes]\n    dstrepo -> fs : shutil.copy2(src_file, dst_file)\n    dstrepo --> bkup : yield backed_up_src_file\n    bkup -> metarepo : update_metadata(backed_up_src_file)\n    metarepo -> sqlite : REPLACE INTO\n  end\nend\n\ngroup Discard old backups\n  bkup -> dstrepo : get_discard_list(today, all_files)\n  dstrepo --> bkup : discard_list\n\n  bkup -> dstrepo : remove_backups(discard_list)\n  loop until the generator finishes]\n    dstrepo -> fs : os.remove(file_to_be_removed)\n    dstrepo --> bkup : yield removed_file <return value is discarded>\n  end\nend\n\nmain <-- bkup : return\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2635,
+    "completion_tokens": 523,
+    "total_tokens": 3158,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLcvWLmWlSWXBkCdDz98Kx9BQLSY",
+  "object": "chat.completion",
+  "created": 1781368561,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam sequenceMessageAlign left\n\nparticipant browser\nparticipant proxy\nparticipant backend\nparticipant component_config\nparticipant subscription_map\nparticipant normalized_object_map\nparticipant normalized_object\n\nbrowser -> proxy : 1 get_state(\\n    configuration_name,\\n    geo_bounding_box\\n)\nactivate proxy\n\nproxy -> backend : 2 +TENANT_HEADER\nactivate backend\n\nbackend -> component_config : 3 component_config[configuration_name]\\n    .subscription_usages\nactivate component_config\ncomponent_config --> backend : 4 [ subscription_usage_config ]\ndeactivate component_config\n\nbackend -> subscription_map : 5 forEach subscription_usage_config.subscription_id\nactivate subscription_map\nsubscription_map --> backend : 6 subscription_map[subscription_id] (= normalized_object_map)\ndeactivate subscription_map\n\nbackend -> normalized_object_map : 7 forEach key\nactivate normalized_object_map\nnormalized_object_map --> backend : 8 normalized_object\ndeactivate normalized_object_map\n\nbackend -> normalized_object : 9 forEach normalized_object:\\n    if object.in(geo_bounding_box):\\n        object.to_dto(\\n            subscription_usage_config\\n        )\nactivate normalized_object\nnormalized_object --> backend : 10 object_dto\ndeactivate normalized_object\n\nbackend --> proxy : 11 [ object_dto ]\ndeactivate backend\n\nproxy --> browser : 12\ndeactivate proxy\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1438,
+    "completion_tokens": 287,
+    "total_tokens": 1725,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

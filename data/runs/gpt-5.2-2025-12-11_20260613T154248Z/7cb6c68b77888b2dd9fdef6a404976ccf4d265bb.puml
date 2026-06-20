@@ -1,0 +1,60 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam noteBackgroundColor #FFFFE0
+skinparam noteBorderColor #999999
+
+class FEDLCookChecker {
+  TMultiMap<FEDLNodeID, FName> ImportToImportingPackage
+  TSet<FEDLNodeID> Exports
+  TMultiMap<FEDLNodeID, FEDLNodeID> NodePrereqs
+  --
+  AddImport()
+  AddExport()
+  AddArc()
+}
+
+class FEDLNodeID {
+  TArray<FName> ObjectPath
+  --
+  GetTypeHash()
+}
+
+note right of FEDLNodeID
+ObjectPath 示例:
+
+Hash算法:
+基于FName的Hash，注意Hash的末位是序列化标记
+<b>DepIsSerialize</b>
+end note
+
+class FUObjectThreadContext {
+  TArray<FObjectInitializer> InitializerStack
+  TRefCountPtr<FUObjectSerializeContext> SerializeContext
+}
+
+class FObjectInitializer
+
+class FUObjectSerializeContext {
+  TArray<UObject*> ObjectsLoad
+  TArray<FLinkerLoad*> AttachedLinkers
+}
+
+note top of FUObjectSerializeContext
+这个结构体缓存多个UObject序列化信息
+end note
+
+package "CookUtils" as CookUtils #C8FF66 {
+  class FPackageTracker
+  class CookRequests
+}
+
+FEDLNodeID --> FEDLCookChecker
+
+FObjectInitializer "1:*" --> FUObjectThreadContext
+FUObjectSerializeContext "1:1" --> FUObjectThreadContext
+
+CookRequests --> FPackageTracker
+@enduml

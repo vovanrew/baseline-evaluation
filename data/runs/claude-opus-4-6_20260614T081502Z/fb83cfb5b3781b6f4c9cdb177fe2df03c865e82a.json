@@ -1,0 +1,21 @@
+{
+  "id": "msg_01WsFZnzTe58FStpUJuy9QR7",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nparticipant \"controller\" as controller\nparticipant \"agent\" as agent\nparticipant \"STA\" as STA\n\ncontroller -> STA : Perform MAUT setup steps (4.1.1 or 4.1.2)\ncontroller -> STA : Trigger STA to join the specified MAUT BSSID\n\nnote left of controller\nsend 1905, 0x8003,Multi-AP\nPolicy Config Request\nAP Metrics Reporting Interval:0\nSTA MetricsReporting RSSI Threshold:0\nSTA Metrics Reporting RSSI Hysteresis Margin Override:0\nAP Metrics Channel Utilization Reporting Threshold:1 (0.4%)\nAssociated STA Traffic Stats Inclusion Policy bit 7: 1\nAssociated STA Link Metrics Inclusion Policy bit 6: 1\nbits 5-0 set to 0\nNo Steering Policy TLV\nend note\n\ncontroller -> agent : send_cmdu(MULTI_AP_POLICY_CONFIG_REQUEST_MESSAGE)\n\nagent -> agent : handle_multi_ap_policy_config_request()\n\nagent -> controller : send_cmdu(ACK_MESSAGE)\n\ncontroller -> STA : Trigger STA to start traffic generation to the controller\n\nagent -> agent : on_channel_utilization_measurement_period_elapsed()\\nMeasure current channel utilization.\\nIf difference with previous value crosses\\nconfigured threshold, then send AP metrics.\n\nagent -> controller : send_cmdu(AP_METRICS_RESPONSE_MESSAGE)\\nwith Associated STA Traffic Stats\\nand Associated STA Link Metrics\n\ncontroller -> controller : handle_cmdu_1905_ap_metric_response()\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781430011,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 408,
+    "prompt_tokens": 1656,
+    "total_tokens": 2064
+  }
+}

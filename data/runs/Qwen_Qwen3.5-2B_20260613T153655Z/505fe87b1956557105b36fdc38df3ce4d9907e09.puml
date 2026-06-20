@@ -1,0 +1,62 @@
+@startuml
+participant "Freelancer" as Freelancer
+
+participant :AlterarCandidaturaUI as AlterarCandidaturaUI
+
+participant :RegistrarCandidaturaController as RegistrarCandidaturaController
+
+participant :Plataforma as Plataforma
+
+participant :UsersAPI as UsersAPI
+
+participant cand: Candidatura as cand
+
+participant RepositorioFreelancer as RepositorioFreelancer
+
+participant RepositorioCandidatura as RepositorioCandidatura
+
+note right of AlterarCandidaturaUI
+  1 inicia alterar candidatura
+  2 getFreelancerByEmail()
+  3 email = getSessionEmail
+  4 email = getEmail()
+  5 free = find(email)
+  6 icand = getCandidaturasDispByFreelancerEmail()
+  7 icand = getAllCandidaturasByFreelancerEmail(email)
+  8 solicita a escolha de uma das candidaturas por si efetuadas e, ainda, em período de candidaturas
+  9 escolhe a candidatura
+  10 cand = getCandById()
+  11 cand = find(id)
+  12 solicita a introdução de novos dados (i.e. os que pretende alterar, mantendo os restantes iguais)
+  13 introduz os dados solicitados (valor, nrDias, txtApresentacao, txtMotivacao)
+  14 alterarCandidatura(valor, nrDias, txtApresentacao, txtMotivacao)
+  15 update(cand)
+  16 valida e apresenta os dados ao Freelancer e pede a sua confirmação
+end note
+
+Freelancer -> AlterarCandidaturaUI: 1 inicia alterar candidatura
+
+AlterarCandidaturaUI -> Plataforma: 3 email = getSessionEmail
+Plataforma -> UsersAPI: 4 email = getEmail()
+UsersAPI -> RepositorioFreelancer: 5 free = find(email)
+
+AlterarCandidaturaUI -> RepositorioCandidatura: 6 icand = getCandidaturasDispByFreelancerEmail()
+AlterarCandidaturaUI -> RepositorioCandidatura: 7 icand = getAllCandidaturasByFreelancerEmail(email)
+
+AlterarCandidaturaUI -> RepositorioCandidatura: 8 solicita a escolha de uma das candidaturas por si efetuadas e, ainda, em período de candidaturas
+
+AlterarCandidaturaUI -> RepositorioCandidatura: 9 escolhe a candidatura
+
+AlterarCandidaturaUI -> RepositorioCandidatura: 10 cand = getCandById()
+AlterarCandidaturaUI -> RepositorioCandidatura: 11 cand = find(id)
+
+AlterarCandidaturaUI -> RepositorioCandidatura: 12 solicita a introdução de novos dados (i.e. os que pretende alterar, mantendo os restantes iguais)
+
+AlterarCandidaturaUI -> RepositorioCandidatura: 13 introduz os dados solicitados (valor, nrDias, txtApresentacao, txtMotivacao)
+
+AlterarCandidaturaUI -> RepositorioCandidatura: 14 alterarCandidatura(valor, nrDias, txtApresentacao, txtMotivacao)
+AlterarCandidaturaUI -> RepositorioCandidatura: 15 update(cand)
+
+AlterarCandidaturaUI -> Freelancer: 16 valida e apresenta os dados ao Freelancer e pede a sua confirmação
+
+@enduml

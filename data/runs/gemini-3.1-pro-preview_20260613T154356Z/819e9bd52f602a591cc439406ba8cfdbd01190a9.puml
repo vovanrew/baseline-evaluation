@@ -1,0 +1,35 @@
+```plantuml
+@startuml
+title Toggle Switch
+
+participant Ctc
+participant TrackController
+box "" #E0E0E0
+participant TrackModel
+participant Block
+participant Switch
+end box
+
+activate Ctc
+Ctc -> Ctc : Select Block
+Ctc -> TrackController : setSwitchStatus(Block,direction)
+activate TrackController
+TrackController -> TrackModel : setSwitchStatus(Block,direction)
+activate TrackModel
+TrackModel -> TrackModel : getBlock()
+TrackModel -> Block : getSwitch()
+activate Block
+Block -> Switch : setSwitchState("normal" or "alternate")
+activate Switch
+Switch --> TrackController : //new switch status//
+deactivate Switch
+deactivate Block
+deactivate TrackModel
+TrackController -> TrackController : updateSwitchStatus(Block,status)
+TrackController --> Ctc : //new switch status//
+deactivate TrackController
+Ctc -> Ctc : updateSwitchStatus(Block,status)
+deactivate Ctc
+
+@enduml
+```

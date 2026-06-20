@@ -1,0 +1,22 @@
+{
+  "id": "59b214d1-d026-4fae-9e38-343d75d669cd",
+  "object": "chat.completion",
+  "created": 1781400825,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Search for Products by ID (using DB dao)\n\nactor User\nparticipant Administration\nparticipant MainMenu\nparticipant ProductReportDialog\nparticipant ProductDatabaseDAO\nparticipant Database\n\nAdministration <<main>>\nMainMenu <<frame>>\nProductReportDialog <<dialog>>\nProductDatabaseDAO <<ProductDAO>>\n\nAdministration -> MainMenu: clicks 'View Products'\nMainMenu -> ProductReportDialog: <<construct>>\nProductReportDialog -> ProductDatabaseDAO: <<construct>>\nProductReportDialog -> ProductDatabaseDAO: getProducts()\nProductDatabaseDAO -> Database: select * from product\nDatabase -> ProductDatabaseDAO: ResultSet\nProductDatabaseDAO -> Database: reconstruct products from ResultSet\nProductDatabaseDAO -> ProductReportDialog: products\nProductReportDialog -> ProductDatabaseDAO: <<construct>>\nProductReportDialog -> SimpleListModel:model: <<construct>>\nProductReportDialog -> SimpleListModel:model: updateItems(products)\nProductReportDialog -> ProductReportDialog: products now visible to user\nProductReportDialog -> ProductReportDialog: IstProducts.setModel(model)\nUser -> ProductReportDialog: enters product id into search bar\nProductReportDialog -> ProductReportDialog: txtId.getText : id\nUser -> ProductReportDialog: clicks \"Search\"\nProductReportDialog -> ProductDatabaseDAO: search(id)\nProductDatabaseDAO -> Database: select * from product where product_id = id\nDatabase -> ProductDatabaseDAO: product\nProductDatabaseDAO -> ProductReportDialog: updateItems(product)\nProductReportDialog -> ProductReportDialog: IstProducts.getModel(model)\nProductReportDialog -> ProductReportDialog: only searched product now visible to user\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2399,
+    "completion_tokens": 332,
+    "total_tokens": 2731
+  }
+}

@@ -1,0 +1,30 @@
+@startuml
+skinparam sequenceDiagram
+
+participant service process as ServiceProcess
+participant client process as ClientProcess
+
+note right of ClientProcess
+  DBusProxy
+end note
+
+note right of ServiceProcess
+  ConcreteImpl
+  DBusAdapter
+end note
+
+ServiceProcess->>DBus: Init(ConcreteImpl)
+DBus-->>ServiceProcess: Export
+
+ClientProcess->>DBus: ConnectToRemoteObject
+DBus-->>ClientProcess: GetAllProperties
+
+ServiceProcess->>DBus: GetAllProperties
+DBus-->>ServiceProcess: return properties
+
+ServiceProcess-->>ClientProcess: return properties
+
+ClientProcess->>DBusProxy: Init
+DBusProxy-->>ClientProcess: Try to fetch all properties including "ready" property
+
+@enduml

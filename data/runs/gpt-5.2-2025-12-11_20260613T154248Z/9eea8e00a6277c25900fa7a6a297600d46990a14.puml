@@ -1,0 +1,30 @@
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 30
+skinparam BoxPadding 10
+
+actor " " as U
+
+participant ":Chantier" as Chantier
+participant "jmb:Artisan" as JMB
+participant "q:Qualif" as Q
+participant "real : Realiser" as REAL
+
+U -> Chantier : getPayeArtisan(jmb)
+activate Chantier
+
+Chantier -> JMB : q : getQualif()
+Chantier -> Q : tauxH getTauxH()
+
+loop [ForEach real]
+  Chantier -> REAL : a = getArtisan()
+  opt [a == jmb]
+    Chantier -> REAL : d = getDuree()
+    Chantier -> Chantier : duree += d
+  end
+end
+
+Chantier --> U : duree*tauxH
+deactivate Chantier
+@enduml

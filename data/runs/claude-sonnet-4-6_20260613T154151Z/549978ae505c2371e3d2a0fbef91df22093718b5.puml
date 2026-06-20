@@ -1,0 +1,55 @@
+@startuml
+
+skinparam classAttributeIconSize 0
+skinparam style strictuml
+
+interface Observer <<Interface>> {
+  + notify(event: ManagerEvent)
+}
+
+class EntityManager <<C>> {
+  - entities: List<Entity>
+  - systems: Set<Observer>
+  + subscribe(system: Observer)
+  + addEntity(entity: Entity)
+  + removeEntity(id: Int)
+  - notifySystems(event: ManagerEvent)
+}
+
+class System <<C>> {
+  - managedTypes: List<ComponentType>
+  - filteredEntities: List<Entity>
+  + addEntityRef(): Unit
+  + removeEntityRef(): Unit
+  + update(): Unit
+  - checkEntityISCompatible(): Unit
+}
+
+class Entity <<C>> <<Product Type>> {
+  - ID : Int
+  - components : Map<ComponentType, Component>
+}
+
+note right of Entity : Module + Case Class
+
+enum ComponentType <<E>> {
+  DIRECTION,
+  POSITION,
+  SPEED,
+  SPAWN,
+  ...
+}
+
+class Component <<C>> <<Product Type>> {
+  - type: ComponentType
+}
+
+Observer <|-- System
+EntityManager "1" o-- "0..*" Observer
+EntityManager "1" *-- "0..*" Entity
+System "0..*" o-- "0..*" Entity
+Entity "1" *-- "0..*" Component
+Component "1" *-- "1" ComponentType
+System "1..*" -- "1" ComponentType
+
+@enduml

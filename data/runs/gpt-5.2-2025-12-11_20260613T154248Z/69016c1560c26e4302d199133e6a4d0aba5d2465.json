@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLDD8Gyg1j2kh6ntRdDXUOpUzbif",
+  "object": "chat.completion",
+  "created": 1781366967,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam classAttributeIconSize 0\nskinparam shadowing false\nskinparam linetype ortho\n\nclass Airport <<Thread>> {\n  list<Runway> lst_runways\n  list<AirportOperation> lst_operations\n  --\n  bool permission_to_take_off(Airplane)\n  bool permission_to_land(Airplane)\n  --\n  void start_thread()\n}\n\nnote right of Airport\nIterate through lst_operations\nif it matchs the criteria that airplane is already flying\n  release runway\n  update airplane status and related info\n\norder lst_operations to update next events\nend note\n\nclass AirportOperation {\n  Runway run_way\n  Airplane airplane\n  uint32_t time_request\n  uint32_t time_last_update\n  EnumAirportOperation operation_state\n  --\n  void free_runway()\n}\n\nclass Airplane <<Thread>> {\n  uint32_t id\n  uint32_t fuel\n  uint32_t fuel_consumption_rate\n  uint32_t airport_answer_timeout\n  AirplaneState state\n  --\n  void start_thread()\n  --\n  void take_off_authorized()\n  void take_off_denied()\n  --\n  void land_authorized()\n  void land_denied()\n}\n\nclass Runway {\n  uint32_t id\n  RunwayState state\n}\n\nenum EnumAirportOperation {\n  WaitingToTakeOff\n  AuthorizedToTakeOff\n  WaitingToLand\n  AuthorizedToLand\n}\n\nenum AirplaneState {\n  Stopped\n  AskingPermissionToTakeOff\n  TakingOff\n  Flying\n  AskingPermissionToLand\n  Landing\n  Crashed\n}\n\nenum RunwayState {\n  Free\n  InUse\n}\n\nAirport *-- \"lst_runways\" Runway\nAirport *-- \"lst_operations\" AirportOperation\n\nAirportOperation o-- Runway\nAirportOperation o-- Airplane\nAirportOperation *-- EnumAirportOperation\n\nAirplane *-- AirplaneState\nRunway *-- RunwayState\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2635,
+    "completion_tokens": 417,
+    "total_tokens": 3052,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

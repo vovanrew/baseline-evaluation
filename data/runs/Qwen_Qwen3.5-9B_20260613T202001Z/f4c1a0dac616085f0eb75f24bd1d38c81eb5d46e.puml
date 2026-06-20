@@ -1,0 +1,40 @@
+@startuml
+!theme plain
+
+class "SlamLauncher" as SlamLauncher {
+  -int startN
+  -int drawSkip
+  -bool odometryOnly
+  -Pose2D ipose
+  -Pose2D lidarOffset
+  -SensorDataReader sreader
+  -PointCloudMap *pcmap
+  -SlamFrontEnd sfrent
+  -MapDrawer mdrawer
+  -FrameworkCustomizer fcustom
+
+  +SlamLauncher() : startN(0), drawSkip(10), odometryOnly(false), pcmap(nullptr)
+  +~SlamLauncher()
+  +void setStartN(int n){startN = n}
+  +void setOdometryOnly(bool p){odometryOnly = p}
+  +void run()
+  +void showScans()
+  +void mapByOdometry(Scan2D *scan)
+  +bool setFilename(char *filename)
+  +void skipData(int num)
+  +void customizeFramework()
+}
+
+class "SensorDataReader" as SensorDataReader
+class "PointCloudMap" as PointCloudMap
+class "SlamFrontEnd" as SlamFrontEnd
+class "MapDrawer" as MapDrawer
+class "FrameworkCustomizer" as FrameworkCustomizer
+
+SlamLauncher ..> SensorDataReader
+SlamLauncher ..> PointCloudMap
+SlamLauncher ..> SlamFrontEnd
+SlamLauncher ..> MapDrawer
+SlamLauncher ..> FrameworkCustomizer
+
+@enduml

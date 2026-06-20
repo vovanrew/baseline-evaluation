@@ -1,0 +1,46 @@
+```plantuml
+@startuml
+package common {
+  package domain {
+    package repository {
+      interface FeatureConfigRepository {
+        + Future<FeatureConfig> fetch()
+      }
+    }
+    package entities {
+      class FeatureConfig {
+        + isPasswordSignInOptionEnabled : bool
+        + isDebugMenuEnabled : bool
+      }
+    }
+    package usecases {
+      class FetchFeatureConfigUseCase {
+        + Future<FeatureConfig> call(FeatureConfigParam params)
+      }
+      package parameters {
+        class FeatureConfigParam {
+          + isPasswordSignInOptionEnabled : bool
+          + isDebugMenuEnabled : bool
+        }
+      }
+    }
+  }
+}
+
+package base {
+  package domain as base_domain {
+    package usecases as base_usecases {
+      interface UseCase<Type, Params> {
+        call: Type
+      }
+    }
+  }
+}
+
+FeatureConfigRepository --> FeatureConfig : uses
+FetchFeatureConfigUseCase --> FeatureConfigRepository : uses
+FetchFeatureConfigUseCase --> FeatureConfigParam : uses
+FetchFeatureConfigUseCase ..|> UseCase
+
+@enduml
+```

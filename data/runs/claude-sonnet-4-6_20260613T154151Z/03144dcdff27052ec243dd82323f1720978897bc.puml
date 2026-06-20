@@ -1,0 +1,180 @@
+@startuml
+
+package "php" {
+  package "SPL" {
+    interface ArrayAccess {
+      + offsetExists(offset)
+      + offsetGet(offset)
+      + offsetSet(offset, value)
+      + offsetUnset(offset)
+    }
+
+    interface Countable {
+      + count()
+    }
+
+    interface Iterator {
+      + current()
+      + next()
+      + key()
+      + valid()
+      + rewind()
+    }
+
+    class SplFixedArray {
+    }
+  }
+}
+
+package "Digitick" {
+  package "Foundation" {
+    package "Collection" {
+
+      interface InterfaceCollection {
+        + addAll(InterfaceCollection elementCollection)
+        + clear()
+        + contains(element)
+        + containsAll(InterfaceCollection elementCollection)
+        + isEmpty()
+        + removeAll(interfaceCollection elementCollection)
+        + size()
+        + toArray()
+      }
+
+      interface InterfaceSet {
+        + add(element)
+        + get(element)
+        + remove(element)
+      }
+
+      interface InterfaceList {
+        + add(offset, element)
+        + remove(offset)
+        + get(offset)
+        + set(offset, element)
+        + indexOf(element)
+        + subList(fromIndex, toIndex)
+      }
+
+      abstract class TraitCollection {
+        - indexOf(element, collectionObject)
+        - contains(element, collectionObject)
+      }
+
+      abstract class AbstractObjectSet {
+        # storageArray
+        # nextAvailableOffset
+        # set(element, data)
+      }
+
+      abstract class AbstractScalarSet {
+        + DEFAULT_SIZE
+        # nextAvailableOffset
+        # storageArray
+        # increaseSize(quantity=1)
+        # decreaseSize(quantity=1)
+        # shift(fromOffset)
+        # removeOffset(offset)
+      }
+
+      abstract class TraitTypedCollection {
+        # CLASSORTYPENAME
+        - checkelementType(element)
+      }
+
+      abstract class AbstractList {
+      }
+
+      class BaseObjectSet {
+      }
+
+      abstract class AbstractTypedScalarSet {
+      }
+
+      class BaseScalarSet {
+      }
+
+      class IntScalarSet {
+      }
+
+      class StringScalarSet {
+      }
+
+      abstract class AbstractTypedObjectSet {
+      }
+
+      abstract class AbstractTypedList {
+      }
+
+      class BaseList {
+      }
+
+      class IntList {
+      }
+
+      class StringList {
+      }
+
+    }
+  }
+}
+
+' SPL relationships
+SplFixedArray ..|> Iterator
+SplFixedArray ..|> Countable
+SplFixedArray ..|> ArrayAccess
+
+' InterfaceCollection implements SPL interfaces
+InterfaceCollection ..|> ArrayAccess
+InterfaceCollection ..|> Countable
+InterfaceCollection ..|> Iterator
+
+' InterfaceSet and InterfaceList extend InterfaceCollection
+InterfaceSet --|> InterfaceCollection
+InterfaceList --|> InterfaceCollection
+
+' AbstractObjectSet uses TraitCollection, implements InterfaceSet
+AbstractObjectSet ..|> InterfaceSet
+AbstractObjectSet ..> TraitCollection
+
+' AbstractScalarSet uses TraitCollection, implements InterfaceSet
+AbstractScalarSet ..|> InterfaceSet
+AbstractScalarSet ..> TraitCollection
+
+' AbstractList implements InterfaceList
+AbstractList ..|> InterfaceList
+
+' BaseObjectSet extends AbstractObjectSet
+BaseObjectSet --|> AbstractObjectSet
+
+' AbstractTypedScalarSet extends AbstractScalarSet, uses TraitTypedCollection
+AbstractTypedScalarSet --|> AbstractScalarSet
+AbstractTypedScalarSet ..> TraitTypedCollection
+
+' BaseScalarSet extends AbstractScalarSet
+BaseScalarSet --|> AbstractScalarSet
+
+' IntScalarSet extends AbstractScalarSet
+IntScalarSet --|> AbstractScalarSet
+
+' StringScalarSet extends AbstractScalarSet
+StringScalarSet --|> AbstractScalarSet
+
+' AbstractTypedObjectSet extends AbstractObjectSet, uses TraitTypedCollection
+AbstractTypedObjectSet --|> AbstractObjectSet
+AbstractTypedObjectSet ..> TraitTypedCollection
+
+' AbstractTypedList extends AbstractList, uses TraitTypedCollection
+AbstractTypedList --|> AbstractList
+AbstractTypedList ..> TraitTypedCollection
+
+' BaseList extends AbstractList
+BaseList --|> AbstractList
+
+' IntList extends AbstractTypedList
+IntList --|> AbstractTypedList
+
+' StringList extends AbstractTypedList
+StringList --|> AbstractTypedList
+
+@enduml

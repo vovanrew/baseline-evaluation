@@ -1,0 +1,78 @@
+```plantuml
+@startuml
+
+participant "Resident" as Resident
+participant "WeResident" as WeResident
+participant "WeID" as WeID
+participant "WeService" as WeService
+
+== Provider Login Into Provider App ==
+
+Resident -> WeResident : Send username:password /login
+
+alt Provider already exist
+    WeResident -> WeID : Get Token by username:password\n/oauth/authorize
+    WeID -> WeResident : Return Token to WeResident
+end
+
+WeResident -> Resident : Return {"token": "jwt-token"}
+
+== Provider Query/Search Service ==
+
+Resident -> WeService : Query services including token\n /weservices/services\n Header\n   Authorization: Bear **jwt-token**
+
+note left
+Query Service schema
+{"query":"string","status":12}
+end note
+
+alt above token is valid
+    WeService -> WeID : verify token
+    WeID -> WeService : 200
+    WeService -> Resident : Response services data
+
+    note left
+Service Data Array schema
+{[{"id":"string","company":"string","name":"string","rate":4.2,"image":"image.png"},{}],
+"total":10,"currentPage":1,"perPage":5}
+    end note
+
+else Token is expired/invalid
+    WeService -> WeID : verify token
+    WeID -> WeService : 400
+    WeService -> Resident : Response 401 status
+end
+
+== Create Order(Request) ==
+
+Resident -> WeService : Create Service\n POST: /weservices/service/{serviceID}/order
+
+note left
+Order Request schema
+{"resident":"$userID",
+"service":"$serviceID",
+"pricingModel":{},
+"noteDetail":"string",
+"address":"string",
+"schedule":Time}
+end note
+
+WeService -> WeID : verify token
+WeID -> WeService : 200
+
+WeService -> Resident : Response Service Data(JSON)
+
+Resident -> WeService : Comment(chat) in Order\n POST: /weservices/order/{orderID}/comment
+
+note left
+Comment Data
+{"content":"string"}
+end note
+
+WeService -> WeID : verify token
+WeID -> WeService : 200
+
+WeService -> Resident : 200
+
+@enduml
+```

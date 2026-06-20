@@ -1,0 +1,31 @@
+@startuml
+left to right direction
+actor "Admin" as Admin
+rectangle "Employees Module" as EmployeesModule
+database "Search Index" as SearchIndex
+database "Database" as Database
+
+activate EmployeesModule
+Admin -> EmployeesModule : trigger task
+activate EmployeesModule
+
+EmployeesModule -> SearchIndex : reset index (delete + create)
+activate SearchIndex
+deactivate SearchIndex
+
+EmployeesModule -> Database : stream all employees
+activate Database
+
+loop
+  EmployeesModule -> SearchIndex : index employee
+  activate SearchIndex
+  deactivate SearchIndex
+end
+
+Database --> EmployeesModule
+deactivate Database
+
+EmployeesModule --> Admin
+deactivate EmployeesModule
+
+@enduml

@@ -1,0 +1,22 @@
+{
+  "id": "e8f41cf2-c828-4431-9ea0-84d2472aa884",
+  "object": "chat.completion",
+  "created": 1781488937,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nactor \"User\" as User\nparticipant \"CellEditor\" as CellEditor\nparticipant \"Address\" as Address\nparticipant \"Controller\" as Controller\nparticipant \"Cell\" as Cell\nparticipant \"CellImpl\" as CellImpl\nparticipant \"FormulaCompiler\" as FormulaCompiler\nparticipant \"ExcelExpressionCompiler\" as ExcelExpressionCompiler\nparticipant \"ANTLRStringStream\" as ANTLRStringStream\nparticipant \"FormulaLexer\" as FormulaLexer\nparticipant \"CommonTokenStream\" as CommonTokenStream\nparticipant \"FormulaParser\" as FormulaParser\nparticipant \"Expression\" as Expression\nparticipant \"Formula\" as Formula\n\nUser -> CellEditor: Inputs block of instructions\nactivate CellEditor\nCellEditor -> Address: address = getAddress()\nCellEditor -> Controller: cell = getCell(address)\nCellEditor -> Cell: setContent(content)\ndeactivate CellEditor\n\nactivate Cell\nCell -> CellImpl: setContent(content)\nactivate CellImpl\nCellImpl -> CellImpl: storeContent(content)\nCellImpl -> FormulaCompiler: compile(cell, content)\nactivate FormulaCompiler\nFormulaCompiler -> ExcelExpressionCompiler: compile(cell, content)\nactivate ExcelExpressionCompiler\nExcelExpressionCompiler -> ANTLRStringStream: input = create(source)\nactivate ANTLRStringStream\ndeactivate ANTLRStringStream\nExcelExpressionCompiler -> FormulaLexer: lexer = create(input)\nactivate FormulaLexer\ndeactivate FormulaLexer\nExcelExpressionCompiler -> CommonTokenStream: tokens = create(lexer)\nactivate CommonTokenStream\ndeactivate CommonTokenStream\nExcelExpressionCompiler -> FormulaParser: parser = create(tokens)\nactivate FormulaParser\nExcelExpressionCompiler -> FormulaParser: tree = parser.expression()\ndeactivate FormulaParser\nExcelExpressionCompiler -> Expression: create()\nactivate Expression\ndeactivate Expression\nExcelExpressionCompiler -> ExcelExpressionCompiler: expression = convert(cell, tree)\nExcelExpressionCompiler -> FormulaCompiler: expression\ndeactivate ExcelExpressionCompiler\nFormulaCompiler -> Formula: formula = create(cell, expression)\nactivate Formula\ndeactivate Formula\nFormulaCompiler -> CellImpl: formula\ndeactivate FormulaCompiler\nCellImpl -> Cell: show()\ndeactivate CellImpl\nCell -> User: Result\ndeactivate Cell\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1076,
+    "completion_tokens": 463,
+    "total_tokens": 1539
+  }
+}

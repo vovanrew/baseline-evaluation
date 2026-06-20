@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Av46aR6s2FB1EpSHjf4VjL",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor Teams\nboundary API\ncontrol BuildService\ncontrol CommandParser\ncontrol BuildCommand\ncontrol BuildSystem\ncontrol BuildFactory\ndatabase BuildDb\ncontrol BuildMonitor\ncontrol NotificationService\ndatabase NotificationDb\n\nTeams -> API : /api/messages\nactivate API\n\nAPI -> BuildService : ProcessCommandAsync\nactivate BuildService\n\nBuildService -> CommandParser : ParseCommand\nactivate CommandParser\nCommandParser --> BuildService : BuildCommand\ndeactivate CommandParser\n\nBuildService -> BuildCommand : Execute\nactivate BuildCommand\n\nBuildCommand -> BuildSystem : CreateBuildAsync\nactivate BuildSystem\n\nbox \"BuildSystem Library\"\nBuildSystem -> BuildFactory : CreateBuildAsync\nactivate BuildFactory\n\nBuildFactory -> BuildDb : Save build\nactivate BuildDb\nBuildDb --> BuildFactory : Build\ndeactivate BuildDb\n\nBuildFactory -> BuildMonitor : AddBuildAsync\nactivate BuildMonitor\nBuildMonitor --> BuildFactory\ndeactivate BuildMonitor\ndeactivate BuildFactory\nend box\n\nBuildSystem --> BuildCommand : Build\ndeactivate BuildSystem\n\nBuildCommand -> NotificationService : AddNotificationAsync\nactivate NotificationService\nNotificationService -> NotificationDb : Save notification\nactivate NotificationDb\nNotificationDb --> NotificationService\ndeactivate NotificationDb\nNotificationService --> BuildCommand\ndeactivate NotificationService\n\nBuildCommand --> BuildService\ndeactivate BuildCommand\n\nBuildService --> API\ndeactivate BuildService\n\nAPI --> Teams\ndeactivate API\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370226,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 334,
+    "prompt_tokens": 1664,
+    "total_tokens": 1998
+  }
+}

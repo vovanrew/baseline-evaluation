@@ -1,0 +1,21 @@
+{
+  "id": "msg_01LEL15vfrnGpfZQvUiQu2Cy",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor User\nparticipant JobManager\nboundary Nodes\nboundary ESDM\nparticipant \"Post Processing Library\" as PPL\ndatabase Storage\n\nUser -> JobManager : submit job(IN, OUT)\nJobManager -> Nodes\n\nbox \"Initialization\"\nend box\n\nNodes -> Storage : read IN=x\nStorage -> Nodes : return\n\nbox \"Loop\"\nend box\n\nNodes -> Nodes : compute\nNodes -> ESDM : write async OUT=y\nESDM -> Storage : write snapshot (async)\nESDM -> PPL : trigger post processing if region effected\n\nbox \"In Situ Post Processing\"\nend box\n\nPPL -> PPL : perform post processing\nnote right of PPL : (could write result directly)\nPPL -> ESDM : return\nESDM -> Storage : write post processing result\nESDM -> Nodes : return\nNodes -> JobManager : OUT files become visible\n\nnote over ESDM : multiple iterations\n\nbox \"Finalize\"\nend box\n\nJobManager -> User : All OUT files become visible to subsequent users.\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370140,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 260,
+    "prompt_tokens": 1654,
+    "total_tokens": 1914
+  }
+}

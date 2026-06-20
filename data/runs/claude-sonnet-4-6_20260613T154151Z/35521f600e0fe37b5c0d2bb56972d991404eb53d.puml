@@ -1,0 +1,20 @@
+@startuml
+actor User
+participant server
+database user
+
+User -> server : **1** POST /sign-up with body: email and password
+server -> user : **2** Check email existence
+
+alt [Email existed]
+  user --> server : **3** Error code
+  server --> User : **4** Error message
+else [Email is new]
+  user --> server : **5** Email is available
+  server -> server : **6** Hash password
+  server -> user : **7** Store email and hashed password
+  user --> server : **8** Store complete
+  server --> User : **9** Success message
+end
+
+@enduml

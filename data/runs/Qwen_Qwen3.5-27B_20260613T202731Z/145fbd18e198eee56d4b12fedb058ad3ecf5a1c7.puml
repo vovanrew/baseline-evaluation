@@ -1,0 +1,119 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+package "Client" {
+    interface InfoPraiaFonte {
+        +{key: String}: number
+    }
+    interface InfoPontoPrevisãoResponse {
+        +hours: InfoPonto[]
+    }
+    class InfoPonto {
+        +tempo: String
+        +alturaOnda: InfoPraiaFonte
+        +direçãoOnda: InfoPraiaFonte
+        +alturaOndulação: InfoPraiaFonte
+        +direçãoOndulação: InfoPraiaFonte
+        +periodoOndulação: InfoPraiaFonte
+        +velocidadeVento: InfoPraiaFonte
+        +direçãoVento: InfoPraiaFonte
+    }
+    class ApinfoPraia {
+        -parameters: []
+        -request: Class Request
+        +buscarPontos(lat, lng): <IPrevisãoPonto>[]
+        +normalizarResponse(points: IInfoPontoPrevisãoResponse): IPrevisãoPonto[]
+        +PontoÉValido(ponto: <IPonto>): Boolean
+    }
+    interface IPrevisãoPonto {
+        +tempo: String
+        +alturaOnda: Number
+        +direçãoOnda: Number
+        +alturaOndulação: Number
+        +direçãoOndulação: Number
+        +periodoOndulação: Number
+        +velocidadeVento: Number
+        +direçãoVento: Number
+    }
+}
+
+package "Models" {
+    interface IPraia {
+        +id: Integer
+        +name: String
+        +position[1]: Position
+        +lat: Integer
+        +lng: Integer
+        +user: String
+    }
+    class Position {
+        +N
+        +S
+        +L
+        +O
+    }
+    interface IUser {
+        +id: String
+        +name: String
+        +email: String
+        +password: String
+    }
+    class PraiaModel {
+    }
+    class ModelUser {
+    }
+    class Praia {
+    }
+}
+
+package "Services" {
+    interface IPraia {
+    }
+    interface IPrevisãoPonto {
+    }
+    interface IPrevisãoPraia {
+        +avaliação: Number
+    }
+    interface ITempoPrevisão {
+        +tempo: String
+        +previsão: [PrevisãoPraia]
+    }
+    class Previsão {
+        -apinfoPraia: novo ApinfoPraia
+        -serviçoAvaliação: Avaliação
+        +processandoPrevisãoPorPraia(praia): <ITempoPrevisão>[]
+    }
+}
+
+package "Middlewares" {
+}
+
+package "Controllers" {
+    class PraiasController {
+        -praia: Praia
+        -resultado: mensagem
+        +create(req, res)
+        +novaPraia(req.body)
+        +praia.save()
+    }
+}
+
+class Request {
+    -request: []
+    +getUrl()
+}
+
+' Relationships
+ApinfoPraia ..> InfoPonto : parameters: [alturaOnda, direçãoOnda, alturaOndulação,\n direçãOndulação, periodoOndulação,\n velocidadeVento, direçãoVento]
+PraiasController --> Praia : 
+PraiaModel ..> Praia : 
+PraiaModel --|> IPraia : 
+ModelUser --|> IUser : 
+Position o-- IPraia : 
+IPraia <|.. IPrevisãoPonto : 
+IPrevisãoPonto <|.. IPrevisãoPraia : 
+Request ..> ApinfoPraia : UML
+
+@enduml
+```

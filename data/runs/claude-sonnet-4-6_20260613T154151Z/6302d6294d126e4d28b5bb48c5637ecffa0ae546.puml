@@ -1,0 +1,73 @@
+@startuml
+participant "User_App" as UA
+participant "WebRTC_GW" as GW
+participant "SkyWay_Server" as SS
+participant "Target_Peer" as TP
+
+UA -> GW : POST /peers\n{\n    key: "YOUR_API_KEY",\n    domain: "localhost",\n    turn: true,\n    peer_id: "media_caller"\n}
+
+GW --> UA : 201 Created\n{\n    command_type: "PEERS_CREATE",\n    params:{\n        peer_id: "media_caller",\n        token: "pt-be74737d-5762-401f-a526-01fa44d98a11"\n    }\n}
+
+GW -> SS : CREATE PEER
+
+UA -> GW : GET /peers/media_caller/events?\ntoken=pt-be74737d-5762-401f-a526-01fa44d98a11
+
+SS --> GW : SUCCESS\n(to bind peer id)
+
+GW --> UA : 200 OK\n["event"=>"OPEN",\n    params: {\n        peer_id: "media_caller",\n        token: "pt-be74737d-5762-401f-a526-01fa44d98a11"\n    }\n]
+
+UA -> GW : POST /media\n{\n    is_video: true\n}
+
+GW --> UA : 201 Created\n{\n    ip_v4: "172.16.1.106",\n    media_id: "vi-9856040d-bd3e-4b33-b121-e3435842e5fc",\n    port: 50003\n}
+
+UA -> GW : POST /media\n{\n    is_video: false\n}
+
+GW --> UA : 201 Created\n{\n    ip_v4: "172.16.1.106",\n    media_id: "au-a6c4c82c-9d9c-4e12-a52a-c927ec33793e",\n    port: 50004\n}
+
+UA -> GW : POST /media/rtcp\n{}
+
+GW --> UA : 201 Created\n{\n    "rtcp_id": "rc-970f2e5d-4da0-43e7-92b6-796678c104ad",\n    "port": 50003,\n    "ip_v4": "172.16.1.106"\n}
+
+UA -> GW : POST /media/rtcp\n{}
+
+GW --> UA : 201 Created\n{\n    "rtcp_id": "rc-4044f658-dee5-4aac-a60a-ad133abb4f92",\n    "port": 50004,\n    "ip_v4": "172.16.1.106"\n}
+
+UA -> GW : POST /media/connections\n{\n    peer_id: "media_caller",\n    token: "pt-be74737d-5762-401f-a526-01fa44d98a11",\n    target_id: "media_callee",\n    constraints:{\n        video: true,\n        videoReceiveEnabled: true,\n        audio: true,\n        audioReceiveEnabled: true,\n        video_params: {\n            band_width: 1500,\n            codec: "H264",\n            media_id: "vi-9856040d-bd3e-4b33-b121-e3435842e5fc",\n            rtcp_id: "rc-970f2e5d-4da0-43e7-92b6-796678c104ad",\n            payload_type: 100\n        },\n        audio_params:{\n            band_width: 1500,\n            codec: "opus",\n            media_id: "au-a6c4c82c-9d9c-4e12-a52a-c927ec33793e",\n            rtcp_id: "rc-4044f658-dee5-4aac-a60a-ad133abb4f92",\n            payload_type: 111\n        }\n    },\n    redirect_params: {\n        video: {\n            ip_v4: "172.16.1.105",\n            port: 20000\n        },\n        video_rtcp: {\n            ip_v4: "172.16.1.105",\n            port: 20010\n        },\n        audio: {\n            ip_v4: "172.16.1.105",\n            port: 20001\n        },\n        audio_rtcp: {\n            ip_v4: "172.16.1.105",\n            port: 20011\n        }\n    }\n}
+
+GW --> UA : 201 Created\n{\n    command_type: "MEDIA_CONNECTION_CREATE",\n    params: {\n        media_connection_id: "mc-55f0b97c-77c7-42d7-b21b-a6a6bc3fee3a"\n    }\n}
+
+UA -> GW : GET /media/connections\n/mc-55f0b97c-77c7-42d7-b21b-a6a6bc3fee3a/events
+
+GW --> UA : 200 OK\n[\n    event: "READY"\n]
+
+loop
+UA -> GW : send RTP Video to 172.16.1.106:50001
+GW -> TP : redirect Video with MediaStream
+UA -> GW : send RTP Audio to 172.16.1.106:50002
+GW -> TP : redirect Audio with MediaStream
+UA -> GW : send RTCP for Video to 172.16.1.106:50003
+GW -> TP : redirect RTCP with MediaStream
+UA -> GW : send RTCP for Audio to 172.16.1.106:50004
+GW -> TP : redirect RTCP with MediaStream
+TP -> GW : recv Video with MediaStream
+GW -> UA : redirect RTP Video to 172.16.1.105:20000
+TP -> GW : recv Audio with MediaStream
+GW -> UA : redirect RTP Audio to 172.16.1.105:20001
+TP -> GW : recv RTCP for Video with MediaStream
+GW -> UA : redirect RTCP for Video to 172.16.1.105:20010
+TP -> GW : recv RTCP for Audio with MediaStream
+GW -> UA : redirect RTCP for Audio to 172.16.1.105:20011
+end
+
+UA -> GW : Delete /media/connections\n/mc-55f0b97c-77c7-42d7-b21b-a6a6bc3fee3a
+GW -> TP : Close MediaStream
+GW -> TP : erase Video object\nand Audio object
+
+GW --> UA : 204 No Content
+
+UA -> GW : Delete /peers/media_caller?token=pt-be74737d-5762-401f-a526-01fa44d98a11
+GW -> TP : disconnect
+
+GW --> UA : 204 No Content
+
+@enduml

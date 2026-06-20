@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLkRnqRonGHtlOLdJPsT7aE0qGz7",
+  "object": "chat.completion",
+  "created": 1781369027,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle 3.1.0 Get Participant Callback Details\n\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #000000\n  LifeLineBorderColor #777777\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #000000\n  ParticipantBackgroundColor #FFFFFF\n  BoxBorderColor #000000\n  BoxBackgroundColor #FFFDE6\n  GroupBorderColor #000000\n  GroupBackgroundColor #FFFFFF\n  NoteBorderColor #666666\n  NoteBackgroundColor #FFF36A\n}\n\nbox \"ML API Adapter Service\" #BFE3F2\n  actor \"ML-API-ADAPTER\" as MLA\nend box\n\nbox \"Central Services\" #FFFDE6\n  boundary \"Central Service API\" as CSA\n  control \"Participant Handler\" as PH\n  entity \"Participant DAO\" as DAO\n  database \"Central Store\" as CS\nend box\n\n== Get Callback Details ==\n\nMLA -> CSA : 1 Request to get callback details - GET - /participants/{name}/endpoints?type={typeValue}\nactivate CSA\n\nCSA -> PH : 2 Fetch Callback details for Participant\nactivate PH\n\nPH -> DAO : 3 Fetch Participant\\n<color:red>Error code: 3200</color>\nactivate DAO\n\nDAO -> CS : 4 Fetch Participant\nactivate CS\nCS --> DAO : 5 Retrieved Participant\ndeactivate CS\n\nDAO --> PH : 6 Return Participant\ndeactivate DAO\n\nPH -> PH : 7 Validate DFSP\nPH -> PH : 8 check if \"type\" parameter is sent\n\nalt Check if \"type\" parameter is sent (Sent)\n  PH -> DAO : 9 Fetch Callback details for Participant and type\\n<color:red>Error code: 3000</color>\n  activate DAO\n  DAO -> CS : 10 Fetch Callback details for Participant and type\n  activate CS\n  note right of DAO #DDDDDD\n    Condition:\n    isActive = 1\n    [endpointTypeId = <type>]\n  end note\n  CS --> DAO : 11 Retrieved Callback details for Participant and type\n  deactivate CS\n  DAO --> PH : 12 Return Callback details for Participant and type\n  deactivate DAO\n\n  note right of PH #FFF36A\n    Message:\n    {\n      endpoints: {type: <type>, value: <value>}\n    }\n  end note\n\n  PH --> CSA : 13 Return Callback details for Participant\nelse Check if \"type\" parameter is sent (Not Sent)\n  PH -> DAO : 15 Fetch Callback details for Participant\\n<color:red>Error code: 3000</color>\n  activate DAO\n  DAO -> CS : 16 Fetch Callback details for Participant\n  activate CS\n  note right of DAO #DDDDDD\n    Condition:\n    isActive = 1\n  end note\n  CS --> DAO : 17 Retrieved Callback details for Participant\n  deactivate CS\n  DAO --> PH : 18 Return Callback details for Participant\n  deactivate DAO\n\n  note right of PH #FFF36A\n    Message:\n    {\n      endpoints: [\n        {type: <type>, value: <value>},\n        {type: <type>, value: <value>}\n      ]\n    }\n  end note\n\n  PH --> CSA : 19 Return Callback details for Participant\nend\n\nCSA --> MLA : 14 Return Callback details for Participant\nCSA --> MLA : 20 Return Callback details for Participant\n\nalt Validate participant (failure) / Error\n  note right of PH #FF3B30\n    Validation failure / Error:\n  end note\n  note right of PH #FFF36A\n    Message:\n    {\n      \"errorInformation\": {\n        \"errorCode\": <errorCode>,\n        \"errorDescription\": <ErrorMessage>,\n      }\n    }\n  end note\n  PH --> CSA : 21 Return <color:red>Error code: 3000, 3200</color>\n  CSA --> MLA : 22 Return <color:red>Error code: 3000, 3200</color>\nend\n\ndeactivate PH\ndeactivate CSA\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2545,
+    "completion_tokens": 876,
+    "total_tokens": 3421,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

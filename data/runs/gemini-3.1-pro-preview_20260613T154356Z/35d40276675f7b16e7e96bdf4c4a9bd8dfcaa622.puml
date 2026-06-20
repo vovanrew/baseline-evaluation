@@ -1,0 +1,115 @@
+```plantuml
+@startuml
+title Update Relationship Event Handler UML
+
+box "SNS" #D87093
+participant "Event Dispatcher Topic" as SNS
+end box
+
+box "Lambda" #FF8C00
+participant "Update Relationship Event Handler" as Lambda
+end box
+
+box "DynamoDB" #4169E1
+participant "Relationship Owner Table" as OwnerTable
+participant "Relationship Commitment Table" as CommitmentTable
+end box
+
+activate SNS
+SNS -> Lambda : filter on\nRelationship::Update Event
+activate Lambda
+
+Lambda -> Lambda : [SessionDecorator.puml]
+activate Lambda
+deactivate Lambda
+
+Lambda -> Lambda : [TrackEventHandlerWrapper.puml]
+activate Lambda
+deactivate Lambda
+
+Lambda -> Lambda : extract Message from Event
+activate Lambda
+deactivate Lambda
+
+Lambda -> Lambda : validate Message
+activate Lambda
+deactivate Lambda
+
+Lambda -> Lambda : validate event-name
+activate Lambda
+deactivate Lambda
+
+Lambda -> Lambda : validate event-version
+activate Lambda
+deactivate Lambda
+
+Lambda -> Lambda : validate stage
+activate Lambda
+deactivate Lambda
+
+Lambda -> OwnerTable : Get Existing Relationship
+activate OwnerTable
+OwnerTable --> Lambda
+deactivate OwnerTable
+
+Lambda -> Lambda : Generate Relationship Dict
+activate Lambda
+deactivate Lambda
+
+Lambda -> Lambda : Combine Existing Relationship\nAttributes With New Changes
+activate Lambda
+deactivate Lambda
+
+opt if missing required schema key
+    Lambda -> Lambda : <color:red>Error Handling</color>
+    activate Lambda
+    deactivate Lambda
+end
+
+Lambda -> Lambda : Get AdditionalAttributes
+activate Lambda
+deactivate Lambda
+
+alt if Relationship contains description and AdditionalAttributes\ndoesn't contain completed signal
+    Lambda -> OwnerTable : update Relationship
+    activate OwnerTable
+    OwnerTable --> Lambda
+    deactivate OwnerTable
+else
+    Lambda -> Lambda : <color:red>Error Handling</color>
+    activate Lambda
+    deactivate Lambda
+end
+
+Lambda -> Lambda : Generate commitments to add or delete
+activate Lambda
+deactivate Lambda
+
+alt if Commitment Operations Exist
+    Lambda -> Lambda : Generate starting indexes based on AdditionalAttributes
+    activate Lambda
+    deactivate Lambda
+
+    Lambda -> CommitmentTable : Batch_Write() RelationshipCommitments
+    activate CommitmentTable
+    CommitmentTable --> Lambda
+    deactivate CommitmentTable
+else
+    Lambda -> Lambda : <color:red>Error Handling</color>
+    activate Lambda
+    deactivate Lambda
+end
+
+Lambda -> Lambda : Track Event Handler Wrapper
+activate Lambda
+deactivate Lambda
+
+Lambda -> Lambda : Error Handler Wrapper
+activate Lambda
+deactivate Lambda
+
+deactivate Lambda
+deactivate SNS
+
+@enduml
+```

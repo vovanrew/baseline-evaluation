@@ -1,0 +1,69 @@
+@startuml
+title AU2048 Demo Mode Button Sequence Diagram
+
+actor User
+database Model
+
+participant MainActivity
+participant Controller
+participant MainActivityFragment
+participant BoardView
+
+User ->> MainActivity : Starts App
+
+MainActivity ->> Controller : onCreate()
+Controller ->> MainActivity : onCreate()
+
+loop [wantToContinue == true]
+    Press Demo Mode
+    MainActivity ->> Controller : ResetClick(View)
+    Controller ->> MainActivity : reset()
+    Controller ->> Model : setArr()
+    Controller ->> Model : setScore()
+    MainActivity ->> MainActivityFragment : doesWantToContinue()
+    MainActivityFragment ->> MainActivity : onCreateView()
+    MainActivityFragment ->> BoardView : onCreateView()
+
+    alt [demo == true]
+        alt [button_direction == up]
+            UpClick(View)
+            MainActivityFragment ->> MainActivity : LeftClick(View)
+            MainActivityFragment ->> MainActivity : RightClick(View)
+            MainActivityFragment ->> MainActivity : DownClick(View)
+        end
+    end
+
+    alt [button_direction == up]
+        shiftUp()
+        MainActivityFragment ->> MainActivity : shiftLeft()
+        MainActivityFragment ->> MainActivity : shiftDown()
+        MainActivityFragment ->> MainActivity : shiftRight()
+    end
+
+    alt [noMovesPossible == false]
+        checkWin()
+        win()
+        reset()
+    end
+
+    alt [noMovesPossible == true]
+        noMovesPossible()
+        gameOver()
+        Action.DOWN
+        reset()
+    end
+
+    MainActivityFragment ->> MainActivity : setupArrView()
+    MainActivityFragment ->> BoardView : setArrView()
+    MainActivityFragment ->> MainActivity : onCreateView()
+    MainActivityFragment ->> BoardView : onCreateView()
+
+    MainActivityFragment ->> BoardView : onDestroy()
+    BoardView ->> MainActivityFragment : onDestroy()
+
+    MainActivityFragment ->> MainActivity : onDestroy()
+    MainActivity ->> Model : onDestroy()
+
+    MainActivityFragment ->> MainActivity : onDestroy()
+    MainActivity ->> Model : onDestroy()
+@enduml

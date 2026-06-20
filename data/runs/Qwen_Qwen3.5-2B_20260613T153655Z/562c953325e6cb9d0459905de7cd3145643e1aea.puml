@@ -1,0 +1,38 @@
+@startuml
+participant "Service" as Service
+participant "Access token guard" as AccessTokenGuard
+
+subgraph Auth_microservice
+    participant "Session module" as SessionModule
+    participant "Auth module" as AuthModule
+endsubgraph
+
+Service -> AccessTokenGuard: request
+AccessTokenGuard -> SessionModule: get headers
+AccessTokenGuard -> AuthModule: check authentication header existence
+
+alt [Authentication header is undefined]
+    AccessTokenGuard -> Service: 401
+end
+
+AccessTokenGuard -> AuthModule: get access token from header
+AuthModule -> AccessTokenGuard: validate access token
+AccessTokenGuard -> AuthModule: result of validation
+
+alt [Access token is Invalid]
+    AccessTokenGuard -> Service: 401
+end
+
+AccessTokenGuard -> AuthModule: get embedded client id from access token
+AuthModule -> AuthModule: extract id
+
+alt [Client id is missing]
+    AccessTokenGuard -> AuthModule: error
+    AuthModule -> AccessTokenGuard: 401
+end
+
+AccessTokenGuard -> AuthModule: client id
+AuthModule -> AccessTokenGuard: modify request with client id
+AccessTokenGuard -> Service: modified request
+
+@enduml

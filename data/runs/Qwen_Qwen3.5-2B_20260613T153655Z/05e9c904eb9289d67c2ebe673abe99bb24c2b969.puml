@@ -1,0 +1,44 @@
+@startuml
+participant Cache as "Cache"
+participant DiskLruCache as "DiskLruCache"
+participant JournalFile as "JournalFile"
+participant DiskLruCache.Entry as "DiskLruCache.Entry"
+participant LinkedHashMap as "LinkedHashMap"
+participant Snapshot as "Snapshot"
+participant Cache.Entry as "Cache.Entry"
+participant Response as "Response"
+participant CacheResponseBody as "CacheResponseBody"
+
+participant DiskLruCache as "DiskLruCache"
+
+Cache --> DiskLruCache : get()
+
+DiskLruCache --> DiskLruCache : initialize
+
+DiskLruCache --> JournalFile : read
+
+JournalFile --> DiskLruCache.Entry : read
+
+DiskLruCache.Entry --> DiskLruCache : put()
+
+DiskLruCache --> LinkedHashMap : put()
+
+DiskLruCache --> LinkedHashMap : get()
+
+LinkedHashMap --> DiskLruCache.Entry : get()
+
+DiskLruCache.Entry --> DiskLruCache : put()
+
+DiskLruCache --> Snapshot : get()
+
+Snapshot --> DiskLruCache : put()
+
+DiskLruCache --> Cache.Entry : response()
+
+Cache.Entry --> Response : response()
+
+Response --> CacheResponseBody : response()
+
+CacheResponseBody --> Cache : response()
+
+@enduml

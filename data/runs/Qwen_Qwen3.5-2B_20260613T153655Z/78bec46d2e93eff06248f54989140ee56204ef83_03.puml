@@ -1,0 +1,31 @@
+@startuml
+skinparam sequenceDiagram
+    fontname "Microsoft YaHei"
+
+    actor 巡查app
+    actor 小程序或app或管理平台
+    actor lgm_community
+    actor 用户中心
+    actor lgm_auth_apps
+    actor lgm_certauth
+
+    Note over lgm_community, 产生二维码
+    Note over lgm_community, 校验二维码
+
+    Note over lgm_community, 获取通行证二维码
+    巡查app->>lgm_community: 1 获取通行证二维码
+    lgm_community->>lgm_community: 2 根据用户找到实名信息，根据实名信息找到卡号
+    lgm_community->>lgm_certauth: 3 获取二维码（实名信息，卡号）
+    lgm_certauth-->>lgm_community: 4 返回（二维码）
+    lgm_community-->>>lgm_community: 5 返回
+
+    Note over lgm_community, 校验二维码
+    巡查app->>lgm_community: 6 扫一扫
+    lgm_community->>lgm_community: 7 参考北京通二维码认证流程
+    lgm_community->>lgm_certauth: 8 校验二维码（二维码）
+    lgm_certauth-->>lgm_community: 9 校验结果
+    lgm_community->>lgm_community: 10 查询客户信息
+    lgm_community->>lgm_community: 11 查询登记信息，按照业主优先级排序后取一条
+    lgm_community-->>>lgm_community: 12 返回（登记信息）
+
+    lgm_community-->>>lgm_community: 返回

@@ -1,0 +1,129 @@
+```plantuml
+@startuml
+title CONTROL Class Diagram
+
+package "com" {
+  package "unisa" {
+    package "cinehub" {
+      package "control" {
+        class GestioneCatalogoControl {
+          + addFilm(Film film): Film
+          + addSerieTv(SerieTv serieTv): SerieTv
+          + addPuntata(Puntata puntata, Long idSerieTv, Integer numeroStagione): void
+          + addCast(Cast cast): void
+          + addRuolo(Ruolo ruolo, Long castId, Long mediaId): void
+          + findAllCast(): List<Cast>
+          + updateFilm(Film film): void
+          + updateSerieTv(SerieTv serieTv): void
+          + updatePuntata(Puntata puntata): void
+          + removeFilm(Long id): void
+          + removeSerieTv(Long id): void
+          + removePuntata(PuntataID id): void
+          + removeCast(Long id): void
+          + addGeneriFilm(Collection<Genere> generi, Long id): void
+          + addGeneriSerieTv(Collection<Genere> generi, Long id): void
+          + findRecensioniByMiPiace(Recensibile recensibile): List<Recensione>
+          + requestAllRecensioni(): List<Recensione>
+        }
+
+        class CatalogoControl {
+          + addRecensione(Recensione recensione): void
+          + requestRecensioneById(Long id): Recensione
+          + addMiPiace(boolean b, Recensione recensione): void
+          + findMiPiaceById(Recensione recensione): MiPiace
+          + getNumeroMiPiaceOfRecensione(Recensione recensione): Integer
+          + getNumeroNonMiPiaceOfRecensione(Recensione recensione): Integer
+          + rispondiARecensione(Recensione risposta): void
+          + findAllFilm(): List<Film>
+          + findAllSerieTv(): List<SerieTv>
+          + findMostRecentMedia(Integer howMany): List<Media>
+          + puntateByStagione(Long idSerieTv, Integer numeroStagione): List<Puntata>
+          + puntateBySerie(Long idSerieTv): List<Puntata>
+          + findFilmById(Long id): Film
+          + findSerieTvById(Long id): SerieTv
+          + findPuntataById(PuntataID puntataID): List<Puntata>
+          + searchFilmByGenere(Collection<Genere> generi): List<Film>
+          + searchSerieTVByGenere(Collection<Genere> generi): List<SerieTv>
+          + searchFilmByTitle(String titolo): List<Film>
+          + findAllPuntate(): List<Puntata>
+          + findPuntataByTitle(String titolo): List<Puntata>
+          + searchSerieTvByTitle(String titolo): List<SerieTv>
+          + findMostVoted(): List<Media>
+        }
+
+        class ModerazioneControl {
+          + addSegnalazione(Recensione recensione): void
+          + bannaRecensore(String email): void
+          + findAllSegnalazioni(): List<Segnalazione>
+          + deleteRecensione(Recensione recensione): void
+          + isSegnalted(Recensione recensione): Boolean
+        }
+
+        class UtenteControl {
+          - cal : Calendar
+          - eventPublisher : ApplicationEventPublisher
+          + getAllRecensori(): List<Recensore>
+          + getAllNotBannedRecensori(): List<Recensore>
+          + registrazioneUtente(Utente utente): Utente
+          + confermaRegistrazione(String token): void
+        }
+      }
+
+      package "model" {
+        package "media" {
+          package "film" {
+            class FilmService {
+            }
+          }
+          package "serietv" {
+            class PuntataService {
+            }
+            class SerieTVService {
+            }
+            class CastService {
+            }
+            class RuoloService {
+            }
+          }
+        }
+        package "recensione" {
+          class RecensioneService {
+          }
+          class MiPiaceService {
+          }
+        }
+        package "utente" {
+          class UtenteService {
+          }
+          class SegnalazioneService {
+          }
+          class RecensoreService {
+          }
+        }
+      }
+    }
+  }
+}
+
+GestioneCatalogoControl --> FilmService
+GestioneCatalogoControl --> PuntataService
+GestioneCatalogoControl --> SerieTVService
+GestioneCatalogoControl --> CastService
+GestioneCatalogoControl --> RuoloService
+GestioneCatalogoControl --> RecensioneService
+
+CatalogoControl --> FilmService
+CatalogoControl --> PuntataService
+CatalogoControl --> SerieTVService
+CatalogoControl --> RecensioneService
+CatalogoControl --> MiPiaceService
+
+ModerazioneControl --> SegnalazioneService
+ModerazioneControl --> RecensoreService
+ModerazioneControl --> RecensioneService
+
+UtenteControl --> UtenteService
+UtenteControl --> RecensoreService
+
+@enduml
+```

@@ -1,0 +1,32 @@
+@startuml
+participant "User" as User
+participant "HubSpot" as HubSpot
+participant "TypeForm" as TypeForm
+participant "TypeForm API" as TypeFormAPI
+participant "Node App" as NodeApp
+participant "AWS" as AWS
+
+participant "S3 Bucket" as S3Bucket
+participant "SES" as SES
+
+User -> HubSpot: Loads Compass
+HubSpot -> TypeForm: Generate UUID to identify user
+TypeForm -> HubSpot: Load embedded TypeForm survey
+User -> HubSpot: Completes survey
+TypeForm -> HubSpot: Redirects to HubSpot Landing Page Submission Form
+HubSpot -> TypeForm: https://info.codurance.com/en/compass-details-submission
+TypeForm -> HubSpot: Redirects to /report/submit/:uuid (to generate report)
+HubSpot -> NodeApp: Start report generation
+NodeApp -> HubSpot: Redirects to HubSpot Thanks Landing Page
+HubSpot -> NodeApp: https://info.codurance.com/en/compass-successful-submission
+NodeApp -> TypeFormAPI: Gets survery questions & answers
+TypeFormAPI -> NodeApp: Get user details
+NodeApp -> HubSpot: generate report and send email
+NodeApp -> S3Bucket: Build report and render with jsreport
+NodeApp -> S3Bucket: Upload report to AWS S3 bucket
+NodeApp -> S3Bucket: Query report link
+NodeApp -> S3Bucket: Compose email data with report pdf link
+NodeApp -> SES: Queue email for sending
+NodeApp -> User: Send email to user
+
+@enduml

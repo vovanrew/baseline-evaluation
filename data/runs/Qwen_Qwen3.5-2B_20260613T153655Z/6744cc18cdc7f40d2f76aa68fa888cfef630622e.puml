@@ -1,0 +1,73 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "Mojaloop Adapter" as MojoAdapter
+participant "API" as API
+participant "api / Handler" as Handler
+participant "Application Layer (domain / service / facade)" as AppLayer
+participant "TigerBeetle Client" as Client
+participant "TigerBeetle Cluster" as Cluster
+participant "MySQL" as DB
+
+note over MojoAdapter, API
+Hub operator or DFSP interactions
+end note
+
+note over API
+NodeJS interface invokes REST API
+end note
+
+note over Handler
+JSON request decoded & processed via handler
+end note
+
+note over AppLayer
+Expose service functions & handle database interactions
+end note
+
+subgraph Central-Settlement
+    MojoAdapter
+    API
+    Handler
+    AppLayer
+end subgraph
+
+subgraph Storage
+    Client
+    Cluster
+    DB
+end subgraph
+
+subgraph UpdateSettlement
+    1 JSON (settlement data)
+    2 Invoke handler
+    3 Invoke application layer
+    4 Retrieve settlement data (excluding accounts)
+    5 Retrieve accounts for all Transfers for a settlement window
+    6 Update settlement data (excluding accounts)
+    7 Settlement state processing
+    8 Invoke account creation based on settlement state of each Transfer
+    9 Create settlement accounts & return result
+    10 Return settlement result
+    11 Update final settlement state & return result
+    12 Return result
+    13 Return result
+    14 Return result with settlementData
+end subgraph
+
+MojoAdapter -> API: 1 JSON (settlement data)
+API -> Handler: 2 Invoke handler
+Handler -> AppLayer: 3 Invoke application layer
+AppLayer -> DB: 4 Retrieve settlement data (excluding accounts)
+DB -> Client: 5 Retrieve accounts for all Transfers for a settlement window
+Client -> AppLayer: 6 Update settlement data (excluding accounts)
+AppLayer -> DB: 7 Settlement state processing
+AppLayer -> DB: 8 Invoke account creation based on settlement state of each Transfer
+DB -> Cluster: 9 Create settlement accounts & return result
+Cluster -> AppLayer: 10 Return settlement result
+AppLayer -> Handler: 11 Update final settlement state & return result
+Handler -> API: 12 Return result
+API -> MojoAdapter: 13 Return result
+MojoAdapter -> API: 14 Return result with settlementData
+
+@enduml

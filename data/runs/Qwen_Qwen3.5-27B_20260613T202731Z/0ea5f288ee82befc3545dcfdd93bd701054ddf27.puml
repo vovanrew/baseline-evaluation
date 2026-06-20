@@ -1,0 +1,29 @@
+```plantuml
+@startuml
+title Deploy workload
+
+actor "User" as user
+database "tfexplorer" as tfexplorer
+boundary "node" as node
+
+user -> tfexplorer: 1 send workloads definition
+activate tfexplorer
+tfexplorer -> tfexplorer: 2 ensure enough capacity is available in the pool.
+tfexplorer -> tfexplorer: 3 decrease remaining pool capacity
+tfexplorer -> node: 4 sends workloads definition
+activate node
+
+alt workload deployed sucesfully
+    node --x> tfexplorer: 5 result success
+    deactivate node
+    user -> node: 6 user access its workload
+else failed to deploy workload or provision timeout reached
+    tfexplorer -> node: 7 cancel full reservation
+    deactivate node
+    tfexplorer -> tfexplorer: 8 increase remaining pool capacity
+end
+
+deactivate tfexplorer
+
+@enduml
+```

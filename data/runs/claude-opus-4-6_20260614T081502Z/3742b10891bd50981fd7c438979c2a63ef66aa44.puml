@@ -1,0 +1,111 @@
+```plantuml
+@startuml
+
+title US027 - As Director, I want to define the Product Owner of a project.
+
+skinparam classAttributeIconSize 0
+
+class AssignProductOwnerUI <<boundary>> {
+}
+
+class AssignProductOwnerController {
+    +AssignProductOwnerController
+    +getProject(code)
+    +getResource(name)
+    +assignRole(resourceName, roleName)
+}
+
+class ProjectsMapper {
+    +toDTO(project)
+}
+
+class ProjectTeamMapper {
+    +toDto(resource)
+}
+
+class ProjectDTO {
+    +ProjectDTO(code, projectName, startDate, endDate)
+}
+
+class ResourceDTO {
+    +ResourceDTO(name, role, startDate, endDate, costPerHour, percentageOfAllocation)
+}
+
+class Company {
+    +Company()
+    +getProjectStore()
+    +getProjectRoleStore()
+}
+
+class ProjectStore {
+    +ProjectStore()
+    +getProjectByCode()
+}
+
+class ProjectRoleStore {
+    +ProjectRoleStore()
+    +getProjectRole(roleName)
+}
+
+class Project {
+    +Project()
+    +getProjectTeam()
+    +getSprintDuration()
+    +getSprints()
+    +hasCode()
+}
+
+class ProjectTeam {
+    +ProjectTeam()
+    +getResourceByName()
+    +assignProjectRole(resource,startDate,sprintDuration,role)
+    +saveResource(newResource)
+    +checkIfRoleCurrentExistInTheProjectTeam(role,startDate)
+}
+
+class Resource {
+    +Resource()
+    +Resource(originalResource)
+    +isYourName(name)
+    +isCurrent()
+    +setRole(role)
+    +setStartDate(startDate)
+    +setEndDate(startDate)
+    +isAvailableToSprint(startDate, sprintDuration)
+    +copyUpdateProjectRoleOfAResource(originalResource, startDateNewRole, role)
+}
+
+class SprintList {
+    +SprintList()
+    +getCurrentSprint()
+}
+
+class Sprint {
+    +Sprint()
+    +isCurrentSprint()
+    +getEndDate()
+}
+
+AssignProductOwnerUI ..> AssignProductOwnerController
+
+AssignProductOwnerController ..> ProjectsMapper
+AssignProductOwnerController ..> ProjectTeamMapper
+AssignProductOwnerController ..> Company
+
+ProjectsMapper ..> ProjectDTO
+ProjectTeamMapper ..> ResourceDTO
+
+Company "1" o-- "1" ProjectStore : has
+Company "1" o-- "1" ProjectRoleStore : has
+
+ProjectStore "1" o-- "*" Project
+
+Project "1" o-- "1" ProjectTeam
+Project "1" -- "1" SprintList
+
+ProjectTeam "1" *-- "1" Resource
+
+SprintList "1" *-- "1" Sprint
+
+@enduml
+```

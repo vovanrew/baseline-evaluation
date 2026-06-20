@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Bw1jPpknN6X1FELnXhnCYJ",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor \"User Agent\" as UA\nparticipant \"Content Upload API\" as API\ndatabase \"Content database\" as DB\nparticipant \"CAFF Parser\" as Parser\n\nUA -> API : Upload request (HTTP POST),\\ncontains a single CAFF file in its body.\n\nnote right of API #LightYellow : **MUST** also include a CSRF token to prevent users of other,\\npotentially XSS vulnerable sites to take part in a massive distributed spam or DoS operation.\n\nAPI -> Parser : Validate upload request\nParser --> API : Return result\n\nnote right #LightYellow : Uploads should be validated by at **LEAST**:\\n* Content-Size header against max file size.\\n* All size fields against their respective supported bounds.\\n* Structure of all fields match expectations from the spec.\\n* Number of bytes from the upload matches number of bytes expected from in-file metadata.\n\nalt Failed to validate uploaded content\n    API --> UA : Return an HTTP status code that signals validation failure.\\nExact value depends on how the validation failed.\nelse Request is deemed valid\n    API -> DB : Store content in database\n    DB --> API : Return result of request\n\n    alt Upload succeeded\n        API --> UA : Return HTTP 201 Created\n    else\n        API --> UA : Return HTTP status code signaling the reason for failure.\n    end\nend\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781430546,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 320,
+    "prompt_tokens": 1328,
+    "total_tokens": 1648
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "e1d002fa-b0fc-4c7e-a135-8786d4a60e3d",
+  "object": "chat.completion",
+  "created": 1781885233,
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceMessageAlign center\nparticipant \"controller\" as controller {\n}\nparticipant \"agent\" as agent {\n}\nparticipant \"STA\" as STA {\n}\n\n== Perform MAUT setup steps (4.1.1 or 4.1.2) ==\n->> agent : Trigger STA to join the specified MAUT BSSID\ngroup send 1905, 0x8003,Multi-AP Policy Config Request\\n AP Metrics Reporting Interval:0 \\n STA MetricsReporting RSSI Threshold:0 \\n STA Metrics Reporting RSSI Hysteresis Margin Override:0 \\n AP Metrics Channel Utilization Reporting Threshold:1 (0.4%) \\n Associated STA Traffic Stats Inclusion Policy bit 7: 1 \\nAssociated STA Link Metrics Inclusion Policy bit 6: 1 bits 5~0 set to 0 No Steering Policy TLV \n    ->> controller :send_cmdu(MULTI_AP_POLICY_CONFIG_REQUEST_MESSAGE)\nend group\nactivate agent\nnote right of agent #WhiteSmoke;handle_multi_ap_policy_config_request()#LightGray;;\ndeactivate agent\n<<-- controller :send_cmdu(ACK_MESSAGE);\n--> STA :Trigger STA to start traffic generation to the controller ;\nloop on_channel_utilization_measurement_period_elapsed()\\ Measure current channel utilization.\\ If difference with previous value crosses configured threshold,\\ then send AP metrics.;\\  \n   note left of agent #WhiteSkyBlue;\\on_channel_utilization_measurement_period_elapsed();Measure current channel utilization.If difference with previous value crossessconfigured threshold,then send AP metrics.#DarkSlateGrey;;   \n end loop    \n <<--- controller :send_cmdu(AP_METRICS_RESPONSE_MESSAGE)\\with Associated STA Traffic Statsand Associated STA Link Metrics;\n activate controller\n     note below controller handle_cmdu_1905_ap_metric_response()\n deactivate controller\n \n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1468,
+    "completion_tokens": 394,
+    "total_tokens": 1862
+  }
+}

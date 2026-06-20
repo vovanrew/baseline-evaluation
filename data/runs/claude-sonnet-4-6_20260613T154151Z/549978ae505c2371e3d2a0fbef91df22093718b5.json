@@ -1,0 +1,21 @@
+{
+  "id": "msg_014HpFhTfLm7jfEbx4C6hb87",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nskinparam classAttributeIconSize 0\nskinparam style strictuml\n\ninterface Observer <<Interface>> {\n  + notify(event: ManagerEvent)\n}\n\nclass EntityManager <<C>> {\n  - entities: List<Entity>\n  - systems: Set<Observer>\n  + subscribe(system: Observer)\n  + addEntity(entity: Entity)\n  + removeEntity(id: Int)\n  - notifySystems(event: ManagerEvent)\n}\n\nclass System <<C>> {\n  - managedTypes: List<ComponentType>\n  - filteredEntities: List<Entity>\n  + addEntityRef(): Unit\n  + removeEntityRef(): Unit\n  + update(): Unit\n  - checkEntityISCompatible(): Unit\n}\n\nclass Entity <<C>> <<Product Type>> {\n  - ID : Int\n  - components : Map<ComponentType, Component>\n}\n\nnote right of Entity : Module + Case Class\n\nenum ComponentType <<E>> {\n  DIRECTION,\n  POSITION,\n  SPEED,\n  SPAWN,\n  ...\n}\n\nclass Component <<C>> <<Product Type>> {\n  - type: ComponentType\n}\n\nObserver <|-- System\nEntityManager \"1\" o-- \"0..*\" Observer\nEntityManager \"1\" *-- \"0..*\" Entity\nSystem \"0..*\" o-- \"0..*\" Entity\nEntity \"1\" *-- \"0..*\" Component\nComponent \"1\" *-- \"1\" ComponentType\nSystem \"1..*\" -- \"1\" ComponentType\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781366428,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 368,
+    "prompt_tokens": 1664,
+    "total_tokens": 2032
+  }
+}

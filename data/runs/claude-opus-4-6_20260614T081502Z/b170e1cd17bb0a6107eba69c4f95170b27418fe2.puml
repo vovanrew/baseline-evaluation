@@ -1,0 +1,28 @@
+```plantuml
+@startuml
+
+actor User
+
+participant "QuerySet" as QuerySet
+participant "QueryParser" as QueryParser
+participant "Tokenizer" as Tokenizer
+
+User -> QuerySet : 1 QuerySet()
+User -> QuerySet : 2 add("longitude", "*/CLON")
+QuerySet -> QueryParser : 3 parse(queryString)
+QueryParser -> Tokenizer : 4 tokenize(queryString)
+QueryParser <-- Tokenizer : 5 tokens
+
+loop all sub-queries
+    QueryParser -> "Query" as Query : 6 Query()
+    
+    loop all components
+        QueryParser -> "QueryComponent" as QueryComponent : 7 QueryComponent()
+        QueryParser -> Query : 8 push_back(component)
+    end
+end
+
+User <-- QueryParser : 9 queries
+
+@enduml
+```

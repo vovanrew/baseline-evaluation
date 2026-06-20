@@ -1,0 +1,65 @@
+```plantuml
+@startuml
+actor Administrative
+participant ":AddScooterUI" as UI
+participant ":AddScooterController" as Controller
+participant ":Pharmacy" as Pharmacy
+participant "ls:ListScooters" as ListScooters
+participant "sc:Scooter" as Scooter
+participant "bat:Battery" as Battery
+participant "scdb:ScooterDB" as ScooterDB
+participant "batdb:BatteryDB" as BatteryDB
+
+activate Administrative
+Administrative -> UI : 1 begins the process of adding a scooter
+activate UI
+UI --> Administrative : 2 asks for the necessary data(id_Scooter, qrCode, status, id_Battery, capacity)
+Administrative -> UI : 3 inserts the solicited data
+UI -> Controller : 4 newScooter(id_Scooter, qrCode, status, id_Battery, capacity)
+activate Controller
+Controller -> Pharmacy : 5 ls = getListScooters()
+activate Pharmacy
+Pharmacy --> Controller
+deactivate Pharmacy
+Controller -> ListScooters : 6 sc=newScooter(id_Scooter, qrCode, status, id_Battery, capacity)
+activate ListScooters
+ListScooters -> Scooter ** : 7 create(id_Scooter, qrCode, status, id_Battery, capacity)
+activate Scooter
+Scooter -> Battery ** : 8 create(id_Battery, capacity)
+activate Battery
+Battery --> Battery : 9 validateBattery(bat)
+deactivate Battery
+deactivate Scooter
+deactivate ListScooters
+Controller -> ListScooters : 10 validateScooter(sc)
+activate ListScooters
+ListScooters --> Controller
+deactivate ListScooters
+Controller --> UI
+deactivate Controller
+UI --> Administrative : 11 validates the data, presents it and asks the administrator for its confirmation
+Administrative -> UI : 12 confirms
+UI -> Controller : 13 registerScooter()
+activate Controller
+Controller -> ListScooters : 14 registerScooter(sc)
+activate ListScooters
+ListScooters -> ListScooters : 15 validateScooter(sc)
+ListScooters -> ListScooters : 16 addScooter(sc)
+ListScooters --> Scooter : 17 save(sc)
+activate Scooter
+Scooter --> ScooterDB : 18 save(sc)
+activate ScooterDB
+deactivate ScooterDB
+Scooter --> BatteryDB : 19 save(bat)
+activate BatteryDB
+deactivate BatteryDB
+deactivate Scooter
+ListScooters --> Controller
+deactivate ListScooters
+Controller --> UI
+deactivate Controller
+UI --> Administrative : 20 adds the scooter to a list of scooters
+deactivate UI
+deactivate Administrative
+@enduml
+```

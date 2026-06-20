@@ -1,0 +1,22 @@
+{
+  "id": "1ac4946e-dd3e-45e7-86b4-ecbb25d95b1a",
+  "object": "chat.completion",
+  "created": 1781502464,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle PFD flow between Openness and 5G core\n\nactor \"Admin\" as admin\npackage \"OpenNESS Controller Components\" {\n    participant \"UI/CLI\" as ui\n    participant \"Af Microservice\" as af\n}\npackage \"5G Core Components\" {\n    participant \"NEF\" as nef\n    participant \"NGC CP Function\" as ngc\n    note right of nef: OpenNESS provided\\nCore component with\\nlimited functionality\n}\n\nrectangle \"Get all transactions with PFD\" as frame1 {\n    admin -> ui : Request all PFD transactions\n    activate ui\n    ui -> af : af/v1/pfd/transaction GET\n    activate af\n    af -> nef : 3gpp-pfd-management/v1/{scsAsId}/transactions/ GET\n    activate nef\n    nef -> nef : NGC_STUB (UDR SMF)\n    deactivate nef\n    nef --> af : OK: PFD information \\ ERROR\n    deactivate af\n    af --> ui : OK: PFD information \\ ERROR\n    deactivate ui\n    ui --> admin : PFD details\n}\n\nrectangle \"Get transactions with transactionId\" as frame2 {\n    admin -> ui : Request transaction with transactionId\n    activate ui\n    ui -> af : af/v1/pfd/transactions/{transactionId} GET\n    activate af\n    af -> nef : 3gpp-pfd-management/v1/{scsAsId}/transactions/{transactionId} GET\n    activate nef\n    nef -> nef : NGC_STUB (UDR SMF)\n    deactivate nef\n    nef --> af : OK: PFD information \\ ERROR\n    deactivate af\n    af --> ui : OK: PFD information \\ ERROR\n    deactivate ui\n    ui --> admin : PFD details\n}\n\nrectangle \"Get transactions with applicationId\" as frame3 {\n    admin -> ui : Request transactions with applicationId\n    activate ui\n    ui -> af : af/v1/pfd/transactions/{transactionId}/applications/{appId} GET\n    activate af\n    af -> nef : 3gpp-pfd-management/v1/{scsAsId}/transactions/{transactionId}/applications/{appId} GET\n    activate nef\n    nef -> nef : NGC_STUB (UDR SMF)\n    deactivate nef\n    nef --> af : OK: PFD information \\ ERROR\n    deactivate af\n    af --> ui : OK: PFD information \\ ERROR\n    deactivate ui\n    ui --> admin : PFD details\n}\n\nfooter Proprietary and Confidential\nright Intel Corporation\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1713,
+    "completion_tokens": 564,
+    "total_tokens": 2277
+  }
+}

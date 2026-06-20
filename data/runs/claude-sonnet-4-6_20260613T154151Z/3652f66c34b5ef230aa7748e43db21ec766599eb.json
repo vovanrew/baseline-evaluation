@@ -1,0 +1,21 @@
+{
+  "id": "msg_01GNPigLyu1b5peAhTUAuv6b",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor User\nparticipant JobManager\nparticipant \"Process/Application\" as PA\nparticipant ESDM\nparticipant \"Post Processing\" as PP\ndatabase \"Storage System\" as SS\nactor Observer\n\n== Observer ==\n\nObserver -> Observer : collects observations\nObserver -> SS : (may write directly)\nObserver -> ESDM : write observation t\nESDM -> ESDM : (transform for efficiency)\nESDM -> SS : write container for observation t\n\n== Simulation Runs ==\n\nJobManager -> JobManager : periodically submit job(IN=t, OUT)\nUser -> JobManager : allocates resources and calls\nJobManager -> PA : read IN=x\nPA -> SS : read\nSS -> PA : return\nPA -> JobManager : return\nPA -> PA : compute\nPA -> ESDM : write async OUT=y\n\n== Value-added products ==\n\nESDM -> PP : make available\nPP -> PP : perform analysis\nPP -> SS : (may write directly)\nPP -> ESDM : return result\nESDM -> PA : return\n\nnote over PA, ESDM : multiple iterations\n\n== Finalise ==\n\nSS -> User : OUT files become visible\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781369974,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 279,
+    "prompt_tokens": 1654,
+    "total_tokens": 1933
+  }
+}

@@ -1,0 +1,228 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+participant "api" as api
+participant "ms-trade" as ms_trade
+participant "subscribe-service" as subscribe_service
+participant "rts" as rts
+participant "payment-service" as payment_service
+participant "cpm" as cpm
+participant "payment" as payment
+participant "spm" as spm
+participant "public-service" as public_service
+participant "product" as product
+participant "subscribe" as subscribe
+participant "charging" as charging
+participant "order" as order
+participant "proxy" as proxy
+participant "campaign" as campaign
+
+api -> ms_trade : wapPurchase 从前端开始
+ms_trade -> subscribe_service : purchaseBy 从前端开始
+subscribe_service -> rts : purchaseBy 从前端开始
+
+group 缓存相关
+rts -> rts : queryContinuousTokenMemberCache 查找缓存中的Tokens
+rts -> rts : queryContinuousTokenMemberCache 返回缓存中的Token的列表
+note over rts
+查询Token缓存
+updateContinuousTokenMemberCache 返回更新的Token
+updateContinuousTokenMemberCache 返回更新的Token的列表的结果
+end note
+end
+
+rts -> payment_service : paymentService.getPaymentAccounts 查找支付方式
+payment_service -> spm : paymentService.getPaymentAccounts 返回查询支付方式的结果
+
+rts -> payment_service : paymentService.getPaymentAccounts 返回查询支付方式的结果
+
+group 支付账号查询相关
+rts -> rts : multiPart.getAccounts 获取账号列表信息
+rts -> rts : bizService.getAccounts 查找支付方式的信息
+rts -> rts : multiNumberSegment 返回查找支付方式的结果
+rts -> rts : paymentService.paymentAccountManagement 返回查找方式
+end
+
+rts -> payment_service : paymentService.getPaymentAccounts 查找支付方式
+payment_service -> spm : paymentService.getPaymentAccounts 返回查询支付方式的结果
+payment_service -> spm : paymentService.createPaymentAccount 返回创建支付方式的结果
+
+rts -> payment_service : paymentService.paymentAccountManagement 返回查找支付方式的结果
+
+rts -> public_service : isUserWhiteList 查找用户是否是白名单用户
+public_service -> rts : isUserWhiteList 返回查找用户是否是白名单用户的结果
+
+group 用户信息查询
+rts -> rts : purchaseBy 从前端开始(null)
+rts -> rts : multiNumberSegment 返回查找支付方式的结果的列表
+rts -> rts : smallItemQueryService.fetchElements 查找产品信息
+rts -> public_service : smallItemQueryService.fetchElements 返回查找产品信息的结果
+end
+
+group 获取用户信息及订阅相关的信息的处理
+rts -> rts : purchaseBy 从前端开始(null)
+end
+
+group 订阅方式
+rts -> rts : 订一个新的套餐的订阅
+rts -> rts : purchaseBy 从前端开始(null)
+
+rts -> subscribe : rentService.fetchMemberSubscription 查找订阅的相关信息
+rts -> subscribe : rentService.fetchMemberSubscription 返回订阅的相关信息
+
+rts -> subscribe : rentService.subscribe 更新订阅的相关信息的结果
+
+rts -> subscribe : bizService.authenticate 向查询的结果发送
+rts -> subscribe : bizService.authenticate 返回查询的结果
+end
+
+group 计算费用
+rts -> rts : purchaseBy 从前端开始(400)
+rts -> charging : eventCalculateService.calculatePrice 查询产品的计价
+
+group 获取可用的支付渠道列表
+rts -> rts : 获取可用的支付渠道列表\n查找可用的支付方式的列表
+rts -> payment_service : paymentService.autoAdaptedPayChannels 返回支付方式
+rts -> payment_service : paymentService.autoAdaptedPayChannels 返回适配支付方式的列表
+end
+
+group 获取支付方式的结果
+rts -> rts : 获取支付方式及支付方式的结果\n获取最终的支付方式的列表,确认支付方式的结果\n获取最终的支付方式的列表的一部分
+rts -> payment_service : paymentService.autoAdaptedPayChannels 返回支付方式
+rts -> payment_service : paymentService.autoAdaptedPayChannels 返回适配支付方式的列表
+end
+
+rts -> order : orderManagementService.createOrder 创建订单
+rts -> order : orderManagementService.createOrder 返回创建订单的结果
+end
+
+group 计费处理
+rts -> subscribe : bizService.authenticate 向查询的结果发送
+rts -> subscribe : bizService.authenticate 返回查询的结果
+
+group 计算费用
+rts -> rts : purchaseBy 从前端开始(400)
+rts -> charging : eventCalculateService.calculatePrice 查询产品的计价
+
+group 获取可用的支付渠道列表
+rts -> rts : 获取可用的支付渠道列表\n查找可用的支付方式的列表
+rts -> payment_service : paymentService.autoAdaptedPayChannels 返回支付方式
+rts -> payment_service : paymentService.autoAdaptedPayChannels 返回适配支付方式的列表
+end
+
+group 获取支付方式的结果
+rts -> rts : 获取支付方式及支付方式的结果\n获取最终的支付方式的列表,确认支付方式的结果\n获取最终的支付方式的列表的一部分(Quantity)
+rts -> payment_service : paymentService.autoAdaptedPayChannels 返回支付方式
+rts -> payment_service : paymentService.autoAdaptedPayChannels 返回适配支付方式的列表
+end
+
+rts -> order : orderManagementService.createOrder 创建订单
+rts -> order : orderManagementService.createOrder 返回创建订单的结果
+end
+end
+
+rts -> order : orderManagementService.submitOrder 提交订单
+rts -> order : orderManagementService.submitOrder 返回提交订单的结果
+
+group launcher相关
+rts -> payment_service : orderPaymentService.payOrder 支付订单
+
+group 执行支付直接扣款流程
+payment_service -> payment : paymentService.directPayment 扣费
+payment_service -> payment : paymentService.directPayment 返回扣费的结果
+end
+
+group 结果处理
+payment_service -> subscribe : bandService.batchSubscribe 批量订阅
+payment_service -> subscribe : bandService.batchSubscribe 返回批量订阅的结果
+
+group 结果处理
+note over payment_service
+获取并处理最终结果
+emqplus.distribute 用于发送订阅之后发送到对应的消息的结果
+emqplus.distribute 返回消息发送的结果(发送结果)
+end note
+payment_service -> proxy : String topic=clientPushTopic+Main
+
+group 发送消息
+payment_service -> proxy : String topic=pushBillsTopic+Main
+payment_service -> proxy : String topic=clientPushTopic+Main,调用推送消息的订单信息，end_t_templateType_order中的订单订单信息的订单的信息的订单信息 end_t_item_repository
+end
+end
+end
+
+group 继续支付
+payment_service -> payment : paymentService.directPayment 扣费
+payment_service -> payment : paymentService.directPayment 返回扣费的结果
+end
+
+note over payment_service : 支付整体结果
+
+rts -> payment_service : orderPaymentService.payOrder 返回支付订单的结果
+end
+
+group 支付完成后续处理包括订阅及历史记录的处理及其他处理
+rts -> rts : 通知结果
+rts -> rts : pushNotify.notifyStatus 支付成功后的通知的结果
+
+group 获取并处理最终结果
+rts -> proxy : emqplus.distribute 用于发送订阅之后发送到对应的消息的结果
+rts -> proxy : emqplus.distribute 返回消息发送的结果(发送结果)
+end
+
+rts -> subscribe : bandService.batchSubscribe 批量订阅
+rts -> subscribe : bandService.batchSubscribe 返回批量订阅的结果
+
+rts -> proxy : String topic=clientPushTopic+Main
+
+group 发送消息
+rts -> proxy : String topic=pushBillsTopic+Main
+rts -> proxy : String topic=clientPushTopic+Main,调用推送消息的订单信息，end_t_templateType_order中的订单订单信息的订单的信息的订单信息 end_t_item_repository
+end
+
+rts -> rts : pushNotify.notifyStatus 支付完成后的通知的结果的结果
+
+rts -> order : historyOrderManagementService.batchPurchHistoryOrders 查询历史订单
+rts -> order : historyOrderManagementService.batchPurchHistoryOrders 返回查询历史订单的结果
+end
+
+group 继续完成后续的通知及处理的流程
+rts -> rts : purchaseBy 从前端开始(null)
+
+group 订单处理流程
+note over rts
+通知结果
+支付完成后的通知信息
+end note
+note over rts
+订阅信息查询的结果
+返回订阅查询的结果信息
+end note
+note over rts
+通知查询的结果
+查询完成的结果，查看支付的结果
+end note
+end
+
+group 处理支付结果的通知 发送到相关的服务
+rts -> charging : retailCategoryService.setLevyevents 返回查询中的查找支付方式的结果
+rts -> charging : retailCategoryService.setLevyevents 返回查询中的查找支付方式的结果的结果
+end
+
+group 持续计费
+note over rts
+持续计费处理的流程包括订阅(ContinueBilling)及持续计费的流程(包含持续计费的处理)
+end note
+rts -> charging : continuousBilling.runContinuousCharging 查询支付
+rts -> charging : continuousBilling.runContinuousCharging 返回查询支付的结果
+end
+
+rts -> rts : purchaseBy 返回查询开始
+
+rts -> subscribe_service : purchaseBy 返回从前端开始的结果
+subscribe_service -> ms_trade : purchaseBy 返回从前端开始的结果
+ms_trade -> api : wapPurchase 返回从前端开始的结果
+end
+
+@enduml

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01VgVTeV7auKPtJHn9j9sbiL",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceMessageAlign center\nskinparam maxMessageSize 100\n\nparticipant \"VideoSink\" as VideoSink\nparticipant \"VideoDecoder\" as VideoDecoder\nparticipant \"VideoReceiver\" as VideoReceiver\nparticipant \"RTPReceiver\" as RTPReceiver\nparticipant \"Transceiver\" as Transceiver\nparticipant \"DTLS\" as DTLS\n\n== Receive RTP ==\n\nDTLS -> DTLS : AsyncUDPSocket\nDTLS -> DTLS : RecvFrom\\nPacketReceived\nDTLS -> DTLS : read\\nssl\n\nDTLS -> DTLS : SignalReadEvent\nDTLS -> Transceiver : OnReadPacket()\nTransceiver -> Transceiver : ProcessConnection\\nUDPPort\\nPossibleIncomingPacket()\n\nTransceiver -> Transceiver : webrtc::DtlsTransport::OnReadPacket()\nTransceiver -> Transceiver : [RtpTransportInternal]\\n[RtpTransport]\\nDtpTransport\\nOnPacket\nTransceiver -> Transceiver : RtpTransport::OnReadPacket()\nTransceiver -> Transceiver : SrtpTransport::OnRtpPacketReceived()\n\nTransceiver -> RTPReceiver : RtpDemuxer\\nOnRtpPacket()\n\n== Receive Video ==\n\nRTPReceiver -> Transceiver : OnRtpPacket()\nTransceiver -> Transceiver : StreamsInterface\\nWebRtcVideoStream\\nWebRtcVideoChannel\\nWebRtcVideoStream\n\nTransceiver -> Transceiver : JsepIceCall\\nstream()\n\nTransceiver -> RTPReceiver : DeliverPacket()\nRTPReceiver -> RTPReceiver : OnRtpPacket()\n\nRTPReceiver -> RTPReceiver : RtpVideoStreamReceiver\\nOnRtpPacket()\nRTPReceiver -> RTPReceiver : ReceivePacket()\nRTPReceiver -> RTPReceiver : OnReceivedPayloadData()\nRTPReceiver -> RTPReceiver : OnReceivedVideoFrame()\nRTPReceiver -> RTPReceiver : OnDecodedFrame()\nRTPReceiver -> RTPReceiver : OnCompleteFrame()\n\nRTPReceiver -> VideoReceiver : VideoReceiveStream\\nOnCompleteFrame()\nVideoReceiver -> VideoReceiver : FrameBuffer\nVideoReceiver -> VideoReceiver : InsertFrame()\n\nnote over VideoReceiver : RESUME\n\nVideoReceiver -> VideoReceiver : HandleEncodedFrame()\nVideoReceiver -> VideoReceiver : Decode()\n\nVideoReceiver -> VideoDecoder : VCMGenericDecoder\\nDecode()\nVideoDecoder -> VideoDecoder : Decode()\n\nVideoDecoder -> VideoDecoder : VideoDecodeDecoderFrameCallbackWrapper\\nDecode()\nVideoDecoder -> VideoDecoder : AndroidVideoDecoder\\nDecode()\n\nVideoDecoder -> VideoDecoder : VideoDecoder.Callback\nVideoDecoder -> VideoDecoder : OnDecodedFrame()\n\nVideoDecoder -> VideoDecoder : VCMDecodedFrameCallback\\nDecoded()\nVideoDecoder -> VideoDecoder : FrameToRender()\n\nVideoDecoder -> VideoDecoder : VideoStreamDecoder\\nFrameToRender()\nVideoDecoder -> VideoDecoder : OnFrame()\n\nVideoDecoder -> VideoDecoder : IncomingVideoStream\\nOnFrame()\nVideoDecoder -> VideoDecoder : OnFrame()\nVideoDecoder -> VideoDecoder : OnFrame()\n\nVideoDecoder -> VideoDecoder : WebRtcVideoReceiveStream\\nOnFrame()\nVideoDecoder -> VideoDecoder : OnFrame()\n\nVideoDecoder -> VideoSink : VideoSinkWrapper\\nOnFrame()\nVideoSink -> VideoSink : OnFrame()\n\nVideoSink -> VideoSink : ProxyVideoSink\\nOnFrame()\nVideoSink -> VideoSink : SurfaceViewRenderer\\nOnFrame()\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370821,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 989,
+    "prompt_tokens": 1272,
+    "total_tokens": 2261
+  }
+}

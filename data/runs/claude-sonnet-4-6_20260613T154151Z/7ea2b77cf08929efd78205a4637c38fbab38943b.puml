@@ -1,0 +1,43 @@
+```plantuml
+@startuml
+title Package Vod Detail
+
+box "STB" #LightGray
+participant "PackageVodDetail" as PVD
+participant "VodProductManager" as VPM
+end box
+participant "MBS" as MBS
+
+PVD -> MBS : get package vod detail infos
+MBS --> PVD : package vod detail infos
+PVD -> VPM : getProductButtons(productList)
+VPM --> PVD : product buttons
+
+opt [getting Push for vod purchased]
+    MBS -> PVD : purchasePush(offerId)
+    PVD -> MBS : get user discount intofs
+    MBS --> PVD : discount/cash coupon, membership point
+
+    opt [vod product contains offerId]
+        PVD -> MBS : get package vod detail infos
+        MBS --> PVD : package vod detail infos
+        PVD -> VPM : getProductButtons(productList)
+        VPM --> PVD : product buttons
+    end
+end
+
+legend bottom
+    |= When entering the single package detail |
+    | |
+    |= Function |= Interface | |
+    | get package vod detail infos | get package vod detail (GET /service/packagedetail) | row |
+    | get user discounts | get discount infos (GET /service/retrieveowncouponhomeinfo) | row |
+    | |
+    | When vod is purchased. Getting push message from MBS |
+    | |
+    |= Function |= value | |
+    | purchasePush | offer id | row |
+end legend
+
+@enduml
+```

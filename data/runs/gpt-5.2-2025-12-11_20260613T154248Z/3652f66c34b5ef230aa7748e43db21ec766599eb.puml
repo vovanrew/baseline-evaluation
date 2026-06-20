@@ -1,0 +1,56 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6F2
+  ActorBorderColor #666666
+  ActorBackgroundColor #FFFFFF
+  DatabaseBorderColor #666666
+  DatabaseBackgroundColor #E6E6F2
+  BoxBorderColor #000000
+  BoxBackgroundColor #FFFFFF
+}
+
+actor User as U
+participant JobManager as JM
+participant "Process/Application" as PA
+participant ESDM as E
+participant "Post Processing" as PP
+database "Storage System" as SS
+actor Observer as OB
+
+== Observer ==
+OB -> OB : collects observations
+OB -> SS : (may write directly)
+
+OB -> E : write observation t
+E -> E : (transform for efficiency)
+E -> SS : write container for observation t
+
+== Simulation Runs ==
+JM -> JM : periodically submit job(IN=t, OUT)
+JM -> PA : allocates resources and calls
+PA -> E : read IN=x
+E -> SS : read
+SS --> E : return
+E --> PA : return
+PA -> PA : compute
+PA -> E : write async OUT=y
+
+== Value-added products ==
+E -> PP : make available
+PP -> PP : perform analysis
+PP -> SS : (may write directly)
+PP --> E : return result
+E --> PA : return
+
+note over PA,E
+multiple iterations
+end note
+
+== Finalise ==
+JM --> U : OUT files become visible
+@enduml

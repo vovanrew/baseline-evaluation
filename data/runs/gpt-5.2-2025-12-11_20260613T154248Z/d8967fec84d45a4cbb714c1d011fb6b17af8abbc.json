@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLK0tOBU2IBmt4vIS77hiTynXe8M",
+  "object": "chat.completion",
+  "created": 1781367388,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle US016 - As Director/PM/PO/SM, I want to view status of activities in a project\n\nskinparam packageStyle rectangle\nskinparam shadowing false\nskinparam classAttributeIconSize 0\n\npackage \"Controller\" as PController {\n  class TaskUI << (C,#B7E1CD) >> {\n  }\n\n  class TaskController << (C,#B7E1CD) >> {\n    +getStatusOfActivitiesInProject(String projectID)\n  }\n\n  TaskUI --> TaskController\n}\n\npackage \"Service\" as PService {\n  class TaskService << (C,#B7E1CD) >> {\n    +getStatusOfActivities(String projectID)\n    -getCurrentSprintID(projectID)\n    -getSbiIDs(projectID, sprintID)\n    -getTasks(sbiIDs)\n  }\n}\n\npackage \"Repository\" as PRepository {\n  class SprintRepository << (C,#B7E1CD) >> {\n    +findCurrentSprintInProject(String projectID)\n  }\n\n  class SprintBacklogItemRepository << (C,#B7E1CD) >> {\n    +findSprintBacklogItemsInSprint(String projID, String sprintID)\n  }\n\n  class TaskRepository << (C,#B7E1CD) >> {\n    +findAllByContainerID(SprintBacklogItemID sbiID)\n  }\n}\n\npackage \"Mapper\" as PMapper {\n  class TaskMapper << (C,#B7E1CD) >> {\n    +statusListToDTO(List<Task> tasks)\n    -statusToDTO(Task task)\n  }\n}\n\npackage \"Domain\" as PDomain {\n  class Task << (C,#B7E1CD) >> {\n    -taskID : TaskID\n    -taskContainerID : TaskContainerID\n    -status : TaskStatus\n    -percentageOfExecution : Percentage\n    -taskDescription : TaskDescription\n    +getTaskID()\n    +getTaskContID()\n    +getStatus()\n    +getPercentageOfExecution()\n  }\n\n  class SprintBacklogItemID << (C,#B7E1CD) >> {\n    -sbiID : UUID\n    +getID()\n  }\n\n  interface TaskContainerID << (I,#C9C2E6) >> {\n    -taskContainerID : UUID\n    +getID()\n  }\n\n  Task ..> TaskContainerID : use\n  SprintBacklogItemID ..> TaskContainerID : use\n}\n\npackage \"DTO\" as PDTO {\n  class TaskDTO << (C,#B7E1CD) >> {\n    -taskID : String\n    -taskContainerID : String\n    -status : String\n    -percentageOfExecution : int\n    +setTaskID()\n    +setTaskContainerID()\n    +setStatus()\n    +setPercentageOfExecution()\n  }\n}\n\nTaskController ..> TaskService\nTaskService ..> SprintRepository\nTaskService ..> SprintBacklogItemRepository\nTaskService ..> TaskRepository\nTaskService ..> TaskMapper\nTaskService ..> Task\nTaskMapper ..> Task\nTaskMapper ..> TaskDTO\nTaskController ..> TaskDTO\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1614,
+    "completion_tokens": 669,
+    "total_tokens": 2283,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

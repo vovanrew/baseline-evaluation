@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLETxhXc8lD3s6gwOCGp98CFjn1C",
+  "object": "chat.completion",
+  "created": 1781367045,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\nskinparam shadowing false\nskinparam classAttributeIconSize 0\n\npackage \"db\" as pkg_db {\n  interface \"ConnectionDB\" as ConnectionDB\n\n  class \"LazyHolderDB\" as LazyHolderDB {\n    {static} final INSTANCE : ConnectionDBMySQL\n  }\n\n  class \"ConnectionDBMySQL\" as ConnectionDBMySQL {\n    - connection : Connection\n    + ConnectionDBMySQL()\n    + getInstance() : ConnectionDBMySQL\n    + getDb() : Connection\n    + setDb() : Connection\n  }\n\n  ConnectionDBMySQL ..|> ConnectionDB\n  LazyHolderDB ..> ConnectionDBMySQL : INSTANCE\n}\n\npackage \"gui\" as pkg_gui {\n  package \"controller\" as pkg_controller {\n\n    class \"OfferController\" as OfferController {\n      - FAQ : ListView\n      - answerQuestion : ButtonBar\n      - update : ButtonBar\n      - updateQuestion : ButtonBar\n      - newQuestion : ButtonBar\n      - rateArea : ButtonBar\n      - handleNewQuestion(actionEvent : ActionEvent) : void\n      - handleNewAnswer(actionEvent : ActionEvent) : void\n      - handleUpdateQuestion(actionEvent : ActionEvent) : void\n      - handleDeleteQuestion(actionEvent : ActionEvent) : void\n      - handleDeleteAnswer(actionEvent : ActionEvent) : void\n      - handleDeleteScoreQuestion(actionEvent : ActionEvent) : void\n      - handleDeleteScoreAnswer(actionEvent : ActionEvent) : void\n      - handleUpdateScoreAnswer(actionEvent : ActionEvent) : void\n    }\n\n    class \"NewQuestionController\" as NewQuestionController {\n      - questionArea : JTextArea\n      - postQuestion : JButton\n      - cancel : JButton\n      - handleNewQuestion(actionEvent : ActionEvent) : void\n      - handleLoadAnswer(actionEvent : ActionEvent) : void\n      - cancel(actionEvent : ActionEvent) : void\n    }\n\n    class \"NewAnswerController\" as NewAnswerController {\n      - answerArea : JTextArea\n      - postAnswer : JButton\n      - cancel : JButton\n      - handleNewAnswer(actionEvent : ActionEvent) : void\n      - cancel(actionEvent : ActionEvent) : void\n    }\n\n    class \"LoadView\" as LoadView {\n      - loadNameFXML : Parent : Parent\n      + changeScreen(actionEvent : ActionEvent, view : String) : void\n    }\n  }\n}\n\npackage \"business\" as pkg_business {\n\n  class \"FAQFacade\" as FAQFacade {\n    + getQuestionById(id : int) : Question\n    + getAnswerById(id : int) : Answer\n    + createQuestion(id : int, userid : int, offerid : int, question : String, score : int) : Question\n    + createAnswer(id : int, userid : int, answer : String, score : int) : Answer\n    + getQuestionsByOfferId(offerid : int) : ArrayList<Question>\n    + getAnswersByOfferId(offerid : int) : ArrayList<Answer>\n    + updateQuestionScore(id : int, userid : int, offerid : int, question : String, score : int) : Question\n    + updateAnswerScore(id : int, userid : int, answer : String, score : int) : Answer\n    + deleteQuestion(id : int) : boolean\n    + deleteAnswer(id : int) : boolean\n  }\n\n  class \"Question\" as Question {\n    - questionId : int\n    - content : String\n    - score : int\n    - answerId : int\n    - userId : int\n    - offerId : int\n    + Question()\n    + getQuestionId() : int\n    + getContent() : String\n    + getScore() : int\n    + getAnswerId() : int\n    + getUserId() : int\n    + getOfferId() : int\n    + setQuestionId(questionId : int) : void\n    + setContent(content : String) : void\n    + setScore(score : int) : void\n    + setAnswerId(answerId : int) : void\n    + setUserId(userId : int) : void\n    + setOfferId(categoryId : int) : void\n  }\n\n  class \"Answer\" as Answer {\n    - answerId : int\n    - content : String\n    - score : int\n    - userId : int\n    - answer()\n    + getAnswerId() : int\n    + getContent() : String\n    + getScore() : int\n    + getUserId() : int\n    + setAnswerId(answerId : int) : void\n    + setContent(content : String) : void\n    + setScore(score : int) : void\n    + setUserId(userId : int) : void\n  }\n\n  class \"SessionFacade\" as SessionFacade {\n    + SessionFacade()\n    + getUser() : User\n  }\n\n  FAQFacade --> Question\n  FAQFacade --> Answer\n  FAQFacade --> SessionFacade\n  pkg_controller.OfferController --> FAQFacade\n  pkg_controller.NewQuestionController --> FAQFacade\n  pkg_controller.NewAnswerController --> FAQFacade\n}\n\npackage \"dao\" as pkg_dao {\n\n  interface \"DAO\" as DAO {\n    + find(id : int) : T\n    + create(obj : T) : T\n    + update(obj : T) : T\n    + delete(obj : T) : boolean\n  }\n\n  abstract class \"AnswerDao\" as AnswerDao {\n    - OfferDao()\n    + getInstance() : QuestionDao\n    + getAnswersByOfferId(offerid : int) : ArrayList<Answer>\n    + answerExists(id : int) : boolean\n  }\n\n  abstract class \"QuestionDao\" as QuestionDao {\n    - getInstance() : QuestionDao\n    + LazyHolder()\n    + getQuestionsByOfferId(offerid : int) : ArrayList<Question>\n    + questionExists(id : int) : boolean\n    + hasAnAnswer(id : int) : boolean\n  }\n\n  abstract class \"AbstractFactoryDao\" as AbstractFactoryDao {\n    {static} final connectionDb : ConnectionDB\n    {static} + getFactory(typeDB : TypeDB) : AbstractFactoryDao\n    + getAnswerDao() : AnswerDao\n    + getQuestionDao() : QuestionDao\n  }\n\n  class \"AnswerDaoMySQL\" as AnswerDaoMySQL\n  class \"QuestionDaoMySQL\" as QuestionDaoMySQL\n  class \"FactoryDaoMySQL\" as FactoryDaoMySQL\n\n  AnswerDao ..|> DAO\n  QuestionDao ..|> DAO\n\n  AnswerDaoMySQL --|> AnswerDao\n  QuestionDaoMySQL --|> QuestionDao\n\n  FactoryDaoMySQL --|> AbstractFactoryDao\n\n  AbstractFactoryDao --> ConnectionDB\n  AnswerDao --> AbstractFactoryDao\n  QuestionDao --> AbstractFactoryDao\n\n  pkg_business.FAQFacade --> AnswerDao\n  pkg_business.FAQFacade --> QuestionDao\n}\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1203,
+    "completion_tokens": 1500,
+    "total_tokens": 2703,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

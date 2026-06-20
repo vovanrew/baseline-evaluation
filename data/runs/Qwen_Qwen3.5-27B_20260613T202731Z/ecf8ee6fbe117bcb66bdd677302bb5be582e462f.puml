@@ -1,0 +1,107 @@
+```plantuml
+@startuml
+title 解析处理@EnableTransactionManagement注解
+
+participant "ConfigurationClassPostProcessor" as ConfigurationClassPostProcessor
+participant "ConfigurationClassParser" as ConfigurationClassParser
+participant "ComponentScanAnnotationParser" as ComponentScanAnnotationParser
+participant "AdviceModelImportSelector" as AdviceModelImportSelector
+participant "TransactionManagementConfigurationSelector" as TransactionManagementConfigurationSelector
+participant "ConfigurationClass" as ConfigurationClass
+participant "ConfigurationClassBeanDefinitionReader" as ConfigurationClassBeanDefinitionReader
+participant "AutoProxyRegistrar" as AutoProxyRegistrar
+participant "AopConfigUtils" as AopConfigUtils
+
+note over ConfigurationClassPostProcessor, AopConfigUtils: postProcessBeanDefinitionRegistry
+
+activate ConfigurationClassPostProcessor
+activate ConfigurationClassParser
+
+ConfigurationClassPostProcessor -> ConfigurationClassParser : parseAnnotationMetadata metadata, String beanName
+activate ConfigurationClassParser
+ConfigurationClassParser -> ConfigurationClassParser : processConfigurationClass(ConfigurationClass configClass)
+ConfigurationClassParser -> ConfigurationClassParser : doProcessConfigurationClass(ConfigurationClass configClass, SourceClass sourceClass)
+deactivate ConfigurationClassParser
+
+alt [当前被解析的Class被@ComponentScan标注，进行扫描]
+    note right of ConfigurationClassParser: @ComponentScan扫描
+    activate ComponentScanAnnotationParser
+    ConfigurationClassParser -> ComponentScanAnnotationParser : parse(AnnotationAttributes componentScan, final String declaringClass)
+    activate ComponentScanAnnotationParser
+    ComponentScanAnnotationParser -> ComponentScanAnnotationParser : parse(String className, String beanName)
+    deactivate ComponentScanAnnotationParser
+    ComponentScanAnnotationParser -> ConfigurationClassParser : processConfigurationClass(ConfigurationClass configClass)递归解析扫描到的类
+    activate ConfigurationClassParser
+    ConfigurationClassParser -> ConfigurationClassParser : processImports(configClass, sourceClass, getImports(sourceClass), true)
+    deactivate ConfigurationClassParser
+    deactivate ComponentScanAnnotationParser
+else [不进行扫描,处理单个@EnableTransactionManagementimportBean配置类]
+    note right of ConfigurationClassParser: 获取到AutoProxyRegistrar、ProxyTransactionManagementConfiguration
+    activate AdviceModelImportSelector
+    activate TransactionManagementConfigurationSelector
+    ConfigurationClassParser -> AdviceModelImportSelector : selectImports(AnnotationMetadata)
+    activate AdviceModelImportSelector
+    AdviceModelImportSelector -> TransactionManagementConfigurationSelector : selectImports(AdviceMode)
+    activate TransactionManagementConfigurationSelector
+    deactivate TransactionManagementConfigurationSelector
+    deactivate AdviceModelImportSelector
+    deactivate AdviceModelImportSelector
+    deactivate TransactionManagementConfigurationSelector
+    
+    note right of ConfigurationClassParser: 递归处理AutoProxyRegistrar、ProxyTransactionManagementConfiguration\n添加AutoProxyRegistrar、AspectJAutoProxyRegistrar到关联配置类\n（即标记过EnableTransactionManagement的类）\n的ImportBeanDefinitionRegistrars属性中\n按照普通配置类处理ProxyTransactionManagementConfiguration
+    activate ConfigurationClass
+    ConfigurationClassParser -> ConfigurationClass : addImportBeanDefinitionRegistrar
+    activate ConfigurationClass
+    ConfigurationClass -> ConfigurationClassParser : processConfigurationClass
+    deactivate ConfigurationClass
+    deactivate ConfigurationClass
+end
+
+deactivate ConfigurationClassParser
+deactivate ConfigurationClassPostProcessor
+
+note left of ConfigurationClassParser: 解析完配置类
+
+activate ConfigurationClassBeanDefinitionReader
+note left of ConfigurationClassBeanDefinitionReader: 加载配置类的配置信息
+ConfigurationClassParser -> ConfigurationClassBeanDefinitionReader : loadBeanDefinitions
+activate ConfigurationClassBeanDefinitionReader
+
+activate ConfigurationClass
+ConfigurationClassBeanDefinitionReader -> ConfigurationClass : loadBeanDefinitionsForConfigurationClass
+activate ConfigurationClass
+ConfigurationClass -> ConfigurationClassBeanDefinitionReader : registerBeanDefinitionForImportedConfigurationClass
+deactivate ConfigurationClass
+deactivate ConfigurationClassBeanDefinitionReader
+
+note right of ConfigurationClassBeanDefinitionReader: 如果是由配置类导入的，直接注册到beanFactory
+
+activate ConfigurationClass
+note right of ConfigurationClass: 处理ProxyTransactionManagementConfiguration，导入了切面BeanFactoryTransactionAttributeSourceAdvisor
+ConfigurationClass -> ConfigurationClass : loadBeanDefinitionsForBeanMethod
+activate ConfigurationClass
+note right of ConfigurationClass: 加载@Bean标记的注册方法
+ConfigurationClass -> ConfigurationClass : loadBeanDefinitionsFromImportedResources
+activate ConfigurationClass
+note right of ConfigurationClass: 处理@ImportResource
+deactivate ConfigurationClass
+deactivate ConfigurationClass
+
+activate AutoProxyRegistrar
+note right of AutoProxyRegistrar: 处理AutoProxyRegistrar，注册了InfrastructureAdvisorAutoProxyCreator\n处理@import，导入的ImportBeanDefinitionRegistrar类
+ConfigurationClass -> AutoProxyRegistrar : loadBeanDefinitionsFromRegistrars
+activate AutoProxyRegistrar
+AutoProxyRegistrar -> ConfigurationClassBeanDefinitionReader : registerBeanDefinitions
+activate ConfigurationClassBeanDefinitionReader
+deactivate ConfigurationClassBeanDefinitionReader
+deactivate AutoProxyRegistrar
+
+activate AopConfigUtils
+AutoProxyRegistrar -> AopConfigUtils : 注册InfrastructureAdvisorAutoProxyCreator
+activate AopConfigUtils
+AopConfigUtils -> AopConfigUtils : registerAutoProxyCreatorIfNecessary
+deactivate AopConfigUtils
+deactivate AopConfigUtils
+
+@enduml
+```

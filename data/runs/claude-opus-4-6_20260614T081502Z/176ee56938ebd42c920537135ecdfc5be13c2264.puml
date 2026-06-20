@@ -1,0 +1,40 @@
+```plantuml
+@startuml
+
+actor "Пользователь" as User
+participant "СиловойМодуль" as SM
+participant "РелеПитания" as RP
+participant "МодульСетевогоУправления" as MSU
+
+RP <-[#red] MSU : Выключен
+
+User -> SM : Нажатие кнопки
+SM -[#green]> MSU : Включение
+User <-- SM : Светодиод на кнопке моргает
+SM -[#green]> RP : Включение
+
+== Модули производят начальную настройку ==
+
+SM <[#blue]- MSU : {"action": "found_module", "meta":{...}}
+SM -[#blue]> MSU : {"status": "ok"}
+User <-- SM : Светодиод на кнопке включён
+SM <[#green]- RP : Включён
+
+== Нормальная работа робота ==
+
+User -> SM : Нажатие кнопки
+User <-- SM : Светодиод на кнопке моргает
+SM -[#blue]> MSU : {"action": "shutdown"}
+SM <[#green]- MSU : {"timeout": N}
+SM <[#red]- RP : Выключение
+
+== Модули производят процуры по безопасному выключению ==
+
+== Проходит N секунд ==
+
+User <-- SM : Светодиод на кнопке выключен
+SM -[#red]> MSU : Выключение
+SM <[#red]- RP : Выключен
+
+@enduml
+```

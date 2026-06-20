@@ -1,0 +1,63 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle Update States\n\nparticipant Simulator\nbox \"Wayside Controller\" #E2E2E2\nparticipant TrackControllers\nparticipant WaysideController\nparticipant PLC\nparticipant WaysideControllerGUI\nend box\nparticipant TrackModel\n\nactivate Simulator\nSimulator -> TrackControllers : timeUpdate(SimTime)\ndeactivate Simulator\nactivate TrackControllers\n\nloop waysideControllers\n    TrackControllers -> WaysideController : updateStates()\n    activate WaysideController\n\n    loop associatedBlocks\n        WaysideController -> TrackControllers : receiveBlockInfo(line, blockId)\n        TrackControllers -> TrackModel : getBlockInfo(line, blockId)\n        activate TrackModel\n        TrackModel --> TrackControllers : Block\n        deactivate TrackModel\n        TrackControllers --> WaysideController : Block\n\n        WaysideController -> WaysideController : runPLC(occupancy)\n        WaysideController -> PLC : getLogic()\n        activate PLC\n        PLC --> WaysideController : String logic\n        deactivate PLC\n    end\n\n    alt if(newState != currentState)\n        WaysideController -> TrackControllers : transmitState(line, blockId, state)\n        TrackControllers -> TrackModel : setState(line, blockId, state)\n        activate TrackModel\n        TrackModel --> TrackControllers : Success\n        deactivate TrackModel\n    end\n\n    alt if(Wayside Controller Selected)\n        WaysideController -> WaysideControllerGUI : displayInfo()\n        activate WaysideControllerGUI\n        WaysideControllerGUI -> WaysideController : receiveBlockInfo(line, blockId)\n        WaysideController -> TrackControllers : receiveBlockInfo(line, blockId)\n        TrackControllers -> TrackModel : getBlockInfo(line, blockId)\n        activate TrackModel\n        TrackModel --> TrackControllers : Block\n        deactivate TrackModel\n        TrackControllers --> WaysideController : Block\n        WaysideController --> WaysideControllerGUI : Block\n        deactivate WaysideControllerGUI\n    end\n    deactivate WaysideController\nend\n\ndeactivate TrackControllers\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbH4HqH9JprwW5yIEwrE4M0xt1iO/Kx2XReMqYQ4ZoJJ0C85wscdPxfnrSpgdq+"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "citationMetadata": {
+        "citationSources": [
+          {
+            "startIndex": 98,
+            "endIndex": 312,
+            "uri": "https://github.com/kevingilboy/COE1186",
+            "license": ""
+          },
+          {
+            "startIndex": 506,
+            "endIndex": 1006,
+            "uri": "https://github.com/kevingilboy/COE1186",
+            "license": ""
+          },
+          {
+            "startIndex": 1032,
+            "endIndex": 1332,
+            "uri": "https://github.com/kevingilboy/COE1186",
+            "license": ""
+          },
+          {
+            "startIndex": 1342,
+            "endIndex": 1977,
+            "uri": "https://github.com/kevingilboy/COE1186",
+            "license": ""
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1165,
+    "candidatesTokenCount": 444,
+    "totalTokenCount": 1609,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1085
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "Cl8xas-qLbTWvdIP26jt8Q4"
+}

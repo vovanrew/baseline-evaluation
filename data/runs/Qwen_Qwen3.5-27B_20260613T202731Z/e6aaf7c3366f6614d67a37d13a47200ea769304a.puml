@@ -1,0 +1,46 @@
+```plantuml
+@startuml
+autonumber
+
+participant "halon" as halon
+participant "ios1" as ios1
+participant "ios2" as ios2
+participant "client" as client
+
+box "SNS operation start" #LightGray
+  note right of halon: notification [(pool, repair), (disk, repair)]
+  
+  rect "loop [until all ios are ready]" #White
+    halon -> ios2 : repair status request
+    ios2 --> halon : repair status reply
+  end
+  
+  halon -> ios2 : spiel_repair_start
+end
+
+note right of halon: repair process
+
+alt "sucessful case"
+  ios1 -> halon : notify [(pool, repaired), (disk, repaired)]
+  
+  box "SNS status query" #LightGray
+    rect "loop [unil all ios are in IDLE]" #White
+      halon -> ios2 : repair status request
+      ios2 --> halon : repair status reply [IDLE, IDLE]
+    end
+    
+    halon -> client : notify [(pool, REPAIRED), (disk, REPAIRED)]
+  end
+else "partial repair"
+  ios1 -> halon : notify [(pool, repair), (disk, repair)]
+  note right of halon: Abort SNS operation
+else "transient disk"
+  ios1 -> halon : notify [(disk, transient)]
+  note right of halon: Pause SNS operation
+else "failed disk"
+  ios1 -> halon : notify [(disk, failed)]
+  note right of halon: Abort SNS operation
+end
+
+@enduml
+```

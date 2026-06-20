@@ -1,0 +1,43 @@
+@startuml
+
+skinparam packageStyle folder
+skinparam backgroundColor white
+
+package "Documents" #FFD0D0 {
+  interface Document <<interface>>
+  class StringDocument
+  class URLDocument
+  class FileDocument
+
+  StringDocument ..|> Document
+  URLDocument ..|> Document
+  FileDocument ..|> Document
+}
+
+package "Indexes" #D0FFD0 {
+  interface SimilarityIndex <<interface>>
+  class CachingSimilarityIndex
+  class JaacardIndex
+
+  CachingSimilarityIndex ..|> SimilarityIndex
+  JaacardIndex ..|> SimilarityIndex
+}
+
+package "Shingles" #D0D0FF {
+  interface Shinglizer <<interface>>
+  class WordShinglizer
+
+  WordShinglizer ..|> Shinglizer
+}
+
+package "MinHash" #FFD0FF {
+  class HashGenerator
+  class MinHash
+}
+
+Document --> SimilarityIndex
+JaacardIndex o-- Shinglizer
+JaacardIndex *-- HashGenerator
+JaacardIndex --> MinHash
+
+@enduml

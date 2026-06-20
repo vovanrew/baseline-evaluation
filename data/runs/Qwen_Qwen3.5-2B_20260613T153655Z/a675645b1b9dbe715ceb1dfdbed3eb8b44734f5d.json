@@ -1,0 +1,22 @@
+{
+  "id": "43949d33-d5d0-42d6-9e8a-387e6ab435e9",
+  "object": "chat.completion",
+  "created": 1781401992,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"Client\" as Client\nparticipant \"OAuth\" as OAuth\nparticipant \"Login Endpoint\" as LoginEndpoint\nparticipant \"Consent Endpoint\" as ConsentEndpoint\n\nsection Open page\n    Client -> OAuth : Initiate authorize code or implicit flow\n    OAuth -> Client : No user session (not authenticated)\n    Client -> LoginEndpoint : Redirect to login endpoint with <login_challenge>\n    LoginEndpoint -> Client : GET https://<LOGIN_ENDPOINT>/login?login_challenge=7bb518c4eec2454ddb289f5fdb4c0ee2\nend section\n\nsection Login\n    Client -> LoginEndpoint : Input user/password\n    LoginEndpoint -> OAuth : Verify user/password\n    OAuth -> LoginEndpoint : Fetch login request info with <login_challenge>\n    LoginEndpoint -> OAuth : PUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/login/accept?login_challenge=<challenge>\n    LoginEndpoint -> OAuth : {\n        \"acr\": \"string\",\n        \"context\": {},\n        \"force_subject_identifier\": \"string\",\n        \"remember\": true,\n        \"remember_for\": 3600,\n        \"subject\": \"string\"\n    }\n    OAuth -> LoginEndpoint : Accept login\n    LoginEndpoint -> Client : Return redirect url\n    Client -> LoginEndpoint : Redirect\nend section\n\nsection Consent\n    Client -> OAuth : First time that client asks user for permission\n    OAuth -> Client : Redirect with <consent_challenge>\n    Client -> ConsentEndpoint : Fetch consent info\n    ConsentEndpoint -> Client : GET http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent?consent_challenge=<challenge>\n    ConsentEndpoint -> Client : PUT http(s)://<OAUTH_ADMIN_URL>/oauth2/auth/requests/consent/accept?consent_challenge=<challenge>\n    ConsentEndpoint -> Client : {\n        \"grant_scope\": [\"openid\", \"offline_access\"],\n        \"handled_at\": \"2019-08-24T14:15:22Z\",\n        \"session\": {\n            \"access_token\": {\n                \"foo\": \"This field will be available when introspecting the Access Token\"\n            },\n            \"id_token\": {\n                \"bar\": \"This field will be available as a claim in the ID Token\"\n            }\n        }\n    }\n    Client -> OAuth : Accept\n    OAuth -> Client : Return redirect url\n    Client -> Client : Redirect page\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1762,
+    "completion_tokens": 545,
+    "total_tokens": 2307
+  }
+}

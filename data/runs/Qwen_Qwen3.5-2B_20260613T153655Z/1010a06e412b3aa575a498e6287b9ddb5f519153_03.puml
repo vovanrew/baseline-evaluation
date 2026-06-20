@@ -1,0 +1,22 @@
+@startuml
+participant "Player" as Player
+participant ":Board" as Board
+participant "pawn :Pawn" as Pawn
+participant "draught :Draught" as Draught
+participant "oponentPiece :Piece" as OpponentPiece
+
+Player -> Board : Select origin square
+
+alt [origin == pawn]
+    loop [pawn.row + 1 == oponentPiece.row && (pawn.column + 1 == oponentPiece.column || pawn.column - 1 == oponentPiece.column) && there is only one piece between origin and target]
+        Player -> Board : Move pawn to target square
+        Player -> Board : Delete oponentPiece
+    end
+alt [origin == draught]
+    loop [target is in diagonal with draught && there is only one piece between origin and target]
+        Player -> Board : Move draught to target square
+        Player -> Board : Delete oponentPiece
+    end
+end
+
+@enduml

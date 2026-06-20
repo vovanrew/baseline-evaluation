@@ -1,0 +1,25 @@
+```plantuml
+@startuml
+participant "<<Tariff>>\nAgileTariff" as AgileTariff
+participant "Scheduler" as Scheduler
+
+-> AgileTariff : poll()
+activate AgileTariff
+
+alt AgileTariff periods updated
+    AgileTariff -> Scheduler : getNextCheck
+    activate Scheduler
+    Scheduler --> AgileTariff : getNextCheck
+    deactivate Scheduler
+
+    alt earliest new AgileTariff period is before nextCheck
+        AgileTariff -> Scheduler : setNextCheck(now)
+        activate Scheduler
+        Scheduler --> AgileTariff
+        deactivate Scheduler
+    end
+end
+
+deactivate AgileTariff
+@enduml
+```

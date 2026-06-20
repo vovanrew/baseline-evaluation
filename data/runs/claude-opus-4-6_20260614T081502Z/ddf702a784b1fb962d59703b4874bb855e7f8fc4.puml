@@ -1,0 +1,22 @@
+```plantuml
+@startuml
+
+actor User
+
+participant RosterOccupyController
+participant RosterOccupyBiz
+
+User -> RosterOccupyController : 根据申诉时间获取可占用班次
+RosterOccupyController -> RosterOccupyBiz : 获取占用班次
+
+RosterOccupyBiz -> RosterOccupyBiz : 获取临近三天的排班和失败班次
+RosterOccupyBiz -> RosterOccupyBiz : 过滤出与申诉时间有交集的班次
+RosterOccupyBiz -> RosterOccupyBiz : 过滤出已经结束的班次(当前班次已有考勤上、下班记录或已经在下班结束后的2小时之后)
+RosterOccupyBiz -> RosterOccupyBiz : 计算班次的剩余工时
+RosterOccupyBiz -> RosterOccupyBiz : 过滤出剩余工时 >0 的班次
+
+RosterOccupyBiz ..> RosterOccupyController : 返回
+RosterOccupyController ..> User : 返回
+
+@enduml
+```

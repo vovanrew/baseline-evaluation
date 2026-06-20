@@ -1,0 +1,31 @@
+@startuml
+title Subscribe & Save Debugging Classroom Activity
+
+class App {
+  +getAmazonProductService() : AmazonProductService
+  +getIdentityService() : IdentityService
+  +getSubscriptionDAO() : SubscriptionDAO
+  +getFileStorage() : FileStorage
+}
+
+interface IFileStorage {
+    get(id) 
+    write(data): id
+}
+
+abstract class AbstractDao<T> {
+   -filestorage: IFileStorage
+   
+   create(entity:T): T
+   getById(id:String):T   
+}
+
+
+App --> "1" *-- "*" SubscriptionDAO  
+AbstractDao <|-- SubscriptionDAO 
+
+note right of SubscriptonDebugUtil::main(String[] args)\nvoid\n{...}\nThe main method creates an instance \nof the subscription service.\nIt then calls subscribe on this object,\npassing in some test data for customerId, ASIN and frequency.
+SubcriptioinDebugUtil ..* SubscriptionService 
+
+
+@enduml

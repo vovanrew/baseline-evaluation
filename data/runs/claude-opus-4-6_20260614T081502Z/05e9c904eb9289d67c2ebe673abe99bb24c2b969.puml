@@ -1,0 +1,31 @@
+@startuml
+
+participant Cache
+participant DiskLruCache
+participant JournalFile
+participant "DiskLruCache.Entry" as DLE
+participant LinkedHashMap
+participant Snapshot
+participant "Cache.Entry" as CE
+participant Response
+participant CacheResponseBody
+
+Cache -> DiskLruCache : get()
+DiskLruCache -> DiskLruCache : initialize
+DiskLruCache -> JournalFile : read
+JournalFile --> DiskLruCache
+DiskLruCache -> DLE : put()
+
+Cache -> LinkedHashMap : get()
+LinkedHashMap --> Cache
+
+Cache -> Snapshot
+Snapshot --> Cache
+
+Cache -> CE : response()
+
+CE -> Response
+Response -> CacheResponseBody
+CacheResponseBody --> Cache
+
+@enduml

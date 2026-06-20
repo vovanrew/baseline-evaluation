@@ -1,0 +1,45 @@
+@startuml
+title SnapHelper
+
+skinparam backgroundColor white
+skinparam sequence {
+  ParticipantPadding 30
+  BoxPadding 20
+  LifeLineBorderColor #666666
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor transparent
+  MessageAlignment left
+  ArrowColor #222222
+  ActorBorderColor #666666
+  ActorBackgroundColor #f6b6c1
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #e9e9f6
+}
+
+actor snap as Snap
+
+box "SnapHelper" #bfe3ee
+participant "OnFlingListener" as OFL
+participant "OnScrollListener" as OSL
+participant "SnapHelper" as SH
+participant "LinearSmoothScroller" as LSS
+end box
+
+activate Snap
+
+OFL -> OFL : onFling
+OFL -> SH : snapFromFling
+SH -> Snap : findTargetSnapPosition
+
+SH -> LSS : createSnapScroller
+LSS --> SH : onTargetFound
+
+SH -> Snap : calculateDistanceToFinalSnap
+
+OSL -> OSL : onScrollStateChanged
+OSL -> SH : snapToTargetExistingView
+SH -> Snap : findSnapView
+SH -> Snap : calculateDistanceToFinalSnap
+
+deactivate Snap
+@enduml

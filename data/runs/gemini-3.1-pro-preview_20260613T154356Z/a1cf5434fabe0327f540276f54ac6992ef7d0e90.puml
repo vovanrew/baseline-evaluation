@@ -1,0 +1,39 @@
+```plantuml
+@startuml
+participant Agent
+participant VirtualCoffeeMachine
+participant TestThing
+
+[-> Agent: top:wait()
+activate Agent
+
+group strict
+  group par
+    Agent -> VirtualCoffeeMachine: subscribeEvent: "maintenance"
+    activate VirtualCoffeeMachine
+    VirtualCoffeeMachine --> Agent: confirmation
+    VirtualCoffeeMachine -> Agent: data-pushed
+  end
+  group par
+    Agent -> TestThing: writeProperty: "string"
+  end
+end
+
+... wait 500ms ...
+
+group strict
+  group par
+    Agent -> VirtualCoffeeMachine: readProperty: "state"
+    activate VirtualCoffeeMachine
+    VirtualCoffeeMachine --> Agent: response
+    deactivate VirtualCoffeeMachine
+  end
+  group par
+    Agent -> TestThing: writeProperty: "string"
+  end
+end
+
+[<- Agent
+deactivate Agent
+@enduml
+```

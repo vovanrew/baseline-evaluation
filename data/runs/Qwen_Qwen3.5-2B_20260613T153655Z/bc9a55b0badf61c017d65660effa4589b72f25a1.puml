@@ -1,0 +1,54 @@
+@startuml
+title Secure Map Reduce 2 - Shuffle Service Token Flow
+
+participant "Client (c)" as c
+participant "ResourceManager (rm)" as rm
+participant "Node Manager (nm)" as nm
+participant "Shuffle Handler (ss)" as ss
+participant "Application Master (am)" as am
+participant "Application Container (ac)" as ac
+participant "Task (t)" as t
+participant "File System (fs)" as fs
+
+section "Bootstrap"
+    rm -- nm : Bootstrap
+endsection
+
+section "Job Definition"
+    c -- rm : Job Definition
+    c -- rm : createJob [...] () : job-id
+    c -- rm : createShuffleToken ( shfl-tkn-mk ) : shfl-tkn
+    c -- rm : serializeTokens ( shfl-tkn, ...) : c-tokens{shfl-tkn,...}
+endsection
+
+section "Job Submission"
+    c -- rm : Job Submission
+    c -- rm : submitApplication [...] (job-id, c-tokens{shfl-tkn}, ...) : app-rpt{clnt-tkn}
+endsection
+
+section "Job Initiation"
+    rm -- nm : Job Initiation
+    rm -- am : startContainer [...] ( c-tokens{shfl-tkn},svc-tokens{shfl-tkn}, ...)
+    am -- ss : initApp ( job-id, shfl-tkn )
+    am -- ac : exec
+    nm -- ac : startContainer [...] ( svc-tokens{shfl-tkn}, ...)
+    ac -- t : exec
+endsection
+
+section "Map Task Execution"
+    ac -- fs : Map Task Execution
+    ac -- fs : 11 writeShuffleData[]:
+endsection
+
+section "Reduce Task Execution"
+    ac -- fs : Reduce Task Execution
+    ac -- fs : 12 readShuffleData [SDT:shfl-tkn] (...): shfl-data
+    ac -- fs : 13 readShuffleData
+    ac -- fs : 14 shfl-data
+endsection
+
+section "Job Completion"
+    c -- rm : Job Completion
+endsection
+
+@enduml

@@ -1,0 +1,21 @@
+{
+  "id": "msg_016QZQ5q63e7P19thRqAgis9",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"NavBar\" as NavBar\nparticipant \"ReduxStore\" as ReduxStore\nparticipant \"UserActions\" as UserActions\nparticipant \"UserReducer\" as UserReducer\nparticipant \"ProfileMiddleware\" as ProfileMiddleware\nparticipant \"Solid.js\" as SolidJS\ndatabase \"POD\" as POD\n\nNavBar -> NavBar : loadEmailRequest()\nNavBar -> ReduxStore : dispatch(loadEmailRequest())\nReduxStore -> UserActions : loadEmailRequest()\ndestroy UserActions\nUserActions -> ProfileMiddleware : loadEmailRequest()\nProfileMiddleware -> SolidJS : getEmail()\nUserActions -> UserReducer : loadEmailRequest()\ndestroy UserReducer\nUserReducer --> ReduxStore : state\n\nSolidJS -> SolidJS : getEmail()\nSolidJS --> SolidJS : email\ndestroy SolidJS\n\nalt [email successfully loaded]\n    ProfileMiddleware <-- SolidJS : email\n    destroy SolidJS\n    ReduxStore <- ProfileMiddleware : dispatch(loadEmailSuccess(email))\n    ReduxStore -> UserActions : loadEmailSuccess(email)\n    destroy UserActions\n    UserActions -> UserReducer : updateState(email)\n    UserReducer --> UserReducer : updateState(email)\n    ReduxStore <-- UserReducer : updated state with email\n    destroy UserReducer\n\nelse [error at loading email]\n    ProfileMiddleware <-- SolidJS : error\n    destroy SolidJS\n    ReduxStore <- ProfileMiddleware : dispatch(loadEmailError(error))\n    ReduxStore -> UserActions : loadEmailError(error)\n    destroy UserActions\n    UserActions -> UserReducer : updateState(error)\n    UserReducer --> UserReducer : updateState(error)\n    ReduxStore <-- UserReducer : updated state\n    destroy UserReducer\nend\n\ndestroy ProfileMiddleware\n\nNavBar <-- ReduxStore : state\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371255,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 456,
+    "prompt_tokens": 1656,
+    "total_tokens": 2112
+  }
+}

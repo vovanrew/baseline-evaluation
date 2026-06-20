@@ -1,0 +1,89 @@
+@startuml
+package "external library" as ExternalLibraries {
+    Interface HttpHandler
+}
+
+package "Interface" as Interface {
+    interface PolicyModelHttpHandler {
+        splitQuery(String query): Map<String, String>
+        getRequestBody(HttpExchange httpExchange): String
+        handleHttpExchange(httpExchange): Map<String, String>
+        getRequestParams(HttpExchange httpExchange): Map<String, String>
+        handleGetRequest(Map<String, String> params): String
+        handlePostRequest(String body): Pair<Integer, String>
+    }
+}
+
+package "PolicyModelHttpHandler" as PolicyModelHttpHandler {
+    abstract PolicyModelHttpHandler {
+        splitQuery(String query): Map<String, String>
+        getRequestBody(HttpExchange httpExchange): String
+        handleHttpExchange(httpExchange): Map<String, String>
+        getRequestParams(HttpExchange httpExchange): Map<String, String>
+        handleGetRequest(Map<String, String> params): String
+        handlePostRequest(String body): Pair<Integer, String>
+    }
+}
+
+package "LoadModelHandler" as LoadModelHandler {
+    LoadModelHandler {
+        handleGetRequest(Map<String, String> params): String
+        handlePostRequest(String body): Pair<Integer, String>
+    }
+}
+
+package "CreateNewLocalizationhandler" as CreateNewLocalizationhandler {
+    CreateNewLocalizationhandler {
+        handleGetRequest(Map<String, String> params): String
+        handlePostRequest(String body): Pair<Integer, String>
+    }
+}
+
+package "UpdateLocalizationHandler" as UpdateLocalizationHandler {
+    UpdateLocalizationHandler {
+        handleGetRequest(Map<String, String> params): String
+        handlePostRequest(String body): Pair<Integer, String>
+    }
+}
+
+package "VisualizePShandler" as VisualizePShandler {
+    VisualizePShandler {
+        handleGetRequest(Map<String, String> params): String
+        handlePostRequest(String body): Pair<Integer, String>
+    }
+}
+
+package "VisualizeDGHandler" as VisualizeDGHandler {
+    VisualizeDGHandler {
+        handleGetRequest(Map<String, String> params): String
+        handlePostRequest(String body): Pair<Integer, String>
+    }
+}
+
+package "NewModelHandler" as NewModelHandler {
+    NewModelHandler {
+        handleGetRequest(Map<String, String> params): String
+        handlePostRequest(String body): Pair<Integer, String>
+    }
+}
+
+package "PolicyModelService" as PolicyModelService {
+    PolicyModelService {
+        uses LoadModelHandler
+        uses CreateNewLocalizationhandler
+        uses UpdateLocalizationHandler
+        uses VisualizePShandler
+        uses VisualizeDGHandler
+        uses NewModelHandler
+    }
+}
+
+ExternalLibraries -->> PolicyModelHttpHandler
+PolicyModelHttpHandler -->> ExternalLibraries
+PolicyModelService -->> LoadModelHandler
+PolicyModelService -->> CreateNewLocalizationhandler
+PolicyModelService -->> UpdateLocalizationHandler
+PolicyModelService -->> VisualizePShandler
+PolicyModelService -->> VisualizeDGHandler
+PolicyModelService -->> NewModelHandler
+@enduml

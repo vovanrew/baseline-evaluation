@@ -1,0 +1,21 @@
+{
+  "id": "msg_01TjXyxDH4iJXfL8A3XdcNzk",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nactor User\nparticipant Frontend\nbox \"Clerk\" #LightCyan\nparticipant ReservationService\nparticipant TicketRepository\nend box\nparticipant EventBus\nbox \"TicketMaster\" #LightCyan\nparticipant TicketMasterService\nparticipant TicketMasterRepository\nend box\nparticipant OrderManager\ndatabase DB\n\nUser -> Frontend : reserve button\n\nnote left of Frontend\nPOST /reservations\n{\n  tickets: [\n    {\n      programId: 1,\n      sectorId: 1,\n      seatId: 5\n    },\n    {\n      programId: 1,\n      sectorId: 1,\n      seatId: 6\n    }\n  ]\n}\nend note\n\nFrontend -> ReservationService : POST /reservations\n\nReservationService -> TicketRepository : validate tickets\n\nalt [invalid]\nReservationService <-- TicketRepository\nFrontend <-- ReservationService : ReservationRejected: code, reason\nelse [valid]\n\nnote left of ReservationService #LightYellow\nCreateReservation {\n  reservation: {\n    reservationId: \"abc123\"\n    tickets: [\n      {\n        programId: 1,\n        sectorId: 1,\n        seatId: 5\n      },\n      {\n        programId: 1,\n        sectorId: 1,\n        seatId: 6\n      }\n    ]\n  }\n}\nend note\n\nReservationService <.. TicketRepository : createReservationCommand\n\nReservationService -> EventBus : publish CreateReservation\n\nFrontend <-- ReservationService : ReservationAccepted: reservationId\n\nend\n\nEventBus -> TicketMasterService : handle CreateReservation\n\nTicketMasterService -> TicketMasterRepository : check if all tickets are FREE\n\nalt [ticket status = FREE]\nTicketMasterService <-- TicketMasterRepository : set status of tickets to RESERVED\nTicketMasterService -> EventBus : publish ReservationAccepted\nelse [ticket status != FREE]\nTicketMasterService -> EventBus : publish ReservationRejected\nend\n\nEventBus -> ReservationService : handle ReservationEvent\n\nalt [ReservationAccepted]\nReservationService ..> TicketRepository : set status of tickets to RESERVED\nelse [ReservationRejected]\nReservationService ..> TicketRepository : Noop\nend\n\nReservationService -> Frontend : publish ReservationEvent on websocket\n\nalt [ReservationAccepted]\nFrontend -> User : redirect user to Order page\nelse [ReservationRejected]\nFrontend -> User : show error msg\nend\n\nEventBus -> OrderManager : handle ReservationAccepted\nOrderManager -> DB : save ReservedTicket object for each ticket\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781431632,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 688,
+    "prompt_tokens": 1644,
+    "total_tokens": 2332
+  }
+}

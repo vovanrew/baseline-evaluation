@@ -1,0 +1,27 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+participant "«Tariff»\nAgileTariff" as AgileTariff
+participant Scheduler
+
+activate AgileTariff
+AgileTariff <- poll()
+
+alt AgileTariff periods updated
+    activate Scheduler
+    AgileTariff -> Scheduler : getNextCheck
+    Scheduler --> AgileTariff : getNextCheck
+    deactivate Scheduler
+    
+    alt earliest new AgileTariff period is before nextCheck
+        activate Scheduler
+        AgileTariff -> Scheduler : setNextCheck(now)
+        Scheduler --> AgileTariff
+        deactivate Scheduler
+    end
+end
+
+deactivate AgileTariff
+@enduml
+```

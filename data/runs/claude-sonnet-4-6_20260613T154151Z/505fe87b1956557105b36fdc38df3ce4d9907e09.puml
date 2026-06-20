@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+actor Freelancer
+
+participant ":AlterarCandidaturaUI" as UI
+participant ":RegistarCandidaturaController" as Controller
+participant ":Plataforma" as Plataforma
+participant ":UsersAPI" as UsersAPI
+participant "cand:\nCandidatura" as Candidatura
+database "RepositorioFreelancer" as RepoFreelancer
+database "RepositorioCandidatura" as RepoCandidatura
+
+Freelancer -> UI : 1 inicia alterar candidatura
+UI -> Controller : 2 getFreelancerByEmail()
+Controller -> Plataforma : 3 email = getSessionEmail
+Plataforma -> UsersAPI : 4 email = getEmail()
+activate UsersAPI
+deactivate UsersAPI
+Controller -> RepoFreelancer : 5 free = find(email)
+activate RepoFreelancer
+deactivate RepoFreelancer
+
+UI -> Controller : 6 lcand = getCandidaturasDispByFreelancerEmail()
+Controller -> RepoCandidatura : 7 lcand = getAllCandidaturasByFreelancerEmail(email)
+activate RepoCandidatura
+deactivate RepoCandidatura
+
+UI --> Freelancer : 8 solicita a escolha de uma das candidaturas por\n   si efetuadas e, ainda, em período de candidaturas
+Freelancer -> UI : 9 escolhe a candidatura
+
+UI -> Controller : 10 cand = getCandById()
+Controller -> RepoCandidatura : 11 cand = find(id)
+activate RepoCandidatura
+deactivate RepoCandidatura
+
+UI --> Freelancer : 12 solicita a introdução de novos dados\n    (i.e. os que pretende alterar, mantendo os restantes iguais)
+Freelancer -> UI : 13 introduz os dados solicitados\n(valor,nrDias,txtApresentacao,txtMotivacao)
+
+UI -> Controller : 14 alterarCandidatura(valor,nrDias,txtApresentacao,txtMotivacao)
+Controller -> RepoCandidatura : 15 update(cand)
+activate RepoCandidatura
+deactivate RepoCandidatura
+
+UI --> Freelancer : 16 valida e apresenta os dados ao Freelancer e pede a sua confirmação
+
+@enduml
+```

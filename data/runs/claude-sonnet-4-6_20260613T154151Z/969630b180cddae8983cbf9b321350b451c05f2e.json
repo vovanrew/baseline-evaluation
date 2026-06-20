@@ -1,0 +1,21 @@
+{
+  "id": "msg_017GuhVxb7sHwYYDX5Cc7QHs",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Skava Integration - Order Replaced Completed\n\nbox \"Skava AWS\" #LightGray\nparticipant \"Skava Event\\nOrchestration\" as SEO\nend box\n\nbox \"Kafka\" #LightCyan\nparticipant \"Topics\" as Topics\nend box\n\nbox \"YL Services\" #LightBlue\nparticipant \"Order Sync Service\" as OSS\nend box\n\ndatabase \"Legacy DB\" as LegacyDB\n\nSEO -> Topics : 1 Produce OrderReplacedCompleted Message\n\nnote over Topics, OSS : **Async**\n\nTopics -> OSS : 2 Consume OrderReplacedCompleted Message\nOSS -> LegacyDB : 3 Update order status in legacy db\nLegacyDB --> OSS : 4 Response/Order ID\nOSS -> Topics : 5 Produce OrderReplacedCompletedProcessed Message\n\nnote over Topics, OSS : **Async**\n\nTopics -> SEO : 6 Consume OrderReplacedCompletedProcessed Message\n\nbox \"Skava AWS\" #LightGray\nparticipant \"Skava Event\\nOrchestration\" as SEO2\nend box\n\nbox \"Kafka\" #LightCyan\nparticipant \"Topics\" as Topics2\nend box\n\nbox \"YL Services\" #LightBlue\nparticipant \"Order Sync Service\" as OSS2\nend box\n\ndatabase \"Legacy DB\" as LegacyDB2\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370286,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 350,
+    "prompt_tokens": 1608,
+    "total_tokens": 1958
+  }
+}

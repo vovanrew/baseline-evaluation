@@ -1,0 +1,35 @@
+@startuml
+left to right direction
+autonumber
+
+participant "SalesClerk" as SalesClerk
+participant "ChangeOrderToBeingDeliveredUI" as ChangeOrderToBeingDeliveredUI
+participant "ChangeOrderToBeingDeliveredController" as ChangeOrderToBeingDeliveredController
+participant "ChangeAllToBeingDeliveredService" as ChangeAllToBeingDeliveredService
+participant "OrderRepository" as OrderRepository
+participant "ChangeToBeingDeliveredService" as ChangeToBeingDeliveredService
+
+SalesClerk -> ChangeOrderToBeingDeliveredUI : 1 Update the status of dispatched orders to "Being delivered" for customer delivery.
+ChangeOrderToBeingDeliveredUI -> ChangeOrderToBeingDeliveredController : 2 orderDispatched()
+ChangeOrderToBeingDeliveredController ..> ChangeAllToBeingDeliveredService : 3 orderDispatched()
+ChangeAllToBeingDeliveredService ..> OrderRepository : 4 orderDispatched()
+OrderRepository ..> ChangeAllToBeingDeliveredService : 5 ordersDispatched
+ChangeAllToBeingDeliveredService ..> ChangeOrderToBeingDeliveredUI : 6 Shows all the orders that are dispatched.
+ChangeOrderToBeingDeliveredUI ..> SalesClerk : 7 Asks to choose one of the orders
+SalesClerk ..> ChangeOrderToBeingDeliveredUI : 8 Selects the order he wants to change status
+ChangeOrderToBeingDeliveredUI -> ChangeOrderToBeingDeliveredController : 9 changeToBeingDelivered(order)
+ChangeOrderToBeingDeliveredController ..> ChangeToBeingDeliveredService : 10 changeToBeingDelivered(order)
+ChangeToBeingDeliveredService ..> OrderRepository : 11 changeToBeingDelivered(order)
+OrderRepository ..> ChangeToBeingDeliveredService : 12 Successful change
+ChangeToBeingDeliveredService ..> ChangeOrderToBeingDeliveredController : 12 Successful change
+ChangeOrderToBeingDeliveredController ..> ChangeOrderToBeingDeliveredUI : 12 Successful change
+ChangeOrderToBeingDeliveredUI ..> SalesClerk : 13 Informs that is changed
+
+SalesClerk
+ChangeOrderToBeingDeliveredUI
+ChangeOrderToBeingDeliveredController
+ChangeAllToBeingDeliveredService
+OrderRepository
+ChangeToBeingDeliveredService
+
+@enduml

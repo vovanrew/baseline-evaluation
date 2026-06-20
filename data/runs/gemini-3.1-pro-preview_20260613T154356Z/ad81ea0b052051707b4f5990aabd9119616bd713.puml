@@ -1,0 +1,28 @@
+```plantuml
+@startuml
+participant TaskExecutionStrategy #GreenYellow
+participant Action #GreenYellow
+participant Connection #E6E6FA
+boundary "SSH client/server connection" as SSH_conn
+control "ssh daemon (or winrm service)" as ssh_daemon
+
+TaskExecutionStrategy -> Action : init(..)
+TaskExecutionStrategy -> Action : init(..)
+TaskExecutionStrategy -> Action : run()
+Action -> Connection : put_file()
+Connection -> SSH_conn : transfer module data
+SSH_conn -> ssh_daemon
+ssh_daemon -> ssh_daemon : save module to disk
+ssh_daemon --> SSH_conn
+SSH_conn --> Connection : transfer complete
+Connection --> Action : return remote path
+Action -> Connection : exec_command()
+Connection -> SSH_conn : run module remotely
+SSH_conn -> ssh_daemon
+ssh_daemon -> ssh_daemon : execute shell command
+ssh_daemon --> SSH_conn
+SSH_conn --> Connection : return response code, stdout, stderr
+Connection --> Action : return response code, stdout, stderr
+Action --> TaskExecutionStrategy : return JSON
+@enduml
+```

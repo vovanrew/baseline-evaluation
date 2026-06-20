@@ -1,0 +1,21 @@
+{
+  "id": "msg_01K4v1fY8yCcVKsgS1TzG95D",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\npackage \"security\" {\n    package \"auth\" {\n        class \"@Roles\" as Roles\n        class \"type Role = 'ADMIN' | 'MITARBEITER' | 'KUNDE'\" as Role\n        Roles --> Role\n    }\n}\n\npackage \"auto\" {\n    package \"entity\" {\n        class Auto <<entity>> {\n        }\n    }\n\n    package \"rest\" {\n        class AutoWriteController <<control>> <<@Controller()>> <<@UseGuards()>> <<@UseInterceptors()>> {\n            + @Post() @Roles() async create(@Body() auto: Auto, @Req() req: Request,  @Res() res: Response): Promise<Response>\n            + @Put() @Roles() async update(@Body() auto: Auto, @Param() id: string, @Headers() version: string, @Res() res: Response): Promise<Response>\n            + @Delete() @Roles() async delete(@Param() id: string, @Res() res: Response): Promise<Response>\n        }\n    }\n\n    package \"service\" {\n        class AutoWriteService <<control>> {\n        }\n        class AutoReadService <<control>> {\n        }\n    }\n}\n\npackage \"express\" {\n    class Request {\n    }\n    class Response {\n    }\n}\n\ninterface Promise {\n}\n\npackage \"@nestjs/common\" {\n    class \"@Controller\" as NController\n    class \"@UseGuards\" as NUseGuards\n    class \"@UseInterceptors\" as NUseInterceptors\n    class \"@Post\" as NPost\n    class \"@Put\" as NPut\n    class \"@Delete\" as NDelete\n    class \"@Req\" as NReq\n    class \"@Res\" as NRes\n    class \"@Param\" as NParam\n    class \"@Body\" as NBody\n    class \"@Headers\" as NHeaders\n}\n\nAutoWriteController \"1\" o-- \"1\" AutoWriteService : service\nAutoWriteController \"1\" o-- \"1\" AutoReadService : readService\n\nAutoWriteController ..> Auto\nAutoWriteController ..> Roles\nAutoWriteController ..> Role\nAutoWriteController ..> Request\nAutoWriteController ..> Response\nAutoWriteController ..> Promise\n\nAutoWriteService ..> Auto\nAutoWriteService ..> Promise\nAutoReadService ..> Auto\nAutoReadService ..> Promise\n\nAutoWriteController ..> NController\nAutoWriteController ..> NUseGuards\nAutoWriteController ..> NUseInterceptors\nAutoWriteController ..> NPost\nAutoWriteController ..> NPut\nAutoWriteController ..> NDelete\nAutoWriteController ..> NReq\nAutoWriteController ..> NRes\nAutoWriteController ..> NParam\nAutoWriteController ..> NBody\nAutoWriteController ..> NHeaders\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781427451,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 689,
+    "prompt_tokens": 1644,
+    "total_tokens": 2333
+  }
+}

@@ -1,0 +1,47 @@
+@startuml
+package UI {
+  LoginUI
+}
+
+package Controller {
+  interface LoginUI {
+    login(email, password)
+  }
+  class LoginController {
+    +login(email, password)
+  }
+  class ApplicationPOT {
+    +static getInstance()
+    +clearCurrentSession()
+  }
+}
+
+package Model {
+  interface UserService {
+    UserService()
+    newUserSession()
+  }
+  class UserService {
+    +UserService()
+    +newUserSession()
+  }
+  class UserSession {
+    -String email
+    +UserSession()
+  }
+  class User {
+    -Integer id
+    -String email
+    -String password
+    -Integer nif
+    -String name
+    +User(email, password, nif, name)
+  }
+}
+
+UI -- LoginController : has
+LoginController -- ApplicationPOT : has
+ApplicationPOT -- UserSession : has
+UserService -- UserSession : creates
+UserSession -- User : allocates
+@enduml

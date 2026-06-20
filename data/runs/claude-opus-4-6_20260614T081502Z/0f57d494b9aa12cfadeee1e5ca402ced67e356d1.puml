@@ -1,0 +1,55 @@
+```plantuml
+@startuml
+title Find all a vaccination documents in EPD
+
+actor HCP
+
+box "Community A"
+participant "GFPP/PIS" as GFPP #00CC00
+participant "Aggregator" as Agg #00CC00
+participant "CO-Registry" as COReg #gray
+participant "CO-Repository" as CORepo #gray
+participant "CO-IGW" as COIGW #00CC00
+end box
+
+box "Community X"
+participant "OC-RGW" as OCRGW #cyan
+participant "OC-Registry" as OCReg #cyan
+participant "OC-Repository" as OCRepo #cyan
+end box
+
+HCP -> GFPP : [01] Get all immunization data
+GFPP -> Agg : [02] query all registries
+Agg -> COIGW : [03] Registry Stored Query Request [ITI-18]
+COIGW -> COReg : [04] Registry Stored Query Request [ITI-18]
+COReg -> COReg : [05] Lookup Data
+COReg -> COIGW : [06] Registry Stored Query Response [ITI-18]
+COIGW -> COIGW : [07] request all communities
+COIGW -> OCRGW : [08] Registry Stored Query Request [ITI-38]
+OCRGW -> OCReg : [09] Registry Stored Query Request [ITI-18]
+OCReg -> OCReg : [10] Lookup Data
+OCReg -> OCRGW : [11] Registry Stored Query Response [ITI-18]
+OCRGW -> COIGW : [12] Registry Stored Query Response [ITI-38]
+COIGW -> COIGW : [13] end loop
+COIGW -> COIGW : [14] Assemble Query Responses
+COIGW -> Agg : [15] Registry Stored Query Response [ITI-18]
+Agg -> GFPP : [16] list of document info
+GFPP -> GFPP : [17] retrieve all documents
+GFPP -> COIGW : [18] Retrieve Document Request [ITI-43]
+COIGW -> CORepo : [19] Retrieve Document Request [ITI-43]
+CORepo -> CORepo : [20] allocate document data
+CORepo -> COIGW : [21] Retrieve Document Response [ITI-43]
+COIGW -> OCRGW : [22] Retrieve Document Request [ITI-39]
+OCRGW -> OCRepo : [23] Retrieve Document Request [ITI-43]
+OCRepo -> OCRepo : [24] allocate document data
+OCRepo -> OCRGW : [25] Retrieve Document Response [ITI-43]
+OCRGW -> COIGW : [26] Retrieve Document Response [ITI-39]
+COIGW -> COIGW : [27] Assemble Retrieve Responses
+COIGW -> GFPP : [28] Retrieve Document Response [ITI-43]
+GFPP -> Agg : [29] Aggregate documents
+Agg -> GFPP : [30] one FHIR ch-vacd document
+GFPP -> HCP : [31] Show immunization data
+
+center footer Version 1.0
+@enduml
+```

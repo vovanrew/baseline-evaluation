@@ -1,0 +1,22 @@
+{
+  "id": "84632fc7-04e4-4703-817d-c1f2dc227697",
+  "object": "chat.completion",
+  "created": 1781410063,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Sequence diagram for the whole CCX (external) data pipeline\n\npackage \"Insights operator\" as insights {\n  participant \"Control logic\" as control_logic\n  participant \"IO memory cache\" as io_cache\n}\n\nparticipant \"Smart Proxy\" as smart_proxy\nparticipant \"3Scale\" as three_scale\nparticipant \"CRD\" as crd\nparticipant \"OCP WebConsole\" as ocp_webconsole\n\nactivate insights\n\nnote over insights: Pulling data from Smart Proxy\n\ncontrol_logic -> three_scale: Get recommendations\\norg ID\\ncluster ID\nthree_scale -> smart_proxy: Get recommendations\\norg ID\\ncluster ID\nsmart_proxy --> three_scale: Recommendations for cluster\nthree_scale --> insights: Recommendations for cluster\n\nactivate insights\nnote over insights: Exposing recommendations\n\ncontrol_logic -> io_cache: Store recommendations\nio_cache --> crd: Expose recommendations\n\nactivate insights\nnote over insights: Pulling from OCP WebConsole\n\ncrd --> ocp_webconsole: Read recommendations\nocp_webconsole --> crd: Here are required data\n\ndeactivate insights\n\ndeactivate insights\n\nnote right of insights: Copyright \u00a9 2020 Red Hat, Inc. Author: Pavel Tisnovsky\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2399,
+    "completion_tokens": 259,
+    "total_tokens": 2658
+  }
+}

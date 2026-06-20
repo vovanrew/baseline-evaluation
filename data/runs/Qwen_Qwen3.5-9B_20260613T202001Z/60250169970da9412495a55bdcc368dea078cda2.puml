@@ -1,0 +1,25 @@
+@startuml
+left to right direction
+actor "Developer" as dev
+participant "Vercel Build Machine" as build
+participant "CMS" as cms
+participant "Vercel Production Machine" as prod
+
+dev -> build : Git push
+build -> build : Compile
+activate build
+
+frame "Collecting page data" as frame
+  build -> cms : Fetch content data
+  cms -> build : Return content data
+end frame
+
+build -> build : Generate static pages
+build -> prod : Upload build output
+activate prod
+prod -> prod : Deploy
+deactivate prod
+
+deactivate build
+
+@enduml

@@ -1,0 +1,56 @@
+@startuml
+skinparam backgroundColor #F6F2E6
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #2F6F8F
+  ParticipantBackgroundColor #8FD0F0
+  ActorBorderColor #2F6F8F
+  ActorBackgroundColor #8FD0F0
+  BoxBorderColor #000000
+  BoxBackgroundColor transparent
+}
+
+actor "任务开始 nsq 消息" as A
+
+participant "GuideTaskStartListener" as L
+participant "GuideTaskStartProcessor" as P
+participant "GuideTaskStartDomainService" as D
+participant "GuideTaskStartStrategy" as S
+participant "ShoppingGuideReadApi" as R
+participant "GuideTaskRepository" as GR
+participant "GuideTaskDataRepository" as GDR
+
+A -> L : 1 监听任务开始消息
+activate L
+
+L -> P : 2 开始处理
+activate P
+
+P -> GR : 3 查询任务
+
+P -> D : 4 开始任务
+activate D
+
+D -> S : 5 构建任务
+activate S
+
+S -> R : 6 根据部门查询导购
+activate R
+
+S -> R : 7 根据导购进行任务分配
+R --> S
+deactivate R
+
+group Transaction
+  D -> GDR : 8 保存分配给导购的任务
+  D -> GR : 9 status flow 任务状态流转至 已启动
+  D -> GDR : 10 任务流转为执行中
+end
+
+deactivate S
+deactivate D
+deactivate P
+deactivate L
+@enduml

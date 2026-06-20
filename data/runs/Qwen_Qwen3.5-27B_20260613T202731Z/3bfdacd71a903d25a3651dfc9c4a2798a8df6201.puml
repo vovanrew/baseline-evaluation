@@ -1,0 +1,196 @@
+```plantuml
+@startuml
+' version: 1.20240523
+' Skyscraper theme
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+
+package "javafx" {
+    class Application <<A>> {
+        + start(stage : Stage)
+    }
+}
+
+package "util" {
+    class Observable <<C, Subject>> {
+        + addObserver(Observer o)
+        + deleteObserver(Observer o)
+        + notifyObservers()
+        + notifyObservers(arg: Object)
+        + setChanged()
+    }
+    
+    interface Observer <<I>> {
+        + update(obs : java.util.Observable, arg: Object)
+    }
+}
+
+class Main <<C>> {
+    + main (args : String[])
+}
+
+class App <<C>> {
+    + main (args : String[])
+    + start(stage : Stage)
+}
+
+interface Authenticable <<I>> {
+    + login(user: String, pass: String) : boolean
+}
+
+class Session <<Director>> {
+    + login (user: String, pass: String) : boolean
+    + downloadFolder() : boolean
+    + resetFolder() : boolean
+    + getCurrentFolder(): Folder
+    + getVisits(): Set<Visit>
+    + getAntecedents(): Set<Antecedent>
+    + getDoctor(): Doctor
+    + construct(): createNewVisit(treatment: String, diagnostic: String , ...)
+}
+
+class User <<C>> {
+    - username : String
+    - password : String
+}
+
+class VisitBuilder <<ConcreteBuilder>> {
+    + buildPart() setTreatment(designation : String)
+    + buildPart() setTreatment(designation : String)
+    + result() build(): Visit
+}
+
+class Visit <<Product>> {
+    - date : Date
+    - summary : String
+    - notes : String
+}
+
+class Treatment <<ProductPart>> {
+    - designation : String
+}
+
+class Diagnostic <<ProductPart>> {
+    - designation : String
+}
+
+class Antecedent <<C>> {
+    - beginning : Date
+    - end : Date
+}
+
+class Folder <<Prototype, ConcreteObserver>> {
+    + addVisit(v: Visit)
+    + addAntecedent(a: Antecedent)
+    + getVisits() : List<Visit>
+    + getAntecedents() : List<Antecedent>
+    + clone() duplicate(): Folder
+    + update()
+}
+
+class Patient <<C>> {
+    - lastname : String
+    - firstname : String
+    - dateOfBirth : Date
+    - birthCity : String
+    - insuranceNumber : String
+    - father : String
+    - mother : String
+}
+
+class Gender <<E>> {
+    MALE
+    FEMALE
+    OTHER
+}
+
+class Contact <<C>> {
+    - address : String
+    - phone : String
+    - email : String
+}
+
+class Establishment <<C>> {
+    - identification : String
+    - designation : String
+}
+
+class Doctor <<C>> {
+    - lastname : String
+    - firstname : String
+    - permit : String
+    - speciality : String
+}
+
+class ConnexionView <<C>> {}
+class HomeController <<C>> {
+    + loadFolder()
+    + logout()
+}
+class ConnexionController <<C>> {
+    - username : TextField
+    - password : PasswordField
+    + login()
+}
+class HomeView <<C>> {}
+class FolderView <<C>> {}
+class FolderController <<ConcreteSubject>> {
+    + addAntecedent()
+    + addVisit()
+    + restoreFolder()
+    + saveFolder()
+}
+
+interface Editable <<I>> {
+    + update(f : Folder)
+}
+
+interface Searchable <<I>> {
+    + findById(id : String) : Folder
+    + findByUsernameAndPassword (username : String, password : String) : User
+}
+
+class DataSource <<C>> {
+    + findById(id : String) : Folder
+    + findByUsernameAndPassword (username : String, password : String) : User
+    + update(f : Folder) : boolean
+    + archiveModification(f : Folder) : boolean
+    + encryptPasswordToSHA1(pass: String) : String
+}
+
+Main ..> App : 
+App --|> Application : 
+App ..> ConnexionController : 
+ConnexionController ..> ConnexionView : 
+Session <.. Authenticable : 
+Session --> User : 0..1\nuser
+Session ..> VisitBuilder : 
+Session --> Folder : 0..1\ncurrentFolder
+Session --> Folder : 0..1\noriginalFolder
+VisitBuilder ..> Visit : 
+Visit *-- Treatment : 0..1\ntreatment
+Visit *-- Diagnostic : 0..1\ntreatmentdiagnostic
+Visit *-- Antecedent : *
+Visit *-- Doctor : 1\ndoctor_prescriber
+Folder *-- Visit : visits
+Folder *-- Antecedent : antecedents
+Folder *-- Patient : 1\nowner
+Patient --|> Gender : 1\ngender
+Patient --* Contact : 1\ncontact
+Doctor --* Establishment : 1\nestablishment
+Doctor *-- Treatment : 0..1
+Doctor *-- Diagnostic : 1\ndiagnostic
+Observable o-- Observer : 1..0..n
+FolderController --|> Observable : 
+FolderController ..> FolderView : 
+HomeController ..> HomeView : 
+HomeController ..> Session : 
+DataSource ..|> Editable : 
+DataSource ..|> Searchable : 
+DataSource ..> Session : 
+
+@enduml
+```

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01JkSyeLFSMJh8fGNvdkiHvv",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor User\n\nparticipant CellEditor\nparticipant Address\nparticipant Controller\nparticipant Cell\nparticipant CellImpl\nparticipant FormulaCompiler\nparticipant ExcelExpressionCompiler\nparticipant ANTLRStringStream\nparticipant FormulaLexer\nparticipant CommonTokenStream\nparticipant FormulaParser\nparticipant Expression\nparticipant Formula\n\nnote over User, CellEditor : Inputs block of instructions\n\nUser -> CellEditor : address = getAddress()\nUser -> CellEditor : cell = getCell(address)\nCellEditor -> Controller : setContent(content)\nUser -> Controller : setContent(content)\nController -> CellImpl : setContent(content)\nCellImpl -> CellImpl : storeContent(content)\nCellImpl -> FormulaCompiler : compile(cell, content)\nFormulaCompiler -> ExcelExpressionCompiler : compile(cell, content)\nExcelExpressionCompiler -> ANTLRStringStream : input = create(source)\nANTLRStringStream --> ExcelExpressionCompiler\nExcelExpressionCompiler -> FormulaLexer : lexer = create(input)\nFormulaLexer --> ExcelExpressionCompiler\nExcelExpressionCompiler -> CommonTokenStream : tokens = create(lexer)\nCommonTokenStream --> ExcelExpressionCompiler\nExcelExpressionCompiler -> FormulaParser : parser = create(tokens)\nFormulaParser --> ExcelExpressionCompiler\nExcelExpressionCompiler -> FormulaParser : tree = parser.expression()\nFormulaParser --> ExcelExpressionCompiler\nExcelExpressionCompiler -> Expression : create()\nExpression --> ExcelExpressionCompiler\nExcelExpressionCompiler -> Expression : expression = convert(cell, tree)\nExpression --> ExcelExpressionCompiler\nExcelExpressionCompiler --> FormulaCompiler : expression\nFormulaCompiler -> Formula : formula = create(cell, expression)\nFormula --> FormulaCompiler\nFormulaCompiler --> CellImpl : formula\nCellImpl -> CellEditor : show()\n\nnote over User : Result\nUser <- CellEditor\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371537,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 511,
+    "prompt_tokens": 1384,
+    "total_tokens": 1895
+  }
+}

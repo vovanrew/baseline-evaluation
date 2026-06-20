@@ -1,0 +1,46 @@
+@startuml
+skinparam sequenceDiagram
+
+participant Client as "Client"
+participant Shop as "Shop"
+participant PAYONE as "PAYONE"
+
+Client ->> Shop: POST prepare.php
+Shop <- Client: 302 capture.php
+
+alt [No Pseudo Card PAN present]
+    Shop -> Client: GET capture.php
+    Client -> Shop: 200 Credit Card Form
+    Shop -> PAYONE: POST Card PAN
+    PAYONE -> Shop: 200 Pseudo Card PAN
+    Shop -> Client: POST capture.php
+    Shop -> PAYONE: POST request=authorization
+end
+
+alt [With 3-D Secure]
+    Shop -> Client: 302 3-D Secure Form
+    Client -> Shop: 302 3-D Secure Form
+    Shop -> PAYONE: POST 3-D Secure Password
+    PAYONE -> Shop: POST notify.php txaction=appointed
+    Shop -> PAYONE: Set Payment Status to "captured"
+    Shop -> PAYONE: 200 TSOK
+    Shop -> Client: 302 done.php
+    alt [No 3-D Secure]
+        Shop -> PAYONE: 200 status=APPROVED
+        Shop -> PAYONE: Set Payment Status to "pending"
+        Shop -> Client: 302 done.php
+        Client -> Shop: GET done.php
+        Shop -> Client: 200 Thanks
+    end
+
+    alt [No 3-D Secure]
+        some time later
+        Shop -> PAYONE: POST notify.php txaction=appointed transaction_status=completed
+        Shop -> PAYONE: Set Payment Status to "captured"
+        Shop -> PAYONE: 200 TSOK
+        some time later
+        Shop -> PAYONE: POST notify.php txaction=paid
+        Shop -> PAYONE: 200 TSOK
+    end
+
+@enduml

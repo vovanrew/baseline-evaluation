@@ -1,0 +1,159 @@
+@startuml
+title band301
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #333333
+  LifeLineBorderColor #999999
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #999999
+  ParticipantBackgroundColor #EEEEEE
+  BoxBorderColor #666666
+  BoxBackgroundColor #FFFFFF
+  NoteBackgroundColor #FFF9C4
+  NoteBorderColor #999999
+}
+
+participant BTManager
+participant BTCallback
+participant BleController
+participant ScannerPresenter
+participant LeScannerV21
+participant WristbandManager
+participant L2Layer
+participant L2KeyPacket
+participant L2CMDPacket
+participant L1Layer
+participant L1Packet
+participant GattLayer
+participant BluetoothGatt
+
+== 初始化 ==
+BTManager -> WristbandManager : onCreate
+activate WristbandManager
+WristbandManager -> L2Layer : new
+activate L2Layer
+L2Layer -> L1Layer : new
+activate L1Layer
+L1Layer -> L1Packet : new
+activate L1Packet
+L1Layer -> GattLayer : new
+activate GattLayer
+
+BTCallback -> BleController : initial
+activate BleController
+BleController -> ScannerPresenter : new
+activate ScannerPresenter
+ScannerPresenter -> LeScannerV21 : new
+activate LeScannerV21
+
+== 搜索设备 ==
+BTCallback -> BleController : forceLeScan
+BleController -> ScannerPresenter : scanLe
+ScannerPresenter -> LeScannerV21 : scanLeDevice
+LeScannerV21 -> LeScannerV21 : startScan
+LeScannerV21 --> ScannerPresenter : onScanResult
+ScannerPresenter -> ScannerPresenter : notifyLeScan
+ScannerPresenter --> BleController : onLeScan
+BleController -> BleController : onNewDevice
+BleController -> BleController : mHandler.handleMessage
+note left of BleController
+搜索蓝牙设备
+end note
+note left of BleController : MSG_FIND_BONDED_DEVICE
+
+== 建立GATT连接 ==
+BTCallback -> WristbandManager : Connect：找到合适的设备地址，使用该地址进行蓝牙连接
+WristbandManager -> L2Layer : connect
+L2Layer -> L1Layer : connect
+note over L1Layer,L1Packet
+开启两个线程：Tx发送，Rx接收
+end note
+L1Layer -> L1Layer : startTxSchedule
+L1Layer -> L1Layer : startRxSchedule
+L1Layer -> GattLayer : connect
+GattLayer -> BluetoothGatt : connect
+BluetoothGatt -> BluetoothGatt : onConnectionStateChange
+BluetoothGatt -> BluetoothGatt : requestMtu
+note right of BluetoothGatt : 设置MTU：240
+BluetoothGatt -> BluetoothGatt : onMtuChanged
+BluetoothGatt -> BluetoothGatt : discoverServices
+BluetoothGatt -> BluetoothGatt : onServicesDiscovered
+note right of BluetoothGatt
+通过UUID，发现我们设置的Service和数据特征Characteristic
+end note
+BluetoothGatt -> BluetoothGatt : onDescriptorWrite
+BluetoothGatt --> GattLayer : mGattCallback.onConnectionStateChange
+GattLayer --> L1Layer : mGattCallback.onConnectionStateChange
+L1Layer --> L2Layer : mTransportCallback.onConnectionStateChange
+L2Layer --> WristbandManager : mApplicationCallback.onConnectionStateChange
+WristbandManager -> WristbandManager : RequestLogin
+WristbandManager -> WristbandManager : RequestSetNeedInfo
+WristbandManager -> WristbandManager : SetUserProfile
+BleController -> BleController : mHandler.handleMessage
+note left of BleController : MSG_STATE_CONNECTED
+BleController -> WristbandManager : StartLoginProcess
+
+== 封装并发送数据包-Tx ==
+WristbandManager -> L2Layer : SettingCmdUserSetting
+L2Layer -> L2KeyPacket : preparePacket：key(1B):dataLen(2B):data
+activate L2KeyPacket
+L2Layer -> L2CMDPacket : preparePacket：cmd(1B):version(1B)
+activate L2CMDPacket
+L2Layer -> L1Layer : sendData
+L1Layer -> L1Packet : prepareDataPacket
+activate L1Packet
+L1Packet -> L1Packet : preparePacket
+note right of L1Packet
+magic:AB; er-ack-version:00; len(2B);crc(2B);seq(2B)
+end note
+L1Layer -> L1Layer : addToTxPacketList
+L1Layer -> L1Layer : ThreadTx.run
+note right of L1Layer
+每隔1秒第一次发送所有数据，新数据追加，重试3次
+end note
+L1Layer -> L1Layer : getFromTxPacketList
+L1Layer -> L1Layer : unpackSendPacket
+L1Layer -> GattLayer : sendGattLayerData
+GattLayer -> BluetoothGatt : sendData
+L1Layer -> L1Layer : tellUpstackPacketSend
+note right of L1Layer : 发送成功，Sequenced++
+L1Layer --> L2Layer : onDataSend
+
+== 接收数据-Rx ==
+BluetoothGatt -> BluetoothGatt : onCharacteristicChanged
+BluetoothGatt --> GattLayer : mGattCallback.onDataReceive
+GattLayer --> L1Layer : receiveData
+L1Layer -> L1Layer : decodeReceiveData
+L1Layer -> L1Layer : parseHeader
+note right of L1Layer
+parseHeader解析出magic、ack、长度len、crc、sequenced
+end note
+L1Layer -> L1Layer : parseData
+note right of L1Layer
+如果接收的数据长度等于1，且中间没有接收到数据则返回：LT_FULL_PACKET
+否则：数据缓存到队列（Rx队列），直到LT_SUCCESS，等待数据解析完成
+end note
+L1Layer -> L1Layer : sendAckPacket
+L1Layer -> L1Layer : addToRxPacketList
+L1Layer -> L1Layer : ThreadRx.run
+note right of L1Layer : 每隔1秒第一次发送所有数据，新数据追加
+L1Layer -> L1Layer : getFromRxPacketList
+L1Layer --> L2Layer : onDataReceive
+L2Layer -> L2Layer : parseData：解包2：cmd(1B):version(1B)
+L2Layer -> L2Layer : parseData：解包3：key(1B):len(2B):data
+
+== handshake ==
+BTCallback -> WristbandManager : handshake
+WristbandManager -> L2Layer : handshake
+L2Layer -> L1Layer : handshake
+L1Layer -> GattLayer : sendData
+GattLayer --> L1Layer : onDataReceive
+L1Layer --> L2Layer : onDataReceive
+L2Layer --> WristbandManager : onHandshakeCallback
+WristbandManager --> BTCallback : onHandshakeCallback
+
+deactivate L1Packet
+deactivate L2CMDPacket
+deactivate L2KeyPacket
+@enduml

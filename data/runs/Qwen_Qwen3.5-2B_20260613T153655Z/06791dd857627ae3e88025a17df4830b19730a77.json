@@ -1,0 +1,22 @@
+{
+  "id": "67c7a19a-d5e5-42c5-ac13-07d8d0469a2c",
+  "object": "chat.completion",
+  "created": 1781395673,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"User\" as User\nparticipant \"Frontend\" as Frontend\nparticipant \"API Gateway\" as APIGateway\nparticipant \"Matching Service\" as MatchingService\n    participant \"Controller\" as Controller\n    participant \"Service\" as Service\nparticipant \"Matching Database\" as MatchingDatabase\n    participant \"Questions\" as Questions\n    participant \"MatchRequests\" as MatchRequests\n\nUser -> Frontend : PUT /api/find/match\nFrontend -> APIGateway : PUT /api/find/match\nAPIGateway -> MatchingService : PUT /api/find/match\nMatchingService -> Controller : checkForMatch(requestId)\nController -> MatchingDatabase : find user's MatchRequest with requestId\nMatchingDatabase -> MatchingService : user's MatchRequest\nMatchingService -> MatchingDatabase : find another MatchRequest\nMatchingDatabase -> MatchingService : another MatchRequest\nMatchingService -> Questions : get a random question\nQuestions -> MatchingService : Question\nMatchingService -> MatchingDatabase : create sessionInfo and attach to each MatchRequest\nMatchingService -> MatchingDatabase : update the 2 MatchRequests\nMatchingService -> Controller : user's MatchRequest\nController -> APIGateway : 200 OK\nAPIGateway -> Frontend : 200 OK\nFrontend -> User : switch to session page\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1517,
+    "completion_tokens": 268,
+    "total_tokens": 1785
+  }
+}

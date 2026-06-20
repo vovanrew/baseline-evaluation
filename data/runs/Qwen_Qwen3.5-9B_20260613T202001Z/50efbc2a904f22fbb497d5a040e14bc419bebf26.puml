@@ -1,0 +1,60 @@
+@startuml
+!theme plain
+
+package "controller" as controller {
+  package "model" as model {
+    class "User" as User {
+      <<C>>
+    }
+  }
+
+  interface "Controller" as Controller {
+    + execute(args : json) : json
+  }
+
+  class "Amount" as Amount {
+    <<C>>
+  }
+
+  class "TransferSend" as TransferSend {
+    <<C>>
+  }
+
+  class "Transfer" as Transfer {
+    <<C>>
+  }
+
+  class "Factory" as Factory {
+    <<C>>
+    + create(name : string) : Controller
+  }
+
+  Factory ..> Controller : create
+  Factory ..> Amount : create
+  Factory ..> TransferSend : create
+  Factory ..> Transfer : create
+
+  Amount ..> User
+  Amount ..> Amount
+}
+
+package "view" as view {
+  class "Amount" as AmountView {
+    <<C>>
+  }
+}
+
+package "model" as model2 {
+  class "User" as User2 {
+    <<C>>
+  }
+}
+
+view ..> AmountView
+model2 ..> User2
+
+Amount ..> Controller
+TransferSend ..> Controller
+Transfer ..> Controller
+
+@enduml

@@ -1,0 +1,22 @@
+{
+  "id": "6e619c3c-6d90-48c2-ab76-286f80b9fa07",
+  "object": "chat.completion",
+  "created": 1781415743,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor Client\nparticipant \"RegisterClientUI\" as UI\nparticipant \"RegisterClientController\" as Controller\nparticipant \"ApplicationPOT\" as AppPOT\nparticipant \"app/ApplicationPOT\" as AppPOT2\nparticipant \"EncryptPassword\" as Encrypt\nparticipant \"EmailSender\" as Email\nparticipant \"DataHandler\" as Data\n\nUI -> Client: 1 Engages the register feature/button\nClient --> UI: 2 Asks for all the information required\\nfor the register (i.e. name,nif,email,password,latitude,longitude,altitude,\\nstreetName,doorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)\nUI -> Client: 3 Fills all the information required\nClient --> UI: 4 Presents the data and asks for a confirmation\nUI -> Client: 5 Confirms\n\nUI -> AppPOT: 6 RegisterNewClient(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)\nAppPOT -> clientService:ClientService: 7 create()\nclientService:ClientService -> clientDB:ClientDB: 8 create()\nAppPOT -> AppPOT2: 9 validateInput(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)\n\nalt (if all the information given as input has a valid format)\n  AppPOT -> client:Client: 10 newClient(name,nif,email,password,latitude,longitude,altitude,streetName,\\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)\n  client:Client -> user:User: 12 create(email,password,nif,name)\n  user:User -> Encrypt: 13 encryptPassword(MDS(password))\n  client:Client -> Address: 14 create(latitude,longitude,altitude,streetName,doorNumber,postalCode,locality,country)\n  client:Client -> CreditCard: 15 create(creditCardNr,validityDate,CCV)\n  AppPOT -> AppPOT2: 16 registerNewClient(client)\n  AppPOT2 -> Data: 17 addClientToDB(client)\n  Data --> AppPOT2: ref\\nDB_CONNECTIONS\n  AppPOT2 -> Email: 18 sendEmail(email,subject,body)\n  Email --> AppPOT2:\n  AppPOT2 --> UI: 19 Validates and informs about the success of the operation\nelse (if any information does not have a valid format)\n  AppPOT2 --> UI: 20 Informs the User that the operation\\nwas not successful\nend\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 978,
+    "completion_tokens": 625,
+    "total_tokens": 1603
+  }
+}

@@ -1,0 +1,40 @@
+@startuml
+title Traffic influencing flows between OpenNESS controller and 5G Core
+
+actor "User/Admin" as User
+
+box "OpenNESS Controller components" #LightBlue
+participant "UI/CLI" as UI
+participant "AF Microservice" as AF
+end box
+
+box "5G Core components" #LightGreen
+participant "NEF" as NEF
+participant "NGC\nCP Functions" as NGC
+end box
+
+note over NEF : OpenNESS provided\nCore component with\nlimited functionality
+
+group Get all subscribed traffic influence info
+  User -> UI : Request all traffic influence\nsubscribed
+  UI -> AF : /af/v1/subscriptions : GET
+  AF -> NEF : /3gpp-traffic-Influence/v1/{afId}/subscriptions\n: GET
+  NEF -> NGC : NGC_STUB(PCF,UDR,BSF)
+  NGC --> NEF : {Open: 3rd party NGC\nintegration with\nOpenNESS(NEF)}
+  NEF --> AF : OK: traffic influence info\nERROR: {400/500}
+  AF --> UI : OK: traffic influence info\nERROR: {400/500}
+  UI --> User : Traffic influence details
+end
+
+group Get subscribed traffic influence info by subscriptionId
+  User -> UI : Request traffic influence using\nsubscriptionId
+  UI -> AF : /af/v1/subscriptions/{subscriptionId}\n: GET
+  AF -> NEF : /3gpp-traffic-Influence/v1/{afId}/subscriptions/{subscriptionId}\n: GET
+  NEF -> NGC : NGC_STUB(PCF,UDR,BSF)
+  NGC --> NEF : {Open: 3rd party NGC\nintegration with\nOpenNESS(NEF)}
+  NEF --> AF : OK: traffic influence info\nERROR: {400/500}
+  AF --> UI : OK: traffic influence info\nERROR: {400/500}
+  UI --> User : Traffic influence details
+end
+
+@enduml

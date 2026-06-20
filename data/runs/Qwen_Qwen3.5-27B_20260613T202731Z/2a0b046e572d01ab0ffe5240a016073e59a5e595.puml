@@ -1,0 +1,29 @@
+```plantuml
+@startuml
+autonumber off
+
+participant "JsonData" as JsonData
+participant "Permission1" as Permission1
+participant "Callback" as Callback
+participant "JsonData2" as JsonData2
+participant "Permission2" as Permission2
+
+JsonData -> Permission1 : hasAccess
+activate Permission1
+Permission1 -> Callback : execute
+activate Callback
+Callback -> JsonData2 : execute
+activate JsonData2
+JsonData2 -> Permission2 : hasAccess
+activate Permission2
+Permission2 --> JsonData2 : false
+deactivate Permission2
+JsonData2 --> Callback : Session expired
+deactivate JsonData2
+Callback --> Permission1 : Throw exception
+deactivate Callback
+Permission1 --> JsonData : false
+deactivate Permission1
+
+@enduml
+```

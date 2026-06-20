@@ -1,0 +1,73 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+package "model" {
+
+  package "generator" {
+    class GenerateHttpTagInfo << (C,#b7d7b7) >> {
+      + fun generateTagInfo() : Array<TagInfo>
+      + fun generateOneTagInfo() : TagInfo
+    }
+
+    class GenerateSQLiteTagInfo << (C,#b7d7b7) >> {
+      + fun generateTagInfo() : Array<TagInfo>
+      + fun generateOneTagInfo() : TagInfo
+    }
+
+    interface IGenerateTagInfo << (I,#c9b7ff) >> {
+      + fun generateTagInfo() : Array<TagInfo>
+      + fun generateOneTagInfo() : TagInfo
+    }
+
+    GenerateHttpTagInfo ..|> IGenerateTagInfo
+    GenerateSQLiteTagInfo ..|> IGenerateTagInfo
+  }
+
+  package "converter" {
+    class TagInfoConverter << (C,#b7d7b7) >> {
+      - jsonTagInfos : jsonArray
+      - fun getFollowersCount() : Int
+      - fun getIconUrl() : String?
+      - fun getTagId() : String
+      - fun getItemsCount() : Int
+    }
+  }
+
+  package "sqlite" {
+    class SQLiteDao << (C,#b7d7b7) >> {
+      + fun insertTagInfo()
+      + fun selectRegesteTag()
+      + fun deleteTagInfo()
+    }
+
+    class TagInfoDto << (C,#b7d7b7) >> {
+      + followers_count : Int
+      + icon_url : String
+      + tagId : String
+      + items_count : Int
+    }
+  }
+
+  package "viewModel" {
+    class TagInfoListViewHolder << (C,#b7d7b7) >> {
+      - followersCount : Int
+      - icon : icon
+      - tagId : String
+      - itemsCount : Int
+    }
+
+    class TagInfoListViewAdapter << (C,#b7d7b7) >> {
+      + onBindViewHolder()
+      + getItemCount() : Int
+    }
+  }
+
+  GenerateSQLiteTagInfo --> TagInfoConverter : Jsonから値を取得
+  GenerateSQLiteTagInfo --> SQLiteDao : 設定ファイルを読み込む
+  GenerateSQLiteTagInfo --> TagInfoDto : 値をセット
+
+  TagInfoDto --> TagInfoListViewHolder : 設定をセット
+}
+@enduml

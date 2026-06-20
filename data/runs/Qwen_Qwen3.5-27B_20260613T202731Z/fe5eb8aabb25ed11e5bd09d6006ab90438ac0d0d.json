@@ -1,0 +1,22 @@
+{
+  "id": "7f695462-4d85-404c-a7b4-e37314b224d6",
+  "object": "chat.completion",
+  "created": 1781495375,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Customer On-Boarding: Open a New Account\n\nparticipant \"Line of Business\" as LOB\nparticipant \"ESB\" as ESB\nrectangle \"Compliance IT\" {\n    participant \"Scoring\" as Scoring\n    participant \"Recertification\" as Recert\n}\n\n== Customer On-Boarding: Open a New Account ==\nnote right of LOB\n    UpdatePartyKYC\\nincludeScore=true\nend note\nLOB ->> ESB : UpdatePartyKYC\\nincludeScore=true\n\nalt Recertification completed\n    note right of LOB\n        UpdatePartyKYC\\nincludeScore=true\\nrecertificationStatus=completed\\nactor=<userid>\\nreason=<one of client-initiated trigger codes>\n    end note\n    LOB ->> ESB : UpdatePartyKYC\\nincludeScore=true\\nrecertificationStatus=completed\\nactor=<userid>\\nreason=<one of client-initiated trigger codes>\nend\n\n== Recertification ==\nactivate Scoring\nactivate Recert\n\nnote left of Scoring\n    Schedule a new recertification and calculate its due date\\nOR retrieve due date of an existing recertification if\\none has been previously scheduled and not yet\\ncompleted or cancelled\nend note\n\nScoring -> Recert : 1 score\nScoring -> Recert : 2 recertify\n\nRecert -> Recert : 3 evaluate rules\n\nalt Recertification is Needed\n    rectangle Establish a Recertification {\n        alt Existing Recertification\n            Recert -> Recert : 4 schedule a new recertification\n        else\n            Recert -> Recert : 5 retrieve a previously\\nscheduled recertification\\nthat hasn't been completed or cancelled\n        end\n    }\n\n    alt Complete a Recertification\n        note right of Recert\n            Immediately complete the recertification if the LOB\\ntold us it was already done\n        end note\n        Recert -> Recert : 6 complete an established recertification\n    end\n\n    Recert --> Scoring : 7 recertification details\n    note left of Scoring\n        Due date, status, recert id\n    end note\n    Scoring --> LOB : 8 score + recertification\nelse Recertification is Not Needed\n    Recert --> Scoring : 9 no recertification\n    Scoring --> LOB : 10 score\nend\n\ndeactivate Recert\ndeactivate Scoring\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1860,
+    "completion_tokens": 536,
+    "total_tokens": 2396
+  }
+}

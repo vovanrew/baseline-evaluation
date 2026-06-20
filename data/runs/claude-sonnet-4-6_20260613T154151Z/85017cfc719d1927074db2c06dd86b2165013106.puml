@@ -1,0 +1,92 @@
+```plantuml
+@startuml
+
+skinparam classAttributeIconSize 0
+skinparam style strictuml
+
+class Comercio <<C>> {
+  -Productos[] productos;
+  -Historial [] operaciones;
+  +public crearInsumo();
+  +public crearServicioDeArmado();
+  +public crearServicioDeReparacion();
+  +public buscarProductoPorNombre();
+  +public modificarPrecioListaProducto ();
+  +public addOperacion();
+  +public mostrarHistorialDeOperaciones();
+  +public mostrarProductoDisponibleParaVenta();
+}
+
+interface Matematica <<I>> {
+  ~Double resultado;
+  ~Double delta;
+  +public default sumarPorcentaje();
+}
+
+class Operaciones <<C>> {
+  -String nombre;
+  -String fechaVenta;
+  -double precioLista;
+}
+
+abstract class Productos <<A>> {
+  #String nombre;
+  #double precioLista;
+  clonar()
+  precioDeVenta()
+  devolverMontoFacturacion()
+}
+
+class Insumos <<C>> {
+  -String tipo;
+  -Double procentajeGanancia;
+  +devolverMontoFacturacion();
+}
+
+abstract class Servicios <<A>> {
+  #Double horasOcupaServicio;
+  devolverMontoFacturacion();
+}
+
+class ServicioReparacion <<C>> {
+  -Dificultad dificultad;
+}
+
+class ServicioArmado <<C>> {
+}
+
+enum Tipo <<E>> {
+  PERIFERICO
+  HARDWARE
+  LIMPIEZA
+  -String descripcionTipo;
+  -int nivelTipo;
+}
+
+enum Dificultad <<E>> {
+  SIMPLE
+  NORMAL
+  COMPLEJO
+  AVANZADO
+  EXPERTO
+  -String descripcion;
+  -int nivel;
+}
+
+Comercio "1" o-- "1..*" Operaciones
+Comercio "1" o-- "1..*" Productos
+
+Productos <|-- Insumos
+Productos <|-- Servicios
+
+Servicios <|-- ServicioReparacion
+Servicios <|-- ServicioArmado
+
+Insumos ..|> Matematica
+
+Insumos ..> Tipo : uses
+
+ServicioReparacion ..> Dificultad : uses
+
+@enduml
+```

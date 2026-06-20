@@ -1,0 +1,22 @@
+{
+  "id": "59d55df4-2ce0-4f61-a96c-e79a1f6d9443",
+  "object": "chat.completion",
+  "created": 1781416435,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Shared memory receiver behaviour\n\nparticipant \"Shared memory receiver\" as receiver\nparticipant \"Coordination struct\" as coord\nparticipant \"Reader count var\" as reader_count\nparticipant \"locks_active\" as locks_active\nparticipant \"locks_leaving\" as locks_leaving\nparticipant \"Semaphore copy\" as sem_copy\nparticipant \"Copy buff\" as copy_buff\n\nrectangle \"create\" {\n  alt \"Coordination semaphore doesn't exist\" {\n    activate receiver\n    activate coord\n    Create semaphore -> coord\n    deactivate receiver\n    deactivate coord\n  }\n  wait\n  Writer sets up sharedmemory\n  Writer is ready\n  activate receiver\n  activate reader_count\n  reincrease\n  deactivate receiver\n  deactivate reader_count\n  note right of reincrease: this way all readers access the memory, they will fail on the copy sem\n  MMap coordination struct\n  Trylock copy semaphore\n  alt (fail) {\n    Can't lock\n    Fail\n  }\n  alt (success) {\n    Success\n    MMap copy buffer\n    read flag to true\n    Lock leaving[1]\n    Signal reader ready\n  }\n  Close coordination semaphore file\n  Success\n}\n\nrectangle \"ready\" {\n  ready?\n  alt (finished flag set) {\n    False\n    (has read current chunk)\n    lock next chunk (reading)\n    Blocks until next chunk is written\n    Release previous leaving\n    Change active\n    reset read flag\n    get chunk size\n    c_size\n    c_size > 0\n    (Yet to read current and no finished flag)\n    True\n  }\n  alt (finished) {\n    This is done before actually returning\n    Set finished flag\n    Release lock\n  }\n  get buff_size from coord\n  buff_size\n}\n\nrectangle \"receive\" {\n  This is called after ready so I am already on the correct chunk and it has data to read\n  alt [read_flag_set or finished flag set] {\n    Fail\n    Read data in current chunk\n    vector\n    set read flag\n    lock leaving\n    release active\n    vector\n  }\n}\n\nrectangle \"destructor\" {\n  Destroy\n  alt [not finished] {\n    alt [read_flag_set] {\n      unlock\n    }\n    alt [read_flag_false] {\n      unlock\n    }\n  }\n  Notify left\n  Unmap memory\n  Close files\n}\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1223,
+    "completion_tokens": 534,
+    "total_tokens": 1757
+  }
+}

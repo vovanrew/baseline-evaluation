@@ -1,0 +1,97 @@
+```plantuml
+@startuml
+actor "Specialist Doctor" as SD
+participant ":CreateReportUI" as UI
+participant ":CreateReportController" as CTRL
+participant ":Company" as COMP
+participant ":TestDiagnosis" as TD
+participant "obj : diagnosis" as DIAG
+participant "rp : TestReportStore" as TRS
+participant "rp : TestReport" as TR
+
+activate SD
+SD -> UI : 1 asks to create a new diagnosis
+activate UI
+
+ref over UI : US4_SD_testsDTO.puml
+
+UI --> SD : 2 requests to choose a given test
+deactivate UI
+
+SD -> UI : 3 chooses a given test
+activate UI
+
+UI -> CTRL : 4 createTestDiagnosis(idTest)
+activate CTRL
+
+CTRL -> COMP : 5 createTestDiagnosis(test)
+activate COMP
+
+COMP -> DIAG ** : 6 createTestDiagnosis(testParameterList)
+
+COMP --> CTRL : 7 getDiagnosis()
+deactivate COMP
+
+CTRL --> UI : 8 getDiagnosis()
+deactivate CTRL
+
+UI --> SD : 9 shows the diagnosis done automatically and requests the data for the report
+deactivate UI
+
+SD -> UI : 10 types the requested data
+activate UI
+
+UI -> CTRL : 11 createReport(idTest, diagnosis, report)
+activate CTRL
+
+CTRL -> COMP : 12 store = getTestReportStore()
+activate COMP
+deactivate COMP
+
+CTRL -> TRS : 13 createReport(idTest, diagnosis, report)
+activate TRS
+
+TRS -> TR ** : 14 create(idTest, diagnosis, report)
+
+TRS --> CTRL : 15 validateReport()
+deactivate TRS
+
+CTRL --> UI : 16 shows the typed data and asks for confirmation
+deactivate CTRL
+deactivate UI
+
+SD -> UI : 17 confirms the data
+activate UI
+
+UI -> CTRL : 18 saveReport(report)
+activate CTRL
+
+CTRL -> COMP : 19 saveReport(report)
+activate COMP
+
+COMP -> TRS : 20 saveReport(report)
+activate TRS
+
+TRS -> TRS : 21 validateReport(report)
+activate TRS
+deactivate TRS
+
+TRS -> TRS : 22 addReport(report)
+activate TRS
+deactivate TRS
+
+TRS --> COMP
+deactivate TRS
+
+COMP --> CTRL
+deactivate COMP
+
+CTRL --> UI
+deactivate CTRL
+
+UI --> SD : 23 informs operation success
+deactivate UI
+deactivate SD
+
+@enduml
+```

@@ -1,0 +1,47 @@
+@startuml
+title 通行证二维码
+
+skinparam backgroundColor white
+skinparam sequence {
+  ParticipantPadding 30
+  BoxPadding 10
+  LifeLineBorderColor #888888
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor white
+  MessageAlign left
+  ArrowColor #000000
+  ActorBorderColor #000000
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F2
+  GroupBorderColor #000000
+  GroupBorderThickness 2
+  GroupBackgroundColor transparent
+  GroupFontStyle bold
+}
+
+participant "巡查app" as A
+participant "小程序或app或管理平台" as B
+participant "lgm_community" as C
+participant "用户中心" as D
+participant "lgm_auth_apps" as E
+participant "lgm_certauth" as F
+
+== 产生二维码 ==
+
+B -> C : 1 获取通行证二维码
+C -> C : 2 根据用户找到实名信息，根据实名信息找到卡号
+C -> E : 3 获取二维码（实名信息，卡号）
+E --> C : 4 返回（二 维码）
+C --> B : 5 返回
+
+== 校验二维码 ==
+
+A -> C : 6 扫一扫
+C -> C : 7 参考北京通二维码认证流程
+C -> F : 8 校验二维码（二 维码）
+F --> C : 9 校验结果
+C -> C : 10 查询客户信息
+C -> C : 11 查询登记信息，按照业主优先级排序后取一条
+C --> A : 12 返回（登记信息）
+
+@enduml

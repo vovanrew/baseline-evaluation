@@ -1,0 +1,39 @@
+@startuml
+participant "User" as User
+participant "JobManager" as JobManager
+participant "Nodes" as Nodes
+participant "ESDM" as ESDM
+participant "Post Processing Library" as PostProcessingLibrary
+participant "Storage" as Storage
+
+User -> JobManager: submit job(IN, OUT)
+JobManager -> Nodes: compute
+Nodes -> ESDM: write async OUT=y
+ESDM -> Storage: write snapshot (async)
+ESDM -> PostProcessingLibrary: trigger post processing if region effected
+PostProcessingLibrary -> Storage: perform post processing
+PostProcessingLibrary -> ESDM: (could write result directly)
+ESDM -> PostProcessingLibrary: return
+PostProcessingLibrary -> Storage: write post processing result
+Nodes -> ESDM: return
+ESDM -> Nodes: OUT files become visible
+Storage -> User: All OUT files become visible to subsequent users.
+
+ESDM -> Nodes: read IN=x
+Nodes -> Storage: return
+Storage -> ESDM: return
+
+loop multiple iterations
+ESDM -> Nodes: compute
+Nodes -> ESDM: write async OUT=y
+ESDM -> Storage: write snapshot (async)
+ESDM -> PostProcessingLibrary: trigger post processing if region effected
+PostProcessingLibrary -> Storage: perform post processing
+PostProcessingLibrary -> ESDM: (could write result directly)
+ESDM -> PostProcessingLibrary: return
+PostProcessingLibrary -> Storage: write post processing result
+Nodes -> ESDM: return
+ESDM -> Nodes: OUT files become visible
+Storage -> User: All OUT files become visible to subsequent users.
+
+@enduml

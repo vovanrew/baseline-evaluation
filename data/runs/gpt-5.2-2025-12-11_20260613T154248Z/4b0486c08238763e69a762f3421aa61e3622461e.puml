@@ -1,0 +1,102 @@
+@startuml
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+skinparam class {
+  BackgroundColor White
+  BorderColor Black
+}
+
+skinparam package {
+  BackgroundColor White
+  BorderColor Black
+}
+
+skinparam interface {
+  BackgroundColor #E9E3FF
+  BorderColor Black
+}
+
+package "security" as pkg_security {
+  package "auth" as pkg_auth {
+    class "@Roles" as Roles <<annotation>> #F5F5F5
+    class "type Role = 'ADMIN' | 'MITARBEITER' | 'KUNDE'" as RoleType #F5F5F5
+    Roles --> RoleType
+  }
+}
+
+package "auto" as pkg_auto {
+
+  package "entity" as pkg_entity {
+    class "Auto" as AutoEntity <<entity>>
+  }
+
+  package "rest" as pkg_rest #DDDDDD {
+    class "AutoWriteController" as AutoWriteController <<control>> {
+      {method} @Post() @Roles() async create(@Body() auto: Auto, @Req() req: Request, @Res() res: Response): Promise<Response>
+      {method} @Put() @Roles() async update(@Body() auto: Auto, @Param() id: string, @Headers() version: string, @Res() res: Response): Promise<Response>
+      {method} @Delete() @Roles() async delete(@Param() id: string, @Res() res: Response): Promise<Response>
+    }
+    note top of AutoWriteController
+      <<Controller()>>
+      <<@UseGuards()>>
+      <<@UseInterceptors()>>
+    end note
+  }
+
+  package "service" as pkg_service {
+    class "AutoWriteService" as AutoWriteService <<control>>
+    class "AutoReadService" as AutoReadService <<control>>
+  }
+}
+
+package "express" as pkg_express {
+  class "Request" as ExpressRequest
+  class "Response" as ExpressResponse
+}
+
+package "@nestjs/common" as pkg_nest {
+  class "@Controller" as NestController <<annotation>> #F5F5F5
+  class "@UseGuards" as NestUseGuards <<annotation>> #F5F5F5
+  class "@UseInterceptors" as NestUseInterceptors <<annotation>> #F5F5F5
+
+  class "@Post" as NestPost <<annotation>> #F5F5F5
+  class "@Put" as NestPut <<annotation>> #F5F5F5
+  class "@Delete" as NestDelete <<annotation>> #F5F5F5
+
+  class "@Req" as NestReq <<annotation>> #F5F5F5
+  class "@Res" as NestRes <<annotation>> #F5F5F5
+  class "@Param" as NestParam <<annotation>> #F5F5F5
+  class "@Body" as NestBody <<annotation>> #F5F5F5
+  class "@Headers" as NestHeaders <<annotation>> #F5F5F5
+}
+
+interface "Promise" as PromiseI
+
+' Relationships
+AutoWriteController --> AutoWriteService : service
+AutoWriteController --> AutoReadService : readService
+
+AutoWriteController ..> AutoEntity
+AutoWriteController ..> ExpressRequest
+AutoWriteController ..> ExpressResponse
+AutoWriteController ..> PromiseI
+
+AutoWriteController ..> Roles
+AutoWriteController ..> RoleType
+
+AutoWriteController ..> NestController
+AutoWriteController ..> NestUseGuards
+AutoWriteController ..> NestUseInterceptors
+AutoWriteController ..> NestPost
+AutoWriteController ..> NestPut
+AutoWriteController ..> NestDelete
+AutoWriteController ..> NestReq
+AutoWriteController ..> NestRes
+AutoWriteController ..> NestParam
+AutoWriteController ..> NestBody
+AutoWriteController ..> NestHeaders
+
+@enduml

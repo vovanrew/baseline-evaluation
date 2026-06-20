@@ -1,0 +1,21 @@
+{
+  "id": "msg_01B6TR4KevSDY8heFY8Gqmra",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nparticipant \"arm_io_storage\" as arm\nparticipant \"io_storage\" as ios\nparticipant \"io_fip\" as fip\nparticipant \"io_memmap\" as mem\n\narm -> arm : arm_io_setup()\n\ngroup io dev registration\n    arm -> fip : register_io_dev_fip(&fip_dev_con)\n    fip -> ios : io_register_device(&dev_info_pool[])\n    hnote over ios #LightYellow\n        devices[dev_count] = (fip_)dev_info_pool\n        dev_count++\n    end hnote\n\n    arm -> mem : register_io_dev_memmap(&memmap_dev_con)\n    mem -> ios : io_register_device(&memmap_dev_info)\n    hnote over ios #LightYellow\n        devices[dev_count] = memmap_dev_info\n        dev_count++\n    end hnote\nend\n\narm -> ios : io_dev_open(fip_dev_con, NULL, fip_dev_handle)\nios -> ios : dev_open(dev_con, dev_spec, handle)\n\nopt dev_open() on fip device\n    ios -> fip : fip_dev_open(dev_spec, dev_info)\n    hnote over fip #LightYellow\n        dev_info = one of the\n        \"fip_dev_info\" from\n        dev_info_pool[]\n    end hnote\nend\n\narm -> ios : io_dev_open(memmap_dev_con, NULL, memmap_dev_handle)\nios -> ios : dev_open(dev_con, dev_spec, handle)\n\nopt dev_open() on memmap device\n    ios -> mem : memmap_dev_open(dev_spec, dev_info)\n    hnote over mem #LightYellow\n        dev_info = memmap_dev_info\n    end hnote\nend\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781432383,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 473,
+    "prompt_tokens": 1660,
+    "total_tokens": 2133
+  }
+}

@@ -1,0 +1,50 @@
+@startuml
+left to right direction
+package "OpenAI-Baseline" {
+  class RLImplementation {
+  }
+}
+
+package "OpenAI-Gym" {
+  class Env {
+  }
+  note "Generic interface between RL algorithms and simulation environments"
+  note right of Env
+    Generic interface between RL algorithms and simulation environments
+  end note
+}
+
+package "atc-reinforcement-learning" {
+  class AtcGym {
+  }
+  class Airspace {
+  }
+  class Runway {
+  }
+  class Airplane {
+  }
+  class MinimumVectoringAltitude {
+  }
+  class Corridor {
+  }
+  class SimParameters {
+  }
+}
+
+RLImplementation --> Env
+Env <|-- AtcGym
+
+AtcGym *-- Airspace
+AtcGym *-- Runway
+AtcGym *-- Airplane
+AtcGym *-- SimParameters
+
+Airspace *-- MinimumVectoringAltitude
+Runway *-- Corridor
+
+MinimumVectoringAltitude ..> Airspace : 1
+Corridor ..> Runway : 1
+SimParameters ..> AtcGym : 1
+Airplane ..> AtcGym : many
+Runway ..> Airspace : 1
+@enduml

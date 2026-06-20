@@ -1,0 +1,36 @@
+@startuml
+' Define namespace
+namespace Repositories {
+  ' Define class IBaseRepository
+  class IBaseRepository {
+    <<Interface>>
+  }
+  
+  ' Define class BaseRepository
+  class BaseRepository {
+    <<Class>>
+    BaseRepository()
+    BaseRepository(context:ApplicationContext)
+    <<virtual>> <<async>> Create(obj:T) : Task<T>
+    <<virtual>> <<async>> Update(obj:T) : Task<T>
+    <<virtual>> <<async>> Update(id:long, obj:T) : Task<T>
+    <<virtual>> <<async>> Delete(id:long) : Task<bool>
+    <<virtual>> <<async>> Get(id:long?) : Task<T>
+    <<virtual>> <<async>> Get() : Task<List<T>>
+    EntryExists(id:long) : bool
+    <<virtual>> <<async>> IsUniqueValue(obj:T, propertyName:string, value:object) : Task<bool>
+    CompareByReflection(objetoASerComparado:object, objetoComparador:object, propertyName:string, value:object) : bool
+  }
+  
+  ' Define class ApplicationContext
+  class ApplicationContext {
+    <<Class>>
+  }
+  
+  ' Define relationship between IBaseRepository and BaseRepository
+  IBaseRepository <|-- BaseRepository : <T>
+  
+  ' Define relationship between BaseRepository and ApplicationContext
+  BaseRepository --> ApplicationContext : _context
+}
+@enduml

@@ -1,0 +1,59 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 30
+  BoxPadding 20
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor transparent
+  BoxBorderColor #888888
+  BoxBackgroundColor #E6E6E6
+  ParticipantBorderColor #888888
+  ParticipantBackgroundColor #E6E6FF
+  ActorBorderColor #888888
+  ActorBackgroundColor #E6E6FF
+}
+
+actor User
+participant Frontend
+
+actor "API Gateway" as APIGW
+
+box "Matching Service" #E6E6E6
+  participant Controller
+  participant Service
+end box
+
+box "Matching Database" #E6E6E6
+  participant Questions
+  participant MatchRequests
+end box
+
+User -> Frontend : PUT /api/find/match\npayload: {requestId}
+Frontend -> APIGW : PUT /api/find/match\npayload: {requestId}
+APIGW -> Controller : PUT /api/find/match\npayload: {requestId}
+
+Controller -> Service : checkForMatch(requestId)
+
+Service -> MatchRequests : find user's MatchRequest with requestId
+MatchRequests --> Service : user's MatchRequest
+
+Service -> MatchRequests : find another MatchRequest
+MatchRequests --> Service : another MatchRequest
+
+Service -> Questions : get a random question
+Questions --> Service : Question
+
+Service -> Service : create sessionInfo and attach to each MatchRequest
+
+Service -> MatchRequests : update the 2 MatchRequests
+MatchRequests --> Service
+
+Service --> Controller : user's MatchRequest
+
+Controller --> APIGW : 200 OK\npayload: {user's MatchRequest}
+APIGW --> Frontend : 200 OK\npayload: {user's MatchRequest}
+Frontend --> User : 200 OK\npayload: {user's MatchRequest}
+
+Frontend -> Frontend : switch to session page
+@enduml

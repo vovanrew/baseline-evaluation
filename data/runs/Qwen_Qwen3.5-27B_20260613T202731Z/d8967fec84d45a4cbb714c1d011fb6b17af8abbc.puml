@@ -1,0 +1,90 @@
+```plantuml
+@startuml
+title US016 – As Director/PM/PO/SM, I want to view status of activities in a project
+
+package "Controller" {
+    class TaskUI <<C>>
+    class TaskController <<C>> {
+        + getStatusOfActivitiesInProject(String projectID)
+    }
+}
+
+package "Service" {
+    class TaskService <<C>> {
+        + getStatusOfActivities(String projectID)
+        - getCurrentSprintID(projectID)
+        - getSbiIds(projectID, sprintID)
+        - getTasks(sbiIDs)
+    }
+}
+
+package "Repository" {
+    class SprintRepository <<C>> {
+        + findCurrentSprintInProject(String projectID)
+    }
+    class SprintBacklogItemRepository <<C>> {
+        + findSprintBacklogItemsInSprint(String projID, String sprintID)
+    }
+    class TaskRepository <<C>> {
+        + findAllByContainerID(SprintBacklogItemID sbiID)
+    }
+}
+
+package "Mapper" {
+    class TaskMapper <<C>> {
+        + statusListToDTO(List<Task> tasks)
+        - statusToDTO(Task task)
+    }
+}
+
+package "Domain" {
+    class Task <<C>> {
+        - taskId : TaskID
+        - taskContainerID : TaskContainerID
+        - status : TaskStatus
+        - percentageOfExecution : Percentage
+        - taskDescription : TaskDescription
+        + getTaskID()
+        + getTaskContID()
+        + getStatus()
+        + getPercentageOfExecution()
+    }
+    
+    class SprintBacklogItemID <<C>> {
+        - sbiID : UUID
+        + getID()
+    }
+    
+    interface TaskContainerID <<I>> {
+        - taskContainerID : UUID
+        + getID()
+    }
+}
+
+package "DTO" {
+    class TaskDTO <<C>> {
+        - taskId : String
+        - taskContainerID : String
+        - status : String
+        - percentageOfExecution : int
+        + setTaskID()
+        + setTaskContainerID()
+        + setStatus()
+        + setPercentageOfExecution()
+    }
+}
+
+' Relationships
+TaskUI --> TaskController
+TaskController ..> TaskService
+TaskService ..> SprintRepository
+TaskService ..> SprintBacklogItemRepository
+TaskService ..> TaskRepository
+TaskService ..> TaskMapper
+TaskMapper ..> TaskDTO
+TaskService ..> Task
+Task ..|> TaskContainerID
+Task ..> SprintBacklogItemID
+
+@enduml
+```

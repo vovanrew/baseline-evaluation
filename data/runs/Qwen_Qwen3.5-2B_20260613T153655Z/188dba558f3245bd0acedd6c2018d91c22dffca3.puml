@@ -1,0 +1,33 @@
+@startuml
+participant "User" as User
+participant "Application" as Application
+participant "«engine» Auto SDK Engine" as Engine
+participant "«avs» Alexa" as Alexa
+
+section "Activating Trial"
+    alt "Activating Trial"
+        note right of Application
+            clicks `Activate Trial` button on screen to activate trial up-sell.
+        end
+        Application -> Engine : Publish SendConnectivityEvent message specifying ACTIVATE_TRIAL event
+    end
+end
+
+section "Activating Paid Plan"
+    alt "Activating Paid Plan"
+        note right of Application
+            clicks `Activate Paid Plan` button on screen to activate paid plan up-sell.
+        end
+        Application -> Engine : Publish SendConnectivityEvent message specifying ACTIVATE_PAID_PLAN event
+    end
+end
+
+section "Successful in sending event to Alexa"
+    alt "Successful in sending event to Alexa"
+        Application -> Engine : Receive SendConnectivityEventReply message with SUCCESS status
+    else "on failure"
+        Application -> Engine : Receive SendConnectivityEventReply message with FAIL status
+    end
+end
+
+@enduml

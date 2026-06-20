@@ -1,0 +1,49 @@
+@startuml
+skinparam sequenceDiagram
+
+participant halon
+participant ios1
+participant ios2
+participant client
+
+note over halon, ios1, ios2, client
+SNS operation start
+note right of halon
+notification [(pool, repair), (disk, repair)]
+end note
+
+loop [until all ios are ready]
+    repair status request
+    repair status reply
+   spiel_repair_start
+end loop
+
+alt [successful case]
+    notify [(pool, repaired), (disk, repaired)]
+    SNS status query
+    loop [until all ios are in IDLE]
+        repair status request
+        repair status reply [IDLE, IDLE]
+    end loop
+    notify [(pool, REPAIRED), (disk, REPAIRED)]
+end alt
+
+note right of halon
+partial repair
+    notify [(pool, repair), (disk, repair)]
+    Abort SNS operation
+end note
+
+note right of halon
+transient disk
+    notify [(disk, transient)]
+    Pause SNS operation
+end note
+
+note right of halon
+failed disk
+    notify [(disk, failed)]
+    Abort SNS operation
+end note
+
+@enduml

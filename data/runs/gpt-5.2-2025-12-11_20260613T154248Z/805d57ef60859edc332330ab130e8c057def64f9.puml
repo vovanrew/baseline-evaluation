@@ -1,0 +1,33 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #000000
+  ParticipantBackgroundColor #FFFFFF
+}
+
+actor "ユーザ" as User
+boundary "ブラウザ" as Browser
+control "web.php" as Web
+control "Kouka2_1Controller" as C
+entity "Restdata" as R
+boundary "index.blade.php" as IndexView
+boundary "show.blade.php" as ShowView
+
+User -> Browser : 該当ページをリクエスト[/kouka2_1]
+Browser -> Web : GET[/kouka2_1]
+Web -> C : @index
+C -> R : all()
+R --> C
+C -> IndexView
+
+User -> Browser : 検索ボタンを押下
+Browser -> Web : GET[/kouka2_1/find]
+Web -> C : @find
+C -> R : where()->first()
+R --> C
+C -> ShowView
+@enduml

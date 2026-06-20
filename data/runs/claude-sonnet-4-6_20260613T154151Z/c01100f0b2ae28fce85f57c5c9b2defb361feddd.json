@@ -1,0 +1,21 @@
+{
+  "id": "msg_01MBXYwePaPydDhuQmZJdjMA",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor Customer\nparticipant \"Device\" as Device\nparticipant \"DeviceProvisioningService\" as DPS #cyan\nparticipant \"ProductIoTHub\" as Hub #magenta\nparticipant \"FWProvider\" as FW #magenta\n\nnote over Device, FW #lightyellow\nDevice was registered for this product before\nend note\n\n== First start ==\n\nCustomer -> Device: 1 Switch On/Power Up\n\nDevice -> Device: Booting up\n\nDevice -> DPS: 2 registerDevice(callback)\nDPS -> Device: 3 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)\nDevice -> Device: 4 setProperties\nDevice -> Hub: 5 iamNewToYou(deviceId, firmwareversion)\n\nopt [Firmware needs to be updated]\n    Hub -> Device: 6 updateFWMandantory(URL)\n    Device -> FW: 7 URL.get(OLDFW)\n    FW --> Device: 8 FW, Checksum\n\n    Device -> Device: Downloading\n\n    Device -> Device: 9 CheckChecksum\n    Device -> Device: 10 update\n\n    Device -> Device: Installing\n\n    Device -> Device: 11 restart\n\n    Device -> Device: Booting up\n\n    Device -> Hub: 12 iamNewToYou(deviceId, firmwareversion)\nend\n\nHub -> Device: 13 youMayStartSending()\nDevice -> Hub: 14 sendData(Data)\n\nDevice -> Device: Working\n\n== Claim/Remove ==\n\nHub -> Device: 15 youMustRetire()\nDevice -> Device: 16 waits\n\nopt [if Device was not reached]\n    Device -> Hub: 17 sendData(Data)\n    Hub --> Device: 18 Not registered\n\n    Device -> DPS: 19 registerDevice(callback)\n    DPS --> Device: 20 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ERROR, null, null)\n    Device -> Device: 21 NobodyLovesMeMode()\n\n    loop [once a day]\n        Device -> DPS: 22 registerDevice(callback)\n    end\nend\n\n== IoT Hub not available ==\n\nloop [several times]\n    Device -> Hub: 23 sendData(Data)\n    Hub --> Device: 24 NotAvailable/Network Error\nend\n\nDevice -> DPS: 25 registerDevice(callback)\nDPS --> Device: 26 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)\nDevice -> Device: 27 compare IoTHub and change if necessary\n\nnote over Device, FW #lightyellow\nif connection is now successfull, go on. If not and IoT Hub has not changed\nrepeat with low frequence. Also if DPS is not available.\nend note\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371852,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 697,
+    "prompt_tokens": 1660,
+    "total_tokens": 2357
+  }
+}

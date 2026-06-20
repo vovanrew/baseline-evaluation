@@ -1,0 +1,186 @@
+```plantuml
+@startuml
+skinparam class {
+  BackgroundColor White
+  BorderColor Black
+  ArrowColor Black
+}
+
+package "«aggregate» ProductOrder" {
+  class "TotalPriceWithoutVAT" as TotalPriceWithoutVAT {
+    <<C>>
+  }
+  class "TotalVolume" as TotalVolume {
+    <<C>>
+  }
+  class "BillingAddress" as BillingAddress {
+    <<C>>
+  }
+  class "OrderItem" as OrderItem {
+    <<E>>
+  }
+  class "Status" as Status {
+    <<C>>
+  }
+  class "DeliveryAddress" as DeliveryAddress {
+    <<C>>
+  }
+  class "ProductOrder" as ProductOrder {
+    <<E>>
+  }
+  class "TotalPriceWithVAT" as TotalPriceWithVAT {
+    <<C>>
+  }
+  class "TotalWeight" as TotalWeight {
+    <<C>>
+  }
+}
+
+package "«aggregate» AGV" {
+  class "AGVStatus" as AGVStatus {
+    <<C>>
+  }
+  class "AGVPosition" as AGVPosition {
+    <<C>>
+  }
+  class "Model" as Model {
+    <<C>>
+  }
+  class "MaxVolumeCapacity" as MaxVolumeCapacity {
+    <<C>>
+  }
+  class "BriefDescription" as BriefDescription {
+    <<C>>
+  }
+  class "MaxWeightCapacity" as MaxWeightCapacity {
+    <<C>>
+  }
+  class "Range" as Range {
+    <<C>>
+  }
+  class "AGV" as AGV {
+    <<E>>
+  }
+  class "AGVTask" as AGVTask {
+    <<E>>
+  }
+  class "AGVId" as AGVId {
+    <<C>>
+  }
+}
+
+class "BriefDescription" as BriefDescriptionVO {
+  <<value object>>
+  -briefDescription
+}
+
+class "Model" as ModelVO {
+  <<value object>>
+  -model
+}
+
+class "AGVPosition" as AGVPositionVO {
+  <<value object>>
+  -agvPosition
+}
+
+class "AGVStatus" as AGVStatusVO {
+  <<value object>>
+  -taskState
+}
+
+class "AGVId" as AGVIdVO {
+  <<value object>>
+  -id
+}
+
+class "Range" as RangeVO {
+  <<value object>>
+  -range
+}
+
+class "MaxWeightCapacity" as MaxWeightCapacityVO {
+  <<value object>>
+  -maxWeightCapacity
+}
+
+class "MaxVolumeCapacity" as MaxVolumeCapacityVO {
+  <<value object>>
+  -volume
+}
+
+class "OrderItem" as OrderItemEntity {
+  <<entity>>
+  -itemQuantity
+}
+
+class "TotalPriceWithVAT" as TotalPriceWithVATVO {
+  <<value object>>
+}
+
+class "DeliveryAddress" as DeliveryAddressVO {
+  <<value object>>
+}
+
+class "BillingAddress" as BillingAddressVO {
+  <<value object>>
+}
+
+class "Status" as StatusVO {
+  <<value object>>
+}
+
+class "TotalPriceWithoutVAT" as TotalPriceWithoutVATVO {
+  <<value object>>
+}
+
+class "TotalVolume" as TotalVolumeVO {
+  <<value object>>
+}
+
+class "TotalWeight" as TotalWeightVO {
+  <<value object>>
+}
+
+class "AGV" as AGVEntity {
+  <<entity>>
+  <<root>>
+  -state
+}
+
+class "AGVTask" as AGVTaskEntity {
+  <<entity>>
+  -id
+  -agvTaskDescription
+}
+
+class "ProductOrder" as ProductOrderEntity {
+  <<entity>>
+  <<root>>
+  -numericIdentifier
+  -dateOfOrder
+  -shipmentMethod
+  -paymentMethod
+}
+
+AGVEntity --|> BriefDescriptionVO : characterized by
+AGVEntity --|> ModelVO : has
+AGVEntity --|> AGVPositionVO : located in
+AGVEntity --|> AGVStatusVO : collects
+AGVEntity --|> AGVIdVO : respects
+AGVEntity --|> RangeVO : respects
+AGVEntity --|> MaxWeightCapacityVO : respects
+AGVEntity --|> MaxVolumeCapacityVO : respects
+AGVEntity -- AGVTaskEntity : associated
+AGVTaskEntity --|> ProductOrderEntity : composed by
+ProductOrderEntity --|> OrderItemEntity : composed by
+ProductOrderEntity --|> TotalPriceWithVATVO : is marked
+ProductOrderEntity --|> DeliveryAddressVO : associated with
+ProductOrderEntity --|> BillingAddressVO : associated with
+ProductOrderEntity --|> StatusVO : associated with
+ProductOrderEntity --|> TotalPriceWithoutVATVO : is marked
+ProductOrderEntity --|> TotalVolumeVO : associated with
+ProductOrderEntity --|> TotalWeightVO : associated with
+
+@enduml
+```

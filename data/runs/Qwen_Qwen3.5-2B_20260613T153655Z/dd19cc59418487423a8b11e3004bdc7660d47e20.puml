@@ -1,0 +1,44 @@
+@startuml
+participant UI as "UI"
+participant sessionRoute as "sessionRoute"
+participant passport as "passport"
+participant SessionController as "SessionController"
+participant innoDB as "innoDB"
+
+note right of UI
+GET() "/session"
+Auth: Bearer token
+{userID, DASS21_SCORES, sessionDetails}
+end note
+
+note right of sessionRoute
+"/save", authenticate("jwt")
+end note
+
+alt [Success: Authenticated]
+    sessionRoute -> done(null, user) : done(null, user)
+    sessionRoute -> Request Products : Request Products
+    SessionController -> Validate info : Validate info
+    SessionController -> saveSession() : saveSession()
+    SessionController -> session : session
+    sessionRoute -> httpResponse(200) : httpResponse(200)
+    sessionRoute -> session : session
+    sessionRoute -> httpResponse(200) : httpResponse(200)
+    sessionRoute -> allProducts : allProducts
+end alt
+
+alt [Success: Required info provided]
+    alt [Failure: missing information]
+        sessionRoute -> {"msg":"missing required information"}(400) : {"msg":"missing required information"}(400)
+        sessionRoute -> http Response(400) : http Response(400)
+        sessionRoute -> {"msg":"missing required information"} : {"msg":"missing required information"}
+    end alt
+end alt
+
+alt [Failure: Unauthorized]
+    sessionRoute -> done(null, false) : done(null, false)
+    sessionRoute -> http Response(401) : http Response(401)
+    sessionRoute -> Unauthorized : Unauthorized
+end alt
+
+@enduml

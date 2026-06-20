@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLeqQWS5Ytpy0hV5YTz7Rb5YyPnd",
+  "object": "chat.completion",
+  "created": 1781368680,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  LifeLineBorderColor #B0B0B0\n  LifeLineBackgroundColor transparent\n  ParticipantBorderColor #8A8A8A\n  ParticipantBackgroundColor #E9E9F6\n  BoxBorderColor black\n  BoxBackgroundColor #F2F2F2\n  NoteBackgroundColor #FFFEDB\n  NoteBorderColor #B0B0B0\n  ArrowColor black\n}\n\nparticipant Resident\nparticipant WeResident\nparticipant WeID\nparticipant WeService\n\n== Provider Login Into Provider App ==\n\nResident -> WeResident : Send username:password /login\n\nalt [Provider already exist]\n  WeResident ->> WeID : Get Token by username:password\\n/oauth/authorize\n  WeID -->> WeResident : Return Token to WeResident\n  WeResident --> Resident : Return {\"token\": \"jwt-token\"}\nend\n\n== Provider Query/Search Service ==\n\nResident -> WeService : Query services including token\\n/weservices/services\\nHeader\\nAuthorization: Bear {jwt-token}\n\nnote left of Resident\nQuery Service schema\n{\"query\":\"string\",\"status\":12}\nend note\n\nalt [above token is valid]\n  WeService ->> WeID : verify token\n  WeID -->> WeService : 200\n  WeService --> Resident : Response services data\n  note left of Resident\nService Data Array schema\n{[{\"id\":\"string\",\"company\":\"string\",\"name\":\"string\",\"rate\":4.2,\"image\":\"image.png\"},{}],\n\"total\":10,\"currentPage\":1,\"perPage\":5}\n  end note\nelse [Token is expired/invalid]\n  WeService ->> WeID : verify token\n  WeID -->> WeService : 400\n  WeService --> Resident : Response 401 status\nend\n\n== Create Order(Request) ==\n\nResident -> WeService : Create Service\\nPOST: /weservices/service/{serviceID}/order\n\nnote left of Resident\nOrder Request schema\n{\"resident\":\"$userID\",\n\"service\":\"$serviceID\",\n\"pricingModel\":{},\n\"noteDetail\":\"string\",\n\"address\":\"string\",\n\"schedule\":Time}\nend note\n\nWeService ->> WeID : verify token\nWeID -->> WeService : 200\nWeService --> Resident : Response Service Data(JSON)\n\nResident -> WeService : Comment(chat) in Order\\nPOST: /weservices/order/{orderID}/comment\n\nnote left of Resident\nComment Data\n{\"content\":\"string\"}\nend note\n\nWeService ->> WeID : verify token\nWeID -->> WeService : 200\nWeService --> Resident : 200\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1673,
+    "completion_tokens": 567,
+    "total_tokens": 2240,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

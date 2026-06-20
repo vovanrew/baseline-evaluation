@@ -1,0 +1,86 @@
+```plantuml
+@startuml
+participant AntFacadeController
+participant Soldat
+participant Ouvriere
+participant Fourmi
+participant Noeud
+participant Fourmilière
+participant Grille
+participant Random
+
+-> AntFacadeController : 1 play
+activate AntFacadeController
+
+loop Fourmilière f in listeFourmilières
+    loop Fourmi f in listeFourmis
+        alt Fourmi instanceof Soldat
+            AntFacadeController -> Soldat : 2 deplacer(Random)
+            activate Soldat
+            Soldat -> Grille : 3 noeudsLibres
+            activate Grille
+            Grille --> Soldat : 4 ArrayList<Noeud>
+            deactivate Grille
+            Soldat -> Random : 5 nextInt()
+            activate Random
+            Random --> Soldat : 6 int
+            deactivate Random
+            Soldat -> Noeud : 7 setPosition:Noeud
+            activate Noeud
+            Noeud --> Soldat : 8 void
+            deactivate Noeud
+            Soldat --> AntFacadeController : 9 void
+            deactivate Soldat
+        else Fourmi instanceof Ouvriere
+            AntFacadeController -> Ouvriere : 10 deplacer(Random)
+            activate Ouvriere
+            Ouvriere -> Grille : 11 noeudsLibres
+            activate Grille
+            Grille --> Ouvriere : 12 ArrayList<Noeud>
+            deactivate Grille
+            Ouvriere -> Noeud : 13 getNourriture()
+            activate Noeud
+            Noeud --> Ouvriere : 14 nourriture
+            deactivate Noeud
+            Ouvriere -> Noeud : 15 getPheromones()
+            activate Noeud
+            Noeud --> Ouvriere : 16 pheromones
+            deactivate Noeud
+            Ouvriere -> Random : 17 nextInt()
+            activate Random
+            Random --> Ouvriere : 18 int
+            deactivate Random
+            Ouvriere -> Noeud : 19 setPosition:Noeud
+            activate Noeud
+            Noeud --> Ouvriere : 20 void
+            deactivate Noeud
+            Ouvriere -> Noeud : 21 getNourriture
+            activate Noeud
+            Noeud --> Ouvriere : 22 nourriture
+            deactivate Noeud
+            Ouvriere -> Noeud : 23 setNourriture(int)
+            activate Noeud
+            Noeud --> Ouvriere : 24 void
+            deactivate Noeud
+        else transporte nourriture
+            Ouvriere -> Noeud : 25 ajouterPheromones(int)
+            activate Noeud
+            Noeud --> Ouvriere : 26 void
+            deactivate Noeud
+            Ouvriere --> AntFacadeController : 27 void
+            deactivate Ouvriere
+        end
+    end
+    loop Noeud n in Grille
+        AntFacadeController -> Noeud : 28 evaporer(int)
+        activate Noeud
+        Noeud --> AntFacadeController : 29 void
+        deactivate Noeud
+    end
+end
+
+<-- AntFacadeController : 30 void
+deactivate AntFacadeController
+
+@enduml
+```

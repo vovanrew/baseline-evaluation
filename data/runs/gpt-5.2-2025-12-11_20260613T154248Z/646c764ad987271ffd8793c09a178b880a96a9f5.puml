@@ -1,0 +1,48 @@
+```plantuml
+@startuml
+skinparam backgroundColor white
+skinparam sequence {
+  ParticipantPadding 60
+  BoxPadding 20
+  LifeLineBorderColor #666666
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor transparent
+  ActorBorderColor #333333
+  ActorBackgroundColor #E9E9FF
+  ParticipantBorderColor #333333
+  ParticipantBackgroundColor #E9E9FF
+  GroupBorderThickness 3
+  GroupBorderColor black
+  GroupBackgroundColor white
+  NoteBackgroundColor #FFFEDB
+  NoteBorderColor #999999
+  NoteBorderThickness 1
+  ArrowColor #222222
+  ArrowThickness 2
+  MessageAlign left
+}
+hide footbox
+
+actor User
+box "Backend Environment" #E6E6E6
+participant Server
+participant SuperHeroApi
+end box
+
+alt [user search]
+  User -> Server : GET /search?q=<queryValue>
+  Server -> Server : getFromCache (queryValue) ?
+  note over Server : binarySearch (query)
+end
+
+alt [has in cache]
+  Server --> User : 200: queryValue
+else [not has in cache: request to API]
+  Server -> SuperHeroApi : GET queryValue
+  SuperHeroApi --> Server : 200: queryValue
+  Server -> Server : updateCache (queryValue)
+end
+
+Server --> User : 200: queryValue
+@enduml
+```

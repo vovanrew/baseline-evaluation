@@ -1,0 +1,71 @@
+```plantuml
+@startuml
+class Sensor {
+    <<C>>
+    TypesOfSensors: List<string>
+    TypesOfSignal: List<string>
+    TypeOfSensor: string
+    TypeOfSignal: string
+    Component(id int, name string, date DateTime, string typeOfSensor, string typeOfSignal)
+    GetFunction()
+}
+
+class Actuator {
+    <<C>>
+    TypesOfActuators: List<string>
+    StatusesOfActuators: List<string>
+    TypeOfActuator: string
+    StatusOfActuator: string
+    Component(id int, name string, date DateTime, string typeOfActuator, string statusOfActuator)
+    GetFunction()
+}
+
+class Component {
+    <<C>>
+    id: int
+    name: string
+    date: DateTime
+    Component(id int, name string, date DateTime)
+    GetFunction()
+}
+
+class Program {
+    <<C>>
+    Main(args[] string)
+}
+
+class IComponent {
+    <<C>>
+    GetComponent(id int) Component
+}
+
+class Proxy {
+    <<C>>
+    components: List<Component>
+    componentStore: ComponentStore
+    Proxy()
+    GetComponent(id int) Component
+}
+
+class ComponentStore {
+    <<C>>
+    container: ComponentContext
+    ComponentStore()
+    GetComponent(id int) Component
+}
+
+class ComponentContext {
+    <<C>>
+    Components: List<Component>
+    ComponentContext()
+}
+
+Sensor --|> Component : extends
+Actuator --|> Component : extends
+Program *-- Proxy : uses
+Proxy ..> IComponent : implements
+Proxy --> ComponentStore : uses
+ComponentStore --o ComponentContext : aggregates
+ComponentContext o-- Component : contains
+@enduml
+```

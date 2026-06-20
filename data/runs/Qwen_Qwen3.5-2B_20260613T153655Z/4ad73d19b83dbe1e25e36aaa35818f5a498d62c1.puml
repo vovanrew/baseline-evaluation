@@ -1,0 +1,23 @@
+@startuml
+participant "user" as User
+participant "MobileApp" as MobileApp
+participant "BACK" as BACK
+participant "DB MobileApp" as DBMobileApp
+participant "DB BACK" as DBBACK
+
+User ->> MobileApp: Инициация удаления объекта(ов) недвижимости
+
+MobileApp -> BACK: request: deleteAddress (userId, [addressId])
+
+BACK -> DBMobileApp: request: deleteAddress (userId, addressId)
+BACK <- DBMobileApp: response: deleteAddress (success)
+
+BACK -> MobileApp: request: getAllUserData (userId)
+MobileApp <- BACK: response: getAllUserData (userId, userData)
+
+MobileApp -> BACK: [обновление временных данных userData]
+BACK -> MobileApp: обновление представления клиента
+
+MobileApp -> User: Обновлённый экран
+
+@enduml

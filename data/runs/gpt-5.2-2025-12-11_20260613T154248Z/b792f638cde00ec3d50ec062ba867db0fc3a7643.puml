@@ -1,0 +1,48 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #D9D9E8
+  ActorBorderColor #666666
+  ActorBackgroundColor #D9D9E8
+}
+
+actor User
+participant UpdateUserServlet
+participant "userDto:UserDto" as userDto
+participant "userDao:UserDao" as userDao
+database users
+
+activate UpdateUserServlet
+
+UpdateUserServlet -> userDto : 生成
+activate userDto
+UpdateUserServlet -> userDto : setId(id)
+UpdateUserServlet -> userDto : setUserId(user_id)
+UpdateUserServlet -> userDto : setUserPass(User_password)
+UpdateUserServlet -> userDto : setUserName(user_name)
+UpdateUserServlet -> userDto : setAddress(address)
+UpdateUserServlet -> userDto : setSubAddress(address_sub)
+UpdateUserServlet -> userDto : setTel(tel)
+UpdateUserServlet -> userDto : setGender(gender)
+deactivate userDto
+
+UpdateUserServlet -> userDao : 生成
+activate userDao
+UpdateUserServlet -> userDao : updateUser(userDto)
+
+userDao -> users : UPDATE文実行
+activate users
+users --> userDao : true/false
+deactivate users
+
+userDao --> UpdateUserServlet : true/false
+deactivate userDao
+
+deactivate UpdateUserServlet
+@enduml
+```

@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import http.client
 import json
 import os
 import signal
@@ -211,10 +212,13 @@ RETRIABLE_HTTP = {408, 429, 500, 502, 503, 504}
 def call_with_retry(call_fn, retries=3, base_delay=5.0, sleep=time.sleep, log=print):
     """Run a no-arg call thunk, retrying transient failures with backoff.
 
-    Retriable: HTTP {408, 429, 5xx} and network-level URLError. NOT retriable:
-    other HTTP codes (a 400/401 will not heal) and TimeoutError — a timeout is
-    a per-cell verdict (no-EOS spirals reproduce deterministically; retrying
-    burns the full deadline again for the same outcome).
+    Retriable: HTTP {408, 429, 5xx}, network-level URLError, and a raw
+    ConnectionError (reset/abort during the response read — not wrapped in
+    URLError). NOT retriable: other HTTP codes (a 400/401 will not heal) and
+    TimeoutError — a timeout is a per-cell verdict (no-EOS spirals reproduce
+    deterministically; retrying burns the full deadline again for the same
+    outcome). TimeoutError is a sibling OSError of ConnectionError, so catching
+    ConnectionError (not OSError) keeps that verdict intact.
     """
     for attempt in range(retries + 1):
         try:
@@ -227,6 +231,25 @@ def call_with_retry(call_fn, retries=3, base_delay=5.0, sleep=time.sleep, log=pr
             if attempt == retries:
                 raise
             reason = f"network: {e.reason}"
+        except ConnectionError as e:
+            # reset/abort mid-read surfaces as a raw socket error, not a URLError
+            if attempt == retries:
+                raise
+            reason = f"connection: {e}"
+        except json.JSONDecodeError as e:
+            # truncated/garbled body: resp.read() returned partial bytes on a
+            # clean early close, so json.loads parses bad (no socket exception
+            # raised). Transient — a fresh request usually returns whole.
+            if attempt == retries:
+                raise
+            reason = f"bad json: {e}"
+        except http.client.HTTPException as e:
+            # malformed/cut HTTP response — e.g. IncompleteRead when a chunked
+            # stream is severed mid-transfer (resp.read() fails before parsing),
+            # or BadStatusLine. Transient — a fresh request usually completes.
+            if attempt == retries:
+                raise
+            reason = f"http read: {type(e).__name__}: {e}"
         delay = base_delay * (2 ** attempt)
         log(f"   transient ({reason}), retry {attempt + 1}/{retries} in {delay:.0f}s")
         sleep(delay)
@@ -244,7 +267,10 @@ def infer_cell(call_fn, baseline, drop_retries=2, log=print):
     status "ok": image-validated response in "response". "image_dropped": every
     attempt returned a text-only prompt_token count (the last blind completion
     is kept in "response" for the record, never scored). "timeout" /
-    "http_error" / "network_error": the exception detail in "detail".
+    "http_error" / "network_error" / "bad_response": the exception detail in
+    "detail". "bad_response" (a persistent truncated/garbled JSON body) is a
+    transport failure like "network_error" — recoverable on a targeted resume,
+    never scored — kept as a distinct status so it is visible in the tally.
     """
     attempts = 0
     last = None
@@ -257,9 +283,12 @@ def infer_cell(call_fn, baseline, drop_retries=2, log=print):
         except ApiHttpError as e:
             return {"status": "http_error", "attempts": attempts,
                     "detail": f"HTTP {e.code}: {e.detail[:2000]}"}
-        except urllib.error.URLError as e:
+        except (urllib.error.URLError, ConnectionError) as e:
             return {"status": "network_error", "attempts": attempts,
                     "detail": str(e)}
+        except (json.JSONDecodeError, http.client.HTTPException) as e:
+            return {"status": "bad_response", "attempts": attempts,
+                    "detail": f"{type(e).__name__}: {e}"}
         if ingested(response, baseline):
             return {"status": "ok", "attempts": attempts,
                     "response": response, "secs": secs}
@@ -289,6 +318,21 @@ def pick(diagrams, n):
     """Deterministic spread across types/tiers: stride through the frozen list."""
     step = max(1, len(diagrams) // n)
     return [diagrams[i * step] for i in range(n)]
+
+
+def format_progress(done, total, tally, elapsed=None):
+    """One-line operator-facing rolling status: batch position, live tally, and
+    an optional rough ETA. Pure stdout decoration — never touches the on-disk
+    reproducibility artifact. `done` is the 1-based count of cells reached
+    (resume-skips included); `tally` the running {status: count} dict; `elapsed`
+    wall-clock seconds since the loop started (omit -> no ETA). ETA is the naive
+    (elapsed/done)*(total-done) projection, rounded to whole minutes."""
+    parts = [f"[{done}/{total}]"]
+    parts += [f"{k}={v}" for k, v in tally.items()]
+    if elapsed is not None and done:
+        eta = (elapsed / done) * (total - done)
+        parts.append(f"~{round(eta / 60)}m")
+    return " ".join(parts)
 
 
 def main():
@@ -388,6 +432,8 @@ def main():
                    "warmup_calls": warm_calls, "started": stamp}, f, indent=2)
 
     tally = {}
+    total = len(diagrams)
+    loop_start = time.time()
     for attempt, r in enumerate(diagrams):
         base = r["key"][:-5]
         stem = f"{base}_a{attempt}" if args.repeat > 1 else base
@@ -400,11 +446,15 @@ def main():
                 prev = json.load(f)
             if "error" not in prev:
                 tally["skipped"] = tally.get("skipped", 0) + 1
-                print(f"-> {base[:18]} already done, skipping", flush=True)
+                print(f"[{attempt + 1}/{total}] -> {base[:18]} already done, "
+                      f"skipping", flush=True)
+                print(format_progress(attempt + 1, total, tally,
+                                      time.time() - loop_start), flush=True)
                 continue
 
-        print(f"\n-> {base[:18]} ({r['primary_type']} T{r['tier']}, "
-              f"{r['image_width']}x{r['image_height']}) sending...", flush=True)
+        print(f"\n[{attempt + 1}/{total}] -> {base[:18]} ({r['primary_type']} "
+              f"T{r['tier']}, {r['image_width']}x{r['image_height']}) sending...",
+              flush=True)
         img = image_data_url(os.path.join(args.images, base + ".png"))
         content = [{"type": "text", "text": PROMPT},
                    {"type": "image_url", "image_url": {"url": img}}]
@@ -423,6 +473,8 @@ def main():
             with open(json_path, "w") as f:
                 json.dump(record, f, indent=2)
             print(f"   FAIL {out['status']} (attempts={out['attempts']})", flush=True)
+            print(format_progress(attempt + 1, total, tally,
+                                  time.time() - loop_start), flush=True)
             continue
 
         # Persist the raw response verbatim before touching it.
@@ -444,6 +496,8 @@ def main():
               f"@startuml={'@startuml' in code} @enduml={'@enduml' in code}"
               f"{'  REASONING LEAK!' if leak else ''}",
               flush=True)
+        print(format_progress(attempt + 1, total, tally,
+                              time.time() - loop_start), flush=True)
 
     print(f"\nraw responses + extracted .puml in {run_dir}")
     print("outcome tally:", json.dumps(tally))

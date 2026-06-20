@@ -1,0 +1,22 @@
+{
+  "id": "ab3b1475-6b83-4b59-a667-fd18afe35393",
+  "object": "chat.completion",
+  "created": 1781409152,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"User\" as User\nrectangle \"Frontend\" as Frontend\ninterface \"API Gateway\" as APIGateway\nrectangle \"Matching Service\" as MatchingService\n  rectangle \"Controller\" as Controller\n  rectangle \"Service\" as Service\nrectangle \"Matching Database\" as MatchingDatabase\n  rectangle \"Questions\" as Questions\n  rectangle \"MatchRequests\" as MatchRequests\n\nUser --> Frontend : PUT /api/find/match\\npayload: {requestId}\nFrontend --> APIGateway : PUT /api/find/match\\npayload: {requestId}\nAPIGateway --> Controller : PUT /api/find/match\\npayload: {requestId}\nController --> Service : checkForMatch(requestId)\nService --> Questions : find user's MatchRequest with requestId\nQuestions --> Service : user's MatchRequest\nService --> MatchRequests : find another MatchRequest\nMatchRequests --> Service : another MatchRequest\nService --> Questions : get a random question\nQuestions --> Service : Question\nService --> Service : create sessionInfo and attach to each MatchRequest\nService --> MatchRequests : update the 2 MatchRequests\nMatchRequests --> Service : user's MatchRequest\nService --> Controller : user's MatchRequest\nController --> APIGateway : 200 OK\\npayload: {user's MatchRequest}\nAPIGateway --> Frontend : 200 OK\\npayload: {user's MatchRequest}\nFrontend --> Frontend : switch to session page\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1517,
+    "completion_tokens": 310,
+    "total_tokens": 1827
+  }
+}

@@ -1,0 +1,34 @@
+@startuml
+title orderList表示
+
+actor "配達員" as courier
+participant "Courieridform.jsp" as form
+participant "OrderListServlet" as servlet
+participant "CourierDAO" as courierDAO
+participant "Courier" as courierObj
+participant "Session" as session
+participant "OrderDAO" as orderDAO
+participant "Order" as orderObj
+participant "DetailDAO" as detailDAO
+participant "Detail" as detailObj
+participant "Request" as request
+participant "orderedlist.jsp" as orderedlist
+
+courier -> form: courierID入力
+form -> servlet: リンク
+servlet -> courierDAO: findByCourierid()
+courierDAO -> courierObj: 生成
+courierDAO --> servlet: Courier
+servlet -> session: Courier
+servlet -> orderDAO: findAll()
+orderDAO -> orderObj: 生成
+orderDAO -> detailDAO: findByOrderid()
+detailDAO -> detailObj: リスト生成
+detailDAO --> orderDAO: ArrayList<Detail>
+orderDAO -> orderObj: setDetail(ArrayList<Detail>)
+orderDAO --> servlet: ArrayLisr<Order>
+servlet -> request: setAttribute(ArrayList<Order>)
+servlet -> orderedlist: フォワード
+orderedlist --> courier: 表示
+
+@enduml

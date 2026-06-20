@@ -1,0 +1,55 @@
+@startuml
+hide footbox
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+actor Member
+participant ":TicketDetailPage" as TicketDetailPage
+participant ":TicketDetailContainer" as TicketDetailContainer
+participant ":AttendanceService (Frontend)" as AttendanceServiceFrontend
+participant ":Router" as Router
+participant ":AttendanceHTTPTransport" as AttendanceHTTPTransport
+participant ":AttendanceEndpoint" as AttendanceEndpoint
+participant ":AttendanceService" as AttendanceService
+participant ":RequesterService" as RequesterService
+participant ":AttendanceCommand" as AttendanceCommand
+participant ":AttendanceQuery" as AttendanceQuery
+
+Member -> TicketDetailPage : Click "Yes" Button
+TicketDetailPage -> TicketDetailContainer : handleConfirmation(input)
+TicketDetailContainer -> AttendanceServiceFrontend : confirmAttendance(classId, payload)
+AttendanceServiceFrontend -> Router : route("PATCH", "v2/class/{class_id}/attendance/confirmation")
+Router -> AttendanceHTTPTransport : Confirmation(AttendanceService, IServerOption)
+AttendanceHTTPTransport -> AttendanceEndpoint : Confirmation(AttendanceService)
+AttendanceEndpoint -> AttendanceService : Confirmation(context, payload)
+AttendanceService -> AttendanceService : Validate()
+
+alt ["Data Valid"]
+  AttendanceService -> AttendanceQuery : GetPureModel(context, ISliceCondition)
+  AttendanceQuery --> AttendanceService : ticket
+
+  alt ["Ticket Status is Accepted"]
+    AttendanceService -> AttendanceCommand : Register(context, [[payload]])
+    AttendanceCommand --> AttendanceService : is updated
+    AttendanceService -> RequesterService : UpdateRequestStatus(context, ticket)
+    RequesterService --> AttendanceService : is updated
+    AttendanceService --> AttendanceEndpoint : response := Response(is updated, nil)
+  end
+
+  AttendanceEndpoint --> AttendanceHTTPTransport : response
+  AttendanceHTTPTransport --> Router : response
+  Router --> AttendanceServiceFrontend : response
+  AttendanceServiceFrontend --> TicketDetailContainer : response
+  TicketDetailContainer --> TicketDetailPage : response
+  TicketDetailPage --> Member : response
+else
+  AttendanceService --> AttendanceEndpoint : UnprocessableEntity
+  AttendanceEndpoint --> AttendanceHTTPTransport : UnprocessableEntity
+  AttendanceHTTPTransport --> Router : UnprocessableEntity
+  Router --> AttendanceServiceFrontend : UnprocessableEntity
+  AttendanceServiceFrontend --> TicketDetailContainer : UnprocessableEntity
+  TicketDetailContainer --> TicketDetailPage : UnprocessableEntity
+  TicketDetailPage --> Member : UnprocessableEntity
+end
+
+@enduml

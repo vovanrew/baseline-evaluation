@@ -1,0 +1,30 @@
+@startuml
+hide footbox
+skinparam sequenceParticipant underline false
+skinparam sequenceParticipantBackgroundColor #E6E6FA
+skinparam sequenceParticipantBorderColor #666666
+skinparam sequenceLifeLineBorderColor #666666
+skinparam sequenceArrowColor #000000
+skinparam sequenceActorBackgroundColor #E6E6FA
+skinparam sequenceActorBorderColor #666666
+
+actor user
+participant LicenseAcceptor
+participant FileAcceptance
+participant ArgAcceptance
+participant LicensePrompt
+participant HelpTextMixin
+
+user -> LicenseAcceptor : /bin/chef
+LicenseAcceptor -> FileAcceptance : ::check
+FileAcceptance --> LicenseAcceptor : false
+LicenseAcceptor -> ArgAcceptance : ::check
+ArgAcceptance --> LicenseAcceptor : false
+LicenseAcceptor -> LicensePrompt : ::request_acceptance
+LicensePrompt -> LicensePrompt : ::check_for_tty
+LicensePrompt --> user : accept license?
+user -> LicensePrompt : yes
+LicensePrompt -> FileAcceptance : ::persist
+FileAcceptance -> LicensePrompt : path
+LicensePrompt --> LicenseAcceptor : true
+@enduml

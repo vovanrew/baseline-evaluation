@@ -1,0 +1,37 @@
+@startuml
+
+box "sw-explorer" #LightGray
+participant WebApp
+participant SWData
+end box
+
+box "Example background processing module" #LightGray
+participant Manager
+participant MessageQueue
+participant Worker
+participant Memcache
+end box
+
+[-> WebApp : fetch new collection
+WebApp -> SWData : fetch new collection
+SWData -> Manager : schedule a job
+
+note over Manager, Memcache #LightYellow
+This is just an example.
+We could got wi go with Celery, but sometimes it's good
+to hide the concrete engine behind the abstraction layer.
+end note
+
+Manager -> MessageQueue : schedule a job
+MessageQueue -> Worker : execute a job
+Worker -> Manager : update job status
+Manager -> Memcache : update job status
+Worker -> Manager : job result
+Manager -> Memcache : job result
+
+[-> WebApp : view pending collection
+WebApp -> SWData : get job status
+SWData -> Manager : get job status
+Manager -> Memcache : get job status
+
+@enduml

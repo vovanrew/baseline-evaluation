@@ -1,0 +1,23 @@
+@startuml
+left to right direction
+autonumber
+
+participant "LoaderPlugin" as LP
+participant "ContentServer" as CS
+participant "FS" as FS
+
+LP -> CS : LoadBundleIndexes()
+
+activate CS
+
+loop [for each index file]
+  CS -> FS : ReadFile()
+  FS --> CS
+  CS -> CS : parse ContentBundleIndex instances, fill mountpoint mappings
+end loop
+
+deactivate CS
+
+CS --> LP
+
+@enduml

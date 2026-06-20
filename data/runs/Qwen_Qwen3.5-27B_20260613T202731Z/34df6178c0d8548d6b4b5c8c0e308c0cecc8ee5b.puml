@@ -1,0 +1,29 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "User" as User
+participant "Browser" as Browser
+participant "Cell" as Cell
+participant "FormulaCompiler" as FormulaCompiler
+participant "ExcelExpressionCompiler" as ExcelExpressionCompiler
+participant "FormulaEvalVisitor" as FormulaEvalVisitor
+participant "FunctionCall" as FunctionCall
+participant "Function" as Function
+
+User -> Browser : select workbook
+User -> Browser : type in formula
+User -> Browser : click button
+Browser -> Cell : setContent(formula)
+Cell -> Cell : storeContent(formula)
+Cell -> FormulaCompiler : compile(this, formula)
+FormulaCompiler -> ExcelExpressionCompiler : compile(cell, formula)
+ExcelExpressionCompiler -> FormulaEvalVisitor : visit()
+FormulaEvalVisitor -> FormulaEvalVisitor : visitFunction_call()
+Cell -> Cell : reevaluate()
+Cell -> FunctionCall : evaluate()
+FunctionCall -> Function : applyTo()
+Browser -> Browser : refresh cell
+
+@enduml
+```

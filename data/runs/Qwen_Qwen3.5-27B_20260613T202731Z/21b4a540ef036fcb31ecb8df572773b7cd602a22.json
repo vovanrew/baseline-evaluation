@@ -1,0 +1,22 @@
+{
+  "id": "e465c2af-6391-49af-b688-586675f44888",
+  "object": "chat.completion",
+  "created": 1781436282,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\nactor \"User\" as User\nrectangle \"DomainModel\" {\n    participant \"UIBFF\" as UIBFF\n    participant \"CommandBus\" as CommandBus\n    participant \"Aggregate\" as Aggregate\n    participant \"ProcessManager\" as ProcessManager\n    participant \"EventBus\" as EventBus\n    participant \"QueryManager\" as QueryManager\n}\nparticipant \"Projectors\" as Projectors\ndatabase \"ReadModels\" as ReadModels\n\nUser -> UIBFF : http commands\nactivate UIBFF\nUIBFF -> CommandBus : commands\nactivate CommandBus\nCommandBus -> Aggregate : commands\nactivate Aggregate\nAggregate -> EventBus : events\nactivate EventBus\nEventBus -> ProcessManager : events\nactivate ProcessManager\nProcessManager -> CommandBus : commands\ndeactivate ProcessManager\ndeactivate CommandBus\ndeactivate Aggregate\nEventBus -> Projectors : events\nactivate Projectors\nProjectors -> ReadModels : write\nactivate ReadModels\ndeactivate ReadModels\ndeactivate Projectors\nEventBus -> UIBFF : events\ndeactivate EventBus\nUIBFF -> User : push\ndeactivate UIBFF\n\nUser -> UIBFF : http queries\nactivate UIBFF\nUIBFF -> QueryManager : queries\nactivate QueryManager\nQueryManager -> ReadModels : results\nactivate ReadModels\nReadModels -> QueryManager : results\ndeactivate ReadModels\nQueryManager -> UIBFF : results\ndeactivate QueryManager\nUIBFF -> User : results\ndeactivate UIBFF\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1811,
+    "completion_tokens": 324,
+    "total_tokens": 2135
+  }
+}

@@ -1,0 +1,42 @@
+@startuml
+title ブリッジパターン
+
+package "main" as main {
+  [main]
+}
+
+package "Bridge" as bridge {
+  class "Display" as Display {
+    <<impl>>
+    open(arg): void
+    print(arg): void
+    close(arg): void
+    display(arg): void
+  }
+
+  class "DisplayImpl" as DisplayImpl {
+    raw_open(arg): void
+    raw_print(arg): void
+    raw_close(arg): void
+  }
+
+  class "CountDisplay" as CountDisplay {
+    multi_display(arg): void
+  }
+
+  class "StringDisplayImpl" as StringDisplayImpl {
+    raw_open(arg): void
+    raw_print(arg): void
+    raw_close(arg): void
+  }
+
+  Display --> DisplayImpl : <<uses>>
+  CountDisplay --> Display : <<extends>>
+  StringDisplayImpl --> DisplayImpl : <<extends>>
+}
+
+main --> bridge : Uses
+main --> StringDisplayImpl : Create
+main --> DisplayImpl : Uses
+
+@enduml

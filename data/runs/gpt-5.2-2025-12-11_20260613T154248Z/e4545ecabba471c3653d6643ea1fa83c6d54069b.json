@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLgdsbiq0RGQTInjz7BXjEYf4TyK",
+  "object": "chat.completion",
+  "created": 1781368791,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequenceMessageAlign left\nskinparam ParticipantPadding 40\nskinparam BoxPadding 10\nskinparam NoteBackgroundColor #FFFFCC\nskinparam NoteBorderColor #999999\n\nactor \"User Agent\" as UA\nparticipant \"Content removal API\" as API\nparticipant \"User Manager\" as UM\ndatabase \"User database\" as UDB\ndatabase \"Content database\" as CDB\n\nnote left of UA\nShould also include a CSRF token to prevent admins who are also\nvisit other, potentially XSS vulnerable or malicious sites\nfrom helping an unknown actor remove content without authorization.\nend note\n\nUA -> API : Removal request (HTTP POST),\\ncontains ID of content to be removed.\nactivate API\n\nAPI -> UM : Retrieve role of requesting user.\nactivate UM\nUM -> UDB : Fetch user information from database.\nactivate UDB\nUDB --> UM : Return query result.\ndeactivate UDB\nUM --> API : Return user role.\ndeactivate UM\n\nalt [User has admin role]\n  API -> API : Validate removal request\n  alt [Failed to validate removal request]\n    API --> UA : Return an HTTP status code that signals validation failure.\\nExact value depends on how the validation failed.\n  else [Request is deemed valid]\n    API -> CDB : Remove content from DB.\n    activate CDB\n    CDB --> API : Result of delete operation\n    deactivate CDB\n\n    alt [Content has been removed successfully]\n      API --> UA : Return HTTP 204 No Content\n    else [Removal failed]\n      API --> UA : Return HTTP status code to signal reason for failure.\n    end\n  end\nelse [User is not authorized to remove content]\n  API --> UA : Return HTTP 403 Forbidden to signal that the user has no permission to request what they just did.\nend\n\ndeactivate API\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1261,
+    "completion_tokens": 402,
+    "total_tokens": 1663,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

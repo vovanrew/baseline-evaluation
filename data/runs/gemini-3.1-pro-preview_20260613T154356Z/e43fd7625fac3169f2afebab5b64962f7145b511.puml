@@ -1,0 +1,65 @@
+```plantuml
+@startuml
+participant ClassPathXmlApplicationContext
+participant AbstractApplicationContext
+participant DefaultListableBeanFactory
+participant AbstractBeanFactory
+participant DefaultSingletonBeanRegistry
+participant AbstractAutowireCapableBeanFactory
+participant BeanDefinitionValueResolver
+
+ClassPathXmlApplicationContext -> AbstractApplicationContext : refresh():Spring加载的入口
+AbstractApplicationContext -> AbstractApplicationContext : finishBeanFactoryInitialization() : spring bean 实例化入口
+AbstractApplicationContext -> DefaultListableBeanFactory : preInstantiateSingletons
+DefaultListableBeanFactory -> AbstractBeanFactory : getBean()真正获取bean的开始doXXX,是Spring通用的实现方法命名方式
+AbstractBeanFactory -> AbstractBeanFactory : doGetBean 真正获取bean的开始doXXX,是Spring通用的实现方法命名方式
+AbstractBeanFactory -> DefaultSingletonBeanRegistry : getSingleton 从缓存中获取Springbean对象
+DefaultSingletonBeanRegistry -> DefaultSingletonBeanRegistry : getSingleton(beanName,ealyReference) , 第一次运行接受提交暴露的bean对象
+DefaultSingletonBeanRegistry --> AbstractBeanFactory : 第一次返回为空
+AbstractBeanFactory -> AbstractBeanFactory : markBeanAsCreated bean创建过程比较长，标记bean正在创建 markBeanAsCreated
+AbstractBeanFactory -> DefaultSingletonBeanRegistry : getSingleton(beanName, 对象工厂类) , 此处是一个lamada表达式：
+DefaultSingletonBeanRegistry -> DefaultSingletonBeanRegistry : beforeSingletonCreation
+DefaultSingletonBeanRegistry -> AbstractAutowireCapableBeanFactory : createBean lambaa中执行方法
+AbstractAutowireCapableBeanFactory -> AbstractAutowireCapableBeanFactory : doCreateBean
+AbstractAutowireCapableBeanFactory -> AbstractAutowireCapableBeanFactory : createBeanInstance,构造函数
+AbstractAutowireCapableBeanFactory -> DefaultSingletonBeanRegistry : earlySingletonExposure ( 是否运行单例对象提交暴露 ) addSingletonFactory :将数据放在三级缓存当
+DefaultSingletonBeanRegistry --> AbstractAutowireCapableBeanFactory : addSingletonFactory缓存对象放好之后
+AbstractAutowireCapableBeanFactory -> AbstractAutowireCapableBeanFactory : populateBean(bean 属性填充,循环依赖解决单例的bean之间的属性填充) ;
+AbstractAutowireCapableBeanFactory -> AbstractAutowireCapableBeanFactory : applyPropertyValues
+AbstractAutowireCapableBeanFactory -> BeanDefinitionValueResolver : resolveValueIfNecessary:处理bean里面的依赖；
+BeanDefinitionValueResolver -> BeanDefinitionValueResolver : resolveReference
+BeanDefinitionValueResolver -> AbstractBeanFactory : getBean : 获取bean属性中依赖的bean对象
+AbstractBeanFactory -> AbstractBeanFactory : doGetBean
+AbstractBeanFactory -> DefaultSingletonBeanRegistry : getSingleton 从缓存中获取Springbean对象
+DefaultSingletonBeanRegistry -> DefaultSingletonBeanRegistry : getSingleton(beanName,ealyReference) , 第一次运行接受提交暴露的bean对象
+DefaultSingletonBeanRegistry --> AbstractBeanFactory : 第一次返回为空
+AbstractBeanFactory -> AbstractBeanFactory : markBeanAsCreated bean创建过程比较长，标记bean正在创建 markBeanAsCreated
+AbstractBeanFactory -> DefaultSingletonBeanRegistry : getSingleton(beanName, 对象工厂类) , 此处是一个lamada表达式：
+DefaultSingletonBeanRegistry -> DefaultSingletonBeanRegistry : beforeSingletonCreation
+DefaultSingletonBeanRegistry -> AbstractAutowireCapableBeanFactory : createBean lambaa中执行方法
+AbstractAutowireCapableBeanFactory -> AbstractAutowireCapableBeanFactory : doCreateBean
+AbstractAutowireCapableBeanFactory -> AbstractAutowireCapableBeanFactory : createBeanInstance,构造函数
+AbstractAutowireCapableBeanFactory -> DefaultSingletonBeanRegistry : earlySingletonExposure ( 是否运行单例对象提交暴露 ) addSingletonFactory :将数据放在三级缓存
+DefaultSingletonBeanRegistry --> AbstractAutowireCapableBeanFactory : addSingletonFactory缓存对象放好之后(此处特别注意：singletonFactories)
+AbstractAutowireCapableBeanFactory -> AbstractAutowireCapableBeanFactory : populateBean(bean 属性填充,循环依赖解决单例的bean之间的属性填充) ;
+AbstractAutowireCapableBeanFactory -> AbstractAutowireCapableBeanFactory : applyPropertyValues
+AbstractAutowireCapableBeanFactory -> BeanDefinitionValueResolver : resolveValueIfNecessary:处理bean里面的依赖；
+BeanDefinitionValueResolver -> BeanDefinitionValueResolver : resolveReference
+BeanDefinitionValueResolver -> AbstractBeanFactory : getBean : 获取bean属性中依赖的bean对象
+AbstractBeanFactory -> AbstractBeanFactory : doGetBean
+AbstractBeanFactory -> DefaultSingletonBeanRegistry : getSingleton 从缓存中获取Springbean对象
+DefaultSingletonBeanRegistry -> DefaultSingletonBeanRegistry : ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);\n从三级缓存中去取，因为对象已经缓存了，所以可以获取的到暴露的对象
+DefaultSingletonBeanRegistry --> AbstractBeanFactory : 返回提前暴露的对象，不在是返回的空对象；并且将在三级缓存中的数据 对象放在二级缓存中earlySingletonObjects
+AbstractBeanFactory --> BeanDefinitionValueResolver : 返回提前的bean
+BeanDefinitionValueResolver --> AbstractAutowireCapableBeanFactory : 依赖的bean获取到bean；
+AbstractAutowireCapableBeanFactory -> AbstractAutowireCapableBeanFactory : applyPropertyValues的方法返回
+AbstractAutowireCapableBeanFactory -> AbstractAutowireCapableBeanFactory : populateBean方法返回
+AbstractAutowireCapableBeanFactory -> AbstractAutowireCapableBeanFactory : initializeBean spring中的init方法，实现aware操作，
+AbstractAutowireCapableBeanFactory --> BeanDefinitionValueResolver : populateBean (返回bean的填充)
+BeanDefinitionValueResolver --> AbstractBeanFactory : 返回bean
+AbstractBeanFactory --> DefaultSingletonBeanRegistry : 返回bean
+DefaultSingletonBeanRegistry -> DefaultSingletonBeanRegistry : createBean
+DefaultSingletonBeanRegistry -> DefaultSingletonBeanRegistry : addSingleton(beanName, singletonObject); 对象创建好之后，移除三级和二级缓存中对象的值
+note right of DefaultSingletonBeanRegistry : 依次返回，最终将对象都加载singletongObjects缓存池当中
+@enduml
+```

@@ -1,0 +1,33 @@
+```plantuml
+@startuml
+skinparam handwritten true
+
+actor User
+
+box "NSheets Client"
+boundary HomeView
+control HomePresenter
+end box
+
+box "Server"
+control NoteServices
+control ListNoteController
+control NoteService
+entity NoteRepository
+end box
+
+box "Database"
+database Database
+end box
+
+User -> HomePresenter : onReveal() / navigate to page
+HomePresenter -> NoteServices : getNotes()
+NoteServices -> ListNoteController : listNotes()
+ListNoteController -> NoteService : allNotes()
+NoteService -> NoteRepository : findAll()
+NoteRepository -> Database : fetch
+NoteServices -> HomePresenter : onSuccess()
+HomePresenter -> HomeView : setContents()
+
+@enduml
+```

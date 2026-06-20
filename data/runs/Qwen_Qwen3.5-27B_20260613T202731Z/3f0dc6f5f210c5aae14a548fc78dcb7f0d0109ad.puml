@@ -1,0 +1,24 @@
+```plantuml
+@startuml
+title Loading Team page (no refresh)
+
+participant "TeamLive" as TeamLive
+participant "Team" as Team
+participant "Backlog" as Backlog
+participant "Persistence" as Persistence
+
+TeamLive -> Team : backlog(team_id, refresh: false)
+activate Team
+Team -> Backlog : get(team)
+activate Backlog
+Backlog -> Persistence : get_backlog(team_id)
+activate Persistence
+Persistence --> Backlog : [%Story{}, %Story{}]
+deactivate Persistence
+Backlog --> Team : [%Story{}, %Story{}]
+deactivate Backlog
+Team --> TeamLive : [%Story{}, %Story{}]
+deactivate Team
+
+@enduml
+```

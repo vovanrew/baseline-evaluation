@@ -1,0 +1,97 @@
+@startuml
+
+entity "app_translation\n((Translations))" as app_translation << (I, #6699FF) >> {
+  <u>label</u> string
+  description longText
+  privacyPolicyExtensions longText
+  <u>createdAt</u> createdAt
+  updatedAt updatedAt
+  **appId** foreignKey
+  **languageId** foreignKey
+}
+
+entity "app_action_button_translation\n((Translations))" as app_action_button_translation << (I, #6699FF) >> {
+  <u>label</u> string
+  <u>createdAt</u> createdAt
+  updatedAt updatedAt
+  **appActionButtonId** foreignKey
+  **languageId** foreignKey
+}
+
+entity "app_action_button\n(App action buttons)" as app_action_button << (T, #FF9999) >> {
+  **id** id
+  <u>entity</u> string
+  <u>view</u> string
+  <u>url</u> string
+  <u>action</u> string
+  <u>openNewTab</u> bool
+  label translated
+  <u>appId</u> foreignKey
+  <u>createdAt</u> createdAt
+  updatedAt updatedAt
+  translated json
+}
+
+entity "app_template\n(App templates)" as app_template << (T, #FF9999) >> {
+  **id** id
+  <u>template</u> longText
+  <u>path</u> string
+  <u>active</u> bool
+  <u>appId</u> foreignKey
+  <u>createdAt</u> createdAt
+  updatedAt updatedAt
+}
+
+entity "language" as language << (T, #AAAAAA) >> {
+}
+
+entity "app\n(Apps)" as app << (T, #FF9999) >> {
+  **id** id
+  <u>name</u> string
+  <u>path</u> string
+  author string
+  copyright string
+  license string
+  <u>active</u> bool
+  <u>configurable</u> bool
+  privacy string
+  <u>version</u> string
+  iconRaw blob
+  icon string
+  appSecret string
+  modules list
+  cookies list
+  label translated
+  description translated
+  privacyPolicyExtensions translated
+  <u>integrationId</u> foreignKey
+  <u>aclRoleId</u> foreignKey
+  <u>createdAt</u> createdAt
+  updatedAt updatedAt
+  translated json
+}
+
+entity "integration" as integration << (T, #AAAAAA) >> {
+}
+
+entity "acl_role" as acl_role << (T, #AAAAAA) >> {
+}
+
+entity "custom_field_set" as custom_field_set << (T, #AAAAAA) >> {
+}
+
+entity "webhook" as webhook << (T, #AAAAAA) >> {
+}
+
+app_action_button_translation --> app_action_button
+app_action_button_translation --> language
+app_translation --> language
+app_action_button --> app
+app_template --> app
+app --> integration
+app --> acl_role
+app --> custom_field_set
+app --> webhook
+app_translation --> app
+
+@enduml

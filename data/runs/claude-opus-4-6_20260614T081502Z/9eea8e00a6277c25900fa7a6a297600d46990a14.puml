@@ -1,0 +1,44 @@
+```plantuml
+@startuml
+
+actor Actor1
+participant ":Chantier" as Chantier
+participant "jmb:Artisan" as Artisan
+participant "q:Qualif" as Qualif
+participant "real : Realiser" as Realiser
+actor Actor2
+
+Actor1 -> Chantier : getPayeArtisan(jmb)
+activate Chantier
+
+Chantier -> Artisan : q : getQualif()
+activate Artisan
+Artisan --> Chantier
+deactivate Artisan
+
+Chantier -> Qualif : tauxH getTauxH()
+activate Qualif
+Qualif --> Chantier
+deactivate Qualif
+
+loop [ForEach real]
+    Chantier -> Realiser : a = getArtisan()
+    activate Realiser
+    Realiser --> Chantier
+    deactivate Realiser
+
+    opt [a == jmb]
+        Chantier -> Realiser : d = getDuree()
+        activate Realiser
+        Realiser --> Chantier
+        deactivate Realiser
+
+        Chantier -> Chantier : duree += d
+    end
+end
+
+Chantier -->> Actor1 : duree*tauxH
+deactivate Chantier
+
+@enduml
+```

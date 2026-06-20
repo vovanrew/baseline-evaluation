@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLHXRGaRrRzR3SGZnm7relBlaQN0",
+  "object": "chat.completion",
+  "created": 1781367235,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\nskinparam shadowing false\nskinparam classAttributeIconSize 0\nskinparam linetype ortho\n\npackage \"expr\\\\\" as expr {\n\n  class ExpressionEvaluator << (C,#A9D18E) >> {\n    + main(String[]): void\n  }\n\n  class ExpressionEvaluatorConfig << (C,#A9D18E) >> {\n    + repl(): REPL\n    + expressionParser(): ExpressionParser\n    + expressionFactory(): ExpressionFactory\n  }\n\n  package \"repl\\\\\" as repl {\n    interface REPL << (I,#B4A7D6) >> {\n      + loop(): void\n    }\n\n    class ConsoleREPL << (C,#A9D18E) >> {\n      + ConsoleREPL(ExpressionParser)\n    }\n\n    ConsoleREPL ..|> REPL\n  }\n\n  package \"parser\\\\\" as parser {\n    interface ExpressionParser << (I,#B4A7D6) >> {\n      + parse(s:String): Optional<Expression>\n    }\n\n    class DefaultExpressionParser << (C,#A9D18E) >> {\n      + DefaultExpressionParser(ExpressionFactory)\n    }\n\n    DefaultExpressionParser ..|> ExpressionParser\n  }\n\n  package \"expression\\\\\" as expression {\n\n    class AddExpression << (C,#A9D18E) >> {\n      - operandA: Integer\n      - operandB: Integer\n      - operator: String\n      + AddExpression(String, Integer, Integer)\n    }\n\n    class SubExpression << (C,#A9D18E) >> {\n      - operandA: Integer\n      - operandB: Integer\n      - operator: String\n      + SubExpression(String, Integer, Integer)\n    }\n\n    class MulExpression << (C,#A9D18E) >> {\n      - operandA: Integer\n      - operandB: Integer\n      - operator: String\n      + MulExpression(String, Integer, Integer)\n    }\n\n    class QuotExpression << (C,#A9D18E) >> {\n      - operandA: Integer\n      - operandB: Integer\n      - operator: String\n      + QuotExpression(String, Integer, Integer)\n    }\n\n    class FPAddExpression << (C,#A9D18E) >> {\n      - operandA: Double\n      - operandB: Double\n      - operator: String\n      + AddExpression(String, Double, Double)\n    }\n\n    class FPSubExpression << (C,#A9D18E) >> {\n      - operandA: Double\n      - operandB: Double\n      - operator: String\n      + SubExpression(String, Double, Double)\n    }\n\n    class FPMulExpression << (C,#A9D18E) >> {\n      - operandA: Double\n      - operandB: Double\n      - operator: String\n      + MulExpression(String, Double, Double)\n    }\n\n    class FPDivExpression << (C,#A9D18E) >> {\n      - operandA: Double\n      - operandB: Double\n      - operator: String\n      + QuotExpression(String, Double, Double)\n    }\n\n    interface Expression << (I,#B4A7D6) >> {\n      + eval(): T\n    }\n  }\n\n  interface ExpressionFactory << (I,#B4A7D6) >> {\n    + create(op:String, operandA:Integer, operandB:Integer): Expression\n    + create(op:String, operandA:Double, operandB:Double): Expression\n  }\n\n  class DefaultExpressionFactory << (C,#A9D18E) >> {\n    - intFactories: Map<String, IntExpressionFactory>\n    - fpFactories: Map<String, FPExpressionFactory>\n    + DefaultExpressionFactory(Map<String, IntExpressionFactory>, Map<String, FPExpressionFactory>)\n  }\n\n  package \"ints\\\\\" as ints {\n    interface IntExpressionFactory << (I,#B4A7D6) >> {\n      + create(op:String, operandA:Integer, operandB:Integer): IntExpression\n    }\n\n    class SubExpressionFactory << (C,#A9D18E) >>\n    class MulExpressionFactory << (C,#A9D18E) >>\n    class QuotExpressionFactory << (C,#A9D18E) >>\n    class AddExpressionFactory << (C,#A9D18E) >>\n\n    SubExpressionFactory ..> expression.SubExpression\n    MulExpressionFactory ..> expression.MulExpression\n    QuotExpressionFactory ..> expression.QuotExpression\n    AddExpressionFactory ..> expression.AddExpression\n\n    SubExpressionFactory ..|> IntExpressionFactory\n    MulExpressionFactory ..|> IntExpressionFactory\n    QuotExpressionFactory ..|> IntExpressionFactory\n    AddExpressionFactory ..|> IntExpressionFactory\n  }\n\n  package \"fps\\\\\" as fps {\n    interface FPExpressionFactory << (I,#B4A7D6) >> {\n      + create(op:String, operandA:Double, operandB:Double): FPExpression\n    }\n\n    class FPSubExpressionFactory << (C,#A9D18E) >>\n    class FPMulExpressionFactory << (C,#A9D18E) >>\n    class FPDivExpressionFactory << (C,#A9D18E) >>\n    class FPAddExpressionFactory << (C,#A9D18E) >>\n\n    FPSubExpressionFactory ..> expression.FPSubExpression\n    FPMulExpressionFactory ..> expression.FPMulExpression\n    FPDivExpressionFactory ..> expression.FPDivExpression\n    FPAddExpressionFactory ..> expression.FPAddExpression\n\n    FPSubExpressionFactory ..|> FPExpressionFactory\n    FPMulExpressionFactory ..|> FPExpressionFactory\n    FPDivExpressionFactory ..|> FPExpressionFactory\n    FPAddExpressionFactory ..|> FPExpressionFactory\n  }\n\n  ' Wiring / dependencies\n  ExpressionEvaluator ..> ExpressionEvaluatorConfig\n  ExpressionEvaluatorConfig ..> repl.REPL\n  ExpressionEvaluatorConfig ..> parser.ExpressionParser\n  ExpressionEvaluatorConfig ..> ExpressionFactory\n\n  repl.ConsoleREPL --> parser.ExpressionParser\n  parser.DefaultExpressionParser --> ExpressionFactory\n\n  DefaultExpressionFactory ..|> ExpressionFactory\n  DefaultExpressionFactory ..> ints.IntExpressionFactory\n  DefaultExpressionFactory ..> fps.FPExpressionFactory\n\n  ' Generic bindings shown in diagram\n  expression.Expression ..> expression.AddExpression : <<bind>>\\nT:Integer\n  expression.Expression ..> expression.SubExpression : <<bind>>\\nT:Integer\n  expression.Expression ..> expression.MulExpression : <<bind>>\\nT:Integer\n  expression.Expression ..> expression.QuotExpression : <<bind>>\\nT:Integer\n\n  expression.Expression ..> expression.FPAddExpression : <<bind>>\\nT:Double\n  expression.Expression ..> expression.FPSubExpression : <<bind>>\\nT:Double\n  expression.Expression ..> expression.FPMulExpression : <<bind>>\\nT:Double\n  expression.Expression ..> expression.FPDivExpression : <<bind>>\\nT:Double\n}\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1951,
+    "completion_tokens": 1485,
+    "total_tokens": 3436,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

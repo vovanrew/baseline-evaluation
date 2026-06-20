@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Geuqq48VN4JrmN1puGKJ4r",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nbox \"Line of Business\"\nparticipant \"Line of Business\" as LOB\nend box\n\nparticipant \"ESB\" as ESB\n\nbox \"Compliance IT\" #lightgreen\nparticipant \"Scoring\" as Scoring\nparticipant \"Recertification\" as Recert\nend box\n\ngroup Customer On-Boarding: Open a New Account\n    LOB -> ESB : UpdatePartyKYC\\nincludeScore=true\n\n    alt [Recertification completed]\n        LOB -> ESB : UpdatePartyKYC\\nincludeScore=true\\nrecertificationStatus=completed\\nactor=<userid>\\nreason=<one of client-initiated trigger codes>\n    end\nend\n\nESB -> Scoring : 1 score\n\nnote left\nSchedule a new recertification and calculate its due date\nOR retrieve due date of an existing recertification if\none has been previously scheduled and not yet\ncompleted or cancelled\nend note\n\nScoring -> Recert : 2 recertify\n\nRecert -> Recert : 3 evaluate rules\n\ngroup Recertification\n\n    alt [Recertification is Needed]\n\n        group Establish a Recertification\n            Recert -> Recert : 4 schedule a new recertification\n\n            alt [Existing Recertification]\n                Recert -> Recert : retrieve a previously\\n5 scheduled recertification\\n  that hasn't been completed or cancelled\n            end\n\n            alt [Complete a Recertification]\n                Recert -> Recert : 6 complete an established recertification\n                note right\n                    Immediately complete the\n                    recertification if the LOB\n                    told us it was already done\n                end note\n            end\n        end\n\n        Recert --> Scoring : 7 recertification details\n        note left : Due date, status, recert id\n\n        Scoring --> LOB : 8 score + recertification\n\n    else [Recertification is Not Needed]\n\n        Recert --> Scoring : 9 no recertification\n\n        Scoring --> LOB : 10 score\n\n    end\n\nend\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432909,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 516,
+    "prompt_tokens": 1660,
+    "total_tokens": 2176
+  }
+}

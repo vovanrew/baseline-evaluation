@@ -1,0 +1,35 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "Client" as Client
+rectangle "RMB" as RMB
+rectangle "Node" as Node
+
+== Deployment Process ==
+Client -> RMB: Create an RMB message\n(cmd: zos.deployment.deploy, dat: base64(json(deployment)))
+activate RMB
+RMB -> Node: Decode payload(dat).\nSo node receive a deployment object
+activate Node
+Node -> Node: Verify hash against contract hash\nVerify signature of the twin
+Node --> RMB: Accepted Or Error
+deactivate Node
+RMB --> Client: Response from the node
+deactivate RMB
+
+alt If valid
+    Node -> Node: Deploy
+end
+
+== Get Deployment Process ==
+Client -> RMB: Get Deployment (cmd: zos.deployment.get)
+activate RMB
+RMB -> Node: Call get method
+activate Node
+Node --> RMB: Get Response
+deactivate Node
+RMB --> Client: Response
+deactivate RMB
+
+@enduml
+```

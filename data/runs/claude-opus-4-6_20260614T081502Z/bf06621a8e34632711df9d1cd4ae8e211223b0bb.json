@@ -1,0 +1,21 @@
+{
+  "id": "msg_01XXaB95CXnVi6Kx1ihj7aFq",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle **TCPClient::connectToServer(string ipAddress, int port)**\n\nparticipant UC1\nparticipant TCPClient\nparticipant clientStructure\n\nnote over clientStructure : objectk of\\nsockaddr_in\n\nUC1 -> TCPClient : connectToServer(ipAddress, port)\n\nnote right of TCPClient #LightYellow : create a socket\n\nTCPClient -> TCPClient : socket_ = socket(AF_INET, SOCK_STREAM, 0);\nactivate TCPClient\ndeactivate TCPClient\n\nopt socket_ == -1\nTCPClient -->> UC1 : return -1 (socket create faild)\nend\n\nTCPClient -> clientStructure : clientStructure()\n\nclientStructure -> TCPClient : clientStructure.sin_family = AF_INET;\n\nclientStructure -> TCPClient : clientStructure.sin_port = htons(port);\n\nnote left of clientStructure #LightYellow : linking ipAddress to clientstructure\\nusing AF_INET standart\n\nTCPClient -> TCPClient : inet_pton(AF_INET, ipAddress.c_str(),\\n  &clientStructure.sin_addr);\nactivate TCPClient\ndeactivate TCPClient\n\nTCPClient -> TCPClient : connectRes = connect(socket_, (sockaddr*)&clientStructure,\\n  sizeof(clientStructure));\nactivate TCPClient\ndeactivate TCPClient\n\nopt connectRes == -1\nTCPClient -->> UC1 : return -1 (faild to connect)\nend\n\nTCPClient ->x clientStructure\nTCPClient -->> UC1 : return 0 (connected)\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781429827,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 407,
+    "prompt_tokens": 1656,
+    "total_tokens": 2063
+  }
+}

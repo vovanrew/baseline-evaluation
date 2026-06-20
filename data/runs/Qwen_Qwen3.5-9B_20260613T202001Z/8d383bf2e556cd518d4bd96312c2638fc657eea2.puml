@@ -1,0 +1,38 @@
+@startuml
+left to right direction
+skinparam sequenceMessageAlign center
+
+participant "browser" as browser
+participant "proxy" as proxy
+participant "backend" as backend
+participant "component_config" as component_config
+participant "subscription_map" as subscription_map
+participant "normalized_object_map" as normalized_object_map
+participant "normalized_object" as normalized_object
+
+activate browser
+activate proxy
+activate backend
+
+browser -> proxy: get_state(\nconfiguration_name,\ngeo_bounding_box)
+proxy -> backend: +TENANT_HEADER
+
+backend -> component_config: component_config[configuration_name]\n.subscription_usages
+component_config --> backend: [ subscription_usage_config ]
+
+backend -> subscription_map: forEach subscription_usage_config.subscription_id
+subscription_map --> backend: subscription_map[subscription_id] (= normalized_object_map)
+
+backend -> normalized_object_map: forEach key
+normalized_object_map --> backend: normalized_object
+
+backend -> normalized_object: forEach normalized_object:\nif object.in(geo_bounding_box):\n  object.to_dto(\n    subscription_usage_config\n  )
+normalized_object --> backend: object_dto
+
+backend --> proxy: [ object_dto ]
+proxy --> browser:
+
+deactivate browser
+deactivate proxy
+deactivate backend
+@enduml

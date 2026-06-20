@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Gdxx6ungcufuD3KWfJtZTJ",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nbox \"Upstream\" #White\nparticipant \"Producer\" as UProducer <<C>>\nparticipant \"Adapter\" as UAdapter <<C>>\nparticipant \"Tansport\" as UTransport <<S>>\nend box\n\nbox \"Gateway\" #White\nparticipant \"Adapter\" as GAdapter <<C>>\nparticipant \"Consumer\" as GConsumer <<C>>\nbox \"JobExecution\" #LightCyan\nparticipant \"GatewayJobHandler\" as GatewayJobHandler <<C>>\nend box\nparticipant \"Gateway\" as GGateway <<C>>\nparticipant \"Producer\" as GProducer <<C>>\nparticipant \"Adapter\" as GAdapter2 <<C>>\nend box\n\nbox \"Downstream\" #White\nparticipant \"Tansport\" as DTransport <<S>>\nparticipant \"Adapter\" as DAdapter <<C>>\nparticipant \"Consumer\" as DConsumer <<C>>\nbox \"JobExecution\" #LightCyan\nparticipant \"DownstreamJobHandler\" as DownstreamJobHandler <<C>>\nend box\nparticipant \"Lower Layer\" as LowerLayer <<S>>\nend box\n\nUProducer -> UAdapter : publish(command)\nUAdapter -> UTransport : publish(command)\nUTransport -> GAdapter : execute(command)\nUAdapter --> UProducer : resolves()\nUProducer --> UProducer : resolves()\nUProducer -> UAdapter : subscribe(handler)\nUAdapter -> UTransport : subscribe(\"response\")\n\nGAdapter -> GConsumer : handler(command, done)\nGConsumer -> GatewayJobHandler : subscribe(\"done\")\nGConsumer -> GatewayJobHandler : emit(\"command\", GatewayJobHandler)\n\nGatewayJobHandler -> GGateway : publish(command)\nGGateway -> GProducer : publish(command)\nGProducer -> GAdapter2 : publish(command)\nGAdapter2 -> DTransport : execute(command)\nGProducer --> GProducer : resolves()\nGProducer -> GAdapter2 : subscribe(handler)\nGAdapter2 -> DTransport : subscribe(\"response\")\n\nDTransport -> DAdapter : handler(command, done)\nDAdapter -> DConsumer : subscribe(\"done\")\nDAdapter -> DConsumer : emit(\"command\", GatewayJobHandler)\n\nDConsumer -> DownstreamJobHandler : subscribe(\"done\")\nDConsumer -> DownstreamJobHandler : emit(\"command\", GatewayJobHandler)\nDownstreamJobHandler --> DownstreamJobHandler : done()\nDownstreamJobHandler -> DConsumer : emit(\"done\")\nDConsumer -> DAdapter : done(response)\n\nDAdapter -> DTransport : getDelay(command)\\ndone(response)\nDTransport -> GAdapter2 : emit(\"response\", response)\n\nGAdapter2 -> GProducer : handler(\"response\")\\nonTimeOut(getDelay())\\nunsubscribe()\nGProducer --> GAdapter2 : resolve(responses)\n\nGatewayJobHandler -> GConsumer : done()\nGConsumer -> GAdapter : emit(\"done\")\nGAdapter -> UTransport : done(response)\n\nUTransport -> UAdapter : emit(\"response\", response)\nUAdapter -> UProducer : handler(\"response\")\nUAdapter -> UProducer : emit(\"response\", response)\nUProducer --> UProducer : handler(\"response\")\\nonTimeOut(getDelay())\\nunsubscribe()\n\nGConsumer -> GAdapter : getDelay(command)\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781370895,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 855,
+    "prompt_tokens": 1328,
+    "total_tokens": 2183
+  }
+}

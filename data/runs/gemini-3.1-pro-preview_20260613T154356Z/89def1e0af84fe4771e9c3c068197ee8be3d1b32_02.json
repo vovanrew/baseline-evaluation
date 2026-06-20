@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle Scheduled Events\n\nactor \"Recording Staff\" as RS\nactor Coach\ncollections \"IP/Mobile Cams\" as Cams\ncollections \"Consumer Apps\" as Apps\nparticipant \"Security Gateway\" as SG\ncontrol \"Control Domain\\n(win10/linux)\" as CD\nparticipant \"Streaming Service\\n(encoder)\" as SS\nentity \"Media\\n(mediaID)\" as Media\nparticipant \"Transfer Service\" as TS\n\nApps -> SG : authenticate(ID)\nSG --> Apps : return(token)\n\nCams -> CD : register(endpoint)\nApps -> CD : register(token, priority)\n\nRS -> CD : createEvent(configuration{description, sources, consumers{priorities}})\nCD --> CD : create(newEvent)\nactivate CD\n\nRS -> CD : start(newEvent)\nCD -> SS : encode()\nCD --> Apps : notify(recording)\n\nRS -> CD : stop(newEvent)\ndeactivate CD\n\nCD -> SS : saveAs(mediaID)\nSS -> Media : save(mediaID)\n\nCD -> TS : host(mediaID, consumers{token, priority})\nCD --> Apps : notify(newMediaAvailable, mediaID, transferServiceEndpoint)\n\nalt auto-download enabled\n    Apps -> TS : fetchMedia(token, mediaID)\n    TS --> Apps : returnByPriority(mediaStream)\nelse manual-download enabled\n    Coach -> Apps : showMedia(token)\n    Apps -> TS : fetchMedia(token, mediaID)\n    TS --> Apps : returnByPriority(mediaStream)\nend\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHwOFFj+LNjPl5BFcIufux+aJ+8spy9hoXZ8OFlApjIwuBegCDNkDvTD8G9y90"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1160,
+    "candidatesTokenCount": 346,
+    "totalTokenCount": 1506,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1080
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "Sl0xarXmLOmavdIPrcmQ0A8"
+}

@@ -1,0 +1,50 @@
+@startuml
+title New User Workflow
+
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 20
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9ECF6
+  BoxBorderColor #666666
+  BoxBackgroundColor #E6E6E6
+  ArrowColor #222222
+  MessageAlign left
+}
+
+actor User
+
+box "uFR Nano" #E6E6E6
+participant NFC
+end box
+
+box "Raspberry Pi" #E6E6E6
+participant WebInterface
+participant PiPass
+database DB
+end box
+
+alt [Tap First Example]
+User -> NFC : 1 Tap
+PiPass -> NFC : 2 Polling Service
+NFC -> PiPass : 3 Ack Tap
+PiPass -> DB : 4 User Lookup
+DB --> PiPass : 5 Zero Results
+PiPass -> PiPass : 6 Set user state to new.\nAwait WebInterface interaction.
+User -> WebInterface : 7 Complete Registration Workflow
+else [Web Create]
+User -> WebInterface : 8 Start Registration Workflow
+WebInterface -> PiPass : 9 Save registration.\nAwait next unassigned tap.
+NFC -> PiPass : 10 Ack Tap
+PiPass -> DB : 11 User Lookup
+DB --> PiPass : 12 Zero Results
+PiPass -> PiPass : 13 Complete Registration
+PiPass -> DB : 14 Save user details
+PiPass -> WebInterface : 15 Ack user registration
+User <-- WebInterface : 16 Confirm
+end
+@enduml

@@ -1,0 +1,62 @@
+@startuml
+
+box "メモリ管理"
+participant "ページング\n管理" as P
+participant "物理メモリ\n領域管理" as M
+end box
+
+participant "MLIB" as MLIB
+
+participant "タスク管理" as T
+
+T -> P : ページディレクトリ解放\n（ページディレクトリID）
+
+P -> MLIB : 管理情報取得
+ref over MLIB
+動的配列
+end ref
+P <-- MLIB
+
+P -> P : ページディレクトリ操作領域マッピング設定
+
+ref over P
+マッピング設定
+end ref
+
+loop カーネル領域以外の全有効エントリ毎
+P -> P : ページテーブル操作領域マッピング設定
+
+ref over P
+マッピング設定
+end ref
+
+P -> P : ページテーブル0初期化
+
+P -> M : ページテーブル解放
+M -> MLIB
+ref over MLIB
+物理メモリ領域解放
+end ref
+M <-- MLIB
+P <-- M
+end
+
+P -> P : ページディレクトリ0初期化
+
+P -> M : ページディレクトリ解放
+M -> MLIB
+ref over MLIB
+物理メモリ領域割当
+end ref
+M <-- MLIB
+P <-- M
+
+P -> MLIB : 管理情報解放
+ref over MLIB
+動的配列
+end ref
+P <-- MLIB
+
+T <-- P
+
+@enduml

@@ -1,0 +1,37 @@
+@startuml
+actor User
+participant "BeanShellExtension" as BeanShellExtension #LightBlue2
+participant "BeanShellExtensionUI" as BeanShellExtensionUI #LightGreen2
+participant "BeanShellMenu" as BeanShellMenu #Lavender
+participant "BeanShellMacroAction" as BeanShellMacroAction #Pink
+participant "BeanShellMacrosUI" as BeanShellMacrosUI #OrangeRed10
+participant "BeanShellMacroController" as BeanShellMacroController #Yellow70
+database BSInterpreter
+
+User ->> BeanShellExtension : openBSext()
+activate BeanShellExtension 
+    BeanShellExtension->>BeanShellExtensionUI:create(this, uicontroller)    
+        activate BeanShellExtensionUI        
+            BeanShellExtensionUI->>BeanShellMenu:openBSmenu(uicontroller)            
+                activate BeanShellMenu                
+                    BeanShellMenu->>BeanShellMacroAction:open(uicontroller)                    
+                        activate BeanShellMacroAction                        
+                            BeanShellMacroAction->>BeanShellMacrosUI:create()                            
+                                activate BeanShellMacrosUI                                
+                                    BeanShellMacrosUI->>BeanShellMacroController:create()                                    
+                                        activate BeanShellMacroController                                        
+                                            BeanShellMacroController-->BSInterpreter:create()                                            
+                                                activate BSInterpreter                                                
+                                                    deactivate BSInterpreter                                                                                                  
+                                                        end note                                                                                                                                              
+                                                            else if (exp.toString().trim().length()== 0 || exp.equals("null")) then                                                            
+                                                                alt macro name exists or not                                                                   
+                                                                        loop while macros exist                                                                               
+                                                                            for each of the lines                                                                                               
+                                                                                    opt line starts with //                                                                                       
+                                                                                            ignore this comment line                                                                                   
+                                                                                        else execute expression                                                                                      
+                                                                                            getInterpreter().executeMacro(exp.toString());                                                                                     
+                                                                                        end                                                                                          
+                                                                                    end                              
+@enduml

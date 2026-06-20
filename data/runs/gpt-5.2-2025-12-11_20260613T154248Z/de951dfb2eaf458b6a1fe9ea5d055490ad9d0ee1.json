@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLtd8DUdwsAKODaCTnqMe5DfVZev",
+  "object": "chat.completion",
+  "created": 1781369597,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle US004 - As Administrator, I want to search for users\n\nactor Administrator\n\nparticipant \":SearchUsersByParamsRoute\" as Route\nparticipant \"inDto : SearchUserDto\" as InDto\nparticipant \":UsersController\" as Controller\nparticipant \":SearchUsersByParamsService\" as Service\nparticipant \":ISystemUserRepo\" as SysRepo\nparticipant \":IUserProfileRepo\" as ProfileRepo\nparticipant \"usersFound : List<SystemUser>\" as UsersFound\nparticipant \"usersFoundDto : List<UserDto>\" as UsersFoundDto\nparticipant \"user : SystemUser\" as User\nparticipant \":SystemUserMapper\" as Mapper\nparticipant \"userDto : OutputUserDto\" as UserDto\nparticipant \"usersJson : ResponseEntity\" as UsersJson\n\nAdministrator -> Route : 1 GET /users?name={name}&email={email}&profile={profile}&func={func}\nnote over Administrator,Route\nThe parameters (name, email, profile and function) will be in the query of the request.\nAt least, one of tham must be typed or chosen.\nend note\n\nRoute -> InDto : 2 searchUsersByTypedParams(inDto)\nInDto -> Controller : 3 searchUsersByTypedParams(inDto)\n\nopt if the request has a profile\nController -> ProfileRepo : 4 result : existsByUserProfileId(profile)\nend opt\n\nalt depending on which params came from inputDto, the service class will invoke the respective method\nController -> Service : 5 findAllBy...()\nService -> SysRepo : 6 create()\nSysRepo --> UsersFound : usersFound : List<SystemUser>\nService --> Controller : 7 usersFound\nController -> UsersFoundDto : 8 create()\nController --> UsersFoundDto : usersFoundDto : List<UserDto>\nend alt\n\nloop for each user found at the list\nController -> Mapper : 9 model2Dto(user)\nMapper -> UserDto : 10 create()\nMapper --> Controller : 11 userDto\nController -> UsersFoundDto : 12 add(userDto)\nend loop\n\nController --> InDto : 13 usersFoundDto\nInDto -> UsersJson : 14 create(usersFoundDto)\nUsersJson --> Route : 15 usersJson\n\nRoute --> Administrator : 16 Show the list of user found by typed/chosen parameters\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1026,
+    "completion_tokens": 486,
+    "total_tokens": 1512,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

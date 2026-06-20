@@ -1,0 +1,37 @@
+@startuml
+title Kubectl Request
+
+actor "kubectl" as k8scli1 at 0%
+participant "K8s Auth Proxy\n(nginx)" as authproxy at 35%
+database "Hydra\n(OAuth2/OIDC Provider)\n(port :4446/7)" as hydra at 90%
+
+
+k8scli1 ->>authproxy: GET https://<cluster-url>/api/pods \nHeader { Authentication Bearer <token>} 
+activate authproxy 
+
+alt If good token
+    
+    group Hydra Token Validation
+        
+        note right of authproxy #lightgreen
+            The proxy validates tokens by calling /userinfo on Hydra.\nThe response contains claims about user identity/groups.
+            
+            Example Response:\n{\n   \"sub\": \"admin\",\n   \"email_verified\": true,\n   ... etc ...\n}    
+        
+        endnote 
+        
+       activate hydra  
+       
+      authproxy->hydra:GET http://hydra.system-auth.svc.cluster.local/userinfo
+      
+     deactivate hydra
+     
+     
+end alt 
+
+
+deactivate authproxy
+
+
+
+@enduml

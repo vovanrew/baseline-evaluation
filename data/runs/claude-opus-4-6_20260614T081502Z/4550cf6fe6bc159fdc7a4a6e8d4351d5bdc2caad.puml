@@ -1,0 +1,40 @@
+```plantuml
+@startuml
+title Index (ISP refactor)
+
+package edu {
+  package tec {
+    package ic6821 {
+      package fulltextsearch {
+        package index {
+          interface Index {
+            + index(String term, File):void
+            + search(String term):Set<File>
+            + isPersistent():boolean
+          }
+
+          interface PersistentIndex {
+            + persist():void
+            + restore():boolean
+          }
+
+          class InMemoryMapIndex {
+            ~ index:Map<String, Set<File>>
+          }
+
+          class MapIndex {
+            ~ indexFile:File
+            + MapIndex(:File, :Index)
+          }
+
+          PersistentIndex --|> Index
+          InMemoryMapIndex ..|> Index
+          MapIndex ..|> PersistentIndex
+          MapIndex --> InMemoryMapIndex : <<delegate>>\nindex
+        }
+      }
+    }
+  }
+}
+@enduml
+```

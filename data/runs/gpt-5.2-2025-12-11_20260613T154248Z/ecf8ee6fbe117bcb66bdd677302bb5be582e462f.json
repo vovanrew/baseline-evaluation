@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLunqTSIGhlAEZanOyX5x8BVlJH1",
+  "object": "chat.completion",
+  "created": 1781369669,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #333333\n  LifeLineBorderColor #999999\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #E9E9F6\n  BoxBorderColor #333333\n  BoxBackgroundColor #FFFFFF\n  NoteBackgroundColor #FFF7CC\n  NoteBorderColor #C9B458\n}\n\nparticipant ConfigurationClassPostProcessor as CCP\nparticipant ConfigurationClassParser as CCPa\nparticipant ComponentScanAnnotationParser as CSAP\nparticipant AdviceModeImportSelector as AMIS\nparticipant TransactionManagementConfigurationSelector as TMCS\nparticipant ConfigurationClass as CC\nparticipant ConfigurationClassBeanDefinitionReader as CCBDR\nparticipant AutoProxyRegistrar as APR\nparticipant AopConfigUtils as ACU\n\nCCP -> CCP : postProcessBeanDefinitionRegistry\nCCP -> CCPa : parse(AnnotationMetadata metadata,\\nString beanName)\nactivate CCPa\nCCPa -> CCPa : processConfigurationClass(ConfigurationClass configClass)\nCCPa -> CCPa : doProcessConfigurationClass(ConfigurationClass configClass,\\nSourceClass sourceClass)\n\nalt \u5f53\u524d\u89e3\u6790\u7684\u7c7bClass\u4e0a\u6709@ComponentScan\u6ce8\u89e3\uff0c\u8fdb\u884c\u626b\u63cf\n  CCPa -> CSAP : parse(AnnotationAttributes componentScan,\\nfinal String declaringClass)\n  activate CSAP\n  CSAP -> CSAP : parse(String className,\\nString beanName)\n  CSAP --> CCPa : processConfigurationClass(ConfigurationClass configClass)\\n\u9012\u5f52\u89e3\u6790\u626b\u63cf\u5230\u7684\u7c7b\n  deactivate CSAP\nend\n\nCCPa -> CCPa : processImports(configClass, sourceClass,\\ngetImports(sourceClass), true)\n\ngroup \u89e3\u6790\u5904\u7406@EnableTransactionManagement import bean\u76f8\u5173\n  CCPa -> TMCS : selectImports(AnnotationMetadata)\n  activate TMCS\n  TMCS -> AMIS : selectImports(AdviceMode)\n  activate AMIS\n  AMIS --> TMCS\n  deactivate AMIS\n  TMCS --> CCPa\n  deactivate TMCS\n\n  note left of CCPa\n    \u83b7\u53d6\u5230AutoProxyRegistrar\u3001ProxyTransactionManagementConfiguration\n  end note\n\n  group \u6ce8\u518c\u5904\u7406AutoProxyRegistrar\u3001ProxyTransactionManagementConfiguration\n    note left of CCPa\n      \u901a\u8fc7AutoProxyRegistrar\u3001AspectJAutoProxyRegistrar\u5f15\u5165Bean\\n\uff08\u6700\u7ec8\u628a@EnableTransactionManagement\u7684\u7c7b\\n\u7684ImportBeanDefinitionRegistrar\u6ce8\u518c\u5230\u5bb9\u5668\uff09\n    end note\n    CCPa -> CC : addImportBeanDefinitionRegistrar\n    CCPa -> CCPa : processConfigurationClass\n    note left of CCPa\n      \u6309\u7167\u666e\u901a\u914d\u7f6e\u7c7b\u5904\u7406ProxyTransactionManagementConfiguration\n    end note\n  end\nend\n\ngroup \u52a0\u8f7d\u914d\u7f6e\u7c7b\u7684Bean\u5b9a\u4e49\n  CCPa -> CCBDR : loadBeanDefinitions\n  activate CCBDR\n  CCBDR -> CCBDR : loadBeanDefinitionsForConfigurationClass\n  CCBDR -> CCBDR : registerBeanDefinitionForImportedConfigurationClass\n\n  note right of CCBDR\n    \u5982\u679c\u662f\u7531\u914d\u7f6e\u7c7b\u5bfc\u5165\u7684\uff0c\u76f4\u63a5\u6ce8\u518c\u5230beanFactory\n  end note\n\n  group \u5904\u7406ProxyTransactionManagementConfiguration\uff0c\u5bfc\u5165\u4e86BeanFactoryTransactionAttributeSourceAdvisor\n    CCBDR -> CCBDR : loadBeanDefinitionsForBeanMethod\n    note left of CCBDR\n      \u52a0\u8f7d@Bean\u6807\u8bb0\u7684\u65b9\u6cd5\u4e3aBean\n    end note\n    CCBDR -> CCBDR : loadBeanDefinitionsFromImportedResources\n    note left of CCBDR\n      \u5904\u7406@ImportResource\n    end note\n  end\n\n  group \u5904\u7406AutoProxyRegistrar\uff0c\u6ce8\u518c\u4e86InfrastructureAdvisorAutoProxyCreator\n    note left of CCBDR\n      \u5904\u7406@Import\uff0c\u5bfc\u5165\u7684ImportBeanDefinitionRegistrar\n    end note\n    CCBDR -> CCBDR : loadBeanDefinitionsFromRegistrars\n    CCBDR -> APR : registerBeanDefinitions\n    activate APR\n    note right of APR\n      \u6ce8\u518cInfrastructureAdvisorAutoProxyCreator\n    end note\n    APR -> ACU : registerAutoProxyCreatorIfNecessary\n    deactivate APR\n  end\n\n  deactivate CCBDR\nend\n\ndeactivate CCPa\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1261,
+    "completion_tokens": 870,
+    "total_tokens": 2131,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

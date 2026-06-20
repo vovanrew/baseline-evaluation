@@ -1,0 +1,75 @@
+@startuml
+title Sequence Diagram: Internal state synchronization
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6FA
+  BoxBorderColor #666666
+  BoxBackgroundColor #D9D9D9
+  GroupBorderColor #000000
+  GroupBackgroundColor #FFFFFF
+  GroupHeaderFontStyle bold
+  ArrowColor #000000
+  ActorBorderColor #666666
+  ActorBackgroundColor #E6E6FA
+  ActivationBorderColor #CC6666
+  ActivationBackgroundColor #F6B3B3
+}
+
+' Notes in the original image (top-right)
+note right
+Authors: pw@zoi.de
+Version: 0.1
+end note
+
+box "Internal Service" #D9D9D9
+actor Sender as Sender
+participant IoTClient as IoTClient
+participant ShadowCallback as ShadowCallback
+end box
+
+box "AWS Cloud" #90EE90
+participant ShadowService as ShadowService
+end box
+
+== client connection ==
+
+Sender -> IoTClient : connect()
+IoTClient -> ShadowCallback : on_connct_wrapper()
+ShadowCallback --> IoTClient : subscribe("AWS Shadow Topics")
+IoTClient -> ShadowService : subscribe()
+IoTClient -> ShadowCallback : on_subscribe_wrapper()
+activate ShadowCallback
+ShadowCallback -> ShadowCallback : request_desired_state()
+deactivate ShadowCallback
+
+== state retrival ==
+
+activate IoTClient #F4A582
+IoTClient -> ShadowService : publish("myClient/shadow/get")
+deactivate IoTClient
+
+ShadowService --> IoTClient : on_message("myClient/shadow/get/accepted", state)
+IoTClient -> ShadowCallback : on_message_wrapper(rawState)
+activate ShadowCallback
+ShadowCallback -> ShadowCallback : on_desired_state_change(rawState)
+deactivate ShadowCallback
+
+== state synchronization ==
+
+ShadowCallback --> Sender : set_state(desiredState)
+Sender -> ShadowCallback : on_set_state_wrapper()
+activate ShadowCallback
+ShadowCallback -> ShadowCallback : publish_new_state()
+ShadowCallback --> IoTClient : publish("myClient/shadow/update", reportedState)
+deactivate ShadowCallback
+
+activate IoTClient #F4A582
+IoTClient -> ShadowService : publish("myClient/shadow/update", state)
+deactivate IoTClient
+
+@enduml

@@ -1,0 +1,114 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+  FontColor Black
+  FontName Arial
+  FontSize 12
+  BorderThickness 1
+  Padding 10
+}
+
+class "TodoListApplication" as TodoListApplication {
+  +start()
+  +main()
+}
+
+class "TodoListGUIController" as TodoListGUIController {
+  <<Item>> todoList
+  +TodoListManager tdm
+  -TextField fileLocationAndName
+  +TableView<Item> tableView
+  -TableColumn<Item, String> completionColumn
+  -TableColumn<Item, String> nameColumn
+  -TableColumn<Item, String> descriptionColumn
+  -TableColumn<Item, String> dueDateColumn
+  -RadioButton showAllItems
+  -RadioButton showIncompletedItems
+  -RadioButton showCompletedItems
+  +changeItemViewOnRadioToggle()
+  +toggleCompletionOnButtonPress()
+  +removeItemFromTable()
+  +clearAllItemsFromTable()
+  +saveListToTextFile()
+  +popupAddItemSceneOnButtonPress()
+  +popupEditItemSceneOnButtonPress()
+  +changeToLoadFileSceneOnButtonPress()
+  +closeWindowOnExitButtonPress(MouseEvent event)
+  +initialize(URL location, ResourceBundle resources)
+  +loadTable(TodoListManager tdm)
+}
+
+class "AddItemController" as AddItemController {
+  -Label errorLabel
+  -TextField itemName
+  -TextField itemDescription
+  -DatePicker itemDueDate
+  +TodoListManager tdm = new TodoListManager()
+  +Item newItem = new Item()
+  +getItemInfo(MouseEvent event)
+}
+
+class "EditItemController" as EditItemController {
+  -Label errorLabel
+  -TextField itemName
+  -TextField itemDescription
+  -DatePicker itemDueDate
+  +Item newItem = new Item()
+  +TodoListManager tdm = new TodoListManager()
+  +editItemInfo(MouseEvent event)
+  +showItemInfo(Item selectedItem)
+}
+
+class "LoadFileController" as LoadFileController {
+  -TextField filePath
+  -Label label
+  +TodoListManager tdm = new TodoListManager()
+  +getFilePath(MouseEvent event) =
+}
+
+class "TodoListManager" as TodoListManager {
+  -String fileLocation
+  +TodoList tdl = new TodoList()
+  +File file = new File(getFileLocation() + "/" + getFileName())
+  +writeToFile(String file, TodoListManager manager)
+  +TodoListManager loadTodoList(String location)
+  +String getFileLocation()
+  +String getFileName()
+  +String createList(String title)
+}
+
+class "TodoList" as TodoList {
+  -String title
+  -List<Item> itemList = new ArrayList<>()
+  +List<Item> clearList()
+  +addItem(Item newItem)
+  +displayCompletedItems(List<Item> displayList)
+  +displayIncompletedItems(List<Item> displayList)
+}
+
+class "Item" as Item {
+  -String completion
+  -String name
+  -String description
+  -String dueDate
+  +Item()
+  +Item(String name, String description, String dueDate, String completion)
+  +String getName()
+  +String getDescription()
+  +String getDueDate()
+  +String getCompletion()
+  +changeCompletion()
+}
+
+TodoListApplication ..> TodoListGUIController
+TodoListGUIController --|> AddItemController
+TodoListGUIController --|> EditItemController
+TodoListGUIController --|> LoadFileController
+TodoListManager --|> TodoList
+TodoList --|> Item
+
+@enduml

@@ -1,0 +1,62 @@
+@startuml
+actor "did:...:GS1" as GS1
+actor "did:...:Manufacturer" as Manufacturer
+
+frame Ausstellungsprozess\nder GCP {
+    Manufacturer ->> GS1 : GCP Anfrage\n(urn:gcp:id:<gln>)
+    
+    note right of GS1 #lightyellow 
+        <b>GCP Credential</b>\ngcp: 4047111
+    endnote
+    
+    activate GS1
+    GS1 --> Manufacturer : ISSUE(GCP)
+    deactivate GS1
+    
+    loop Self-Issue Party GLN
+        Manufacturer <-o Manufacturer : ISSUE(PartyGLNCredential)\n(pglCredentialId = gcp + ".<extension>")
+        
+        note left of Manufacturer #lightgreen 
+            <b>Party GLN Credential</b>\nprefix: urn:epc:id:pgln:\nidString: pglCredentialId
+        endnote
+        
+        alt Validierung erfolgreich?
+            Manufacturer -[#red]> X
+        else Fehler bei der Selbstausstellung
+            Manufacturer -->> GS1 : ERROR(SelfIssueFailed,\ndetails...)
+        endif
+    endloop
+}
+
+
+group Ausstellungsprozess zertifizierter Stammdaten {
+    Manufacturer ->> GS1 : PRESENT GCP(gcpCredentialId,...)
+    
+    opt Nachweis von Stammdatenerfordernis
+        Manufacturer ->> GS1 : Anforderung zur Vorlage \nvon Dokumenten/Nachweisen
+    endopt
+    
+    Manufacturer ->> GS1 : Antrag auf Zertifizierung mit allen erforderlichen Daten und Belegen
+    
+    rect over GS1 #pink
+        note bottom of GS1 #white  
+            Prüfung durch autorisierte Stelle.\nDokumente werden geprüft oder eigene Recherche durchgeführt.
+        endnote
+    endrect
+    
+    group Bei erfolgreicher Verifizierung {
+        GS1 ->> Manufacturer : ISSUE(CertifiedMasterDataCredential)
+        
+        note top of Manufacturer #orange 
+            Certified Master Data Credentials enthalten verifizierte Informationen wie Name, Rechtsform etc., die für vertrauenswürdige Transaktionen notwendig sind!
+        endnote
+    }elsegroup Im Falle eines Fehlers/Abbruchs{
+         GS1 <--X Manufacturer : ABORT(FailureReason,detailInfo..)   
+     }endgroup
+     
+     
+   destroy GS1
+   
+destroy Manufacturer 
+
+@enduml

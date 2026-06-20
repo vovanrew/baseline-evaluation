@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+package "Modulo-matrícula/Informática" <<Rectangle>> {
+
+    class Matrícula {
+        -id: Int
+        -cliente: Client
+        -tempo: Int
+        -quadra: Turma
+        +registraMatrícula(): Int
+    }
+
+    class Aluno {
+        -id: Int
+        -nome: String
+        -locaçao: List<Matrícula>
+    }
+
+    interface ControleNúmeroMatrícula <<interface>> {
+        #quantidadeDeMatrícula: Int
+        +registraMatrícula(): Int
+    }
+
+    class Curso {
+        -nome: String
+        -profesor: String
+        -quadra: List<Turma>
+    }
+
+    class Turma {
+        -numero: Int
+        -aluguel: Matrícula
+        -ginasio: Curso
+        +getcontroleNúmeroMatrícula()
+    }
+
+    Matrícula "0..*" *-right- "1" Aluno : < composição
+    Matrícula ..|> ControleNúmeroMatrícula : realização
+    Matrícula "1..*" *-- "1" Turma : > composição >
+    Curso "1" *-right- "1..*" Turma : < composição
+    Turma ..> ControleNúmeroMatrícula : dependência
+
+}
+@enduml
+```

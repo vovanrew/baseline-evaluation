@@ -1,0 +1,22 @@
+{
+  "id": "53fee094-6f2b-4a28-a7f7-834c081aada9",
+  "object": "chat.completion",
+  "created": 1781495187,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Traffic influencing flows between OpenNESS controller and 5G Core\n\nactor \"User/Admin\" as User\npackage \"OpenNESS Controller components\" #LightBlue {\n    participant \"UI/CLI\" as UI\n    participant \"AF Microservice\" as AF\n}\n\npackage \"5G Core components\" #LightGreen {\n    participant \"NEF\" as NEF\n    participant \"NGC CP Functions\" as NGC\n}\n\nnote right of NEF: OpenNESS provided\\nCore component with\\nlimited functionality\n\nrectangle \"Get all subscribed traffic influence info\" as Frame1 {\n    User -> UI : Request all traffic influence subscribed\n    activate UI\n    UI -> AF : /af/v1/subscriptions : GET\n    activate AF\n    AF -> NEF : /3gpp-traffic-Influence/v1/{afId}/subscriptions : GET\n    activate NEF\n    \n    note right of NEF: NGC_STUB(PCF, UDR, BSF)\\n{Open: 3rd party NGC\\nintegration with\\nOpenNESS(NEF)}\n    \n    NEF --> NGC\n    NGC --> NEF : OK: traffic influence info\\nERROR: {400/500}\n    deactivate NEF\n    \n    AF <-- NEF : OK: traffic influence info\\nERROR: {400/500}\n    deactivate AF\n    \n    UI <-- AF : OK: traffic influence info\\nERROR: {400/500}\n    deactivate UI\n    \n    User <-- UI : Traffic influence details\n}\n\nrectangle \"Get subscribed traffic influence info by subscriptionId\" as Frame2 {\n    User -> UI : Request traffic influence using subscriptionId\n    activate UI\n    UI -> AF : /af/v1/subscriptions/{subscriptionId} : GET\n    activate AF\n    AF -> NEF : /3gpp-traffic-Influence/v1/{afId}/subscriptions/{subscriptionId} : GET\n    activate NEF\n    \n    note right of NEF: NGC_STUB(PCF, UDR, BSF)\\n{Open: 3rd party NGC\\nintegration with\\nOpenNESS(NEF)}\n    \n    NEF --> NGC\n    NGC --> NEF : OK: traffic influence info\\nERROR: {400/500}\n    deactivate NEF\n    \n    AF <-- NEF : OK: traffic influence info\\nERROR: {400/500}\n    deactivate AF\n    \n    UI <-- AF : OK: traffic influence info\\nERROR: {400/500}\n    deactivate UI\n    \n    User <-- UI : Traffic influence details\n}\n\nfooter Proprietary and Confidential\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1958,
+    "completion_tokens": 582,
+    "total_tokens": 2540
+  }
+}

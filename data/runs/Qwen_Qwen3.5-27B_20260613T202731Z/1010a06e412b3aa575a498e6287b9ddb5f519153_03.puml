@@ -1,0 +1,31 @@
+```plantuml
+@startuml
+skinparam shadowing false
+skinparam lifelinelength 0
+
+actor Player
+participant ":Board" as Board
+participant "pawn :Pawn" as Pawn
+participant "draught :Draught" as Draught
+participant "oponentPiece :Piece" as Piece
+
+Player -> Board: Select origin square
+alt [origin == pawn]
+    loop [pawn.row + 1 == oponentPiece.row &&\n(pawn.column + 1 == oponentPiece.column || pawn.column - 1 == oponentPiece.column) &&\nthere is only one piece between origin and target]
+        Player -> Board: Move pawn to target square
+        Player -> Board: Delete oponentPiece
+    end
+end
+alt [origin == draught]
+    loop [target is in diagonal with draught &&\nthere is only one piece between origin and target]
+        Player -> Board: Move draught to target square
+        Player -> Board: Delete oponentPiece
+    end
+end
+
+destroy Player
+hide $Pawn
+hide $Draught
+hide $Piece
+@enduml
+```

@@ -1,0 +1,45 @@
+```plantuml
+@startuml
+
+participant File
+participant LexicalAnalysisDriver
+participant LexicalAnalysisJava
+participant JavaSyntaxLib
+participant TypeCheck
+participant ColorCode
+participant ErrorCheck
+
+File -> LexicalAnalysisDriver : invokes
+activate LexicalAnalysisDriver
+LexicalAnalysisDriver -> LexicalAnalysisJava : Calls
+activate LexicalAnalysisJava
+LexicalAnalysisJava -> JavaSyntaxLib : Calls
+activate JavaSyntaxLib
+JavaSyntaxLib ..> LexicalAnalysisJava
+deactivate JavaSyntaxLib
+
+LexicalAnalysisJava -> TypeCheck : SyntaxTypeCheck()
+activate TypeCheck
+File <.. TypeCheck : Return(TypeCheck)
+deactivate TypeCheck
+
+LexicalAnalysisJava -> ColorCode : SyntaxColorCheck()
+activate ColorCode
+File <.. ColorCode : Return(ColorCode)
+deactivate ColorCode
+
+LexicalAnalysisJava -> ErrorCheck : SyntaxErrorCheck()
+activate ErrorCheck
+
+alt [successful case]
+    File <.. ErrorCheck : Error Free
+else [Error Case]
+    File <.. ErrorCheck : Return Error Message
+end
+
+deactivate ErrorCheck
+deactivate LexicalAnalysisJava
+deactivate LexicalAnalysisDriver
+
+@enduml
+```

@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle Project - Staff - Update\n\nparticipant Client #Tomato\nparticipant ProjectService #Tomato\nparticipant RedisCache #Tomato\nqueue Kafka #Tomato\nparticipant PersisterService #Tomato\nparticipant IndexerService #Tomato\nparticipant ErrorService #Tomato\nparticipant ElasticSearch #Tomato\ndatabase Database #Aqua\n\nClient -> ProjectService: /project/staff/v1/_update\nactivate ProjectService\n\nProjectService -> ProjectService: Validate request body\n\nalt request validation fails\n    ProjectService -> ProjectService: Request validation failed\n    ProjectService -> Client: HttpStatus: 400 with appropriate error code\n    note left: Error Code: REQUEST_VALIDATION_FAILED #Aquamarine\nelse\n    ProjectService -> ProjectService: Request validation successful\nend\n\nalt record doesn't exist\n    ProjectService -> RedisCache: Search record based on serverGeneratedId\n    activate RedisCache\n    RedisCache -> ProjectService: 0 rows\n    deactivate RedisCache\n    \n    ProjectService -> Database: Search record based on serverGeneratedId\n    activate Database\n    Database -> ProjectService: 0 row\n    deactivate Database\n    \n    ProjectService -> Client: HttpStatus: 400 with appropriate error code\n    note left: Error Code: RECORD_NOT_FOUND #Aquamarine\nelse\n    alt record doesn't exists in cache\n        ProjectService -> RedisCache: Search record based on serverGeneratedId\n        activate RedisCache\n        RedisCache -> ProjectService: 0 rows\n        deactivate RedisCache\n        \n        ProjectService -> Database: Search record based on serverGeneratedId\n        activate Database\n        Database -> ProjectService: 1 row\n        deactivate Database\n        \n        ProjectService -> RedisCache: 1 record\n        activate RedisCache\n        deactivate RedisCache\n    end\nend\n\nProjectService -> RedisCache: Fetch the existing record\nactivate RedisCache\nRedisCache -> ProjectService: 1 row\ndeactivate RedisCache\n\nalt incorrect rowVersion\n    ProjectService -> ProjectService: Compare rowVersion between request and db\n    ProjectService -> ProjectService: Incorrect rowVersion [request: should be +1 only]\n    ProjectService -> Client: HttpStatus: 400 with appropriate error code\n    note left: Error Code: BAD_REQUEST #Aquamarine\nelse\n    ProjectService -> ProjectService: Compare rowVersion between request and db\n    ProjectService -> ProjectService: rowVersion in request = rowVersion in db + 1\nend\n\nProjectService -> Kafka: Project Staff Data /update_topic\nactivate Kafka\n\nProjectService -> RedisCache: Update new record in cache against serverGeneratedId\nactivate RedisCache\ndeactivate RedisCache\n\nProjectService -> Client: HttpStatus: 202 ACCEPTED\ndeactivate ProjectService\n\npar async\n    Kafka -> PersisterService: Consume Project Staff Data\n    activate PersisterService\n    Kafka -> IndexerService: Consume Project Staff Data\n    activate IndexerService\n    \n    PersisterService -> Database: Store Project Staff Data\n    activate Database\n    deactivate Database\n    deactivate PersisterService\n    \n    IndexerService -> ElasticSearch: Update Project Staff Data\n    activate ElasticSearch\n    deactivate ElasticSearch\n    deactivate IndexerService\nend\ndeactivate Kafka\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHyPwoIbYer46oNN8WuqiL+szToiRkX1+Heh+LWeezTqB3Vbv5c41yGJryo7n8"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1190,
+    "candidatesTokenCount": 701,
+    "totalTokenCount": 1891,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1110
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "hmIxavbALPe3vdIPy6a_6QY"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "485991c6-4170-4683-b763-19abf93424e7",
+  "object": "chat.completion",
+  "created": 1781414921,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle 3.1.0 Get Participant Callback Details\n\nML API Adapter Service as ML_API_ADAPTER\n  ML-API-ADAPTER as ML_API_ADAPTER_ACTOR\nCentral Services as CENTRAL_SERVICES\n  Central Service API as CENTRAL_SERVICE_API\n  Participant Handler as PARTICIPANT_HANDLER\n  Participant DAO as PARTICIPANT_DAO\n  Central Store as CENTRAL_STORE\n\nML_API_ADAPTER_ACTOR --> CENTRAL_SERVICE_API : 1 Request to get callback details - GET - /participants/{name}/endpoints?type={typeValue}\nCENTRAL_SERVICE_API --> PARTICIPANT_HANDLER : 2 Fetch Callback details for Participant\nPARTICIPANT_HANDLER --> PARTICIPANT_DAO : 3 Fetch Participant\n  error_code_3200 : Error code: 3200\nPARTICIPANT_DAO --> CENTRAL_STORE : 4 Fetch Participant\nCENTRAL_STORE --> PARTICIPANT_DAO : 5 Retrieved Participant\n  participant : participant\nPARTICIPANT_DAO --> PARTICIPANT_HANDLER : 6 Return Participant\nPARTICIPANT_HANDLER --> PARTICIPANT_HANDLER : 7 Validate DFSP\n\nalt Validate participant (success)\n  PARTICIPANT_HANDLER --> PARTICIPANT_HANDLER : 8 check if \"type\" parameter is sent\n  alt Check if \"type\" parameter is sent (Sent)\n    PARTICIPANT_HANDLER --> PARTICIPANT_DAO : 9 Fetch Callback details for Participant and type\n      error_code_3000 : Error code: 3000\n    PARTICIPANT_DAO --> CENTRAL_STORE : 10 Fetch Callback details for Participant and type\n      condition : Condition: isActive = 1 [endpointTypeId = <type>]\n    CENTRAL_STORE --> PARTICIPANT_DAO : 11 Retrieved Callback details for Participant and type\n      participantEndpoint : participantEndpoint\n    PARTICIPANT_DAO --> PARTICIPANT_HANDLER : 12 Return Callback details for Participant and type\n      message : Message: { endpoints: {type: <type>, value: <value>} }\n    PARTICIPANT_HANDLER --> CENTRAL_SERVICE_API : 13 Return Callback details for Participant\n    CENTRAL_SERVICE_API --> ML_API_ADAPTER_ACTOR : 14 Return Callback details for Participant\n  alt Check if \"type\" parameter is sent (Not Sent)\n    PARTICIPANT_HANDLER --> PARTICIPANT_DAO : 15 Fetch Callback details for Participant\n      error_code_3000 : Error code: 3000\n    PARTICIPANT_DAO --> CENTRAL_STORE : 16 Fetch Callback details for Participant\n      condition : Condition: isActive = 1\n    CENTRAL_STORE --> PARTICIPANT_DAO : 17 Retrieved Callback details for Participant\n      participantEndpoint : participantEndpoint\n    PARTICIPANT_DAO --> PARTICIPANT_HANDLER : 18 Return Callback details for Participant\n      message : Message: { endpoints: [{type: <type>, value: <value>}, {type: <type>, value: <value>}] }\n    PARTICIPANT_HANDLER --> CENTRAL_SERVICE_API : 19 Return Callback details for Participant\n    CENTRAL_SERVICE_API --> ML_API_ADAPTER_ACTOR : 20 Return Callback details for Participant\n  end\nend\n\nalt Validate participant (failure) / Error\n  PARTICIPANT_HANDLER --> PARTICIPANT_HANDLER : Validation failure / Error!\n  message : Message: { \"errorInformation\": { \"errorCode\": <errorCode>, \"errorDescription\": <ErrorMessage> } }\n  PARTICIPANT_HANDLER --> CENTRAL_SERVICE_API : 21 Return Error code: 3000, 3200\n  CENTRAL_SERVICE_API --> ML_API_ADAPTER_ACTOR : 22 Return Error code: 3000, 3200\nend\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2252,
+    "completion_tokens": 803,
+    "total_tokens": 3055
+  }
+}

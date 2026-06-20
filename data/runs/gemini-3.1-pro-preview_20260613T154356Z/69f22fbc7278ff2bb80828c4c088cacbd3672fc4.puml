@@ -1,0 +1,64 @@
+```plantuml
+@startuml
+participant NavBar
+participant ReduxStore
+participant UserActions
+participant UserReducer
+participant ProfileMiddleware
+participant Solid.js
+database POD
+
+activate NavBar
+NavBar -> ReduxStore : loadEmailRequest()
+activate ReduxStore
+ReduxStore -> UserActions : dispatch(loadEmailRequest())
+activate UserActions
+UserActions -> ProfileMiddleware : loadEmailRequest()
+destroy UserActions
+activate ProfileMiddleware
+ProfileMiddleware -> Solid.js : getEmail()
+activate Solid.js
+Solid.js -> POD : getEmail()
+activate POD
+POD --> Solid.js : email
+destroy POD
+ProfileMiddleware -> UserReducer : loadEmailRequest()
+activate UserReducer
+UserReducer --> ReduxStore : state
+destroy UserReducer
+
+alt email successfully loaded
+    Solid.js --> ProfileMiddleware : email
+    destroy Solid.js
+    ReduxStore -> UserActions : dispatch(loadEmailSuccess(email))
+    activate UserActions
+    UserActions -> UserReducer : loadEmailSuccess(email)
+    destroy UserActions
+    activate UserReducer
+    UserReducer -> UserReducer : updateState(email)
+    UserReducer --> ReduxStore : updated state with email
+    destroy UserReducer
+else error at loading email
+    Solid.js --> ProfileMiddleware : error
+    destroy Solid.js
+    ReduxStore -> UserActions : dispatch(loadEmailError(error))
+    activate UserActions
+    UserActions -> UserReducer : loadEmailError(error)
+    destroy UserActions
+    activate UserReducer
+    UserReducer -> UserReducer : updateState(error)
+    UserReducer --> ReduxStore : updated state
+    destroy UserReducer
+end
+destroy ProfileMiddleware
+
+ReduxStore --> NavBar : state
+deactivate ReduxStore
+deactivate NavBar
+
+legend right
+  line = method
+  dash line = data
+endlegend
+@enduml
+```

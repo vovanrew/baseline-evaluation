@@ -1,0 +1,41 @@
+@startuml
+title 七並べシーケンス図（一周）ver.3
+
+participant "App" as App
+participant "Game" as Game
+participant "Player" as Player
+participant "View" as View
+participant "TableView" as TableView
+participant "PlayersListView" as PlayersListView
+
+App -> Game: startRound()
+activate Game
+Game -> Player: startTurn()
+activate Player
+alt [ターン進行]
+  Game -> Player: [playersList.inPlayを回す]
+  activate Player
+  alt [ターン終了]
+    deactivate Player
+    Game -> View: render(playersList,table)
+    activate View
+    View -> TableView: render(table)
+    View -> PlayersListView: render(playersList)
+    deactivate View
+    Game -> Game: cleanUpPlayersList()
+    activate Game
+    Game -> App: isEnd()
+    activate App
+    App --> Game: boolean
+    deactivate App
+    alt [true]
+      App -> Game: endGame()
+    else [false]
+      App -> Game: startRound()
+    end
+    deactivate Game
+  end
+end
+deactivate Player
+
+@enduml

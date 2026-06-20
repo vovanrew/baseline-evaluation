@@ -1,0 +1,22 @@
+```plantuml
+@startuml
+actor User
+participant Application as App #E6E6FA
+participant "Auto SDK Engine" as Engine <<engine>> #87CEFA
+participant Alexa as Alexa <<avs>> #C1FFC1
+
+note right of User: "Turn off AC"
+User -> Alexa: 
+Alexa -> Engine: PowerController.TurnOff directive
+activate Engine #87CEFA
+Engine -> App: Receive SetPowerControllerValue message
+App -> App: Turn off AC
+App -> Engine: Publish SetControllerValueMessage Reply
+Engine -> Alexa: Alexa.Response event
+deactivate Engine
+
+note right of Engine: SpeechSynthesizer.Speak directive\n<<Alexa speech response>>
+Alexa -> App: 
+
+@enduml
+```

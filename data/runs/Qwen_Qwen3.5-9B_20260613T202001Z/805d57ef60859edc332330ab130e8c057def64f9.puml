@@ -1,0 +1,52 @@
+@startuml
+left to right direction
+actor "ユーザ" as user
+boundary "ブラウザ" as browser
+boundary "web.php" as webphp
+boundary "Kouka2_1Controller" as controller
+database "Restdata" as restdata
+boundary "index.blade.php" as indexblade
+boundary "show.blade.php" as showblade
+
+user -> browser: 該当ページをリクエスト[/kouka2_1]
+browser -> webphp: GET[/kouka2_1]
+webphp -> controller: @index
+controller -> restdata: all()
+restdata --> controller: 
+controller -> indexblade: 
+user -> browser: 検索ボタンを押下
+browser -> webphp: GET[/kouka2_1/find]
+webphp -> controller: @find
+controller -> restdata: where()->first()
+restdata --> controller: 
+controller -> showblade: 
+
+note right of user
+ユーザ
+end note
+
+note right of browser
+ブラウザ
+end note
+
+note right of webphp
+web.php
+end note
+
+note right of controller
+Kouka2_1Controller
+end note
+
+note right of restdata
+Restdata
+end note
+
+note right of indexblade
+index.blade.php
+end note
+
+note right of showblade
+show.blade.php
+end note
+
+@enduml

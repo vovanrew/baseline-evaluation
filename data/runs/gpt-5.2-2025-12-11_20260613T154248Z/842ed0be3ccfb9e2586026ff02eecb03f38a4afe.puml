@@ -1,0 +1,56 @@
+@startuml
+title 微信扫码流程图
+
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #D9D9E6
+  ActorBorderColor #666666
+  ActorBackgroundColor #D9D9E6
+  ActivationBorderColor #2E7D32
+  ActivationBackgroundColor #98FB98
+  ArrowColor #000000
+  ArrowThickness 2
+}
+
+participant "用户" as U
+participant "手机" as P
+participant "微信" as W
+participant "商家" as M
+
+activate U
+
+U -> P : 1 输入手机密码
+activate P
+P --> U : 2 打开手机
+deactivate P
+
+U -> W : 3 打开微信扫一扫
+activate W
+W --> U : 4 返回扫一扫界面
+
+U -> M : 5.1 扫描商家收款码
+activate M
+M -> M : 5.2 生成收款二维码
+M --> W : 5.3 返回收款二维码
+deactivate M
+
+W -> W : 5.4 读取识别商家收款码
+
+W --> U : 6 提示输入微信支付密码
+U -> W : 7.1 输入微信支付密码
+W -> W : 7.2 微信验证用户输入密码正确
+
+W -> M : 7.3 向商家汇款
+activate M
+M --> W : 7.4 汇款成功
+deactivate M
+
+W --> U : 8 提示用户支付成功
+deactivate W
+
+deactivate U
+@enduml

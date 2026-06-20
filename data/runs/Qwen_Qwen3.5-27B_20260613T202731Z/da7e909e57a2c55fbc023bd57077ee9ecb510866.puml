@@ -1,0 +1,44 @@
+```plantuml
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Team Member" as TeamMember
+participant ":CreateTaskUI" as CreateTaskUI
+participant ":CreateTaskController" as CreateTaskController
+participant ":DataManagement" as DataManagement
+participant "projectStore : ProjectStore" as projectStore
+participant "project : Project" as project
+
+activate TeamMember
+TeamMember -> CreateTaskUI: 1 Starts the Task creation in User Story
+activate CreateTaskUI
+CreateTaskUI -->> TeamMember: 2 request the project code
+TeamMember -> CreateTaskUI: 3 Inserts the project code
+CreateTaskUI -->> TeamMember: 4 request sprint id
+TeamMember -> CreateTaskUI: 5 Inserts the sprint id
+CreateTaskUI -->> TeamMember: 6 request user story id
+TeamMember -> CreateTaskUI: 7 Inserts the user story id
+CreateTaskUI -->> TeamMember: 8 request the task information: name, description, type, startDate, endDate
+TeamMember -> CreateTaskUI: 9 Inserts request the task information: name, description, type, startDate, endDate
+CreateTaskUI -> CreateTaskController: 10 createTaskInUserStory(code, sprintID, userStoryID, name, description, type, startDate, endDate)
+activate CreateTaskController
+CreateTaskController -> DataManagement: 11 projectStore = getProjectStore()
+activate DataManagement
+DataManagement -->> CreateTaskController: 12 projectStore
+CreateTaskController -> projectStore: 13 project = getProjectByCode(code)
+activate projectStore
+projectStore -->> CreateTaskController: 14 project
+CreateTaskController -> project: 15 getSprintByID(sprintID)
+activate project
+rectangle "ref\nTaskCreationInUserStory" as ref
+deactivate project
+project -->> CreateTaskController: 16 true
+deactivate CreateTaskController
+CreateTaskController -->> CreateTaskUI: 17 true
+deactivate CreateTaskUI
+CreateTaskUI -> TeamMember: 18 Task created successfully
+deactivate TeamMember
+
+@enduml
+```

@@ -1,0 +1,48 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide circle
+
+class "Client" {
+    + main(): void
+}
+
+package states <<Rectangle>>{
+    
+    package OriginatorPackage<<Folder>> #DDDDDD# {
+        hide methods
+        
+        abstract class MementoAbstractClass { }
+        
+        note top of MementoAbstractClass : <b>Memento</b>
+        
+        state "" as mState1 
+            -state: String
+            
+        'Memento(state: string):void constructor method
+        state "+ __init__(self,state)" as cMethod2 
+        
+        '+getState() getter method'
+        state "- getState()" as gMethod3
+    
+        hnote right of mState1 : Getter\n.. ..\nGetter  
+            
+        link "-" to "+"
+        link "+" to "-"   
+    } 
+    
+    package CareTakerPackage<<Folder>> #EEEEEE#{
+         hide fields
+     
+     note bottom of CareTakerPackage:<u>Care Taker Package </u>\nThe caretaker does not modify or examine \na mementos content.\nIt holds them in memory for later use by originators.     
+         
+      rectangle "<i><<interface>></i>" as iCareTakerInterface
+      
+       add(memento:Memento) --> get(index:int)      
+       
+   } 
+
+Originator --|> MementoAbstractClass
+Caretaker .up.|> iCareTakerInterface
+
+
+@enduml

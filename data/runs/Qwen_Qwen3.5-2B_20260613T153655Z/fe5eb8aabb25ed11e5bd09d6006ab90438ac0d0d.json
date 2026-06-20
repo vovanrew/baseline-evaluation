@@ -1,0 +1,22 @@
+{
+  "id": "927214b8-f1a8-4cdc-8810-ccb359b27408",
+  "object": "chat.completion",
+  "created": 1781404653,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n\nparticipant \"Line of Business\" as LOB\nparticipant \"ESB\" as ESB\nparticipant \"Scoring\" as Scoring\nparticipant \"Recertification\" as Recertification\n\nsubgraph Compliance_IT\n    LOB -> ESB: UpdatePartyKYC includeScore=true\n    alt [Recertification completed]\n        ESB -> LOB: UpdatePartyKYC includeScore=true recertificationStatus=completed actor=<userid> reason=<one of client-initiated trigger codes>\n    end\n    LOB -> Scoring: 1 score\n    Note over Scoring, Recertification: Schedule a new recertification and calculate its due date OR retrieve due date of an existing recertification if one has been previously scheduled and not yet completed or cancelled\n    Scoring -> Recertification: 2 recertify\n    Recertification -> Scoring: 3 evaluate rules\n    Scoring -> LOB: 8 score + recertification\n    alt [Recertification is Needed]\n        Recertification -> Scoring: 4 schedule a new recertification\n        alt [Existing Recertification]\n            Recertification -> Scoring: 5 retrieve a previously scheduled recertification that hasn't been completed or cancelled\n        end\n        alt [Complete a Recertification]\n            Recertification -> Scoring: 6 complete an established recertification\n            Note right of Recertification: Immediately complete the recertification if the LOB told us it was already done\n        end\n        Scoring -> LOB: 7 recertification details\n    end\n    alt [Recertification is Not Needed]\n        Scoring -> LOB: 9 no recertification\n        LOB -> Scoring: 10 score\n    end\nendsubgraph\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1860,
+    "completion_tokens": 395,
+    "total_tokens": 2255
+  }
+}

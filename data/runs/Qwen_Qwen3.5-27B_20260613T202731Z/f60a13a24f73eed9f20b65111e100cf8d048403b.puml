@@ -1,0 +1,197 @@
+```plantuml
+@startuml
+' define class Moveable
+class Moveable {
+    <<C>>
+    - position: Position
+    - state: 
+    + {virtual} move(Direction)
+    + back(Direction)
+    + getPosition()
+    + setPosition(const Position&)
+}
+
+' define class Player
+class Player {
+    <<C>>
+    + move(Direction)
+    + getPreviousDirection()
+    + getPreviousPushFlag()
+    + clear()
+}
+
+' define class Box
+class Box {
+    <<C>>
+    - onTarget: bool
+    + moveToTile(TileType)
+    + getOnTarget()
+}
+
+' define class Map
+class Map {
+    <<C>>
+    - width: int
+    - height: int
+    - tiles: TileMap
+    - MovableList: vector
+    - player: Player
+    - Tile: OUT_SIDE_TILE
+    # getTile()
+    # moveBox()
+    + getWidth()
+    + getHeight()
+    + initMap(const string&)
+    + getStateOf(const Position&)
+    + getBoxes()
+    + getPlayerPosition()
+    + back()
+}
+
+' define class Tile
+class Tile {
+    <<C>>
+    - position: Position
+    - type: TileType
+    - flag: TileFlag
+    + setPosition(const Position&)
+    + getPosition()
+    + setFlag(TileFlag)
+    + getType()
+    + getState()
+}
+
+' define class Position
+class Position {
+    <<C>>
+    - x: int
+    - y: int
+    ~ DIRS
+    + operator==(const Position&)
+    + opeartor+=(const Position&)
+    + getX()
+    + getY()
+    + of(int, int)
+}
+
+' define class Rule
+class Rule {
+    <<C>>
+    + isWin(const Map&)
+    + isRightMove(const Map&, Direction)
+}
+
+' define class Session
+class Session {
+    <<C>>
+    - level
+    - map
+    - step
+    - isFinish
+    + move(Direction)
+    + getMap()
+    + finish()
+    + isFinish()
+    + getLevel()
+    + backToPreviousPlace()
+    + restart()
+}
+
+' define class FileUtil
+class FileUtil {
+    <<C>>
+    + readFile()
+}
+
+' define class MapRepository
+class MapRepository {
+    <<C>>
+    ~ MAP_PATH: string
+    ~ MAP_DIR: string
+    ~ MAP_ID: enum
+    ~ MapBuffer: class
+    + getMap(MAP_ID)
+}
+
+' define class Game
+class Game {
+    <<C>>
+    - clock_t start
+    - clock_t end
+    - int curLevel
+    - {const}int MAX_LEVEL
+    - bool isFinish
+    - bool isQuit
+    - Session* curSession
+    # handleCmd(char)
+    # handleStartCmd(char)
+    # initSession()
+    # startSession()
+    # endSession()
+    + start()
+    + isFinish()
+    + getDuration()
+}
+
+' define interface Viewer
+interface Viewer {
+    <<I>>
+    + getInput()
+    + getLevel()
+    + display()
+}
+
+' define enum State
+enum State {
+    <<E>>
+    FLOOR_OUT_SIDE
+    WALL
+    FLOOR
+    BOX
+    TARGET
+    PLAYER
+    BOX_ON_TARGET
+}
+
+' define enum TileType
+enum TileType {
+    <<E>>
+    WALL
+    FLOOR
+    TARGET
+}
+
+' define enum TileFlag
+enum TileFlag {
+    <<E>>
+    NULL
+    PLAYER
+    BOX
+}
+
+' define enum Directory
+enum Directory {
+    <<E>>
+    UP
+    DOWN
+    LEFT
+    RIGHT
+    SITU
+}
+
+' define relationships
+Moveable <|-- Player
+Moveable <|-- Box
+Map *-- Player
+Map *-- Box
+Map *-- Tile
+Tile *-- Position
+Session *-- Map
+Session *-- Rule
+Game *-- Session
+Game *-- MapRepository
+Game *-- Viewer
+MapRepository *-- FileUtil
+
+@enduml
+```

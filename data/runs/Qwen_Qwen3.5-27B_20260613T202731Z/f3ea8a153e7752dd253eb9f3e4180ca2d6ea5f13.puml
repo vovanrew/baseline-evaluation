@@ -1,0 +1,70 @@
+```plantuml
+@startuml
+title Propagation Sequence Diagram
+
+actor "User application" as User
+participant "Main" as Main
+participant "Propagator" as Propagator
+participant "Integrator" as Integrator
+participant "DifferentialEquations" as DiffEq
+participant "OrbitType" as OrbitType
+participant "TimesDerivative" as TimesDeriv
+participant "Force Model i" as ForceModel
+participant "NewtonianAttraction" as Newtonian
+
+== Initialization ==
+User -> Main: propagate
+activate Main
+Main -> Propagator: create
+activate Propagator
+Propagator -> DiffEq: create
+activate DiffEq
+deactivate DiffEq
+Propagator -> TimesDeriv: create
+activate TimesDeriv
+deactivate TimesDeriv
+
+== Integration Loop ==
+Propagator -> Integrator: integrate
+activate Integrator
+
+rect rgb(220, 240, 220)
+    note right of Integrator: [for n steps]
+    
+    Integrator -> DiffEq: computeDerivatives
+    activate DiffEq
+    
+    DiffEq -> OrbitType: mapArrayToOrbit
+    activate OrbitType
+    deactivate OrbitType
+    
+    rect rgb(250, 240, 220)
+        note right of DiffEq: [for all perturbation force models]
+        DiffEq -> ForceModel: addContribution
+        activate ForceModel
+        ForceModel -> TimesDeriv: addAcceleration
+        activate TimesDeriv
+        deactivate TimesDeriv
+        deactivate ForceModel
+    end
+    
+    DiffEq -> Newtonian: addContribution
+    activate Newtonian
+    Newtonian -> TimesDeriv: addKeplerContribution
+    activate TimesDeriv
+    deactivate TimesDeriv
+    deactivate Newtonian
+    
+    deactivate DiffEq
+end
+
+deactivate Integrator
+
+== Return Results ==
+Integrator --> Propagator: final state
+deactivate Propagator
+Main --> User: final state
+deactivate Main
+
+@enduml
+```

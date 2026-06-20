@@ -1,0 +1,305 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+
+'======================
+' Top-level / Observer
+'======================
+interface Observer {
+  +actualiserSujet() : void
+}
+
+class ControleurVueClasse {
+  +ControleurBoutonMenuSujet()
+  +handleActionEvent() : void
+}
+
+class ControleurBoutonArborescence {
+  +ControleurBoutonArborescenceSujet()
+  +handleActionEvent() : void
+}
+
+class ControleurCliqueDroitClasse {
+  +ControleurCliqueDroitClasseSujet()
+  +handleActionEvent() : void
+}
+
+class ControleurBoutonAffichage {
+  +ControleurBoutonAffichageSujet()
+  +handleActionEvent() : void
+}
+
+class ControleurBoutonProfil {
+  +ControleurBoutonProfilSujet()
+  +handleActionEvent() : void
+}
+
+class ControleurBoutonOuvrirDossier {
+  +ControleurBoutonOuvrirDossierSujet()
+  +handleActionEvent() : void
+}
+
+class ControleurCliqueDroitElement {
+  +ControleurCliqueDroitElementSujet()
+  +handleActionEvent() : void
+}
+
+class ControleurBoutonCreer {
+  +ControleurBoutonCreerSujet()
+  +handleActionEvent() : void
+}
+
+class ControleurAffichageDel {
+  +ControleurBoutonAffichageDel()
+  +handleActionEvent() : void
+}
+
+class ControleurBoutonEnregistrer {
+  +ControleurBoutonEnregistrerSujet()
+  +handleActionEvent() : void
+}
+
+class ControleurBoutonPaletteCouleur {
+  +ControleurBoutonPaletteCouleurSujet()
+  +handleActionEvent() : void
+}
+
+class ControleurBoutonEchanger {
+  +ControleurBoutonEchangerSujet()
+  +handleActionEvent() : void
+}
+
+Observer <|.. ControleurVueClasse
+Observer <|.. ControleurBoutonArborescence
+Observer <|.. ControleurCliqueDroitClasse
+Observer <|.. ControleurBoutonAffichage
+Observer <|.. ControleurBoutonProfil
+Observer <|.. ControleurBoutonOuvrirDossier
+Observer <|.. ControleurCliqueDroitElement
+Observer <|.. ControleurBoutonCreer
+Observer <|.. ControleurAffichageDel
+Observer <|.. ControleurBoutonEnregistrer
+Observer <|.. ControleurBoutonPaletteCouleur
+Observer <|.. ControleurBoutonEchanger
+
+'======================
+' Views (left)
+'======================
+class VueArbreBot {
+  -startX : double
+  -startY : double
+  -decalX : double
+  -decalY : double
+  -drag : boolean
+  -scrollPane : ScrollPane
+  -canvas : Canvas
+  -gc : GraphicsContext
+  -zoom : double
+  -visible : boolean
+  -bouton : Button
+  +VueArbreBot()
+  +actualiserSujet() : void
+}
+
+class VueDossier {
+  +VueDossier() : void
+}
+
+class VueClasse {
+  +VueClasse() : void
+}
+
+class VueMethode {
+  -conteneurAttribut : VBox
+  -nomAttribut : TextField
+  -suppr : Button
+  -classe : Classe
+  +VueMethode()
+}
+
+class VueDiagrammeClasse {
+  +VueDiagrammeClasse()
+  +actualiserSujet() : void
+}
+
+class DecorateurFleche {
+  +DecorateurFleche()
+  +actualiserSujet() : void
+}
+
+class DecorateurInfoFleche {
+  +DecorateurInfoFleche()
+  +actualiserSujet() : void
+}
+
+class VueFleche {
+  +VueFleche()
+}
+
+class VueFlechePleine {
+  +VueFleche() : void
+}
+
+class VueFlechePointille {
+  +VueFlechePointille() : void
+}
+
+class FlecheRemplie {
+  +FlecheRemplie() : void
+}
+
+class FlecheVide {
+  +FlecheVide() : void
+}
+
+Observer ..> VueArbreBot
+Observer ..> VueDiagrammeClasse
+Observer ..> DecorateurFleche
+Observer ..> DecorateurInfoFleche
+
+DecorateurFleche <|-- VueFleche
+DecorateurInfoFleche <|-- VueFleche
+
+VueFleche <|-- VueFlechePleine
+VueFleche <|-- VueFlechePointille
+
+DecorateurFleche <|-- FlecheRemplie
+DecorateurInfoFleche <|-- FlecheVide
+
+VueDossier ..> VueClasse
+VueClasse ..> VueMethode
+
+'======================
+' Model / Subject (top-middle)
+'======================
+class LecteurFichier {
+  +LecteurFichier()
+  +lireFichier(nom : String) : Classe
+}
+
+class MoyVale {
+  +MoyVale()
+  +ajouterFils(nom : String) : void
+  +supprimerFils(nom : String) : void
+  +getValeur() : double
+}
+
+class Sujet {
+  +enregistrerObservateur(observateur : Observer) : void
+  +supprimerObservateur(observateur : Observer) : void
+  +notifierObservateurs() : void
+}
+
+class Modele {
+  -clase : boolean
+  -arborescence : String
+  -nom : String
+  -startX : int
+  -startY : int
+  +Modele()
+  +enregistrerObservateur(observateur : Observer) : void
+  +supprimerObservateur(observateur : Observer) : void
+  +notifierObservateurs() : void
+  +setValeurInterface() : void
+}
+
+Sujet <|-- Modele
+LecteurFichier ..> Modele
+MoyVale ..> Modele
+
+Modele --> ControleurVueClasse : «modele»
+Modele --> ControleurBoutonArborescence : «modele»
+Modele --> ControleurCliqueDroitClasse : «modele»
+Modele --> ControleurBoutonAffichage : «modele»
+Modele --> ControleurBoutonProfil : «modele»
+Modele --> ControleurBoutonOuvrirDossier : «modele»
+Modele --> ControleurCliqueDroitElement : «modele»
+Modele --> ControleurBoutonCreer : «modele»
+Modele --> ControleurAffichageDel : «modele»
+Modele --> ControleurBoutonEnregistrer : «modele»
+Modele --> ControleurBoutonPaletteCouleur : «modele»
+Modele --> ControleurBoutonEchanger : «modele»
+
+'======================
+' File / persistence (right)
+'======================
+class Fichier {
+  -nom : String
+  -path : String
+  -extension : String
+  +Fichier(nom : String, path : String, extension : String)
+  +getNom() : String
+}
+
+class LireFichier {
+  +LireFichier()
+}
+
+class Dossier {
+  +Dossier(nom : String, path : String)
+  +lecteurDossier() : void
+}
+
+Fichier <|-- Dossier
+LireFichier ..> Fichier
+LireFichier ..> Dossier
+
+'======================
+' Domain: Classe / CompositionClasse (bottom-right)
+'======================
+class Classe {
+  -compositionClasse : ArrayList<CompositionClasse>
+  -nom : String
+  -spec : String
+  -interfaces : ArrayList<String>
+  -fichiers : ArrayList<String>
+  +Classe()
+  +Classe(nom : String)
+  +lireFichier(nom : String) : void
+  +setValeur() : void
+  +getCompositionClasse() : ArrayList<CompositionClasse>
+}
+
+class CompositionClasse {
+  -nom : String
+  -acces : String
+  -type : String
+  -spec : String
+  +CompositionClasse()
+  +getNom() : String
+  +getType() : String
+  +getSpec() : String
+}
+
+class Attributs {
+  +definition : String
+  +Attributs(nom : String, type : String)
+  +getNom() : String
+  +getType() : String
+}
+
+class Methodes {
+  +definition : String
+  +Methodes(nom : String, type : String)
+  +getNom() : String
+  +getType() : String
+  +getParametres() : ArrayList<String>
+}
+
+class Constructeurs {
+  +parametres : ArrayList<String>
+  +Constructeurs(nom : String)
+  +getNom() : String
+  +getParametres() : ArrayList<String>
+}
+
+CompositionClasse <|-- Attributs
+CompositionClasse <|-- Methodes
+CompositionClasse <|-- Constructeurs
+
+Fichier ..> Classe
+Dossier ..> Classe
+Classe o-- "0..*" CompositionClasse
+
+@enduml

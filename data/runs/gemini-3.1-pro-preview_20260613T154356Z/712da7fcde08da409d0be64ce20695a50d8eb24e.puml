@@ -1,0 +1,24 @@
+```plantuml
+@startuml
+skinparam BoxPadding 10
+
+actor Customer
+
+box "Shopware Platform" #E2E2E2
+participant Checkout
+participant "Asynchronous\nPayment Handler" as Handler
+end box
+
+box "External System" #E2E2E2
+entity "Payment Platform" as PaymentPlatform
+end box
+
+Customer --> Checkout : pay
+Checkout --> Handler : pay
+Handler --> Customer : redirect
+Customer --> PaymentPlatform : pay
+PaymentPlatform --> Checkout : redirect
+Checkout --> Handler : finalize
+
+@enduml
+```

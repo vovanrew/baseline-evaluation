@@ -1,0 +1,62 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+
+package "parsing" {
+
+class "«org.antlr.v4.runtime»\nANTLRErrorListener" as ANTLRErrorListener << (C,#BFE3BF) >>
+
+class "ANTLRParserErrorListener" as ANTLRParserErrorListener << (C,#BFE3BF) >> {
+  - syntaxErrorsCount: int
+  + hasSyntaxErrors(): boolean
+  + syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e)
+}
+
+ANTLRParserErrorListener ..|> ANTLRErrorListener
+
+abstract class "«generated»\nDP1CircuitBaseVisitor" as DP1CircuitBaseVisitor << (A,#BFEFFF) >>
+
+class "ANTLRVisitor" as ANTLRVisitor << (C,#BFE3BF) >> {
+  - nodes: Map<String, String>
+  - edges: Map<String, List<String>>
+  + ANTLRVisitor()
+  + visit(tree: ParseTree)
+  + visitNodeDefinition(ctx: DP1CircuitParser.NodeDefinitionContext): CircuitDefinition
+  + visitEdgeDefinition(ctx: DP1CircuitParser.EdgeDefinitionContext): CircuitDefinition
+}
+
+ANTLRVisitor --|> DP1CircuitBaseVisitor
+
+class "CircuitDefinition" as CircuitDefinition << (C,#BFE3BF) >>
+
+class "ANTLRcircuitParser" as ANTLRcircuitParser << (C,#BFE3BF) >> {
+  + parse(cleanedTxtCircuit: String): CircuitDefinition
+  - convertParseTreeToCircuitDefinition(parseTree: ParseTree): CircuitDefinition
+}
+
+interface "ICircuitParser" as ICircuitParser << (I,#D7C7FF) >> {
+  + parse(cleanedTxtCircuit: String): CircuitDefinition
+}
+
+class "XMLCircuitParser" as XMLCircuitParser << (C,#BFE3BF) >> {
+  - nodes: Map<String, String>
+  - edges: Map<String, List<String>>
+  + parse(cleanedTxtCircuit: String): CircuitDefinition
+  - parseNodes(document: Document)
+  - parseEdges(document: Document)
+}
+
+class "CircuitParserFactory" as CircuitParserFactory << (C,#BFE3BF) >> {
+  + circuitParserNames: Set<String>
+  + CircuitParserFactory()
+  + getCircuitParser(name: String): ICircuitParser
+}
+
+ANTLRcircuitParser ..|> ICircuitParser
+XMLCircuitParser ..|> ICircuitParser
+
+ANTLRVisitor --> "1" CircuitDefinition : circuitDefinition
+
+CircuitParserFactory --> "0..*" ICircuitParser : circuitParsers
+}
+@enduml

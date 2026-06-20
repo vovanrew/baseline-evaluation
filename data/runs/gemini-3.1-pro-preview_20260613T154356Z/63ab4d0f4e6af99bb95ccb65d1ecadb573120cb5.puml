@@ -1,0 +1,18 @@
+```plantuml
+@startuml
+participant Client
+participant TEAPServer
+
+TEAPServer -> Client: EAP-Request/\nIdentity
+Client -> TEAPServer: EAP-Response/\nType=Identity
+TEAPServer -> Client: EAP-Request/\nType=TEAP,\nTEAP Start,\nAuthority-ID TLV
+Client -> TEAPServer: EAP-Response/\nType=TEAP,\nTLS(ClientHello)
+TEAPServer -> Client: EAP-Request/\nType=TEAP,\nTLS(ServerHello,\nServerKeyExchange,\nServerHelloDone)
+note left: (1)\n(2)
+Client -> TEAPServer: EAP-Response/\nType=TEAP,\nClientKeyExchange,\nCertificateVerify,\nChangeCipherSpec,\nFinished)
+note left: (3)
+TEAPServer -> Client: EAP-Request/\nType=TEAP,\nTLS(ChangeCipherSpec,\nFinished),\n{Crypto-Binding TLV,\nResult TLV=Success}
+Client -> TEAPServer: EAP-Response/\nType=TEAP,\n{Crypto-Binding TLV,\nResult TLV=Success}
+TEAPServer -> Client: EAP-Success
+@enduml
+```

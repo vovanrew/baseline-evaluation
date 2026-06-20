@@ -1,0 +1,21 @@
+{
+  "id": "msg_01N2rzvM2BhYiQHsD2eTKq4E",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant Client\nparticipant TEAPServer\nparticipant MASA\n\nClient <- TEAPServer : EAP-Request/\\nType=Identity\n\nClient -> TEAPServer : EAP-Response/\\nType=Identity\n\nnote left of Client : (1)\nClient <- TEAPServer : EAP-Request/\\nType=TEAP,\\nTEAP Start,\\nAuthority-ID TLV\n\nClient -> TEAPServer : EAP-Response/\\nType=TEAP,\\nTLS(ClientHello)\n\nClient <- TEAPServer : EAP-Request/\\nType=TEAP,\\nTLS(ServerHello,\\nCertificate,\\nServerKeyExchange,\\nCertificateRequest,\\nServerHelloDone)\n\nClient -> TEAPServer : EAP-Response/\\nType=TEAP,\\nTLS(Certificate\\nClientKeyExchange,\\nCertificateVerify,\\nChangeCipherSpec,\\nFinished)\n\nClient <- TEAPServer : EAP-Request/\\nType=TEAP,\\nTLS(ChangeCipherSpec,\\nFinished),\\n{Crypto-Binding TLV,\\nResult TLV=Success}\n\nClient -> TEAPServer : EAP-Response/\\n,Type=TEAP,\\n{Crypto-Binding TLV,\\nResult TLV=Success}\n\nnote over Client, TEAPServer : At this stage the outer TLS tunnel is established\\nThe following message exchanges are for BRSKI\n\nnote left of Client : (2)\nClient <- TEAPServer : EAP-Request/\\nType=TEAP,\\n{Request-Action TLV:\\nStatus=Failure,\\nAction=Process-TLV,\\nTLV=Request-Voucher,\\nTLV=Trusted-Server-Root,\\nTLV=CSR-Attributes,\\nTLV=PKCS#10}\n\nnote left of Client : (3)\nClient -> TEAPServer : EAP-Response/\\nType=TEAP,\\n{Request-Voucher TLV}\n\nTEAPServer -> MASA : RequestVoucher\n\nTEAPServer <- MASA : Voucher\n\nnote left of Client : (4)\nClient <- TEAPServer : EAP-Request/\\nType=TEAP,\\n{Voucher TLV}\n\nClient -> TEAPServer : EAP-Response/\\nType=TEAP,{Trusted-Server-Root TLV}\n\nnote left of Client : (5)\nClient <- TEAPServer : EAP-Request/\\nType=TEAP,\\n{Trusted-Server-Root TLV}\n\nClient -> TEAPServer : EAP-Response/\\nType=TEAP,{CSR-Attributes TLV}\n\nClient <- TEAPServer : EAP-Request/\\nType=TEAP,\\n{CSR-Attributes TLV}\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370035,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 731,
+    "prompt_tokens": 1216,
+    "total_tokens": 1947
+  }
+}

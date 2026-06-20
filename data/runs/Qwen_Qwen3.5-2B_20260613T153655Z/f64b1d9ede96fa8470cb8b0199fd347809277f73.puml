@@ -1,0 +1,51 @@
+@startuml
+participant as Client as "Client"
+
+participant as Service1 as "Service1"
+note right of Service1
+SessionFactory
+one per node
+end note
+
+participant as Service2 as "Service2"
+note right of Service2
+Session
+one per request
+end note
+
+rectangle model check
+    Client -> Service1: register(Class<Pojo>)
+    Service1 -> Service1: checkModel
+    Service1 -> Service1: createModelForPojo
+    Service1 -> Service1: createModelInDB
+
+    alt [mode="create"]
+        alt [model exists]
+            Service1 -> Service1: throw exception
+            Service1 -> Service1: createModelInDB
+        end
+    end
+
+    [mode="drop-create"]
+        Service1 -> Service1: dropModelInDB
+        Service1 -> Service1: createModelInDB
+    end
+
+    [mode="update"]
+        Service1 -> Service1: getModelDeltaInDB
+        Service1 -> Service1: updateModelInDB
+    end
+
+    [mode="none"]
+        Service1 -> Service1: checkModelInDB
+    end
+
+    alt [model differs]
+        Service1 -> Service1: throw exception
+        Service1 -> Service1: createModelInDB
+    end
+
+    Service1 -> Service2: store(pojo)
+    Service2 -> Service2: getDelta(pojo)
+
+@enduml

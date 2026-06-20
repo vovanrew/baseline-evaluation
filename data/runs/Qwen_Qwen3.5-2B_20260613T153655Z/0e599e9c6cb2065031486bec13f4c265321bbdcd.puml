@@ -1,0 +1,101 @@
+@startuml
+class Key {
+    +public
+    ◇protected
+    □private
+    +public method()
+    ◇protected method()
+    □private method()
+}
+
+class Creator {
+    SceneManager makeScene(QJsonObject spec)
+    Table makeTable(QJsonObject spec)
+    Ball makeBall(QJsonObject spec)
+}
+
+class SceneBuilder {
+    void setTable(Table)
+    void addBall(Ball)
+    void resetBalls()
+    SceneManager build()
+}
+
+class SimpleCreator {
+    Table makeTable(QJsonObject spec)
+    Ball makeBall(QJsonObject spec)
+}
+
+class SimpleTable {
+    □ QColor color
+    ● void draw(QPainter painter)
+}
+
+class SimpleBall {
+    □ QColor color
+    ● void draw(QPainter painter)
+}
+
+class Table {
+    ○ QSize dimension
+    ○ float surface_friction
+}
+
+class Ball {
+    ○ float mass
+    ○ QVector2D position
+    ○ QVector2D velocity
+    ○ float radius
+}
+
+class MainWindow {
+    ↑ Qtimer updater
+    ↑ Qtimer ticker
+    ↑ QElapsedTimer timer
+    ● SceneManager scene
+    ● void paintEvent(QPaintEvent event)
+    ● void tick()
+    ● void nextFrame()
+}
+
+class SceneManager {
+    □ Table table
+    □ vector<Ball> balls
+    □ QPoint offset
+    QSize viewport()
+    void tick(float dttime)
+    void draw(QPainter painter)
+}
+
+class Graphic {
+    ● void draw(QPainter painter)
+}
+
+class Creator --> SceneBuilder : "1" * "1"
+class SceneBuilder --> SceneManager : "1" * "1"
+class SceneManager --> Table : "1" * "1"
+class SceneManager --> Ball : "1" * "1"
+class SceneManager --> Graphic : "1" * "1"
+class SceneManager --> MainWindow : "1" * "1"
+class MainWindow --> SceneManager : "1" * "1"
+class MainWindow --> Graphic : "1" * "1"
+class MainWindow --> Key : "1" * "1"
+class SimpleCreator --> Table : "1" * "1"
+class SimpleCreator --> Ball : "1" * "1"
+class SimpleTable --> Table : "1" * "1"
+class SimpleTable --> Key : "1" * "1"
+class SimpleBall --> Table : "1" * "1"
+class SimpleBall --> Key : "1" * "1"
+class Table --> Key : "1" * "1"
+class Ball --> Key : "1" * "1"
+class Creator --> Table : "1" * "1"
+class Creator --> Ball : "1" * "1"
+class Creator --> SceneManager : "1" * "1"
+class SceneBuilder --> Table : "1" * "1"
+class SceneBuilder --> Ball : "1" * "1"
+class SceneBuilder --> SceneManager : "1" * "1"
+class SimpleTable --> Key : "1" * "1"
+class SimpleBall --> Key : "1" * "1"
+class Table --> Key : "1" * "1"
+class Ball --> Key : "1" * "1"
+@enduml

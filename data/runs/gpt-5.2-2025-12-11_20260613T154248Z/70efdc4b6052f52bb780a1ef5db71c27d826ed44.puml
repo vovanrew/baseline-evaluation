@@ -1,0 +1,50 @@
+```plantuml
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 30
+skinparam BoxPadding 10
+
+participant "LCM" as LCM #e6e6e6
+participant "Class\nApplicationProperty" as ApplicationProperty #d9f2d9
+participant "Class\nDscResourceBase" as DscResourceBase #d9d9ff
+participant "Function\nConvertTo-HashtableFromObject" as ConvertToHashtableFromObject #d9d9ff
+participant "Function\nTest-DscParameterState" as TestDscParameterState #d9d9ff
+
+LCM -> ApplicationProperty : ApplicationProperty.Test()
+activate ApplicationProperty
+
+ApplicationProperty -> DscResourceBase : ([DscResourceBase] $this).Test()
+activate DscResourceBase
+
+DscResourceBase -> ConvertToHashtableFromObject : $this
+activate ConvertToHashtableFromObject
+ConvertToHashtableFromObject --> DscResourceBase : Return Type: [Hashtable]
+deactivate ConvertToHashtableFromObject
+
+DscResourceBase -> DscResourceBase : $actual = $this.Get()
+activate DscResourceBase
+deactivate DscResourceBase
+
+DscResourceBase -> ConvertToHashtableFromObject : $actual
+activate ConvertToHashtableFromObject
+ConvertToHashtableFromObject --> DscResourceBase : Return Type: [Hashtable]
+deactivate ConvertToHashtableFromObject
+
+DscResourceBase -> TestDscParameterState : Parameter: both Hashtables
+activate TestDscParameterState
+note right of TestDscParameterState
+DscResourceBase must determine which properties
+are optional to exclude them the comparison.
+end note
+TestDscParameterState --> DscResourceBase : Return Type: [Boolean]
+deactivate TestDscParameterState
+
+DscResourceBase --> ApplicationProperty : Return Type: [Boolean]
+deactivate DscResourceBase
+
+ApplicationProperty --> LCM : Return Type: [Boolean]
+deactivate ApplicationProperty
+
+@enduml
+```

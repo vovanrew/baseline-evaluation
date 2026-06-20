@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Kj1Yzik3UZHSXKbEACPLRq",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle PB-158 UC8 SQD: Get campaigns customer is eligible for\n\nnote over \"P&O\\n(Core Next)\", \"P&O DB\"\n**Abstract:**\nThis use cases describes the changes being made to an existing endpoint.\nThe endpoint will be modified so that it can be called by the user and\nwill return a list of campaigns that the customer is eligible for. A campaign\nlogo version number will be returned, as well as a campaign logo\nimage (if requested).\nend note\n\nactor \"Next Customer\" as customer\nbox \"Next Platform\" #LightGray\nparticipant \"P&O\\n(Core Next)\" as PO\ndatabase \"P&O DB\" as PODB\nend box\nparticipant \"Core Bradesco\" as CB\n\nnote left of customer\n**Endpoint:**\nGET /campaigns\n\n**Current implementation:**\nCurrently only called by system management, returns a list of all campaigns\nwith the option to specify:\n\u2022 NAME\n\u2022 PARTNER_ID\n\u2022 OFFER_ID\n\n**Required implementation:**\n*Either through extension of existing API or new,* enable the user\nto call the endpoint. When a user calls the endpoint return a list of campaigns\nthat that the user is eligible for. As part of the request, include an optional\nfield for whether or not to return the offer logo.\n\nAs part of the CAMPAIGN_RETRIEVAL response include:\n\u2022 Campaign logo version number\n\u2022 Campaign logo (optional)\n\n**ENSURE BACKWARDS COMPATIBILITY IS MAINTAINED**\nend note\n\ncustomer -> PO : 1 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})\n\nbox \"filter on {NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}\" #White\nPO -> PODB : 2 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})\n\nnote right of PODB\n**Note:**\nRead P&O tables:\n\u2022 ELLIGIBLE_USER\n\u2022 CAMPAIGN\nend note\n\nPODB --> PO : 3 Read campaigns user is eligible for\nend box\n\nPO --> PO : 4 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)\n\nalt if user has been or is eligible for at least one campaign\nPO --> customer : 5 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)\nelse if user is not eligible for any active campaigns\nPO --> customer : 6 Return error (MESSAGE)\nend\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781371560,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 605,
+    "prompt_tokens": 1664,
+    "total_tokens": 2269
+  }
+}

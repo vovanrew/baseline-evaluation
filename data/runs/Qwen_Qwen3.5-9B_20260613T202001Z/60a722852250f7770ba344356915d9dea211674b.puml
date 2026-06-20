@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+actor "Teacher" as teacher
+interface "UpdateRollCallForm" as updateForm
+boundary "StudentController" as studentController
+boundary "RollCall" as rollCall
+boundary "ClassroomMember" as classroomMember
+
+activate teacher
+activate updateForm
+activate studentController
+activate rollCall
+activate classroomMember
+
+teacher -> updateForm : 1 // request update roll call
+updateForm -> studentController : 2 // request update roll call
+studentController -> classroomMember : 3 // checking information is valid
+
+alt [information is valid]
+classroomMember --> studentController : 5 // Information is valid
+studentController -> rollCall : 6 // Request make roll call
+activate rollCall
+deactivate rollCall
+rollCall --> studentController : 8 // Roll call update done
+studentController --> updateForm : 8 // Roll call update done
+updateForm --> teacher : 9 // Roll call done
+deactivate updateForm
+deactivate teacher
+else [information is not valid]
+classroomMember --> studentController : 5.1 // Information is not valid
+studentController --> updateForm : 5.2 // Roll call update failed
+updateForm --> teacher : 5.3 // Roll call failed, check information again
+deactivate updateForm
+deactivate teacher
+end
+
+deactivate studentController
+deactivate classroomMember
+@enduml

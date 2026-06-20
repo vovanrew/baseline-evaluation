@@ -1,0 +1,56 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam note {
+  BackgroundColor white
+}
+
+title create file, add, reset, delete
+
+participant "User" as User1 <<actor>> 
+rectangle GIT {
+    box Working dir #FF6B6B
+        participant "" as WD1
+    endbox
+    
+    header jalbertomr.blogspot.com
+    
+    box Stage #98FB98
+        participant "" as STAGE1
+    endbox
+    
+    box History #E0FFFF
+        database DB1
+    endbox
+}
+
+==create file2, add, reset, delete == 
+
+note over WD1 :file2 created\n  
+WD1 ->STAGE1:green **git** <u>add</u>**<font color=black > </font><b style="color:#347C2C">file2<b/>**\n   
+note right of STAGE1:<back:red>:line:black;size:5;text:white;font size =10,file2 created \n  
+
+stage <- stage:green [reset | reset file2| reset HEAD file2]\nnote left of STAGE1:\n    
+note over WD1 :\nfile2 deleted from working directory.\n    
+
+group git status -s
+   alt Untracked files in red
+      activate WD1
+       note over WD1:**?? new_file.txt**
+     deactivate WD1
+   
+else Files to be committed are green
+activate STAGE1
+         note over STAGE1 :**A added_file.txt**
+deactivate STAGE1
+  
+ else Modified but not updated yellow
+          activate WD1
+           note over WD1:M modified_file.txt
+            deactivate WD1
+            
+end
+
+
+@enduml

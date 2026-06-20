@@ -1,0 +1,40 @@
+@startuml
+title VideoPlayer.vue (FileManager Component)
+caption CVX-AI - Vue & Flask framework interaction
+
+actor User
+participant Website
+participant "Web Server" as WebServer
+participant "Filesystem Server" as FileServer
+database "PC Filesystem" as PCFS
+
+User -> Website : opens
+
+activate Website
+Website -> WebServer : initialize
+note right of Website
+http://localhost:8080/
+end note
+
+activate WebServer
+Website -> FileServer : initialize
+note right of Website
+http://localhost:8090/
+end note
+
+activate FileServer
+FileServer -> PCFS : read
+activate PCFS
+PCFS --> FileServer : return\ndefault\ndirectory
+note right of FileServer
+.../CVX_AI_WebUI/root/api/data/"
+end note
+deactivate PCFS
+
+FileServer --> Website : provide\ndirectories
+Website --> User : display\nSyncfusion\nFileManager\ncomponent
+
+deactivate FileServer
+deactivate WebServer
+deactivate Website
+@enduml

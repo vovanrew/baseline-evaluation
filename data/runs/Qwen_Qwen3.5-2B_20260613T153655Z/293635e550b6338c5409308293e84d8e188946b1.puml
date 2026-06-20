@@ -1,0 +1,59 @@
+@startuml
+participant "Admin" as Admin
+participant "Sqoop" as Sqoop
+participant "Metastore DB" as MetastoreDB
+participant "HDFS" as HDFS
+participant "Hive SQL" as HiveSQL
+participant "Hive" as Hive
+participant "Hive Table" as HiveTable
+participant "Ambari" as Ambari
+
+section "Pre Upgrade Planning Setup"
+    Admin -> Sqoop : "Collect the Metadata"
+    Sqoop -> MetastoreDB : Extracts from
+    Sqoop -> HDFS : Saves to
+    Admin -> Hive : Build Supporting Tables
+end section
+
+section "Pre Upgrade Planning"
+    Admin -> Sqoop : Run "Distinct Serdes"
+    Admin -> Hive : Fix Tables with Serde Issues
+    Admin -> Hive : Run "Check Partition Location"
+    Admin -> Hive : Run "Non-Managed Table Locations"
+    Admin -> Hive : Run "Managed Table Locations"
+    Admin -> Hive : Run "Missing HDFS Directories Check"
+    Admin -> Hive : Correct "Missing Directories"
+    Admin -> Hive : Run "Table Migration Check"
+    Admin -> Hive : Run "Acid Table Conversions"
+    Admin -> Hive : Run "Conversion Table Directories"
+end section
+
+section "Pre Upgrade Compaction"
+    note right of Admin
+        This process should be run several days
+        BEFORE the actual upgrade to reduce the downtime of the upgrade.
+        And should be run just BEFORE the upgrade and
+        AFTER all users have been cleared from the system
+        to ensure no tables are modified after this runs.
+    end note
+    Admin -> Hive : Run "Acid Table Compaction Check"
+    Admin -> Hive : Run "Acid Table Compaction Required"
+    Admin -> Hive : TUNE THE COMPACTOR for estimated compaction needs
+    Admin -> Hive : Run the compaction script. Break it apart if needed.
+end section
+
+section "Post Upgrade Planning"
+    Admin -> Hive : Run "Acid Table Locations". Save artifact for Upgrade.
+end section
+
+section "Upgrade"
+    Admin -> Sqoop : Review and Run ALL previous steps and collect details.
+    Admin -> Ambari : Decision to intervene with Ambari Process based on volumes indicated through research
+    Admin -> Ambari : Hack Pre/Post Processes
+    Admin -> Ambari : Run Compaction Routine one last time.
+    Admin -> Ambari : Start Upgrade
+    Admin -> Ambari : Run the Post Upgrade Planning Output to convert tables.
+    Admin -> Ambari : Complete Upgrade
+end section
+
+@enduml

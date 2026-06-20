@@ -1,0 +1,48 @@
+```plantuml
+@startuml
+
+actor "Webブラウザ" as browser1
+participant "CCM GUI\n(Web)" as web
+participant "CCM GUI\n(WebSocket)" as websocket
+participant "CCM SDK\n(IPC)" as sdk
+actor "Webブラウザ" as browser2
+
+note right of sdk
+ネットワーク情報変更通知 受信
+(RegistRecieveNetworkInfoHandler)
+end note
+
+sdk -> sdk
+
+sdk <--[ websocket : ネットワーク情報変更通知 [notify]
+
+note left of websocket
+{
+  "command": "NetworkInfo",
+  "type": "notify",
+  "data": {
+    "ID": "xxx",
+    "CellularInfo": [{
+      "SignalStrength": "...",
+      "SignalStrengthUnit": "...",
+      "Operator": "...",
+      "PLMN": "...",
+      "Band": "...",
+      "CellID": "...",
+      "AirInterface": "...",
+      "Manufacture": "...",
+      "ModelName": "...",
+      "IMEI": "..."
+    }],
+    "QosInterfaceType": {
+      "key1": "val1",
+      ...
+    }
+  }
+}
+end note
+
+browser1 <--[ web : 1秒間隔で保持データを画面に表示
+
+@enduml
+```

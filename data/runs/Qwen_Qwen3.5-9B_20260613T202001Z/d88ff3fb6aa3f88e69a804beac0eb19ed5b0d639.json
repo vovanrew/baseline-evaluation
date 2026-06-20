@@ -1,0 +1,22 @@
+{
+  "id": "68b74cde-9bcc-4c2e-8bb8-94d49cc4e35a",
+  "object": "chat.completion",
+  "created": 1781589838,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor Admin\nparticipant \"AddEventPage\" as AddEventPage\nparticipant \"AddEventFormContainer\" as AddEventFormContainer\nparticipant \"AddClassPopupContainer\" as AddClassPopupContainer\nparticipant \"ClassForm\" as ClassForm\nparticipant \"ClassService (Frontend)\" as ClassServiceFrontend\nparticipant \"ShiftService (Frontend)\" as ShiftServiceFrontend\nparticipant \"Router\" as Router\nparticipant \"ClassHTTPTransport\" as ClassHTTPTransport\nparticipant \"ClassEndpoint\" as ClassEndpoint\nparticipant \"ClassService\" as ClassService\nparticipant \"ClassCommand\" as ClassCommand\nparticipant \"ClassQuery\" as ClassQuery\nparticipant \"TransactionGRPCTransport\" as TransactionGRPCTransport\nparticipant \"StorageGRPC Transport\" as StorageGRPCTransport\nparticipant \"MaterialService\" as MaterialService\nparticipant \"NatsStreaming\" as NatsStreaming\n\nAdmin -> AddEventPage: Click \"Attach New Class\" Button\nAddEventPage -> AddEventFormContainer: attach(Class())\nAddEventFormContainer -> AddClassPopupContainer: attach\nAddEventFormContainer -> AddClassPopupContainer: attach\nAddEventPage -> AddClassPopupContainer: Render \"Add Class Popup\" Container\nAddClassPopupContainer -> ClassForm: render\nClassForm --> AddClassPopupContainer: rendered\nAddEventPage -> AddClassPopupContainer: choose date\nAddClassPopupContainer -> ClassForm: handleDateChange(value)\nClassForm -> ShiftServiceFrontend: fetchAvailableShifts(date)\nShiftServiceFrontend --> ClassForm: shifts\nAddEventPage -> AddClassPopupContainer: form data\nAddEventPage -> AddClassPopupContainer: choose shift\nAddClassPopupContainer -> ClassForm: handleShiftChange()\nClassForm -> ShiftServiceFrontend: fetchAvailableShifts(date, {shift})\nShiftServiceFrontend --> ClassForm: rooms\nAddEventPage -> AddClassPopupContainer: form data\nAddEventPage -> AddClassPopupContainer: Fill Form\nAddEventPage -> AddClassPopupContainer: form data\nAddEventPage -> AddClassPopupContainer: Click \"Create Class\" Button\nAddClassPopupContainer -> AddClassPopupContainer: handleClassFormSubmitted()\nAddClassPopupContainer -> ClassHTTPTransport: booking(Class(payload))\nClassHTTPTransport -> ClassEndpoint: route(\"GET\", \"/v2/booking\")\nClassEndpoint -> ClassService: BookingClass(ClassService, {ServerOption})\nClassService -> ClassService: Booking(ClassService, withPaginated)\nClassService -> ClassService: Create(context, params)\nClassService -> ClassService: Validate()\n\nalt \"Data Valid\"\n  ClassService -> TransactionGRPCTransport: IsValidTransaction(ProtoBuffer)\n  TransactionGRPCTransport --> ClassService: ProtoResponse\n\n  alt \"Is Valid Transaction\"\n    ClassService -> ClassService: class := ClassModel()\n    ClassService -> ClassService: Create(context, class)\n    ClassService -> ClassService: uuid\n\n    opt \"Has materials\"\n      ClassService -> MaterialService: CommitFile(context, ProtoBuffer)\n      ClassService -> MaterialService: link\n      ClassService -> MaterialService: Create(context, payload)\n      ClassService -> MaterialService: IsCreated\n    end\n\n    ClassService -> ClassQuery: FindContext({SliceConditions})\n    ClassQuery --> ClassService: classes\n    ClassService -> NatsStreaming: publishClassCreated(context, data)\n    NatsStreaming --> ClassService: published\n  end\nend\n\nClassService -> ClassEndpoint: BadRequest\nClassEndpoint -> ClassHTTPTransport: BadRequest\nClassHTTPTransport -> AddClassPopupContainer: BadRequest\nAddClassPopupContainer -> AddEventPage: BadRequest\n\nClassService -> ClassEndpoint: UnprocessableEntity\nClassEndpoint -> ClassHTTPTransport: UnprocessableEntity\nClassHTTPTransport -> AddClassPopupContainer: UnprocessableEntity\nAddClassPopupContainer -> AddEventPage: UnprocessableEntity\n\nClassService -> ClassService: class := Response(class, nil)\nClassService -> ClassHTTPTransport: response\nClassHTTPTransport -> ClassEndpoint: response\nClassEndpoint -> ClassHTTPTransport: response\nClassHTTPTransport -> AddClassPopupContainer: response\nAddClassPopupContainer -> AddEventPage: response\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1713,
+    "completion_tokens": 882,
+    "total_tokens": 2595
+  }
+}

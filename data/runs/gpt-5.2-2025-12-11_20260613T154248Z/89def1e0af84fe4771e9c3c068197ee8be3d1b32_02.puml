@@ -1,0 +1,47 @@
+@startuml
+title Scheduled Events
+
+actor "Recording Staff" as RecordingStaff
+actor Coach
+
+participant "IP/Mobile Cams" as Cams
+participant "Consumer Apps" as Apps
+participant "Security Gateway" as Gateway
+control "Control Domain\n(win10/linux)" as ControlDomain
+participant "Streaming Service\n(encoder)" as Streaming
+entity "Media\n(mediaID)" as Media
+participant "Transfer Service" as Transfer
+
+Apps -> Gateway : authenticate(ID)
+Gateway --> Apps : return(token)
+
+Cams -> ControlDomain : register(endpoint)
+Apps -> ControlDomain : register(token, priority)
+
+RecordingStaff -> ControlDomain : createEvent(configuration{description, sources, consumers{priorities}})
+activate ControlDomain
+ControlDomain -> ControlDomain : create(newEvent)
+
+RecordingStaff -> ControlDomain : start(newEvent)
+ControlDomain -> Streaming : encode()
+
+ControlDomain --> Apps : notify(recording)
+
+RecordingStaff -> ControlDomain : stop(newEvent)
+ControlDomain -> Streaming : saveAs(mediaID)
+Streaming -> Media : save(mediaID)
+
+ControlDomain -> Transfer : host(mediaID, consumers{token, priority})
+ControlDomain --> Apps : notify(newMediaAvailable, mediaID, transferServiceEndpoint)
+deactivate ControlDomain
+
+alt [auto-download enabled]
+  Apps -> Transfer : fetchMedia(token, mediaID)
+  Transfer --> Apps : returnByPriority(mediaStream)
+else [manual-download enabled]
+  Coach -> Apps : showMedia(token)
+  Apps -> Transfer : fetchMedia(token, mediaID)
+  Transfer --> Apps : returnByPriority(mediaStream)
+end
+
+@enduml

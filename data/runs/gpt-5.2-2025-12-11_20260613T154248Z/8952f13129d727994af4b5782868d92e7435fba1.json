@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLnV8WFcEhSX0WAyGJSLDaNHSQ2D",
+  "object": "chat.completion",
+  "created": 1781369217,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Shared memory receiver behaviour\n\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #333333\n  LifeLineBorderColor #888888\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #EFEFEF\n  BoxBorderColor #999999\n  BoxBackgroundColor #E6E6E6\n  NoteBackgroundColor #FFF9C4\n  NoteBorderColor #BDB76B\n}\n\nparticipant \"Shared memory receiver\" as SMR\nparticipant \"Semaphore coord\" as SEMC\nbox \"Coordination struct\" #E6E6E6\n  participant \"Reader count var\" as RC\n  participant \"locks_active\" as LA\n  participant \"locks_leaving\" as LL\n  participant \"Semaphore copy\" as SC\nend box\nparticipant \"Copy buff\" as CB\n\n== create ==\nalt [\"Coordination semaphore doesn't exist\"]\n  SMR -> SEMC : Create semaphore\nend\nSMR -> SEMC : wait\nnote over SEMC,CB\nWriter sets up sharedmemory\nWriter is ready\nWriter inits it with the required number\nend note\nSMR -> RC : ok\nSMR -> RC : reincrease\nSMR -> SEMC : MMap coordination struct\nSMR -> SC : Trylock copy semaphore\n\nalt [fail]\n  SMR <-- SC : Fail\n  SMR -> SMR : Can't lock\nelse [success]\n  SMR <-- SC : Success\n  SMR -> CB : MMap copy buffer\n  SMR -> SMR : read_flag to true\n  SMR -> LL : Lock leaving[1]\n  SMR -> RC : Signal reader ready\nend\nSMR -> SEMC : Close coordination semaphore file\nSMR <-- SEMC : Success\n\n== ready ==\nSMR -> SMR : ready?\nalt [finished flag set]\n  SMR <-- SMR : False\nelse [has read current chunk]\n  SMR -> LA : lock next chunk (reading)\n  note over LA\nBlocks until next\nchunk is written\nend note\n  SMR -> LL : Release previous leaving\n  SMR -> LA : Change active\n  SMR -> SMR : reset read flag\n  SMR -> CB : get chunk size\n  SMR <-- CB : c_size\n  SMR <-- SMR : c_size > 0\n  SMR <-- SMR : True\nend\n\nalt [finished]\n  note left of SMR\nThis is done before\nactually returning\nend note\n  SMR -> SMR : set finished flag\n  SMR -> LA : Release lock\nend\n\n== buff size ==\nSMR -> SEMC : get buff_size from coord\nSMR <-- SEMC : buff_size\n\n== receive ==\nnote left of SMR\nThis is called after ready so I am already on the correct\nchunk and it has data to read\nend note\nalt [read_flag_set or finished flag set]\n  SMR <-- SMR : Fail\nelse\n  SMR -> CB : Read data in current chunk\n  SMR <-- CB : vector\n  SMR -> SMR : set read flag\n  SMR -> LL : lock leaving\n  SMR -> LA : release active\n  SMR <-- SMR : vector\nend\n\n== destructor ==\nSMR -> SMR : Destroy\nalt [not finished]\n  alt [read_flag set]\n    SMR -> LA : unlock\n  else [read_flag false]\n    SMR -> LL : unlock\n  end\nend\nSMR -> RC : Notify left\nSMR -> SMR : Unmap memory\nSMR -> SMR : Close files\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1438,
+    "completion_tokens": 791,
+    "total_tokens": 2229,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

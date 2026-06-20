@@ -1,0 +1,75 @@
+```plantuml
+@startuml
+title 任务下发流程
+
+actor nsq as "nsq"
+participant "GuideTaskCrmVisitAssignListener" as listener
+participant "guideTaskCrmVisitAssignProcessor" as processor
+participant "GuideTaskAssignDomainService" as domainService
+participant "ShoppingGuideReadApi" as readApi
+participant "GuideTaskDepartmentAssignStrategy" as strategy
+participant "GuideTaskAssignFactory" as factory
+participant "GuideTaskAssignRepository" as assignRepo
+participant "GuideTaskRepository" as taskRepo
+participant "NsqProducer" as producer
+
+== 任务下发流程 ==
+
+activate listener
+activate processor
+activate domainService
+activate readApi
+activate strategy
+activate factory
+activate assignRepo
+activate taskRepo
+activate producer
+
+' Step 1: nsq sends task
+nsq -> listener : 1 下发任务
+
+' Step 2: Listener starts processing
+listener -> processor : 2 开始处理
+
+' Step 3: Processor assigns task to domain service
+processor -> domainService : 3 任务分配
+
+' Step 4: Domain service queries department
+domainService -> readApi : 4 查询下发对象 department
+note left of readApi : 下发给所有部门
+
+' Step 5: Domain service assigns task
+readApi --> domainService
+domainService -> strategy : 5 分配任务
+
+' Step 6: Strategy creates task entity
+strategy -> factory : 6 创建分配的任务实体
+note left of factory : 只有任务下发给导购的时候\n才创建导购的任务明细
+
+' Transaction block for saving states
+rectangle "Transaction" {
+    ' Step 7: Save status flow to completed
+    factory --> domainService
+    domainService -> assignRepo : 7 保存分配状态 status flow 任务流转至 分配完成
+    
+    ' Step 8: Save status flow to pending
+    assignRepo --> domainService
+    domainService -> taskRepo : 8 保存分配状态 status flow 任务流转至 待启动
+}
+
+' Step 9: Send completion message
+taskRepo --> domainService
+domainService -> producer : 9 发送下发完成消息，准备启动任务
+
+deactivate producer
+deactivate taskRepo
+deactivate assignRepo
+deactivate factory
+deactivate strategy
+deactivate readApi
+deactivate domainService
+deactivate processor
+deactivate listener
+
+@enduml
+```

@@ -1,0 +1,75 @@
+@startuml
+' Define styles
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor White
+  BorderColor Black
+  FontColor Black
+}
+
+' Define classes and their attributes/methods
+class HomeViewController {
+  - emailTextField: UITextField!
+  - passwordTextField: UITextField!
+  - displayNameTextField: UITextField!
+  + onSubmitButtonTapped(_:())
+  + attemptRegister()
+  + attemptLogin()
+}
+
+class FirebaseAuthProvider {
+  - fbUser: User?
+  + user: DTUser?
+  + init()
+  + signUp(email:password:displayName:)
+  + login(email:password:)
+  + setUserDisplayName(_:())
+}
+
+class DTAuth {
+  + user: DTUser?
+  + signUp(email:password:displayName:)
+  + login(email:password:)
+}
+
+class DTAuthDelegate {
+  + displayError(_:())
+  + displayMessage(_:())
+  + loginDidSucceed()
+  + registerDidSucceed()
+}
+
+class DTAbstractAuthProvider {
+  + user: DTUser?
+  + signUp(email:password:displayName:)
+  + login(email:password:)
+}
+
+class DTUser {
+  + uid: String
+  + displayName: String
+  + email: String
+}
+
+' Define extensions
+extension HomeViewController {
+  + displayError(_:())
+  + displayMessage(_:())
+  + loginDidSucceed()
+  + registerDidSucceed()
+}
+
+extension User {
+  + toDTUser()
+}
+
+' Define relationships
+HomeViewController --> DTAuth : sends auth events to
+FirebaseAuthProvider --> DTAuth : converts to DTUser using
+FirebaseAuthProvider --> DTAuthDelegate : sends events
+FirebaseAuthProvider --> DTAbstractAuthProvider : implements
+DTAuth --> DTUser : 1
+DTAuthDelegate <|-- HomeViewController : implements
+DTAbstractAuthProvider <|-- FirebaseAuthProvider : implements
+
+@enduml

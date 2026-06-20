@@ -1,0 +1,28 @@
+@startuml
+skinparam sequenceDiagram
+    participant Client as "Client"
+    participant API as "API"
+    participant MsgServer as "MsgServer"
+
+    Note over Client, API, MsgServer: Please use '!option handwritten true' to enable handwritten
+
+    Note over Client, API, MsgServer: 系统用户登录时序图
+
+    Client ->> API: 1 login
+    API ->> Client: 2 account verify
+
+    alt [verify success:]
+        API -->> MsgServer: 3 generate jwt and return
+        MsgServer -->> Client: 4 connect MsgServer and build tcp connect
+        MsgServer -->> API: 5 parse jwt and attr the accountInfo to Channel
+        API -->> MsgServer: 6 connect success
+        MsgServer -->> Client: 7 login failed;
+    end
+
+    alt [verify fail:]
+        API -->> Client: 7 login failed;
+    end
+
+    %% Add handwritten option note
+    Note over Client, API, MsgServer: !option handwritten true
+@enduml

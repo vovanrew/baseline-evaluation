@@ -1,0 +1,50 @@
+@startuml
+title Java Steganography API :: Packages
+
+package "org" {
+  package "steg" {
+    package "jsa" {
+      interface SteganographyTechnique {
+        + embed(Message, Key, Cover): Stego
+        + extract(Stego, Key): Message
+      }
+      
+      class AbstractSteganography {
+        <<abstract>>
+      }
+      
+      SteganographyTechnique <|-- AbstractSteganography
+    }
+    
+    package "audio" {
+      class AdaptiveAudioSteganography {
+        <<concrete>>
+      }
+      
+      class AudioLSBSteganography {
+        <<concrete>>
+      }
+      
+      AdaptiveAudioSteganography ..|> SteganographyTechnique
+      AudioLSBSteganography ..|> SteganographyTechnique
+    }
+    
+    package "image" {
+      class ImageLSBSteganography {
+        <<concrete>>
+      }
+      
+      ImageLSBSteganography ..|> SteganographyTechnique
+    }
+    
+    package "video" {
+      class VideoSteganography {
+        <<concrete>>
+      }
+      
+      VideoSteganography ..|> SteganographyTechnique
+    }
+  }
+}
+
+@enduml

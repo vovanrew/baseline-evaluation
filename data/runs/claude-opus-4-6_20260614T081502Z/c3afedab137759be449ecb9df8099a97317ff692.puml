@@ -1,0 +1,82 @@
+```plantuml
+@startuml
+title 自販機システム_クラス図
+
+enum BuyResult {
+  SUCCESS,
+  NOT_ENOUGH_MONEY,
+  ZERO_STOCK
+}
+
+class UserInterface {
+  o int 希望金額
+  o int 商品番号
+  --
+  o UserInterface()
+  o void 初期画面を表示する()
+  o void 機能を呼び出す()
+  o void 金額入力()
+  o void 商品番号入力()
+}
+
+class 自動販売機 {
+  o int 投入金額
+  --
+  o void 商品情報を追加する(Integer 商品番号, Product 商品情報)
+  o void 在庫を補充する(Integer 商品番号, Integer 在庫数)
+  ..
+  o boolean お金を投入する(int 希望金額)
+  o BuyResult 商品を購入する(int 商品番号)
+  o int 返金を受け取る()
+  o void 自販機を終了する()
+  ..
+  o int get投入金額()
+  o int get在庫数(int 商品番号)
+  o Product get商品情報(int 商品番号)
+}
+
+class Product {
+  o int 商品番号
+  o String 商品名
+  o int 単価
+  --
+  o Product()
+  ..
+  o int get商品番号()
+  o String get商品名()
+  o int get単価()
+}
+
+class Storage {
+  o Product<Integer 商品番号, Product 商品情報> 商品情報マップ
+  o Map<Integer 商品番号, Integer 在庫数> 在庫数マップ
+  --
+  o void 商品情報を追加する(Integer 商品番号, Product 商品情報)
+  o void 在庫を補充する(Integer 商品番号, Integer 在庫数)
+  o Product get商品情報(int 商品番号)
+  o int get在庫数(int 商品番号)
+  o void 在庫数を減らす(int 商品番号)
+}
+
+class チェッカー {
+  o final int 投入金額の上限
+  --
+  o boolean 投入金額の上限に達していないかチェックする(int 希望金額, int 投入金額)
+  o boolean 指定された商品を買える金額かチェックする(Product 商品情報, int 投入金額)
+}
+
+note left of BuyResult
+  自動販売機クラスの「商品を購入する」メソッドが
+  以下3種類を返却する。
+
+  SUCCESS：商品の購入成功を示す
+  NOT_ENOUGH_MONEY：投入金額不足を示す
+  ZERO_STOCK：指定された商品の在庫切れを示す
+end note
+
+自動販売機 o-- Storage
+自動販売機 o-- Product
+自動販売機 ..> チェッカー
+
+@enduml
+```

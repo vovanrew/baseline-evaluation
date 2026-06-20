@@ -1,0 +1,22 @@
+{
+  "id": "3ad4766b-8d68-40b5-b133-d379ee806b4d",
+  "object": "chat.completion",
+  "created": 1781440755,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle JCallGraph Sequence Diagram\n\nparticipant \"JCallGraph\" as JCallGraph\nparticipant \"CliManager\" as CliManager\nparticipant \"MethodCallsList\" as MethodCallsList\nparticipant \"CalledFromList\" as CalledFromList\nparticipant \"File\" as File\nparticipant \"JarFile\" as JarFile\nparticipant \"ZipEntry\" as ZipEntry\nparticipant \"ClassParser\" as ClassParser\nparticipant \"ClassVisitor\" as ClassVisitor\nparticipant \"Runner\" as Runner\n\nJCallGraph -> CliManager: new CliManager()\nactivate CliManager\nJCallGraph -> CliManager: main(args)\ndeactivate CliManager\n\nJCallGraph -> MethodCallsList: getMethodCallsList()\nactivate MethodCallsList\nMethodCallsList --> JCallGraph: MethodCallsList\ndeactivate MethodCallsList\n\nJCallGraph -> File: new File\nactivate File\nFile --> JCallGraph: File\ndeactivate File\n\nJCallGraph -> JarFile: new JarFile(File)\nactivate JarFile\nJarFile --> JCallGraph: JarFile\ndeactivate JarFile\n\nJCallGraph -> JCallGraph: enumerationAsStream(Enumeration<T> e)\nnote right of JCallGraph: Jar en formato stream\n\nloop [forEach]\n    alt [isDirectory() and getName().endsWith(\".class\")]\n        JCallGraph -> ClassParser: new ClassParser(String, String)\n        activate ClassParser\n        ClassParser --> JCallGraph: cp = ClassParser\n        deactivate ClassParser\n        \n        JCallGraph -> JCallGraph: getClassVisitor()\n        \n        JCallGraph -> ClassVisitor: apply(ClassParser)\n        JCallGraph -> ClassVisitor: start()\n        activate ClassVisitor\n        ClassVisitor --> JCallGraph: HashMap<MethodReport, List<MethodReport>>\n        deactivate ClassVisitor\n        \n        alt [!= null]\n            JCallGraph -> MethodCallsList: add(HashMap<MethodReport, List<MethodReport>>)\n        end\n    end\nend\n\nJCallGraph -> Runner: main(String[])\nJCallGraph -> JCallGraph: exportFiles();\n\ngroup [catch]\n    JCallGraph -> JCallGraph: printStackTrace()\nend\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1811,
+    "completion_tokens": 470,
+    "total_tokens": 2281
+  }
+}

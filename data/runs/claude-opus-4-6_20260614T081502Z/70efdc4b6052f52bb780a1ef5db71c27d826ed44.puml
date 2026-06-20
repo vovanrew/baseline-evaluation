@@ -1,0 +1,36 @@
+```plantuml
+@startuml
+
+actor LCM
+
+participant "Class\nApplicationProperty" as AP #lightgreen
+participant "Class\nDscResourceBase" as DRB #lightyellow
+participant "Function\nConvertTo-HashtableFromObject" as CTHO #plum
+participant "Function\nTest-DscParameterState" as TDPS #plum
+
+LCM -> AP : ApplicationProperty.Test()
+activate AP
+
+AP -> DRB : ([DscResourceBase] $this).Test()
+activate DRB
+
+DRB -> CTHO : $this
+CTHO --> DRB : Return Type: [Hashtable]
+
+DRB -> DRB : $actual = $this.Get()
+
+DRB -> CTHO : $actual
+CTHO --> DRB : Return Type: [Hashtable]
+
+DRB -> TDPS : Parameter: both Hashtables
+note right of TDPS : DscResourceBase must determine which properties\nare optional to exclude them the comparison.
+TDPS --> DRB : Return Type: [Boolean]
+
+DRB --> AP : Return Type: [Boolean]
+deactivate DRB
+
+AP --> LCM : Return Type: [Boolean]
+deactivate AP
+
+@enduml
+```

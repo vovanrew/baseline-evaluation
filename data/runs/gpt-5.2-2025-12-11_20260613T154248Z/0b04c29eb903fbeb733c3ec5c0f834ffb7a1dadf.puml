@@ -1,0 +1,152 @@
+```plantuml
+@startuml
+title Keyple 2.0 - Adapter of keyple-service-resource-java-lib - 2.0.0 (21/06/2021)
+
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+legend top
+Colors legend :
+- External public API references :
+  - calypsonet-terminal-reader-java-api
+  - keyple-service-java-lib
+endlegend
+
+package "org.eclipse.keyple.core.service.resource" as pkg {
+
+class "final CardResourceServiceProvider" as CardResourceServiceProvider << (C,#BFE6BF) >> {
+  ...
+}
+
+class "final CardResourceServiceAdapter" as CardResourceServiceAdapter << (C,#BFE6BF) >> {
+  {static} CardResourceServiceAdapter getInstance()
+  {static} String getCardResourceInfo(CardResource cardResource)
+
+  ReaderManagerAdapter getReaderManager(Reader reader)
+  void registerPoolCardResource(CardResource cardResource, PoolPlugin poolPlugin)
+  void configure(CardResourceServiceConfiguratorAdapter configurator)
+  --
+  CardResourceService
+  CardResourceServiceConfigurator getConfigurator()
+  MinimalCardResourceServiceConfigurator getMinimalConfigurator()
+  void start()
+  void stop()
+  CardResource getCardResource(String cardResourceProfileName)
+  CardResource getCardResource()
+  void releaseCardResource(CardResource cardResource)
+  void removeCardResource(CardResource cardResource)
+  --
+  PluginObserverSpi
+  void onPluginEvent(PluginEvent pluginEvent)
+  --
+  CardReaderObserverSpi
+  void onReaderEvent(CardReaderEvent readerEvent)
+}
+
+interface "CardResourceService" as ICardResourceService
+interface "PluginObserverSpi" as IPluginObserverSpi
+interface "CardReaderObserverSpi" as ICardReaderObserverSpi
+
+CardResourceServiceAdapter ..|> ICardResourceService
+CardResourceServiceAdapter ..|> IPluginObserverSpi
+CardResourceServiceAdapter ..|> ICardReaderObserverSpi
+
+CardResourceServiceProvider ..> CardResourceServiceAdapter : provide
+
+class "final CardResourceServiceConfiguratorAdapter" as CardResourceServiceConfiguratorAdapter << (C,#BFE6BF) >> {
+  CardResourceServiceConfiguratorAdapter()
+  ...
+  --
+  CardResourceServiceConfigurator
+  ...
+  --
+  MinimalCardResourceServiceConfigurator
+  ...
+}
+
+interface "CardResourceServiceConfigurator" as ICardResourceServiceConfigurator
+interface "MinimalCardResourceServiceConfigurator" as IMinimalCardResourceServiceConfigurator
+interface "AllocationStrategyStep" as IAllocationStrategyStep
+interface "UsageTimeoutStep" as IUsageTimeoutStep
+interface "PluginStep" as IPluginStep
+interface "PluginMonitoringStep" as IPluginMonitoringStep
+interface "PoolAllocationStrategyStep" as IPoolAllocationStrategyStep
+interface "PoolPluginStep" as IPoolPluginStep
+interface "AllocatingParameterStep" as IAllocatingParameterStep
+interface "ProfileStep" as IProfileStep
+interface "ProfileParameterStep" as IProfileParameterStep
+interface "ConfigurationStep" as IConfigurationStep
+
+CardResourceServiceConfiguratorAdapter ..|> ICardResourceServiceConfigurator
+CardResourceServiceConfiguratorAdapter ..|> IMinimalCardResourceServiceConfigurator
+CardResourceServiceConfiguratorAdapter ..|> IAllocationStrategyStep
+CardResourceServiceConfiguratorAdapter ..|> IUsageTimeoutStep
+CardResourceServiceConfiguratorAdapter ..|> IPluginStep
+CardResourceServiceConfiguratorAdapter ..|> IPluginMonitoringStep
+CardResourceServiceConfiguratorAdapter ..|> IPoolAllocationStrategyStep
+CardResourceServiceConfiguratorAdapter ..|> IPoolPluginStep
+CardResourceServiceConfiguratorAdapter ..|> IAllocatingParameterStep
+CardResourceServiceConfiguratorAdapter ..|> IProfileStep
+CardResourceServiceConfiguratorAdapter ..|> IProfileParameterStep
+CardResourceServiceConfiguratorAdapter ..|> IConfigurationStep
+
+CardResourceServiceAdapter "1" o-- "1" CardResourceServiceConfiguratorAdapter
+
+class "final CardProfileManagerAdapter" as CardProfileManagerAdapter << (C,#BFE6BF) >> {
+  CardProfileManagerAdapter(CardProfile cardProfile, CardResourceServiceConfiguratorAdapter globalConfiguration)
+  --
+  void removeCardResource(CardResource cardResource)
+  void onReaderConnected(ReaderManagerAdapter readerManager)
+  void onCardInserted(ReaderManagerAdapter readerManager)
+  CardResource getCardResource()
+}
+
+class "final ReaderManagerAdapter" as ReaderManagerAdapter << (C,#BFE6BF) >> {
+  ReaderManagerAdapter(Reader reader, Plugin plugin, ReaderConfiguratorSpi readerConfiguratorSpi, int usageTimeoutMillis)
+  --
+  Reader getReader()
+  Plugin getPlugin()
+  Set<CardResource> getCardResources()
+  boolean isActive()
+  --
+  void activate()
+  CardResource matches(CardResourceProfileExtension extension)
+  boolean lock(CardResource cardResource, CardResourceProfileExtension extension)
+  void unlock()
+  void removeCardResource(CardResource cardResource)
+}
+
+class "final CardResourceAdapter" as CardResourceAdapter << (C,#BFE6BF) >> {
+  CardResource(CardReader reader, SmartCard smartCard)
+  --
+  CardResource
+  CardReader getReader()
+  SmartCard getSmartCard()
+}
+
+interface "CardResource" as ICardResource
+
+CardResourceAdapter ..|> ICardResource
+
+CardResourceServiceAdapter "1..N" o-- "1..N" CardProfileManagerAdapter
+CardResourceServiceAdapter "0..N" o-- "0..N" ReaderManagerAdapter
+
+CardProfileManagerAdapter "0..N" o-- "0..N" CardResourceAdapter
+ReaderManagerAdapter "0..N" o-- "0..N" CardResourceAdapter
+
+CardProfileManagerAdapter ..> CardResourceAdapter : create for pool plugin
+ReaderManagerAdapter ..> CardResourceAdapter : create for regular plugin
+
+}
+
+' External public API references (shown as small boxes in the diagram)
+class "CardResourceServiceAdapter" as Ext_CardResourceServiceAdapter << (C,#BFE6BF) >>
+class "CardResourceAdapter" as Ext_CardResourceAdapter << (C,#BFE6BF) >>
+class "CardResourceServiceConfiguratorAdapter" as Ext_CardResourceServiceConfiguratorAdapter << (C,#BFE6BF) >>
+class "ReaderManagerAdapter" as Ext_ReaderManagerAdapter << (C,#BFE6BF) >>
+class "CardProfileManagerAdapter" as Ext_CardProfileManagerAdapter << (C,#BFE6BF) >>
+
+@enduml
+```

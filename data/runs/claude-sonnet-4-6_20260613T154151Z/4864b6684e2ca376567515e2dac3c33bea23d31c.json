@@ -1,0 +1,21 @@
+{
+  "id": "msg_013cGTd1hZdBEomV9mwsfv32",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle int PI::calculate(double measured, double resultBuffer)\n\nparticipant \"Aktuatorenhed\" as A\nparticipant \"PI\" as PI\n\nA -> PI : calculate(measured, resultBuffer)\n\nPI -> PI : error = _setpoint - measured\n\nnote right of PI : udregning af\\nintegrale\nPI -> PI : integral = (_Ts/2)*(error+_preError)+_preIntegral\n\nnote right of PI : Anti-Windup\nPI -> PI : maxIntegral = (100*_Ti)/_Kp\n\nalt [integral > maxIntegral]\n    PI -> PI : integral = maxIntegral\nelse [integral < 0]\n    PI -> PI : integral = 0\nend\n\nnote right of PI : udregning af\\nproportional\nPI -> PI : proportional = error\n\nnote right of PI : udregning af\\nstyresignal\nPI -> PI : controlSignal = _Kp*(proportional+(1/_Ti)*integral)\n\nopt [controlSignal < _minOut]\n    note right of PI : Max, Min afgr\u00e6nsninger.\\n0-100% dutycycle\n    PI -> PI : controlSignal = _minOut\nend\n\nopt [controlSignal > _maxOut]\n    PI -> PI : controlSignal = _maxOut\nend\n\nnote right of PI : return result\nPI -> A : resultBuffer = controlSignal\n\nnote right of PI : Opdater hukommelse for\\nerror og integral\nPI -> PI : _preError = error\\n_preIntegrale=integrale\n\nalt [controlSignal == _minOut]\n    PI --> A : return -1\nelse [controlSignal == _maxOut]\n    PI --> A : return -2\nend\n\nPI --> A : return 0\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781370022,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 433,
+    "prompt_tokens": 1644,
+    "total_tokens": 2077
+  }
+}

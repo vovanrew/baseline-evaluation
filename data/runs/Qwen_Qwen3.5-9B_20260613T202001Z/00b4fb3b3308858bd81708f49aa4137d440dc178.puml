@@ -1,0 +1,83 @@
+@startuml
+left to right direction
+package "InstallInstalling" as InstallInstalling {
+  [onCreate()]
+}
+package "PackageInstaller" as PackageInstaller {
+  [createSession()]
+}
+package "PackageInstallerService" as PackageInstallerService {
+  [createSession()]
+}
+package "InstallingAsyncTask" as InstallingAsyncTask {
+  [doInBackground()]
+  [openSession(sessionId)]
+  [openWrite()]
+  [doPostExecute()]
+  [commit()]
+  [installStage()]
+}
+package "PackageInstallerSession" as PackageInstallerSession {
+  [Session]
+}
+package "Handler" as Handler {
+  [handleMessage(MSG_COMMIT)]
+}
+package "mHandlerCallback" as mHandlerCallback {
+  [handleCommit()]
+}
+package "PkMS" as PkMS {
+  [sendMessage(INIT_COPY)]
+  [processPendingInstall()]
+  [processInstallRequestsAsync()]
+  [installPackagesTracedLI()]
+  [installPackagesLI()]
+  [preparePackageLI()]
+  [scanPackageTracedLI()]
+  [commitPackagesLocked()]
+  [commitReconciledScanResultLocked()]
+  [commitPackageSettings()]
+}
+package "PkMS.PackageHandler" as PkMS.PackageHandler {
+  [startCopy()]
+}
+package "PkMS.HandlerParams" as PkMS.HandlerParams {
+  [handleStartCopy()]
+  [handleReturnCode()]
+}
+package "PkMS.InstallParams" as PkMS.InstallParams {
+  [handleCommit()]
+}
+
+InstallInstalling -> PackageInstaller : createSession()
+PackageInstaller -> PackageInstallerService : createSession()
+PackageInstallerService --> PackageInstaller : sessionId
+PackageInstaller --> InstallInstalling : onCreate()
+InstallInstalling -> InstallingAsyncTask : onResume()
+InstallingAsyncTask --> InstallInstalling : execute()
+InstallingAsyncTask -> InstallingAsyncTask : doInBackground()
+InstallingAsyncTask -> PackageInstallerSession : openSession(sessionId)
+PackageInstallerSession --> InstallingAsyncTask : Session
+InstallingAsyncTask -> PackageInstallerSession : openWrite()
+PackageInstallerSession --> InstallingAsyncTask : doPostExecute()
+InstallingAsyncTask -> PackageInstallerSession : commit()
+PackageInstallerSession -> Handler : sendToTarget(MSG_COMMIT)
+Handler -> mHandlerCallback : handleMessage(MSG_COMMIT)
+mHandlerCallback -> PackageInstallerSession : handleCommit()
+PackageInstallerSession -> PackageInstallerSession : commitNonStagedLocked()
+PackageInstallerSession -> PkMS : installStage()
+PkMS -> PkMS.PackageHandler : sendMessage(INIT_COPY)
+PkMS.PackageHandler -> PkMS.HandlerParams : startCopy()
+PkMS.HandlerParams -> PkMS.InstallParams : handleStartCopy()
+PkMS.InstallParams -> PkMS.HandlerParams : handleReturnCode()
+PkMS.HandlerParams --> PkMS : processPendingInstall()
+PkMS -> PkMS : processInstallRequestsAsync()
+PkMS -> PkMS : installPackagesTracedLI()
+PkMS -> PkMS : installPackagesLI()
+PkMS -> PkMS : preparePackageLI()
+PkMS -> PkMS : scanPackageTracedLI()
+PkMS -> PkMS : commitPackagesLocked()
+PkMS -> PkMS : commitReconciledScanResultLocked()
+PkMS -> PkMS : commitPackageSettings()
+
+@enduml

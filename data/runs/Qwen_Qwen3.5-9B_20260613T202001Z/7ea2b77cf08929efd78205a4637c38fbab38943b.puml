@@ -1,0 +1,48 @@
+@startuml
+title Package Vod Detail
+
+package "STB" as stb {
+  package "PackageVodDetail" as pvd
+  package "VodProductManager" as vpm
+}
+
+participant "MBS" as mbs
+
+pvd -> mbs: get package vod detail infos
+activate mbs
+mbs --> pvd: package vod detail infos
+deactivate mbs
+
+pvd -> vpm: getProductButtons(productList)
+activate vpm
+vpm --> pvd: product buttons
+deactivate vpm
+
+opt [getting Push for vod purchased]
+  pvd -> mbs: purchasePush(offerId)
+  activate mbs
+  mbs --> pvd
+  deactivate mbs
+
+  pvd -> mbs: get user discount intofs
+  activate mbs
+  mbs --> pvd: discount/cash coupon, membership point
+  deactivate mbs
+
+  opt [vod product contains offerId]
+    pvd -> mbs: get package vod detail infos
+    activate mbs
+    mbs --> pvd: package vod detail infos
+    deactivate mbs
+
+    pvd -> vpm: getProductButtons(productList)
+    activate vpm
+    vpm --> pvd: product buttons
+    deactivate vpm
+  end
+end
+
+pvd ..> mbs : get package vod detail infos
+pvd ..> mbs : get user discounts
+
+@enduml

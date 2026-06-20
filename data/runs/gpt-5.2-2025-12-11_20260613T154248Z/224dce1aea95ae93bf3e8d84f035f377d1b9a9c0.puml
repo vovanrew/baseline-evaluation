@@ -1,0 +1,125 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+package "com" {
+  package "cmput201f10t09" {
+
+    package "vibes" {
+
+      package "dialogs" {
+        class MoodFilterDialog
+      }
+
+      class SplashActivity
+      class LoginActivity
+      class SignUpActivity
+
+      package "fragments" {
+
+        package "followingfragment" {
+          class FollowingFragment
+          class FollowingFragmentAdapter
+          FollowingFragment "0..1" o-- "1" FollowingFragmentAdapter
+        }
+
+        package "mapfragment" {
+          class MapFragment
+          class MapFilter
+          class UserPoint
+          MapFragment "1" o-- "0..*" MapFilter
+          MapFragment "1" o-- "0..*" UserPoint
+        }
+
+        package "editfragment" {
+          class ImageAdapter
+          class EditFragment
+          ImageAdapter "1" -- "0..1" EditFragment
+        }
+
+        package "profilefragment" {
+          class ProfileFragment
+        }
+
+        package "mooddetailsfragment" {
+          class MoodDetailsDialogFragment
+          class MoodDetailsFragment
+        }
+
+        package "moodlistfragment" {
+          class MoodListFragment
+          class MoodListFilterFragment
+          class MoodListAdapter
+          class FollowedMoodListAdapter
+          class OwnMoodListAdapter
+          class MoodListFilter
+
+          interface MoodListFilterListener
+
+          MoodListFragment "1" o-- "1" MoodListAdapter
+          MoodListFragment "1" o-- "0..1" MoodListFilterFragment
+          MoodListFilterFragment "1" o-- "1" MoodListFilter
+
+          FollowedMoodListAdapter -|> MoodListAdapter
+          OwnMoodListAdapter -|> MoodListAdapter
+
+          MoodListFilterListener ..> MoodListFilterFragment
+        }
+      }
+
+      class MainActivity
+
+      interface Observer
+    }
+
+    package "models" {
+      class UserManager
+      class Event
+      class User
+      class MoodEvent
+      class EmotionalState
+
+      Event <|-- MoodEvent
+      MoodEvent "1" *-- "1" EmotionalState
+
+      UserManager "1" o-- "0..*" User
+      User "1" *-- "0..*" MoodEvent
+    }
+
+    interface Observable
+  }
+}
+
+' High-level relations (as in diagram)
+MoodFilterDialog ..> MoodListFilter
+SplashActivity ..> LoginActivity
+LoginActivity ..> SignUpActivity
+
+MainActivity o-- "0..1" ProfileFragment
+MainActivity o-- "0..1" EditFragment
+MainActivity o-- "0..1" MapFragment
+MainActivity o-- "0..1" FollowingFragment
+MainActivity o-- "0..1" MoodListFragment
+MainActivity o-- "0..1" MoodDetailsFragment
+MainActivity o-- "0..1" MoodDetailsDialogFragment
+
+MainActivity ..|> Observer
+Observable <|.. Observer
+
+MoodListFragment ..> MoodDetailsFragment
+MoodListFragment ..> MoodDetailsDialogFragment
+MoodListFragment ..> ProfileFragment
+MoodListFragment ..> EditFragment
+MoodListFragment ..> MapFragment
+
+MapFragment ..> MoodEvent
+MapFragment ..> User
+FollowingFragment ..> User
+ProfileFragment ..> User
+EditFragment ..> MoodEvent
+
+MoodListAdapter ..> MoodEvent
+MoodListAdapter ..> User
+
+@enduml

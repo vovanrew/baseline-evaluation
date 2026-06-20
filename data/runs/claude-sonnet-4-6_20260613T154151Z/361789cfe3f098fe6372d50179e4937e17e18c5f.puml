@@ -1,0 +1,149 @@
+```plantuml
+@startuml
+
+package "UI" {
+  class RegisterPharmacyUI {
+  }
+}
+
+package "Data" {
+  class DataHandler {
+    +openConnection()
+    +closeAll()
+  }
+  class PharmacyDB {
+    +PharmacyDB()
+    +registerPharmacy()
+  }
+}
+
+package "Controller" {
+  class RegisterPharmacyController {
+    +newPharmacy(managerName,email,password, nif, name,latitude,longitude,\nstreetName,doorNumber,postalCode,locality,country)
+    +registerPhamacy()
+  }
+}
+
+package "Model" {
+  package "Service" {
+    class PharmacyService {
+      +PharmacyService()
+      +addPharmacy(name, pharmacyManager,latitude,longitude,\nstreetName,doorNumber,postalCode,locality,country)
+      +registerPharmacy()
+    }
+  }
+
+  class Pharmacy {
+    -int id
+    -String name
+    -String email
+  }
+
+  class Address {
+    -String streetName
+    -String doorNumber
+    -String postalCode
+    -String locality
+    -String country
+    -float longitude
+    -float latitude
+  }
+
+  class ScooterPark {
+    -int maxSlotsNumber
+  }
+
+  class DronePark {
+    -int maxSlotsNumber
+  }
+
+  class ScooterChargingSlot {
+    -int id
+    -float outputPower
+  }
+
+  class ScooterParkingSlot {
+    -int id
+  }
+
+  class DroneChargingSlot {
+    -int id
+    -float outputPower
+  }
+
+  class DroneParkingSlot {
+    -int id
+  }
+}
+
+class DataHandler as DataHandler2 {
+}
+
+database Database {
+}
+
+class PharmacyDB as PharmacyDB2 {
+}
+
+' UI to Controller
+RegisterPharmacyUI ..> RegisterPharmacyController
+
+' Controller to PharmacyService
+RegisterPharmacyController ..> PharmacyService
+
+' PharmacyService uses PharmacyDB
+PharmacyService "1" --> "1" PharmacyDB2 : uses
+
+' PharmacyService manages services of Pharmacy
+PharmacyService "1" --> "*" Pharmacy : manages services of
+
+' Pharmacy has registered in Database
+Pharmacy "*" --> "1" Database : has registered
+
+' Pharmacy has Address
+Pharmacy "1" --> "1" Address : has
+
+' Pharmacy has ScooterPark
+Pharmacy "1" --> "*" ScooterPark : has
+
+' Pharmacy has DronePark
+Pharmacy "1" --> "*" DronePark : has
+
+' ScooterPark has registered in Database
+ScooterPark "1" --> "1" Database : has registered
+
+' DronePark has registered in Database
+DronePark "1" --> "1" Database : has registered
+
+' ScooterPark has ScooterChargingSlot
+ScooterPark "1" --> "*" ScooterChargingSlot : has
+
+' ScooterPark has ScooterParkingSlot
+ScooterPark "1" --> "*" ScooterParkingSlot : has
+
+' DronePark has DroneChargingSlot
+DronePark "1" --> "*" DroneChargingSlot : has
+
+' DronePark has DroneParkingSlot
+DronePark "1" --> "*" DroneParkingSlot : has
+
+' ScooterChargingSlot has registered in Database
+ScooterChargingSlot "*" --> "1" Database : has registered
+
+' ScooterParkingSlot has registered in Database
+ScooterParkingSlot "*" --> "1" Database : has registered
+
+' DroneChargingSlot has registered in Database
+DroneChargingSlot "*" --> "1" Database : has registered
+
+' DroneParkingSlot has registered in Database
+DroneParkingSlot "*" --> "1" Database : has registered
+
+' PharmacyDB manages Database
+PharmacyDB2 --> Database : manages
+
+' DataHandler2 inheritance
+DataHandler2 <|-- PharmacyDB2
+
+@enduml
+```

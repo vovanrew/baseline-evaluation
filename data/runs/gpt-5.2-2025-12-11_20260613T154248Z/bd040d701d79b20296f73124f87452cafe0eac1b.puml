@@ -1,0 +1,60 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F6
+  ActorBorderColor #666666
+  ActorBackgroundColor #E9E9F6
+  DatabaseBorderColor #666666
+  DatabaseBackgroundColor #E9E9F6
+  BoxBorderColor #000000
+  BoxBackgroundColor #FFFFFF
+}
+
+actor User as U
+participant Index as I
+participant "User\nController" as C
+database Database as D
+
+U -> I : GET: /users/signup
+activate I
+
+I -> C : renderSignup()
+activate C
+
+C -> C : render(index)
+
+C --> I : display signup
+deactivate C
+
+I -> I : POST: /users/signup
+
+I -> C : async signup()
+activate C
+
+C -> D : User.findOne(email)
+activate D
+
+alt [user not found]
+  D --> C : return false
+  deactivate D
+
+  alt [accept]
+    C -> C : User.create()
+    C --> I : display home
+  else [refuse]
+    C --> I : display home
+  end
+
+else [user already exist]
+  D --> C
+  deactivate D
+  C --> I : show error
+end
+
+deactivate C
+deactivate I
+@enduml

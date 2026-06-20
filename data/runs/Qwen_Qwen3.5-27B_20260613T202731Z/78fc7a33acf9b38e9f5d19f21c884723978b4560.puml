@@ -1,0 +1,71 @@
+```plantuml
+@startuml
+skinparam class {
+  BackgroundColor White
+  BorderColor Black
+}
+skinparam shadowing false
+
+package "Facelift" {
+  class "InterfaceBase" as InterfaceBase {
+    C
+    Base C++ class for all generated interfaces
+  }
+  class "QMLAdapterBase" as QMLAdapterBase {
+    C
+    Base C++ class for all generated QML frontends
+  }
+  class "IPCServiceAdapterBase" as IPCServiceAdapterBase {
+    C
+    Base C++ for class for all generated IPC adapters
+  }
+}
+
+class "InterfaceQMLAdapter" as InterfaceQMLAdapter {
+  C
+  Implements the interface exposed to the QML engine, to be used by the UI code
+  Turns data from the interface implementation into QML-compatible types
+  ...
+  generated from IDL
+}
+
+class "Interface" as Interface {
+  A
+  C++ abstract class defining the interface
+  ...
+  generated from IDL
+}
+
+class "InterfaceImplementationBase" as InterfaceImplementationBase {
+  A
+  Abstract helper class which contains boilerplate code to help writing concrete interface implementations
+  ...
+  generated from IDL
+}
+
+class "InterfaceDummy" as InterfaceDummy {
+  C
+  generated from IDL
+}
+
+class "InterfaceImplementation" as InterfaceImplementation {
+  C
+  concrete class implementing the interface
+}
+
+class "InterfaceIPCProxy" as InterfaceIPCProxy {
+  C
+  generated from IDL
+}
+
+InterfaceQMLAdapter --|> InterfaceBase : 
+InterfaceQMLAdapter --|> QMLAdapterBase : 
+InterfaceQMLAdapter --> Interface : provider
+Interface --|> InterfaceImplementationBase : 
+InterfaceImplementationBase <|-- InterfaceDummy : 
+InterfaceImplementationBase <|-- InterfaceImplementation : 
+InterfaceImplementationBase <|-- InterfaceIPCProxy : 
+InterfaceIPCProxy --|> IPCServiceAdapterBase : 
+
+@enduml
+```

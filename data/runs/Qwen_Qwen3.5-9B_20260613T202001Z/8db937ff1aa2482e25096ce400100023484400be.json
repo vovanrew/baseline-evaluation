@@ -1,0 +1,22 @@
+{
+  "id": "5af89afb-3d4f-4db4-bf5b-0f7e5a6f0290",
+  "object": "chat.completion",
+  "created": 1781416583,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle PB-428 UC12 View fund details\n\nactor \"Next Customer\" as customer\n\nrectangle \"Next Platform\" as platform {\n  rectangle \"Core Next\" as coreNext\n  database \"Next Database\" as db\n}\n\nrectangle \"Core Bradesco\" as bradesco\n\nnote top of customer\n  **Abstract:**\n  This use case will return fund details for a single fund. This is an existing endpoint and we will add additional response fields to this endpoint. They include:\n  1. FundCategory (new)\n  2. RequireFundTC (new)\n  3. RiskScore (existing field in table, but needs to be added in response)\n  4. IncomeValue (new)\n  5. IncomeDescription (new)\n  6. isNextSimples (new)\nend note\n\ncustomer -> coreNext: 1 HTTP GET /investments/funds/completeDetails\n\nnote right of customer\n  The App will make a call to Core Next to get all the details for a fund. It will pass required input:\n  - Fund ID\nend note\n\nnote left of coreNext\n  **Note to Dev**\n  Please check if the input parameter Fund ID is the Product ID or the External_Core_Product_ID. From what I can see, there are two product records with the same External_Core_Product_ID (Next Simples) and this may create issues.\nend note\n\ncoreNext --> coreNext: ref\nnote right of coreNext\n  Use existing methodology to get complete details for a fund.\nend note\n\ncoreNext -> db: 2 GET additional fields from Product table\n\ndb --> coreNext: 3 Response\n\nnote right of coreNext\n  Core Next will retrieve additional data from the PRODUCT table and return them to the App:\n  1. FundCategory (new)\n  2. RequireFundTC (new)\n  3. RiskScore (existing field in table, but needs to be added in response)\n  4. IncomeValue (new)\n  5. IncomeDescription (new)\n  6. isNextSimples (new)\nend note\n\ncoreNext --> customer: 4 Response\n\nnote left of customer\n  Core Next will return all existing fields in the response + the following new response fields:\n  1. FundCategory (new)\n  2. RequireFundTC (new)\n  3. RiskScore (existing field in table, but needs to be added in response)\n  4. IncomeValue (new)\n  5. IncomeDescription (new)\n  6. isNextSimples (new)\n\n  All of these fields will come from the PRODUCT table.\nend note\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1664,
+    "completion_tokens": 594,
+    "total_tokens": 2258
+  }
+}

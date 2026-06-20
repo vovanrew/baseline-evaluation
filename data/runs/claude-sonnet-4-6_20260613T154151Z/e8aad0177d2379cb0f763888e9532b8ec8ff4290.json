@@ -1,0 +1,21 @@
+{
+  "id": "msg_0124ZAAyh9ApmHdjRne75s9i",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor DefaultMQProducerImpl\nparticipant Validators\nparticipant MQClientManager\nparticipant MQClientInstance\nparticipant MQClientAPIImpl\nparticipant PullMessageService\nparticipant RebalanceService\n\nnote left of DefaultMQProducerImpl: start\n\nDefaultMQProducerImpl -> Validators: checkConfig\nValidators --> DefaultMQProducerImpl: result\n\nDefaultMQProducerImpl -> MQClientManager: getInstance\nactivate MQClientManager\nMQClientManager -> MQClientManager: getAndCreateMQClientInstance\nMQClientManager -> MQClientInstance: new\ndeactivate MQClientManager\n\nMQClientManager --> DefaultMQProducerImpl: mQClientFactory: MQClientInstance\n\nDefaultMQProducerImpl -> MQClientInstance: registerProducer\n\nDefaultMQProducerImpl -> MQClientInstance: start\nactivate MQClientInstance\nMQClientInstance -> MQClientAPIImpl: start\nMQClientInstance -> MQClientInstance: startScheduledTask\nMQClientInstance -> PullMessageService: start\nMQClientInstance -> RebalanceService: start\ndeactivate MQClientInstance\n\nMQClientInstance --> DefaultMQProducerImpl: start\n\nDefaultMQProducerImpl -> MQClientInstance: sendHeartbeatToAllBrokerWithLock\n\n== start \u7ed3\u675f ==\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370641,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 327,
+    "prompt_tokens": 1647,
+    "total_tokens": 1974
+  }
+}

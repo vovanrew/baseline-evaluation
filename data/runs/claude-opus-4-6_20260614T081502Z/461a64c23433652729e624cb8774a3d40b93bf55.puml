@@ -1,0 +1,96 @@
+```plantuml
+@startuml
+title 3.1.0 Get Participant Callback Details
+
+box "ML API Adapter Service" #LightBlue
+participant "ML-API-ADAPTER" as ADAPTER
+end box
+
+box "Central Services" #LightYellow
+participant "Central Service API" as CSAPI
+participant "Participant Handler" as PH
+participant "Participant DAO" as PDAO
+database "Central Store" as CS
+end box
+
+group Get Callback Details
+ADAPTER -> CSAPI: 1 Request to get callback details – GET – /participants/{name}/endpoints?type={typeValue}
+CSAPI -> PH: 2 Fetch Callback details for Participant
+
+PH -> PDAO: 3 Fetch Participant\n<color:red>Error code: 3200</color>
+PDAO -> CS: 4 Fetch Participant
+note right of CS: participant
+CS --> PDAO: 5 Retrieved Participant
+PDAO --> PH: 6 Return Participant
+PH -> PH: 7 Validate DFSP
+
+alt [Validate participant (success)]
+
+PH --> CSAPI: 8 check if "type" parameter is sent
+
+alt [Check if "type" parameter is sent (Sent)]
+
+CSAPI -> PDAO: 9 Fetch Callback details for Participant and type\n<color:red>Error code: 3000</color>
+PDAO -> CS: 10 Fetch Callback details for Participant and type
+note right of PDAO
+Condition:
+  isActive = 1
+  endpointTypeId = <type>
+end note
+note right of CS: participantEndpoint
+CS --> PDAO: 11 Retrieved Callback details for Participant and type
+PDAO --> CSAPI: 12 Return Callback details for Participant and type
+note over CSAPI, PH #Yellow
+Message:
+{
+  endpoints: {type: <type>, value: <value>}
+}
+end note
+CSAPI --> ADAPTER: 13 Return Callback details for Participant
+ADAPTER <-- CSAPI: 14 Return Callback details for Participant
+
+else [Check if "type" parameter is sent (Not Sent)]
+
+CSAPI -> PDAO: 15 Fetch Callback details for Participant\n<color:red>Error code: 3000</color>
+PDAO -> CS: 16 Fetch Callback details for Participant
+note right of PDAO
+Condition:
+  isActive = 1
+end note
+note right of CS: participantEndpoint
+CS --> PDAO: 17 Retrieved Callback details for Participant
+PDAO --> CSAPI: 18 Return Callback details for Participant
+note over CSAPI, PH #Yellow
+Message:
+{
+  endpoints: [
+    {type: <type>, value: <value>},
+    {type: <type>, value: <value>}
+  ]
+}
+end note
+CSAPI --> ADAPTER: 19 Return Callback details for Participant
+ADAPTER <-- CSAPI: 20 Return Callback details for Participant
+
+end
+
+else [Validate participant (failure)/ Error]
+
+note over PH #Red: Validation failure/ Error
+note over PH #Yellow
+Message:
+{
+  "errorInformation": {
+    "errorCode": <errorCode>,
+    "errorDescription": <ErrorMessage>,
+  }
+}
+end note
+PH --> CSAPI: 21 Return <color:red>Error code: 3000, 3200</color>
+CSAPI --> ADAPTER: 22 Return <color:red>Error code: 3000, 3200</color>
+
+end
+
+end
+@enduml
+```

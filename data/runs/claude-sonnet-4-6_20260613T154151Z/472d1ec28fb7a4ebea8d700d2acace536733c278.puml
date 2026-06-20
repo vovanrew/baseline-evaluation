@@ -1,0 +1,48 @@
+@startuml
+title login by token
+
+actor 学术袁
+participant App客户端
+participant 后台服务器
+
+学术袁 -> App客户端: 启动
+App客户端 -> App客户端: 检测本地登录信息
+App客户端 --> 学术袁
+
+alt [有本地记录]
+  alt [token有效]
+    App客户端 -> 后台服务器: token自动登陆
+  else [token无效]
+    App客户端 -> 学术袁: 提示登录
+    学术袁 -> App客户端: 输入手机号+密码
+    App客户端 -> 后台服务器: 手机号+密码登录
+    后台服务器 --> App客户端: 返回新的token
+    App客户端 -> App客户端: token保存
+    App客户端 --> 学术袁
+  end
+
+else [无本地记录]
+  App客户端 -> 学术袁: 提示输入手机号
+  App客户端 -> 后台服务器: 请求发送验证码
+  后台服务器 --> App客户端: 返回验证码
+  学术袁 -> App客户端: 输入验证码
+  App客户端 -> 后台服务器: 请求后台验证
+
+  alt [已注册]
+    App客户端 -> 学术袁: 提示登录
+    学术袁 -> App客户端: 输入手机号+密码
+    App客户端 -> 后台服务器: 手机号+密码登录
+    后台服务器 --> App客户端: 返回新的token
+    App客户端 -> App客户端: token保存
+    App客户端 --> 学术袁
+  else [未注册]
+    App客户端 -> 学术袁: 提示注册
+    学术袁 -> App客户端: 输入两次密码
+    App客户端 -> 后台服务器: 请求注册
+    后台服务器 --> App客户端: 返回新的token
+    App客户端 -> App客户端: token保存
+    App客户端 --> 学术袁
+  end
+end
+
+@enduml

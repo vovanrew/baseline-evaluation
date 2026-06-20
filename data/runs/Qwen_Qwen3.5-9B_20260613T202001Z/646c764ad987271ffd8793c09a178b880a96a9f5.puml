@@ -1,0 +1,27 @@
+@startuml
+left to right direction
+actor "User" as User
+rectangle "Backend Environment" {
+  participant "Server" as Server
+  participant "SuperHeroApi" as SuperHeroApi
+}
+
+alt [user search]
+  User -> Server: GET /search?q=<queryValue>
+  Server -> Server: getFromCache (queryValue) ?
+  Note right of Server: binarySearch (query)
+end
+
+alt [has in cache]
+  Server -> User: 200: queryValue
+end
+
+alt [not has in cache: request to API]
+  Server -> SuperHeroApi: GET queryValue
+  SuperHeroApi -> Server: 200: queryValue
+  Server -> Server: updateCache (queryValue)
+end
+
+User <- Server: 200: queryValue
+
+@enduml

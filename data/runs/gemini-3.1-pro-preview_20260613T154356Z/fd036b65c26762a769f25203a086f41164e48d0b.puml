@@ -1,0 +1,26 @@
+```plantuml
+@startuml
+actor client
+participant gateway
+participant "developer-service" as dev_service
+database "devs-db" as devs_db
+control broker
+participant "planning-service" as planning_service
+database "planning-db" as planning_db
+
+client -> gateway : POST dev
+activate gateway
+gateway -> dev_service : POST dev
+activate dev_service
+dev_service -> devs_db : persist
+dev_service -> gateway : response 201
+gateway -> client : 201
+deactivate gateway
+dev_service -> broker : emit DevCreated Event
+deactivate dev_service
+broker -> planning_service : consume Event
+activate planning_service
+planning_service -> planning_db : persist Dev
+deactivate planning_service
+@enduml
+```

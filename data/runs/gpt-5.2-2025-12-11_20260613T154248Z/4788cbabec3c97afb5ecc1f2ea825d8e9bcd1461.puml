@@ -1,0 +1,54 @@
+@startuml
+title Validation Tocken
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #777777
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F6
+  ParticipantFontColor black
+  ParticipantPadding 25
+  BoxPadding 10
+  ArrowThickness 2
+  MessageAlign left
+}
+
+participant "RemoteServiceServlet" as RSS
+participant "HttpSessionCollector" as HSC
+participant "SysLog" as SYS
+participant "Validation_User" as VU
+
+' Data Request comes from outside into RemoteServiceServlet
+[-] -> RSS : Data Request
+activate RSS
+
+RSS -> RSS : Get Session ID_client
+RSS -> HSC : Get Session by ID_client
+activate HSC
+HSC --> RSS : Session
+deactivate HSC
+
+note over RSS
+Validation Tockens
+<color:green><b>True</b></color>
+end note
+
+activate RSS #green
+RSS -> VU : Access success
+deactivate RSS
+
+note over RSS
+Validation Tockens
+<color:red><b>False</b></color>
+end note
+
+activate RSS #red
+RSS -> SYS #orange : Tocken Failure (Name, Time)
+deactivate RSS
+
+RSS --> [-] #red : Access denied
+deactivate RSS
+
+@enduml

@@ -1,0 +1,53 @@
+```plantuml
+@startuml
+skinparam shadowing false
+
+actor "Jugador" as Jugador
+boundary "Telegram" as Telegram
+control "Gestor" as Gestor
+entity "Ranking" as Ranking
+entity "User" as User
+entity "Timer" as Timer
+entity "Options" as Options
+
+rectangle "Guanyar Partida" {
+    Jugador -> Telegram : Seleccionar_opcio()
+    Telegram -> Gestor : Realitzar_jugada(self,bot,update)
+    
+    rectangle ref {
+        note right of Gestor: Desplacar-se per l'escenari()
+        Gestor -> Timer : GetTimer()
+        Timer --> Gestor : return(timer)
+        
+        Gestor -> Timer : RestarSeg()
+        Timer --> Gestor : Return(bool)
+        
+        Gestor -> Options : get_texts(ind)
+        Options --> Gestor : Return(String)
+        
+        Gestor -> Options : get_options(ind)
+        Options --> Gestor : Return(String)
+        
+        Gestor -> Options : get_realitzar_mod(ind)
+        Options --> Gestor : Return(String)
+    }
+    
+    rectangle "Emmagatzemar Ranking" {
+        Gestor -> Ranking : AddtoRanking(User)
+        Ranking --> Gestor : return(bool)
+    }
+    
+    rectangle "Mostrar Ranking" {
+        Gestor -> Ranking : FiveFirstRanking()
+        Ranking --> Gestor : return(bool)
+        
+        Gestor -> Ranking : printRanking()
+        Ranking --> Gestor : return(bool)
+    }
+    
+    Gestor --> Telegram : Return(String)
+    Telegram --> Jugador : Return(String)
+}
+
+@enduml
+```

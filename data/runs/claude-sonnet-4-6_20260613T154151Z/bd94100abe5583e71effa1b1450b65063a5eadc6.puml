@@ -1,0 +1,24 @@
+@startuml
+participant "Data Consumer" as DC
+participant "Data Source" as DS
+
+alt [No updates]
+  DC -> DS: <u>1a.</u> GET [query URL]
+  else
+  DC -> DS: <u>1b.</u> POST [base query URL] with
+end
+
+alt [No updates]
+  DS --> DC: <u>2a.</u> search-response Bundle with new records\n(use most recent meta.lastUpdated in filter for subsequent polls)
+  else
+  DS --> DC: <u>2b.</u> Empty search-response bundle
+end
+
+opt
+  loop
+    DC -> DS: <u>3a.</u> GET [next URL]
+    DS --> DC: <u>3b.</u> search-response with Bundle of next results
+  end
+end
+
+@enduml

@@ -1,0 +1,69 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "Administrative" as admin
+participant ":AddScooterUI" as ui
+participant ":AddScooterController" as controller
+participant ":Pharmacy" as pharmacy
+participant "ls:ListScooters" as list
+participant "sc:Scooter" as scooter
+participant "bat:Battery" as battery
+database "scdb:ScooterDB" as scooterDB
+database "batdb:BatteryDB" as batteryDB
+
+admin -> ui : 1 begins the process of adding a scooter
+activate ui
+ui --> admin : 2 asks for the necessary data(id_Scooter, qrCode, status, id_Battery, capacity)
+admin -> ui : 3 inserts the solicited data
+ui -> controller : 4 newScooter(id_Scooter, qrCode, status, id_Battery, capacity)
+activate controller
+controller -> pharmacy : 5 ls = getListScooters()
+activate pharmacy
+pharmacy --> controller : 
+deactivate pharmacy
+controller -> list : 6 sc=newScooter(id_Scooter, qrCode, status, id_Battery, capacity)
+activate list
+list -> scooter : 7 create(id_Scooter, qrCode, status, id_Battery, capacity)
+activate scooter
+scooter -> battery : 8 create(id_Battery, capacity)
+activate battery
+battery -> battery : 9 validateBattery(bat)
+deactivate battery
+deactivate scooter
+list --> controller : 
+deactivate list
+controller -> list : 10 validateScooter(sc)
+activate list
+list --> controller : 
+deactivate list
+controller --> ui : 
+deactivate controller
+ui --> admin : 11 validates the data, presents it and asks the administrator for its confirmation
+admin -> ui : 12 confirms
+ui -> controller : 13 registerScooter()
+activate controller
+controller -> list : 14 registerScooter(sc)
+activate list
+list -> list : 15 validateScooter(sc)
+list -> list : 16 addScooters(sc)
+list -> scooter : 17 save(sc)
+activate scooter
+scooter -> scooterDB : 18 save(sc)
+activate scooterDB
+scooterDB --> scooter : 
+deactivate scooterDB
+scooter -> batteryDB : 19 save(bat)
+activate batteryDB
+batteryDB --> scooter : 
+deactivate batteryDB
+deactivate scooter
+list --> controller : 
+deactivate list
+controller --> ui : 
+deactivate controller
+ui --> admin : 20 adds the scooter to a list of scooters
+deactivate ui
+
+@enduml
+```

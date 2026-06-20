@@ -1,0 +1,76 @@
+@startuml
+
+class Project
+class User
+class Submission
+class Admin
+class Author
+class Editor
+class Revision
+class Resource
+class Comment
+class Document
+class AudioFile
+class Video
+
+' Project to User (association, 1 to *)
+Project "1" -- "*" User
+
+' Project to Submission (composition, 1 to *)
+Project "1" *-- "*" Submission
+
+' Project to Resource (association, 1 to 1)
+Project "1" --> "1" Resource
+
+' Admin extends User
+Admin --|> User
+
+' Author extends User
+Author --|> User
+
+' Editor extends User
+Editor --|> User
+
+' Submission to Author (aggregation, 1 to 1)
+Submission "1" o-- "1" Author
+
+' Submission to Editor (composition, 1 to 1)
+Submission "1" *-- "1" Editor
+
+' Submission to Revision (composition, 1 to *)
+Submission "1" *-- "*" Revision
+
+' Submission to Resource (composition, 1 to 1)
+Submission "1" *--> "1" Resource
+
+' Author to Editor (association, 1 to 1)
+Author "1" --> "1" Editor
+
+' Author to Comment (association, 1 to *)
+Author "1" --> "*" Comment
+
+' Revision to Comment (aggregation, 1 to 1)
+Revision "1" o-- "1" Comment
+
+' Revision to Resource (aggregation, 1 to 1)
+Revision "1" o--> "1" Resource
+
+' Editor to Comment (association, 1 to 1)
+Editor "1" --> "1" Comment
+
+' Resource to 1 (association)
+Submission "1" --> "1" Resource
+
+' Document extends Resource
+Document --|> Resource
+
+' AudioFile extends Resource
+AudioFile --|> Resource
+
+' Video extends Resource
+Video --|> Resource
+
+' Resource aggregation with Revision
+Resource "1" --o "1*" Revision
+
+@enduml

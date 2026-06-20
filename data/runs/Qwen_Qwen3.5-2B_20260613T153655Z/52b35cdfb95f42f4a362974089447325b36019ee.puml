@@ -1,0 +1,64 @@
+@startuml
+participant "Program" as P
+participant "V4L2" as V4L2
+participant "Bridge CX3" as BridgeCX3
+participant "Camera OV5640" as Camera
+
+section Initialization
+    P --> V4L2 : OpenDevice(/dev/video0)
+    V4L2 --> Camera : 2
+    Camera --> V4L2 : 4
+    V4L2 --> P : 6
+    P --> V4L2 : 7 InitDevice()
+    V4L2 --> Camera : 8
+    Camera --> V4L2 : 9
+    V4L2 --> Camera : 10
+    Camera --> P : 12
+endsection
+
+section Test
+    P --> V4L2 : 13 SetParameter(valueA)
+    V4L2 --> Camera : 14 valueA
+    Camera --> V4L2 : 16
+    V4L2 --> P : 18
+    P --> V4L2 : 19 GetParameter()
+    V4L2 --> Camera : 20
+    Camera --> V4L2 : 22 value
+    V4L2 --> P : 24 value
+    P --> V4L2 : 25 StartStream()
+    V4L2 --> Camera : 26
+    Camera --> V4L2 : 28
+    V4L2 --> P : 30
+    P --> V4L2 : 31 GetParameter()
+    V4L2 --> Camera : 32
+    Camera --> V4L2 : 34 value
+    V4L2 --> P : 36 value
+    P --> V4L2 : 37 SetParameter(valueB)
+    V4L2 --> Camera : 38 valueB
+    Camera --> V4L2 : 40
+    V4L2 --> P : 42
+    P --> V4L2 : 43 GetParameter()
+    V4L2 --> Camera : 44
+    Camera --> V4L2 : 46 value
+    V4L2 --> P : 48 value
+    P --> V4L2 : 49 StopStream()
+    V4L2 --> Camera : 50
+    Camera --> V4L2 : 52
+    V4L2 --> P : 54
+    P --> V4L2 : 55 GetParameter()
+    V4L2 --> Camera : 56
+    Camera --> V4L2 : 58 value
+    V4L2 --> P : 60 value
+endsection
+
+section Destruction
+    P --> V4L2 : 61 CloseDevice()
+    V4L2 --> Camera : 62
+    Camera --> V4L2 : 63
+    V4L2 --> Camera : 64
+    V4L2 --> P : 66
+    Camera --> P : 65
+    V4L2 --> P : 66
+endsection
+
+@enduml

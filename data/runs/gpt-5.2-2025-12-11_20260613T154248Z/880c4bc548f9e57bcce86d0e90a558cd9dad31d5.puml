@@ -1,0 +1,34 @@
+@startuml
+title SD_getListFromExternalModule(fileName)
+
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 40
+skinparam BoxPadding 10
+
+actor " " as caller
+
+participant "store: SnsUserStore" as store
+participant "<<interface>>\n:LoadSnsUsersFromExternalSource" as loader
+participant ":List<SnsUserDTO>" as list
+
+caller -> store : 1 getListFromExternalModule(fileName)
+activate store
+
+store -> store : 2 className = getClassName(fileName)
+
+store -> loader : 3 dtoList = readFileFromExternalSource(fileName)
+activate loader
+
+loader ..> list : 4 create()
+
+note over loader, list
+multiple interactions in the externalSource to extract a list of SnsUserDTO
+end note
+
+deactivate loader
+
+store --> caller : 5 return dtoList
+deactivate store
+
+@enduml

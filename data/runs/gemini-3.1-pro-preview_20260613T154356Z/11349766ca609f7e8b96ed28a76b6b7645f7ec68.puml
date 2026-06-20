@@ -1,0 +1,102 @@
+```plantuml
+@startuml
+participant ListPrivateImpl
+participant ProfileRetrievalService
+participant DFSBasedProfileStorageImpl
+participant DFSSystem
+participant DFSConnectionService
+participant DFSConnectionServiceImpl
+participant DFSConnection
+participant GsonSerde
+participant BucketAccessService
+participant BucketAccessServiceImpl
+participant DFSCredentialsService
+participant DFSCredentialsServiceImpl
+participant DocumentListService
+participant ListPathDecryptingServiceImpl
+participant ListPathNonDecryptingServiceImpl
+
+activate ListPrivateImpl
+ListPrivateImpl -> ListPrivateImpl : resolvePrivateLocation
+activate ListPrivateImpl
+ListPrivateImpl -> ProfileRetrievalService : privateProfile
+activate ProfileRetrievalService
+ProfileRetrievalService -> DFSBasedProfileStorageImpl : privateProfile
+activate DFSBasedProfileStorageImpl
+DFSBasedProfileStorageImpl -> DFSSystem : systemDFs
+activate DFSSystem
+DFSSystem --> DFSBasedProfileStorageImpl : DFSAccess
+deactivate DFSSystem
+DFSBasedProfileStorageImpl -> DFSConnectionService : obtain
+activate DFSConnectionService
+DFSConnectionService -> DFSConnectionServiceImpl : obtain
+activate DFSConnectionServiceImpl
+DFSConnectionServiceImpl --> DFSConnectionService : DFSConnection
+deactivate DFSConnectionServiceImpl
+DFSConnectionService --> DFSBasedProfileStorageImpl : DFSConnection
+deactivate DFSConnectionService
+DFSBasedProfileStorageImpl -> DFSBasedProfileStorageImpl : locatePrivateProfile
+activate DFSBasedProfileStorageImpl
+DFSBasedProfileStorageImpl --> DFSBasedProfileStorageImpl : BucketPath
+deactivate DFSBasedProfileStorageImpl
+DFSBasedProfileStorageImpl -> DFSConnection : getBlob
+activate DFSConnection
+DFSConnection --> DFSBasedProfileStorageImpl : Payload
+deactivate DFSConnection
+DFSBasedProfileStorageImpl -> GsonSerde : fromJson
+activate GsonSerde
+GsonSerde --> DFSBasedProfileStorageImpl : T
+deactivate GsonSerde
+DFSBasedProfileStorageImpl --> ProfileRetrievalService : UserPrivateProfile
+deactivate DFSBasedProfileStorageImpl
+ProfileRetrievalService --> ListPrivateImpl : UserPrivateProfile
+deactivate ProfileRetrievalService
+deactivate ListPrivateImpl
+
+ListPrivateImpl -> BucketAccessService : privateAccessFor
+activate BucketAccessService
+BucketAccessService -> BucketAccessServiceImpl : privateAccessFor
+activate BucketAccessServiceImpl
+BucketAccessServiceImpl -> DFSCredentialsService : privateUserCredentials
+activate DFSCredentialsService
+DFSCredentialsService -> DFSCredentialsServiceImpl : privateUserCredentials
+activate DFSCredentialsServiceImpl
+DFSCredentialsServiceImpl --> DFSCredentialsService : DFSCredentials
+deactivate DFSCredentialsServiceImpl
+DFSCredentialsService --> BucketAccessServiceImpl : DFSCredentials
+deactivate DFSCredentialsService
+BucketAccessServiceImpl -> DFSSystem : systemDFs
+activate DFSSystem
+DFSSystem --> BucketAccessServiceImpl : DFSAccess
+deactivate DFSSystem
+BucketAccessServiceImpl --> BucketAccessService : DFSAccess
+deactivate BucketAccessServiceImpl
+BucketAccessService --> ListPrivateImpl : DFSAccess
+deactivate BucketAccessService
+
+ListPrivateImpl -> DocumentListService : list
+activate DocumentListService
+DocumentListService -> ListPathNonDecryptingServiceImpl : list
+activate ListPathNonDecryptingServiceImpl
+ListPathNonDecryptingServiceImpl -> DFSConnectionService : obtain
+activate DFSConnectionService
+DFSConnectionService -> DFSConnectionServiceImpl : obtain
+activate DFSConnectionServiceImpl
+DFSConnectionServiceImpl --> DFSConnectionService : DFSConnection
+deactivate DFSConnectionServiceImpl
+DFSConnectionService --> ListPathNonDecryptingServiceImpl : DFSConnection
+deactivate DFSConnectionService
+ListPathNonDecryptingServiceImpl -> DFSConnection : list
+activate DFSConnection
+DFSConnection --> ListPathNonDecryptingServiceImpl : List
+deactivate DFSConnection
+ListPathNonDecryptingServiceImpl --> ListPathDecryptingServiceImpl : Stream
+activate ListPathDecryptingServiceImpl
+ListPathDecryptingServiceImpl --> DocumentListService : Stream
+deactivate ListPathDecryptingServiceImpl
+deactivate ListPathNonDecryptingServiceImpl
+DocumentListService --> ListPrivateImpl : Stream
+deactivate DocumentListService
+deactivate ListPrivateImpl
+@enduml
+```

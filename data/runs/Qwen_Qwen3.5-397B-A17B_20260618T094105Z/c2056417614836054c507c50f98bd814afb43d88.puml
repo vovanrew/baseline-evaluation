@@ -1,0 +1,49 @@
+@startuml
+title 基于GitHub的实验管理平台--删除用户用例的顺序图
+
+actor sysAdmin #LightBlue2
+participant "边界类\nmaintainUsersWindow" as maintainUsersWindow #LightPurple3 { circle } 
+control "控制类\nMaintainUsers" as MaintainUsers #Pink1 { arrowhead = triangle; shape=triangle;} 
+
+entity users #LavenderBlush4{circle}  
+database "数据库存储" as dbStorage #Azure5
+
+
+sysAdmin ->> maintainUsersWindow : 删除用户
+activate maintainUsersWindow
+    activate maintainUsersWindow
+    
+        maintainUsersWindow->>+MaintainUsers: 删除用户请求
+        
+            MaintainUsers-->+users:确认删除的用户信息
+            
+                users --> +dbStorage:数据库存储实验数据
+                
+                    return
+                        
+                        deactivate dbStorage
+                    
+                
+            
+        
+        
+
+
+
+return   <font color="black">根据系统管理员删除的</font><br/><font color="#086A9C"><u>用户信息返回数据</u></font> 
+
+
+deactivate users    
+    
+
+    
+
+
+
+
+note over sysAdmin,maintainUsersWindow:<b style='color:#FF7F50'>退出流程:</b>\n<#DarkGreen>-点击关闭按钮或选择菜单项“文件”→ “退出”。\n-系统将保存当前状态并关闭窗口。</i>  
+
+destroy maintainUsersWindow  
+
+
+@enduml

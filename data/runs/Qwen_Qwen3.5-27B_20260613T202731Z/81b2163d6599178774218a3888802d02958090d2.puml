@@ -1,0 +1,35 @@
+```plantuml
+@startuml
+skinparam actor {
+  BackgroundColor White
+  BorderColor Black
+}
+
+actor "Usager" as U
+actor "Bibliothécaire" as B
+rectangle "SIGB" as S
+
+U -> S : Demander une réservation
+S -> B : Avertir d'une demande de réservation
+
+alt [réservation validée]
+    B -> S : Valider une réservation
+    S -> U : Avertir de la validation
+    
+    alt [réservation récupérée]
+        U -> B : Demande de réservation
+        B -> S : Enregistrer l'emprunt
+    else [délai dépassé]
+        S -> B : Avertir d'une réservation à remettre en rayon
+    end
+else [réservation invalide]
+    B -> S : Refuser une réservation
+    S -> U : Avertir de l'indisponibilité
+end
+
+B -> S : Saisir un nouvel exemplaire
+B -> S : Valider la couverture de l'exemplaire
+B -> S : Valider la mise en rayon
+
+@enduml
+```

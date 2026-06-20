@@ -1,0 +1,69 @@
+@startuml
+title Mengubah SubMenu
+
+actor Administrator
+participant "Dashboard_V" as DashboardV #D3E5F2
+participant "Submenu_V" as SubmenuV #D3E5F2
+participant "EditSubmenu_V" as EditSubmenuV #D3E5F2
+control Admin_C #FFDDCC
+boundary Menu_C #FFE6B8
+entity Submenu_E #CCE0DB
+
+Administrator -> DashboardV : 1 load->view()
+activate DashboardV
+return to Administrator : 2 Halaman Dashboard
+deactivate DashboardV
+
+Administrator -> DashboardV : 3 klik menu Submenu management
+activate DashboardV
+DashboardV -> Menu_C : 4 Submenu()
+activate Menu_C
+Menu_C -> Submenu_E : 5 
+activate Submenu_E
+Submenu_E --> Menu_C : 6 
+deactivate Submenu_E
+Menu_C -> SubmenuV : 7 load->view()
+activate SubmenuV
+return from SubmenuV to Administrator : 8 Halaman Submenu management
+deactivate SubmenuV
+deactivate Menu_C
+deactivate DashboardV
+
+Administrator -> SubmenuV : 9 klik tombol EditSubMenu
+activate SubmenuV
+SubmenuV -> Menu_C : 10 EditSubMenu()
+activate Menu_C
+Menu_C -> EditSubmenuV : 11 load->view()
+activate EditSubmenuV
+return from EditSubmenuV to Administrator : 12 Halaman EditSubMenu
+deactivate EditSubmenuV
+deactivate Menu_C
+deactivate SubmenuV
+
+note right of Administrator\nInputan Submenu\end note
+
+Administrator -> EditSubmenuV : 13 Mengisi Inputan dan klik tombol edit
+activate EditSubmenuV
+EditSubmenuV -> Menu_C : 14 EditSubMenu()
+activate Menu_C
+Menu_C -> Submenu_E : 15 
+
+alt [isValid() case]
+    activate Submenu_E
+    return from Submenu_E to Menu_C : 16 isValid()
+    deactivate Submenu_E
+    
+    Menu_C -> SubmenuV : 17 load->view()
+    
+    return from SubmenuV to Administrator : 18 Halaman Submenu
+else [isInvalid() case]
+    activate Submenu_E
+    return from Submenu_E to Menu_C : 19 isInValid()
+    deactivate Submenu_E
+    
+    Menu_C -> EditSubmenuV : 20 load->view()
+    
+    return from EditSubmenuV to Administrator : 21 Halaman Edit Submenu
+end
+
+@enduml

@@ -1,0 +1,55 @@
+@startuml
+participant Actor as Admin
+participant Actor as User
+participant Interface as AccountManagement
+participant Interface as Broker
+participant Interface as Notifications
+participant Interface as UAA
+participant Interface as EmailSender
+
+Actor Admin
+Actor User
+
+Interface AccountManagement
+Interface Broker
+Interface Notifications
+Interface UAA
+Interface EmailSender
+
+Admin -> AccountManagement : WorkspaceInvitation
+AccountManagement -> AccountManagement : save data to db
+AccountManagement -> Admin : 200 response
+AccountManagement -> Broker : create event "new user invited event"
+Broker -> Notifications : read event
+Notifications -> Notifications : with email and senderId
+Notifications -> EmailSender : read info about sender
+Notifications -> EmailSender : generate email
+EmailSender -> Broker : create "new email event"
+EmailSender -> Broker : read "new email event"
+EmailSender -> Admin : send email
+
+alt [user accepts invitation]
+    AccountManagement -> AccountManagement : WorkspaceEmailValidation
+    AccountManagement -> AccountManagement : check email
+    AccountManagement -> Admin : WorkspaceEmailValidationResult
+    alt [email valid]
+        AccountManagement -> AccountManagement : generate access code
+        AccountManagement -> Broker : create event "new access code"
+        Broker -> Notifications : read event
+        Notifications -> Notifications : with email and access code
+        Notifications -> EmailSender : generate email
+        EmailSender -> Broker : create "new email event"
+        EmailSender -> Broker : read "new email event"
+        EmailSender -> Admin : send email
+    end
+    alt [access code valid]
+        AccountManagement -> AccountManagement : change state
+        AccountManagement -> UAA : WorkspaceRegistration
+        UAA -> AccountManagement : check state by email
+        UAA -> Broker : create new event "user created event"
+        Broker -> Notifications : read event "user created event"
+        Notifications -> Notifications : create user with email
+    end
+end
+
+@enduml

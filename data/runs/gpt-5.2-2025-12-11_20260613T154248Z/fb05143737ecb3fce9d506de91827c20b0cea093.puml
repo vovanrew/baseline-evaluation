@@ -1,0 +1,75 @@
+@startuml
+title Traffic influencing flows between OpenNESS controller and 5G Core
+
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam sequence {
+  ParticipantPadding 35
+  BoxPadding 20
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor transparent
+  ActorBorderColor #666666
+  ActorFontColor #000000
+  ParticipantBorderColor #666666
+  ParticipantFontColor #000000
+  GroupBorderColor #000000
+  GroupBackgroundColor #FFFFFF
+  NoteBorderColor #999999
+  NoteBackgroundColor #FFF9C4
+}
+
+actor "User/Admin" as UA
+
+box "OpenNESS Controller components" #BFE3F2
+  participant "UI/CLI" as UICLI
+  participant "AF Microservice" as AF
+end box
+
+box "5G Core components" #8EF08E
+  participant "NEF" as NEF
+  participant "NGC\nCP Functions" as NGC
+end box
+
+note over NEF
+OpenNESS provided
+Core component with
+limited functionality
+end note
+
+group "Get all subscribed traffic influence info"
+UA -> UICLI : Request all traffic influence\nsubscribed
+activate UICLI
+UICLI -> AF : /af/v1/subscriptions : GET
+activate AF
+AF -> NEF : /3gpp-traffic-Influence/v1/{afId}/subscriptions\n: GET
+activate NEF
+NEF -> NEF : NGC_STUB(PCF,UDR,BSF)
+NEF -> NGC : {Open: 3rd party NGC\nintegration with\nOpenNESS(NEF)}
+NGC --> NEF
+NEF --> AF : OK: traffic influence info\nERROR: {400/500}
+deactivate NEF
+AF --> UICLI : OK: traffic influence info\nERROR: {400/500}
+deactivate AF
+UICLI --> UA : Traffic influence details
+deactivate UICLI
+end group
+
+group "Get subscribed traffic influence info by subscriptionId"
+UA -> UICLI : Request traffic influence using\nsubscriptionId
+activate UICLI
+UICLI -> AF : /af/v1/subscriptions/{subscriptionId}\n: GET
+activate AF
+AF -> NEF : /3gpp-traffic-Influence/v1/{afId}/subscriptions/{subscriptionId}\n: GET
+activate NEF
+NEF -> NEF : NGC_STUB(PCF,UDR,BSF)
+NEF -> NGC : {Open: 3rd party NGC\nintegration with\nOpenNESS(NEF)}
+NGC --> NEF
+NEF --> AF : OK: traffic influence info\nERROR: {400/500}
+deactivate NEF
+AF --> UICLI : OK: traffic influence info\nERROR: {400/500}
+deactivate AF
+UICLI --> UA : Traffic influence details
+deactivate UICLI
+end group
+
+@enduml

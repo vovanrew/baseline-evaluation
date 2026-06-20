@@ -1,0 +1,42 @@
+```plantuml
+@startuml
+actor "Web User" as user
+participant "index" as index
+participant "Main.view" as mainview
+participant "Image.View" as imageview
+participant "ImageController" as controller
+participant "DB" as db
+participant "DBE" as dbe
+participant "ImageModel" as model
+database "images" as imagesdb
+rectangle "Images" as imagesrect
+
+user -> index : 1:Need to see some Pictures
+activate index
+index -->> controller : 1:1 new ImageController( new DB ( DBE ) )
+activate controller
+controller -> db : new DB ( BDE::MySQL)
+activate db
+db --> dbe : getDNS(); getUser(); getPass()
+activate dbe
+controller -> imagesdb : ImageController->fetchAll(): $stmt = $this->pdo->prepare(SELECT id,filename,title,description FROM images)
+activate imagesdb
+imagesdb ..> imagesdb
+controller -> imagesdb : ImageController->fetchAll(): $stmt ->execute()
+imagesdb --> controller : $results = $stmt->fetchAll(PDO::FETCH_CLASS, ImageModel::class)
+deactivate imagesdb
+controller --> imageview : 1:0|1]* $images array
+activate imageview
+imageview -> mainview : render ()
+activate mainview
+mainview --> imageview : + layout
+deactivate mainview
+deactivate imageview
+deactivate controller
+deactivate db
+deactivate dbe
+index --> user : he/she dont know how many work it was ;-)
+deactivate index
+
+@enduml
+```

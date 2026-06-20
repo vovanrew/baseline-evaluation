@@ -1,0 +1,67 @@
+@startuml
+participant "User Agent" as UA
+box "Wallet"
+participant "Frontend" as FE
+participant "Backend" as BE
+end box
+box "Issuer"
+participant "Metadata" as META
+participant "Web Site" as WS
+participant "Token Endpoint" as TE
+participant "Credential Endpoint" as CE
+end box
+
+UA -> WS : get credential
+
+note over UA, CE : prepare credential issuance
+
+WS -> UA : Issuance Initiation Request\n(pre-authz-code, credential_type, expected_key_types, issuer)
+
+UA -> FE : Issuance Initiation Request\n(pre-authz-code, credential_type, expected_key_types, issuer)
+
+FE -> BE : gen DPoP key
+BE --> FE : 
+
+FE -> BE : gen DPoP proof for issuer token endpoint
+BE --> FE : 
+
+FE -> BE : get nonce (for app attestation)
+BE --> FE : nonce
+
+FE -> BE : obtain app attestation (nonce)
+BE --> FE : 
+
+FE -> BE : get assertion for code exchange\n(hash(pre-authz-code), app attestation)
+
+BE -> BE : check app_attestation
+
+BE -> BE : generate assertion\n(iss=wallet backend, pre_authz_code_hash, client_id)
+
+BE --> FE : assertion
+
+FE -> META : get issuer metadata
+
+FE -> TE : token request\n(pre-authz-code, pin, client_id, assertion, dpop_proof)
+
+note over FE, TE : wallet authenticates with issuer as OAuth Client using the assertion issued by its backend (RFC 7523)\nissuer checks wallet backend id and key against trust registry
+
+note over FE, TE : Token Endpoint validates pre-authorized code and creates corresponding access token
+
+TE --> FE : token response\n(access_token, c_nonce)
+
+FE -> BE : gen key : key, key_attestation
+BE --> FE : 
+
+FE -> BE : create proof of posssion (c_nonce)
+BE --> FE : 
+
+FE -> BE : create DPoP proof for issuance request
+BE --> FE : 
+
+FE -> CE : issue credential\n(access_token, credential_type, format, proof, key_policy, dpop_proof)
+
+note over FE, CE : Credential Endpoint Token checks whether the access token is good for requested credential type and\nwhether the proof of possession is valid
+
+CE --> FE : credential response (credential, format)
+
+@enduml

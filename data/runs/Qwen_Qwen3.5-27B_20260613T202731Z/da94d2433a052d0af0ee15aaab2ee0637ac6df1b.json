@@ -1,0 +1,22 @@
+{
+  "id": "f282e17e-a0b4-46b7-9f7d-438d493a5344",
+  "object": "chat.completion",
+  "created": 1781439834,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nautonumber\n\nparticipant \"Test\" as Test\nparticipant \"GrpcClient\" as GrpcClient\nparticipant \"Front\" as Front\nparticipant \"Edge\" as Edge\nparticipant \"HttpToGrpcMock\" as HttpToGrpcMock\n\nTest -> Front : POST /send/post\nTest --> GrpcClient : instruct to wait for /external/call\nFront -> Edge : Internal communication\nEdge -> HttpToGrpcMock : http\nnote right of HttpToGrpcMock: Thinks is calling actual\\nexternal service\nHttpToGrpcMock -> GrpcClient : grpc\nnote right of HttpToGrpcMock: Info about received request\\nis forwarded to tests\nGrpcClient -> Test : Assert request\nactivate Test\ndeactivate Test\nTest -> GrpcClient : Mocked response\nGrpcClient -> HttpToGrpcMock : \nHttpToGrpcMock -->> Edge : http\nEdge -->> Front : \nnote bottom of Front: Responding back front may not be necessary in most cases.\\nMaybe it would be database update or something like that\nFront -->> Test : Resolve /send/post promise\nTest -> Test : Assert response\nactivate Test\ndeactivate Test\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1860,
+    "completion_tokens": 262,
+    "total_tokens": 2122
+  }
+}

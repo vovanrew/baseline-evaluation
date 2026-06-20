@@ -1,0 +1,22 @@
+{
+  "id": "8b313b4e-e8e2-4931-b7e4-1958850cea36",
+  "object": "chat.completion",
+  "created": 1781401302,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n\nparticipant web\nparticipant bff_web_api\nparticipant authorization_api\nparticipant k8s_redis\n\nweb ->> bff_web_api: /api/v1/auth/token\nnote over web, bff_web_api: Request header<br/>Content-Type: application/json<br/>Request body<br/>- auth_code: xxxxxxx\n\nbff_web_api -> web: validate request\nnote over bff_web_api, web: Request header<br/>Content-Type: application/x-www-form-urlencoded<br/>Request body<br/>- auth_code<br/>note:<br/>- handler late limit (brute force attack)\n\nbff_web_api -> authorization_api: /api/v1/oauth/token\nnote over bff_web_api, authorization_api: Access token:<br/>{<br/>  header:<br/>    - alg: rsa256<br/>    - typ: JWT<br/>  payload:<br/>    - iss<br/>    - jti<br/>    - user_id<br/>    - iat<br/>    - exp<br/>    - roles<br/>  signature<br/>}<br/>ttl: 300000 milliseconds (5 min)<br/>Key: user_id:xxxxx<br/>Redis object value:<br/>- access_token<br/>- refresh_token\n\nbff_web_api -> authorization_api: return\nnote over bff_web_api, authorization_api: Response header<br/>Content-Type: application/json<br/>Response body<br/>- accessToken<br/>- RefreshToken\n\nauthorization_api -> k8s_redis: check auth_code from k8s_redis\nk8s_redis -> authorization_api: return redis object\nnote over k8s_redis: Key:<br/>- auth_code<br/>Redis object<br/>- user_id<br/>- scope\n\nauthorization_api -> k8s_redis: put user session into k8s_redis\nk8s_redis -> authorization_api: save data\n\nauthorization_api -> bff_web_api: generate JWT Token with private key\nbff_web_api -> authorization_api: return\n\nauthorization_api -> web: return\nnote over authorization_api, web: Response header<br/>Content-Type: application/json<br/>Response body<br/>- accessToken<br/>- RefreshToken\n\nk8s_redis..> authorization_api: validate request\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2252,
+    "completion_tokens": 475,
+    "total_tokens": 2727
+  }
+}

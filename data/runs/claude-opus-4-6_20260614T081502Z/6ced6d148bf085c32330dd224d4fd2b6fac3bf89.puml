@@ -1,0 +1,35 @@
+```plantuml
+@startuml
+
+box "CNBRPfwPlayCtl" #LightBlue
+participant INBRPlayCCSink
+participant CNBRPfwPlayCtl
+end box
+
+participant CNBRPfwUICtl
+
+box "CNBRUIMgr" #LightBlue
+participant INBRCommand
+participant CNBRUIMgr
+end box
+
+participant CNBRPlayMgr
+participant CNBRPlayBar
+participant CWbxBmpButton
+
+== nmac notify nbr_pfw mute message ==
+
+[-> INBRPlayCCSink : NotifyInfo
+INBRPlayCCSink -> CNBRPfwPlayCtl : NotifyInfo
+CNBRPfwPlayCtl -> INBRCommand : OnMixerMuteNotify
+hnote over CNBRPfwPlayCtl : NBR_CC_PFW_INFO_MUTE_STATE
+INBRCommand -> CNBRUIMgr : OnHandleCommand
+hnote over INBRCommand : NBR2_PLAY_UI_MIXER_MUTE_NOTIFY
+CNBRUIMgr -> CNBRUIMgr : OnHandleCommand
+hnote over CNBRUIMgr : NBR2_PLAY_UI_MIXER_MUTE_NOTIFY
+CNBRUIMgr -> CNBRPlayMgr : HandleMixerMuteNotify
+CNBRPlayMgr -> CNBRPlayBar : MuteVolume
+CNBRPlayBar -> CWbxBmpButton : SetChecked
+
+@enduml
+```

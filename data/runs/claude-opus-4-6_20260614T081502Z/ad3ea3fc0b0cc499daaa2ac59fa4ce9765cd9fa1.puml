@@ -1,0 +1,55 @@
+```plantuml
+@startuml
+
+class TicTacToe {
+  - turn : Turn
+  - board : Board
+  - players : Player[] [0..*]
+  + TicTacToe()
+  + Play()
+}
+
+class Board {
+  # {static} Color : char[,] [0..*] = {'x', 'o'}
+  - tokens : char[,] [0..*]
+  + Board()
+  + IsTicTacToe() : bool
+  - IsTicTacToe(token : char) : bool
+  + IsComplete() : bool
+  - IsTileEmpty(row : int, column: int) : bool
+  - IsTileFull(row : int, column: int) : bool
+  + ToString() : string
+}
+
+class Player {
+  # color : char
+  + Player(i: int)
+  + Put(board : Board)
+  + Move(board : Board)
+  + Win()
+}
+
+class Turn {
+  # value : int = 0
+  + Turn()
+  + Current() «Take»
+  + Next() «NotTake»
+  + Change()
+}
+
+class IO <<static>> {
+  + {static} ReadString(title : string) : string
+  + {static} ReadInt(title : string) : int
+  + {static} Write(title : string)
+  + {static} WriteLn()
+  + {static} WriteError(format : string)
+}
+
+TicTacToe --> Board
+TicTacToe --> Player
+TicTacToe --> Turn
+Board ..> IO
+Player ..> IO
+
+@enduml
+```

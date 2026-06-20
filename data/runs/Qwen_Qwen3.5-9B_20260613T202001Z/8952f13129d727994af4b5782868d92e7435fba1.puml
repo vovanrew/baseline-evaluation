@@ -1,0 +1,99 @@
+@startuml
+title Shared memory receiver behaviour
+
+participant "Shared memory receiver" as receiver
+participant "Coordination struct" as coord
+participant "Reader count var" as reader_count
+participant "locks_active" as locks_active
+participant "locks_leaving" as locks_leaving
+participant "Semaphore copy" as sem_copy
+participant "Copy buff" as copy_buff
+
+rectangle "create" {
+  alt "Coordination semaphore doesn't exist" {
+    activate receiver
+    activate coord
+    Create semaphore -> coord
+    deactivate receiver
+    deactivate coord
+  }
+  wait
+  Writer sets up sharedmemory
+  Writer is ready
+  activate receiver
+  activate reader_count
+  reincrease
+  deactivate receiver
+  deactivate reader_count
+  note right of reincrease: this way all readers access the memory, they will fail on the copy sem
+  MMap coordination struct
+  Trylock copy semaphore
+  alt (fail) {
+    Can't lock
+    Fail
+  }
+  alt (success) {
+    Success
+    MMap copy buffer
+    read flag to true
+    Lock leaving[1]
+    Signal reader ready
+  }
+  Close coordination semaphore file
+  Success
+}
+
+rectangle "ready" {
+  ready?
+  alt (finished flag set) {
+    False
+    (has read current chunk)
+    lock next chunk (reading)
+    Blocks until next chunk is written
+    Release previous leaving
+    Change active
+    reset read flag
+    get chunk size
+    c_size
+    c_size > 0
+    (Yet to read current and no finished flag)
+    True
+  }
+  alt (finished) {
+    This is done before actually returning
+    Set finished flag
+    Release lock
+  }
+  get buff_size from coord
+  buff_size
+}
+
+rectangle "receive" {
+  This is called after ready so I am already on the correct chunk and it has data to read
+  alt [read_flag_set or finished flag set] {
+    Fail
+    Read data in current chunk
+    vector
+    set read flag
+    lock leaving
+    release active
+    vector
+  }
+}
+
+rectangle "destructor" {
+  Destroy
+  alt [not finished] {
+    alt [read_flag_set] {
+      unlock
+    }
+    alt [read_flag_false] {
+      unlock
+    }
+  }
+  Notify left
+  Unmap memory
+  Close files
+}
+
+@enduml

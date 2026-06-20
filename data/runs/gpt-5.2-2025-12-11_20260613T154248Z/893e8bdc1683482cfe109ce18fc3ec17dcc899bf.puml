@@ -1,0 +1,112 @@
+```plantuml
+@startuml
+title
+
+actor user
+
+participant InspectionSheetForm
+participant EquipmentForm
+participant InspectionItemForm
+participant InspectionItemDialog
+participant InspectionSheetContext
+participant InspectionItemContext
+
+== Add New Equipment ==
+user -> InspectionSheetForm : 点検機器追加ボタンクリック
+InspectionSheetForm -> InspectionSheetContext : 点検機器追加
+InspectionSheetForm -> EquipmentForm : 点検シート情報\n描画処理
+EquipmentForm -> InspectionItemForm : 描画処理
+InspectionItemForm --> EquipmentForm : 表示結果
+EquipmentForm --> InspectionSheetForm : 表示結果
+InspectionSheetForm --> user : 更新後の表示結果
+
+== Remove Equipment ==
+user -> InspectionSheetForm : 点検機器削除ボタンクリック
+InspectionSheetForm -> InspectionSheetContext : 点検機器削除
+InspectionSheetForm -> EquipmentForm : 点検シート情報\n描画処理
+EquipmentForm -> InspectionItemForm : 描画処理
+InspectionItemForm --> EquipmentForm : 表示結果
+EquipmentForm --> InspectionSheetForm : 表示結果
+InspectionSheetForm --> user : 更新後の表示結果
+
+== Update Equipment ==
+user -> InspectionSheetForm : 点検機器情報編集
+InspectionSheetForm -> InspectionSheetContext : 点検機器情報編集
+InspectionSheetForm -> EquipmentForm : 点検シート情報\n描画処理
+EquipmentForm -> InspectionItemForm : 描画処理
+InspectionItemForm --> EquipmentForm : 表示結果
+EquipmentForm --> InspectionSheetForm : 表示結果
+InspectionSheetForm --> user : 更新後の表示結果
+
+== Add Inspection Item ==
+user -> InspectionSheetForm : 点検項目追加ボタンクリック
+InspectionSheetForm -> InspectionItemForm : 追加モードに設定
+InspectionItemForm -> InspectionItemContext : 新規点検項目を設定
+InspectionItemForm -> InspectionItemDialog : 点検項目ダイアログを開く
+InspectionItemDialog --> user : 点検項目ダイアログ表示
+user -> InspectionItemDialog : 点検項目編集
+InspectionItemDialog -> InspectionItemContext : 点検項目編集
+InspectionItemContext --> InspectionItemDialog : 点検項目情報
+InspectionItemDialog --> user : 更新後の表示結果
+
+alt 編集を確定する場合
+  user -> InspectionItemDialog : OKボタンをクリック
+  InspectionItemDialog -> InspectionItemContext : 点検項目情報を取得
+  InspectionItemContext --> InspectionItemDialog : 点検項目情報
+  InspectionItemDialog -> InspectionItemContext : 点検項目を追加
+  InspectionItemDialog -> InspectionItemDialog : 点検項目ダイアログを閉じる
+  InspectionItemDialog --> user : 点検項目ダイアログを閉じる
+
+  InspectionSheetForm -> EquipmentForm : 点検シート情報\n描画処理
+  EquipmentForm -> InspectionItemForm : 描画処理
+  InspectionItemForm --> EquipmentForm : 表示結果
+  EquipmentForm --> InspectionSheetForm : 表示結果
+  InspectionSheetForm --> user : 更新後の表示結果
+else 編集を確定しない場合
+  user -> InspectionItemDialog : キャンセルボタンをクリック
+  InspectionItemDialog -> InspectionItemDialog : 点検項目ダイアログを閉じる
+  InspectionItemDialog --> user : 点検項目ダイアログを閉じる
+end
+
+== Remove Inspection Item ==
+user -> InspectionSheetForm : 点検項目削除ボタンクリック
+InspectionSheetForm -> InspectionItemContext : 点検項目削除
+InspectionSheetForm -> EquipmentForm : 点検シート情報\n描画処理
+EquipmentForm -> InspectionItemForm : 描画処理
+InspectionItemForm --> EquipmentForm : 表示結果
+EquipmentForm --> InspectionSheetForm : 表示結果
+InspectionSheetForm --> user : 更新後の表示結果
+
+== Edit Inspection Item ==
+user -> InspectionSheetForm : 点検項目編集ボタンクリック
+InspectionSheetForm -> InspectionItemForm : 更新モードに設定
+InspectionItemForm -> InspectionItemContext : 点検項目情報を取得
+InspectionItemContext --> InspectionItemForm : 点検項目情報
+InspectionItemForm -> InspectionItemContext : 新規点検項目を設定
+InspectionItemForm -> InspectionItemDialog : 点検項目ダイアログを開く
+InspectionItemDialog --> user : 点検項目ダイアログ表示
+user -> InspectionItemDialog : 点検項目編集
+InspectionItemDialog -> InspectionItemContext : 点検項目編集
+InspectionItemContext --> InspectionItemDialog : 点検項目情報
+
+alt 編集を確定する場合
+  user -> InspectionItemDialog : OKボタンをクリック
+  InspectionItemDialog -> InspectionItemContext : 点検項目情報を取得
+  InspectionItemContext --> InspectionItemDialog : 点検項目情報
+  InspectionItemDialog -> InspectionItemContext : 点検項目を追加
+  InspectionItemDialog -> InspectionItemDialog : 点検項目ダイアログを閉じる
+  InspectionItemDialog --> user : 点検項目ダイアログを閉じる
+
+  InspectionSheetForm -> EquipmentForm : 点検シート情報\n描画処理
+  EquipmentForm -> InspectionItemForm : 描画処理
+  InspectionItemForm --> EquipmentForm : 表示結果
+  EquipmentForm --> InspectionSheetForm : 表示結果
+  InspectionSheetForm --> user : 更新後の表示結果
+else 編集を確定しない場合
+  user -> InspectionItemDialog : キャンセルボタンをクリック
+  InspectionItemDialog -> InspectionItemDialog : 点検項目ダイアログを閉じる
+  InspectionItemDialog --> user : 点検項目ダイアログを閉じる
+end
+
+@enduml
+```

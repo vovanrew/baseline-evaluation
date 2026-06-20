@@ -1,0 +1,31 @@
+@startuml
+skinparam ClassDiagram {
+    class IVersionedMonoBehaviourInternal {
+        <<interface>>
+        UpgradeFromUnityThread() : void
+    }
+    class MonoBehaviour {
+        <<class>>
+    }
+    class ISerializationCallbackReceiver {
+        <<interface>>
+    }
+    class VersionedMonoBehaviour {
+        <<class>>
+        version : int = 0
+        <<virtual>> Awake() : void
+        <<virtual>> Reset() : void
+        OnBeforeSerialize() : void
+        OnAfterDeserialize() : void
+        <<virtual>> OnUpgradeSerializedData(version : int, unityThread : bool) : int
+        UpgradeFromUnityThread() : void
+    }
+}
+
+<<interface>> IVersionedMonoBehaviourInternal --> VersionedMonoBehaviour : implements
+
+<<class>> MonoBehaviour --> VersionedMonoBehaviour : implements
+
+<<interface>> ISerializationCallbackReceiver --> VersionedMonoBehaviour : implements
+
+@enduml

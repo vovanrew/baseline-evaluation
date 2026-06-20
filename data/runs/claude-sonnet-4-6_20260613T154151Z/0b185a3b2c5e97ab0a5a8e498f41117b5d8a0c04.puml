@@ -1,0 +1,85 @@
+@startuml
+participant "producer" as producer
+participant "consumer" as consumer
+participant "broker" as broker
+participant "NameServer" as ns1
+participant "NameServer" as ns2
+
+== NameServer 启动流程 ==
+
+producer -> ns1 : 1 启动 NameServer 服务器
+activate ns1
+ns1 -> ns1 : 2 启动监听
+note right of ns1
+  监听 broker 链接
+  监听 producer 链接
+  监听 consumer 链接
+end note
+ns1 -> ns1 : 3
+ns1 --> producer : 4
+deactivate ns1
+
+== broker 启动流程 ==
+
+producer -> broker : 5 启动 broker 服务器
+activate broker
+broker -> ns1 : 6 每个 broker 与 每个 NameServer 建立长链接
+activate ns1
+ns1 --> broker : 7
+deactivate ns1
+broker --> producer : 8
+broker -> ns1 : 9 每 30 秒发送心跳
+deactivate broker
+
+== producer 启动/发消息流程 ==
+
+producer -> producer : 10 启动
+activate producer
+producer -> ns1 : 11 先与一台 NameServer 建立长链接
+activate ns1
+ns1 --> producer : 12
+producer -> ns1 : 13 获取路由信息，获取 topic 与 broker queue 的对应关系
+ns1 --> producer : 14
+deactivate ns1
+producer --> producer : 15
+producer -> ns1 : 16 每 30 秒更新一次路由信息
+deactivate producer
+
+producer -> producer : 17 发送消息
+activate producer
+producer -> broker : 18 随机选择一个 queue，并发送消息
+activate broker
+broker --> producer : 19
+deactivate broker
+producer --> producer : 20
+deactivate producer
+
+== consumer 启动/pull消息流程 ==
+
+consumer -> consumer : 21 启动
+activate consumer
+consumer -> ns1 : 22 与一台 NameServer 建立长链接
+activate ns1
+ns1 --> consumer : 23
+consumer -> ns1 : 24 获取 topic 的路由信息
+ns1 --> consumer : 25
+deactivate ns1
+consumer -> broker : 26 建立长链接并获取 queue
+activate broker
+broker --> consumer : 27
+deactivate broker
+consumer --> consumer : 28
+consumer -> broker : 29 每 30 秒发送心跳，确保 broker 存活
+consumer -> ns1 : 30 每 30 秒更新路由信息
+
+consumer -> consumer : 31 消息消费
+activate consumer
+consumer -> broker : 32 拉取消息消费
+activate broker
+broker --> consumer : 33
+deactivate broker
+consumer --> consumer : 34
+deactivate consumer
+deactivate consumer
+
+@enduml

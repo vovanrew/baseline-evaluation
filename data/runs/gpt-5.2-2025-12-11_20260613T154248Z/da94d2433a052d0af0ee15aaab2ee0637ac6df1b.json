@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLgEwvU2LJE80gFVeuGD61OMk5l6",
+  "object": "chat.completion",
+  "created": 1781368766,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  LifeLineBorderColor #888888\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #E9E9F6\n  NoteBackgroundColor #FFFED6\n  NoteBorderColor #666666\n}\n\nparticipant Test\nparticipant GrpcClient\nparticipant Front\nparticipant Edge\nparticipant HttpToGrpcMock\n\nTest -> Front : POST /send/post\nTest -> GrpcClient : instruct to wait for /external/call\n\nFront -> Edge : Internal communication\nEdge -> HttpToGrpcMock : http\n\nnote right of Edge\nThinks is calling actual\nexternal service\nend note\n\nHttpToGrpcMock -> GrpcClient : grpc\n\nnote right of HttpToGrpcMock\nInfo about received request\nis forwarded to tests\nend note\n\nGrpcClient -> Test\nTest -> Test : Assert request\nTest -> GrpcClient : Mocked response\n\nGrpcClient -> HttpToGrpcMock\nHttpToGrpcMock --> Edge : http\nEdge --> Front\n\nnote right of Front\nResponding back front may not be necessary in most cases.\nMaybe it would be database update or something like that\nend note\n\nFront --> Test : Resolve /send/post promise\nTest -> Test : Assert response\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2195,
+    "completion_tokens": 278,
+    "total_tokens": 2473,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

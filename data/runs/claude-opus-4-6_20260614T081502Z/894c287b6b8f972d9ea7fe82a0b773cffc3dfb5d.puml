@@ -1,0 +1,28 @@
+```plantuml
+@startuml
+
+actor "Web User" as WU
+boundary "index" as idx
+boundary "Main.view" as mv
+boundary "Image.View" as iv
+control "ImageController" as ic
+entity "DB" as db
+entity "DBE" as dbe
+entity "ImageModel" as im
+entity "images" as imgs
+database "Images" as Images
+
+WU -> idx : 1:Need to see some Pictures
+idx -> ic : 1:1 new ImageController( new DB ( DBE ) )
+ic -> db : new DB ( BDE::MySQL)
+db -> dbe : getDNS(); getUser(); getPass()
+ic -> Images : ImageController->fetchAll() : $stmt = $this->pdo->prepare(SELECT id,filename,title,description FROM images)
+ic -> Images : ImageController->fetchAll() :  $stmt ->execute()
+Images --> ic : $results = $stmt->fetchAll(PDO::FETCH_CLASS, ImageModel::class)
+ic --> idx : 1:0|1|* $images array
+idx -> mv : render ()
+mv --> idx : + layout
+idx --> WU : he/she dont know how many work it was ;-)
+
+@enduml
+```

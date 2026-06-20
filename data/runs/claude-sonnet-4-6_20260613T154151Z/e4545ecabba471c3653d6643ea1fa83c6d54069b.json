@@ -1,0 +1,21 @@
+{
+  "id": "msg_01FYPityk1ZhnE3QJLNAh87v",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor \"User Agent\" as UA\nparticipant \"Content removal API\" as CRA\nparticipant \"User Manager\" as UM\ndatabase \"User database\" as UDB\ndatabase \"Content database\" as CDB\n\nnote left of UA\nShould also include a CSRF token to prevent admins who are also\nvisit other, potentially XSS vulnerable or malicious sites\nfrom helping an unkown actor remove content without authorization.\nend note\n\nUA -> CRA : Removal request (HTTP POST),\\ncontains ID of content to be removed.\n\nCRA -> UM : Retrieve role of requesting user.\nUM -> UDB : Fetch user information from database.\nUDB --> UM : Return query result.\nUM --> CRA : Return user role.\n\nalt [User has admin role]\n    CRA -> CRA : Validate removal request\n\n    alt [Failed to validate removal request]\n        CRA --> UA : Return an HTTP status code that signals validation failure.\\nExact value depends on how the validation failed.\n    else [Request is deemed valid]\n        CRA -> CDB : Remove content from DB.\n        CDB --> CRA : Result of delete operation\n\n        alt [Content has been removed succesfully]\n            CRA --> UA : Return HTTP 204 No Content\n        else [Removal failed]\n            CRA --> UA : Return HTTP Status code to signal reason for failure.\n        end\n    end\n\nelse [User is not authorized to remove content]\n    CRA --> UA : Return HTTP 403 Forbidden to signal that the user has no permission to request what they just did.\nend\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370625,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 371,
+    "prompt_tokens": 1384,
+    "total_tokens": 1755
+  }
+}

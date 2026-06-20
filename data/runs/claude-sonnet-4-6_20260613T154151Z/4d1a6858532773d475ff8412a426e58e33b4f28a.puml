@@ -1,0 +1,94 @@
+```plantuml
+@startuml
+
+class Leistungspaket {
+  - bezeichnung: String
+  - preis: BigDecimal
+}
+
+class LeistungspaketBuchung {
+  - leistungspaket: Leistungspaket
+  - buchung: Buchung
+  - anzahl: int
+}
+
+class LeistungspaketBetreuer {
+  - leistungspaket: Leistungspaket
+  - beteuer: Betreuer
+}
+
+class LuxuspaketPaket {
+  - bezeichnung: String
+  - leistungspaket: Leistungspaket
+}
+
+class Buchung {
+  - hotelZimmer: Hotelzimmer
+  - gast: Gast
+  - anreiseDatum: LocalDate
+  - abreiseDatum: LocalDate
+}
+
+class Hotelzimmer {
+  - nummer: int
+  - personen: int
+}
+
+class Gast {
+  - kundenNr: int
+  - name: String
+  - adresse: Adresse
+}
+
+class HotelzimmerKategorie {
+  - hotelZimmer: Hotelzimmer
+  - kategorie: Kategorie
+}
+
+class Kategorie {
+  - id: int
+  - bezeichnung: String
+}
+
+class HotelzimmerMitarbeiter {
+  - hotelZimmer: HotelzimmerMitarbeiter
+  - mitarbeiter: Mitarbeiter
+  - hotelZimmer: Hotelzimmer
+  - mitarbeiter: Mitarbeiter
+  - datum: LocalDate
+}
+
+class Mitarbeiter {
+  - svnr: String
+  - name: String
+  - adresse: String
+}
+
+class Betreuer {
+  - mitarbeiter: Mitarbeiter
+  - fach: String
+}
+
+Leistungspaket "1" -- LeistungspaketBuchung : " "
+LeistungspaketBuchung --|> Buchung
+Leistungspaket -- LeistungspaketBetreuer
+Leistungspaket "1" -- LuxuspaketPaket
+
+Buchung "*" -- "1" Hotelzimmer
+Buchung "*" -- Gast
+
+Hotelzimmer ..> HotelzimmerKategorie
+HotelzimmerKategorie --> Kategorie
+
+Hotelzimmer -- HotelzimmerMitarbeiter
+
+HotelzimmerMitarbeiter --> Mitarbeiter
+
+Betreuer --> Mitarbeiter
+
+note on link
+  ein Luxuspaketpaket hat mehrere Einträge mit der gleichen Bezeichnung
+end note
+
+@enduml
+```

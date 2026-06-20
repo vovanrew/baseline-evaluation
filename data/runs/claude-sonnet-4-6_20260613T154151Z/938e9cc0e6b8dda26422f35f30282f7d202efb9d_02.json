@@ -1,0 +1,21 @@
+{
+  "id": "msg_01PuhVMRFfjMEdkRgDD5PN1P",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor Operator\n\nparticipant \"\u00abBoundary\u00bb MakerUI\" as MakerUI\nparticipant \"\u00abControl\u00bb Maker\" as Maker\nparticipant \"\u00abEntity\u00bb Request\" as Request\nparticipant \"\u00abEntity\u00bb Passport\" as Passport\n\nOperator -> MakerUI: 1: Login\nactivate MakerUI\nMakerUI -> MakerUI: 1.1: Render\nMakerUI -> Maker: 1.2: Pass Credentials\nactivate Maker\nMaker -> Maker: 1.2.1: Evaluate\nactivate Maker\ndeactivate Maker\n\nalt [user exists]\n    Maker -> Request: 1.2.2.1: getRequest()\n    activate Request\n    Request --> Maker: 1.2.2.2: Got requests\n    deactivate Request\n    Maker --> MakerUI: 1.3: Return requests\n    deactivate Maker\n    MakerUI --> Operator: 2: Render requests\nelse [login invalid]\n    Maker --> MakerUI: 1.3: Login invalid\n    MakerUI ->x Operator: 2: Print \"Invalid login\"\nend\n\ndeactivate MakerUI\n\nloop [n times]\n    alt [do Print Passport]\n        Operator -> MakerUI: 3: Print passport\n        activate MakerUI\n        MakerUI -> Maker: 3.1: Print passport\n        activate Maker\n        ref over Maker, Passport: Print passsport\n        Maker --> MakerUI: Printer State\n        deactivate Maker\n        MakerUI --> Operator: Printed\n        deactivate MakerUI\n    else [do Edit Passport]\n        Operator -> MakerUI: 3: Edit Passport\n        activate MakerUI\n        MakerUI -> Maker: 3.1: Get passport data\n        activate Maker\n        Maker -> Passport: 3.1.1: getPassport()\n        activate Passport\n        Passport --> Maker: 3.1.2: Passport\n        deactivate Passport\n        Maker --> MakerUI: 3.2: Edit Passport\n        deactivate Maker\n        MakerUI --> Operator: 4: Password edited\n        deactivate MakerUI\n    end\nend\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371517,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 567,
+    "prompt_tokens": 1644,
+    "total_tokens": 2211
+  }
+}

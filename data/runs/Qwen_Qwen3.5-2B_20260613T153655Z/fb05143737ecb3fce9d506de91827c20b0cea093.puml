@@ -1,0 +1,36 @@
+@startuml
+skinparam sequenceDiagram
+    participant User/Admin as User
+    participant UI/CLI as UI_CLI
+    participant AF_Microservice as AF_Microservice
+    participant NEF as NEF
+    participant NGC_CP_Functions as NGC_CP_Functions
+
+    Note over UI_CLI, AF_Microservice, NEF, NGC_CP_Functions: OpenNESS Controller components
+    Note over NEF: OpenNESS provided Core component with limited functionality
+
+    Note over UI_CLI, AF_Microservice, NEF, NGC_CP_Functions: 5G Core components
+
+    Note over UI_CLI, AF_Microservice, NEF, NGC_CP_Functions: Get all subscribed traffic influence info
+
+    User->>UI_CLI: Request all traffic influence subscribed
+    UI_CLI->>AF_Microservice: /af/v1/subscriptions : GET
+    AF_Microservice->>NEF: /3gpp-traffic-Influence/v1/{afld}/subscriptions : GET
+    NEF->>NGC_CP_Functions: NGC_STUB(PCF,UDR,BSF)
+    NGC_CP_Functions->>NEF: {Open: 3rd party NGC integration with OpenNESS(NEF)}
+    NEF-->>AF_Microservice: OK: traffic influence info ERROR: {400/500}
+    AF_Microservice-->>UI_CLI: OK: traffic influence info ERROR: {400/500}
+    UI_CLI-->>User: Traffic influence details
+
+    Note over UI_CLI, AF_Microservice, NEF, NGC_CP_Functions: Get subscribed traffic influence info by subscriptionId
+
+    User->>UI_CLI: Request traffic influence using subscriptionId
+    UI_CLI->>AF_Microservice: /af/v1/subscriptions/{subscriptionId} : GET
+    AF_Microservice->>NEF: /3gpp-traffic-Influence/v1/{afld}/subscriptions/{subscriptionId} : GET
+    NEF->>NGC_CP_Functions: NGC_STUB(PCF,UDR,BSF)
+    NGC_CP_Functions->>NEF: {Open: 3rd party NGC integration with OpenNESS(NEF)}
+    NEF-->>AF_Microservice: OK: traffic influence info ERROR: {400/500}
+    AF_Microservice-->>UI_CLI: OK: traffic influence info ERROR: {400/500}
+    UI_CLI-->>User: Traffic influence details
+
+@enduml

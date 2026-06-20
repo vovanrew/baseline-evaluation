@@ -1,0 +1,53 @@
+```plantuml
+@startuml
+title Modulo-matrícula/Informática
+
+class Matrícula {
+  -id: Int
+  -cliente: Client
+  -tempo: Int
+  -quadra: Turma
+  +registraMatrícula(): Int
+}
+
+class Aluno {
+  -id: Int
+  -nome: String
+  -locação: List<Matrícula>
+}
+
+interface ControleNúmeroMatrícula <<interface>> {
+  #quantidadeDeMatrícula: Int
+  +registraMatrícula(): Int
+}
+
+class Turma {
+  -numero: Int
+  -aluguel: Matrícula
+  -ginasio: Curso
+  +getcontroleNúmeroMatrícula()
+}
+
+class Curso {
+  -nome: String
+  -profe
+  -quadra: List<Turma>
+}
+
+' Aluno composition to Matrícula (composição 1, 0..*)
+Aluno "1" *--> "0..*" Matrícula : composição
+
+' Matrícula realization of ControleNúmeroMatrícula
+Matrícula ..|> ControleNúmeroMatrícula : realização
+
+' Matrícula composition to Turma (1..*)
+Matrícula "1..*" *--> "1" Turma : composição
+
+' Turma dependency to ControleNúmeroMatrícula
+Turma ..> ControleNúmeroMatrícula : dependência
+
+' Curso composition to Turma (1, 1..*)
+Curso "1" *--> "1..*" Turma : composição
+
+@enduml
+```

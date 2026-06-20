@@ -1,0 +1,60 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #888888
+  ParticipantBackgroundColor #E6E6F2
+  ActorBorderColor #888888
+  ArrowColor #222222
+  ActivationBorderColor #222222
+  ActivationBackgroundColor #0B66FF
+  NoteBackgroundColor #FFF7C7
+  NoteBorderColor #888888
+}
+
+participant "generate_delta_main.cc" as G
+participant "delta_diff_generator.cc" as D
+participant "payload_file.cc" as P
+participant "payload_generation_config.cc" as C
+
+G -> G : brillo::KeyValueStore.Load(file)
+G <-- G
+
+G -> C : payload_config.target.LoadDynamicPartitionMetadata(store)
+activate C
+C --> G
+deactivate C
+
+G -> C : payload_config.target.ValidateDynamicPartitionMetadata()
+activate C
+C --> G
+deactivate C
+
+G -> D : GenerateUpdatePayloadFile()
+activate D
+
+D -> P : payload.Init(config)
+activate P
+P -> P : manifest_.dynamic_partition_metadata
+P <-- P
+P --> D
+deactivate P
+
+D --> D : generate payload data
+
+D -> P : payload.WritePayload()
+activate P
+P -> P : manifest_.SerializeToString()
+P <-- P
+P -> P : Write(serialized_manifest.data())
+P <-- P
+P --> D
+deactivate P
+
+D --> G
+deactivate D
+
+G --> G : done
+@enduml

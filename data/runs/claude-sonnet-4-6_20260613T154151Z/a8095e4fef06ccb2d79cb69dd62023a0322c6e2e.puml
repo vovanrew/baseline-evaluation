@@ -1,0 +1,75 @@
+```plantuml
+@startuml
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle normal
+skinparam classHeaderBackgroundColor #e8e8e8
+skinparam backgroundColor white
+skinparam class {
+    BorderColor #888888
+    BackgroundColor #f0f0f0
+}
+
+interface QuestReward {
+    /interface since QuestRewards need to have RewardPlayer but that logic will vary from reward to reward/
+    + void RewardPlayer()
+    + String ToString() //so that the reward can be described in text in the quest window//
+}
+
+abstract class Quest {
+    ~ bool isActive
+    ~ bool isComplete
+    ~ [SerializedField] string name
+    ~ [SerializedField] string description
+    ~ [SerializedField] List<QuestReward> questRewards
+    /make sure it does not derive from monobehaviour/
+    /all classes that inherit from quest need the [Serializable] attribute/
+}
+
+class RivalQuest {
+    /rival quests will need their own unique logic and AI/
+}
+
+class CountQuest {
+    - int currentCount
+    - [SerializedField] int completionCount
+    + void checkWin() //sets isComplete to true if currentCount == completionCount//
+}
+
+enum CountQuestTypes {
+    GrindTime, Graffiti, SpeedMeter, Coins, Enemies
+}
+
+class QuestGiver {
+    /attaches to NPC objects, derives from monobehaviour/
+    - [SerializedField] Quest questToGive;
+    - [SerializedField] GameObject questWindow
+    - [SerializedField] TextMeshProUGUI titleText
+    - [SerializedField] TextMeshProUGUI descText
+    - [SerializedField] TextMeshProUGUI rewardText;
+    /not sure if the player will need its own new quest script of if questing logic can go in an existing one/
+    - PlayerReference player;
+    + void OpenQuestWindow()
+    + void AcceptQuest()
+    + void CompleteQuest()
+}
+
+class MonoBehaviour {
+    /Unity MonoBehaviour/
+}
+
+QuestReward <.. Quest : has
+QuestReward <.. RivalQuest : has
+QuestReward <.. CountQuest : has
+
+Quest <|-- RivalQuest : inherits from
+Quest <|-- CountQuest : inherits from
+
+CountQuestTypes <-- CountQuest : has
+
+Quest <-- QuestGiver : gives
+
+MonoBehaviour <|-- QuestGiver : inherits from
+
+@enduml
+```

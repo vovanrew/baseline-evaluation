@@ -1,0 +1,22 @@
+{
+  "id": "206df150-b36e-4674-8bd1-a5a82d2ad9d7",
+  "object": "chat.completion",
+  "created": 1781420812,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle PB-749 UC4 - Update a Banner on System Management\n\nactor \"System Management\" as SM\nparticipant \"Core Next\" as CN\ndatabase \"Next Database\" as DB\nparticipant \"Core Bradesco\" as CB\n\nrectangle \"Next Platform\" {\n  CN\n  DB\n}\n\nnote right of SM\n  System Management will call this new endpoint\n  passing all the fields necessary to update an\n  existing Banner. The fields are:\n  1. BANNER_ID\n  2. BUSINESS_EVENT_TYPE_ID\n  3. TEMPLATE_HEADER\n  4. TEMPLATE_BODY\n  5. ENABLE_IND\nend note\n\nSM -> CN: 1 PUT /v1/notification/banner/{bannerID}\n\nnote right of CN\n  Core Next will check if this Banner exists on BANNER table\nend note\n\nCN -> DB: 2 check if this Banner exists on BANNER table\nDB --> CN: 3 response\n\nalt [if the Banner exists]\n  CN -> DB: 4 check if exists an enabled Banner associated with that BUSINESS_EVENT_TYPE received on requisition on BANNER table\n\n  note right of CN\n    Note to developers\n    Core Next will check if exists any Banner linked to a BUSINESS_EVENT_TYPE on BANNER table. We can only have one enabled Banner linked to a BUSINESS_EVENT_TYPE. For this rule, we should disregard the records that are with DELETE_FLG enabled and the Card itself.\n  end note\n\n  DB --> CN: 5 response\n\n  alt [if exists an enabled Banner associated with that BUSINESS_EVENT_TYPE]\n    note right of CN\n      If exists any Banner linked to a BUSINESS_EVENT_TYPE passed by App,\n      we will throw back an error to App side.\n    end note\n    CN --> SM: 6 error\n    SM --> CN: HTTP code: 422\n  else [if don't exists an enabled Banner associated with that BUSINESS_EVENT_TYPE]\n    note right of CN\n      If the defensive checks pass, then we will update the register on BANNER table.\n    end note\n    CN -> DB: 7 update the register on BANNER table\n    DB --> CN: 8 success\n    CN --> SM: 9 success\n    SM --> CN: HTTP code: 200\n  end\nelse [if the Banner don't exists]\n  note right of CN\n    If the Banner don't exists on BANNER table, then we will throw back an error to SM.\n    HTTP code: 404\n  end note\n  CN --> SM: 10 error\nend\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2252,
+    "completion_tokens": 561,
+    "total_tokens": 2813
+  }
+}

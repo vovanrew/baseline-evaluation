@@ -1,0 +1,22 @@
+{
+  "id": "0fe32c00-e782-4588-82b8-7c261cb1a562",
+  "object": "chat.completion",
+  "created": 1781440397,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Retrieve Part value\n\nactor \"User\" as user\nparticipant \"libdrift\" as libdrift\nrectangle \"drift service\" {\n    participant \"Advertisement channel\" as adv_channel\n    participant \"Control channel\" as ctrl_channel\n    participant \"driftd\" as driftd\n}\nparticipant \"Neo4j\" as neo4j\nparticipant \"MongoDB\" as mongo\n\nuser -> libdrift : get Part value\nnote left of libdrift: Retrieval message contains\\nindex specifier\\nindex value\nlibdrift -> ctrl_channel : send retrieval message\nctrl_channel --> user : ACK\nctrl_channel -> driftd : get Part value\ndriftd -> driftd : Lookup Part UUID in index\ndriftd -> neo4j : Get Part info\nalt [Composite Part]\n    loop [foreach Part]\n        driftd -> neo4j : Get Part metadata with UUID\n        driftd -> mongo : Get Part values\n    end\nelse [Simple Part]\n    driftd -> neo4j : Get Part metadata with UUID\n    driftd -> mongo : Get Part values\nend\ndriftd -> driftd : build update message\ndriftd -> adv_channel : Update messages for Part values\nadv_channel -> user : receive update message\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2007,
+    "completion_tokens": 282,
+    "total_tokens": 2289
+  }
+}

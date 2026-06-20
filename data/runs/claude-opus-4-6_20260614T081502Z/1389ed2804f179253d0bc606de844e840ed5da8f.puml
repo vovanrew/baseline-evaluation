@@ -1,0 +1,42 @@
+```plantuml
+@startuml
+
+actor User
+
+participant "<<main>>\nAdministration" as Admin
+participant "<<JFrame>>\nMain Menu" as MainMenu
+participant "<<dialog>>\nView Products" as ViewProducts
+participant "<<DAO>>\nProductManagerdao" as PMDao
+participant "<<DAO>>\nDbConnection" as DbConn
+
+User -> Admin : construct
+Admin -> MainMenu : construct
+User -> MainMenu : click "view products" button
+MainMenu -> ViewProducts : construct
+ViewProducts -> PMDao : construct
+ViewProducts -> PMDao : getProducts()
+PMDao -> DbConn : getConnection(uri);
+PMDao <-- DbConn : connection
+PMDao -> DbConn : prepareStatement(sql)
+PMDao -> DbConn : executeQuery()
+PMDao <-- DbConn : getters retrieve product details
+PMDao -> DbConn : setters set product details
+ViewProducts <-- PMDao : product
+ViewProducts -> ViewProducts : setModel(displayProducts)
+User <-- ViewProducts : enter a product ID in search bar
+User -> ViewProducts : user clicks 'search' button
+ViewProducts -> ViewProducts : searchbyIDTxt.getText()
+ViewProducts -> PMDao : searchProduct(searchID)
+PMDao -> DbConn : getConnection(uri);
+PMDao <-- DbConn : connection
+PMDao -> DbConn : perpareStatement(sql)
+PMDao -> DbConn : setString(1, searchProdID)
+PMDao -> DbConn : executeQuery()
+PMDao <-- DbConn : getters retrieve product details
+PMDao -> DbConn : setters set product details
+ViewProducts <-- PMDao : product searched for (p)
+ViewProducts -> ViewProducts : updateItems(returnedProduct)
+User <-- ViewProducts : waiting for further user action
+
+@enduml
+```

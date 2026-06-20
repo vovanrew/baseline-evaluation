@@ -1,0 +1,21 @@
+{
+  "id": "msg_018fHqGJpHSEq4JgD8nmd7B9",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Capture Credit Card Payment\n\nparticipant \"Client\" as Client\nparticipant \"Shop\" as Shop\nparticipant \"PAYONE\" as PAYONE\n\nClient -> Shop : POST prepare.php\nShop --> Client : 302 capture.php\nClient -> Shop : GET capture.php\n\nalt [No Pseudo Card PAN present]\n    Shop --> Client : 200 Credit Card Form\n    Client -> PAYONE : POST Card PAN\n    PAYONE --> Client : 200 Pseudo Card PAN\n    Client -> Shop : POST capture.php\nend\n\nShop -> PAYONE : POST request=authorization\n\nalt [With 3-D Secure]\n    PAYONE --> Shop : 302 3-D Secure Form\n    Shop --> Client : 302 3-D Secure Form\n    Client -> PAYONE : POST 3-D Secure Password\n    PAYONE -> Shop : POST notify.php txaction=appointed\n    Shop -> Shop : Set Payment Status to \"captured\"\n    Shop --> PAYONE : 200 TSOK\n    PAYONE --> Client : 302 done.php\nelse [No 3-D Secure]\n    PAYONE --> Shop : 200 status=APPROVED\n    Shop -> Shop : Set Payment Status to \"pending\"\n    Shop --> Client : 302 done.php\nend\n\nClient -> Shop : GET done.php\nShop --> Client : 200 Thanks\n\nalt [No 3-D Secure]\n    ... some time later ...\n    PAYONE -> Shop : POST notify.php txaction=appointed transaction_status=completed\n    Shop -> Shop : Set Payment Status to \"captured\"\n    Shop --> PAYONE : 200 TSOK\nend\n\n... some time later ...\nPAYONE -> Shop : POST notify.php txaction=paid\nShop --> PAYONE : 200 TSOK\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432666,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 443,
+    "prompt_tokens": 1664,
+    "total_tokens": 2107
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "caf40897-01b7-4d50-912a-adf8a16e6533",
+  "object": "chat.completion",
+  "created": 1781502340,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\nactor \"Administrative\" as admin\nparticipant \":AddScooterUI\" as ui\nparticipant \":AddScooterController\" as controller\nparticipant \":Pharmacy\" as pharmacy\nparticipant \"ls:ListScooters\" as list\nparticipant \"sc:Scooter\" as scooter\nparticipant \"bat:Battery\" as battery\ndatabase \"scdb:ScooterDB\" as scooterDB\ndatabase \"batdb:BatteryDB\" as batteryDB\n\nadmin -> ui : 1 begins the process of adding a scooter\nactivate ui\nui --> admin : 2 asks for the necessary data(id_Scooter, qrCode, status, id_Battery, capacity)\nadmin -> ui : 3 inserts the solicited data\nui -> controller : 4 newScooter(id_Scooter, qrCode, status, id_Battery, capacity)\nactivate controller\ncontroller -> pharmacy : 5 ls = getListScooters()\nactivate pharmacy\npharmacy --> controller : \ndeactivate pharmacy\ncontroller -> list : 6 sc=newScooter(id_Scooter, qrCode, status, id_Battery, capacity)\nactivate list\nlist -> scooter : 7 create(id_Scooter, qrCode, status, id_Battery, capacity)\nactivate scooter\nscooter -> battery : 8 create(id_Battery, capacity)\nactivate battery\nbattery -> battery : 9 validateBattery(bat)\ndeactivate battery\ndeactivate scooter\nlist --> controller : \ndeactivate list\ncontroller -> list : 10 validateScooter(sc)\nactivate list\nlist --> controller : \ndeactivate list\ncontroller --> ui : \ndeactivate controller\nui --> admin : 11 validates the data, presents it and asks the administrator for its confirmation\nadmin -> ui : 12 confirms\nui -> controller : 13 registerScooter()\nactivate controller\ncontroller -> list : 14 registerScooter(sc)\nactivate list\nlist -> list : 15 validateScooter(sc)\nlist -> list : 16 addScooters(sc)\nlist -> scooter : 17 save(sc)\nactivate scooter\nscooter -> scooterDB : 18 save(sc)\nactivate scooterDB\nscooterDB --> scooter : \ndeactivate scooterDB\nscooter -> batteryDB : 19 save(bat)\nactivate batteryDB\nbatteryDB --> scooter : \ndeactivate batteryDB\ndeactivate scooter\nlist --> controller : \ndeactivate list\ncontroller --> ui : \ndeactivate controller\nui --> admin : 20 adds the scooter to a list of scooters\ndeactivate ui\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1027,
+    "completion_tokens": 567,
+    "total_tokens": 1594
+  }
+}

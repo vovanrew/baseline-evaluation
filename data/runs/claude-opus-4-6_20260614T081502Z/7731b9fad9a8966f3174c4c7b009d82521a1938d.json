@@ -1,0 +1,21 @@
+{
+  "id": "msg_013PhncSsHdQikz1oHbJ2gTL",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor User\nparticipant JobManager\nparticipant Nodes\nparticipant ESDM\nparticipant \"Post Processing Library\" as PPL\ndatabase Storage\n\nUser -> JobManager : submit job(IN, OUT)\n\n== Initialization ==\n\nNodes -> Storage : read IN=x\nStorage --> Nodes : return\n\n== Loop ==\n\nNodes -> Nodes : compute\nNodes -> ESDM : write async OUT=y\nESDM -> Storage : write snapshot (async)\nESDM -> PPL : trigger post processing if region effected\n\ngroup In Situ Post Processing\n    PPL -> PPL : perform post processing\n    PPL -> Storage : (could write result directly)\n    PPL --> ESDM : return\n    ESDM -> Storage : write post processing result\nend\n\nESDM --> Nodes : return\nNodes --> User : OUT files become visible\n\nnote over ESDM : multiple iterations\n\n== Finalize ==\n\nNodes --> User : All OUT files become visible to subsequent users.\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781430417,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 248,
+    "prompt_tokens": 1654,
+    "total_tokens": 1902
+  }
+}

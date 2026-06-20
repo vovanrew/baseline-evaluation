@@ -1,0 +1,100 @@
+```plantuml
+@startuml
+
+title Keyple 2.0 - Adapter of keyple-service-resource-java-lib - 2.0.0 (21/06/2021)
+
+legend top
+  Colors legend :
+  * External public API references :
+  * <color:green>calypsonet-terminal-reader-java-api</color>
+  * <color:red>keyple-service-java-lib</color>
+end legend
+
+package "org.eclipse.keyple.core.service.resource" {
+
+  class "final CardResourceServiceProvider" as CardResourceServiceProvider <<C>> {
+    ...
+  }
+
+  class "<<CardResourceService>>\n<<PluginObserverSpi>>\n<<CardReaderObserverSpi>>\nfinal CardResourceServiceAdapter" as CardResourceServiceAdapter <<C>> {
+    .. CardResourceServiceAdapter getInstance () ..
+    .. String getCardResourceInfo (CardResource cardResource) ..
+    --
+    .. ReaderManagerAdapter getReaderManager (<color:green>Reader</color> reader) ..
+    .. void registerPoolCardResource (CardResource cardResource, <color:red>PoolPlugin</color> poolPlugin) ..
+    .. void configure (CardResourceServiceConfiguratorAdapter configurator) ..
+    == CardResourceService ==
+    ◇ CardResourceServiceConfigurator getConfigurator()
+    ◇ MinimalCardResourceServiceConfigurator getMinimalConfigurator()
+    ◇ void start ()
+    ◇ void stop ()
+    ◇ CardResource getCardResource (String cardResourceProfileName)
+    ◇ CardResource getCardResource ()
+    ◇ void releaseCardResource (CardResource cardResource)
+    ◇ void removeCardResource (CardResource cardResource)
+    == PluginObserverSpi ==
+    ◇ void onPluginEvent (<color:green>PluginEvent</color> pluginEvent)
+    == CardReaderObserverSpi ==
+    ◇ void onReaderEvent (<color:green>CardReaderEvent</color> readerEvent)
+  }
+
+  CardResourceServiceProvider ..> CardResourceServiceAdapter : ▼ provide
+
+  class "final CardProfileManagerAdapter" as CardProfileManagerAdapter <<C>> {
+    ▲ CardProfileManagerAdapter(CardProfile cardProfile,\n    CardResourceServiceConfiguratorAdapter globalConfiguration)
+    --
+    ◇ void removeCardResource (CardResource cardResource)
+    ◇ void onReaderConnected (ReaderManagerAdapter readerManager)
+    ◇ void onCardInserted (ReaderManagerAdapter readerManager)
+    ◇ CardResource getCardResource ()
+  }
+
+  class "▲ final ReaderManagerAdapter" as ReaderManagerAdapter <<C>> {
+    ▲ ReaderManagerAdapter (<color:green>Reader</color> reader, <color:red>Plugin</color> plugin,\n    ReaderConfiguratorSpi readerConfiguratorSpi, int usageTimeoutMillis)
+    --
+    ● <color:green>Reader</color> getReader ()
+    ▲ <color:red>Plugin</color> getPlugin ()
+    ▲ Set<CardResource> getCardResources ()
+    ▲ boolean isActive ()
+    --
+    ▲ void activate ()
+    ▲ CardResource matches (CardResourceProfileExtension extension)
+    ▲ boolean lock (CardResource cardResource, CardResourceProfileExtension extension)
+    ▲ void unlock ()
+    ▲ void removeCardResource (CardResource cardResource)
+  }
+
+  class "<<CardResource>>\nfinal CardResourceAdapter" as CardResourceAdapter <<C>> {
+    ▲ CardResource (<color:green>CardReader</color> reader, <color:green>SmartCard</color> smartCard)
+    == CardResource ==
+    ● <color:green>CardReader</color> getReader ()
+    ● <color:green>SmartCard</color> getSmartCard ()
+  }
+
+  class "<<CardResourceServiceConfigurator>>\n<<MinimalCardResourceServiceConfigurator>>\n<<AllocationStrategyStep>>\n<<UsageTimeoutStep>>\n<<PluginStep>>\n<<PluginMonitoringStep>>\n<<PoolAllocationStrategyStep>>\n<<PoolPluginStep>>\n<<AllocationTimingParameterStep>>\n<<ProfileStep>>\n<<ProfileParameterStep>>\n<<ConfigurationStep>>\nfinal CardResourceServiceConfiguratorAdapter" as CardResourceServiceConfiguratorAdapter <<C>> {
+    ▲ CardResourceServiceConfiguratorAdapter ()
+    == CardResourceServiceConfigurator ==
+    ...
+    == MinimalCardResourceServiceConfigurator ==
+    ...
+  }
+
+  CardResourceServiceAdapter "1" -- "1..N" CardProfileManagerAdapter
+  CardResourceServiceAdapter "1" -- "0..N" ReaderManagerAdapter
+  CardResourceServiceConfiguratorAdapter "1" -- CardProfileManagerAdapter
+
+  CardProfileManagerAdapter ..> CardResourceAdapter : ▲ create for pool plugin
+  ReaderManagerAdapter ..> CardResourceAdapter : ▲ create for regular plugin
+
+  CardProfileManagerAdapter "0..N" -- CardResourceAdapter
+  ReaderManagerAdapter "0..N" -- CardResourceAdapter
+}
+
+class "CardResourceServiceAdapter" as ExtCardResourceServiceAdapter <<C>> #white
+class "CardResourceAdapter" as ExtCardResourceAdapter <<C>> #white
+class "CardResourceServiceConfiguratorAdapter" as ExtCardResourceServiceConfiguratorAdapter <<C>> #white
+class "ReaderManagerAdapter" as ExtReaderManagerAdapter <<C>> #white
+class "CardProfileManagerAdapter" as ExtCardProfileManagerAdapter <<C>> #white
+
+@enduml
+```

@@ -1,0 +1,37 @@
+@startuml
+participant "User Agent" as UA
+participant "Content Upload API" as API
+participant "Content database" as DB
+participant "CAFF Parser" as Parser
+
+UA -> API : Upload request (HTTP POST), contains a single CAFF file in its body.
+
+note right of API
+MUST also include a CSRF token to prevent users of other, potentially XSS vulnerable sites to take part in a massive distributed spam or DoS operation.
+end note
+
+API -> Parser : Validate upload request
+Parser -> API : Return result
+
+alt [Failed to validate uploaded content]
+    API -> UA : Return an HTTP status code that signals validation failure.
+    exact value depends on how the validation failed.
+    alt [Request is deemed valid]
+        API -> DB : Store content in database
+        DB -> API : Return result of request
+        alt [Upload succeeded]
+            API -> UA : Return HTTP 201 Created
+            API -> UA : Return HTTP status code signaling the reason for failure.
+        end alt
+    end alt
+end alt
+
+note right of API
+Uploads should be validated by at LEAST:
+* Content-Size header against max file size.
+* All size fields against their respective supported bounds.
+* Structure of all fields match expectations from the spec.
+* Number of bytes from the upload matches number of bytes expected from in-file metadata.
+end note
+
+@enduml

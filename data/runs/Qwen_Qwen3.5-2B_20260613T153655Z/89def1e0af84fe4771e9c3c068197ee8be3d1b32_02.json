@@ -1,0 +1,22 @@
+{
+  "id": "49d10042-847f-4215-b72c-36b18f532cc4",
+  "object": "chat.completion",
+  "created": 1781396928,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam UMLSequenceDiagram arrowStyle solid\nskinparam ActorActorStyle circle\n\ntitle \"Scheduled Events\"\n\nparticipant \"Recording Staff\" as RecordingStaff\nparticipant \"Coach\" as Coach\nparticipant \"IP/Mobile Cams\" as IPMobileCams\nparticipant \"Consumer Apps\" as ConsumerApps\nparticipant \"Security Gateway\" as SecurityGateway\nparticipant \"Control Domain (win10/linux)\" as ControlDomain\nparticipant \"Streaming Service (encoder)\" as StreamingService\nparticipant \"Media (medialID)\" as Media\nparticipant \"Transfer Service\" as TransferService\n\nactor RecordingStaff\nactor Coach\n\nparticipant IPMobileCams\nparticipant ConsumerApps\nparticipant SecurityGateway\nparticipant ControlDomain\nparticipant StreamingService\nparticipant Media\nparticipant TransferService\n\nRecordingStaff ->> ControlDomain : authenticate(ID)\nControlDomain -- ConsumerApps : return(token)\n\nConsumerApps ->> SecurityGateway : register(endpoint)\nSecurityGateway ->> ControlDomain : register(token, priority)\nControlDomain ->> StreamingService : host(sources{endpoints})\nStreamingService ->> ControlDomain : create(newEvent)\n\nControlDomain ->> RecordingStaff : start(newEvent)\nRecordingStaff ->> ControlDomain : stop(newEvent)\n\nControlDomain ->> StreamingService : encode()\nStreamingService ->> ControlDomain : notify(recording)\n\nControlDomain ->> StreamingService : saveAs(medialID)\nStreamingService ->> Media : save(medialID)\nMedia -- ControlDomain : host(medialID, consumers{token, priority})\nControlDomain ->> TransferService : host(medialID, consumers{token, priority})\nTransferService ->> ControlDomain : notify(newMediaAvailable, medialID, transferServiceEndpoint)\n\nControlDomain alt [auto-download enabled]\nControlDomain ->> TransferService : fetchMedia(token, medialID)\nTransferService ->> ControlDomain : returnByPriority(mediaStream)\nControlDomain else [manual-download enabled]\nControlDomain ->> ConsumerApps : showMedia(token)\nConsumerApps ->> ControlDomain : fetchMedia(token, medialID)\nControlDomain ->> StreamingService : returnByPriority(mediaStream)\n@endalt\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1762,
+    "completion_tokens": 456,
+    "total_tokens": 2218
+  }
+}

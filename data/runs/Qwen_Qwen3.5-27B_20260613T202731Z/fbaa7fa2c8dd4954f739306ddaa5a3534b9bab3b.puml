@@ -1,0 +1,108 @@
+```plantuml
+@startuml
+title Project - Staff - Update
+
+participant "Client" as Client
+participant "ProjectService" as ProjectService
+participant "RedisCache" as RedisCache
+participant "Kafka" as Kafka
+participant "PersisterService" as PersisterService
+participant "IndexerService" as IndexerService
+participant "ErrorService" as ErrorService
+participant "ElasticSearch" as ElasticSearch
+database "Database" as Database
+
+== Request Validation ==
+Client -> ProjectService: /project/staff/v1/_update
+activate ProjectService
+ProjectService -> ProjectService: Validate request body
+
+alt [request validation fails]
+    ProjectService -> ProjectService: Request validation failed
+    ProjectService --> Client: HttpStatus: 400 with appropriate error code
+    note left of Client: Error Code: REQUEST_VALIDATION_FAILED
+else
+    ProjectService -> ProjectService: Request validation successful
+end
+deactivate ProjectService
+
+== Record Existence Check ==
+activate ProjectService
+alt [record doesn't exist]
+    ProjectService -> RedisCache: Search record based on serverGeneratedId
+    activate RedisCache
+    RedisCache --> ProjectService: 0 rows
+    deactivate RedisCache
+    
+    ProjectService -> Database: Search record based on serverGeneratedId
+    activate Database
+    Database --> ProjectService: 0 row
+    deactivate Database
+    
+    ProjectService --> Client: HttpStatus: 400 with appropriate error code
+    note left of Client: Error Code: RECORD_NOT_FOUND
+else
+    alt [record doesn't exists in cache]
+        ProjectService -> RedisCache: Search record based on serverGeneratedId
+        activate RedisCache
+        RedisCache --> ProjectService: 0 rows
+        deactivate RedisCache
+        
+        ProjectService -> Database: Search record based on serverGeneratedId
+        activate Database
+        Database --> ProjectService: 1 row
+        deactivate Database
+        
+        ProjectService -> RedisCache: 1 record
+        activate RedisCache
+        deactivate RedisCache
+    end
+    
+    ProjectService -> RedisCache: Fetch the existing record
+    activate RedisCache
+    RedisCache --> ProjectService: 1 row
+    deactivate RedisCache
+end
+
+== Version Check and Update ==
+alt [incorrect rowVersion]
+    ProjectService -> ProjectService: Compare rowVersion between request and db
+    ProjectService -> ProjectService: Incorrect rowVersion [request: should be +1 only]
+    ProjectService --> Client: HttpStatus: 400 with appropriate error code
+    note left of Client: Error Code: BAD_REQUEST
+else
+    ProjectService -> ProjectService: Compare rowVersion between request and db
+    ProjectService -> ProjectService: rowVersion in request = rowVersion in db + 1
+    
+    ProjectService -> Kafka: Project Staff Data /update_topic
+    activate Kafka
+    
+    ProjectService -> RedisCache: Update new record in cache against serverGeneratedId
+    activate RedisCache
+    deactivate RedisCache
+    
+    ProjectService --> Client: HttpStatus: 202 ACCEPTED
+    deactivate ProjectService
+    
+    async
+        Kafka -> PersisterService: Consume Project Staff Data
+        activate PersisterService
+        Kafka -> IndexerService: Consume Project Staff Data
+        activate IndexerService
+        
+        IndexerService -> ElasticSearch: Store Project Staff Data
+        activate ElasticSearch
+        deactivate ElasticSearch
+        
+        PersisterService -> Database: Update Project Staff Data
+        activate Database
+        deactivate Database
+        
+        deactivate IndexerService
+        deactivate PersisterService
+    end
+    deactivate Kafka
+end
+
+@enduml
+```

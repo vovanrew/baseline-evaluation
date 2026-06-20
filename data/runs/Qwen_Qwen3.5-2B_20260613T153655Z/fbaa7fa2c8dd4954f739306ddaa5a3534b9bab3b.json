@@ -1,0 +1,22 @@
+{
+  "id": "6f094148-c433-4607-a7a3-0067cf39ab49",
+  "object": "chat.completion",
+  "created": 1781404632,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Project - Staff - Update\n\nparticipant \"Client\" as Client\nparticipant \"ProjectService\" as ProjectService\nparticipant \"RedisCache\" as RedisCache\nparticipant \"Kafka\" as Kafka\nparticipant \"PersisterService\" as PersisterService\nparticipant \"IndexerService\" as IndexerService\nparticipant \"ErrorService\" as ErrorService\nparticipant \"ElasticSearch\" as Elasticsearch\nparticipant \"Database\" as Database\n\nClient ..> ProjectService : /project/staff/v1/_update\n\nalt request validation fails\n    ProjectService -> Client : Request validation failed\n    ProjectService -> Client : HttpStatus: 400 with appropriate error code\nelse\n    alt record doesn't exist\n        ProjectService -> RedisCache : Search record based on serverGeneratedId\n        RedisCache -> ProjectService : 0 rows\n        ProjectService -> RedisCache : Search record based on serverGeneratedId\n        RedisCache -> ProjectService : 0 row\n        ProjectService -> Client : Error Code: RECORD_NOT_FOUND\n        ProjectService -> Client : HttpStatus: 400 with appropriate error code\n    else\n        alt record doesn't exists in cache\n            ProjectService -> RedisCache : Search record based on serverGeneratedId\n            RedisCache -> ProjectService : 0 rows\n            ProjectService -> RedisCache : Search record based on serverGeneratedId\n            RedisCache -> ProjectService : 1 row\n            ProjectService -> RedisCache : 1 record\n        else\n            alt incorrect rowVersion\n                ProjectService -> RedisCache : Compare rowVersion between request and db\n                RedisCache -> ProjectService : Incorrect rowVersion [request: should be +1 only]\n                ProjectService -> Client : Error Code: BAD_REQUEST\n                ProjectService -> Client : HttpStatus: 400 with appropriate error code\n            else\n                ProjectService -> RedisCache : Compare rowVersion between request and db\n                RedisCache -> ProjectService : rowVersion in request = rowVersion in db + 1\n                ProjectService -> RedisCache : Project Staff Data /update_topic\n                ProjectService -> Kafka : Update new record in cache against serverGeneratedId\n                ProjectService -> Client : HttpStatus: 202 ACCEPTED\n            end\n        end\n    end\nend\n\nasync\n    ProjectService -> RedisCache : Consume Project Staff Data\n    RedisCache -> ProjectService : Consume Project Staff Data\n    ProjectService -> PersisterService : Store Project Staff Data\n    PersisterService -> Elasticsearch : Update Project Staff Data\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2056,
+    "completion_tokens": 531,
+    "total_tokens": 2587
+  }
+}

@@ -1,0 +1,31 @@
+```plantuml
+@startuml
+skinparam boxPadding 10
+skinparam participantPadding 20
+
+participant snap
+
+box "SnapHelper" #LightBlue
+participant "OnFlingListener" as OnFlingListener << (C,#ADD1B2) >>
+participant "OnScrollListener" as OnScrollListener << (C,#ADD1B2) >>
+participant "SnapHelper" as SnapHelper << (C,#ADD1B2) >>
+participant "LinearSmoothScroller" as LinearSmoothScroller << (C,#ADD1B2) >>
+end box
+
+activate snap #FFC0CB
+
+OnFlingListener --> OnFlingListener : onFling
+OnFlingListener -> SnapHelper : snapFromFling
+SnapHelper -> snap : findTargetSnapPosition
+SnapHelper -> LinearSmoothScroller : createSnapScroller
+LinearSmoothScroller --> SnapHelper : onTargetFound
+SnapHelper -> snap : calculateDistanceToFinalSnap
+
+OnScrollListener --> OnScrollListener : onScrollStateChanged
+OnScrollListener -> SnapHelper : snapToTargetExistingView
+SnapHelper -> snap : findSnapView
+SnapHelper -> snap : calculateDistanceToFinalSnap
+
+deactivate snap
+@enduml
+```

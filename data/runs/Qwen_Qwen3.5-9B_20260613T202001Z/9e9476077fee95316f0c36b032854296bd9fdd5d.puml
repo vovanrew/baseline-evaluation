@@ -1,0 +1,40 @@
+@startuml
+title Sequence Diagram: Internal state synchronization
+
+package "Internal Service" {
+  participant Sender
+  participant IoTClient
+  participant ShadowCallback
+}
+
+package "AWS Cloud" {
+  participant ShadowService
+}
+
+Sender -> IoTClient: connect()
+IoTClient -> ShadowCallback: on_conncet_wrapper()
+ShadowCallback --> IoTClient: subscribe("AWS Shadow Topics")
+IoTClient -> ShadowCallback: subscribe()
+IoTClient -> ShadowService: subscribe()
+IoTClient -> ShadowCallback: on_subscribe_wrapper()
+ShadowCallback -> ShadowCallback: request_desired_state()
+
+note over ShadowCallback, ShadowService: state retrival
+
+IoTClient -> ShadowService: publish("myClient/shadow/get")
+activate IoTClient
+ShadowCallback -> ShadowService: publish("myClient/shadow/get")
+ShadowService --> IoTClient: on_message("myClient/shadow/get/accepted", state)
+IoTClient -> ShadowCallback: on_message_wrapper(rawState)
+ShadowCallback -> ShadowCallback: on_desired_state_change(rawState)
+
+note over ShadowCallback, ShadowService: state synchronization
+
+ShadowCallback --> Sender: set_state(desiredState)
+ShadowCallback -> ShadowCallback: on_set_state_wrapper()
+ShadowCallback -> ShadowCallback: publish_new_state()
+ShadowCallback -> IoTClient: publish("myClient/shadow/update", reportedState)
+activate ShadowCallback
+ShadowCallback -> ShadowService: publish("myClient/shadow/update", state)
+
+@enduml

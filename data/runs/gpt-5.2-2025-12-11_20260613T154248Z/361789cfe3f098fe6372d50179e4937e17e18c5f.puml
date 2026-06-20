@@ -1,0 +1,117 @@
+@startuml
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "UI" as UI {
+  class RegisterPharmacyUI <<C>>
+}
+
+package "Data" as DATA {
+  class DataHandler_Data <<C>> as DH_DATA {
+    +openConnection()
+    +closeAll()
+  }
+
+  class PharmacyDB_Data <<C>> as PDB_DATA {
+    +PharmacyDB()
+    +registerPharmacy()
+  }
+}
+
+package "Controller" as CTRL {
+  class RegisterPharmacyController <<C>> as RPC {
+    +newPharmacy(managerName,email,password, nif, name,latitude,longitude,\nstreetName,doorNumber,postalCode,locality,country)
+    +registerPharmacy()
+  }
+}
+
+package "Model" as MODEL {
+  package "Service" as SERVICE {
+    class PharmacyService <<C>> as PS {
+      +PharmacyService()
+      +addPharmacy(name, pharmacyManager,latitude,longitude,\nstreetName,doorNumber,postalCode,locality,country)
+      +registerPharmacy()
+    }
+  }
+
+  class Pharmacy <<C>> as PH {
+    -int id
+    -String name
+    -String email
+  }
+
+  class Address <<C>> as ADDR {
+    -String streetName
+    -String doorNumber
+    -String postalCode
+    -String locality
+    -String country
+    -float longitude
+    -float latitude
+  }
+
+  class ScooterPark <<C>> as SP {
+    -int maxSlotsNumber
+  }
+
+  class DronePark <<C>> as DP {
+    -int maxSlotsNumber
+  }
+
+  class ScooterChargingSlot <<C>> as SCS {
+    -int id
+    -float outputPower
+  }
+
+  class ScooterParkingSlot <<C>> as SPS {
+    -int id
+  }
+
+  class DroneChargingSlot <<C>> as DCS {
+    -int id
+    -float outputPower
+  }
+
+  class DroneParkingSlot <<C>> as DPS {
+    -int id
+  }
+}
+
+class DataHandler <<C>> as DH
+class PharmacyDB <<C>> as PDB
+database "Database" as DB
+
+RegisterPharmacyUI ..> RPC
+
+RPC ..> PS
+
+PS "1" --> "1" PDB : uses
+
+PDB -|> DH
+
+PDB --> DB : manages
+
+PS "1" --> "*" PH : manages services of
+
+PH "1" --> "1" ADDR : has
+PH "1" --> "*" SP : has
+PH "1" --> "*" DP : has
+
+SP "1" --> "*" SCS : has
+SP "1" --> "*" SPS : has
+
+DP "1" --> "*" DCS : has
+DP "1" --> "*" DPS : has
+
+DB "1" <-- "*" PH : has registered
+DB "1" <-- "*" ADDR : has registered
+DB "1" <-- "*" SP : has registered
+DB "1" <-- "*" DP : has registered
+DB "1" <-- "*" SCS : has registered
+DB "1" <-- "*" SPS : has registered
+DB "1" <-- "*" DCS : has registered
+DB "1" <-- "*" DPS : has registered
+
+@enduml

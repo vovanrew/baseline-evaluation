@@ -1,0 +1,25 @@
+@startuml
+participant "MobileApp" as MobileApp1
+participant "MobileApp" as MobileApp2
+participant "Apollo" as Apollo
+participant "Storage" as Storage
+participant "Ironclad" as Ironclad
+participant "Onfido" as Onfido
+
+MobileApp1 -->|Any proof of XYZ or document related call that could result in a call to Onfido| Apollo
+
+Apollo -->|GetLocalApplicant(sub)| Storage
+
+alt [when the user was previously provisioned as an onfido applicant]
+    Apollo -->|Applicant { Id = sub; ApplicantId = OnfidoApplicantId; }| Storage
+    alt [when the user was not previously provisioned]
+        Storage -->|null| Apollo
+        Apollo -->|GetUserInfo(sub)| Ironclad
+        Ironclad -->|Claims[] { ... }| Apollo
+        Apollo -->|POST https://api.onfido.com/v2/applicants| Ironclad
+        Ironclad -->|200 Applicant { Id = applicantId; [...]}| Apollo
+        Apollo -->|Applicant { Id = sub, ApplicantId = onfidoApplicantId}| Storage
+    end
+end
+
+@enduml

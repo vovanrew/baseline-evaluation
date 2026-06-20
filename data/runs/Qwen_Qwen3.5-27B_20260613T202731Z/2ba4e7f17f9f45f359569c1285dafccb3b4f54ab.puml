@@ -1,0 +1,35 @@
+```plantuml
+@startuml
+skinparam componentStyle rectangle
+
+actor "SecurityEngineer" as se1
+circle "EventBus" as eb1
+rectangle "Security Profile Manager" as spm {
+  interface "spm" as spm_interface
+}
+rectangle "Software Defined Infrastructure" as sdi {
+  box "storageresource" as sr1
+  box "securityprofile" as sp1
+}
+
+se1 -> spm : Monitor Security Profile
+activate spm
+spm -> sdi : create (name: secProfileMSP, file: ./templates/secprofile.yml)
+deactivate spm
+sdi --> eb1 : securityprofile.create
+
+spm -> sdi : status (name: secProfileMSP)
+sdi --> eb1 : securityprofile.status
+
+actor "SecurityEngineer" as se2
+circle "EventBus" as eb2
+rectangle "Security Profile Manager" as spm2 {
+  interface "spm" as spm_interface2
+}
+rectangle "Software Defined Infrastructure" as sdi2 {
+  box "storageresource" as sr2
+  box "securityprofile" as sp2
+}
+
+@enduml
+```

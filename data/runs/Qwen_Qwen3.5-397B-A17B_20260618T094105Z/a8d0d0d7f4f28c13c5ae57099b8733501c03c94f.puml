@@ -1,0 +1,23 @@
+@startuml
+title Fabric Private Chaincode - Enclave registry – Current approach
+
+actor Admin
+participant ECC #LightBlue
+participant ERCC #LightGreen
+database IAS #OrangeRed
+rectangle Orderer { } 
+rectangle Peers  { 
+
+note right of Drawbacks :Drawbacks\n- Single-endorsor policy only + Custom validation at every peer \n-ERCC must contact IAS (Internet connection and IAS credentials needed)\n-Current impl: No way to securely pass credentials to ERCC only\n-for EPID attestation SPID is needed when quote is created (ECC must provide this)
+
+
+frame "instantiation" as f1{Admin -> ECC: install;Admin->ECC:instantiate(expected_mrenclaves);activate ECC ;putState(ecc.MRENCLAVE,expected_mrenclaves)<-- deactivate ECC;return success/error}
+
+
+
+f2:"register new enclave"{setup --> create:ECC_Enclave:getQuote(SPID)-->:quote,ECC_s_pk; register(quote,ECC_s_pk):send quote-->IAS<--Attestation; putstate(ercc.ECC_S_PK , Attestion)}
+
+
+
+
+box ""Orderer"" rectangle r3{"broadcast block"}end box'Peers''Validation'''submit setup transactionwhen next block readyr4:'Normal ValidationCustom ERCV_VSCCvalidation':>ERC_CVSVCget state ecc.mrencalvecheck attestationsignature checkattestatioon eec s pk mrenalce@enduml

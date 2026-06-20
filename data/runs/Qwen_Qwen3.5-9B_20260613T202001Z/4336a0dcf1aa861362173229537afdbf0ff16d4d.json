@@ -1,0 +1,22 @@
+{
+  "id": "73504760-3ab8-4858-b2a2-ecd25db32d1d",
+  "object": "chat.completion",
+  "created": 1781414852,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"Member\" as Member\nparticipant \":TicketDetailPage\" as TicketDetailPage\nparticipant \":TicketDetailContainer\" as TicketDetailContainer\nparticipant \":AttendanceService (Frontend)\" as AttendanceServiceFrontend\nparticipant \":Router\" as Router\nparticipant \":AttendanceHTTPTransport\" as AttendanceHTTPTransport\nparticipant \":AttendanceEndpoint\" as AttendanceEndpoint\nparticipant \":AttendanceService\" as AttendanceService\nparticipant \":RequesterService\" as RequesterService\nparticipant \":AttendanceCommand\" as AttendanceCommand\nparticipant \":AttendanceQuery\" as AttendanceQuery\n\nMember -> TicketDetailPage : Click \"Yes\" Button\nTicketDetailPage -> TicketDetailContainer : handleConfirmation(input)\nTicketDetailContainer -> AttendanceServiceFrontend : confirmAttendance(classId, payload)\nAttendanceServiceFrontend -> Router : route(\"PATCH\", \"/v2/class/{class_id}/attendance/confirmation\")\nRouter -> AttendanceService : Confirmation/AttendanceService, {IServerOption}\nAttendanceService -> AttendanceEndpoint : Confirmation(context, payload)\nAttendanceEndpoint -> AttendanceService : Validate()\n\nalt \"Data Valid?\"\nAttendanceService -> AttendanceQuery : GetPureModel(context, {ISliceCondition})\nAttendanceQuery --> AttendanceService : ticket\n\nalt \"Ticket Status is Accepted\"\nAttendanceService -> AttendanceCommand : Register(context, {Ipayload})\nAttendanceCommand --> AttendanceService : is updated\nAttendanceService -> AttendanceCommand : UpdateRequestStatus(context, ticket)\nAttendanceCommand --> AttendanceService : is updated\nAttendanceService -> AttendanceEndpoint : is updated\nAttendanceEndpoint -> AttendanceHTTPTransport : response := Response(is updated, nil)\nAttendanceHTTPTransport -> Router : response\nRouter -> AttendanceServiceFrontend : response\nAttendanceServiceFrontend -> TicketDetailContainer : response\nTicketDetailContainer -> Member : response\nelse\nAttendanceService -> AttendanceEndpoint : UnprocessableEntity\nAttendanceEndpoint -> AttendanceHTTPTransport : UnprocessableEntity\nAttendanceHTTPTransport -> Router : UnprocessableEntity\nRouter -> AttendanceServiceFrontend : UnprocessableEntity\nAttendanceServiceFrontend -> TicketDetailContainer : UnprocessableEntity\nTicketDetailContainer -> Member : UnprocessableEntity\nend\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1076,
+    "completion_tokens": 438,
+    "total_tokens": 1514
+  }
+}

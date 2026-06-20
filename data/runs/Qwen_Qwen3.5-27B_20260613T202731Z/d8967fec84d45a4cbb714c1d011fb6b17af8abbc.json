@@ -1,0 +1,22 @@
+{
+  "id": "f51def98-d548-48f3-bbdf-6637487fb15e",
+  "object": "chat.completion",
+  "created": 1781479534,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle US016 \u2013 As Director/PM/PO/SM, I want to view status of activities in a project\n\npackage \"Controller\" {\n    class TaskUI <<C>>\n    class TaskController <<C>> {\n        + getStatusOfActivitiesInProject(String projectID)\n    }\n}\n\npackage \"Service\" {\n    class TaskService <<C>> {\n        + getStatusOfActivities(String projectID)\n        - getCurrentSprintID(projectID)\n        - getSbiIds(projectID, sprintID)\n        - getTasks(sbiIDs)\n    }\n}\n\npackage \"Repository\" {\n    class SprintRepository <<C>> {\n        + findCurrentSprintInProject(String projectID)\n    }\n    class SprintBacklogItemRepository <<C>> {\n        + findSprintBacklogItemsInSprint(String projID, String sprintID)\n    }\n    class TaskRepository <<C>> {\n        + findAllByContainerID(SprintBacklogItemID sbiID)\n    }\n}\n\npackage \"Mapper\" {\n    class TaskMapper <<C>> {\n        + statusListToDTO(List<Task> tasks)\n        - statusToDTO(Task task)\n    }\n}\n\npackage \"Domain\" {\n    class Task <<C>> {\n        - taskId : TaskID\n        - taskContainerID : TaskContainerID\n        - status : TaskStatus\n        - percentageOfExecution : Percentage\n        - taskDescription : TaskDescription\n        + getTaskID()\n        + getTaskContID()\n        + getStatus()\n        + getPercentageOfExecution()\n    }\n    \n    class SprintBacklogItemID <<C>> {\n        - sbiID : UUID\n        + getID()\n    }\n    \n    interface TaskContainerID <<I>> {\n        - taskContainerID : UUID\n        + getID()\n    }\n}\n\npackage \"DTO\" {\n    class TaskDTO <<C>> {\n        - taskId : String\n        - taskContainerID : String\n        - status : String\n        - percentageOfExecution : int\n        + setTaskID()\n        + setTaskContainerID()\n        + setStatus()\n        + setPercentageOfExecution()\n    }\n}\n\n' Relationships\nTaskUI --> TaskController\nTaskController ..> TaskService\nTaskService ..> SprintRepository\nTaskService ..> SprintBacklogItemRepository\nTaskService ..> TaskRepository\nTaskService ..> TaskMapper\nTaskMapper ..> TaskDTO\nTaskService ..> Task\nTask ..|> TaskContainerID\nTask ..> SprintBacklogItemID\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1321,
+    "completion_tokens": 576,
+    "total_tokens": 1897
+  }
+}

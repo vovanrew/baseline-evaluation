@@ -1,0 +1,116 @@
+@startuml
+participant FragmentVideoChat as FragmentVideoChat
+participant LicodeConnector as LicodeConnector
+participant PeerConnectionFactory as PeerConnectionFactory
+participant RoomObserver as RoomObserver
+participant MediaStream as MediaStream
+participant PeerConnection as PeerConnection
+participant StreamDescription as StreamDescription
+participant LicodeSdpObserver as LicodeSdpObserver
+participant LicodeServer as LicodeServer
+participant SocketIOClient as SocketIOClient
+
+participant LicodeConnector as LicodeConnector
+participant PeerConnectionFactory as PeerConnectionFactory
+participant RoomObserver as RoomObserver
+participant MediaStream as MediaStream
+participant PeerConnection as PeerConnection
+participant StreamDescription as StreamDescription
+participant LicodeSdpObserver as LicodeSdpObserver
+participant LicodeServer as LicodeServer
+participant SocketIOClient as SocketIOClient
+
+init
+    FragmentVideoChat --> LicodeConnector : configureConnector
+    FragmentVideoChat --> LicodeConnector : init
+    FragmentVideoChat --> RoomObserver : addObserver(RoomObserver)
+
+Publish
+    FragmentVideoChat --> LicodeConnector : startCastView.onClick
+    FragmentVideoChat --> LicodeConnector : requestPublish
+    LicodeConnector --> PeerConnectionFactory : triggerPublishAllowed
+    PeerConnectionFactory --> LicodeConnector : onPublishAllowed
+    FragmentVideoChat --> LicodeConnector : startPublish
+    FragmentVideoChat --> LicodeConnector : makeVideoView
+    FragmentVideoChat --> LicodeConnector : publish(VideoStreamsView)
+    LicodeConnector --> MediaStream : doPublish
+
+Publish-create media
+    FragmentVideoChat --> MediaStream : createLocalMediaStream
+    FragmentVideoChat --> MediaStream : createMediaConstraints
+    FragmentVideoChat --> MediaStream : getVideoCapturer
+    FragmentVideoChat --> MediaStream : createVideoSource(VideoCapturer, MediaConstraints)
+    FragmentVideoChat --> PeerConnection : createVideoTrack(String, VideoSource)
+    PeerConnection --> PeerConnectionFactory : addTrack
+    FragmentVideoChat --> MediaStream : createAudioSource(MediaConstraints)
+    FragmentVideoChat --> MediaStream : createAudioTrack(String, AudioSource)
+    MediaStream --> PeerConnection : addTrack
+
+Publish-create offer
+    FragmentVideoChat --> PeerConnectionFactory : makePeerConstraints
+    FragmentVideoChat --> PeerConnectionFactory : create MyPcObserver
+    FragmentVideoChat --> PeerConnectionFactory : createPeerConnectionList(<keServer>, MediaConstraints, Observer)
+    PeerConnectionFactory --> PeerConnection : addStream(MediaStream, MediaConstraints)
+    FragmentVideoChat --> PeerConnection : setMedia
+    FragmentVideoChat --> PeerConnection : attachRenderer
+    FragmentVideoChat --> LicodeSdpObserver : initLocalPeerConnection_SdpObserver
+    LicodeSdpObserver --> PeerConnection : createOffer
+    PeerConnection --> LicodeServer : onCreateSuccess
+    PeerConnection --> LicodeServer : setLocalDescription
+    PeerConnection --> LicodeServer : onSetSuccess
+    LicodeServer --> LicodeSdpObserver : sendLocalDescription
+    LicodeSdpObserver --> LicodeServer : sendSDPSocket("publish")
+    LicodeServer --> PeerConnection : publish
+    PeerConnection --> LicodeServer : publish success
+    LicodeServer --> RoomObserver : setRemoteDescription
+
+Subscribe
+    FragmentVideoChat --> LicodeConnector : startVideoChat
+    FragmentVideoChat --> LicodeConnector : createToken
+    FragmentVideoChat --> LicodeConnector : http
+    FragmentVideoChat --> LicodeConnector : Load Balance
+    LicodeConnector --> LicodeConnector : createToken success
+    LicodeConnector --> LicodeConnector : connect
+    LicodeConnector --> LicodeConnector : createToken
+    LicodeConnector --> LicodeConnector : decodeToken
+    LicodeConnector --> SocketIOClient : connect to server
+    SocketIOClient --> LicodeConnector : socket
+    LicodeConnector --> LicodeConnector : onConnectCompleted
+
+Subscribe-listen socket events
+    FragmentVideoChat --> LicodeConnector : listen evnets
+    FragmentVideoChat --> MediaStream : onAddStream
+    FragmentVideoChat --> LicodeConnector : onSubscribe2P
+    FragmentVideoChat --> LicodeConnector : onPublish2P
+    FragmentVideoChat --> MediaStream : onDataStream
+    FragmentVideoChat --> MediaStream : onRemoveStream
+    FragmentVideoChat --> LicodeConnector : disconnect
+    LicodeConnector --> SocketIOClient : sendMessageSocket("token")
+    SocketIOClient --> LicodeConnector : token success
+    LicodeConnector --> LicodeConnector : onRoomConnected
+    LicodeConnector --> LicodeConnector : setBandwidthLimits
+    LicodeConnector --> LicodeConnector : alt [has streams]
+        LicodeConnector --> LicodeConnector : triggerStreamAdded
+        LicodeConnector --> LicodeConnector : mOnAddStream
+        LicodeConnector --> LicodeConnector : triggerStreamAdded
+    end
+    LicodeConnector --> LicodeConnector : onStreamAdded
+    LicodeConnector --> LicodeConnector : subscribe
+    LicodeConnector --> MediaStream : doSubscribe
+    MediaStream --> LicodeConnector : triggerMediaAvailable
+    LicodeConnector --> LicodeConnector : onStreamMediaAvailable
+    LicodeConnector --> LicodeConnector : makeVideoView
+    LicodeConnector --> PeerConnection : attachRenderer
+    PeerConnection --> LicodeConnector : createMyPcObserver
+    PeerConnectionFactory --> PeerConnection : CreatePeerConnection
+    PeerConnectionFactory --> LicodeSdpObserver : initRemotePeerConnection_SdpObserver
+    LicodeSdpObserver --> PeerConnection : createOffer
+    PeerConnection --> LicodeServer : onCreateSuccess
+    PeerConnection --> LicodeServer : setLocalDescription
+    PeerConnection --> LicodeServer : onSetSuccess
+    LicodeServer --> LicodeSdpObserver : sendLocalDescription
+    LicodeSdpObserver --> LicodeServer : sendSDPSocket("subscribe")
+    LicodeServer --> PeerConnection : subscribe success
+    PeerConnection --> LicodeServer : setRemoteDescription
+
+@enduml

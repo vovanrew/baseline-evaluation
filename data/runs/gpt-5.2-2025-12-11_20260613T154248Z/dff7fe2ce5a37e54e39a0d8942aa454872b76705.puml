@@ -1,0 +1,60 @@
+```plantuml
+@startuml
+title SDP Initiated Request/Response\nPattern with Correlation ID
+
+skinparam backgroundColor #F3F0E6
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 20
+  LifeLineBorderColor #2E8B57
+  LifeLineBorderThickness 2
+  LifeLineBackgroundColor transparent
+  LifeLineStyle dashed
+  MessageAlign left
+  ActorBorderColor #000000
+  ParticipantBorderColor #000000
+  ParticipantBackgroundColor #FFA500
+  BoxBorderColor #808080
+  BoxBackgroundColor #DDDDDD
+  ActivationBorderColor #000000
+  ActivationBackgroundColor #2E86DE
+}
+
+box "SDP" #DDDDDD
+participant "SERVER\nNODE 1" as SN1
+participant "SERVER\nNODE 2" as SN2
+participant "STATE\nCACHE" as SC
+participant "BROKER" as BR
+end box
+
+box "TBM/HU" #DDDDDD
+participant "APP" as APP
+end box
+
+activate SN1
+SN1 -> SN1 : new request/response\ninteraction
+SN1 -> SN1 : create interaction\ncontext
+SN1 -> SC : newMessageID =\nnextMessageID()
+SN1 -> SC : put(newMessageID,\ninteraction context)
+SN1 -> SN1 : create message
+SN1 -> SN1 : message.messageID =\nnewMessageID
+SN1 -> BR : publish message
+deactivate SN1
+
+BR -> APP : read message
+activate APP
+APP -> APP : create response
+APP -> APP : response.correlationID =\nmessage.messageID
+APP -> BR : publish response
+deactivate APP
+
+BR -> SN2 : read response
+activate SN2
+SN2 -> SC : interaction context =\nget(response.correlationID)
+SN2 -> SN2 : process response
+SN2 -> SC : delete(response.correlationID)
+deactivate SN2
+
+@enduml
+```

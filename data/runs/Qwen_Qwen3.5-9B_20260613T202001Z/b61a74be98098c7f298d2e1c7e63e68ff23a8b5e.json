@@ -1,0 +1,22 @@
+{
+  "id": "8f9d9b09-88bb-4567-8616-ab956c617ba5",
+  "object": "chat.completion",
+  "created": 1781425770,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor Admin\nactor User\nparticipant \"AccountManagement\" as AM\nparticipant \"Broker\" as Broker\nparticipant \"Notifications\" as Notifications\nparticipant \"UAA\" as UAA\nparticipant \"EmailSender\" as EmailSender\n\nAdmin -> AM: WorkspaceInvitation\nnote right of AM: with email\nAM -> AM: save data to db\nAM --> Admin: 200 response\nAM -> Broker: create event \"new user invited event\"\nBroker -> Notifications: read event\nnote right of Notifications: with email and senderId\nNotifications -> UAA: read info about sender\nNotifications -> Notifications: generate email\nBroker -> Notifications: create \"new email event\"\nBroker -> EmailSender: read \"new email event\"\nEmailSender --> Admin: send email\n\nalt [user accepts invitation]\n  User -> AM: WorkspaceEmailValidation\n  AM -> AM: check email\n  AM --> User: WorkspaceEmailValidationResult\n  alt [email valid]\n    AM -> AM: generate access code\n    AM -> Broker: create event \"new access code\"\n    Broker -> Notifications: read event\n    note right of Notifications: with email and access code\n    Notifications -> Notifications: generate email\n    Broker -> Notifications: create \"new email event\"\n    Broker -> EmailSender: read \"new email event\"\n    EmailSender --> User: send email\n  end\n  User -> User: get access code from email\n  User -> AM: WorkspaceAccessCodeValidation\n  AM --> User: WorkspaceAccessCodeValidationResult\n  note right of AM: with email, access code\n  alt [access code valid]\n    AM -> AM: change state\n    User -> UAA: WorkspaceRegistration\n    note right of UAA: with email, username, password and code\n    UAA -> AM: check state by email\n    note right of AM: with userId and email\n    AM -> Broker: create new event \"user created event\"\n    Broker -> Notifications: read event \"user created event\"\n    Notifications -> Notifications: create user with email\n  end\nend\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2497,
+    "completion_tokens": 449,
+    "total_tokens": 2946
+  }
+}

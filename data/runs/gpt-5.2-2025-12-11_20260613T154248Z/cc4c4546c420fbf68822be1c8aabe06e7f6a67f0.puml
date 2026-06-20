@@ -1,0 +1,47 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 20
+  LifeLineBorderColor #000000
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #000000
+  ParticipantBackgroundColor #E6E6FA
+  ActorBorderColor #000000
+  ActorBackgroundColor #E6E6FA
+  DatabaseBorderColor #000000
+  DatabaseBackgroundColor #E6E6FA
+  ArrowColor #000000
+  ArrowThickness 2
+  MessageAlign left
+}
+
+actor Admin as A
+participant "Employees Module" as EM
+database "Search Index" as SI
+database "Database" as DB
+
+A -> EM : trigger task
+activate EM
+
+EM -> SI : reset index (delete + create)
+activate SI
+SI --> EM
+deactivate SI
+
+EM -> DB : stream all employees
+activate DB
+
+loop
+  EM -> SI : index employee
+  activate SI
+  deactivate SI
+end
+
+DB --> EM
+deactivate DB
+
+EM --> A
+deactivate EM
+@enduml

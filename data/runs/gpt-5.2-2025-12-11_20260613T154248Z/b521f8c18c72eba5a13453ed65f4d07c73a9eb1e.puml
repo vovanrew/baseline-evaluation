@@ -1,0 +1,58 @@
+```plantuml
+@startuml
+title PFD flow between Openness and 5G core
+
+skinparam shadowing false
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 30
+skinparam BoxPadding 15
+skinparam ArrowColor #000000
+skinparam SequenceLifeLineBorderColor #888888
+skinparam SequenceLifeLineBackgroundColor transparent
+
+actor Admin as Admin
+
+box "OpenNESS Controller Components" #bfe7f3
+participant "UI/CLI" as UICLI
+participant "Af Microservice" as AF
+end box
+
+box "5G Core Components" #98f08f
+participant "NEF" as NEF
+participant "NGC CP Function" as NGCCP
+end box
+
+note over NEF,NGCCP
+OpenNESS provided
+Core component with
+limited functionality
+end note
+
+participant "NGC_STUB (UDR SMF)" as NGCSTUB
+
+== Get all transactions with PFD ==
+Admin -> UICLI : Request all PFD transactions
+UICLI -> AF : af/v1/pfd/transaction GET
+AF -> NGCSTUB : 3gpp-pfd-management/v1/{scsAsId}/transactions/\nGET
+NGCSTUB --> AF : OK: PFD information \\ ERROR
+AF --> UICLI : OK: PFD information \\ ERROR
+UICLI --> Admin : PFD details
+
+== Get transactions with transactionId ==
+Admin -> UICLI : Request transaction with\ntransactionId
+UICLI -> AF : af/v1/pfd/transactions/{transactionId}\nGET
+AF -> NGCSTUB : 3gpp-pfd-management/v1/{scsAsId}/transactions/{transactionId}\nGET
+NGCSTUB --> AF : OK: PFD information \\ ERROR
+AF --> UICLI : OK: PFD information \\ ERROR
+UICLI --> Admin : PFD details
+
+== Get transactions with applicationId ==
+Admin -> UICLI : Request transactions with\napplicationId
+UICLI -> AF : af/v1/pfd/transactions/{transactionId}/applications/{appId}\nGET
+AF -> NGCSTUB : 3gpp-pfd-management/v1/{scsAsId}/transactions/{transactionId}/applications/{appId}\nGET
+NGCSTUB --> AF : OK: PFD information \\ ERROR
+AF --> UICLI : OK: PFD information \\ ERROR
+UICLI --> Admin : PFD details
+
+@enduml
+```

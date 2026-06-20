@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLcgblSwodsI1cu719qdkk3hNY2n",
+  "object": "chat.completion",
+  "created": 1781368546,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Scheduled Events\n\nactor \"Recording Staff\" as RecordingStaff\nactor Coach\n\nparticipant \"IP/Mobile Cams\" as Cams\nparticipant \"Consumer Apps\" as Apps\nparticipant \"Security Gateway\" as Gateway\ncontrol \"Control Domain\\n(win10/linux)\" as ControlDomain\nparticipant \"Streaming Service\\n(encoder)\" as Streaming\nentity \"Media\\n(mediaID)\" as Media\nparticipant \"Transfer Service\" as Transfer\n\nApps -> Gateway : authenticate(ID)\nGateway --> Apps : return(token)\n\nCams -> ControlDomain : register(endpoint)\nApps -> ControlDomain : register(token, priority)\n\nRecordingStaff -> ControlDomain : createEvent(configuration{description, sources, consumers{priorities}})\nactivate ControlDomain\nControlDomain -> ControlDomain : create(newEvent)\n\nRecordingStaff -> ControlDomain : start(newEvent)\nControlDomain -> Streaming : encode()\n\nControlDomain --> Apps : notify(recording)\n\nRecordingStaff -> ControlDomain : stop(newEvent)\nControlDomain -> Streaming : saveAs(mediaID)\nStreaming -> Media : save(mediaID)\n\nControlDomain -> Transfer : host(mediaID, consumers{token, priority})\nControlDomain --> Apps : notify(newMediaAvailable, mediaID, transferServiceEndpoint)\ndeactivate ControlDomain\n\nalt [auto-download enabled]\n  Apps -> Transfer : fetchMedia(token, mediaID)\n  Transfer --> Apps : returnByPriority(mediaStream)\nelse [manual-download enabled]\n  Coach -> Apps : showMedia(token)\n  Apps -> Transfer : fetchMedia(token, mediaID)\n  Transfer --> Apps : returnByPriority(mediaStream)\nend\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2095,
+    "completion_tokens": 321,
+    "total_tokens": 2416,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

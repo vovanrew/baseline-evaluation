@@ -1,0 +1,159 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+class Membre {
+    +numeroMembre: int{key}
+    +nom: string
+    +prenom: string
+    +adresse: string
+    +dateDeNaissance: date
+    +tel: int(10)
+    +createNumMembre()
+    +membreActif()
+}
+
+note top of Membre
+La méthode membreActif fonctionnera comme suit :
+- si le membre est actif en tant que professionnel, alors la méthode retournera "p" ;
+- si le membre est actif en tant qu'amateur, alors la méthode retournera "a" ;
+- sinon, si le membre n'est pas actif, la méthode retournera NULL.
+Un membre est considéré comme actif s'il existe une inscription datant de moins d'un an rattachée à ce membre, et pour laquelle Inscription.solde = 0.
+end note
+
+class Amateur
+class Professionnel
+
+Membre <|-- Amateur
+Membre <|-- Professionnel
+
+note left of Amateur
+L'héritage n'est pas exclusif, un membre ayant pu être professionnel par le passé peut ensuite être amateur, et vice-versa.
+end note
+
+class Comité {
+    +nom: string {key}
+}
+
+Membre --* Comité : 1..*
+Membre o-- Comité : *
+Comité --|> Membre : *
+Comité --|> Membre : *
+
+note right of Membre
+Sauf indication contraire, les héritages de cette MLD sont exclusifs, et les attributs doivent tous être non nuls.
+end note
+
+class Inscription {
+    +date: timestamp
+    +montantPayé: int
+    +statutInscription: {a,p}
+    +fraisIns()
+    +solde()
+    +setMontantPayé()
+}
+
+Membre --> Inscription : 1..*
+Inscription --> Membre : 1
+
+class Activité {
+    +numéroActivité: string {key}
+    +titre: string
+}
+
+Comité --> Activité : 1
+Activité <-- Comité : *
+
+class Financement {
+    +date: timestamp
+    +adresse: string
+}
+
+Activité <|-- Financement
+
+class Compétition {
+    +heure: timestamp
+    +adresse: string
+}
+
+Activité <|-- Compétition
+
+class CompétitionInterne
+Compétition <|-- CompétitionInterne
+
+class CompétitionExterne {
+    +nomClub: varchar
+    +responsableClub: varchar
+    +tel: int(10)
+}
+
+Compétition <|-- CompétitionExterne
+
+class Epreuve {
+    +date: timestamp
+}
+
+Compétition *-- Epreuve : 1..*
+
+class Participant {
+    +numéro: int {local key}
+    +nom: string
+    +prénom: string
+    +createNuméro()
+}
+
+Epreuve ..> Participant : *
+Participant ..> Epreuve : 1..*
+
+note left of Epreuve
+Si l'épreuve est externe, alors elle est composée de participants ; si elle est interne, elle est composée de membres du club.
+end note
+
+class Discipline {
+    +nom: string {key}
+}
+
+class Spécialité {
+    +nom: string {key}
+}
+
+Discipline *-- Spécialité : 1..*
+Spécialité --* Epreuve : 1
+
+class RésultatInterne {
+    +résultat: int
+}
+
+Epreuve ..> RésultatInterne : *
+
+class RésultatExterne {
+    +résultat: int
+}
+
+Participant ..> RésultatExterne : 1..*
+
+Amateur --o Epreuve : *
+Professionnel --o Epreuve : *
+
+note left of Professionnel
+Un professionnel ne peut s'inscrire à une épreuve que s'il est inscrit à la spécialité de cette épreuve.
+end note
+
+label "réunit" as label1
+label "dirige" as label2
+label "organise" as label3
+label "participe" as label4
+label "revêt de" as label5
+label "correspond à" as label6
+label "pratique" as label7
+
+Membre -- Comité : label1
+Membre -- Comité : label2
+Comité -- Activité : label3
+Participant -- Epreuve : label4
+Spécialité -- Epreuve : label5
+Membre -- Inscription : label6
+Amateur -- Epreuve : label7
+
+@enduml
+```

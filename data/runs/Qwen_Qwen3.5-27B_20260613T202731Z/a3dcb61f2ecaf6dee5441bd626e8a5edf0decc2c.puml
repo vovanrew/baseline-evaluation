@@ -1,0 +1,142 @@
+```plantuml
+@startuml
+title Interactions between the Control Plane (master node) and the Worker Node
+
+actor "Georgina" as User
+participant "API-Server" as API
+database "etcd" as DB
+participant "Controller Manager" as CM
+participant "Scheduler" as Scheduler
+participant "Power Operator" as PowerOp
+participant "Kubelet" as Kubelet
+participant "Power Node Agent" as PNA
+participant "Power Optimization Library" as POL
+participant "K8s Objects" as K8s
+participant "Kube-Proxy" as Proxy
+
+legend right
+  <font color="blue">Control Plane ~ Master Node</font>
+  <font color="green">Worker Node</font>
+  <font color="orange">Power Manager System Setup</font>
+  <font color="yellow">Power Manager Configuration</font>
+  <font color="brown">Power Manager Deployment</font>
+endlegend
+
+== Kubernetes Initialization ==
+User -> API: 1 kubectl create -f pod.yaml
+activate API
+API -> DB: 2 save new state
+activate DB
+DB --> API: 3 check for changes
+deactivate DB
+API -> Scheduler: 4 watch for unassigned pods(s)
+activate Scheduler
+Scheduler -> API: 5 notify about pod w nodename=""
+deactivate Scheduler
+API -> Scheduler: 6 assign pod to node
+activate Scheduler
+Scheduler -> DB: 7 save new state
+activate DB
+DB --> Scheduler: 8 look for newly assigned pod(s)
+deactivate DB
+Scheduler -> Kubelet: 9 bind pod to node
+activate Kubelet
+Kubelet -> PNA: 10 start container
+activate PNA
+PNA --> API: 11 update pod status
+deactivate PNA
+API -> DB: 12 save new state
+activate DB
+deactivate DB
+deactivate Kubelet
+deactivate Scheduler
+deactivate API
+
+== Power Manager Initialization ==
+User -> Proxy: 1 Ensure correct proxy configuration
+User -> Kubelet: 2 Confirm CPU Manager policy
+note right of Kubelet: cpuManagerPolicy = "static"
+User -> Kubelet: 3 Reserve System CPUs
+note right of Kubelet: reservedSystemCPUs = "0"
+Kubelet -> K8s: 4 Create Namespace
+note right of K8s: apply config/rbac/namespace.yaml
+Kubelet -> K8s: 5 Create RBAC and Service Accounts
+note right of K8s: apply config/rbac/rbac.yaml
+Kubelet -> K8s: 6 Create CRDs
+note right of K8s: make
+Kubelet -> K8s: 7 Label nodes
+note right of K8s: label node <NODE_NAME> feature.node.kubernetes.io/power-node="true"
+
+== Power Manager Deployment ==
+User -> PNA: 1 Deploy Controller Manager
+note right of PNA: apply config/manager/manager.yaml
+User -> POL: 2 Deploy the config
+note right of POL: examples/example-powerconfig.yaml
+User -> POL: 3 Set Shared Profile
+note right of POL: examples/example-shared-profile.yaml
+User -> POL: 4 Deploy th Workload
+note right of POL: examples/example-shared-workload.yaml
+User -> POL: 5 Deploy Pod
+note right of POL: examples/example-pod.yaml
+
+== Power Manager additional functionality ==
+== Uncore ==
+User -> Kubelet: 1 Confirm Kernel version
+note right of Kubelet: kernel 5.6+ required for uncore
+User -> POL: 2 Set Freq in Die and Pkg
+note right of POL: examples/example-uncore
+User -> PNA: 3 Deploy Controller Manager
+note right of PNA: apply config/manager/manager.yaml
+User -> POL: 4 Deploy the config
+note right of POL: examples/example-powerconfig.yaml
+User -> POL: 5 Set Shared Profile
+note right of POL: examples/example-shared-profile.yaml
+User -> POL: 6 Deploy th Workload
+note right of POL: examples/example-shared-workload.yaml
+User -> POL: 7 Deploy Pod
+note right of POL: examples/example-pod.yaml
+User -> POL: 8 Set Time of Day functionality
+note right of POL: examples/example-timeofday
+
+== P-State ==
+User -> PNA: 1 Deploy Controller Manager
+note right of PNA: apply config/manager/manager.yaml
+User -> POL: 2 Deploy the config
+note right of POL: examples/example-powerconfig.yaml
+User -> POL: 3 Set Shared Profile and configure the P-State governor
+note right of POL: examples/example-shared-profile.yaml
+User -> POL: 4 Deploy th Workload
+note right of POL: examples/example-shared-workload.yaml
+User -> POL: 5 Deploy Pod
+note right of POL: examples/example-pod.yaml
+
+== C-State ==
+User -> PNA: Deploy Controller Manager
+note right of PNA: apply config/manager/manager.yaml
+User -> POL: Deploy the config
+note right of POL: examples/example-powerconfig.yaml
+User -> POL: Set Shared Profile
+note right of POL: examples/example-shared-profile.yaml
+User -> POL: Deploy th Workload
+note right of POL: examples/example-shared-workload.yaml
+User -> POL: Deploy Pod
+note right of POL: examples/example-pod.yaml
+User -> POL: Set C-State functionality
+note right of POL: examples/example-cstates
+
+== Time of Day ==
+User -> PNA: Deploy Controller Manager
+note right of PNA: apply config/manager/manager.yaml
+User -> POL: Deploy the config
+note right of POL: examples/example-powerconfig.yaml
+User -> POL: Set Shared Profile
+note right of POL: examples/example-shared-profile.yaml
+User -> POL: Deploy th Workload
+note right of POL: examples/example-shared-workload.yaml
+User -> POL: Deploy Pod
+note right of POL: examples/example-pod.yaml
+User -> POL: Set Time of Day functionality
+note right of POL: examples/example-timeofday
+
+@enduml
+```

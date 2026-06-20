@@ -1,0 +1,41 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "Bruker" as Bruker
+participant "Kjedesystem" as Kjesystem
+participant "Identity Provider" as Idp
+participant "DifaGUI" as DifaGUI
+participant "Tilgangskontroll" as Tilgangskontroll
+participant "HPR-DB" as HPR-DB
+participant "HDIR" as HDIR
+
+actor Bruker
+
+note over Kjesystem, Idp
+token er en signert JSON payload
+end note
+
+Bruker -> Kjesystem: Velg DIFA operasjon fra meny
+Kjesystem -> Bruker: Redirect
+Kjesystem -> Bruker: Utfør operasjon
+DifaGUI -> Kjesystem: Krever pålogging - redirect
+Kjesystem -> Bruker: Logg på
+Kjesystem -> Idp: Access token
+Idp -> Bruker: Access token
+
+DifaGUI -> Tilgangskontroll: Autoriser bruker
+Tilgangskontroll -> Idp: Access token
+Tilgangskontroll -> DifaGUI: JWT
+
+DifaGUI -> Kjesystem: «cached» Hent kjedesertifikat
+Kjesystem -> Tilgangskontroll: Verifiser token signatur
+Tilgangskontroll -> HPR-DB: Hent HPR nr fra token (+ roller)
+HPR-DB -> Tilgangskontroll: HPR nummer
+Tilgangskontroll -> HPR-DB: Autorisasjon (eks "farmasøyt")
+Tilgangskontroll -> DifaGUI: Avgjør tilgang
+DifaGUI -> Bruker: utfør operasjon
+
+HPR-DB -> HDIR: Oppdatert helsepersonellregister
+HDIR -> HPR-DB: (no arrow)
+
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 10
+}
+
+box "Platform" #BFE3EA
+participant "CPO1" as CPO1
+end box
+
+participant "HUB" as HUB #E6E6F2
+
+box "Platform" #BFE3EA
+participant "MSP1" as MSP1
+end box
+
+CPO1 -> HUB : HTTP: GET\nTO: MSP1\nFROM: CPO1
+activate HUB
+HUB -> MSP1 : HTTP: GET\nTO: MSP1\nFROM: CPO1
+activate MSP1
+MSP1 --> HUB : HTTP: RESPONSE\nTO: CPO1\nFROM: MSP1
+deactivate MSP1
+HUB --> CPO1 : HTTP: RESPONSE\nTO: CPO1\nFROM: MSP1
+deactivate HUB
+
+@enduml

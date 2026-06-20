@@ -1,0 +1,30 @@
+@startuml
+title public request directly to Gatekeeper
+
+actor client
+participant auth_service
+participant IDP
+participant Gatekeeper
+participant PASTA_service
+database LDAP
+
+client -> Gatekeeper : "request" as public
+
+activate Gatekeeper
+Gatekeeper -> Gatekeeper : generate internal (public) token
+Gatekeeper -> PASTA_service : "request" internal (public) token
+deactivate Gatekeeper
+
+activate PASTA_service
+PASTA_service -> PASTA_service : authorize service
+PASTA_service -> PASTA_service : authorize resource
+PASTA_service -> PASTA_service : perform service
+PASTA_service --> Gatekeeper : "response"
+deactivate PASTA_service
+
+activate Gatekeeper
+Gatekeeper -> Gatekeeper : drop internal (public) token
+Gatekeeper --> client : "response"
+deactivate Gatekeeper
+
+@enduml

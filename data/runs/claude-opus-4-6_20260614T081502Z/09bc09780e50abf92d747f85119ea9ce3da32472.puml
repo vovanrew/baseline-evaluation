@@ -1,0 +1,51 @@
+```plantuml
+@startuml
+
+participant JCallGraph
+participant CliManager
+participant MethodCallsList
+participant CalledFromList
+participant File
+participant JarFile
+participant ZipEntry
+participant ClassParser
+participant ClassVisitor
+participant Runner
+
+JCallGraph -> CliManager : new CliManager()
+JCallGraph -> CliManager : main(args)
+
+JCallGraph -> Runner : getMethodCallsList()
+JCallGraph <-- Runner : MethodCallsList
+
+JCallGraph -> File : new File
+JCallGraph <-- File : File
+
+JCallGraph -> JarFile : new JarFile(File)
+JCallGraph <-- JarFile : JarFile
+
+JCallGraph -> JCallGraph : enumerationAsStream(Enumeration<T> e)
+note right : Jar en formato stream
+
+loop forEach
+    alt [isDirectory() and getName().endsWith(".class")]
+        JCallGraph -> ClassParser : new ClassParser(String, String)
+        JCallGraph <-- ClassParser : cp = ClassParser
+        JCallGraph -> JCallGraph : getClassVisitor()
+        JCallGraph -> ClassVisitor : apply(ClassParser)
+        JCallGraph -> ClassVisitor : start()
+        JCallGraph <-- ClassVisitor : HashMap<MethodReport, List<MethodReport>>
+        alt [!= null]
+            JCallGraph -> CalledFromList : add(HashMap<MethodReport, List<MethodReport>>)
+        end
+        JCallGraph -> Runner : main(String[])
+        JCallGraph -> JCallGraph : exportFiles();
+    end
+end
+
+== catch ==
+
+JCallGraph -> JCallGraph : printStackTrace()
+
+@enduml
+```

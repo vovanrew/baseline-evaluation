@@ -1,0 +1,99 @@
+@startuml
+title US016 - As Director/PM/PO/SM, I want to view status of activities in a project
+
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+package "Controller" as PController {
+  class TaskUI << (C,#B7E1CD) >> {
+  }
+
+  class TaskController << (C,#B7E1CD) >> {
+    +getStatusOfActivitiesInProject(String projectID)
+  }
+
+  TaskUI --> TaskController
+}
+
+package "Service" as PService {
+  class TaskService << (C,#B7E1CD) >> {
+    +getStatusOfActivities(String projectID)
+    -getCurrentSprintID(projectID)
+    -getSbiIDs(projectID, sprintID)
+    -getTasks(sbiIDs)
+  }
+}
+
+package "Repository" as PRepository {
+  class SprintRepository << (C,#B7E1CD) >> {
+    +findCurrentSprintInProject(String projectID)
+  }
+
+  class SprintBacklogItemRepository << (C,#B7E1CD) >> {
+    +findSprintBacklogItemsInSprint(String projID, String sprintID)
+  }
+
+  class TaskRepository << (C,#B7E1CD) >> {
+    +findAllByContainerID(SprintBacklogItemID sbiID)
+  }
+}
+
+package "Mapper" as PMapper {
+  class TaskMapper << (C,#B7E1CD) >> {
+    +statusListToDTO(List<Task> tasks)
+    -statusToDTO(Task task)
+  }
+}
+
+package "Domain" as PDomain {
+  class Task << (C,#B7E1CD) >> {
+    -taskID : TaskID
+    -taskContainerID : TaskContainerID
+    -status : TaskStatus
+    -percentageOfExecution : Percentage
+    -taskDescription : TaskDescription
+    +getTaskID()
+    +getTaskContID()
+    +getStatus()
+    +getPercentageOfExecution()
+  }
+
+  class SprintBacklogItemID << (C,#B7E1CD) >> {
+    -sbiID : UUID
+    +getID()
+  }
+
+  interface TaskContainerID << (I,#C9C2E6) >> {
+    -taskContainerID : UUID
+    +getID()
+  }
+
+  Task ..> TaskContainerID : use
+  SprintBacklogItemID ..> TaskContainerID : use
+}
+
+package "DTO" as PDTO {
+  class TaskDTO << (C,#B7E1CD) >> {
+    -taskID : String
+    -taskContainerID : String
+    -status : String
+    -percentageOfExecution : int
+    +setTaskID()
+    +setTaskContainerID()
+    +setStatus()
+    +setPercentageOfExecution()
+  }
+}
+
+TaskController ..> TaskService
+TaskService ..> SprintRepository
+TaskService ..> SprintBacklogItemRepository
+TaskService ..> TaskRepository
+TaskService ..> TaskMapper
+TaskService ..> Task
+TaskMapper ..> Task
+TaskMapper ..> TaskDTO
+TaskController ..> TaskDTO
+
+@enduml

@@ -1,0 +1,51 @@
+```plantuml
+@startuml
+
+participant "IntegrationTest" as IT
+participant "Spring\nApplication" as SA
+participant "De /nSerializer" as DS
+participant "info:AddMember\nRequestInfoDTO" as info
+participant "ctrl:AddMember\nToGroupController" as ctrl
+participant "AddMember\nRequestAssembler" as assembler
+participant "requestDTO:\nAddMemberRequestDTO" as requestDTO
+participant "AddMemberResponse\nDTOAssembler" as respAssembler
+participant "groupRespDTO:\nGroupResponseDTO" as groupRespDTO
+participant "srv:AddMember\nToGroupService" as srv
+
+note over srv
+Continues through
+next Diagram
+end note
+
+IT -> SA : **1** POST\n/groups/"Family"/\nmembers/"ana@gmail.com"
+
+SA -> DS : **1.1** deserialize("groupDesc":"Family",\n"personEmail":"ana@gmail.com")
+
+DS -> info ** : **1.1.1** create (groupDesc,\nPersonEmail)
+
+SA -> ctrl : **1.2** addMember(info)
+
+ctrl -> assembler : **1.2.1** addMemberMapToDTO\n(info.getGroupDescription(),\ninfo.getPersonEmail())
+
+assembler -> requestDTO ** : **1.2.1.1** create
+
+ctrl -> srv : **1.2.2** addMemeber(requestDTO)
+
+srv --> ctrl : **1.2.3** groupDTO
+
+ctrl -> respAssembler : **1.2.4** mapToGroupResponseDTO(GroupDTO)
+
+respAssembler -> groupRespDTO ** : **1.2.4.1** create
+
+respAssembler --> ctrl : **1.2.5** groupRespDTO
+
+ctrl --> SA : **1.2.6** ResponseEntity(groupRespDTO,\nHttpStatus.OK)
+
+SA -> DS : **1.3** serialize(ResponseEntity(groupRespDTO,\nHttpStatus.OK))
+
+DS --> SA : **1.4** HttpResponse
+
+SA --> IT : **1.5** HttpResponse
+
+@enduml
+```

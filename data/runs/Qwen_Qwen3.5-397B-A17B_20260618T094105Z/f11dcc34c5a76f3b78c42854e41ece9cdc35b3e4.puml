@@ -1,0 +1,90 @@
+@startuml
+title Zhinahan Classes
+
+package "Zhinahan" {
+    package "Parser" {
+        class Parser <<C>> {
+            - matchers : Array<AbstractLineMatcher> #red;
+            - appendix_detector : AppendixDetector #red;
+            - context : Context #red;
+            
+            + parse(file : string) : Dictionary #green;
+            -- per_line(line : string, index : int);#red;
+            -- parse_line(line : string, index : int)#red;
+        }
+        
+        class LineParser <<C>> {
+            + parse(context : Context) #green;
+        }
+        
+        class AbstractLineMatcher <<A>> {
+            + match(context : Context) : MatchResult? #green;
+            + pattern(context : Context) : RegExp #green;
+            + type() : Symbol #teal;
+        }
+        
+        class RadicalLineMatcher <<C>> {}
+        class ExplanationLineMatcher <<C>> {}
+        class PronunciationLineMatcher <<C>> {}
+        class CharacterLineMatcher <<C>> {}
+        
+        class AppendixDetector <<C>> {
+            + starts_appendix_section?(line : string) : bool #green;
+            + has_leaved_appendix_section?(line : string) : bool #green;
+        }
+        
+        class Context <<C>> {
+            ~ while_appendix : bool #orange;
+            ~ line : string? #orange;
+            ~ index : int? #orange;
+            
+            + within_appendix?() : bool #green;
+            + enter_appendix() : void #green;
+            + leave_appendix() : void #green;
+            + update_position(line : string, index : int) : void #green;
+        }
+        
+        class MatchResult <<C>> {
+            ~ matched : MatchData #orange;
+            o type : String #teal;
+            g matched() : Hash<String, String>#darkseagreen4;
+        }
+        
+        ' Relationships in Parser Package
+        
+        Parser --> LineParser 
+        LineParser *-- AbstractLineMatcher 
+        
+        AbstractLineMatcher <|-- RadicalLineMatcher
+        AbstractLineMatcher <|-- ExplanationLineMatcher
+        AbstractLineMatcher <|-- PronunciationLineMatcher
+        AbstractLineMatcher <|-- CharacterLineMatcher
+        
+        Parser *--> AppendixDetector
+        Parser *--> Context
+        
+        LineParser ..> Context
+        AbstractLineMatcher .up.> Context
+        
+        note right of AbstractLineMatcher\nas A \nfor abstract classes or interfaces
+    
+}
+
+
+' Core Section at Bottom Left Corner 
+
+class Dictionary <<C>>{  
+characters:Array<Character>;   
+find(character:string):Character;}  
+
+Dictionary "*"---o 1:"*"   character::character  
+
+
+Class Description<<c >>{}    
+Description*----0..*:Explanation     
+description*- ----pronounciation    
+
+note leftof description\nclassification for descriptions 
+
+
+@enduml

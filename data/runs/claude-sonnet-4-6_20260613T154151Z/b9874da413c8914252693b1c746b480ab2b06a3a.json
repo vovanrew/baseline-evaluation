@@ -1,0 +1,21 @@
+{
+  "id": "msg_01GcxGZCBUaLGAGYBJEkQoxA",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor User\nparticipant \"executor:AnalysisExecutor\" as executor\nparticipant \":Analysis\" as Analysis\nparticipant \":CountryCaseAPIGetter\" as CaseGetter\nparticipant \":CountryDeathAPIGetter\" as DeathGetter\nparticipant \":CountryPopulationAPIGetter\" as PopGetter\nparticipant \":APIInformationGetter\" as InfoGetter\nactor \"Covid API\" as CovidAPI\n\nUser -> executor : runAnalysis()\nopt [At least one country selected for analysis]\n  executor -> Analysis : analyze()\n  alt [CasesPerCapitaAnalysis]\n    par\n      Analysis -> CaseGetter : getCases()\n      CaseGetter -> CaseGetter : getDataURL()\n      CaseGetter --> CaseGetter : API Endpoint URL\n      CaseGetter -> CovidAPI : API Call\n      CovidAPI --> CaseGetter : API Information\n      CaseGetter --> Analysis : Cases in target Countries\n    end\n    Analysis -> PopGetter : getPopulation()\n    par\n      PopGetter -> PopGetter : getDataURL()\n      PopGetter --> PopGetter : API Endpoint URL\n      PopGetter -> CovidAPI : API Call\n      CovidAPI --> PopGetter : API Information\n      PopGetter --> Analysis : Population of target Countries\n    end\n  else [TotalCaseAnalysis]\n    Analysis -> CaseGetter : getCases()\n    par\n      CaseGetter -> CaseGetter : getDataURL()\n      CaseGetter --> CaseGetter : API Endpoint URL\n      CaseGetter -> CovidAPI : API Call\n      CovidAPI --> CaseGetter : API Information\n      CaseGetter --> Analysis : Cases in target Countries\n    end\n  else [MajorityCaseSexPerCapitaAnalysis]\n    par\n      Analysis -> CaseGetter : getMaleCases()\n      CaseGetter -> CaseGetter : getDataURL()\n      CaseGetter --> CaseGetter : API Endpoint URL\n      CaseGetter -> CovidAPI : API Call\n      CovidAPI --> CaseGetter : API Information\n      CaseGetter --> Analysis : Male cases in target Countries\n    end\n    Analysis -> CaseGetter : getFemaleCases()\n    note over CaseGetter : A call to the endpoint has\\nalready been made so\\nanother is not necessary\n    CaseGetter --> Analysis : Female cases in target Countries\n    Analysis -> PopGetter : getMalePopulation()\n    par\n      PopGetter -> PopGetter : getDataURL()\n      PopGetter --> PopGetter : API Endpoint URL\n      PopGetter -> CovidAPI : API Call\n      CovidAPI --> PopGetter : API Information\n      PopGetter --> Analysis : Male population in target Countries\n    end\n    Analysis -> PopGetter : getFemalePopulation()\n    note over PopGetter : A call to the endpoint has\\nalready been made so\\nanother is not necessary\n    PopGetter --> Analysis : Female population in target Countries\n  else [DeathsPerCapitaAnalysis]\n    par\n      Analysis -> DeathGetter : getDeaths()\n      DeathGetter -> DeathGetter : getDataURL()\n      DeathGetter --> DeathGetter : API Endpoint URL\n      DeathGetter -> CovidAPI : API Call\n      CovidAPI --> DeathGetter : API Information\n      DeathGetter --> Analysis : Deaths in target Countries\n    end\n    Analysis -> PopGetter : getPopulation()\n    par\n      PopGetter -> PopGetter : getDataURL()\n      PopGetter --> PopGetter : API Endpoint URL\n      PopGetter -> CovidAPI : API Call\n      CovidAPI --> PopGetter : API Information\n      PopGetter --> Analysis : Population of target Countries\n    end\n  end\n  Analysis --> executor : Analysis Result\nend\nexecutor --> User : Finish (void)\nnote over executor : Per country analysis results\\nare stored for later rendering\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371746,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 954,
+    "prompt_tokens": 1626,
+    "total_tokens": 2580
+  }
+}

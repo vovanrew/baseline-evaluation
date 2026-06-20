@@ -1,0 +1,38 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6F2
+  ActorBorderColor #666666
+  ActorBackgroundColor #E6E6F2
+  ArrowColor #000000
+  MessageAlign left
+}
+
+actor "客户端" as Client
+participant "认证中心" as Auth
+participant "网关" as Gateway
+participant "缓存" as Cache
+participant "业务服务" as Biz
+
+Client -> Auth : 1 认证请求
+Auth --> Client : 2 JWT
+
+Client -> Gateway : 3 服务请求（带JWT）
+
+Gateway -> Auth : 4 请求公钥
+Auth --> Gateway : 5 JWK
+
+Gateway -> Gateway : 6 验证签名
+
+Gateway -> Cache : 7 请求用户权限
+Cache --> Gateway : 8 返回用户权限列表
+
+Gateway -> Gateway : 9 鉴权
+
+Gateway -> Biz : 10 服务请求
+Biz --> Client : 11 服务响应
+@enduml

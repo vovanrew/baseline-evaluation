@@ -1,0 +1,30 @@
+```plantuml
+@startuml
+skinparam shadowing false
+actor "Nutzer" as N
+circle "Webshop" as W
+database "Webshopdatenbank" as D
+
+N -> W : 1 Zahlungsdaten löschen
+W -> D : 2 Zahlungsdaten abrufen
+D -->> W : 3 Zahlungsdaten
+activate W
+W -> W : 4 Zahlungsdaten prüfen
+alt [keine weiteren Zahlungsdaten vorhanden]
+    W -> W : Aboboxen prüfen
+    alt [Abobox vorhanden]
+        W -->> N : Error
+    else [keine Abobox vorhanden]
+        W -> D : Daten löschen
+        D -->> W : Succes
+        W -->> N : Bestätigung
+    end
+else [weitere Zahlungsdaten vorhanden]
+    W -> D : Daten löschen
+    D -->> W : Succes
+    W -->> N : Bestätigung
+end
+deactivate W
+
+@enduml
+```

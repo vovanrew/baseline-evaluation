@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+title Policy Authorization flow between Smart Edge Open and 5G core
+
+actor "User/Admin" as User
+
+rectangle "Smart Edge Open Controller Components" {
+    participant "CLI" as CLI
+    participant "Af Microservice" as AfMicroservice
+}
+
+rectangle "5G Core Components" {
+    participant "NEF" as NEF
+    participant "NGC CP Function" as NGCPFunction
+}
+
+note right of AfMicroservice: Smart Edge Open provided\nCore component with\nlimited functionality
+
+rectangle "Policy Authorization – Individual Application Session Context creation flow" {
+    User -> CLI : Create application session context
+    activate CLI
+    
+    CLI -> AfMicroservice : /af/v1/policy-authorization/app-sessions POST
+    activate AfMicroservice
+    
+    AfMicroservice -> NEF : /npcf-policyauthorization/v1/app-sessions POST
+    activate NEF
+    
+    NEF -> NGCPFunction : 
+    activate NGCPFunction
+    
+    NGCPFunction --> NEF : 201 Created: app-sessionId \ ERROR
+    deactivate NGCPFunction
+    
+    NEF --> AfMicroservice : 201 Created: app-sessionId \ ERROR
+    deactivate NEF
+    
+    AfMicroservice --> CLI : 201 Created: app-sessionId \ ERROR
+    deactivate AfMicroservice
+    
+    CLI --> User : Success: app-sessionId
+    deactivate CLI
+}
+
+footer Proprietary and Confidential
+@enduml
+```

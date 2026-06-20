@@ -1,0 +1,104 @@
+@startuml
+left to right direction
+actor Customer
+participant "Device" as Device
+participant "DeviceProvisioningService" as DPS
+participant "ProductIoTHub" as IoTHub
+participant "FWProvider" as FWProvider
+
+note over Device, FWProvider
+  Device was registered for this product before
+end note
+
+activate Customer
+activate Device
+
+note over Device
+  First start
+end note
+
+Customer -> Device: 1 Switch On/Power Up
+activate Device
+
+note over Device
+  Booting up
+end note
+
+Device -> DPS: 2 registerDevice(callback)
+DPS --> Device: 3 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)
+Device -> IoTHub: 4 setProperties
+Device -> DPS: 5 iamNewToYou(deviceId, firmwareversion)
+
+opt [Firmware needs to be updated]
+  Device -> DPS: 6 updateFWMandantory(URL)
+  Device -> FWProvider: 7 URL.get(OLDFW)
+  FWProvider --> Device: 8 FW, Checksum
+  note over Device
+    Downloading
+  end note
+  Device -> Device: 9 CheckChecksum
+  Device -> Device: 10 update
+  note over Device
+    Installing
+  end note
+  Device -> Device: 11 restart
+  note over Device
+    Booting up
+  end note
+  Device -> DPS: 12 iamNewToYou(deviceId, firmwareversion)
+end opt
+
+DPS --> Device: 13 youMayStartSending()
+Device -> IoTHub: 14 sendData(Data)
+
+note over Device
+  Working
+end note
+
+activate Customer
+activate Device
+
+note over Device
+  Claim/Remove
+end note
+
+Device -> DPS: 15 youMustRetire()
+Device -> Device: 16 waits
+
+opt [if Device was not reached]
+  Device -> IoTHub: 17 sendData(Data)
+  IoTHub --> Device: 18 Not registered
+end opt
+
+Device -> DPS: 19 registerDevice(callback)
+DPS --> Device: 20 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ERROR, null, null)
+Device -> Device: 21 NobodyLovesMeMode()
+
+loop [once a day]
+  Device -> DPS: 22 registerDevice(callback)
+end loop
+
+note over Device
+  IoT Hub not available
+end note
+
+loop [several times]
+  Device -> IoTHub: 23 sendData(Data)
+  IoTHub --> Device: 24 NotAvailable/Network Error
+end loop
+
+Device -> DPS: 25 registerDevice(callback)
+DPS --> Device: 26 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)
+Device -> Device: 27 compare IoTHub and change if necessary
+
+note over Device, FWProvider
+  if connection is now successfull, go on. If not and IoT Hub has not changed
+  repeat with low frequency. Also if DPS is not available.
+end note
+
+deactivate Customer
+deactivate Device
+deactivate DPS
+deactivate IoTHub
+deactivate FWProvider
+@enduml

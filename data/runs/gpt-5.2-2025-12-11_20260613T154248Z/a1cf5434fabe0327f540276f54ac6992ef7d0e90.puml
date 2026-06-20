@@ -1,0 +1,40 @@
+```plantuml
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 40
+skinparam BoxPadding 10
+
+participant Agent
+participant VirtualCoffeeMachine
+participant TestThing
+
+Agent -> Agent : top:wait()
+
+strict
+  par
+    Agent -> VirtualCoffeeMachine : subscribeEvent: "maintenance"
+    VirtualCoffeeMachine --> Agent : confirmation
+    VirtualCoffeeMachine -> Agent : data-pushed
+  end
+
+  par
+    Agent -> TestThing : writeProperty: "string"
+  end
+end
+
+... wait 500ms ...
+
+strict
+  par
+    Agent -> VirtualCoffeeMachine : readProperty: "state"
+    VirtualCoffeeMachine --> Agent : response
+  end
+
+  par
+    Agent -> TestThing : writeProperty: "string"
+  end
+end
+
+@enduml
+```

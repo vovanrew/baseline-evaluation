@@ -1,0 +1,22 @@
+@startuml
+skinparam sequenceDiagram
+
+participant subject
+participant blockchain
+participant issuer
+
+subject ->> blockchain: look up issuer DID
+blockchain ->> subject: issuer public key
+subject ->> blockchain: encrypt request with issuer public key
+blockchain ->> subject: sign request with subject private key
+subject ->> blockchain: request credential
+blockchain ->> issuer: look up subject DID
+issuer ->> blockchain: subject public key
+blockchain ->> issuer: validate request signature
+issuer ->> blockchain: decrypt request with issuer private key
+issuer ->> blockchain: validate facts of requested credential
+issuer ->> blockchain: create Verified Credential (VC)
+issuer ->> blockchain: sign VC with issuer private key
+blockchain ->> issuer: verified credential
+issuer ->> subject: store credential
+@enduml

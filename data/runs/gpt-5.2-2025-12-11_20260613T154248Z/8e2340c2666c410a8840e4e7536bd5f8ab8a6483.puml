@@ -1,0 +1,63 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+class Component << (E,#E89A86) >> {
+  C1
+  C2
+  C3
+}
+
+package "simpy" as simpy {
+  class container << (C,#B9D7B9) >> {
+    capacity: Union[int, float]
+    init: Union[int, float]
+  }
+
+  class environment << (C,#B9D7B9) >> {
+  }
+}
+
+class Buffer << (C,#B9D7B9) >> {
+  id: int
+  accepts: Component
+  --
+  will_accept(): bool
+}
+
+class Inspector << (C,#B9D7B9) >> {
+  id: int
+  env: environment
+  buffers: List[Buffer]
+  components: List[Component]
+  --
+  get_random_component(): Component
+  get_inspection_time(): int
+  inspect_component: Generator
+  add_component_to_buffer(): Generator
+  main_loop(): None
+}
+
+class Workstation << (C,#B9D7B9) >> {
+  id: int
+  env: environment
+  buffers: List[Buffer]
+  --
+  get_assembly_time(): int
+  get_components(): Generator
+  assemble(): Generator
+  main_loop(): None
+}
+
+Component -- Buffer
+Component -- Inspector
+Component -- Workstation
+
+Inspector -- Buffer
+Workstation -- Buffer
+
+Inspector -- simpy.environment
+Workstation -- simpy.environment
+
+simpy.container <|-- Component
+@enduml

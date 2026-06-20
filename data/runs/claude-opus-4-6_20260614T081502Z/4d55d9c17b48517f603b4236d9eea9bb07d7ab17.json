@@ -1,0 +1,21 @@
+{
+  "id": "msg_01JgWRizb1b22M5ZqoWDpCbg",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor User\nparticipant \"LoginPartialView\" as LPV\nparticipant \"MicrosoftIdentityLibrary\" as MIL\nparticipant \"HomeController\" as HC\ndatabase \"StudieTipsDB\" as DB\n\nUser -> LPV : clicks on \"Register\"\nLPV -> HC : sends action\nHC --> LPV : Creates RegisterView\n\nloop While user not registered\n    User -> LPV : inputs e-mail, password and password confirmation\n\n    alt E-mail is invalid\n        LPV --> User : Display 'The Email field is not a valid e-mail address'.\n    else Password is less than 6 or greater than 100 characters\n        LPV --> User : Display 'The password must be at least 6 and at max 100 chracters long.'\n    else Password and confirmation password do not match\n        LPV --> User : Display 'The password and confirmation password do not match'\n    end\n\n    User -> LPV : User clicks register button\n\n    alt Password does not contain at least one symbol\n        LPV --> User : Display 'Passwords must have at least one non alphanumeric character'.\n    else Passord does not contain at least one digit\n        LPV --> User : Display 'Passwords must have at least one digit ('0'-'9')'.\n    else Password does not contain uppercase letters\n        LPV --> User : Display 'Passwords must have at least one uppercase ('A'-'Z').'\n    else Password does not contain 4 different characters\n        LPV --> User : Display 'Passwords must use at least 4 different characters.'\n    else E-mail is already in use\n        LPV --> User : Display 'Username 'E-mail' is already taken.'\n    end\n\n    LPV -> MIL : Creates user with e-mail and password\nend\n\nMIL -> HC : returns action\nHC --> HC : Create home view\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781430326,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 463,
+    "prompt_tokens": 1650,
+    "total_tokens": 2113
+  }
+}

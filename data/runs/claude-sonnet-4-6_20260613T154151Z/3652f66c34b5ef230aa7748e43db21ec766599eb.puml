@@ -1,0 +1,43 @@
+@startuml
+actor User
+participant JobManager
+participant "Process/Application" as PA
+participant ESDM
+participant "Post Processing" as PP
+database "Storage System" as SS
+actor Observer
+
+== Observer ==
+
+Observer -> Observer : collects observations
+Observer -> SS : (may write directly)
+Observer -> ESDM : write observation t
+ESDM -> ESDM : (transform for efficiency)
+ESDM -> SS : write container for observation t
+
+== Simulation Runs ==
+
+JobManager -> JobManager : periodically submit job(IN=t, OUT)
+User -> JobManager : allocates resources and calls
+JobManager -> PA : read IN=x
+PA -> SS : read
+SS -> PA : return
+PA -> JobManager : return
+PA -> PA : compute
+PA -> ESDM : write async OUT=y
+
+== Value-added products ==
+
+ESDM -> PP : make available
+PP -> PP : perform analysis
+PP -> SS : (may write directly)
+PP -> ESDM : return result
+ESDM -> PA : return
+
+note over PA, ESDM : multiple iterations
+
+== Finalise ==
+
+SS -> User : OUT files become visible
+
+@enduml

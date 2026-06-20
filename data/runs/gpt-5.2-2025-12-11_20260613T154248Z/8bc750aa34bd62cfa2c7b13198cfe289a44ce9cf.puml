@@ -1,0 +1,74 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #000000
+  ParticipantBackgroundColor #FFFFFF
+  BoxBorderColor #000000
+  BoxBackgroundColor #FFFFFF
+  NoteBackgroundColor #FFFDE7
+  NoteBorderColor #B0B0B0
+}
+
+actor mobile as Mobile
+participant "www" as WWW
+participant endpoint as Endpoint
+participant haproxy as HAProxy
+participant ipfs as IPFS
+participant postgraphile as Postgraphile
+participant "CITY Custom Net" as CityNet
+participant logstash as Logstash
+participant dApp as DApp
+database postgres as Postgres
+database elastic as Elastic
+participant promethues as Prometheus
+participant kibana as Kibana
+
+box "webUI" #FFFFFF
+  Mobile -> WWW : sign & send events
+  note over WWW
+    browser ext or mobile wallet
+  end note
+
+  WWW -> Endpoint : HTTPS gateway & peer tcp/4001
+  Endpoint -> IPFS : /ipfs/{CID}
+  WWW -> HAProxy : HTTPS (oauth by EC Address)
+  note over WWW
+    User makes deposit / signs entry to trigger events.
+  end note
+end box
+
+box "api - Admin/Write api" #FFFFFF
+  HAProxy -> CityNet : /v2 - read/write factom api
+  HAProxy -> IPFS : /ipfs/{CID} - readonly gateway
+  HAProxy -> Postgraphile : /graphql - readonly graphql queries
+
+  Postgraphile -> CityNet : Query/Sign
+  CityNet -> Logstash : livefeed log
+  Logstash -> Elastic : index event logs
+  CityNet -> Postgres : dApp specific events
+  CityNet -> DApp : sign and dispatch requests
+  DApp -> CityNet : read/write signed factom entries
+end box
+
+box "dashboard" #FFFFFF
+  Elastic -> Prometheus : dashboard query
+  Prometheus -> Prometheus : poll()
+  Prometheus -> Kibana : metrics query
+  Kibana -> Elastic : dApp specific rollup
+
+  Prometheus -> CityNet : Monitor(FA2XXXXXXXXXX) Balance changes
+  Prometheus -> CityNet : HTTP GET /metrics
+  Prometheus -> IPFS : HTTP GET /metrics
+end box
+
+box "dApp - controller" #FFFFFF
+  DApp -> IPFS : pin entry content on IPFS
+  DApp -> Logstash : dApp specific logging
+  DApp -> CityNet : dispatch on-chain event
+end box
+
+@enduml

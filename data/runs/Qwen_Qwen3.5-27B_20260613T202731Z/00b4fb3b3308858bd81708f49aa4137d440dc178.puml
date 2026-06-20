@@ -1,0 +1,100 @@
+```plantuml
+@startuml
+title Install Package Flow
+
+participant "InstallInstalling" as II
+participant "PackageInstaller" as PI
+participant "PackageInstallerService" as PIS
+participant "InstallingAsyncTask" as IAT
+participant "PackageInstallerSession" as PISession
+participant "Handler" as Handler
+participant "mHandlerCallback" as Callback
+participant "PkMS" as PkMS
+participant "PkMS.PackageHandler" as PkMS_PH
+participant "PkMS.HandlerParams" as PkMS_HP
+participant "PkMS.InstallParams" as PkMS_IP
+
+== Initialization ==
+II -> II: onCreate()
+activate II
+II -> PI: createSession()
+activate PI
+PI -> PIS: createSession()
+activate PIS
+PIS --> PI: sessionId
+deactivate PIS
+PI --> II: sessionId
+deactivate PI
+II -> II: onResume()
+activate II
+II -> IAT: execute()
+activate IAT
+
+== Background Execution ==
+IAT -> IAT: doInBackground()
+activate IAT
+IAT -> PI: openSession(sessionId)
+activate PI
+PI --> IAT: Session
+deactivate PI
+IAT -> PISession: openWrite()
+activate PISession
+PISession -> PISession: doPostExecute()
+activate PISession
+PISession -> PISession: commit()
+activate PISession
+PISession -> Handler: sendToTarget(MSG_COMMIT)
+activate Handler
+Handler -> Callback: handleMessage(MSG_COMMIT)
+activate Callback
+Callback --> PISession: handleCommit()
+deactivate Callback
+PISession -> PISession: commitNonStagedLocked()
+activate PISession
+PISession -> PISession: installStage()
+activate PISession
+PISession -> PkMS: sendMessage(INIT_COPY)
+activate PkMS
+PkMS -> PkMS_PH: startCopy()
+activate PkMS_PH
+PkMS_PH -> PkMS_HP: handleStartCopy()
+activate PkMS_HP
+PkMS_HP -> PkMS_IP: handleReturnCode()
+activate PkMS_IP
+PkMS_IP --> PkMS_PH: 
+deactivate PkMS_IP
+PkMS_PH --> PkMS: processPendingInstall()
+deactivate PkMS_PH
+PkMS -> PkMS: processInstallRequestsAsync()
+activate PkMS
+PkMS -> PkMS: installPackagesTracedLI()
+activate PkMS
+PkMS -> PkMS: installPackagesLI()
+activate PkMS
+PkMS -> PkMS: preparePackageLI()
+activate PkMS
+PkMS -> PkMS: scanPackageTracedLI()
+activate PkMS
+PkMS -> PkMS: commitPackagesLocked()
+activate PkMS
+PkMS -> PkMS: commitReconciledScanResultLocked()
+activate PkMS
+PkMS -> PkMS: commitPackageSettings()
+activate PkMS
+deactivate PkMS
+deactivate PkMS
+deactivate PkMS
+deactivate PkMS
+deactivate PkMS
+deactivate PkMS
+deactivate PkMS
+deactivate PkMS
+deactivate PkMS
+deactivate PISession
+deactivate PISession
+deactivate PISession
+deactivate IAT
+deactivate II
+
+@enduml
+```

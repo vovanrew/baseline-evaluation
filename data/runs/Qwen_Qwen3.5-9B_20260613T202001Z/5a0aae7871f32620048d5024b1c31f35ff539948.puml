@@ -1,0 +1,57 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam sequenceMessageSize 100
+
+package "DefaultResultSetHandler" as DefaultResultSetHandler {
+  package "DefaultResultSetHandler1" as DefaultResultSetHandler1
+  package "DefaultResultSetHandler2" as DefaultResultSetHandler2
+  package "DefaultResultSetHandler3" as DefaultResultSetHandler3
+  package "DefaultResultSetHandler4" as DefaultResultSetHandler4
+  package "DefaultResultSetHandler5" as DefaultResultSetHandler5
+  package "DefaultResultSetHandler6" as DefaultResultSetHandler6
+  package "DefaultResultSetHandler7" as DefaultResultSetHandler7
+  package "DefaultResultSetHandler8" as DefaultResultSetHandler8
+}
+
+participant "DefaultResultSetHandler" as DefaultResultSetHandler
+participant "DefaultResultSetHandler1" as DefaultResultSetHandler1
+participant "DefaultResultSetHandler2" as DefaultResultSetHandler2
+participant "DefaultResultSetHandler3" as DefaultResultSetHandler3
+participant "DefaultResultSetHandler4" as DefaultResultSetHandler4
+participant "DefaultResultSetHandler5" as DefaultResultSetHandler5
+participant "DefaultResultSetHandler6" as DefaultResultSetHandler6
+participant "DefaultResultSetHandler7" as DefaultResultSetHandler7
+participant "DefaultResultSetHandler8" as DefaultResultSetHandler8
+
+DefaultResultSetHandler -> DefaultResultSetHandler1 : handleResultSet()
+
+loop
+  DefaultResultSetHandler1 -> DefaultResultSetHandler2 : handleRowValues() : 映射结果集
+  DefaultResultSetHandler2 -> DefaultResultSetHandler3 : handleRowValuesForNestedResultMap()
+  DefaultResultSetHandler3 -> DefaultResultSetHandler4 : getPropertyValue()
+  DefaultResultSetHandler4 -> DefaultResultSetHandler5 : createResultObject() : 使用构造器属性映射构造对象
+  DefaultResultSetHandler5 -> DefaultResultSetHandler5 : applyAutomaticMappings() : 使用自动映射映射没有定义映射的
+  DefaultResultSetHandler5 -> DefaultResultSetHandler5 : applyPropertyMappings() : 使用映射映射属性对应的列
+  loop
+    DefaultResultSetHandler5 -> DefaultResultSetHandler5 : getPropertyMappingValue()
+    DefaultResultSetHandler5 -> DefaultResultSetHandler5 : getNestedObjectMappingValue()
+    DefaultResultSetHandler5 -> DefaultResultSetHandler5 : addPendingChildRelation()
+    DefaultResultSetHandler5 -> DefaultResultSetHandler5 : TypeHandler.getResult()
+    Note right of DefaultResultSetHandler5 : 属性的值需要设置到宿主对象的属性上
+  end
+  DefaultResultSetHandler5 -> DefaultResultSetHandler3 : applyNestedResultMappings() : 使用内部子映射映射生成属性对象，会调用getPropertyValue()方法
+  DefaultResultSetHandler3 -> DefaultResultSetHandler2 : 收集映射生成的结果对象，并且返回
+  DefaultResultSetHandler2 -> DefaultResultSetHandler1 : handleRowValuesForSimpleResultMap()
+  DefaultResultSetHandler1 -> DefaultResultSetHandler1 : getPropertyValue()
+  DefaultResultSetHandler1 -> DefaultResultSetHandler1 : createResultObject() : 使用构造器属性映射构造对象
+  DefaultResultSetHandler1 -> DefaultResultSetHandler1 : applyAutomaticMappings() : 使用自动映射映射没有定义映射的
+  DefaultResultSetHandler1 -> DefaultResultSetHandler1 : applyPropertyMappings() : 使用映射映射属性对应的列
+  DefaultResultSetHandler1 -> DefaultResultSetHandler2 : 收集映射生成的结果对象，并且返回
+end
+
+DefaultResultSetHandler -> DefaultResultSetHandler1 : handleResultSet() : 使用resultMapping指定的ResultMap或ResultMapping指定的结果集映射成对象（属性值）
+Note right of DefaultResultSetHandler1 : 过程与上面完全一样，不同的是收集结果对象，此过程将生成的结果对象设置到宿主属性上
+DefaultResultSetHandler1 -> DefaultResultSetHandler1 : done
+
+@enduml

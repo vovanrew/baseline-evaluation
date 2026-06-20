@@ -1,0 +1,56 @@
+```plantuml
+@startuml
+
+box "Client"
+participant client
+participant tcpclient
+end box
+
+box "Server"
+participant tcpserver
+participant server
+end box
+
+server -> tcpserver : listen
+hnote over tcpserver #cyan : LISTEN
+
+client -> tcpclient : connect
+tcpclient -> tcpserver : SYN
+hnote over tcpclient #green : SYN-SENT
+hnote over tcpserver #blue : SYN-RECEIVED
+tcpserver -> tcpclient : SYN, ACK
+tcpclient -> tcpserver : ACK
+hnote over tcpclient #lightgreen : ESTABLISHED
+hnote over tcpserver #lightgreen : ESTABLISHED
+
+tcpserver -> server : EPOLLIN
+server -> tcpserver : write
+tcpclient -> tcpserver : PSH, ACK
+tcpclient -> tcpserver : ACK
+
+tcpclient -> client : EPOLLIN
+client -> tcpclient : read
+
+server -> tcpserver : close
+hnote over tcpserver #mediumpurple : FIN_WAIT1
+
+tcpserver -> tcpclient : FIN, ACK
+hnote over tcpclient #magenta : CLOSE_WAIT
+
+tcpclient -> tcpserver : ACK
+hnote over tcpserver #orange : FIN_WAIT2
+
+tcpclient -> client : EPOLLRDHUP
+client -> tcpclient : close
+hnote over tcpclient #magenta : LAST_ACK
+
+tcpclient -> tcpserver : FIN
+tcpserver -> tcpclient : ACK
+hnote over tcpclient #red : CLOSE
+
+hnote over tcpserver #yellow : TIMEWAIT
+note right of tcpserver : timer 60s
+hnote over tcpserver #yellow : CLOSE
+
+@enduml
+```

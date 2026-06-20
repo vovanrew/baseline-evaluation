@@ -1,0 +1,42 @@
+@startuml
+actor Teams as Actor
+interface API as API
+interface BuildService as BuildService
+interface CommandParser as CommandParser
+interface BuildCommand as BuildCommand
+interface BuildSystem as BuildSystem
+interface BuildFactory as BuildFactory
+database BuildDb as BuildDb
+interface BuildMonitor as BuildMonitor
+interface NotificationService as NotificationService
+database NotificationDb as NotificationDb
+
+Actor "Teams" as A
+API "API" as B
+BuildService "BuildService" as C
+CommandParser "CommandParser" as D
+BuildCommand "BuildCommand" as E
+BuildSystem "BuildSystem" as F
+BuildFactory "BuildFactory" as G
+BuildDb "BuildDb" as H
+BuildMonitor "BuildMonitor" as I
+NotificationService "NotificationService" as J
+NotificationDb "NotificationDb" as K
+
+A -> B : /api/messages
+B -> C : ProcessCommandAsync
+C -> D : ParseCommand
+D -> C : BuildCommand
+C -> E : Execute
+E -> F : CreateBuildAsync
+F -> G : CreateBuildAsync
+G -> H : Save build
+H -> F : Build
+F -> I : AddBuildAsync
+I -> J : AddBuildAsync
+J -> K : Save notification
+K -> E : Build
+E -> C : AddNotificationAsync
+C -> A : Build
+
+@enduml

@@ -1,0 +1,88 @@
+```plantuml
+@startuml
+skinparam backgroundColor white
+skinparam sequenceMessageAlign left
+skinparam responseMessageBelowArrow true
+skinparam ParticipantPadding 25
+skinparam BoxPadding 10
+skinparam Shadowing false
+skinparam ArrowColor #333
+skinparam LifeLineBorderColor #999
+skinparam LifeLineBackgroundColor #fff
+
+participant "ClassPathXmlApplicationContext" as CPXAC
+participant "AbstractApplicationContext" as AAC
+participant "DefaultListableBeanFactory" as DLBF
+participant "AbstractBeanFactory" as ABF
+participant "DefaultSingletonBeanRegistry" as DSBR
+participant "AbstractAutowireCapableBeanFactory" as AABF
+participant "BeanDefinitionValueResolver" as BDVR
+
+CPXAC -> AAC : refresh()
+AAC -> DLBF : refreshBeanFactory()
+DLBF --> AAC : finishBeanFactoryInitialization() : spring bean 实例化入口
+AAC -> DLBF : preInstantiateSingletons
+
+DLBF -> ABF : getBean() 真正获取bean的开始XXX,是Spring通用的实现方法包含各方
+ABF -> ABF : doGetBean 真正获取bean的开始XXX,是Spring通用的实现方法包含各方
+ABF -> DSBR : getSingleton 从缓存中获取Springbean对象
+DSBR -> DSBR : getSingleton(beanName,earlyReference)\n第一次进行时发现没有缓存的bean对象
+DSBR --> ABF : 第一次返回为空
+ABF -> DSBR : markBeanAsCreated bean创建过程比较长，标记bean正在创建 markBeanAsCreated
+ABF -> DSBR : getSingleton(beanName, 对象工厂)\n此处是一个lambda表达式：
+DSBR -> DSBR : beforeSingletonCreation
+ABF -> AABF : createBean lambda中执行方法
+
+AABF -> AABF : doCreateBean
+AABF -> AABF : createBeanInstance 内部函数
+AABF -> DSBR : earlySingletonExposure\n是否进行提前对象暴露：addSingletonFactory：将对象放在三级缓存
+DSBR -> DSBR : addSingletonFactory 将对象放入三级缓存
+AABF -> AABF : populateBean(bean 属性填充,循环依赖的关键即bean之间的属性填充)
+AABF -> AABF : applyPropertyValues
+AABF -> BDVR : resolveValueIfNecessary,处理bean里面的依赖
+BDVR --> AABF : resolveReference
+
+DLBF -> ABF : getBean 获取bean属性中依赖的bean对象
+ABF -> ABF : doGetBean
+ABF -> DSBR : getSingleton 从缓存中获取Springbean对象
+DSBR -> DSBR : getSingleton(beanName,earlyReference)\n第二次进行时发现类型依赖的bean对象
+DSBR --> ABF : 第二次返回为空
+ABF -> DSBR : markBeanAsCreated bean创建过程比较长，标记bean正在创建 markBeanAsCreated
+ABF -> DSBR : getSingleton(beanName, 对象工厂)\n此处是一个lambda表达式：
+DSBR -> DSBR : beforeSingletonCreation
+ABF -> AABF : createBean lambda中执行方法
+
+AABF -> AABF : doCreateBean
+AABF -> AABF : createBeanInstance 内部函数
+AABF -> DSBR : earlySingletonExposure\n是否进行提前对象暴露：addSingletonFactory：将对象放在三级缓存
+DSBR -> DSBR : addSingletonFactory 将对象放入三级缓存(此处特别注意：singletonFactories)
+AABF -> AABF : populateBean(bean 属性填充,循环依赖的关键即bean之间的属性填充)
+AABF -> AABF : applyPropertyValues
+AABF -> BDVR : resolveValueIfNecessary,处理bean里面的依赖
+BDVR --> AABF : resolveReference
+
+DLBF -> ABF : getBean 获取bean属性中依赖的bean对象
+ABF -> ABF : doGetBean
+ABF -> DSBR : getSingleton 从缓存中获取Springbean对象
+DSBR -> DSBR : getSingleton(beanName,earlyReference)
+DSBR --> ABF : ObjectFactory<> singletonFactory = this.singletonFactories.get(beanName);\n从三级缓存中获取，因为对象已经缓存了，所以可以获取到暴露的对象
+ABF --> DLBF : 返回提前暴露的对象(不在是返回的空对象)，并且在三级缓存中的数据对象放在二级缓存中earlySingletonObjects
+DLBF --> AABF : 返回提前暴露的bean
+
+AABF -> AABF : 依赖的bean获取到bean
+AABF -> AABF : applyPropertyValues 方法返回
+AABF -> AABF : populateBean方法返回
+AABF -> AABF : initializeBean spring中的init方法，实现Aware操作，
+AABF --> ABF : 返回bean
+ABF --> DLBF : 返回bean
+DLBF --> AAC : 返回bean
+
+AABF -> AABF : populateBean (返回bean的填充)
+AABF -> DSBR : createBean
+DSBR -> DSBR : addSingleton(beanName, singletonObject): 将对象放到一级缓存，移除二级和三级缓存中的值
+note right of DSBR
+  依次清理：移除三级缓存和二级缓存singletonObjects(缓存对象)
+end note
+
+@enduml
+```

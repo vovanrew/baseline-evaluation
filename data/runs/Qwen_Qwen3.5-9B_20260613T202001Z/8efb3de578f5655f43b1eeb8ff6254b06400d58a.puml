@@ -1,0 +1,154 @@
+@startuml
+!theme plain
+
+package "com" {
+  package "unisa" {
+    package "cinehub" {
+      package "control" {
+        class "GestioneCatalogoControl" {
+          + addFilm(Film film): Film
+          + addSerieTV(SerieTV serieTv): SerieTv
+          + addPuntata(Puntata puntata, Long idSerieTv, Integer numeroStagione): void
+          + addCast(Cast cast): void
+          + addRuolo(Ruolo ruolo, Long castId, Long mediaId): void
+          + findAllCast(): List<Cast>
+          + updateFilm(Film film): void
+          + updateSerieTV(SerieTV serieTv): void
+          + updatePuntata(Puntata puntata): void
+          + removeFilm(Long id): void
+          + removeSerieTV(Long id): void
+          + removePuntata(PuntataID id): void
+          + removeCast(Long id): void
+          + addGeneriFilm(Collection<Genero> generi, Long id): void
+          + addGeneriSerieTV(Collection<Genero> generi, Long id): void
+          + findRecensioniByMiPlace(Recensibile recensibile): List<Recensione>
+          + requestAllRecensioni(): List<Recensione>
+        }
+
+        class "CatalogoControl" {
+          + addRecensione(Recensione recensione): void
+          + requestRecensioneById(Long id): Recensione
+          + addMiPlace(boolean b, Recensione recensione): void
+          + findMiPlaceById(Recensione recensione): MiPlace
+          + getNumeroMiPlaceOfRecensione(Recensione recensione): Integer
+          + getNumeroNonMiPlaceOfRecensione(Recensione recensione): Integer
+          + rispondiARecensione(Recensione risposta): void
+          + findAllFilm(): List<Film>
+          + findAllSerieTV(): List<SerieTv>
+          + findMostRecentMedia(Integer howMany): List<Media>
+          + puntateByStagione(Long idSerieTv, Integer numeroStagione): List<Puntata>
+          + puntateBySerie(Long idSerieTv): List<Puntata>
+          + findFilmById(Long id): Film
+          + findSerieTvById(Long id): SerieTv
+          + findPuntataById(PuntataID puntataID): List<Puntata>
+          + searchFilmByGeneri(Collection<Genero> generi): List<Film>
+          + searchSerieTvByGeneri(Collection<Genero> generi): List<SerieTv>
+          + searchFilmByTitle(String titolo): List<Film>
+          + searchSerieTvByTitle(String titolo): List<SerieTv>
+          + findAllPuntate(): List<Puntata>
+          + findPuntataByTitle(String titolo): List<Puntata>
+          + findMostVoted(): List<Media>
+        }
+
+        class "ModerazioneControl" {
+          + addSegnalazione(Recensione recensione): void
+          + bannaRecensore(String email): void
+          + findAllSegnalazioni(): List<Segnalazione>
+          + deleteRecensione(Recensione recensione): void
+          + isSegnalted(Recensione recensione): Boolean
+        }
+
+        class "UtenteControl" {
+          - cal : Calendar
+          - eventPublisher : ApplicationEventPublisher
+          + getAllRecensori(): List<Recensore>
+          + getAllNotBannedRecensori(): List<Recensore>
+          + registrazioneUtente(Utente utente): Utente
+          + confermaRegistrazione(String token): void
+        }
+      }
+    }
+
+    package "model" {
+      package "media" {
+        class "FilmService" {
+          + addFilm(Film film): Film
+          + updateFilm(Film film): void
+          + removeFilm(Long id): void
+          + findFilmById(Long id): Film
+          + searchFilmByTitle(String titolo): List<Film>
+          + searchFilmByGeneri(Collection<Genero> generi): List<Film>
+        }
+
+        class "PuntataService" {
+          + addPuntata(Puntata puntata): void
+          + updatePuntata(Puntata puntata): void
+          + removePuntata(PuntataID id): void
+          + findPuntataById(PuntataID id): Puntata
+          + findPuntataByTitle(String titolo): List<Puntata>
+          + findPuntateBySerie(Long idSerieTv): List<Puntata>
+          + findPuntateByStagione(Long idSerieTv, Integer numeroStagione): List<Puntata>
+        }
+
+        class "SerieTVService" {
+          + addSerieTV(SerieTV serieTv): SerieTv
+          + updateSerieTV(SerieTV serieTv): void
+          + removeSerieTV(Long id): void
+          + findSerieTvById(Long id): SerieTv
+          + searchSerieTvByTitle(String titolo): List<SerieTv>
+          + searchSerieTvByGeneri(Collection<Genero> generi): List<SerieTv>
+        }
+
+        class "CastService" {
+          + addCast(Cast cast): void
+          + updateCast(Cast cast): void
+          + removeCast(Long id): void
+          + findCastById(Long id): Cast
+          + findAllCast(): List<Cast>
+        }
+
+        class "RuoloService" {
+          + addRuolo(Ruolo ruolo): void
+          + updateRuolo(Ruolo ruolo): void
+          + removeRuolo(Long id): void
+          + findRuoloById(Long id): Ruolo
+          + findRuoliByCast(Long castId): List<Ruolo>
+          + findRuoliByMedia(Long mediaId): List<Ruolo>
+        }
+      }
+
+      package "recensione" {
+        class "RecensioneService" {
+          + addRecensione(Recensione recensione): void
+          + updateRecensione(Recensione recensione): void
+          + removeRecensione(Long id): void
+          + findRecensioneById(Long id): Recensione
+          + findAllRecensioni(): List<Recensione>
+          + findRecensioniByMiPlace(Recensibile recensibile): List<Recensione>
+          + findRecensioniByTitolo(String titolo): List<Recensione>
+          + findRecensioniByStagione(Long idSerieTv, Integer numeroStagione): List<Recensione>
+          + findRecensioniByTitoloEStagione(String titolo, Integer numeroStagione): List<Recensione>
+          + findRecensioniByTitoloESerie(String titolo, Long idSerieTv): List<Recensione>
+          + findRecensioniByTitoloESerieEStagione(String titolo, Long idSerieTv, Integer numeroStagione): List<Recensione>
+          + findRecensioniByTitoloESerieETitolo(String titolo, Long idSerieTv, String titoloRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione, Integer numeroStagioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensioneRecensione): List<Recensione>
+          + findRecensioniByTitoloESerieETitoloEStagioneEStagioneEStagioneEStagioneEStagioneEStagioneEStagione(String titolo, Long idSerieTv, String titoloRecensione, Integer numeroStagione, Integer numeroStagioneRecensione, Integer numeroStagioneRecensioneRecensione, Integer numeroStag

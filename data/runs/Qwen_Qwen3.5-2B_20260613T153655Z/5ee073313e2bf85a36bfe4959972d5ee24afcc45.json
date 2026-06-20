@@ -1,0 +1,22 @@
+{
+  "id": "500e7b70-c2f0-4132-9258-999f7d7b02bd",
+  "object": "chat.completion",
+  "created": 1781400690,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"Customer\" as C\nparticipant \"Cashier\" as K\nparticipant \":Inventory System\" as I\nparticipant \":Order\" as O\nparticipant \":Product\" as P\nparticipant \":Stock\" as S\nparticipant \":Invoice\" as Inv\nparticipant \":Transaction\" as T\n\nC ..> K :1. Request order product\nK ..> C :2. Receive order\nK ..> I :3. requestCreateOrder()\n\nI ..> P :3.1 selectProduct()\nP ..> S :3.2 checkStock()\nS ..> P :3.3 return stock\nP ..> I :3.4 return product\n\nalt [F (stock.qty > order.qty)]\n    I ..> O :3.5 createOrder(order)\n    O ..> S :3.6 updateStock()\n    S ..> I :3.7 return update stock\n    O ..> Inv :3.8 systemCreateInvoice()\n    Inv ..> O :3.9 printInvoice()\n    O ..> I :3.10 return invoice\n    I ..> K :3.11 return order\n    [ELSE]\n    I ..> K :3.12 can't create order\n    K ..> I :4. response create order status\n    I ..> K :5. Invoice\nend\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1762,
+    "completion_tokens": 293,
+    "total_tokens": 2055
+  }
+}

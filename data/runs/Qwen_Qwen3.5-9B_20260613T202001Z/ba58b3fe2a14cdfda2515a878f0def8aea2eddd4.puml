@@ -1,0 +1,43 @@
+@startuml
+left to right direction
+skinparam sequenceMessageAlign center
+skinparam note {
+  BackgroundColor #ffffe0
+  BorderColor #999999
+}
+
+participant "客户端" as Client
+participant "AMS" as AMS
+participant "UserControl" as UserControl
+
+Client -> AMS: registerUserSwitchObserver(IUserSwitchObserver)
+note right of Client: 注册回调接口
+
+AMS -> UserControl: registerUserSwitchObserver(IUserSwitchObserver)
+
+Client -> AMS: switchUser()
+AMS ..> UserControl: startUser()
+
+note right of AMS: 执行切换用户动作，发送REPORT_USER_SWITCH_MSG
+
+UserControl -> UserControl: dispatchUserSwitch
+
+UserControl -> Client: IUserSwitchObserver.onUserSwitching(newUserId, callback)
+
+note right of Client: 通知客户端处理完用户切换后回调传递的callback来通知AMS
+
+Client ..> UserControl: IRemoteCallback.sendResult()
+
+note right of AMS: 等待所有客户端处理完成之后继续进行切换用户的工作
+
+UserControl -> UserControl: continueUserSwitch()
+
+note right of AMS: 结束冻屏，并停止在后台的访客用户
+
+UserControl -> UserControl: dispatchUserSwitchComplete()
+
+note right of AMS: 通过回调方法通知客户端进行用户切换的收尾工作
+
+UserControl -> Client: IUserSwitchObserver.onUserSwitchComplete(userId)
+
+@enduml

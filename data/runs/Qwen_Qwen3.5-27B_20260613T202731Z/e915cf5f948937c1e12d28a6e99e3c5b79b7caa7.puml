@@ -1,0 +1,72 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+package model {
+    package generator {
+        class GenerateHttpTagInfo {
+            <<C>>
+            + fun generateTagInfo() : Array<TagInfo>
+            + fun generateOneTagInfo() : TagInfo()
+        }
+        class GenerateSQLiteTagInfo {
+            <<C>>
+            + fun generateTagInfo() : Array<TagInfo>
+            + fun generateOneTagInfo() : TagInfo()
+        }
+        interface IGenerateTagInfo {
+            <<I>>
+            + fun generateTagInfo() : Array<TagInfo>
+            + fun generateOneTagInfo() : TagInfo()
+        }
+    }
+    package converter {
+        class TagInfoConverter {
+            <<C>>
+            - jsonTagInfos : jsonArray
+            + fun getFollowersCount():Int
+            + fun getIconUrl():String?
+            + fun getTagId() : String
+            + fun.getItemsCount() : Int
+        }
+    }
+    package sqlite {
+        class SQLiteDao {
+            <<C>>
+            + fun insertTagInfo()
+            + fun selectRegesteTag()
+            + fun deleteTagInfo()
+        }
+        class TagInfoDto {
+            <<C>>
+            - followers_count : Int
+            - icon_url : String
+            - tagId : String
+            - items_count :Int
+        }
+    }
+}
+package viewModel {
+    class TagInfoListViewHolder {
+        <<C>>
+        - followersCount : Int
+        - icon : Icon
+        - tagId : String
+        - itemCount : Int
+    }
+    class TagInnfoListViewAdapter {
+        <<C>>
+        + onBindViewHolder()
+        + getItemCount() : Int
+    }
+}
+
+GenerateHttpTagInfo --|> IGenerateTagInfo
+GenerateSQLiteTagInfo --|> IGenerateTagInfo
+GenerateHttpTagInfo --> TagInfoConverter : Jsonから値を取得
+GenerateSQLiteTagInfo --> SQLiteDao : 設定ファイルを読み込む
+GenerateSQLiteTagInfo --> TagInfoDto : 値を設定
+TagInfoDto --> TagInfoListViewHolder : 設定をセット
+
+@enduml
+```

@@ -1,0 +1,22 @@
+{
+  "id": "849e36cb-c587-47f9-94de-d43207d81c8c",
+  "object": "chat.completion",
+  "created": 1781404004,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n\nparticipant bl1_main as \"bl1_main\"\nparticipant bl_common as \"bl_common\"\nparticipant fvp_bl1_setup as \"fvp_bl1_setup\"\nparticipant arm_bl1_setup as \"arm_bl1_setup\"\nparticipant arm_io_storage as \"arm_io_storage\"\nparticipant plat_bl1_common as \"plat_bl1_common\"\nparticipant fconf as \"fconf\"\n\nnote over bl1_main, bl_common: bl1_platform_setup()\nnote over fvp_bl1_setup, arm_bl1_setup, arm_io_storage: register and setup fip\nnote over plat_bl1_common, fconf: create and populate an image_desc_t for FW_CONFIG\nnote over fconf: use statically defined policies in bl1\nnote over arm_io_storage: load and auth image from fip with info from plat_io_policy\nnote over fconf: get tb_fw_config_dtb from image_info\nnote over fconf: set ep_info.args.arg0 of BL2_IMAGE_DESC to FW_CONFIG base address\nnote over arm_bl1_setup: load & auth, prepare and jump to BL2\n\nbl1_main->>bl_common: bl1_platform_setup()\nbl_common->>fvp_bl1_setup: arm_bl1_platform_setup()\nfvp_bl1_setup->>arm_bl1_setup: plat_arm_io_setup()\narm_bl1_setup->>arm_io_storage: fconf_load_config()\narm_io_storage->>fconf: register and setup fip\nfconf->>arm_io_storage: FCONF_GET_PROPERTY(arm, arm_io_policies, tb_fw_cfg)\narm_io_storage->>fconf: use statically defined policies in bl1\nfconf->>bl_common: load_auth_image(FW_CONFIG_ID, &image_info)\nbl_common->>arm_io_storage: image_info\narm_io_storage->>fconf: get tb_fw_config_dtb from image_info\nfconf->>bl1_main: bl1_plat_get_image_desc(BL2_IMAGE_ID)\nbl1_main->>bl_common: BL2_IMAGE_DESC\nbl_common->>fconf: set ep_info.args.arg0 of BL2_IMAGE_DESC to FW_CONFIG base address\nfconf->>arm_bl1_setup: load & auth, prepare and jump to BL2\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1566,
+    "completion_tokens": 488,
+    "total_tokens": 2054
+  }
+}

@@ -1,0 +1,44 @@
+```plantuml
+@startuml
+package controller {
+  package model as c_model {
+    class User as c_User
+  }
+  
+  interface Controller {
+    + execute(args : json) : json
+  }
+  
+  class Amount as c_Amount
+  class TransferSend
+  class Transfer
+  
+  class Factory {
+    + create(name : string) : Controller
+  }
+  
+  package view as c_view {
+    class Amount as cv_Amount
+  }
+  
+  Controller <|.. c_Amount
+  Controller <|.. TransferSend
+  Controller <|.. Transfer
+  
+  c_Amount .up.> c_User
+  c_Amount .down.> cv_Amount
+  
+  Factory .up.> c_Amount : create
+  Factory .up.> TransferSend : create
+  Factory .up.> Transfer : create
+}
+
+package view {
+  class Amount as v_Amount
+}
+
+package model {
+  class User as m_User
+}
+@enduml
+```

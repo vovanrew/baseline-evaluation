@@ -1,0 +1,22 @@
+{
+  "id": "8de74db0-73f9-4ef9-9e20-3a4b857368d5",
+  "object": "chat.completion",
+  "created": 1781486843,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam sequence {\n  ArrowColor lightblue\n  LifeLineBorderColor black\n  LifeLineBackgroundColor wheat\n  ActorBackgroundColor cyan\n  ActorBorderColor cyan\n}\n\ntitle Database Connection Pooling Process\n\nactor \"User\" as user\nparticipant \"BaseExecutor\" as baseExecutor\nparticipant \"JdbcTransaction\" as jdbcTransaction\nparticipant \"PooledDataSource\" as pooledDataSource\nparticipant \"PooledConnection\" as pooledConnection\nparticipant \"Proxy\" as proxy\nparticipant \"Connection\" as connection\n\nuser -> baseExecutor: getConnection\nactivate baseExecutor\nbaseExecutor -> jdbcTransaction: getConnection\nactivate jdbcTransaction\njdbcTransaction -> jdbcTransaction: openConnection\nactivate jdbcTransaction\njdbcTransaction -> pooledDataSource: getConnection\nactivate pooledDataSource\npooledDataSource -> pooledDataSource: popConnection\nactivate pooledDataSource\npooledDataSource -> pooledConnection: <create>\nactivate pooledConnection\npooledConnection -> proxy: newProxyInstance\nactivate proxy\nproxy --> pooledConnection: \u521b\u5efaConnection\u4ee3\u7406\u7c7b\u5bf9\u8c61\ndeactivate proxy\npooledConnection --> pooledDataSource: \u8fd4\u56dePooledConnection\u5b9e\u4f8b\ndeactivate pooledConnection\npooledDataSource -> pooledConnection: isValid\nactivate pooledConnection\npooledConnection -> pooledConnection: pingConnection\nactivate pooledConnection\npooledConnection --> pooledConnection: \u68c0\u6d4b\u8fde\u63a5\u662f\u5426\u6709\u6548\ndeactivate pooledConnection\npooledConnection --> pooledDataSource: \u8fde\u63a5\u662f\u5426\u6709\u6548\u6807\u8bc6\ndeactivate pooledConnection\npooledDataSource -> pooledConnection: getProxyConnection\nactivate pooledConnection\npooledConnection --> pooledDataSource: \u8fd4\u56de\u4ee3\u7406\u8fde\u63a5\ndeactivate pooledConnection\npooledDataSource --> jdbcTransaction: \u8fd4\u56de\u4ee3\u7406\u8fde\u63a5\ndeactivate pooledDataSource\njdbcTransaction -> connection: setTransactionIsolation\nactivate connection\nconnection --> jdbcTransaction: \u8bbe\u7f6e\u9694\u79bb\u7ea7\u522b\ndeactivate connection\njdbcTransaction -> jdbcTransaction: setDesiredAutoCommit\nactivate jdbcTransaction\njdbcTransaction --> jdbcTransaction: \u8bbe\u7f6e\u63d0\u4ea4\u6a21\u5f0f\ndeactivate jdbcTransaction\njdbcTransaction --> baseExecutor: \u83b7\u53d6\u8fde\u63a5\ndeactivate jdbcTransaction\nbaseExecutor --> user: \u901a\u8fc7jdbc\u83b7\u53d6\u6570\u636e\u5e93\u8fde\u63a5\ndeactivate baseExecutor\nuser --> user: \u8fd4\u56de\u6570\u636e\u5e93\u8fde\u63a5\n\nnote top of page: Please use '!option handwritten true' to enable handwritten\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2350,
+    "completion_tokens": 468,
+    "total_tokens": 2818
+  }
+}

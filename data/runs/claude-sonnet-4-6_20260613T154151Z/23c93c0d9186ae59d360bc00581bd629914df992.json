@@ -1,0 +1,21 @@
+{
+  "id": "msg_01TYTdN5XBW2L9PcFgopQpeb",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor Nurse\n\nparticipant \": RecordAdverseReactionUI\" as UI\nparticipant \": RecordAdverseReactionController\" as Controller\nparticipant \": Company\" as Company\nparticipant \": AdverseReactionStore\" as Store\nparticipant \": AdverseReactionDTO\" as DTO\nparticipant \": AdverseReactionMapper\" as Mapper\nparticipant \": WaitingRoomStore\" as WaitingRoomStore\nparticipant \": AdverseReaction\" as AdverseReaction\n\nNurse -> UI : 1 Starts recording adverse reaction\nUI --> Nurse : 2 asks for data(SNS Number, Adverse Reaction Text)\nNurse -> UI : 3 types requested data\nUI -> Controller : 4 createAdverseReaction(SNSNumber, advReact)\nController -> WaitingRoomStore : 5 wstore = getWaitingRoomStore()\nController -> Company : 6 store = getRecordAdverseReactionStore()\nController -> WaitingRoomStore : 7 snsu = getSNSUserInTheWaitingRoomByItsSNSNumber(snsuserNumber)\nController -> Company : 8 vc = getVaccinationCenterBySNSNumber(snsuserNumber)\nController -> Store : 9 ar = createAdverseReaction(snsu, advReact, vc)\nStore -> AdverseReaction : 10 create(snsu,advReact,vc)\nController -> Store : 11 validateAdverseReaction(ar)\nactivate Store\ndeactivate Store\nController -> Mapper : 12 toDTO(ar)\nnote over Mapper : ref\\nSD_AdverseReactionMapper_toDTO\nMapper --> Controller : 13 arDTO\nController --> UI : 14 arDTO\nUI --> Nurse : 15 shows SNS User correspondent to the SNS Number\\nand adverse reaction waiting for approval\nNurse -> UI : 16 confirms action\nUI -> Controller : 17 saveAdverseReaction()\nController -> Store : 18 saveAdverseReaction(ar)\nStore -> Store : 19 validateAdverseReaction(ar)\nactivate Store\ndeactivate Store\nStore -> Store : 20 addAdverseReaction(ar)\nactivate Store\ndeactivate Store\nController --> Nurse : 21 informs oppertion success\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781370881,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 586,
+    "prompt_tokens": 1664,
+    "total_tokens": 2250
+  }
+}

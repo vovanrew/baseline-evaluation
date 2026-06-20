@@ -1,0 +1,175 @@
+```plantuml
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "アクター" as Actor
+participant "ユースケース" as UC
+participant "ユーザ" as User
+package "画面" {
+    participant "ホーム画面" as HomeScreen
+    participant "ログイン画面" as LoginScreen
+    participant "タスク一覧画面" as TaskListScreen
+    participant "メンテナンス作業画面" as MaintenanceWorkScreen
+    participant "タスク情報画面" as TaskInfoScreen
+    participant "作業内容登録画面" as WorkContentRegScreen
+    participant "交換部品登録画面" as PartExchangeRegScreen
+}
+participant "システム" as System
+
+== 起動する ==
+Actor -> UC: 起動する
+UC -> User: アイコンを押下する
+activate User
+User -> HomeScreen: 生成
+activate HomeScreen
+HomeScreen --> User: ログイン画面に遷移する
+deactivate HomeScreen
+deactivate User
+
+== ログインする ==
+UC -> User: ログインする
+activate User
+User -> LoginScreen: IDを入力する(id)
+activate LoginScreen
+User -> LoginScreen: パスワードを入力する(パスワード)
+User -> LoginScreen: ログインボタンを押下する
+LoginScreen -> System: 認証情報を送信する(id, パスワード)
+activate System
+System --> LoginScreen: 認証OK
+deactivate System
+LoginScreen --> User: 生成
+deactivate LoginScreen
+User -> TaskListScreen: タスク一覧画面に遷移する
+activate TaskListScreen
+TaskListScreen -> System: 顧客名一覧を取得する(id)
+activate System
+System --> TaskListScreen: 顧客名一覧
+deactivate System
+deactivate User
+
+== タスクを選択する ==
+UC -> User: タスクを選択する
+activate User
+User -> TaskListScreen: 該当する項目を押下する
+TaskListScreen --> User: 生成
+User -> MaintenanceWorkScreen: メンテナンス作業画面に遷移する
+activate MaintenanceWorkScreen
+deactivate TaskListScreen
+deactivate User
+
+== タスク情報を取得する ==
+UC -> User: タスク情報を取得する
+activate User
+User -> MaintenanceWorkScreen: タスク情報ボタンを押下する
+MaintenanceWorkScreen --> User: 生成
+User -> TaskInfoScreen: タスク情報画面に遷移する
+activate TaskInfoScreen
+TaskInfoScreen -> System: タスク情報を取得する(タスクID)
+activate System
+System --> TaskInfoScreen: タスク情報
+deactivate System
+TaskInfoScreen --> User: タスク情報を取得する
+User -> TaskInfoScreen: タスク情報
+User -> TaskInfoScreen: 戻るボタンを押下する
+TaskInfoScreen --> User: 生成
+deactivate TaskInfoScreen
+User -> MaintenanceWorkScreen: メンテナンス作業画面に遷移する
+deactivate MaintenanceWorkScreen
+deactivate User
+
+== 作業内容を登録する ==
+UC -> User: 作業内容を登録する
+activate User
+User -> MaintenanceWorkScreen: 作業内容登録ボタンを押下する
+MaintenanceWorkScreen --> User: 生成
+User -> WorkContentRegScreen: 作業内容登録画面に遷移する
+activate WorkContentRegScreen
+WorkContentRegScreen -> System: タスク情報を取得する(タスクID)
+activate System
+System --> WorkContentRegScreen: タスク情報
+deactivate System
+User -> WorkContentRegScreen: 作業内容を入力する
+User -> WorkContentRegScreen: 戻るボタンを押下する
+WorkContentRegScreen -> System: タスク情報を更新する(タスクID)
+activate System
+deactivate System
+WorkContentRegScreen --> User: 生成
+deactivate WorkContentRegScreen
+User -> MaintenanceWorkScreen: メンテナンス作業画面に遷移する
+deactivate MaintenanceWorkScreen
+deactivate User
+
+== 交換部品を登録する ==
+UC -> User: 交換部品を登録する
+activate User
+User -> MaintenanceWorkScreen: 交換部品登録ボタンを押下する
+MaintenanceWorkScreen --> User: 生成
+User -> PartExchangeRegScreen: 交換部品登録画面に遷移する
+activate PartExchangeRegScreen
+PartExchangeRegScreen -> System: タスク情報を取得する(タスクID)
+activate System
+System --> PartExchangeRegScreen: タスク情報
+deactivate System
+User -> PartExchangeRegScreen: 交換部品を登録する
+User -> PartExchangeRegScreen: 戻るボタンを押下する
+PartExchangeRegScreen -> System: タスク情報を更新する(タスクID)
+activate System
+deactivate System
+PartExchangeRegScreen --> User: 生成
+deactivate PartExchangeRegScreen
+User -> MaintenanceWorkScreen: メンテナンス作業画面に遷移する
+deactivate MaintenanceWorkScreen
+deactivate User
+
+== 作業内容を取得する ==
+UC -> User: 作業内容を取得する
+activate User
+User -> MaintenanceWorkScreen: 作業内容登録ボタンを押下する
+MaintenanceWorkScreen --> User: 生成
+User -> WorkContentRegScreen: 作業内容登録画面に遷移する
+activate WorkContentRegScreen
+WorkContentRegScreen -> System: タスク情報を取得する(タスクID)
+activate System
+System --> WorkContentRegScreen: タスク情報
+deactivate System
+User -> WorkContentRegScreen: 作業内容を取得する
+User -> WorkContentRegScreen: 戻るボタンを押下する
+WorkContentRegScreen --> User: 生成
+deactivate WorkContentRegScreen
+User -> MaintenanceWorkScreen: メンテナンス作業画面に遷移する
+deactivate MaintenanceWorkScreen
+deactivate User
+
+== 交換部品を取得する ==
+UC -> User: 交換部品を取得する
+activate User
+User -> MaintenanceWorkScreen: 交換部品登録ボタンを押下する
+MaintenanceWorkScreen --> User: 生成
+User -> PartExchangeRegScreen: 交換部品登録画面に遷移する
+activate PartExchangeRegScreen
+PartExchangeRegScreen -> System: タスク情報を取得する(タスクID)
+activate System
+System --> PartExchangeRegScreen: タスク情報
+deactivate System
+User -> PartExchangeRegScreen: 登録済み交換部品集合を取得する
+User -> PartExchangeRegScreen: 戻るボタンを押下する
+PartExchangeRegScreen --> User: 生成
+deactivate PartExchangeRegScreen
+User -> MaintenanceWorkScreen: メンテナンス作業画面に遷移する
+deactivate MaintenanceWorkScreen
+deactivate User
+
+== 作業結果を送信する ==
+UC -> User: 作業結果を送信する
+activate User
+User -> MaintenanceWorkScreen: 作業結果送信ボタンを押下する
+MaintenanceWorkScreen -> System: タスク情報を送信する(タスクID)
+activate System
+deactivate System
+MaintenanceWorkScreen --> User: 生成
+User -> TaskListScreen: タスク一覧画面に遷移する
+deactivate MaintenanceWorkScreen
+deactivate User
+@enduml
+```

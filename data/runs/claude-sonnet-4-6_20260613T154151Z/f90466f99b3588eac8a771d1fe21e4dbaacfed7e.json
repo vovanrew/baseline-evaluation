@@ -1,0 +1,21 @@
+{
+  "id": "msg_01ENXspysaqmBGgPHb6pQ8WL",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\ntitle \"af sync strategy <u>ReferencePage</u>\\nStrategy:\\n1. AF_FOLLOWER_COARSE_FOLLOW\\n2. AF_FOLLOWER_COMPLETE_FOLLOW\\n3. AF_FOLLOWER_SEQUENTIAL_FOLLOW tuning file not contain\"\n\nparticipant \"af_core\" as af_core #lightgreen\nparticipant \"af_haf\" as af_haf #lightgreen\nparticipant \"camxhafadapter\" as camxhafadapter #lightgreen\nparticipant \"af_haf_default_mixer\" as af_haf_default_mixer #lightgreen\nparticipant \"af_haf_follower\" as af_haf_follower #red\n\nbox \"Follower\" #pink\nparticipant af_haf_follower\nend box\n\n== how the follower create ==\n\naf_core -> af_haf : af_haf_set_core_switch\naf_haf -> camxhafadapter : pAlgo->set_parameters\\ntype: AF_HAF_SET_PARAM_PEER_FOCUS_INFO\ncamxhafadapter -> af_haf_default_mixer : af_default_mixer_set_parameters\nnote over af_haf_default_mixer\nif !master:\n  pMixer->p_primary = pMixer->p_follower_algo\nelse\n  pMixer->p_primary = pMixer->p_active_algo\nend note\ncamxhafadapter <-- af_haf_default_mixer : return\naf_haf <-- camxhafadapter : return\n\n== af process monitor ==\n\naf_core -> af_haf_follower : af_follower_process_monitor\nnote right of af_haf_follower #lightyellow\nchecked with Lester\nfor follower_monitor, has no different\nfor follower_search,\ncurrent we use LEGACY, and Direct mapping require module calibration data\nend note\n\nalt [lens_mapping_method = FOLLOWER_LEGACY_MAPPING]\\n[lens_mapping_method = FOLLOWER_DIRECT_MAPPING]\nend\n\naf_core <-- af_haf_follower : return\n\n== af process search ==\n\naf_core -> af_haf_follower : af_follower_process_search\naf_haf_follower -> af_haf_follower : af_follower_focus_converge\naf_haf_follower <-- af_haf_follower\n\nnote right of af_haf_follower : just talk about the FOLLOWER_DIRECT_MAPPING\n\nalt [case AF_FOLLOWER_COARSE_FOLLOW]\n  af_haf_follower -> af_haf_follower : af_follower_focus_coarse_follow_dir_map\n  af_haf_follower <-- af_haf_follower\n  note right of af_haf_follower\n  1. if Coarse search ongoing, Fine search not in process\n     go to the target lenspos\n  2. if enter fine search, setup fine search\n     follower have seperate fine search Tuning Param\n  end note\nelse [case AF_FOLLOWER_COMPLETE_FOLLOW]\n  af_haf_follower -> af_haf_follower : af_follower_focus_complete_follow_dir_map\n  af_haf_follower <-- af_haf_follower\n  note right of af_haf_follower\n  once master focusStatus is FOCUSED\n  we directly set LensPos\n  end note\nelse [case AF_FOLLOWER_SEQUENTIAL_FOLLOW]\n  af_haf_follower -> af_haf_follower : af_follower_focus_sequential_follow_dir_map\n  af_haf_follower <-- af_haf_follower\n  note right of af_haf_follower\n  just like COMPLETE_FOLLOW, but even master is focus done\n  will do another fine search\n  end note\nend\n\naf_haf_follower -> af_haf_follower : return\naf_haf_follower <-- af_haf_follower\n\naf_haf_follower -> af_haf_follower : af_follower_get_fine_range\naf_haf_follower <-- af_haf_follower : return\n\naf_haf_follower -> af_haf_follower : af_follower_populate_process_search_output\naf_haf_follower <-- af_haf_follower : return\n\naf_core <-- af_haf_follower : return\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781372331,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 1111,
+    "prompt_tokens": 1636,
+    "total_tokens": 2747
+  }
+}

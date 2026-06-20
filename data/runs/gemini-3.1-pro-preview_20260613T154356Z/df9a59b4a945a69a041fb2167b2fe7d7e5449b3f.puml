@@ -1,0 +1,97 @@
+```plantuml
+@startuml
+title preadapter.service.AnalyzeAST detailed
+
+note as N1
+  Your are analyzing:
+  preadapter.service.AnalyzeAST **detailed**
+  ==Filter==
+  You can click either the namespaces
+  or class names for filtering them and their
+  direct dependencies.
+  ==Select other==
+  * preadapter.service.AnalyzeAST **simplified** :
+    [[preadapter.service.AnalyzeAST-diagram-simplified.svg]]
+  * Full diagram **detailed** and **grouped per namespace**:
+    [[full-diagram-detailed-grouped-per-namespace.svg]]
+  * Home:
+    [[index.html]]
+end note
+
+namespace preadapter {
+  namespace service {
+    class AnalyzeAST #yellow {
+      + SearchRecurseCSharpToYAML(SearchRecurseCSharpToYAML:preadapter.Logger)
+      - SearchRecurseCSharpToYAML.datastructure: preadapter.domain.Datastructure
+      - SearchRecurseCSharpToYAML.recurseFileProcess: RecursiveFileProcessor_BRQTO__BRQTC
+      - SearchRecurseCSharpToYAML.listFilePaths: list_BRQTO_String_BRQTC
+      - SearchRecurseCSharpToYAML.cu: CompilationUnit
+    }
+  }
+
+  namespace domain {
+    class Datastructure {
+      + class_to_datastructure: dict[String,SubDataStructure]
+      + namespace_to_datastructures: dict[String,list[SubDataStructure]]
+      + namespace_to_namespace_list: dict[String,list[String]]
+      + skip_types: list[String]
+      + logger: preadapter.Logger
+      --
+      + ResolveClassNames()
+      - ResolveClassNames.variables: list_BRQTO_Variable_BRQTC
+      - ResolveClassNames.variable: Variable
+      - ResolveClassNames.method: Method
+      - ResolveClassNames.subDataStructure: SubDataStructure
+      --
+      - CorrectClassScope(CorrectClassScope:SubDataStructure, CorrectClassScope:list_BRQTO_String_BRQTC)
+      --
+      + GetFQDNForUsedClassName(GetFQDNForUsedClassName:SubDataStructure)
+      - GetFQDNForUsedClassName.classnameList: list_BRQTO_String_BRQTC
+      - GetFQDNForUsedClassName.fittingClassNames: String_BRQTO__BRQTC
+      - GetFQDNForUsedClassName.bestFittingClassNames: String_BRQTO__BRQTC
+      --
+      + get_skip_types()
+      + append_sub_datastructure(append_sub_datastructure:SubDataStructure)
+      --
+      + append_class(append_class:list_BRQTO_String_BRQTC, append_class:list_BRQTO_String_BRQTC)
+      - append_class.sub_datastructure: SubDataStructure
+      --
+      + get_classname_list()
+      + get_datastructures_from_class_name()
+    }
+
+    class Logger {
+      + loggingType: preadapter.LoggingType
+      --
+      - log()
+      - log.result: String_BRQTO__BRQTC
+      --
+      + logError()
+      + logError()
+      + logWarning()
+      + logWarning()
+      + logInfo()
+      + logInfo()
+      + logDebug()
+      + logDebug()
+      + logTrace()
+      + logTrace()
+    }
+  }
+}
+
+class RecursiveFileProcessor_BRQTO__BRQTC
+class CompilationUnit
+class list_BRQTO_String_BRQTC
+
+preadapter.service.AnalyzeAST ---> preadapter.domain.Datastructure : uses
+preadapter.service.AnalyzeAST ---> RecursiveFileProcessor_BRQTO__BRQTC : uses
+preadapter.service.AnalyzeAST ---> list_BRQTO_String_BRQTC : uses
+preadapter.service.AnalyzeAST ---> CompilationUnit : uses
+preadapter.service.AnalyzeAST ..> preadapter.domain.Logger : uses
+
+preadapter.domain.Datastructure ..> preadapter.domain.Logger : uses
+preadapter.domain.Datastructure ..> list_BRQTO_String_BRQTC : uses
+
+@enduml
+```

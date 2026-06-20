@@ -1,0 +1,51 @@
+```plantuml
+@startuml
+title Capture Credit Card Payment
+
+participant "Client" as Client
+participant "Shop" as Shop
+participant "PAYONE" as PAYONE
+
+Client -> Shop : POST prepare.php
+Shop --> Client : 302 capture.php
+Client -> Shop : GET capture.php
+
+alt [No Pseudo Card PAN present]
+    Shop --> Client : 200 Credit Card Form
+    Client -> PAYONE : POST Card PAN
+    PAYONE --> Client : 200 Pseudo Card PAN
+    Client -> Shop : POST capture.php
+end
+
+Shop -> PAYONE : POST request=authorization
+
+alt [With 3-D Secure]
+    PAYONE --> Shop : 302 3-D Secure Form
+    Shop --> Client : 302 3-D Secure Form
+    Client -> PAYONE : POST 3-D Secure Password
+    PAYONE -> Shop : POST notify.php txaction=appointed
+    Shop -> Shop : Set Payment Status to "captured"
+    Shop --> PAYONE : 200 TSOK
+    PAYONE --> Client : 302 done.php
+else [No 3-D Secure]
+    PAYONE --> Shop : 200 status=APPROVED
+    Shop -> Shop : Set Payment Status to "pending"
+    Shop --> Client : 302 done.php
+end
+
+Client -> Shop : GET done.php
+Shop --> Client : 200 Thanks
+
+alt [No 3-D Secure]
+    ... some time later ...
+    PAYONE -> Shop : POST notify.php txaction=appointed transaction_status=completed
+    Shop -> Shop : Set Payment Status to "captured"
+    Shop --> PAYONE : 200 TSOK
+end
+
+... some time later ...
+PAYONE -> Shop : POST notify.php txaction=paid
+Shop --> PAYONE : 200 TSOK
+
+@enduml
+```

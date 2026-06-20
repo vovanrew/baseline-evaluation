@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+package "Bridge" {
+    class Display {
+        +impl
+        +open(arg): void
+        +print(arg): void
+        +close(arg): void
+        +display(arg): void
+    }
+
+    class DisplayImpl {
+        <<interface>>
+        +raw_open(arg): void
+        +raw_print(arg): void
+        +raw_close(arg): void
+    }
+
+    class CountDisplay {
+        +multi_display(arg): void
+    }
+
+    class StringDisplayImpl {
+        +raw_open(arg): void
+        +raw_print(arg): void
+        +raw_close(arg): void
+    }
+}
+
+package "main" {
+    class main {
+    }
+}
+
+Display o-- DisplayImpl : Uses
+CountDisplay --|> Display
+StringDisplayImpl --|> DisplayImpl
+main --> Display : Uses
+main --> CountDisplay : Uses
+main --> StringDisplayImpl : Create
+
+note top of Bridge: ブリッジパターン
+
+@enduml
+```

@@ -1,0 +1,72 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+
+interface "«external library»\n«interface»\nHttpHandler" as HttpHandler
+
+abstract class PolicyModelHttpHandler {
+  + splitQuery(String query): Map<String, String>
+  + getRequestBody(HttpExchange httpExchange): String
+  + handle(HttpExchange httpExchange)
+  + getRequestParams(HttpExchange httpExchange): Map<String, String>
+  --
+  + handleGetRequest(Map<String, String> params): String
+  + handlePostRequest(String body): Pair<Integer, String>
+}
+
+HttpHandler <|.. PolicyModelHttpHandler
+
+class LoadModelHandler {
+  + handleGetRequest(Map<String, String> params): String
+  + handlePostRequest(String body): Pair<Integer, String>
+}
+
+class CreateNewLocalizationhandler {
+  + handleGetRequest(Map<String, String> params): String
+  + handlePostRequest(String body): Pair<Integer, String>
+}
+
+class UpdateLocalizationHandler {
+  + handleGetRequest(Map<String, String> params): String
+  + handlePostRequest(String body): Pair<Integer, String>
+}
+
+class VisualizePSHandler {
+  + handleGetRequest(Map<String, String> params): String
+  + handlePostRequest(String body): Pair<Integer, String>
+}
+
+class VisualizeDGHandler {
+  + handleGetRequest(Map<String, String> params): String
+  + handlePostRequest(String body): Pair<Integer, String>
+}
+
+class NewModelHandler {
+  + handleGetRequest(Map<String, String> params): String
+  + handlePostRequest(String body): Pair<Integer, String>
+}
+
+PolicyModelHttpHandler <|-- LoadModelHandler
+PolicyModelHttpHandler <|-- CreateNewLocalizationhandler
+PolicyModelHttpHandler <|-- UpdateLocalizationHandler
+PolicyModelHttpHandler <|-- VisualizePSHandler
+PolicyModelHttpHandler <|-- VisualizeDGHandler
+PolicyModelHttpHandler <|-- NewModelHandler
+
+class PolicyModelService
+
+LoadModelHandler ..> PolicyModelService : uses
+CreateNewLocalizationhandler ..> PolicyModelService : uses
+UpdateLocalizationHandler ..> PolicyModelService : uses
+VisualizePSHandler ..> PolicyModelService : uses
+VisualizeDGHandler ..> PolicyModelService : uses
+NewModelHandler ..> PolicyModelService : uses
+
+note right of NewModelHandler
+  «external libraries»
+  jackson-annotations
+  jackson-core
+  jackson-databind
+end note
+
+@enduml

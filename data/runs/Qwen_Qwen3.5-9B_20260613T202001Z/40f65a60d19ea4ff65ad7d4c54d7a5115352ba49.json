@@ -1,0 +1,22 @@
+{
+  "id": "8c968dad-5dfc-4e93-bc02-69256c08bbd2",
+  "object": "chat.completion",
+  "created": 1781414811,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor Actor\nparticipant \"Dashboard\" as Dashboard\nparticipant \"DashboardController\" as DashboardController\nparticipant \"IssuesDetailController\" as IssuesDetailController\nparticipant \"IssuesService\" as IssuesService\nparticipant \"IssuesEntityService\" as IssuesEntityService\nparticipant \"EntityService\" as EntityService\nparticipant \"IssuesRepository\" as IssuesRepository\nparticipant \"IssueRepository\" as IssueRepository\n\nDashboardController -> DashboardController : createlIssues()\nactivate DashboardController\nDashboardController --> DashboardController : new / redirect\ndeactivate DashboardController\n\npar\nDashboardController -> IssuesDetailController : getIssues()\nactivate IssuesDetailController\nIssuesDetailController -> IssuesService : createlIssuesStatistics()\nactivate IssuesService\nIssuesService -> IssuesEntityService : findAll()\nactivate IssuesEntityService\nIssuesEntityService -> EntityService : selectAllIssues()\nactivate EntityService\nEntityService -> IssueRepository : findAll()\nactivate IssueRepository\nloop\n  EntityService -> IssueRepository : new\n  activate IssueRepository\n  IssueRepository --> EntityService : Issues\n  deactivate IssueRepository\nend\nloop\n  EntityService -> IssueRepository : findById(id)\n  activate IssueRepository\n  IssueRepository --> EntityService : Issue\n  deactivate IssueRepository\nend\nEntityService --> IssuesEntityService : Set<Issues>\ndeactivate EntityService\nIssuesEntityService --> IssuesService : Set<Issues>\ndeactivate IssuesEntityService\nIssuesService --> IssuesDetailController : IssuesStatistics\ndeactivate IssuesService\nIssuesDetailController --> DashboardController : IssuesStatistics\ndeactivate IssuesDetailController\n\nDashboardController -> DashboardController : select report\nactivate DashboardController\nDashboardController --> DashboardController : details\ndeactivate DashboardController\nDashboardController --> DashboardController : new / redirect\ndeactivate DashboardController\n\npar\nDashboardController -> IssuesDetailController : getCategories(origin, reference)\nactivate IssuesDetailController\nIssuesDetailController -> IssuesEntityService : createDistributionByCategory(origin, reference)\nactivate IssuesEntityService\nIssuesEntityService -> EntityService : findByPrimaryKey(origin, reference)\nactivate EntityService\nEntityService -> IssueRepository : select(origin, reference)\nactivate IssueRepository\nIssueRepository -> IssueRepository : findById(origin, reference)\nactivate IssueRepository\nloop\n  IssueRepository -> IssueRepository : new\n  activate IssueRepository\n  IssueRepository --> IssueRepository : Issues\n  deactivate IssueRepository\nend\nIssueRepository --> EntityService : Issues\ndeactivate IssueRepository\nEntityService --> IssuesEntityService : Issues\ndeactivate EntityService\nIssuesEntityService --> IssuesDetailController : IssuePropertyDistribution\ndeactivate IssuesEntityService\nIssuesDetailController --> DashboardController : IssuePropertyDistribution\ndeactivate IssuesDetailController\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2105,
+    "completion_tokens": 560,
+    "total_tokens": 2665
+  }
+}

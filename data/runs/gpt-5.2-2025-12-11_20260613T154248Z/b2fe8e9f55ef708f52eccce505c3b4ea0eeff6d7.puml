@@ -1,0 +1,97 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide methods
+
+class Team << (C,#b7d7b7) >> {
+  name: string
+  description: string
+  ownerId: User
+  participants: Participant[]
+  topics: Topic[]
+}
+
+class Topic << (C,#b7d7b7) >> {
+  name: string
+  icon: string
+  isSequential: boolean
+  subtopics: Subtopic[]
+}
+
+class Subtopic << (C,#b7d7b7) >> {
+  name: string
+  description: string
+  challenges: Challenge[]
+}
+
+class Challenge << (C,#b7d7b7) >> {
+  name: string
+  body: string
+  type: ChallengeType
+  selection: string[]
+  correct: string[]
+  points: number
+  feedback: string
+}
+
+class ChallengeReport << (C,#b7d7b7) >> {
+  userId: User
+  challengeId: Challenge
+  answer: string[]
+  answeredCorrectly: boolean
+}
+
+class Participant << (C,#b7d7b7) >> {
+  userId: User
+  points: number
+  status: ParticipantStatus
+}
+
+class User << (C,#b7d7b7) >> {
+  name: string
+  email: string
+  educationalInstitution: string
+  educationalBackground: EducationalBackground
+  birthDate: Date
+  points: number
+}
+
+enum ParticipantStatus << (E,#f2a08a) >> {
+  PENDING
+  ACCEPTED
+  DISABLED
+}
+
+enum EducationalBackground << (E,#f2a08a) >> {
+  MIDDLE_INCOMPLETE
+  MIDDLE_ONGOING
+  MIDDLE_COMPLETE
+  HIGH_INCOMPLETE
+  HIGH_ONGOING
+  HIGH_COMPLETE
+  GRADUATION_INCOMPLETE
+  GRADUATION_ONGOING
+  GRADUATION_COMPLETE
+}
+
+enum ChallengeType << (E,#f2a08a) >> {
+  INPUT
+  RADIO
+  CHECKBOX
+}
+
+Topic "0..n" o-- "1" Team
+Team "1" o-- "0..n" Participant
+Topic "1" o-- "0..n" Subtopic
+Subtopic "1" o-- "0..n" Challenge
+
+ChallengeReport "1" o-- "1" Challenge
+ChallengeReport "1" o-- "1" User
+
+Participant "1" o-- "1" User
+
+Team "1" o-- "1" User
+
+Participant --> ParticipantStatus : status
+User --> EducationalBackground : educationalBackground
+Challenge --> ChallengeType : type
+@enduml

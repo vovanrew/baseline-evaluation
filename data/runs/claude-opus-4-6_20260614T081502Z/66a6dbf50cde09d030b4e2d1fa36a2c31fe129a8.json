@@ -1,0 +1,21 @@
+{
+  "id": "msg_01BdbADi382K23Zm1HhmHtXY",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Search for Products by ID (using DB dao)\n\nactor User\nparticipant \"<<main>>\\nAdministration\" as Admin\nparticipant \"<<frame>>\\nMainMenu\" as MainMenu\nparticipant \"<<dialog>>\\nProductReportDialog\" as PRD\nparticipant \"<<ProductDAO>>\\nProductDatabaseDAO\" as PDAO\nparticipant \"SimpleListModel\\n:model\" as SLM\ndatabase Database\n\nUser -> Admin : <<construct>>\nAdmin -> MainMenu : <<construct>>\n\nUser -> Admin : clicks 'View Products'\nAdmin -> PRD : <<construct>>\nPRD -> PDAO : <<construct>>\nPRD -> PDAO : getProducts()\nPDAO -> Database : select * from product\nDatabase -->> PDAO : ResultSet\nPDAO -> PDAO : reconstruct products\\nfrom ResultSet\nPDAO -->> PRD : products\nPRD -> SLM : <<construct>>\nPRD -> SLM : updateItems(products)\nnote left of PRD : products now\\nvisible to user\nPRD -> PRD : lstProducts.setModel(model)\n\nUser -> PRD : enters product id into search bar\nPRD -> PRD : txtId.getText : id\n\nUser -> PRD : clicks \"Search\"\nPRD -> PDAO : search(id)\nPDAO -> Database : select * from product where product_id = id\nDatabase -->> PDAO : product\nPRD -> SLM : updateItems(product)\nnote left of PRD : only searched product\\nnow visible to user\nPRD -> PRD : lstProducts.getModel(model)\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431673,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 394,
+    "prompt_tokens": 1656,
+    "total_tokens": 2050
+  }
+}

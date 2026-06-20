@@ -1,0 +1,63 @@
+```plantuml
+@startuml
+actor mobile
+participant www
+boundary endpoint
+boundary haproxy
+entity ipfs
+entity postgraphile
+entity "CITY Custom Net" as city
+boundary logstash
+control dApp
+database postgres
+database elastic
+participant prometheus
+participant kibana
+
+group webUI
+    mobile -> www : sign & send events
+    note right of mobile : browser ext or mobile wallet
+    www -> endpoint : HTTPS gateway & peer tcp/4001
+    endpoint -> ipfs : /ipfs/{CID}
+    activate ipfs
+    endpoint -> haproxy : HTTPS (oauth by EC Address)
+    note right of www : User makes deposit / signs entry to trigger events.
+end
+
+group api - Admin/Write api
+    haproxy -> city : /v2 - read/write factom api
+    activate city
+    haproxy -> ipfs : /ipfs/{CID} - readonly gateway
+    haproxy -> postgraphile : /graphql - readonly graphql queries
+    activate postgraphile
+    city -> logstash : livefeed log
+    activate logstash
+    logstash -> elastic : index event logs
+    activate elastic
+    logstash -> postgres : dApp specific events
+    activate postgres
+    dApp -> postgres : sign and dispatch requests
+    activate dApp
+    dApp -> city : read/write signed factom entries
+end
+
+group dashboard
+    elastic -> kibana : dashboard query
+    activate kibana
+    prometheus -> prometheus : poll()
+    activate prometheus
+    prometheus -> city : Monitor(FA2XXXXXXXXX) Balance changes
+    prometheus -> logstash : HTTP GET /metrics
+    prometheus -> ipfs : HTTP GET /metrics
+    kibana -> prometheus : metrics query
+    postgres -> kibana : dApp specific rollup
+end
+
+group dApp - controller
+    postgres -> dApp : dispatch on-chain event
+    dApp -> logstash : dApp specific logging
+    dApp -> ipfs : pin entry content on IPFS
+end
+
+@enduml
+```

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01TgrxNmdwk61ytKZwRwZtpw",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nbox \"Central-Settlement\"\nparticipant \"Mojaloop Adapter\" as MA #LightBlue\nparticipant \"API\" as API #LightBlue\nparticipant \"api / Handler\" as Handler #LightGreen\nparticipant \"Application Layer\\n(domain / service / facade)\" as AppLayer #LightGreen\nend box\n\nbox \"Storage\"\nparticipant \"TigerBeetle Client\" as TBClient #LightBlue\nparticipant \"TigerBeetle Cluster\" as TBCluster #LightGreen\ndatabase \"MySQL\" as MySQL\nend box\n\nnote left of MA: Hub operator or\\nDFSP interactions\nnote right of MA: NodeJS interface\\ninvokes REST API\nnote right of Handler: JSON request decoded &\\nprocessed via handler\nnote right of AppLayer: Expose service functions &\\nhandle database interactions\n\ngroup Update Settlement\n    [-> MA: 1 //JSON//\\n(settlement data)\n    MA -> Handler: 2 Invoke handler\n    Handler -> AppLayer: 3 Invoke application layer\n    AppLayer -> MySQL: 4 Retrieve settlement data\\n(excluding accounts)\n    MySQL --> AppLayer\n    AppLayer -> MySQL: 5 Retrieve accounts for all //Transfers//\\nfor a settlement window\n    MySQL --> AppLayer\n    AppLayer -> MySQL: 6 Update settlement data\\n(excluding accounts)\n    MySQL --> AppLayer\n    AppLayer -> AppLayer: 7 Settlement state\\nprocessing\n    AppLayer -> TBClient: 8 Invoke account creation based on\\nsettlement state of each //Transfer//\n    TBClient -> TBCluster: 9 Create settlement accounts\\n& return result\n    TBCluster --> TBClient\n    TBClient --> AppLayer: 10 Return settlement result\n    AppLayer -> MySQL: 11 Update final settlement state\\n& return result\n    MySQL --> AppLayer\n    AppLayer --> Handler: 12 Return result\n    Handler --> MA: 13 Return result\n    [<-- MA: 14 Return result with\\n**settlementData**\nend\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431686,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 508,
+    "prompt_tokens": 1644,
+    "total_tokens": 2152
+  }
+}

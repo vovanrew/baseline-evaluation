@@ -1,0 +1,57 @@
+```plantuml
+@startuml
+skinparam componentStyle rectangle
+
+package "simpy" {
+    component container as C1 {
+        capacity: Union[int, float]
+        init: Union[int, float]
+    }
+    component environment as C2
+}
+
+component Component as E1 <<enumeration>> {
+    C1
+    C2
+    C3
+}
+
+component Buffer as C3 {
+    id: int
+    accepts: Component
+    will_accept(): bool
+}
+
+component Inspector as C4 {
+    id: int
+    env: environment
+    buffers: List[Buffer]
+    components: List[Component]
+    
+    get_random_component(): Component
+    get_inspection_time(): int
+    inspect_component: Generator
+    add_component_to_buffer(): Generator
+    main_loop(): None
+}
+
+component Workstation as C5 {
+    id: int
+    env: environment
+    buffers: List[Buffer]
+    
+    get_assembly_time(): int
+    get_components(): Generator
+    assemble(): Generator
+    main_loop(): None
+}
+
+C1 --|> C3
+E1 -- C3
+E1 -- C4
+E1 -- C5
+C2 -- C4
+C2 -- C5
+
+@enduml
+```

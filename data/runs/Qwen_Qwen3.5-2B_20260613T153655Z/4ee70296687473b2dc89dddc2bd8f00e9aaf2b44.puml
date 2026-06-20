@@ -1,0 +1,44 @@
+@startuml
+skinparam sequenceDiagram
+    participant Smart Proxy
+    participant 3Scale
+    participant Insights operator
+        participant Control logic
+        participant IO memory cache
+        participant CRD
+        participant OCP WebConsole
+
+    note over Insights operator: Sequence diagram for the whole CCX (external) data pipeline
+
+    Smart Proxy -> Insights operator: Pulling data from Smart Proxy
+    Insights operator -> 3Scale: Get recommendations org ID cluster ID
+    3Scale -> Insights operator: Get recommendations org ID cluster ID
+    Insights operator -> 3Scale: Recommendations for cluster
+    3Scale -> Insights operator: Recommendations for cluster
+
+    note over Insights operator: Exposing recommendations
+    Insights operator -> IO memory cache: Store recommendations
+    Insights operator -> CRD: Expose recommendations
+
+    note over Insights operator: Pulling from OCP WebConsole
+    Insights operator -> CRD: Read recommendations
+    Insights operator -> OCP WebConsole: Here are required data
+
+    Smart Proxy..-- 3Scale
+    Insights operator..-- Control logic
+    Insights operator..-- IO memory cache
+    Insights operator..-- CRD
+    Insights operator..-- OCP WebConsole
+
+    note right of Insights operator: Insights operator
+    note right of Control logic: Control logic
+    note right of IO memory cache: IO memory cache
+    note right of CRD: CRD
+    note right of OCP WebConsole: OCP WebConsole
+
+    note right of Smart Proxy: Smart Proxy
+    note right of 3Scale: 3Scale
+
+    note right of Insights operator: Sequence diagram for the whole CCX (external) data pipeline
+    note right of Control logic: Copyright © 2020 Red Hat, Inc. Author: Pavel Tisnovsky
+@enduml

@@ -1,0 +1,45 @@
+```plantuml
+@startuml
+skinparam participantStyle rectangle
+
+participant "main" as main
+participant "OsScheduler" as OsScheduler
+participant "Semaphore" as Semaphore
+participant "TaskA" as TaskA
+participant "TaskB" as TaskB
+participant "System" as System
+
+main -> OsScheduler : startOS
+activate OsScheduler
+
+OsScheduler -> TaskA : launch
+activate TaskA
+TaskA -> Semaphore : waitSemaphore
+activate Semaphore
+Semaphore -> System : callSystem
+activate System
+System -> System : setJump(buf)
+System -> OsScheduler : reportSystemCall
+deactivate System
+deactivate Semaphore
+OsScheduler -> OsScheduler : saveTaskContext
+deactivate TaskA
+
+OsScheduler -> TaskB : launch
+activate TaskB
+TaskB -> Semaphore : waitSemaphore
+activate Semaphore
+Semaphore -> System : callSystem
+activate System
+System -> OsScheduler : reportSystemCall
+deactivate System
+deactivate Semaphore
+OsScheduler -> OsScheduler : saveTaskContext
+deactivate TaskB
+
+OsScheduler -> TaskA : launch
+activate TaskA
+deactivate OsScheduler
+
+@enduml
+```

@@ -1,0 +1,45 @@
+@startuml
+title Scheduled Events
+
+actor "Recording Staff" as RS
+actor "Coach" as Coach
+boundary "IP/Mobile Cams" as Cams
+boundary "Consumer Apps" as ConsumerApps
+boundary "Security Gateway" as SecGW
+control "Control Domain\n(win10/linux)" as CD
+boundary "Streaming Service\n(encoder)" as SS
+entity "Media\n(mediaID)" as Media
+boundary "Transfer Service" as TS
+
+ConsumerApps -> SecGW : authenticate(ID)
+SecGW --> ConsumerApps : return(token)
+
+CD -> SS : host(sources{endpoints})
+
+Cams -> CD : register(endpoint)
+ConsumerApps -> CD : register(token, priority)
+
+RS -> CD : createEvent(configuration{description, sources, consumers{priorities}})
+CD --> CD : create(newEvent)
+
+RS -> CD : start(newEvent)
+CD -> SS : encode()
+CD --> ConsumerApps : notify(recording)
+
+RS -> CD : stop(newEvent)
+CD -> SS : saveAs(mediaID)
+SS -> Media : save(mediaID)
+
+CD -> TS : host(mediaID, consumers{token, priority})
+CD --> ConsumerApps : notify(newMediaAvailable, mediaID, transferServiceEndpoint)
+
+alt [auto-download enabled]
+    ConsumerApps -> TS : fetchMedia(token, mediaID)
+    TS --> ConsumerApps : returnByPriority(mediaStream)
+else [manual-download enabled]
+    Coach -> ConsumerApps : showMedia(token)
+    ConsumerApps -> TS : fetchMedia(token, mediaID)
+    TS --> ConsumerApps : returnByPriority(mediaStream)
+end
+
+@enduml

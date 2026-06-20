@@ -1,0 +1,32 @@
+@startuml
+participant "User" as User
+participant "Andorid APP" as AndroidApp
+participant "Server" as Server
+
+section 主动更新
+    User --> AndroidApp : 进入设置页
+    User --> AndroidApp : 点击" 更新地图数据 "
+    AndroidApp --> Server : 请求POI数据
+    AndroidApp --> Server : GET /poi.json
+    Server --> AndroidApp : 返回数据
+    AndroidApp --> AndroidApp : 比较Server版本号和本地版本号
+    alt [Server版本号>本地版本号]
+        AndroidApp --> AndroidApp : 更新本地数据
+    end
+
+section 被动更新
+    User --> AndroidApp : 启动APP
+    AndroidApp --> AndroidApp : 检查上次更新时间
+    AndroidApp --> AndroidApp : 与当前时间进行比较
+    alt [间隔大于一周，执行自动更新]
+        AndroidApp --> Server : 请求POI数据
+        AndroidApp --> Server : GET /poi.json
+        Server --> AndroidApp : 返回数据
+        AndroidApp --> AndroidApp : 比较Server版本号和本地版本号
+        alt [Server版本号>本地版本号]
+            AndroidApp --> AndroidApp : 更新本地数据
+        end
+    end
+end
+
+@enduml

@@ -1,0 +1,90 @@
+```plantuml
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F6
+  ActorBorderColor #666666
+  ActorBackgroundColor #E9E9F6
+  BoxBorderColor #666666
+  BoxBackgroundColor #D9D9D9
+  ArrowColor #333333
+  MessageAlign left
+}
+
+actor "sidetree-core-go" as A
+
+box "Instance 1" #D9D9D9
+participant "Operation\nQueue" as Q1
+end box
+
+participant "orb.operation" as ORB
+
+database "op-queue\nDB" as DB
+
+box "Instance 2" #D9D9D9
+participant "Operation\nQueue" as Q2
+end box
+
+== Subscriptions ==
+Q1 -> ORB : Subscribe
+activate ORB
+ORB --> Q1 : ok
+deactivate ORB
+
+Q2 -> ORB : Subscribe
+activate ORB
+ORB --> Q2 : ok
+deactivate ORB
+
+== Add operations ==
+A -> Q1 : Add(op1)
+activate Q1
+Q1 -> ORB : Publish(op1)
+activate ORB
+ORB --> Q1 : ok
+deactivate ORB
+Q1 --> A : ok
+deactivate Q1
+
+A -> Q2 : Add(op2)
+activate Q2
+Q2 -> ORB : Publish(op2)
+activate ORB
+ORB --> Q2 : ok
+deactivate ORB
+Q2 --> A : ok
+deactivate Q2
+
+== Delivery / handling ==
+ORB -> Q1 : op2
+activate Q1
+Q1 --> ORB : ok
+Q1 -> DB : Put(op2,handler1ID,expiry)
+activate DB
+DB --> Q1 : ok
+deactivate DB
+Q1 -> ORB : Ack(op2)
+activate ORB
+ORB --> Q1 : ok
+deactivate ORB
+deactivate Q1
+
+ORB -> Q2 : op1
+activate Q2
+Q2 --> ORB : ok
+Q2 -> DB : Put(op1,handler2ID,expiry)
+activate DB
+DB --> Q2 : ok
+deactivate DB
+Q2 -> ORB : Ack(op1)
+activate ORB
+ORB --> Q2 : ok
+deactivate ORB
+deactivate Q2
+
+@enduml
+```

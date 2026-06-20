@@ -1,0 +1,30 @@
+```plantuml
+@startuml
+
+actor User
+
+box "Backend Environment"
+participant Server
+participant SuperHeroApi
+end box
+
+alt user search
+    User -> Server : GET /search?q=<queryValue>
+    Server <<-- SuperHeroApi : getFromCache (queryValue) ?
+    hnote over Server : binarySearch (query)
+
+    alt has in cache
+        User <-- Server : 200: queryValue
+    end
+
+    alt not has in cache: request to API
+        Server -> SuperHeroApi : GET queryValue
+        Server <-- SuperHeroApi : 200: queryValue
+        Server -> Server : updateCache (queryValue)
+    end
+end
+
+User <-- Server : 200: queryValue
+
+@enduml
+```

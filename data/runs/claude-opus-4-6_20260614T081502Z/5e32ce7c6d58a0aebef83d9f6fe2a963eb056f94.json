@@ -1,0 +1,21 @@
+{
+  "id": "msg_01XPe3w4oybvT6Brn8mPiVYj",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor \"Project Manager\" as PM\n\nparticipant \":ProjectManagerUI\" as UI\nparticipant \"AGVServer\" as AGVServer\nparticipant \"AGVServerThread\" as AGVServerThread\nparticipant \"AVGManagerController\" as AVGManagerController\nparticipant \"AGVDigitalTwinServer\" as AGVDigitalTwinServer\nparticipant \"AGVDigitalTwinThread\" as AGVDigitalTwinThread\nparticipant \"AGVDigitalTwinController\" as AGVDigitalTwinController\nparticipant \"CodingAndDecoding2\" as CodingAndDecoding2\n\nPM -> UI : Wants to assign ready to go Orders to an AGV\n\nUI -> AGVServer : message\nAGVServer -> AGVServer : accept\nAGVServer -> AGVServerThread : start\n\nAGVServerThread -> CodingAndDecoding2 : Decoding(r)\nAGVServerThread -> CodingAndDecoding2 : Message\nAGVServerThread -> AVGManagerController : FifoAGV()\nAVGManagerController -> AVGManagerController : findavailableOrder()\n\nloop [until orderList is empty]\n    AVGManagerController -> AVGManagerController : findavailableAGV(weight,volume)\n    AVGManagerController -> AVGManagerController : createTaskandSave(description,order,agv)\n    AVGManagerController -> AVGManagerController : doTask()\n    AVGManagerController -> AGVDigitalTwinServer : message\n    AGVDigitalTwinServer -> AGVDigitalTwinServer : accept\n    AGVDigitalTwinServer -> AGVDigitalTwinThread : start\n    AGVDigitalTwinThread -> CodingAndDecoding2 : Decoding(r)\n    AGVDigitalTwinThread -> CodingAndDecoding2 : message\n    AGVDigitalTwinThread -> AGVDigitalTwinController : doTask(taskPerform)\n    AGVDigitalTwinController -> AGVDigitalTwinThread : TaskReportMessage\n    AGVDigitalTwinThread -> AGVDigitalTwinServer : TaskReportMessage\n    AGVDigitalTwinServer -> AVGManagerController : TaskReportMessage\nend\n\nAVGManagerController -> AGVServerThread : ResponseMessage\nAGVServerThread -> AGVServer : ResponseMessage\nAGVServer -> UI : ResponseMessage\n\nUI -> PM : Informs operation success\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431610,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 574,
+    "prompt_tokens": 1632,
+    "total_tokens": 2206
+  }
+}

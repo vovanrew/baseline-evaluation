@@ -1,0 +1,34 @@
+@startuml
+title OAuth2 Authorization Code Grant Workflow with SAML2 Post Binding for user provisioning
+
+package "HealthSphere" {
+  participant "Apigee Edge" as apigee
+  participant "Orion Health Platform" as orion
+}
+
+participant "HealthCloud" as healthcloud
+participant "Embedded Browser" as browser
+
+healthcloud -> browser: GET /authorize?response_type=code
+browser --> healthcloud: 302 https://<redirect_url> (SAML OR token)
+
+activate browser
+SAML Authentication
+  browser -> apigee: POST /oauth2/saml
+  activate apigee
+  apigee -> orion: POST /login-auth/saml?path=/actor/current
+  activate orion
+  orion --> orion: Verify SAMLResponse
+  deactivate orion
+  orion --> apigee: Generate authorization code
+  deactivate apigee
+  apigee --> browser: 302 https://<redirect_url>?code=<code>
+  deactivate browser
+end SAML Authentication
+
+healthcloud -> apigee: POST /token?code=<code>
+activate apigee
+apigee --> healthcloud: 200 access_token + refresh_token
+deactivate apigee
+
+@enduml

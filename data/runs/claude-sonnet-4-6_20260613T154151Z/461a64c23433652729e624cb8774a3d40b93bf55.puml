@@ -1,0 +1,57 @@
+```plantuml
+@startuml
+title 3.1.0 Get Participant Callback Details
+
+box "ML API Adapter Service" #LightBlue
+participant "ML-API-ADAPTER" as MLAPI
+end box
+
+box "Central Services" #LightYellow
+participant "Central Service API" as CSAPI
+participant "Participant Handler" as PH
+participant "Participant DAO" as PDAO
+database "Central Store" as CS
+end box
+
+group Get Callback Details
+MLAPI -> CSAPI: 1 Request to get callback details - GET - /participants/{name}/endpoints?type={typeValue}
+CSAPI -> PH: 2 Fetch Callback details for Participant
+
+PH -> PDAO: 3 Fetch Participant\n<color:red>Error code: 3200</color>
+PDAO -> CS: 4 Fetch Participant
+CS --> PDAO: participant
+PDAO --> PH: 5 Retrieved Participant
+PH --> CSAPI: 6 Return Participant
+PH -> PH: 7 Validate DFSP
+
+alt Validate participant (success)
+PH -> PH: 8 check if "type" parameter is sent
+
+alt Check if "type" parameter is sent (Sent)
+PH -> PDAO: 9 Fetch Callback details for Participant and type\n<color:red>Error code: 3000</color>
+PDAO -> CS: 10 Fetch Callback details for Participant and type\nnote right\nCondition:\nisActive = 1\n{endpointTypeId = <type>}\nend note
+CS --> PDAO: participantEndpoint
+PDAO --> PH: 11 Retrieved Callback details for Participant and type
+PH --> CSAPI: 12 Return Callback details for Participant and type\nnote left\nMessage:\n{\n  endpoints: {type: <type>, value: <value>}\n}\nend note
+CSAPI --> MLAPI: 13 Return Callback details for Participant
+MLAPI <-- CSAPI: 14 Return Callback details for Participant
+
+else Check if "type" parameter is sent (Not Sent)
+PH -> PDAO: 15 Fetch Callback details for Participant\n<color:red>Error code: 3000</color>
+PDAO -> CS: 16 Fetch Callback details for Participant\nnote right\nCondition:\nisActive = 1\nend note
+CS --> PDAO: participantEndpoint
+PDAO --> PH: 17 Retrieved Callback details for Participant
+PH --> CSAPI: 18 Return Callback details for Participant\nnote left\nMessage:\n{\n  endpoints: [\n    {type: <type>, value: <value>},\n    {type: <type>, value: <value>}\n  ]\n}\nend note
+CSAPI --> MLAPI: 19 Return Callback details for Participant
+MLAPI <-- CSAPI: 20 Return Callback details for Participant
+end
+
+else Validate participant (failure)/ Error
+PH -> PH: <back:red><color:white>Validation failure/ Error</color></back>\nnote right\nMessage:\n{\n  "errorInformation": {\n    "errorCode": <errorCode>,\n    "errorDescription": <ErrorMessage>,\n  }\n}\nend note
+PH --> CSAPI: 21 Return <color:red>Error code: 3000, 3200</color>
+CSAPI --> MLAPI: 22 Return <color:red>Error code: 3000, 3200</color>
+end
+
+end
+@enduml
+```

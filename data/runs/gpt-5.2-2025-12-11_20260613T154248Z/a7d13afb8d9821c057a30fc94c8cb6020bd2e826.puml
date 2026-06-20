@@ -1,0 +1,71 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class Sensor {
+  TypesOfSensors: List<string>
+  TypesOfSignal: List<string>
+  TypeOfSensor: string
+  TypeOfSignal: string
+  --
+  Component(id int, name string, date DateTime, string typeOfSensor, string typeOfSignal)
+  GetFunction()
+}
+
+class Actuator {
+  TypesOfActuators: List<string>
+  StatuesOfActuators: List<string>
+  TypeOfActuator: string
+  StatusOfActuator: string
+  --
+  Component(id int, name string, date DateTime, string typeOfActuator, string statusOfActuator)
+  GetFunction()
+}
+
+class Component {
+  id: int
+  name: string
+  date: DateTime
+  --
+  Component(id int, name string, date DateTime)
+  GetFunction()
+}
+
+class Program {
+  Main(args[] string)
+}
+
+class ComponentStore {
+  container: ComponentContext
+  --
+  ComponentStore()
+  GetComponent(id int) Component
+}
+
+class Proxy {
+  components: List<Component>
+  componentStore: ComponentStore
+  --
+  Proxy()
+  GetComponent(id int) Component
+}
+
+interface IComponent {
+  GetComponent(id int) Component
+}
+
+class ComponentContext {
+  Components: List<Component>
+  --
+  ComponentContext()
+}
+
+Sensor -down-> ComponentContext
+Actuator -down-> ComponentContext
+Component -down-> ComponentStore
+ComponentStore -right-> ComponentContext
+Program -down-> Proxy
+Proxy -right-> ComponentStore
+Proxy -right-> IComponent
+Actuator -up-|> Component
+Sensor -up-|> Component
+@enduml

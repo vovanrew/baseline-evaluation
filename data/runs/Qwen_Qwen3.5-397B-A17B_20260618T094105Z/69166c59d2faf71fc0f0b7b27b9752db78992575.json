@@ -1,0 +1,22 @@
+{
+  "id": "3bde3a3d-ca70-459f-aaf9-393a4ca9a705",
+  "object": "chat.completion",
+  "created": 1781878944,
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor Caller\nparticipant \":RoomTransactionService\" as RTS\nparticipant \":RoomTransactionCommand\" as RTC\nparticipant \":Nats Streaming\" as NS\n\nCaller -> RTS : Create(context, payload)\nactivate RTS\nRTS -> RTS : Validate()\nalt \"Data Not Valid\"\n    RTS --> Caller : UnprocessableEntity\nelse\n    loop \"For each shift\"\n        activate RTS\n        RTS -> RTS : rt := RoomTransactionModel()\n        deactivate RTS\n        \n        RTS -> RTC : Create(context, rt)\n        \n        RTC -[dashed]->> RTS : uuid\n    end\n    \n    RTS -> NS : publishTransactionCreated(context, []uuid)\n    \n    NS -->> RTS : published\n    \n    RTS --> Caller : created\nend\ndeactivate RTS\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1713,
+    "completion_tokens": 167,
+    "total_tokens": 1880
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "405d9768-0157-456e-8f05-911c4352ae0e",
+  "object": "chat.completion",
+  "created": 1781441640,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam componentStyle rectangle\n\npackage \"Upstream\" {\n    component Producer as P1 <<(C,green)>>\n    component Adapter as A1 <<(A,green)>>\n}\n\ncomponent Transport as T1 <<(S,green)>>\n\npackage \"Gateway\" {\n    component Adapter as A2 <<(A,green)>>\n    component Consumer as C1 <<(C,green)>>\n    \n    package \"JobExecution\" {\n        component GatewayJobHandler as GJH <<(C,green)>>\n    }\n}\n\ncomponent Gateway as GW <<(C,green)>>\ncomponent Producer as P2 <<(C,green)>>\ncomponent Adapter as A3 <<(A,green)>>\n\ncomponent Transport as T2 <<(S,green)>>\n\npackage \"Downstream\" {\n    component Adapter as A4 <<(A,green)>>\n    component Consumer as C2 <<(C,green)>>\n}\n\npackage \"JobExecution\" {\n    component DownstreamJobHandler as DJH <<(C,green)>>\n}\n\ncomponent LowerLayer as LL <<(S,green)>>\n\nP1 -> A1 : publish(command)\nA1 -> T1 : publish(command)\nT1 -> A2 : execute(command)\nA2 -> C1 : handler(command, done)\nC1 ..> GJH : subscribe(\"done\")\nGJH ..> GW : emit(\"command\", GatewayJobHandler)\nGW -> P2 : publish(command)\nP2 -> A3 : publish(command)\nA3 -> T2 : publish(command)\nT2 -> A4 : execute(command)\nA4 -> C2 : handler(command, done)\nC2 ..> DJH : subscribe(\"done\")\nDJH ..> LL : emit(\"command\", GatewayJobHandler)\nLL -> DJH : done()\nDJH ..> C2 : emit(\"done\")\nC2 -> A4 : done(response)\nA4 -> T2 : getDelay(command)\\n(done(response))\nT2 -> A3 : emit(\"response\", response)\nA3 -> P2 : handler(\"response\")\nP2 -> A3 : onTimeout(getDelay())\\n.....\\nunsubscribe()\nA3 -> GW : resolve(responses)\nGW -> GJH : done()\nGJH ..> C1 : emit(\"done\")\nC1 -> A2 : done(response)\nA2 -> T1 : done(response)\nT1 -> A1 : emit(\"response\", response)\nA1 -> P1 : handler(\"response\")\nP1 -> A1 : onTimeout(getDelay())\\n.....\\nunsubscribe()\nA1 -> T1 : emit(\"response\", response)\nT1 -> A1 : getDelay(command)\nA1 -> P1 : handler(\"response\")\nP1 -> A1 : onTimeout(getDelay())\\n.....\\nunsubscribe()\nA1 -> P1 : resolve()\nP1 -> A1 : subscribe(handler)\nA1 -> T1 : subscribe(\"response\")\nT1 -> A1 : resolve()\nA3 -> P2 : resolve()\nP2 -> A3 : subscribe(handler)\nA3 -> T2 : subscribe(\"response\")\nT2 -> A3 : resolve()\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1027,
+    "completion_tokens": 711,
+    "total_tokens": 1738
+  }
+}

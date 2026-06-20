@@ -1,0 +1,83 @@
+```plantuml
+@startuml
+actor Customer
+participant Device
+participant DeviceProvisioningService #Cyan
+participant ProductIoTHub #Cyan
+participant FWProvider #Magenta
+
+note over Device, ProductIoTHub: Device was registered for this product before
+
+== First start ==
+
+Customer -> Device: 1 Switch On/Power Up
+activate Customer
+activate Device
+
+... Booting up ...
+
+Device -> DeviceProvisioningService: 2 registerDevice(callback)
+DeviceProvisioningService --> Device: 3 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)
+
+Device -> ProductIoTHub: 4 setProperties
+Device -> ProductIoTHub: 5 iamNewToYou(deviceId, firmwareversion)
+
+opt Firmware needs to be updated
+    ProductIoTHub -> Device: 6 updateFWMandantory(URL)
+    Device -> FWProvider: 7 URL.get(OLDFW)
+    FWProvider --> Device: 8 FW, Checksum
+    
+    ... Downloading ...
+    
+    Device -> Device: 9 CheckChecksum
+    Device -> Device: 10 update
+    
+    ... Installing ...
+    
+    Device -> Device: 11 restart
+    
+    ... Booting up ...
+    
+    Device -> ProductIoTHub: 12 iamNewToYou(deviceId, firmwareversion)
+end
+
+ProductIoTHub -> Device: 13 youMayStartSending()
+Device -> ProductIoTHub: 14 sendData(Data)
+
+... Working ...
+
+== Claim/Remove ==
+
+ProductIoTHub -> Device: 15 youMustRetire()
+Device -> Device: 16 waits
+
+opt if Device was not reached
+    Device -> ProductIoTHub: 17 sendData(Data)
+    ProductIoTHub --> Device: 18 Not registered
+end
+
+Device -> DeviceProvisioningService: 19 registerDevice(callback)
+DeviceProvisioningService --> Device: 20 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ERROR, null, null)
+Device -> Device: 21 NobodyLovesMeMode()
+
+loop once a day
+    Device -> DeviceProvisioningService: 22 registerDevice(callback)
+end
+
+== IoT Hub not available ==
+
+loop several times
+    Device -> ProductIoTHub: 23 sendData(Data)
+    ProductIoTHub --> Device: 24 NotAvailable/Network Error
+end
+
+Device -> DeviceProvisioningService: 25 registerDevice(callback)
+DeviceProvisioningService --> Device: 26 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)
+Device -> Device: 27 compare IoTHub and change if necessary
+
+note over Device, ProductIoTHub: if connection is now successfull, go on. If not and IoT Hub has not changed\nrepeat with low frequence. Also if DPS is not available.
+
+deactivate Device
+deactivate Customer
+@enduml
+```

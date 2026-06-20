@@ -1,0 +1,46 @@
+```plantuml
+@startuml
+title 七並ベシーケンス図（一周）ver.3
+
+participant "App" as App
+participant "Game" as Game
+participant "Player" as Player
+participant "View" as View
+participant "TableView" as TableView
+participant "PlayersListView" as PlayersListView
+
+App -> Game: startRound()
+activate Game
+Game -> Player: startTurn()
+activate Player
+box "ターン進行" #LightGray
+end box
+deactivate Player
+Game -> Player: [playersList.inPlayを回す]
+activate Player
+box "ターン終了" #LightGray
+end box
+deactivate Player
+Game -> View: render(playersList,table)
+activate View
+View -> TableView: render(table)
+activate TableView
+deactivate TableView
+View -> PlayersListView: render(playersList)
+activate PlayersListView
+deactivate PlayersListView
+deactivate View
+Game -> Game: cleanUpPlayersList()
+deactivate Game
+App -> Game: isEnd()
+activate Game
+Game --> App: boolean
+deactivate Game
+alt [true]
+    App -> Game: endGame()
+else [false]
+    App -> Game: startRound()
+end
+
+@enduml
+```

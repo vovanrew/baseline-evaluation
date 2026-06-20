@@ -1,0 +1,22 @@
+{
+  "id": "bd8cfdab-66ff-4a78-ac21-40bdbb7277ae",
+  "object": "chat.completion",
+  "created": 1781415290,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle create order sequence diagram\n\nactor Customer\nactor Cashier\n\nparticipant \":Inventory System\"\nparticipant \":Order\"\nparticipant \":Product\"\nparticipant \":Stock\"\nparticipant \":Invoice\"\nparticipant \":Transaction\"\n\nCustomer -> Cashier: 1. Request order product\nCashier --> Customer: 2. Receive order\n\nCashier -> :Inventory System: 3. requestCreateOrder()\n\n:Inventory System -> :Product: 3.1 selectProduct()\n:Product -> :Stock: 3.2 checkStock()\n:Stock --> :Product: 3.3 return stock\n:Product --> :Inventory System: 3.4 return product\n\nalt [IF (stock.qty > order.qty)]\n  :Inventory System -> :Order: 3.5 createOrder(order)\n  :Order -> :Stock: 3.6 updateStock()\n  :Stock --> :Order: 3.7 return update stock\n  :Order -> :Invoice: 3.8 systemCreateInvoice()\n  :Invoice -> :Invoice: 3.9 printInvoice()\n  :Invoice --> :Order: 3.10 return invoice\n  :Order --> :Inventory System: 3.11 return order\nelse [ELSE]\n  :Order --> :Inventory System: 3.12 can't create order\nend\n\n:Inventory System --> Cashier: 4. response create order status\nCashier --> Customer: 5. Invoice\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1762,
+    "completion_tokens": 315,
+    "total_tokens": 2077
+  }
+}

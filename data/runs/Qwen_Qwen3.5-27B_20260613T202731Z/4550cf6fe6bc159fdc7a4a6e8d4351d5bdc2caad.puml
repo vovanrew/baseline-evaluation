@@ -1,0 +1,38 @@
+```plantuml
+@startuml
+namespace edu {
+  namespace tec {
+    namespace ic6821 {
+      namespace fulltextsearch {
+        namespace index {
+          interface Index {
+            +index(String term, File): void
+            +search(String term): Set<File>
+            +isPersistent(): boolean
+          }
+
+          interface PersistentIndex {
+            +persist(): void
+            +restore(): boolean
+          }
+
+          class InMemoryMapIndex {
+            -index: Map<String, Set<File>>
+          }
+
+          class MapIndex {
+            -indexFile: File
+            +MapIndex(:File, :Index)
+          }
+
+          Index <|-- PersistentIndex
+          Index <|.. InMemoryMapIndex
+          PersistentIndex <|.. MapIndex
+          MapIndex --> InMemoryMapIndex : «delegate»\nindex
+        }
+      }
+    }
+  }
+}
+@enduml
+```

@@ -1,0 +1,64 @@
+@startuml
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 200
+
+title 解析处理@EnableTransactionManagement注解
+
+participant "ConfigurationClassPostProcessor" as CCPP
+participant "ConfigurationClassParser" as CCP
+participant "ComponentScanAnnotationParser" as CSAP
+participant "AdviceModeImportSelector" as AMIS
+participant "TransactionManagementConfigurationSelector" as TMCS
+participant "ConfigurationClass" as CC
+participant "ConfigurationClassBeanDefinitionReader" as CCBDR
+participant "AutoProxyRegistrar" as APR
+participant "AopConfigUtils" as ACU
+
+CCPP -> CCP : postProcessBeanDefinitionRegistry
+CCP -> CCP : parse(AnnotationMetadata metadata, String beanName)
+CCP -> CCP : processConfigurationClass(ConfigurationClass configClass)
+CCP -> CCP : doProcessConfigurationClass(ConfigurationClass configClass, SourceClass sourceClass)
+
+alt [当前被解析的Class被@ComponentScan标注，进行扫描]
+  note over CCP : @ComponentScan扫描
+  CCP -> CSAP : parse(AnnotationAttributes componentScan, final String declaringClass)
+  CSAP -> CCP : parse(String className, String beanName)
+  CCP -> CCP : processConfigurationClass(ConfigurationClass configClass)逐行解析扫描到的类
+  CCP -> CCP : processImports(configClass, sourceClass, getImports(sourceClass), true)
+
+  note over CCP,AMIS : 获取到AutoProxyRegistrar、ProxyTransactionManagementConfiguration
+  CCP -> AMIS : selectImports(AnnotationMetadata)
+  AMIS -> TMCS : selectImports(AdviceMode)
+
+  note over CCP,APR : 逐归处理AutoProxyRegistrar、ProxyTransactionManagementConfiguration
+  note over CCP : 添加AutoProxyRegistrar、AspectJAutoProxyRegistrar到关联配置类\n（即标记@EnableTransactionManagement的类）\n的ImportBeanDefinitionRegistrars属性中
+  CCP -> APR : addImportBeanDefinitionRegistrar
+
+  note over CCP : 按照普通配置类处理ProxyTransactionManagementConfiguration
+  CCP -> CC : processConfigurationClass
+  CC -> CCP : 解析完配置类
+end
+
+note over CCPP,CC : 加载配置类的配置信息
+CCPP -> CCBDR : loadBeanDefinitions
+CCBDR -> CCBDR : loadBeanDefinitionsForConfigurationClass
+CCBDR -> CCBDR : registerBeanDefinitionForImportedConfigurationClass
+
+note over CCBDR : 如果是由配置类导入的，直接注册到beanfactory
+
+note over CCBDR,ACU : 处理ProxyTransactionManagementConfiguration，导入了切面BeanFactoryTransactionAttributeSourceAdvisor
+note over CCBDR : 加载@Bean标记的注册方法
+CCBDR -> CCBDR : loadBeanDefinitionsForBeanMethod
+
+note over CCBDR : 处理@ImportResource
+CCBDR -> CCBDR : loadBeanDefinitionsFromImportedResources
+
+note over CCBDR,ACU : 处理AutoProxyRegistrar，注册了InfrastructureAdvisorAutoProxyCreator
+note over CCBDR : 处理@Import，导入的ImportBeanDefinitionRegistrar类
+CCBDR -> CCBDR : loadBeanDefinitionsFromRegistrars
+CCBDR -> CCBDR : registerBeanDefinitions
+
+note over ACU : 注册InfrastructureAdvisorAutoProxyCreator
+ACU -> ACU : registerAutoProxyCreatorIfNecessary
+
+@enduml

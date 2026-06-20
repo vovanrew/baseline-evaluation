@@ -1,0 +1,93 @@
+```plantuml
+@startuml
+
+class Team {
+  name: string
+  description: string
+  ownerId: User
+  participants: Participant[]
+  topics: Topic[]
+}
+
+class Topic {
+  name: string
+  icon: string
+  isSequential: boolean
+  subtopics: Subtopic[]
+}
+
+class ChallengeReport {
+  userId: User
+  challengeId: Challenge
+  answer: string[]
+  answeredCorrectly: boolean
+}
+
+class Participant {
+  userId: User
+  points: number
+  status: ParticipantStatus
+}
+
+class Subtopic {
+  name: string
+  description: string
+  challenges: Challenge[]
+}
+
+class User {
+  name: string
+  email: string
+  educationalInstitution: string
+  educationalBackground: EducationalBackground
+  birthDate: Date
+  points: number
+}
+
+class Challenge {
+  name: string
+  body: string
+  type: ChallengeType
+  selection: string[]
+  correct: string[]
+  points: number
+  feedback: string
+}
+
+enum ChallengeType {
+  INPUT
+  RADIO
+  CHECKBOX
+}
+
+enum EducationalBackground {
+  MIDDLE_INCOMPLETE
+  MIDDLE_ONGOING
+  MIDDLE_COMPLETE
+  HIGH_INCOMPLETE
+  HIGH_ONGOING
+  HIGH_COMPLETE
+  GRADUATION_INCOMPLETE
+  GRADUATION_ONGOING
+  GRADUATION_COMPLETE
+}
+
+enum ParticipantStatus {
+  PENDING
+  ACCEPTED
+  DISABLED
+}
+
+Team "1" o-- "0..n" Topic
+Team "1" o-- "0..n" Participant
+Topic "1" o-- "0..n" Subtopic
+Subtopic "1" o-- "0..n" Challenge
+Team "1" --* "1" User
+ChallengeReport "1" --* "1" User
+Participant "1" --* "1" User
+Challenge -- ChallengeType : type >
+User -- EducationalBackground : educationalBackground >
+Participant -- ParticipantStatus : status >
+
+@enduml
+```

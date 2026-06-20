@@ -1,0 +1,22 @@
+{
+  "id": "3e45a45f-c327-45c9-8203-aafd9ee8f892",
+  "object": "chat.completion",
+  "created": 1781409812,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle int PI::calculate(double measured, double resultBuffer)\n\nparticipant \"Aktuatorenhed\" as Aktuator\nparticipant \"PI\" as PI\n\nAktuator -> PI: calculate(measured, resultBuffer)\n\nactivate PI\n\nPI: error = _setpoint - measured\nPI: integral = (_Ts/2)*(error+_preError)+_preIntegral\nnote right of PI: udregning af integrale\n\nPI: maxIntegral = (100*_Ti)/_Kp\nnote right of PI: Anti-Windup\n\nalt [integral > maxIntegral]\n  PI: integral = maxIntegral\nelse [integral < 0]\n  PI: integral = 0\nend\n\nPI: proportional = error\nnote right of PI: udregning af proportional\n\nPI: controlSignal = _Kp*(proportional+(1/_Ti)*integral)\nnote right of PI: udregning af styresignal\n\nopt [controlSignal < _minOut]\n  PI: controlSignal = _minOut\n  note right of PI: Max, Min afgr\u00e6nsninger. 0-100% dutycycle\nend\n\nopt [controlSignal > _maxOut]\n  PI: controlSignal = _maxOut\nend\n\nPI: resultBuffer = controlSignal\nnote right of PI: return result\n\nPI: _preError = error\nPI: _preIntegrale=integrale\nnote right of PI: Opdater hukommelse for error og integral\n\nalt [controlSignal == _minOut]\n  return -1\nelse [controlSignal == _maxOut]\n  return -2\nend\n\nreturn 0\n\ndeactivate PI\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2105,
+    "completion_tokens": 363,
+    "total_tokens": 2468
+  }
+}

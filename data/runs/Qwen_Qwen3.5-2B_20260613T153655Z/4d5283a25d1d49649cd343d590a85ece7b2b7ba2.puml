@@ -1,0 +1,18 @@
+@startuml
+participant "User" as User
+participant "backend" as Backend
+participant "MySQL" as MySQL
+
+User -> Backend : seenNotification(Notification_id, token)
+
+Backend -> MySQL : confirm JWT token
+
+alt [(token is invalid)]
+    Backend -> User : Unauthorized
+else [(token is valid)]
+    Backend -> MySQL : clearUnreadNotification (Notification_id)
+    MySQL -> Backend : OK
+    Backend -> User : OK
+end
+
+@enduml

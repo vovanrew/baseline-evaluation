@@ -1,0 +1,42 @@
+@startuml
+title 资料图片编辑
+
+participant "授课端" as pt
+participant "imgsvc" as imgsvc
+participant "livesvc" as livesvc
+participant "liveteachingsvc" as liveteachingsvc
+participant "cos/oss" as cososs
+
+note right of pt
+  ( wiki:206898375 课程备课详情 )
+  /{h5}pt/v1/live_order_course/preparing_info
+end note
+
+note right of pt
+  ( 预览/编辑 资料图片 wiki:288817172 PT 根据不同类型获取课程绑定资料的信息 )
+  /{h5}pt/v1/live_order_course/material_info
+end note
+
+note right of pt
+  旋转/裁剪/删除 前端行为，等点击确认时再汇报后端
+end note
+
+note right of pt
+  ( PT V3 wiki:185074611 多地址文件上传前获取签名 )
+  /{h5}pt/v3/image/object_upload_auth ( PT )
+end note
+
+note right of pt
+  ( wiki:288327306 PT 覆盖已绑定课程学习资料图片 )
+  ( 入参：需要解绑的general_file_id列表、需要替换的image列表（包含被替换的general_file_id）)
+  /{h5}pt/v1/study_material/course_images_cover
+end note
+
+pt -> imgsvc: /pb/v1/media/add/image ( wiki:11574780 )
+pt -> cososs: 上传图片
+pt -> liveteachingsvc: delete t_general_file ( 原general_file )
+pt -> liveteachingsvc: insert t_general_file ( 替换的general_file )
+pt -> liveteachingsvc: delete t_live_order_course_general_file ( 解绑+被替换的general_file )
+pt -> liveteachingsvc: insert t_live_order_course_general_file ( 替换的general_file )
+
+@enduml

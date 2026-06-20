@@ -1,0 +1,22 @@
+{
+  "id": "f9335dcd-6eaa-4d7b-973b-aa4862a2b546",
+  "object": "chat.completion",
+  "created": 1781495070,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle af sync strategy ReferencePage\n\nparticipant \"af_core\" as core\nparticipant \"af_haf\" as haf\nparticipant \"camxhafadapter\" as adapter\nparticipant \"af_haf_default_mixer\" as mixer\nparticipant \"af_haf_follower\" as follower\n\nskinparam participant {\n    BackgroundColor<<core>> #90EE90\n    BackgroundColor<<haf>> #90EE90\n    BackgroundColor<<adapter>> #90EE90\n    BackgroundColor<<mixer>> #00FA9A\n    BackgroundColor<<follower>> #FF6347\n}\n\nnote top: Strategy:\\n1. AF_FOLLOWER_COARSE_FOLLOW\\n2. AF_FOLLOWER_COMPLETE_FOLLOW\\n3. AF_FOLLOWER_SEQUENTIAL_FOLLOW tuning file not contain\n\nrectangle \"how the follower create\" as creation_section\n    core -> haf : af_haf_set_core_switch\n    activate haf\n    haf -> adapter : pAlgo->set_parameters\\ntype: AF_HAF_SET_PARAM_PEER_FOCUS_INFO\n    activate adapter\n    adapter -> mixer : af_default_mixer_set_parameters\n    activate mixer\n    \n    note right of mixer: if !master:\\npMixer->p_primary = pMixer->p_follower_algo\\nelse\\npMixer->p_primary = pMixer->p_active_algo\n    \n    deactivate mixer\n    adapter --> haf : return\n    deactivate adapter\n    haf --> core : return\n    deactivate haf\nend rectangle\n\nrectangle \"af process monitor\" as monitor_section\n    core -> follower : af_follower_process_monitor\n    activate follower\n    \n    note right of follower: checked with Lester\\nfor follower_monitor, has no different\\nfor follower_search,\\ncurrent we use LEGACY, and Direct mapping require module calibration data\n    \n    alt [lens_mapping_method = FOLLOWER_LEGACY_MAPPING]\n        else [lens_mapping_method = FOLLOWER_DIRECT_MAPPING]\n            follower --> core : return\n        end\n    deactivate follower\nend rectangle\n\nrectangle \"af process search\" as search_section\n    core -> follower : af_follower_process_search\n    activate follower\n    \n    follower -> follower : af_follower_focus_converge\n    activate follower\n    \n    note right of follower: just talk about the FOLLOWER_DIRECT_MAPPING\n    \n    alt [case AF_FOLLOWER_COARSE_FOLLOW]\n        follower -> follower : af_follower_focus_coarse_follow_dir_map\n        activate follower\n        \n        note right of follower: 1. if Coarse search ongoing, Fine search not in process\\ngo to the target lenspos\\n2. if enter fine search, setup fine search\\nfollower have seperate fine search Tuning Param\n        \n        deactivate follower\n    else [case AF_FOLLOWER_COMPLETE_FOLLOW]\n        follower -> follower : af_follower_focus_complete_follow_dir_map\n        activate follower\n        \n        note right of follower: once master focusStatus is FOCUSED\\nwe directly set LensPos\n        \n        deactivate follower\n    else [case AF_FOLLOWER_SEQUENTIAL_FOLLOW]\n        follower -> follower : af_follower_focus_sequential_follow_dir_map\n        activate follower\n        \n        note right of follower: just like COMPLETE_FOLLOW, but even master is focus done\\nwill do another fine search\n        \n        deactivate follower\n    end\n    \n    follower --> core : return\n    deactivate follower\n    \n    follower -> follower : af_follower_get_fine_range\n    activate follower\n    follower --> follower : return\n    deactivate follower\n    \n    follower -> follower : af_follower_populate_process_search_output\n    activate follower\n    follower --> follower : return\n    deactivate follower\n    \n    follower --> core : return\n    deactivate follower\nend rectangle\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2007,
+    "completion_tokens": 770,
+    "total_tokens": 2777
+  }
+}

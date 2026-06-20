@@ -1,0 +1,51 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nparticipant Client\n\nbox \"Master\"\nparticipant Dispatcher\ndatabase Database\nparticipant RSyncServer\nparticipant Arbiter\nend box\n\nbox \"Worker\"\nparticipant Slave\nparticipant Worker\nend box\n\nClient -> Database : Create a taskset\nClient -> Database : Enqueue tasks\nClient -> Dispatcher : Taskset request\nDispatcher -> Worker : Taskset dispatch\nactivate Worker\nWorker -> Database : Log the worker participation\n\n== RSync ==\nWorker -> RSyncServer : RSync\nRSyncServer -> Worker\n\n== Setup ==\nWorker -> Worker : Worker setup\nWorker -> Database : Add a worker setup log\n\nalt setup failed\n    Worker -> Arbiter : Fail request\n    Arbiter -> Database : Mark the taskset as failed\n    Database -> Worker : Notify the taskset is marked as failed\nend\n\n== Testing ==\nWorker -> Slave : Spawn slaves\nactivate Slave\nSlave -> Slave : Slave setup\n\nSlave -> Database : Dequeue a task\nDatabase --> Slave : Return a task\nSlave -> Database : Add a trial\nSlave -> Slave : Execute a task\nSlave -> Database : Add a trial result\nSlave -> Arbiter : Notify the trial result\nArbiter -> Database : Query the trial result\nDatabase --> Arbiter : Respond to the query\n\nalt passed or pending\n    Arbiter -> Database : Mark the task as finished\nelse retry needed\n    Arbiter -> Database : Enqueue the task\nelse no more retries\n    Arbiter -> Database : Mark the task as failed\nend\n\nSlave -> Database : Dequeue a task\nDatabase --> Slave : No tasks left\nSlave -> Arbiter : Check request\nArbiter -> Arbiter : Check whether all tasks are finished\n\nalt some tasks are left\n    Arbiter -> Database : Enqueue the tasks\nend\n\nArbiter -> Database : Mark the taskset as finished\nDatabase -> Worker : Notify the taskset is marked as finished\nWorker -> Slave : Kill slaves\ndeactivate Slave\nWorker -> Database : Add slave logs\ndeactivate Worker\n\nClient -> Database : Query the status of the taskset\nDatabase --> Client : Respond to the query\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbH380qCJDIJS2Th9ebEyvtu7UpgEeCvMAbGZooZKSHsrO7Cj1XknIaoiHNqCYw"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "citationMetadata": {
+        "citationSources": [
+          {
+            "startIndex": 495,
+            "endIndex": 752,
+            "uri": "https://github.com/cookpad/rrrspec",
+            "license": ""
+          },
+          {
+            "startIndex": 771,
+            "endIndex": 1356,
+            "uri": "https://github.com/cookpad/rrrspec",
+            "license": ""
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1155,
+    "candidatesTokenCount": 454,
+    "totalTokenCount": 1609,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1075
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "VmExatvrNdrUkdUP3-Sa8QU"
+}

@@ -1,0 +1,70 @@
+@startuml
+' UML Class Diagram for UserViewModel and related classes
+
+class BindableBase {
+  +C
+}
+
+class UserViewModel {
+  - _selectedOwnedCommand : ICommand?
+  - _selectedFollowingCommand : ICommand?
+  - _offerCommand : ICommand?
+  - _selectedPlant : IPlant?
+  - _selectedFollow : IOfferFollow?
+  - _filterText : string = ""
+  - _isOwnedDetails : bool
+  + User : IUser? «get»
+  + FilterText : string «get» «set»
+  + SelectedPlant : IPlant? «get» «set»
+  + SelectedFollow : IOfferFollow? «get» «set»
+  + UserViewModel(eventAggregator:IEventAggregator, plantStore:IPlantStore, regionManager:IRegionManager, authService:IAuthService, dialogService:IDialogService)
+  + «async» LoadPlants() : void
+  + FilterPlants() : void
+  + «async» AddFollow(offerId:int) : Task
+  + NavigateDetails(args:SelectionChangedEventArgs, isOwned:bool) : void
+  + «override» OnPropertyChanged(args:PropertyChangedEventArgs) : void
+  + «async» OpenOffer(arg:object) : void
+}
+
+class IPlantStore {
+  +C
+}
+
+class IRegionManager {
+  +C
+}
+
+class IAuthService {
+  +C
+}
+
+class IDialogService {
+  +C
+}
+
+class ICommand {
+  +C
+}
+
+class ICollectionView {
+  +C
+}
+
+class ObservableCollection {
+  +C
+}
+
+' Relationships
+UserViewModel --|> BindableBase
+UserViewModel --> IPlantStore : _plantStore
+UserViewModel --> IRegionManager : _regionManager
+UserViewModel --> IAuthService : _authService
+UserViewModel --> IDialogService : _dialogService
+UserViewModel --> ICommand : _selectedOwnedCommand
+UserViewModel --> ICommand : _selectedFollowingCommand
+UserViewModel --> ICommand : _offerCommand
+UserViewModel --> ICollectionView : _filteredPlants
+UserViewModel --> ObservableCollection : _offerFollows<IOfferFollow>
+UserViewModel --> ObservableCollection : _offerFollows<IOfferFollow>
+
+@enduml

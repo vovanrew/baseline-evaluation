@@ -1,0 +1,56 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "Customer" as C
+participant "Device" as D
+participant "DeviceProvisioningService" as DPS
+participant "ProductIoTHub" as PIH
+participant "FWProvider" as FWP
+
+note over D, PIH, FWP: Device was registered for this product before
+note over C: First start
+
+C ->> D: Switch On/Power Up
+D ->> DPS: registerDevice(callback)
+D <- DPS: callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)
+D ->> DPS: setProperties
+D ->> DPS: iamNewToYou(deviceId, firmwareversion)
+
+opt [Firmware needs to be updated]
+D ->> DPS: updateFWMandatory(URL)
+D ->> PIH: URL.get(OLDFW)
+D <- PIH: FW, Checksum
+D ->> DPS: CheckChecksum
+D ->> DPS: update
+D ->> DPS: restart
+D ->> DPS: Booting up
+D ->> DPS: iamNewToYou(deviceId, firmwareversion)
+D ->> DPS: youMayStartSending()
+D ->> PIH: sendData(Data)
+
+note over D: Working
+note over C: Claim/Remove
+
+C ->> D: youMustRetire()
+D ->> C: waits
+
+opt [if Device was not reached]
+D ->> PIH: sendData(Data)
+D ->> PIH: Not registered
+D ->> DPS: registerDevice(callback)
+D <- DPS: callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ERROR, null, null)
+D ->> C: NobodyLovesMeMode()
+
+loop [once a day]
+D ->> DPS: registerDevice(callback)
+loop [several times]
+D ->> PIH: sendData(Data)
+D ->> PIH: NotAvailable/Network Error
+D ->> DPS: registerDevice(callback)
+D ->> DPS: callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)
+D ->> DPS: compare IoTHub and change if necessary
+note over D: if connection is now successful, go on. If not and IoT Hub has not changed\nrepeat with low frequency. Also if DPS is not available.
+end loop
+end loop
+
+@enduml

@@ -1,0 +1,30 @@
+```plantuml
+@startuml
+
+participant "TaskExecutionStrategy" as TES #YellowGreen
+participant "Action" as Action #YellowGreen
+participant "Connection" as Connection
+entity "SSH client/server connection" as SSH
+entity "ssh daemon (or winrm service)" as Daemon
+
+TES -> Action : init(..)
+TES -> Action : init(..)
+TES -> Action : run()
+Action -> Connection : put_file()
+Connection -> SSH : transfer module data
+SSH -> Daemon : 
+Daemon -> Daemon : save module to disk
+Daemon --> SSH
+SSH --> Connection : transfer complete
+Connection --> Action : return remote path
+Action -> Connection : exec_command()
+Connection -> SSH : run module remotely
+SSH -> Daemon : 
+Daemon -> Daemon : execute shell command
+Daemon --> SSH
+SSH --> Connection : return response code, stdout, stderr
+Connection --> Action : return response code, stdout, stderr
+Action --> TES : return JSON
+
+@enduml
+```

@@ -1,0 +1,32 @@
+```plantuml
+@startuml
+title Validation Tocken
+
+participant "RemoteServiceServlet" as RSS << (C,#ADD8E6) >>
+participant "HttpSessionCollector" as HSC << (C,#ADD8E6) >>
+participant "SysLog" as SL << (L,#FFA500) >>
+participant "Validation_User" as VU
+
+-> RSS : Data Request
+activate RSS
+
+RSS -> RSS : Get Session ID_client
+RSS -> HSC : Get Session by ID_client
+activate HSC
+HSC -> RSS : Session
+deactivate HSC
+
+RSS -> RSS : <color:gray>Validation Tockens</color>\n<color:green>True</color>
+activate RSS #green
+RSS -> VU : Access success
+deactivate RSS
+
+RSS -> RSS : <color:gray>Validation Tockens</color>\n<color:red>False</color>
+activate RSS #red
+RSS -[#orange]> SL : Tocken Failure (Name, Time)
+<-[#red]- RSS : Access denied
+deactivate RSS
+
+deactivate RSS
+@enduml
+```

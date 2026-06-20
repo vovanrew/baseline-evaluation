@@ -1,0 +1,22 @@
+{
+  "id": "1442f38f-2dc2-4686-8185-a3997fcf27e3",
+  "object": "chat.completion",
+  "created": 1781761994,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"main\" as main\nparticipant \"bkup.BackupFacade\" as bkup\nparticipant \"srcrepo.SourceRepository\" as srcrepo\nparticipant \"dstrepo.DestinationRepository\" as dstrepo\nparticipant \"metarepo.MetadataRepository\" as metarepo\nparticipant \"scanner.AllFileScanner\" as scanner\nparticipant \"FileSystem\" as FileSystem\nparticipant \"SQLite3\" as SQLite3\n\nmain -> bkup : execute()\n\nbkup --> Get all files : Get all files\n\nGet all files --> scanner.AllFileScanner : get_all_files()\nscanner.AllFileScanner --> FileSystem : read\nFileSystem --> scanner.AllFileScanner : write\nscanner.AllFileScanner --> FileSystem : read\nFileSystem --> scanner.AllFileScanner : write\nscanner.AllFileScanner --> bkup : all_files\n\nbkup --> Get source files : Get source files\n\nGet source files --> srcrepo.SourceRepository : get_files_matching_criteria(all_files)\nsrcrepo.SourceRepository --> bkup : src_files\n\nbkup --> Cleanup of metadata corresponding to already deleted files : Cleanup of metadata corresponding to already deleted files\n\nCleanup of metadata corresponding to already deleted files --> metarepo.MetadataRepository : get_uncontained_keys(src_files)\nmetarepo.MetadataRepository --> SQLite3 : SELECT\nSQLite3 --> metarepo.MetadataRepository : result\nmetarepo.MetadataRepository --> bkup : uncontained_keys\nmetarepo.MetadataRepository --> srcrepo.SourceRepository : remove_metadatas(uncontained_keys)\n\nloop [until the generator finishes]\n    metarepo.MetadataRepository --> dstrepo.DestinationRepository : DELETE\n    dstrepo.DestinationRepository --> metarepo.MetadataRepository : yield removed_metadata <return value is discarded>\n    metarepo.MetadataRepository --> bkup : yield removed_metadata <return value is discarded>\n\nbkup --> Create backup and update metadata : Create backup and update metadata\n\nCreate backup and update metadata --> _get_backup_list(src_files) : _get_backup_list(src_files)\n_create_backup_list(src_files) --> bkup : backup_list\nbkup --> dstrepo.DestinationRepository : create_backups(backup_list)\ndstrepo.DestinationRepository --> bkup : yield backed_up_src_file\nbkup --> metarepo.MetadataRepository : update_metadata(backed_up_src_file)\nmetarepo.MetadataRepository --> dstrepo.DestinationRepository : REPLACE INTO\ndstrepo.DestinationRepository --> metarepo.MetadataRepository : REPLACE INTO\n\nbkup --> Discard old backups : Discard old backups\n\nDiscard old backups --> srcrepo.SourceRepository : get_discard_list(today, all_files)\nsrcrepo.SourceRepository --> bkup : discard_list\nbkup --> dstrepo.DestinationRepository : remove_backups(discard_list)\ndstrepo.DestinationRepository --> bkup : yield removed_file <return value is discarded>\nbkup --> metarepo.MetadataRepository : update_metadata(backed_up_src_file)\nmetarepo.MetadataRepository --> dstrepo.DestinationRepository : REPLACE INTO\ndstrepo.DestinationRepository --> bkup : yield removed_file <return value is discarded>\n\nmain --> bkup : return\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nes",
+  "usage": {
+    "prompt_tokens": 2349,
+    "completion_tokens": 641,
+    "total_tokens": 2990
+  }
+}

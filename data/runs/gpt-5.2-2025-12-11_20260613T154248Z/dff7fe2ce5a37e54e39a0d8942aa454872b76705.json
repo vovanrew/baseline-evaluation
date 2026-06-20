@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLtjIMXjNSgfanlqXAxKxRNsAVey",
+  "object": "chat.completion",
+  "created": 1781369603,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle SDP Initiated Request/Response\\nPattern with Correlation ID\n\nskinparam backgroundColor #F3F0E6\nskinparam shadowing false\nskinparam sequence {\n  ParticipantPadding 40\n  BoxPadding 20\n  LifeLineBorderColor #2E8B57\n  LifeLineBorderThickness 2\n  LifeLineBackgroundColor transparent\n  LifeLineStyle dashed\n  MessageAlign left\n  ActorBorderColor #000000\n  ParticipantBorderColor #000000\n  ParticipantBackgroundColor #FFA500\n  BoxBorderColor #808080\n  BoxBackgroundColor #DDDDDD\n  ActivationBorderColor #000000\n  ActivationBackgroundColor #2E86DE\n}\n\nbox \"SDP\" #DDDDDD\nparticipant \"SERVER\\nNODE 1\" as SN1\nparticipant \"SERVER\\nNODE 2\" as SN2\nparticipant \"STATE\\nCACHE\" as SC\nparticipant \"BROKER\" as BR\nend box\n\nbox \"TBM/HU\" #DDDDDD\nparticipant \"APP\" as APP\nend box\n\nactivate SN1\nSN1 -> SN1 : new request/response\\ninteraction\nSN1 -> SN1 : create interaction\\ncontext\nSN1 -> SC : newMessageID =\\nnextMessageID()\nSN1 -> SC : put(newMessageID,\\ninteraction context)\nSN1 -> SN1 : create message\nSN1 -> SN1 : message.messageID =\\nnewMessageID\nSN1 -> BR : publish message\ndeactivate SN1\n\nBR -> APP : read message\nactivate APP\nAPP -> APP : create response\nAPP -> APP : response.correlationID =\\nmessage.messageID\nAPP -> BR : publish response\ndeactivate APP\n\nBR -> SN2 : read response\nactivate SN2\nSN2 -> SC : interaction context =\\nget(response.correlationID)\nSN2 -> SN2 : process response\nSN2 -> SC : delete(response.correlationID)\ndeactivate SN2\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2734,
+    "completion_tokens": 428,
+    "total_tokens": 3162,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

@@ -1,0 +1,33 @@
+@startuml
+actor Operator
+participant <<Boundary>> MakerUI
+participant <<Control>> Maker
+participant <<Entity>> Request
+participant <<Entity>> Passport
+
+Operator -> <<Boundary>> MakerUI : 1: Login
+<<Boundary>> MakerUI -> <<Control>> Maker : 1.2: Pass Credentials
+<<Control>> Maker -> <<Entity>> Request : 1.2.1: Evaluate
+<<Entity>> Request -> <<Control>> Maker : 1.2.2.1: getRequest()
+<<Control>> Maker -> <<Entity>> Request : 1.2.2.2: Got requests
+<<Control>> Maker -> <<Boundary>> MakerUI : 1.3: Return requests
+<<Boundary>> MakerUI -> Operator : 2: Render requests
+Operator -> <<Boundary>> MakerUI : 2: Print "Invalid login"
+
+loop [n times]
+    alt [do Print Passport]
+        Operator -> <<Boundary>> MakerUI : 3: Print passport
+        <<Boundary>> MakerUI -> <<Control>> Maker : 3.1: Print passport
+        <<Control>> Maker -> <<Entity>> Request : ref: Print passport
+        <<Entity>> Request -> <<Boundary>> MakerUI : Printer State
+        <<Boundary>> MakerUI -> Operator : Printed
+    end
+    alt [do Edit Passport]
+        Operator -> <<Boundary>> MakerUI : 3: Edit Passport
+        <<Boundary>> MakerUI -> <<Control>> Maker : 3.1: Get passport data
+        <<Control>> Maker -> <<Entity>> Request : 3.1.1: getPassport()
+        <<Entity>> Request -> <<Control>> Maker : 3.1.2: Passport
+        <<Control>> Maker -> <<Boundary>> MakerUI : 3.2: Edit Passport
+        <<Boundary>> MakerUI -> Operator : 4: Password edited
+    end
+@enduml

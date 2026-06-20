@@ -1,0 +1,58 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 35
+  BoxPadding 10
+  MessageAlign left
+}
+
+actor User
+participant JobManager
+participant Nodes
+participant ESDM
+participant "Post Processing Library" as PPL
+database Storage
+
+User -> JobManager : submit job(IN, OUT)
+JobManager -> Nodes
+
+== Initialization ==
+Nodes -> Storage : read IN=x
+Storage --> Nodes : return
+
+== Loop ==
+loop
+  Nodes -> Nodes : compute
+  Nodes -> ESDM : write async OUT=y
+  activate ESDM
+  ESDM -> Storage : write snapshot (async)
+  ESDM -> PPL : trigger post processing if region effected
+
+  == In Situ Post Processing ==
+  activate PPL
+  PPL -> PPL : perform post processing
+  PPL -> Storage : (could write result directly)
+  PPL --> ESDM : return
+  deactivate PPL
+
+  ESDM -> Storage : write post processing result
+  deactivate ESDM
+  ESDM --> Nodes : return
+end
+
+note left of User
+OUT files become visible
+end note
+
+note over ESDM
+multiple iterations
+end note
+
+== Finalize ==
+
+note left of User
+All OUT files become visible to subsequent users.
+end note
+
+@enduml

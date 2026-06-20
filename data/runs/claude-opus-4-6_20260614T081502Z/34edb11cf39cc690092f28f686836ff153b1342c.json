@@ -1,0 +1,21 @@
+{
+  "id": "msg_01SVaBtkDrTDthpN18oXnEoh",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nactor user\nparticipant \"Gstreamer Pipeline\" as GP\nparticipant \"realsensesrc\" as RS\nparticipant \"librealsense2\" as LRS\nparticipant \"GStreamer\" as GST\n\nnote left of user\nload GSt\npipeline with\nrealsensesrc\nend note\n\nuser -> GP : realsensesrc\\nserial=728...\n\n== pipeline goto GST_STATE_READY ==\n\nGP -> RS : create\ncreate RS\nRS -> RS : realsensesrc\n\nRS -> LRS : rs2::context.query_devices()\nRS <-- LRS : rs2::device_list\nRS -> LRS : select device by serial\nRS <-- LRS : rs2::sensor\nnote right : Select device\n\nloop [for (info: rs2::rs2_camera_info)]\nRS -> LRS : rs2::device.supports(info)\nRS <-- LRS : bool\nRS -> LRS : rs2::device.get_info(info)\nRS <-- LRS : const char* info_string\nRS -> RS : store info\nend\n\nRS -> GST : gst_tag_setter_add_tag_valist_values(...,infos, NULL)\nnote right\nRegister per-stream\nmetadata as\nGst tags\nend note\n\nRS -> LRS : rs2::sensor.get_stream_profiles()\nRS <-- LRS : std::vector<rs2::stream_profile>\n\nloop [for (profile: std::vector<rs2::stream_profile>)]\nRS -> RS : Create profile_list of supported profiles\nend\n\nRS -> GST : g_object_class_install_properties(......,options)\nnote right\nInstall all\nsupported\nvideo profiles\nas an option\nend note\n\nloop [for (option: rs2::rs2_option)]\nRS -> LRS : rs2::sensor.supports(option)\nRS <-- LRS : bool\nRS -> LRS : rs2::sensor.get_option_range\nRS <-- LRS : rs2::option_range\nRS -> RS : store option\nend\n\nRS -> GST : g_object_class_install_properties(......,options)\nnote right\nInstall all\nsupported\nRS camera options\nas properties/options\nend note\n\nRS -> GST : gst_bus_add_watch(bus, bus_call...);\nnote right\nRegister callback\nfor parameter changes\nend note\n\nGP <-> RS : caps negotiation\\n(CAPS)\n\nnote right of RS\n- pixel_format\n- width\n- height\n- framerate\nend note\n\n== pipeline goto GST_STATE_PLAYING ==\n\nGP -> RS : state=playing\nRS -> LRS : rs2::sensor.start()\n\n== pipeline goto GST_STATE_READY ==\n\nRS -> LRS : rs2::sensor.stop()\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781431406,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 662,
+    "prompt_tokens": 1664,
+    "total_tokens": 2326
+  }
+}

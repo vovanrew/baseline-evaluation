@@ -1,0 +1,53 @@
+```plantuml
+@startuml
+actor "User" as User
+
+participant "SearchWindowUI" as SearchWindowUI
+participant "SearchOnAnotherInstanceController" as SearchOnAnotherInstanceController
+participant "NetworkFactory" as NetworkFactory
+participant "UDP_ClientImpl" as UDP_ClientImpl
+participant "Thread" as Thread
+participant "TCP_ClientImpl" as TCP_ClientImpl
+participant "SpreadCheet" as SpreadCheet
+participant "UDP_ClientImpl_03" as UDP_ClientImpl_03
+participant "TCP_ClientImpl_03" as TCP_ClientImpl_03
+participant "SearchWindowController" as SearchWindowController
+
+User -> SearchWindowUI: start searching instances
+activate SearchWindowUI
+SearchWindowUI -> SearchOnAnotherInstanceController: create(address)
+activate SearchOnAnotherInstanceController
+SearchOnAnotherInstanceController -> NetworkFactory: Obj = getUDPClientImpl(availableInstances)
+activate NetworkFactory
+NetworkFactory -> UDP_ClientImpl_03: create()
+activate UDP_ClientImpl_03
+UDP_ClientImpl_03 -> Thread: create(obj)
+activate Thread
+Thread -> Thread: start()
+Thread -> Thread: join()
+deactivate Thread
+deactivate UDP_ClientImpl_03
+deactivate NetworkFactory
+SearchWindowUI -> SearchOnAnotherInstanceController: checkIfIsAvailable()
+activate SearchOnAnotherInstanceController
+SearchOnAnotherInstanceController -> NetworkFactory: getInfo(destination)
+activate NetworkFactory
+NetworkFactory -> TCP_ClientImpl_03: create()
+activate TCP_ClientImpl_03
+TCP_ClientImpl_03 -> Thread: create(Object)
+activate Thread
+Thread -> Thread: start()
+Thread -> TCP_ClientImpl_03: getInfo()
+activate TCP_ClientImpl_03
+TCP_ClientImpl_03 -> SpreadCheet: getInfo()
+activate SpreadCheet
+SpreadCheet -> Thread: join()
+deactivate Thread
+deactivate SpreadCheet
+deactivate TCP_ClientImpl_03
+deactivate NetworkFactory
+deactivate SearchOnAnotherInstanceController
+deactivate SearchWindowUI
+
+@enduml
+```

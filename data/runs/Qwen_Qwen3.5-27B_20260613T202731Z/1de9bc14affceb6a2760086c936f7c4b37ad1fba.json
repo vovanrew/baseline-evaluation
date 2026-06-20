@@ -1,0 +1,22 @@
+{
+  "id": "3b1a1ebb-c6b7-44a0-a12b-561238951464",
+  "object": "chat.completion",
+  "created": 1781441511,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Update States\n\nparticipant \"Simulator\" as Simulator\nrectangle \"Wayside Controller\" {\n    participant \"TrackControllers\" as TrackControllers\n    participant \"WaysideController\" as WaysideController\n    participant \"PLC\" as PLC\n    participant \"WaysideControllerGUI\" as WaysideControllerGUI\n}\nparticipant \"TrackModel\" as TrackModel\n\nSimulator -> TrackControllers: timeUpdate(SimTime)\nactivate TrackControllers\n\nloop waysideControllers\n    TrackControllers -> WaysideController: updateStates()\n    activate WaysideController\n    \n    loop associatedBlocks\n        WaysideController -> TrackControllers: receiveBlockInfo(line, blockId)\n        activate TrackControllers\n        \n        TrackControllers -> TrackModel: getBlockInfo(line, blockId)\n        activate TrackModel\n        TrackModel --> TrackControllers: Block\n        deactivate TrackModel\n        \n        TrackControllers --> WaysideController: Block\n        deactivate TrackControllers\n        \n        WaysideController -> PLC: runPLC(occupancy)\n        activate PLC\n        PLC -> PLC: getLogic()\n        PLC --> WaysideController: String logic\n        deactivate PLC\n        \n        if (newState != currentState) then\n            WaysideController -> TrackControllers: transmitState(line, blockId, state)\n            activate TrackControllers\n            \n            TrackControllers -> TrackModel: setState(line, blockId, state)\n            activate TrackModel\n            TrackModel --> TrackControllers: Success\n            deactivate TrackModel\n            \n            deactivate TrackControllers\n        endif\n    end\n    \n    if (Wayside Controller Selected) then\n        WaysideController -> WaysideControllerGUI: displayInfo()\n        activate WaysideControllerGUI\n        \n        WaysideControllerGUI -> WaysideController: receiveBlockInfo(line, blockId)\n        activate WaysideController\n        \n        WaysideController -> TrackControllers: receiveBlockInfo(line, blockId)\n        activate TrackControllers\n        \n        TrackControllers -> TrackModel: getBlockInfo(line, blockId)\n        activate TrackModel\n        TrackModel --> TrackControllers: Block\n        deactivate TrackModel\n        \n        TrackControllers --> WaysideController: Block\n        deactivate TrackControllers\n        \n        WaysideController --> WaysideControllerGUI: Block\n        deactivate WaysideController\n        \n        deactivate WaysideControllerGUI\n    endif\n    \n    deactivate WaysideController\nend\n\ndeactivate TrackControllers\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2301,
+    "completion_tokens": 500,
+    "total_tokens": 2801
+  }
+}

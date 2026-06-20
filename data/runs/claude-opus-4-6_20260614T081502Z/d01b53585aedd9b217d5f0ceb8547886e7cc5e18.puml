@@ -1,0 +1,73 @@
+@startuml
+title RqP – Request Resource
+
+actor "Requesting Party\n(RqP)" as RqP
+
+box "Client Application (CA)\n«Custom Application»" #lightgreen
+participant "User Interface" as UI
+end box
+
+box "Resource Server (RS)\n«Custom Application»" #lightorange
+participant "REST API" as RS_API
+database "Resource" as Resource
+database "Credential" as Credential
+end box
+
+box "Authorization Server (AS)\nForgeRock Access Manager" #lightorange
+participant "AM API" as AM_API
+participant "UMA API" as UMA_API
+participant "OAuth API" as OAuth_API
+end box
+
+box "Content Server (CS)\n«Custom Application»" #lightcyan
+participant "REST API" as CS_API
+database "Data" as Data
+end box
+
+RqP -> AM_API : Authenticate
+RqP <-- AM_API : Authenticated
+
+RqP -> UI : Access Interface
+
+note right of UI : Obtain Resource Id\n(maybe from Discover Resources)
+
+UI -> RS_API : GET /share/resources/{resourceId}\nscopes (no valid RPT)
+
+RS_API -> Resource : Get _id
+RS_API <-- Resource : meta data
+
+RS_API -> Credential : Get PAT
+RS_API <-- Credential : PAT
+
+note left of RS_API : Get permission ticket for the\nresource and scope
+
+RS_API -> UMA_API : POST /am/uma/permission_request\nresource_id + scopes
+RS_API <-- UMA_API : permission ticket
+
+UI <-- RS_API : permission ticket + AS URI
+
+UI -> UI : Get client auth basic
+
+note left of UI : Get claim token for the\nRequesting Party (RqP)
+
+UI -> AM_API : POST /am/oauth2/access_token\nscope=openid\nSSO session
+
+AM_API -> CS_API : Validate SSO session
+AM_API <-- CS_API
+
+UI <-- AM_API : claim token
+
+note left of UI : Get Requesting Party Token (RPT)\nusing the permission ticket\nand claim token
+
+UI -> AM_API : POST /am/oauth2/access_token\ngrant_type=urn:ietf:params:oauth:grant-type:uma-ticket\nscope=..., ticket=..., claim_token=..., claim_token_format=...
+
+AM_API -> UMA_API : Check Access
+
+note right of UMA_API : No Policy for RqP + Resource + scopes\nCreate Access Request for Resource Owner
+
+AM_API <-- UMA_API : No Access, request Submitted
+
+UI <-- AM_API : Error: Request Submitted
+
+RqP <-- UI
+@enduml

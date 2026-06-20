@@ -1,0 +1,22 @@
+{
+  "id": "b304c571-904d-4a42-956e-d40e6785648b",
+  "object": "chat.completion",
+  "created": 1781423287,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n' version: 1.20201212.3\n' skinparam: default\nskinparam classAttributeIconSize 0\nskinparam packageStyle rectangle\n\nclass Airport {\n    <<Thread>>\n    list<Runway> lst_runways\n    list<AirportOperation> lst_operations\n    bool permission_to_take_off(Airplane)\n    bool permission_to_land(Airplane)\n    void start_thread()\n}\n\nclass Runway {\n    uint32_t id\n    RunwayState state\n}\n\nclass AirportOperation {\n    Runway run_way\n    Airplane airplane\n    uint32_t time_request\n    uint32_t time_last_update\n    EnumAirportOperation operation_state\n    void free_runway()\n}\n\nclass Airplane {\n    <<Thread>>\n    uint32_t id\n    uint32_t fuel\n    uint32_t fuel_consumption_rate\n    uint32_t airport_answer_timeout\n    AirplaneState state\n    void start_thread()\n    void take_off_authorized()\n    void take_off_denied()\n    void land_authorized()\n    void land_denied()\n}\n\nenum RunwayState {\n    Free\n    InUse\n}\n\nenum AirplaneState {\n    Stopped\n    AskingPermissionToTakeOff\n    TakingOff\n    Flying\n    AskingPermissionToLand\n    Landing\n    Crashed\n}\n\nenum EnumAirportOperation {\n    WaitingToTakeOff\n    AuthorizedToTakeOff\n    WaitingToLand\n    AuthorizedToLand\n}\n\nnote right of Airport::start_thread()\nIterate through lst_operations\nif it matches the criteria that airplane is already flying\nrelease runway\nupdate airplane status and related info\norder lst_operations to update next events\nend note\n\nAirport *-- Runway : \"lst_runways\"\nAirport *-- AirportOperation : \"lst_operations\"\nAirportOperation o-- Runway : \"run_way\"\nAirportOperation o-- Airplane : \"airplane\"\nAirportOperation *-- EnumAirportOperation : \"operation_state\"\nAirplane *-- AirplaneState : \"state\"\nRunway *-- RunwayState : \"state\"\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2350,
+    "completion_tokens": 479,
+    "total_tokens": 2829
+  }
+}

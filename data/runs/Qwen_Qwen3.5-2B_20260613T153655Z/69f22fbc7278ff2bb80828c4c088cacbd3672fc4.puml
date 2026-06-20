@@ -1,0 +1,43 @@
+@startuml
+skinparam sequenceDiagram
+
+participant NavBar
+participant ReduxStore
+participant UserActions
+participant UserReducer
+participant ProfileMiddleware
+participant Solid.js
+participant POD
+
+actor NavBar
+participant ReduxStore
+participant UserActions
+participant UserReducer
+participant ProfileMiddleware
+participant Solid.js
+participant POD
+
+NavBar ->> ReduxStore: loadEmailRequest()
+ReduxStore ->> UserActions: dispatch(loadEmailRequest())
+UserActions ->> ReduxStore: loadEmailRequest()
+ReduxStore ->> UserActions: state
+
+alt [email successfully loaded]
+ReduxStore ->> UserActions: dispatch(loadEmailSuccess(email))
+UserActions ->> ReduxStore: loadEmailSuccess(email)
+ReduxStore ->> UserReducer: updateState(email)
+UserReducer ->> ReduxStore: updated state with email
+ReduxStore ->> NavBar: state
+
+alt [error at loading email]
+ReduxStore ->> UserActions: dispatch(loadEmailError(error))
+UserActions ->> ReduxStore: loadEmailError(error)
+ReduxStore ->> UserReducer: updateState(error)
+UserReducer ->> ReduxStore: updated state
+ReduxStore ->> ProfileMiddleware: error
+ProfileMiddleware ->> Solid.js: error
+Solid.js ->> POD: error
+
+end
+
+@enduml

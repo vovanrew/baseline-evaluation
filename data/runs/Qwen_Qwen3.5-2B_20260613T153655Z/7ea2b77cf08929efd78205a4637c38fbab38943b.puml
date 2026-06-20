@@ -1,0 +1,30 @@
+@startuml
+package "STB" as STB
+
+actor PackageVodDetail
+actor VodProductManager
+actor MBS
+
+STB --> PackageVodDetail : PackageVodDetail
+STB --> VodProductManager : VodProductManager
+STB --> MBS : MBS
+
+PackageVodDetail --> MBS : get package vod detail infos
+MBS --> PackageVodDetail : package vod detail infos
+
+PackageVodDetail --> VodProductManager : getProductButtons(productList)
+VodProductManager --> PackageVodDetail : product buttons
+
+opt [getting Push for vod purchased]
+PackageVodDetail --> MBS : purchasePush(offerId)
+MBS --> PackageVodDetail : discount/cash coupon, membership point
+PackageVodDetail --> VodProductManager : get user discount infos
+VodProductManager --> PackageVodDetail : discount/cash coupon, membership point
+
+opt [vod product contains offerId]
+PackageVodDetail --> MBS : get package vod detail infos
+MBS --> PackageVodDetail : package vod detail infos
+PackageVodDetail --> VodProductManager : getProductButtons(productList)
+VodProductManager --> PackageVodDetail : product buttons
+
+@enduml

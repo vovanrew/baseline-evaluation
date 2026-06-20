@@ -1,0 +1,62 @@
+@startuml
+skinparam UMLClassDiagram fontName "Helvetica"
+
+title PB-158 UC8 SQD: Get campaigns customer is eligible for
+
+actor Next Customer
+interface P&O (Core Next)
+interface Core Bradesco
+database P&O DB
+
+rectangle Next Platform
+    database P&O DB
+    interface P&O (Core Next)
+    interface Core Bradesco
+end rectangle
+
+rectangle Endpoint
+    title Endpoint: GET /campaigns
+    section Current implementation
+        Currently only called by system management, returns a list of all campaigns with the option to specify:
+        - NAME
+        - PARTNER_ID
+        - OFFER_ID
+    section Required implementation
+        Either through extension of existing API or new, enable the user to call the endpoint. When a user calls the endpoint return a list of campaigns that the user is eligible for. As part of the request, include an optional field for whether or not to return the offer logo.
+    section As part of the CAMPAIGN_RETRIEVAL response include:
+        - Campaign logo version number
+        - Campaign logo (optional)
+    section ENSURE BACKWARDS COMPATIBILITY IS MAINTAINED
+end rectangle
+
+rectangle filter on {NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}
+    section 1 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})
+    section 2 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})
+    section 3 Read campaigns user is eligible for
+        Note: Read P&O tables:
+        - ELLIGIBLE_USER
+        - CAMPAIGN
+    section 4 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)
+end rectangle
+
+rectangle if user has been or is eligible for at least one campaign
+    section 5 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)
+end rectangle
+
+rectangle if user is not eligible for any active campaigns
+    section 6 Return error (MESSAGE)
+end rectangle
+
+Next Customer ..> P&O (Core Next) : 1 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})
+
+Next Platform ..> P&O (Core Next) : 2 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})
+
+Next Platform ..> P&O DB : 3 Read campaigns user is eligible for
+
+Next Platform ..> P&O (Core Next) : 4 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)
+
+Next Platform ..> Next Customer : 5 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)
+
+Next Platform ..> Next Customer : 6 Return error (MESSAGE)
+
+@enduml

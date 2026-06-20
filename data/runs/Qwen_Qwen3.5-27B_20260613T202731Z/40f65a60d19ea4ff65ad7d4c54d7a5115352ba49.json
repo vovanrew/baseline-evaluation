@@ -1,0 +1,22 @@
+{
+  "id": "bafa784b-1bd5-4b44-ac45-a3291230f752",
+  "object": "chat.completion",
+  "created": 1781501052,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\nactor \"Actor\" as Actor\nparticipant \"Dashboard\" as Dashboard\nparticipant \"DashboardController\" as DashboardController\nparticipant \"IssuesDetailController\" as IssuesDetailController\nparticipant \"IssuesService\" as IssuesService\nparticipant \"IssuesEntityService\" as IssuesEntityService\nparticipant \"EntityService\" as EntityService\nparticipant \"IssuesRepository\" as IssuesRepository\nparticipant \"IssueRepository\" as IssueRepository\n\n== Initial Interaction ==\nActor -> Dashboard: /issues\nactivate Dashboard\nDashboard -> DashboardController: createIssues()\nactivate DashboardController\nDashboardController --> Dashboard: new / redirect\ndeactivate DashboardController\nDashboard -x Dashboard\ndeactivate Dashboard\n\n== Parallel Processing for getIssues ==\npar\n    Dashboard -> IssuesDetailController: getIssues()\n    activate IssuesDetailController\n    \n    IssuesDetailController -> IssuesService: createIssuesStatistics()\n    activate IssuesService\n    \n    IssuesService -> IssuesEntityService: findAll()\n    activate IssuesEntityService\n    \n    IssuesEntityService -> EntityService: selectAllIssues()\n    activate EntityService\n    \n    EntityService -> IssuesRepository: findAll()\n    activate IssuesRepository\n    \n    loop\n        IssuesRepository -> IssuesRepository: new\n        database \"Issues\" as IssuesDB\n    end\n    \n    loop\n        IssuesRepository -> IssueRepository: findById(id)\n        activate IssueRepository\n        IssueRepository -> IssueRepository: new\n        database \"Issue\" as IssueDB\n        IssueRepository --> IssuesRepository: Issue\n        deactivate IssueRepository\n    end\n    \n    IssuesRepository --> EntityService: Set<Issues>\n    deactivate IssuesRepository\n    \n    EntityService --> IssuesEntityService: Set<Issues>\n    deactivate EntityService\n    \n    IssuesEntityService --> IssuesService: Set<Issues>\n    deactivate IssuesEntityService\n    \n    IssuesService --> IssuesDetailController: IssuesStatistics\n    deactivate IssuesService\n    \n    IssuesDetailController --> Dashboard: IssuesStatistics\n    deactivate IssuesDetailController\nend\n\n== Report Selection and Details ==\nActor -> Dashboard: select report\nactivate Dashboard\nDashboard -> DashboardController: details\nactivate DashboardController\nDashboardController --> Dashboard: new / redirect\ndeactivate DashboardController\nDashboard -x Dashboard\ndeactivate Dashboard\n\n== Parallel Processing for Categories ==\npar\n    Dashboard -> IssuesDetailController: getCategories(origin, reference)\n    activate IssuesDetailController\n    \n    IssuesDetailController -> IssuesService: createDistributionByCategory(origin, reference)\n    activate IssuesService\n    \n    IssuesService -> IssuesEntityService: findByPrimaryKey(origin, reference)\n    activate IssuesEntityService\n    \n    IssuesEntityService -> EntityService: select(origin, reference)\n    activate EntityService\n    \n    EntityService -> IssuesRepository: findById(origin, reference)\n    activate IssuesRepository\n    \n    IssuesRepository -> IssuesRepository: new\n    database \"Issues\" as IssuesDB2\n    \n    loop\n        IssuesRepository -> IssueRepository: findById(id)\n        activate IssueRepository\n        IssueRepository -> IssueRepository: new\n        database \"Issue\" as IssueDB2\n        IssueRepository --> IssuesRepository: Issue\n        deactivate IssueRepository\n    end\n    \n    IssuesRepository --> EntityService: Issues\n    deactivate IssuesRepository\n    \n    EntityService --> IssuesEntityService: Issues\n    deactivate EntityService\n    \n    IssuesEntityService --> IssuesService: Issues\n    deactivate IssuesEntityService\n    \n    IssuesService --> IssuesDetailController: IssuePropertyDistribution\n    deactivate IssuesService\n    \n    IssuesDetailController --> Dashboard: IssuePropertyDistribution\n    deactivate IssuesDetailController\nend\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2105,
+    "completion_tokens": 730,
+    "total_tokens": 2835
+  }
+}

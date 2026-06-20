@@ -1,0 +1,65 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam componentStyle uml2
+
+package security {
+  package auth {
+    class "@Roles" as Roles
+    class "type Role = 'ADMIN' | 'MITARBEITER' | 'KUNDE'" as RoleType
+    Roles .> RoleType
+  }
+}
+
+package auto {
+  package entity {
+    class Auto <<entity>>
+  }
+
+  package rest {
+    class AutoWriteController <<control>> <<@Controller()>> <<@UseGuards()>> <<@UseInterceptors()>> {
+      + @Post() @Roles() async create(@Body() auto: Auto, @Req() req: Request, @Res() res: Response): Promise<Response>
+      + @Put() @Roles() async update(@Body() auto: Auto, @Param() id: string, @Headers() version: string, @Res() res: Response): Promise<Response>
+      + @Delete() @Roles() async delete(@Param() id: string, @Res() res: Response): Promise<Response>
+    }
+  }
+
+  package service {
+    class AutoWriteService <<control>>
+    class AutoReadService <<control>>
+  }
+}
+
+interface Promise<T>
+
+package express {
+  class Request
+  class Response
+}
+
+package "@nestjs/common" {
+  class "@Controller" as Controller
+  class "@UseGuards" as UseGuards
+  class "@UseInterceptors" as UseInterceptors
+  class "@Post" as Post
+  class "@Put" as Put
+  class "@Delete" as Delete
+  class "@Req" as Req
+  class "@Res" as Res
+  class "@Param" as Param
+  class "@Body" as Body
+  class "@Headers" as Headers
+}
+
+AutoWriteController ..> Roles
+AutoWriteController ..> RoleType
+AutoWriteController ..> Auto
+AutoWriteController o--> "1" AutoWriteService : service
+AutoWriteController o--> "1" AutoReadService : readService
+AutoWriteController ..> Promise
+AutoWriteController ..> Request
+AutoWriteController ..> Response
+AutoWriteController ..> Controller
+
+@enduml
+```

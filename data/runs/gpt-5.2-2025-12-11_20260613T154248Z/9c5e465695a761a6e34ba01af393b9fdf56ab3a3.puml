@@ -1,0 +1,25 @@
+@startuml
+hide footbox
+
+participant ListingController
+participant FixPriceListingMapper
+database Database
+collections "allListings: ArrayList<FixPriceListing>" as allListings
+
+ListingController -> ListingController : doGet()
+activate ListingController
+
+ListingController -> FixPriceListingMapper : readList()
+activate FixPriceListingMapper
+
+FixPriceListingMapper -> Database : SELECT * FROM fixed_price_listing
+activate Database
+Database --> FixPriceListingMapper : resultSet
+deactivate Database
+
+FixPriceListingMapper --> allListings : create(title=resultSet.getString("title"), ...)
+FixPriceListingMapper --> ListingController : allListings
+
+deactivate FixPriceListingMapper
+deactivate ListingController
+@enduml

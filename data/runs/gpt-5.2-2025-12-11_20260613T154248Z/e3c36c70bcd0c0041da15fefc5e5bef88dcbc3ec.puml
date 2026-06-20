@@ -1,0 +1,25 @@
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 30
+skinparam BoxPadding 10
+
+participant "uic : UIController" as uic
+participant "ExtensionManager" as em
+participant "extension : NetworkWorkbookSearchExtension" as ext
+participant "uiExtension : UIExtensionNetworkWorkbookSearch" as uie
+participant "NetworkWorkbookSearchPanel : JPanel" as panel
+
+uic -> em : extensions=getExtensions();
+
+loop [for Extension ext : extensions]
+  uic -> ext : uiExtension=getUIExtension(this);
+  create uie
+  ext -> uie : new(extension, uic)
+  uie -> uie : getSideBar();
+  create panel
+  uie -> panel : new (uic)
+  uic -> uic : uiExtensions.add(uiExtension);
+end
+
+@enduml

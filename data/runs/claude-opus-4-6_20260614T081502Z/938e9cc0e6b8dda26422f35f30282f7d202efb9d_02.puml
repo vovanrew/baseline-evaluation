@@ -1,0 +1,45 @@
+```plantuml
+@startuml
+
+actor Operator
+boundary "«Boundary» MakerUI" as MakerUI
+control "«Control» Maker" as Maker
+entity "«Entity» Request" as Request
+entity "«Entity» Passport" as Passport
+
+Operator -> MakerUI : 1: Login
+MakerUI -> MakerUI : 1.1: Render
+MakerUI -> Maker : 1.2: Pass Credentials
+Maker -> Maker : 1.2.1: Evaluate
+
+alt user exists
+    Maker -> Request : 1.2.2.1: getRequest()
+    Request --> Maker : 1.2.2.2: Got requests
+    Maker --> MakerUI : 1.3: Return requests
+    MakerUI --> Operator : 2: Render requests
+else login invalid
+    Maker --> MakerUI : 1.3: Login invalid
+    MakerUI -x Operator : 2: Print "Invalid login"
+end
+
+loop n times
+    alt do Print Passport
+        Operator -> MakerUI : 3: Print passport
+        MakerUI -> Maker : 3.1: Print passport
+        ref over Maker, Passport
+            Print passsport
+        end ref
+        Maker --> MakerUI : Printer State
+        MakerUI --> Operator : Printed
+    else do Edit Passport
+        Operator -> MakerUI : 3: Edit Passport
+        MakerUI -> Maker : 3.1: Get passport data
+        Maker -> Passport : 3.1.1: getPassport()
+        Passport --> Maker : 3.1.2: Passport
+        Maker --> MakerUI : 3.2: Edit Passport
+        MakerUI --> Operator : 4: Password edited
+    end
+end
+
+@enduml
+```

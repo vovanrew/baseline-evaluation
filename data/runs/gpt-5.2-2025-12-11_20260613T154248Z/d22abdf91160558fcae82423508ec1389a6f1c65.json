@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLsq9GRxmtLIvipk8gYCtFkGQbne",
+  "object": "chat.completion",
+  "created": 1781369548,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle HashedTimelockERC20 contract: normal flow \u2013 receiver withdraws with preimage before the timelock expires\n\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  ParticipantPadding 40\n  BoxPadding 20\n  LifeLineBorderColor #666666\n  LifeLineBorderThickness 1\n  LifeLineBackgroundColor #FFFFFF\n  ActorBorderColor #666666\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #E9E9F2\n  NoteBackgroundColor #FFFFDD\n  NoteBorderColor #666666\n}\n\nbox \"Ethereum Network\" #AFC7E6\nparticipant \"\u00abAccount\u00bb\\nSender\" as Sender\nparticipant \"\u00abAccount\u00bb\\nReceiver\" as Receiver\nparticipant \"\u00abSmart Contract\u00bb\\nHashedTimelockERC20\" as HTLC\nparticipant \"\u00abSmart Contract\u00bb\\nERC20Contract\" as ERC20\nparticipant \"Events\" as Events\nend box\n\nnote over HTLC\nState stored for each HTLC:\n  address sender;\n  address receiver;\n  address tokenContract;\n  uint amount;\n  bytes32 hashlock;\n  uint timelock;  // UNIX ts\n  bool withdrawn;\n  bool refunded;\n  bytes32 preimage;\nend note\n\nSender -> ERC20 : approve(htlc address, amount)\nERC20 --> Sender\n\nSender -> HTLC : newContract(\\n  receiver,\\n  hashlock,\\n  timelock,\\n  tokenContract,\\n  amount\\n)\nactivate HTLC\nHTLC -> ERC20 : transferFrom(sender, htlc address, amount)\nactivate ERC20\nERC20 --> HTLC\ndeactivate ERC20\nHTLC -> Events : LogHTLCERC20New(contractId, locks, values, etc.)\nHTLC --> Sender : contractId\ndeactivate HTLC\n\nSender -> Receiver : reveals contractId\n\nReceiver -> Receiver : knows/obtains secret preimage\\n[sha256(secret preimage) == hashlock]\n\nReceiver -> HTLC : withdraw(contractId, secret preimage)\nactivate HTLC\nHTLC -> ERC20 : transfer(receiver, amount)\nactivate ERC20\nERC20 --> HTLC\ndeactivate ERC20\nHTLC -> Events : LogHTLCERC20Withdraw(contractId)\ndeactivate HTLC\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2594,
+    "completion_tokens": 496,
+    "total_tokens": 3090,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

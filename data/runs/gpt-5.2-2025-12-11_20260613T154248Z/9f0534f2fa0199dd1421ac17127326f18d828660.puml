@@ -1,0 +1,143 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam linetype ortho
+
+' --- Aggregate boxes (top) ---
+package "<aggregate> ProductOrder" as AggProductOrder {
+  class "TotalPriceWithoutVAT" as C_TotalPriceWithoutVAT <<C>>
+  class "OrderItem" as E_OrderItemAgg <<E>>
+  class "ProductOrder" as E_ProductOrderAgg <<E>>
+  class "TotalVolume" as C_TotalVolume <<C>>
+  class "Status" as C_Status <<C>>
+  class "TotalPriceWithVAT" as C_TotalPriceWithVAT <<C>>
+  class "BillingAddress" as C_BillingAddress <<C>>
+  class "DeliveryAddress" as C_DeliveryAddress <<C>>
+  class "TotalWeight" as C_TotalWeight <<C>>
+}
+
+package "<aggregate> AGV" as AggAGV {
+  class "AGVStatus" as C_AGVStatus <<C>>
+  class "Model" as C_Model <<C>>
+  class "BriefDescription" as C_BriefDescription <<C>>
+  class "AGV" as E_AGVAgg <<E>>
+  class "AGVPosition" as C_AGVPosition <<C>>
+  class "MaxVolumeCapacity" as C_MaxVolumeCapacity <<C>>
+  class "MaxWeightCapacity" as C_MaxWeightCapacity <<C>>
+  class "AGVTask" as E_AGVTaskAgg <<E>>
+  class "Range" as C_Range <<C>>
+  class "AGVId" as C_AGVId <<C>>
+}
+
+' --- Main domain classes (bottom) ---
+class "AGV" as AGVRoot <<entity>> <<root>> {
+  -state
+}
+
+class "AGVTask" as AGVTask <<entity>> {
+  -id
+  -agvTaskDescription
+}
+
+class "ProductOrder" as ProductOrderRoot <<entity>> <<root>> {
+  -numericalIdentifier
+  -dateOfOrder
+  -shipmentMethod
+  -paymentMethod
+}
+
+class "OrderItem" as OrderItem <<entity>> {
+  -itemQuantity
+}
+
+class "BriefDescription" as VO_BriefDescription <<value object>> {
+  -briefDescription
+}
+
+class "Model" as VO_Model <<value object>> {
+  -model
+}
+
+class "AGVPosition" as VO_AGVPosition <<value object>> {
+  -agvPosition
+}
+
+class "AGVStatus" as VO_AGVStatus <<value object>> {
+  -taskState
+}
+
+class "AGVId" as VO_AGVId <<value object>> {
+  -id
+}
+
+class "Range" as VO_Range <<value object>> {
+  -range
+}
+
+class "MaxWeightCapacity" as VO_MaxWeightCapacity <<value object>> {
+  -maxWeightCapacity
+}
+
+class "MaxVolumeCapacity" as VO_MaxVolumeCapacity <<value object>> {
+  -volume
+}
+
+class "TotalPriceWithoutVAT" as VO_TotalPriceWithoutVAT <<value object>>
+
+class "TotalPriceWithVAT" as VO_TotalPriceWithVAT <<value object>>
+
+class "DeliveryAddress" as VO_DeliveryAddress <<value object>>
+
+class "BillingAddress" as VO_BillingAddress <<value object>>
+
+class "Status" as VO_Status <<value object>>
+
+class "TotalVolume" as VO_TotalVolume <<value object>>
+
+class "TotalWeight" as VO_TotalWeight <<value object>>
+
+' --- Relationships (left: AGV root) ---
+AGVRoot --> VO_BriefDescription : characterized by
+AGVRoot --> VO_Model : has
+AGVRoot --> VO_AGVPosition : located in
+AGVRoot --> VO_AGVStatus : collects
+AGVRoot --> AGVTask : associated
+AGVRoot --> VO_AGVId : has
+AGVRoot --> VO_Range : respects
+AGVRoot --> VO_MaxWeightCapacity : respects
+AGVRoot --> VO_MaxVolumeCapacity : respects
+
+VO_BriefDescription "1" <-- AGVRoot
+VO_Model "1" <-- AGVRoot
+VO_AGVPosition "1" <-- AGVRoot
+VO_AGVStatus "1..*" <-- AGVRoot
+AGVTask "1" <-- AGVRoot
+VO_AGVId "1" <-- AGVRoot
+VO_Range "1" <-- AGVRoot
+VO_MaxWeightCapacity "1" <-- AGVRoot
+VO_MaxVolumeCapacity "1" <-- AGVRoot
+
+' --- Relationships (center/right: ProductOrder root) ---
+AGVTask --> ProductOrderRoot : composed by
+ProductOrderRoot --> OrderItem : composed by
+ProductOrderRoot --> VO_TotalPriceWithVAT : is marked
+ProductOrderRoot --> VO_DeliveryAddress : associated with
+ProductOrderRoot --> VO_BillingAddress : associated with
+ProductOrderRoot --> VO_Status : associated with
+ProductOrderRoot --> VO_TotalVolume : associated with
+ProductOrderRoot --> VO_TotalWeight : associated with
+ProductOrderRoot --> VO_TotalPriceWithoutVAT : is marked
+
+ProductOrderRoot "1..*" <-- AGVTask
+OrderItem "1..*" <-- ProductOrderRoot
+VO_TotalPriceWithVAT "1" <-- ProductOrderRoot
+VO_DeliveryAddress "1" <-- ProductOrderRoot
+VO_BillingAddress "1" <-- ProductOrderRoot
+VO_Status "1" <-- ProductOrderRoot
+VO_TotalVolume "1" <-- ProductOrderRoot
+VO_TotalWeight "1" <-- ProductOrderRoot
+VO_TotalPriceWithoutVAT "1" <-- ProductOrderRoot
+
+@enduml

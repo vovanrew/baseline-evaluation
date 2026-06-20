@@ -1,0 +1,49 @@
+@startuml
+participant "INBRPlayCCSink" as A
+participant "CNBRPfwPlayCtl" as B
+participant "CNBRPfwUICtl" as C
+participant "INBRCommand" as D
+participant "CNBRUImgr" as E
+participant "CNBRPlayMgr" as F
+participant "CNBRPlayBar" as G
+participant "CWbxBmpButton" as H
+
+box "CNBRPfwPlayCtl" #LightBlue
+  participant A
+  participant B
+end box
+
+box "CNBRUImgr" #LightBlue
+  participant D
+  participant E
+end box
+
+note over A, H #White
+  **nmac notify nbr_pfw mute message**
+end note
+
+A -> A : NotifyInfo
+A --> B : NotifyInfo
+B -> C : OnMixerMuteNotify
+
+note over B #LightYellow
+  NBR_CC_PFW_INFO_MUTE_STATE
+end note
+
+C -> D : OnHandleCommand
+
+note over C #LightYellow
+  NBR2_PLAY_UI_MIXER_MUTE_NOTIFY
+end note
+
+D --> E : OnHandleCommand
+
+note over D #LightYellow
+  NBR2_PLAY_UI_MIXER_MUTE_NOTIFY
+end note
+
+E -> F : HandleMixerMuteNotify
+F -> G : MuteVolume
+G -> H : SetChecked
+
+@enduml

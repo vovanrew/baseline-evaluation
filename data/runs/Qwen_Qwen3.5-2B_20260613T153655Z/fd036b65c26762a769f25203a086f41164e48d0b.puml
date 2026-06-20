@@ -1,0 +1,34 @@
+@startuml
+participant "client" as C1
+participant "gateway" as G1
+participant "developer-service" as D1
+participant "devs-db" as DB1
+participant "broker" as B1
+participant "planning-service" as P1
+participant "planning-db" as DB2
+
+participant "client" as C2
+participant "gateway" as G2
+participant "developer-service" as D2
+participant "devs-db" as DB2
+participant "broker" as B2
+participant "planning-service" as P2
+participant "planning-db" as DB3
+
+C1 ..> G1 : POST dev
+G1 ..> D1 : POST dev
+D1 ..> DB1 : persist
+D1 ..> G1 : response 201
+G1 ..> C1 : 201
+
+C2 ..> G2 : POST dev
+G2 ..> D2 : POST dev
+D2 ..> DB2 : persist
+D2 ..> G2 : response 201
+G2 ..> C2 : 201
+
+D1 ..> B1 : emit DevCreated Event
+B1 ..> P1 : consume Event
+P1 ..> DB2 : persist Dev
+
+@enduml

@@ -1,0 +1,56 @@
+@startuml
+left to right direction
+skinparam sequenceMessageSize 100
+
+participant "AntFacadeController" as AntFacadeController
+participant "Soldat" as Soldat
+participant "Ouvriere" as Ouvriere
+participant "Fourmi" as Fourmi
+participant "Noeud" as Noeud
+participant "Fourmilière" as Fourmilière
+participant "Grille" as Grille
+participant "Random" as Random
+
+AntFacadeController -> AntFacadeController : 1 play
+
+loop [Fourmilière f in listeFourmilières]
+  loop [Fourmi f in listeFourmis]
+    alt [Fourmi instanceof Soldat]
+      Soldat -> Random : 2 deplacer(Random)
+      Random --> Soldat : 3 noeudsLibres
+      Fourmilière --> Soldat : 4 ArrayList<Noeud>
+      Random --> Soldat : 5 nextInt()
+      Random --> Soldat : 6 int
+      Soldat -> Noeud : 7 setPosition:Noeud
+      Noeud --> Soldat : 8 void
+      Soldat --> AntFacadeController : 9 void
+    else [Fourmi instanceof Ouvriere]
+      Ouvriere -> Random : 10 deplacer(Random)
+      Random --> Ouvriere : 11 noeudsLibres
+      Fourmilière --> Ouvriere : 12 ArrayList<Noeud>
+      Ouvriere -> Ouvriere : 13 getNourriture()
+      Ouvriere --> Ouvriere : 14 nourriture
+      Ouvriere -> Ouvriere : 15 getPheromones()
+      Ouvriere --> Ouvriere : 16 pheromones
+      Random --> Ouvriere : 17 nextInt()
+      Random --> Ouvriere : 18 int
+      Ouvriere -> Noeud : 19 setPosition:Noeud
+      Noeud --> Ouvriere : 20 void
+      Ouvriere -> Ouvriere : 21 getNourriture
+      Ouvriere --> Ouvriere : 22 nourriture
+      Ouvriere -> Ouvriere : 23 setNourriture(int)
+      Ouvriere --> Ouvriere : 24 void
+      [transporte nourriture]
+      Ouvriere -> Ouvriere : 25 ajouterPheromones(int)
+      Ouvriere --> Ouvriere : 26 void
+    end
+    Ouvriere --> AntFacadeController : 27 void
+  end
+  loop [Noeud n in Grille]
+    Noeud -> Noeud : 28 evaporer(int)
+    Noeud --> Noeud : 29 void
+  end
+  AntFacadeController --> AntFacadeController : 30 void
+end
+
+@enduml

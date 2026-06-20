@@ -1,0 +1,35 @@
+@startuml
+title Memverifikasi SPT BKA
+
+actor AdministratorTU as admin_tu
+participant "Dashboard_V" as dashboard_v <<Boundary>>
+participant "KontrolSPTBKA_V" as kontrol_sptbka_v <<Boundary>>
+control Admin_C as admin_c <<Control>>
+control KontroSPT_C as kontrospt_c <<Control>>
+entity SuratPerintahTugas_E as surat_perintagtugas_e <<Entity>>
+
+
+admin_tu ->> dashboard_v : 3 klik menu SPT BKA 
+dashboard_v --> admin_tu :2 Halaman Dashboard 
+
+kontrospt_c <- - admin_c :1 load->view()  
+kontrol_sptbka_v <-- kontrospt_c :7 load->view()   
+surat_perintagtugas_e --x kontrospt_c :6  
+
+dashboard_v ->> kontrospt_c :4 controlsptbka ()    
+kontrospt_c ->> surat_perintagtugas_e :5   
+
+kontrol_sptbka_v <--> admin_tu :8 Halaman SPT BKA 
+
+
+admin_tu ->> kontrol_sptbka_v :9 klik tombol Accept SPT BKA     
+kontrol_sptbka_v ->> kontrospt_c :10 acceptsptbkalengkap()      
+kontrospt_c <-> surat_perintagtugas_e :11  
+
+
+kontrol_sptbka_v <-- kontrospt_c :13 load->view()       
+kontrol_sptbka_v ---> admin_tu :14 Halaman SPT BKA   
+
+
+
+@enduml

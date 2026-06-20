@@ -1,0 +1,88 @@
+@startuml
+title End Screen Action Sequences
+
+actor User
+
+box "Views" #lightblue
+participant Game
+participant End
+participant HighScore
+participant Start
+end box
+
+box "User Interface Control" #lightblue
+participant Navigation
+end box
+
+box "Back End" #violet
+participant Settings
+participant JoggleCube
+participant HighScores
+participant Score
+participant Cube
+participant Block
+end box
+
+== High Score button clicked ==
+
+User -> End : btnHighScoreClicked()
+End -> Navigation : show(ScreenType.HighScore)
+Navigation -> HighScore : prepView()
+HighScore -> JoggleCube : getOverallHighScores()
+JoggleCube -> HighScores : getScores()
+HighScores --> JoggleCube : scores
+JoggleCube --> HighScore : scores
+HighScore -> JoggleCube : getCurrentCubeHighScores()
+JoggleCube -> HighScores : getScores()
+HighScores --> JoggleCube : scores
+JoggleCube --> HighScore : scores
+HighScore --> Navigation : 
+Navigation --> End : 
+End -> Navigation : hideOverlay(ScreenType.End)
+Navigation --> End : 
+
+== Menu Clicked ==
+
+User -> End : btnMenuClicked()
+End -> Navigation : show(ScreenType.Start)
+Navigation -> Start : prepView()
+Start -> JoggleCube : getCurrLang()
+JoggleCube --> Start : English
+Start --> Navigation : 
+Navigation --> End : 
+End -> Navigation : hideOverlay(ScreenType.End)
+Navigation --> End : 
+
+== Replay clicked ==
+
+User -> End : replayGrid()
+End -> Navigation : show(ScreenType.GAME)
+Navigation -> Game : prepView()
+Game -> JoggleCube : getCubeData()
+JoggleCube -> Cube : getCube()
+Cube --> JoggleCube : cube[3][3][3]
+JoggleCube --> Game : cube[3][3][3]
+Game --> Navigation : 
+Navigation --> End : 
+End -> Navigation : hideOverlay(ScreenType.End)
+Navigation --> End : 
+
+== Save Clicked ==
+
+User -> End : btnSaveClicked()
+End -> JoggleCube : savGrid(filename)
+JoggleCube -> Cube : saveCube(outfile)
+loop [foreach Block]
+Cube -> Block : getLetter()
+Block --> Cube : 
+end
+Cube --> JoggleCube : 
+JoggleCube -> Score : saveScore(outfile)
+loop [foreach score]
+Score -> Score : save(outfile)
+Score --> Score : 
+end
+Score --> JoggleCube : 
+JoggleCube --> End : 
+
+@enduml

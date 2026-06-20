@@ -1,0 +1,31 @@
+```plantuml
+@startuml
+skinparam componentStyle rectangle
+
+participant "PackageManager" as PackageManager
+participant "ApplicationPackageManager" as ApplicationPackageManager
+participant "PackageManagerService" as PackageManagerService
+participant "ActivityIntentResolver" as ActivityIntentResolver
+participant "IntentResolver" as IntentResolver
+
+activate PackageManager
+activate ApplicationPackageManager
+activate PackageManagerService
+activate ActivityIntentResolver
+activate IntentResolver
+
+PackageManager -> PackageManager : queryIntentActivities
+PackageManager -> ApplicationPackageManager : queryIntentActivitiesAsUser
+ApplicationPackageManager -[dotted]-> PackageManagerService : queryIntentActivities
+PackageManagerService <-[dotted]- PackageManagerService : queryIntentActivitiesInternal
+PackageManagerService -> ActivityIntentResolver : queryIntent
+ActivityIntentResolver -> IntentResolver : queryIntent
+
+deactivate PackageManager
+deactivate ApplicationPackageManager
+deactivate PackageManagerService
+deactivate ActivityIntentResolver
+deactivate IntentResolver
+
+@enduml
+```

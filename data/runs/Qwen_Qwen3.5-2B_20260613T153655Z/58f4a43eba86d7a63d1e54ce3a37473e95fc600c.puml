@@ -1,0 +1,100 @@
+@startuml
+participant "TodoListApplication" as App
+
+participant "ToDoListGUIController" as GUIController
+
+participant "ToDoList" as ToDoList
+
+participant "Item" as Item
+
+participant "AddItemController" as AddItemController
+
+participant "EditItemController" as EditItemController
+
+participant "LoadFileController" as LoadFileController
+
+participant "ToDoListManager" as ToDoListManager
+
+App --> GUIController : start()
+App --> ToDoListManager : main()
+
+GUIController ..> ToDoList : <Item> todoList
+GUIController ..> ToDoListManager : ToDoListManager tdm
+GUIController ..> ToDoList : ToDoList
+GUIController ..> ToDoListManager : loadTable(ToDoListManager tdm)
+
+GUIController --> ToDoList : <Item> tableView
+GUIController --> ToDoList : TableColumn<Item, String> completionColumn
+GUIController --> ToDoList : TableColumn<Item, String> nameColumn
+GUIController --> ToDoList : TableColumn<Item, String> descriptionColumn
+GUIController --> ToDoList : TableColumn<Item, String> dueDateColumn
+GUIController --> ToDoList : RadioButton showAllItems
+GUIController --> ToDoList : RadioButton showIncompletedItems
+GUIController --> ToDoList : RadioButton showCompletedItems
+
+GUIController --> ToDoListManager : changeItemViewOnRadioToggle()
+GUIController --> ToDoListManager : toggleCompletionOnButtonPress()
+GUIController --> ToDoListManager : removeItemFromTable()
+GUIController --> ToDoListManager : clearAllItemsFromTable()
+GUIController --> ToDoListManager : saveListToFile()
+GUIController --> ToDoListManager : popupAddItemSceneOnButtonPress()
+GUIController --> ToDoListManager : popupEditItemSceneOnButtonPress()
+GUIController --> ToDoListManager : changeToLoadFileSceneOnButtonPress()
+GUIController --> ToDoListManager : closeWindowOnExitButtonPress(MouseEvent event)
+GUIController --> ToDoListManager : initialize(URL location, ResourceBundle resources)
+GUIController --> ToDoListManager : loadTable(ToDoListManager tdm)
+
+GUIController --> AddItemController : <Item> todoList
+GUIController --> AddItemController : ToDoListManager tdm
+GUIController --> AddItemController : ToDoListManager tdm = new ToDoListManager()
+GUIController --> AddItemController : Item newItem = new Item()
+GUIController --> AddItemController : getitemInfo(MouseEvent event)
+
+GUIController --> EditItemController : <Item> todoList
+GUIController --> EditItemController : ToDoListManager tdm = new ToDoListManager()
+GUIController --> EditItemController : edititemInfo(MouseEvent event)
+GUIController --> EditItemController : showitemInfo(Item selecteditem)
+
+GUIController --> LoadFileController : <Item> todoList
+GUIController --> LoadFileController : ToDoListManager tdm = new ToDoListManager()
+GUIController --> LoadFileController : getFilePath(MouseEvent event)
+
+ToDoListManager --> ToDoList : String fileLocation
+ToDoListManager --> ToDoList : ToDoList tdl = new ToDoList()
+ToDoListManager --> ToDoList : File file = new File(getFileLocation() + "/") + getFileName()
+ToDoListManager --> ToDoList : writeFile(String file, ToDoListManager manager)
+ToDoListManager --> ToDoList : loadToDoList(String location)
+ToDoListManager --> ToDoList : String getFileLocation()
+ToDoListManager --> ToDoList : String getFileName()
+ToDoListManager --> ToDoList : String createList(String title)
+
+ToDoList --> ToDoListManager : List<Item> itemList = new ArrayList<>()
+ToDoList --> ToDoListManager : clearList()
+ToDoList --> ToDoListManager : addItem(Item newItem)
+ToDoList --> ToDoListManager : displayCompletedItems(List<Item> displayList)
+ToDoList --> ToDoListManager : displayIncompletedItems(List<Item> displayList)
+
+Item --> Item : String completion
+Item --> Item : String name
+Item --> Item : String description
+Item --> Item : String dueDate
+Item --> Item : Item()
+Item --> Item : Item(String name, String description, String dueDate, String completion)
+Item --> Item : String getName()
+Item --> Item : String getDescription()
+Item --> Item : String getDueDate()
+Item --> Item : String getCompletion()
+Item --> Item : changeCompletion()
+
+AddItemController --> ToDoListManager : ToDoListManager tdm = new ToDoListManager()
+AddItemController --> ToDoListManager : Item newItem = new Item()
+AddItemController --> ToDoListManager : getitemInfo(MouseEvent event)
+
+EditItemController --> ToDoListManager : ToDoListManager tdm = new ToDoListManager()
+EditItemController --> ToDoListManager : edititemInfo(MouseEvent event)
+EditItemController --> ToDoListManager : showitemInfo(Item selecteditem)
+
+LoadFileController --> ToDoListManager : ToDoListManager tdm = new ToDoListManager()
+LoadFileController --> ToDoListManager : getFilePath(MouseEvent event)
+
+@enduml

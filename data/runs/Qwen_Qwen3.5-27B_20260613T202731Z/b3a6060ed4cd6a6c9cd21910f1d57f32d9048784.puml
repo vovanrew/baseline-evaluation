@@ -1,0 +1,38 @@
+```plantuml
+@startuml
+title Login Sequence GET
+
+actor "customer" as Customer
+participant "Tomcat" as Tomcat
+
+rectangle "entries (UI)" {
+    participant "Index" as Index
+    participant "BaseServlet" as BaseServlet
+    participant "index.jsp" as indexJsp
+    participant "Login" as Login
+    participant "login.jsp" as loginJsp
+}
+
+Customer -> Tomcat: 1 GET /
+activate Tomcat
+Tomcat -> Index: 2 doGet()
+activate Index
+Index -> BaseServlet: 3 render()
+activate BaseServlet
+BaseServlet -> indexJsp: 4 forward()
+activate indexJsp
+indexJsp -> Login: 5 doGet()
+activate Login
+Login --> BaseServlet: 6 render()
+deactivate Login
+BaseServlet -> loginJsp: 7 forward()
+activate loginJsp
+loginJsp --> Customer: 8 result
+deactivate loginJsp
+deactivate BaseServlet
+deactivate indexJsp
+deactivate Index
+deactivate Tomcat
+
+@enduml
+```

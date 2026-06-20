@@ -1,0 +1,92 @@
+@startuml
+
+package "security" {
+  package "auth" {
+    class "@Roles" as Roles {
+    }
+    class "type Role = 'ADMIN' | 'MITARBEITER' | 'KUNDE'" as RoleType {
+    }
+    Roles --> RoleType
+  }
+}
+
+package "auto" {
+  package "entity" {
+    class "Auto" as Auto <<entity>> {
+    }
+  }
+
+  package "rest" {
+    class "AutoWriteController" as AutoWriteController <<control>> <<@Controller()>> <<@UseGuards()>> <<@UseInterceptors()>> {
+      + @Post() @Roles() async create(@Body() auto: Auto, @Req() req: Request, @Res() res: Response): Promise<Response>
+      + @Put() @Roles() async update(@Body() auto: Auto, @Param() id: string, @Headers() version: string, @Res() res: Response): Promise<Response>
+      + @Delete() @Roles() async delete(@Param() id: string, @Res() res: Response): Promise<Response>
+    }
+
+    package "service" {
+      class "AutoWriteService" as AutoWriteService <<control>> {
+      }
+      class "AutoReadService" as AutoReadService <<control>> {
+      }
+    }
+
+    AutoWriteController --> AutoWriteService : service
+    AutoWriteController --> AutoReadService : readService
+  }
+}
+
+interface "Promise" as Promise <<T>> {
+}
+
+package "express" {
+  class "Request" as Request {
+  }
+  class "Response" as Response {
+  }
+}
+
+package "@nestjs/common" {
+  class "@Controller" as NestController {
+  }
+  class "@UseGuards" as NestUseGuards {
+  }
+  class "@UseInterceptors" as NestUseInterceptors {
+  }
+  class "@Post" as NestPost {
+  }
+  class "@Put" as NestPut {
+  }
+  class "@Delete" as NestDelete {
+  }
+  class "@Req" as NestReq {
+  }
+  class "@Res" as NestRes {
+  }
+  class "@Param" as NestParam {
+  }
+  class "@Body" as NestBody {
+  }
+  class "@Headers" as NestHeaders {
+  }
+}
+
+AutoWriteController ..|> Promise
+AutoWriteController ..> Request
+AutoWriteController ..> Response
+AutoWriteController ..> NestController
+AutoWriteController ..> NestUseGuards
+AutoWriteController ..> NestUseInterceptors
+AutoWriteController ..> NestPost
+AutoWriteController ..> NestPut
+AutoWriteController ..> NestDelete
+AutoWriteController ..> NestReq
+AutoWriteController ..> NestRes
+AutoWriteController ..> NestParam
+AutoWriteController ..> NestBody
+AutoWriteController ..> NestHeaders
+AutoWriteController ..> Auto
+
+AutoWriteService ..> Roles
+AutoReadService ..> RoleType
+
+@enduml

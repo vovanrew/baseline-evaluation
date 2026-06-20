@@ -1,0 +1,22 @@
+{
+  "id": "f470e628-da5f-4973-9ab2-4e1f76256731",
+  "object": "chat.completion",
+  "created": 1781485828,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle create order sequence diagram\n\nactor Customer\nactor Cashier\nparticipant \":Inventory System\" as InventorySystem\nparticipant \":Order\" as Order\nparticipant \":Product\" as Product\nparticipant \":Stock\" as Stock\nparticipant \":Invoice\" as Invoice\nparticipant \":Transaction\" as Transaction\n\nCustomer -> Cashier : 1. Request order product\nactivate Cashier\nCashier -->> Customer : 2. Receive order\ndeactivate Cashier\n\nCashier -> InventorySystem : 3. requestCreateOrder()\nactivate InventorySystem\nInventorySystem -> Product : 3.1 selectProduct()\nactivate Product\nProduct -> Stock : 3.2 checkStock()\nactivate Stock\nStock --> Product : 3.3 return stock\ndeactivate Stock\nProduct --> InventorySystem : 3.4 return product\ndeactivate Product\n\nalt F (stock.qty > order.qty)\n    InventorySystem -> Order : 3.5 createOrder(order)\n    activate Order\n    Order -> Stock : 3.6 updateStock()\n    activate Stock\n    Stock --> InventorySystem : 3.7 return update stock\n    deactive Stock\n    Order -> Invoice : 3.8 systemCreateInvoice()\n    activate Invoice\n    Invoice -> Invoice : 3.9 printInvoice()\n    Invoice --> InventorySystem : 3.10 return invoice\n    deactivate Invoice\n    Order --> InventorySystem : 3.11 return order\n    deactivate Order\nelse\n    Order --> InventorySystem : 3.12 can't create order\nend\n\nInventorySystem --> Cashier : 4. response create order status\ndeactivate InventorySystem\n\nCashier -->> Customer : 5. Invoice\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1762,
+    "completion_tokens": 365,
+    "total_tokens": 2127
+  }
+}

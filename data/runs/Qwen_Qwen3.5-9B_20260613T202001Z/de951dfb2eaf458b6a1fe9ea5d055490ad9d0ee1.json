@@ -1,0 +1,22 @@
+{
+  "id": "2cb5a06f-6447-4499-8add-b2418af04d40",
+  "object": "chat.completion",
+  "created": 1781419719,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"Administrator\" as Admin\nrectangle \"SearchUsersByParamsRoute\" as Route\nrectangle \"inDto : SearchUserDto\" as InDto\nrectangle \"UsersController\" as Controller\nrectangle \"SearchUsersByParamsService\" as Service\nrectangle \"ISystemUserRepo\" as ISystemUserRepo\nrectangle \"IUserProfileRepo\" as IUserProfileRepo\nrectangle \"user : SystemUser\" as User\nrectangle \"SystemUserMapper\" as Mapper\nrectangle \"userDto : OutputUserDto\" as UserDto\nrectangle \"usersjsn : ResponseEntity\" as Response\n\nnote right of Admin\nThe parameters (name, email, profile and function) will be in the query of the request. At least, one of than must be typed or chosen.\nend note\n\nAdmin -> Route: 1 GET /users?name=&email=&profile=&func=&func=\nRoute -> Controller: 2 searchUsersByTypedParams(inDto)\nController -> Service: 3 searchUsersByTypedParams(inDto)\n\nalt (if the request has a profile)\n  Service -> IUserProfileRepo: 4 result : existByUserProfileId(profile)\nend\n\nalt (depending on which params came from inputDto, the service class will invoke the respective method)\n  Service -> ISystemUserRepo: 5 findAllBy..()\n  ISystemUserRepo -> Mapper: 6 create()\n  Mapper -> usersFound : List<SystemUser>\n  Service -> usersFoundDto : List<UserDto>\n  Service -> Mapper: 8 create()\nend\n\nloop (for which user found at the list)\n  Service -> User: 9 model2Dto(user)\n  User -> Mapper: 10 create()\n  Mapper -> UserDto : OutputUserDto\n  Service -> UserDto: 11 userDto\n  Service -> usersFoundDto: 12 addUserDto()\nend\n\nService -> Response: 13 usersFoundDto\nResponse -> Admin: 14 create(usersFoundDto)\nAdmin -> Admin: 15 usersjsn\nAdmin -> Admin: 16 Show the list of user found by typed/chosen parameters\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 880,
+    "completion_tokens": 463,
+    "total_tokens": 1343
+  }
+}

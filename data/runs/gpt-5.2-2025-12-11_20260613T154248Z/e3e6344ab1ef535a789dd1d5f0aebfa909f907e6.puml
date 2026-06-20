@@ -1,0 +1,258 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+class ProductOrder {
+  cancellationDate: date-time
+  cancellationReason: string
+  completionDate: date-time
+  href: string
+  id*: string
+  orderDate*: date-time
+  state*: MEFProductOrderStateType
+}
+
+class MEFProductOrderStateChange {
+  changeDate: date-time
+  changeReason: string
+  state: MEFProductOrderStateType
+}
+
+class MEFProductOrderItemStateChange {
+  changeDate: date-time
+  changeReason: string
+  state: MEFProductOrderItemStateType
+}
+
+class MEFProductOrderChargeRef {
+}
+
+class ProductOrderItem {
+  completionDate: date-time
+  expectedCompletionDate: date-time
+  expectedDeliveryDate: date-time
+  state: MEFProductOrderItemStateType
+}
+
+class TerminationError {
+  code: Error422Code
+  propertyPath: string
+  value: string
+}
+
+class MEFMilestone {
+  date*: date-time
+  name*: string
+  note: string
+}
+
+class MEFQuoteItemRef {
+  id*: string
+  quoteHref: string
+  quoteId*: string
+}
+
+class OrderItemRelationship {
+  id*: string
+  relationshipType*: string
+}
+
+class MEFOrderItemCoordinatedAction {
+  coordinationDependency: MEFOrderItemCoordinationDependencyType
+  itemId*: string
+}
+
+class MEFItemTerm {
+  description: string
+  endOfTermAction: MEFEndOfTermAction
+  name*: string
+}
+
+class Duration {
+  amount*: integer
+  units*: TimeUnit
+}
+
+class GeographicSiteRef {
+  href: string
+  id*: string
+}
+
+class MEFGeographicPoint {
+  spatialRef*: string
+  x*: string
+  y*: string
+  z: string
+}
+
+class RelatedPlaceRefOrValue {
+  @schemaLocation: uri
+  @type*: string
+  role*: string
+}
+
+class FormattedAddress {
+  addrLine1*: string
+  addrLine2: string
+  city*: string
+  country*: string
+  locality: string
+  postcode: string
+  postcodeExtension: string
+  stateOrProvince: string
+}
+
+class GeographicAddressLabel {
+  externalReferenceId*: string
+  externalReferenceType*: string
+}
+
+class GeographicAddressRef {
+  href: string
+  id*: string
+}
+
+class FieldedAddress {
+  city*: string
+  country*: string
+  locality: string
+  postcode: string
+  postcodeExtension: string
+  stateOrProvince: string
+  streetName: string
+  streetNr: string
+  streetNrLast: string
+  streetNrLastSuffix: string
+  streetNrSuffix: string
+  streetSuffix: string
+  streetType: string
+}
+
+class GeographicSubAddress {
+  buildingName: string
+  levelNumber: string
+  levelType: string
+  privateStreetName: string
+  privateStreetNumber: string
+}
+
+class MEFSubUnit {
+  subUnitNumber*: string
+  subUnitType*: string
+}
+
+class MEFProductOrderItem_Common {
+  action*: MEFProductActionType
+  agreementName: string
+  endCustomerName*: string
+  expectedInitiator: boolean
+  id*: string
+  relatedBuyerPO: string
+  requestedCompletionDate: date-time
+  tspRestorationPriority: string
+}
+
+class ProductOfferingQualificationItemRef {
+}
+
+class MEFProductOfferingOrderRef {
+  href: string
+  id*: string
+}
+
+class MEFBillingAccountRef {
+  id*: string
+}
+
+class ProductOfferingRef {
+  href: string
+  id*: string
+}
+
+class ProductRelationship {
+  id*: string
+  relationshipType*: string
+}
+
+class MEFProductConfiguration {
+  @type*: string
+}
+
+class Note {
+  author*: string
+  date*: date-time
+  id*: string
+  source*: MEFBuyerSellerType
+  text*: string
+}
+
+class RelatedContactInformation {
+  emailAddress*: string
+  name*: string
+  number*: string
+  numberExtension: string
+  organization: string
+  role*: string
+}
+
+class ProductOrder_Common {
+  externalId: string
+  projectId: string
+}
+
+class ProductOrder_Update {
+  externalId: string
+  projectId: string
+}
+
+class MEFProductOrderItem_Update {
+}
+
+' Relationships
+ProductOrder --> MEFProductOrderStateChange : stateChange
+ProductOrder --> ProductOrderItem : productOrderItem
+ProductOrder --> MEFProductOrderChargeRef : cancellationCharge
+
+ProductOrderItem --> MEFProductOrderItemStateChange : stateChange
+ProductOrderItem --> TerminationError : terminationError
+ProductOrderItem --> MEFMilestone : milestone
+ProductOrderItem --> MEFItemTerm : itemTerm
+ProductOrderItem --> MEFQuoteItemRef : quoteItem
+ProductOrderItem --> OrderItemRelationship : productOrderItemRelationship
+ProductOrderItem --> MEFOrderItemCoordinatedAction : coordinatedAction
+
+MEFOrderItemCoordinatedAction --> Duration : coordinatedActionDelay
+MEFItemTerm --> Duration : duration
+MEFItemTerm --> Duration : rollInterval
+
+MEFProductOrderItem_Common --> ProductOfferingQualificationItemRef : productOfferingQualificationItem
+MEFProductOrderItem_Common --> MEFProductOfferingOrderRef : product
+MEFProductOrderItem_Common --> MEFBillingAccountRef : billingAccount
+MEFProductOrderItem_Common --> Note : note
+MEFProductOrderItem_Common --> RelatedContactInformation : relatedContactInformation
+MEFProductOrderItem_Common --> RelatedPlaceRefOrValue : place
+MEFProductOrderItem_Common --> ProductOfferingRef : productOffering
+MEFProductOrderItem_Common --> ProductRelationship : productRelationship
+MEFProductOrderItem_Common --> MEFProductConfiguration : productConfiguration
+
+RelatedPlaceRefOrValue <|-- GeographicSiteRef
+RelatedPlaceRefOrValue <|-- MEFGeographicPoint
+RelatedPlaceRefOrValue <|-- FormattedAddress
+RelatedPlaceRefOrValue <|-- GeographicAddressLabel
+RelatedPlaceRefOrValue <|-- GeographicAddressRef
+
+RelatedContactInformation --> FieldedAddress : postalAddress
+FieldedAddress --> GeographicSubAddress : geographicSubAddress
+GeographicSubAddress --> MEFSubUnit : subUnit
+
+ProductOrder_Common --> Note : note
+ProductOrder_Common --> RelatedContactInformation : relatedContactInformation
+
+ProductOrder_Update --> Note : note
+ProductOrder_Update --> RelatedContactInformation : relatedContactInformation
+ProductOrder_Update --> MEFProductOrderItem_Update : productOrderItem
+
+ProductOrder --> ProductOrder_Common
+MEFProductOrderItem_Common --> ProductOrder_Common
+
+@enduml

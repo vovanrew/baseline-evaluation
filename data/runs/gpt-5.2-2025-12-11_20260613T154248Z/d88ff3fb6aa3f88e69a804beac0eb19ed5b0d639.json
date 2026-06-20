@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLtU07xxfqYTFrfWgSroaIfd7ZkT",
+  "object": "chat.completion",
+  "created": 1781369588,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle\n\nactor Admin\n\nparticipant \":AddEventPage\" as AddEventPage\nparticipant \":AddEventFormContainer\" as AddEventFormContainer\nparticipant \":AddClassPopupContainer\" as AddClassPopupContainer\nparticipant \":ClassForm\" as ClassForm\nparticipant \":ClassService (Frontend)\" as ClassServiceFE\nparticipant \":ShiftService (Frontend)\" as ShiftServiceFE\nparticipant \":Router\" as Router\nparticipant \":ClassHTTPTransport\" as ClassHTTPTransport\nparticipant \":ClassEndpoint\" as ClassEndpoint\nparticipant \":ClassService\" as ClassService\nparticipant \":ClassCommand\" as ClassCommand\nparticipant \":ClassQuery\" as ClassQuery\nparticipant \":TransactionGRPCTransport\" as TransactionGRPCTransport\nparticipant \":StorageGRPCTransport\" as StorageGRPCTransport\nparticipant \":MaterialService\" as MaterialService\nparticipant \":NatsStreaming\" as NatsStreaming\n\nAdmin -> AddEventPage : Click \"Attach New Class\" Button\nAddEventPage -> AddEventFormContainer : attachClass()\nAddEventFormContainer --> AddEventPage : attach\nAddEventPage --> Admin : attach\n\nAdmin -> AddClassPopupContainer : Render \"Add Class Popup\" Container\nAddClassPopupContainer -> ClassForm : render\nClassForm --> AddClassPopupContainer : rendered\nAddClassPopupContainer --> Admin : Rendered\n\nAdmin -> ClassForm : choose date\nClassForm -> ClassForm : handleDateChange(value)\nClassForm -> ShiftServiceFE : fetchAvailableShifts(date)\nShiftServiceFE --> ClassForm : shifts\nClassForm --> Admin : form data\n\nAdmin -> ClassForm : choose shift\nClassForm -> ClassForm : handleShiftChange()\nClassForm -> ShiftServiceFE : fetchAvailableShifts(date, [shift])\nShiftServiceFE --> ClassForm : rooms\nClassForm --> Admin : form data\n\nAdmin -> ClassForm : Fill Form\nClassForm --> Admin : form data\n\nAdmin -> ClassForm : Click \"Create Class\" Button\nClassForm -> ClassForm : handleClassFormSubmitted()\nClassForm -> ClassServiceFE : bookingClass(payload)\nClassServiceFE -> Router : route(\"GET\", \"/v2/booking\")\nRouter -> ClassHTTPTransport : BookingClass(ClassService, [ServerOption])\nClassHTTPTransport -> ClassEndpoint : BookingClass(ClassService, withPaginated)\nClassEndpoint -> ClassService : Create(context, params)\nClassService -> ClassService : Validate()\n\nalt [\"Data Valid\"]\n  alt [\"Is Valid Transaction\"]\n    ClassService -> TransactionGRPCTransport : IsValidTransaction(ProtoBuffer)\n    TransactionGRPCTransport --> ClassService : ProtoResponse\n\n    ClassService -> ClassCommand : class = ClassModel\n    ClassService -> ClassCommand : Create(context, class)\n    ClassCommand --> ClassService : uuid\n\n    opt [\"has materials\"]\n      ClassService -> StorageGRPCTransport : CommitFile(context, ProtoBuffer)\n      StorageGRPCTransport --> ClassService : link\n      ClassService -> MaterialService : Create(context, payload)\n      MaterialService --> ClassService : isCreated\n    end\n\n    ClassService -> ClassQuery : Find(context, []SliceConditions)\n    ClassQuery --> ClassService : classes\n    ClassService -> NatsStreaming : publishClassCreated(context, data)\n    NatsStreaming --> ClassService : published\n\n  else\n    ClassService --> ClassEndpoint : BadRequest\n    ClassEndpoint --> ClassHTTPTransport : BadRequest\n    ClassHTTPTransport --> Router : BadRequest\n    Router --> ClassServiceFE : BadRequest\n    ClassServiceFE --> ClassForm : BadRequest\n    ClassForm --> Admin : BadRequest\n  end\nelse\n  ClassService --> ClassEndpoint : UnprocessableEntity\n  ClassEndpoint --> ClassHTTPTransport : UnprocessableEntity\n  ClassHTTPTransport --> Router : UnprocessableEntity\n  Router --> ClassServiceFE : UnprocessableEntity\n  ClassServiceFE --> ClassForm : UnprocessableEntity\n  ClassForm --> Admin : UnprocessableEntity\nend\n\nClassService --> ClassEndpoint : class\nClassEndpoint --> ClassHTTPTransport : response\nClassHTTPTransport --> Router : response\nRouter --> ClassServiceFE : response\nClassServiceFE --> ClassForm : response\nClassForm --> Admin : response\n\nnote right of ClassEndpoint\nresponse = Response(class, nil)\nend note\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2052,
+    "completion_tokens": 872,
+    "total_tokens": 2924,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

@@ -1,0 +1,36 @@
+@startuml
+skinparam sequenceDiagram
+
+participant personalAccount as "personalAccount"
+participant browser as "browser"
+participant Argos Notary as "Argos Notary"
+
+personalAccount ->> browser: navigate to supplychain
+browser -->> personalAccount: show supplychain
+
+personalAccount ->> browser: manage layout
+browser ->> Argos Notary: get layout for supplychain
+Argos Notary -->> browser: layout
+
+browser -->> personalAccount: show layout
+
+personalAccount ->> browser: change layout
+browser -->> personalAccount: show changed layout
+
+personalAccount ->> browser: sign and submit
+browser ->> personalAccount: ask passphrase
+personalAccount -->> browser: passphrase
+
+browser ->> Argos Notary: get private key
+Argos Notary -->> browser: private key
+
+browser ->> browser: decrypt private key
+
+browser ->> browser: sign layout
+
+browser ->> Argos Notary: add layout with metadata
+Argos Notary ->> browser: replace layout on supplychain
+
+browser -->> personalAccount: show layout
+
+@enduml

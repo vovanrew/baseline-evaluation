@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLlrmtokplj8FfD589OP2EuuiZmF",
+  "object": "chat.completion",
+  "created": 1781369115,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #000000\n  LifeLineBorderColor #888888\n  LifeLineBackgroundColor transparent\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #E9E9F6\n  BoxBorderColor #666666\n  BoxBackgroundColor #FFFFFF\n  NoteBackgroundColor #FFF9C4\n  NoteBorderColor #888888\n}\n\n' Participants\nparticipant \"Mojaloop Adapter\" as MA #B9D7F5\nparticipant \"API\" as API #E9E9F6\nparticipant \"api / Handler\" as H #E9E9F6\nparticipant \"Application Layer\\n(domain / service / facade)\" as AL #E9E9F6\nparticipant \"TigerBeetle Client\" as TBC #DFF0D8\nparticipant \"TigerBeetle Cluster\" as TBS #DFF0D8\ndatabase \"MySQL\" as MYSQL\n\n' Group headers (as in diagram)\nbox \"Central-Settlement\" #FFFDF2\n  participant API\n  participant H\n  participant AL\nend box\n\nbox \"Storage\" #F3FFF3\n  participant TBC\n  participant TBS\n  database MYSQL\nend box\n\n' Top explanatory notes\nnote left of MA\nHub operator or\nDFSP interactions\nend note\n\nnote right of API\nNodeJS interface\ninvokes REST API\nend note\n\nnote right of H\nJSON request decoded &\nprocessed via handler\nend note\n\nnote right of AL\nExpose service functions &\nhandle database interactions\nend note\n\n' Main interaction frame\ngroup Update Settlement\n  MA -> API : 1 JSON\\n(settlement data)\n  API -> H  : 2 Invoke handler\n  H  -> AL  : 3 Invoke application layer\n\n  AL -> MYSQL : 4 Retrieve settlement data\\n(excluding accounts)\n  AL -> TBC   : 5 Retrieve accounts for all\\nfor a settlement window\n  note right of AL\n  Transfers\n  end note\n\n  AL -> MYSQL : 6 Update settlement data\\n(excluding accounts)\n\n  AL -> AL : 7 Settlement state\\nprocessing\n\n  AL -> TBC : 8 Invoke account creation based on\\nsettlement state of each Transfer\n  TBC -> TBS : 9 Create settlement accounts\\n& return result\n  TBS --> TBC : 9 Create settlement accounts\\n& return result\n\n  TBC --> AL : 10 Return settlement result\n\n  AL -> MYSQL : 11 Update final settlement state\\n& return result\n\n  AL --> H : 12 Return result\n  H  --> API : 13 Return result\n  API --> MA : 14 Return result with\\nsettlementData\nend group\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2395,
+    "completion_tokens": 597,
+    "total_tokens": 2992,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

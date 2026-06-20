@@ -1,0 +1,22 @@
+{
+  "id": "43acf0f7-4377-429d-9c4c-6b9723fa92aa",
+  "object": "chat.completion",
+  "created": 1781440535,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Policy Authorization flow between Smart Edge Open and 5G core\n\nactor \"User/Admin\" as User\n\nrectangle \"Smart Edge Open Controller Components\" {\n    participant \"CLI\" as CLI\n    participant \"Af Microservice\" as AfMicroservice\n}\n\nrectangle \"5G Core Components\" {\n    participant \"NEF\" as NEF\n    participant \"NGC CP Function\" as NGCPFunction\n}\n\nnote right of AfMicroservice: Smart Edge Open provided\\nCore component with\\nlimited functionality\n\nrectangle \"Policy Authorization \u2013 Individual Application Session Context creation flow\" {\n    User -> CLI : Create application session context\n    activate CLI\n    \n    CLI -> AfMicroservice : /af/v1/policy-authorization/app-sessions POST\n    activate AfMicroservice\n    \n    AfMicroservice -> NEF : /npcf-policyauthorization/v1/app-sessions POST\n    activate NEF\n    \n    NEF -> NGCPFunction : \n    activate NGCPFunction\n    \n    NGCPFunction --> NEF : 201 Created: app-sessionId \\ ERROR\n    deactivate NGCPFunction\n    \n    NEF --> AfMicroservice : 201 Created: app-sessionId \\ ERROR\n    deactivate NEF\n    \n    AfMicroservice --> CLI : 201 Created: app-sessionId \\ ERROR\n    deactivate AfMicroservice\n    \n    CLI --> User : Success: app-sessionId\n    deactivate CLI\n}\n\nfooter Proprietary and Confidential\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1419,
+    "completion_tokens": 314,
+    "total_tokens": 1733
+  }
+}

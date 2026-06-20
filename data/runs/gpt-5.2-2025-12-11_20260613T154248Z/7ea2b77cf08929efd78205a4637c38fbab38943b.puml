@@ -1,0 +1,53 @@
+```plantuml
+@startuml
+title Package Vod Detail
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 20
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F6
+  ActorBorderColor #666666
+  ActorBackgroundColor #E9E9F6
+  ArrowColor #333333
+  BoxBorderColor #666666
+  BoxBackgroundColor #DDDDDD
+  GroupBorderColor #000000
+  GroupBackgroundColor transparent
+  GroupHeaderBackgroundColor #FFFFFF
+  GroupHeaderFontStyle bold
+}
+
+box "STB" #DDDDDD
+participant "PackageVodDetail" as PVD
+participant "VodProductManager" as VPM
+participant "MBS" as MBS
+end box
+
+PVD -> MBS : get package vod detail infos
+MBS --> PVD : package vod detail infos
+
+PVD -> VPM : getProductButtons(productList)
+VPM --> PVD : product buttons
+
+opt [getting Push for vod purchased]
+  MBS -> PVD : purchasePush(offerId)
+
+  PVD -> MBS : get user discount intofs
+  MBS --> PVD : discount/cash coupon, membership point
+
+  opt [vod product contains offerId]
+    PVD -> MBS : get package vod detail infos
+    MBS --> PVD : package vod detail infos
+
+    PVD -> VPM : getProductButtons(productList)
+    VPM --> PVD : product buttons
+  end
+end
+
+@enduml
+```

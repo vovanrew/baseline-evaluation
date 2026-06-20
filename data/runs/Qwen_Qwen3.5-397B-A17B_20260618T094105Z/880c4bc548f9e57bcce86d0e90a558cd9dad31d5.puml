@@ -1,0 +1,24 @@
+@startuml
+title SD_getListFromExternalModule(fileName)
+
+participant "store: SnsUserStore" as store {
+  activate store
+}
+
+interface ":LoadSnsUsersFromExternalSource\n«interface»\n{abstract}" as loadInterface {
+  activate loadInterface
+}
+
+entity ":List<SnsUserDTO>" as listEntity1 {}
+note right of listEntity1 : multiple interactions in the externalSource to extract a list of SnsUserDTO
+
+' Step 2 - self call for getClassName()
+activate store #White; note over store: className = getClassName(fileName); deactivate store
+
+loadInterface ->> listEntity1 : create(); destroy listEntity1
+
+deactivate loadInterface
+
+listEntity1 --> store : return dtoList; destroy listEntity1
+
+@enduml

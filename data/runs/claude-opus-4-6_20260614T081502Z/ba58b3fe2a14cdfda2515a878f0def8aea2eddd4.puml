@@ -1,0 +1,40 @@
+```plantuml
+@startuml
+
+participant "客户端" as client
+participant "AMS" as ams
+participant "UserControl" as uc
+
+client -> ams : registerUserSwitchObserver\n(IUserSwitchObserver)
+note left : 注册回调接口
+
+ams -> uc : registerUserSwitchObserver\n(IUserSwitchObserver)
+
+client -> ams : switchUser()
+
+ams -[dotted]> uc : startUser()
+
+note right : 执行切换用户动作，发送REPORT_USER_SWITCH_MSG
+
+uc -> uc : dispatchUserSwitch
+
+uc -> client : IUserSwitchObserver.\nonUserSwitching(newUserId, callback)
+
+note left : 通知客户端处理完用户切换后回调传递的callback来通知AMS
+
+client -[dotted]> uc : IRemoteCallback.sendResult()
+
+note left : 等待所有客户端处理完成之后继续进行切换用户的工作
+
+uc -> uc : continueUserSwitch()
+
+note left : 结束冻屏，并停止在后台的访客用户
+
+uc -> uc : dispatchUserSwitchComplete()
+
+note left : 通过回调方法通知客户端进行用户切换的收尾工作
+
+uc -> client : IUserSwitchObserver.\nonUserSwitchComplete(userId)
+
+@enduml
+```

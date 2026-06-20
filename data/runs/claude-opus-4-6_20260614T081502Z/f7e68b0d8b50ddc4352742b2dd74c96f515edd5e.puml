@@ -1,0 +1,74 @@
+```plantuml
+@startuml
+
+note "интерфейс баз данных" as N1
+note "Класс для работы с\nпроектами в базе данных" as N2
+note "Обертка над репозиторием для\nкэширования данных" as N3
+note "фабрика для создания\nобъекта project" as N4
+note "У всех версий в итоге\nработает общая схема\nуникальных и неуникальных\nполей: если среди версий\nнаходится указание на\nуникальность поля, то оно\nстановится уникальным для\nвсех" as N5
+
+interface DataBase
+
+class Repository {
+    Repository(DataBase, ProjectFabric)
+}
+
+class RepositoryCache {
+    RepositoryCache( ProjectManager )
+}
+
+class ProjectFabric {
+    createProjectObject(map[versionName]code, projectGUID, name) Project
+}
+
+class Project {
+    map[apiVersion]ProjectVersion
+    map[entityName][]uniqueField
+    DataBase
+}
+
+class ProjectVersion {
+    Code
+    map[name]Entity
+    map[path]map[method]last
+    DataBase Ref
+}
+
+interface ProjectVersionManager {
+    GetUniqueFields() map[entityName][]uniqueField
+    ExecRequest(path, method, params, accessToken)
+}
+
+interface RepositoryManager {
+    createProject(project name)
+    deleteProject(project name)
+    getProject(project name) ProjectManager
+}
+
+interface ProjectManager {
+    CreateVersion(versionName, code) ok
+    GetVersion(versionName) ProjectVersion
+    UpdateVersion(versionName, code) ok
+    DeleteVersion(versionName) ok
+    SetUniqFields(map[entityName][]uniqueField)
+    GetUniqFields() map[entityName][]uniqueField
+}
+
+N1 .. DataBase
+N2 .. Repository
+N3 .. RepositoryCache
+N4 .. ProjectFabric
+N5 .. Project
+
+DataBase <-- Repository
+Repository <-- RepositoryCache
+RepositoryCache ..|> RepositoryManager
+Repository ..|> RepositoryManager
+ProjectFabric <-- Repository
+Project <-- ProjectFabric
+ProjectVersion --* Project
+ProjectVersion ..|> ProjectVersionManager
+Project ..|> ProjectManager
+
+@enduml
+```

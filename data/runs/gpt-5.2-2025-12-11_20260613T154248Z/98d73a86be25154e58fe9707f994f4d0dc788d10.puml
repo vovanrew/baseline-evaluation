@@ -1,0 +1,146 @@
+@startuml
+title Train Model Class Diagram
+
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam linetype ortho
+
+package "Module" as P_Module {
+  package "TrainModel" as P_TrainModel {
+
+    class Train <<C>> #E6FFCC {
+      - id : String
+      - weight : double
+      - height : double
+      - length : double
+      - width : double
+      - numCars : int
+      - capacity : int
+      - lineColor : String
+      - grade : double
+      - gpsStatus : boolean
+      - mboStatus : boolean
+      - engineFailureStatus : boolean
+      - signalFailureStatus : boolean
+      - brakeFailureStatus : boolean
+      - nextStationID : String
+      - timeOfArrival : double
+      - arrivalStatus : boolean
+      - numPassengers : int
+      - currentSpeed : double
+      - CTCSpeed : double
+      - CTCAuthority : double
+      - powerOut : double
+      - leftDoorStatus : boolean
+      - rightDoorStatus : boolean
+      - lightsStatus : boolean
+      - temperature : int
+      - serviceBrake : boolean
+      - emerBrake : boolean
+      - trainActive : boolean
+      - force : double
+      - normalForce : double
+      - downwardForce : double
+      - totalForce : double
+      - friction : double
+      - slope : double
+      - finalSpeed : double
+      - trainAcceleration : double
+      - gpsSignal : Gps
+
+      + trainModelGUI : TrainModelNewGUI
+      + trainList : TrainModel[][]
+
+      - showTrainGUI()
+      - updateTrainValues()
+      + CreateNewGUI(TrainModel)
+      + activateFailureModeTest()
+      + endFailureModeTest()
+      + getTrainController()
+      + updateTrainList()
+      + updateArrivalStatus()
+      + setPos(double)
+      + getPos()
+      + getGrade(Block)
+      + getSetpointSpeed()
+      + setSetpointSpeed()
+      + getAuthority()
+      + setAuthority(double)
+      + setLightStatus(boolean)
+      + setLeftDoorStatus(boolean)
+      + setRightDoorStatus(boolean)
+      + setTemperature(int)
+      + truncateTo(double, int)
+    }
+
+    class Gps <<C>> #E6FFCC {
+      - line : String
+      - currPos : double[2]
+      - setGpsPos(double[2])
+      - getGpsPos()
+    }
+
+    class TrainModel <<C>> #E6FFCC {
+      - trainID : String
+      - trainModel : TrainModel
+
+      + time : SimTime
+      + trncntrl : TrainController
+      + trkmdl : TrackModel
+
+      - calcDeltaTime(SimTime, SimTime) : integer
+      - updateList()
+      + timeUpdate(SimTime)
+      + getTrainAtBlock(Block)
+      + setBeacon(trainID, int)
+      + dispatchTrainToBlock(String, String, int, String[])
+      + transmitCtcAuthority(String, double)
+      + suggestSetpointSpeed(String, double)
+      + setEmergencyBrake(String, boolean)
+      + setSchedule(String, String[])
+      + setBeacon(String, int, 32)
+      + getPosition(String) : String[2]
+      + setPower(String, double)
+      + setLeft(String, boolean)
+      + setRight(String, boolean)
+      + setService(String, boolean)
+      + setEmergency(String, boolean)
+      + setLights(String, boolean)
+      + setTemperature(String, int)
+      + setTrainPosition(String) : String[2]
+      + setTrainActualSpeed(String) : double
+    }
+
+    class TrainModelNewGUI <<C>> #E6FFCC {
+      + trainModel : TrainModel
+      - setValuesForDisplay(TrainModel)
+      - setEmerBrakeButtonPressed()
+    }
+
+    interface "TrainModel" as I_TrainModel <<C>> #E6FFCC {
+    }
+
+    Train "1..*" *-- Gps : contains
+    Train "0..*" *-- TrainModelNewGUI : instantiates
+    TrainModel "1..*" *-- I_TrainModel : implements
+  }
+}
+
+package "Shared" as P_Shared {
+  interface Module <<I>> #E6FFCC {
+    + timeUpdate(SimTime) : Boolean
+  }
+
+  class SimTime <<C>> #E6FFCC {
+    + hr : int
+    + min : int
+    + sec : int
+    + toString() : String
+  }
+}
+
+P_TrainModel ..> P_Shared : imports
+P_Shared ..> P_TrainModel : instantiates
+
+@enduml

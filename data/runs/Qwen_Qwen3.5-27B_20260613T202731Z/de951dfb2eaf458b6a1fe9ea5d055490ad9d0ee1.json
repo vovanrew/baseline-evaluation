@@ -1,0 +1,22 @@
+{
+  "id": "93024310-b7ac-489d-9406-881e565c7337",
+  "object": "chat.completion",
+  "created": 1781493306,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle US004 \u2013 As Administrator, I want to search for users\n\nactor \"Administrator\" as Admin\nparticipant \"SearchUsersByParamsRoute\" as Route\nparticipant \"inDto : SearchUserDto\" as InDto\nparticipant \"UsersController\" as Controller\nparticipant \"SearchUsersByParamsService\" as Service\nparticipant \"SystemUserRepo\" as UserRepo\nparticipant \"UserProfileRepo\" as ProfileRepo\nparticipant \"usersFound : List<SystemUser>\" as UsersFound\nparticipant \"usersFoundDto : List<UserDto>\" as UsersFoundDto\nparticipant \"user : SystemUser\" as User\nparticipant \"SystemUserMapper\" as Mapper\nparticipant \"userDto : OutputUserDto\" as UserDto\nparticipant \"usersJson : ResponseEntity\" as Json\n\nAdmin -> Route: 1 GET /users?name={name}&email={email}&profile={profile}&func={func}\nnote right of Admin: The parameters (name, email, profile and function) will be in the query of the request. At least, one of than must be typed or chosen.\n\nactivate Route\nactivate InDto\nactivate Controller\n\nRoute --> Controller: 2 searchUsersByTypedParams(inDto)\ndeactivate Route\ndeactivate InDto\n\nController -> Service: 3 searchUsersByTypedParams(inDto)\nactivate Service\n\nopt if the request has a profile\n    Service -> ProfileRepo: 4 result : existsUserProfileId(profile)\n    activate ProfileRepo\n    deactivate ProfileRepo\nend\n\nalt depending on which params came from inputDto, the service class will invoke the respective method\n    Service -> UserRepo: 5 findAllBy...()\n    activate UserRepo\n    UserRepo ..> UsersFound: 6 create()\n    deactivate UserRepo\n    UsersFound --> Service: 7 usersFound\nend\n\nService -> UsersFoundDto: 8 create()\nactivate UsersFoundDto\n\nloop for each user found at the list\n    Service -> User: 9 model2Dto(user)\n    activate User\n    User -> Mapper: 10 create()\n    activate Mapper\n    Mapper ..> UserDto: \n    deactivate Mapper\n    UserDto ..> Service: 11 userDto\n    deactivate User\n    Service -> UsersFoundDto: 12 addUserDto()\nend\n\nUsersFoundDto --> Controller: 13 usersFoundDto\ndeactivate UsersFoundDto\ndeactivate Service\n\nController -> Json: 14 create(usersFoundDto)\nactivate Json\nJson ..> Controller: 15 usersJson\ndeactivate Json\n\nController --> Admin: 16 Show the list of user found by typed/chosen parameters\ndeactivate Controller\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 880,
+    "completion_tokens": 569,
+    "total_tokens": 1449
+  }
+}

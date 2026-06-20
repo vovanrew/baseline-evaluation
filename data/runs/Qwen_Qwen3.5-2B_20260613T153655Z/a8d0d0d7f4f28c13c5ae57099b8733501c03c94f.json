@@ -1,0 +1,22 @@
+{
+  "id": "82dbf398-25d9-42a4-9895-1f695bafea6c",
+  "object": "chat.completion",
+  "created": 1781402033,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Fabric Private Chaincode - Enclave registry - Current approach\n\nactor Admin as Admin\nparticipant ECC as ECC\nparticipant ERCC as ERCC\nparticipant IAS as IAS\nparticipant Orderer as Orderer\nparticipant Peers as Peers\n\nsubgraph instantiation\n    direction TB\n    Admin -> ECC : install\n    ECC -> ECC : instantiate(expected_mrenclave)\n    ECC -> Admin : success / error\nendsubgraph\n\nsubgraph register new enclave\n    direction TB\n    Admin -> ECC : setup\n    ECC -> ERCC : create\n    ERCC -> ECC : quote, ECC_s_pk\n    ERCC -> ECC : register(quote, ECC_s_pk)\n    ECC -> Orderer : send quote\n    Orderer -> ERCC : Attestation\n    ERCC -> Orderer : putState(erccc.ECC_s_pk, Attestation)\n    ERCC -> ECC : success / error\nendsubgraph\n\nsubgraph register validation\n    direction TB\n    Admin -> Orderer : submit setup transaction\n    Orderer -> Peers : broadcast block\n    Peers -> Peers : Validation\n    Peers -> ERCC : Normal validation\n    Peers -> ERCC : Custom ERCC validation\n    ERCC -> ERCC_VSCC : expected_mrenclave = getState(ecc.MRENCLAVE)\n    ERCC_VSCC -> ERCC : check attestation signature\n    ERCC_VSCC -> ERCC : check attestation ECC_s_pk and mrenclave\nendsubgraph\n\nsubgraph Drawbacks\n    direction TB\n    note right of Orderer\n        Drawbacks\n        - Single-endorser policy only + Custom validation at every peer\n        - ERCC must contact IAS (Internet connection and IAS credentials needed)\n        - Current impl: No way to securely pass credentials to ERCC only\n        - for EPID attestation SPID is needed when quote is created (ECC must provide this)\n    end note\nendsubgraph\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2056,
+    "completion_tokens": 430,
+    "total_tokens": 2486
+  }
+}

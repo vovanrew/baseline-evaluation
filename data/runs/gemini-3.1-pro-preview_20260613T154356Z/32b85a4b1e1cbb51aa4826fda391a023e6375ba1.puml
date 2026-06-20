@@ -1,0 +1,55 @@
+```plantuml
+@startuml
+actor User
+
+box "Application Layer"
+participant SubscriptionController <<@Controller>>
+end box
+
+box "Domain Model Layer"
+participant SubscriptionServiceImpl <<@Bean>>
+end box
+
+box "Infrastructure Layer"
+participant JpaSubscriptionRepository <<@Bean>>
+participant SubscriptionPersistenceJpaRepository <<@Repository>>
+end box
+
+database Datastore
+
+activate User
+User --> SubscriptionController
+activate SubscriptionController
+
+SubscriptionController --> SubscriptionServiceImpl
+note left: via SubscriptionService
+activate SubscriptionServiceImpl
+
+SubscriptionServiceImpl --> JpaSubscriptionRepository
+note left: via SubscriptionRepository
+activate JpaSubscriptionRepository
+
+JpaSubscriptionRepository --> SubscriptionPersistenceJpaRepository
+note left: via Spring data repository
+activate SubscriptionPersistenceJpaRepository
+
+SubscriptionPersistenceJpaRepository --> Datastore
+activate Datastore
+Datastore --> SubscriptionPersistenceJpaRepository
+deactivate Datastore
+
+SubscriptionPersistenceJpaRepository --> JpaSubscriptionRepository
+deactivate SubscriptionPersistenceJpaRepository
+
+JpaSubscriptionRepository --> SubscriptionServiceImpl
+deactivate JpaSubscriptionRepository
+
+SubscriptionServiceImpl --> SubscriptionController
+deactivate SubscriptionServiceImpl
+
+SubscriptionController --> User
+deactivate SubscriptionController
+deactivate User
+
+@enduml
+```

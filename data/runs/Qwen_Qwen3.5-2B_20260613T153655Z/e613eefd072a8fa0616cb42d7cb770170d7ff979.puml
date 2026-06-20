@@ -1,0 +1,36 @@
+@startuml
+skinparam sequenceDiagram
+
+participant bl1_main as "bl1_main"
+participant bl_common as "bl_common"
+participant fvp_bl1_setup as "fvp_bl1_setup"
+participant arm_bl1_setup as "arm_bl1_setup"
+participant arm_io_storage as "arm_io_storage"
+participant plat_bl1_common as "plat_bl1_common"
+participant fconf as "fconf"
+
+note over bl1_main, bl_common: bl1_platform_setup()
+note over fvp_bl1_setup, arm_bl1_setup, arm_io_storage: register and setup fip
+note over plat_bl1_common, fconf: create and populate an image_desc_t for FW_CONFIG
+note over fconf: use statically defined policies in bl1
+note over arm_io_storage: load and auth image from fip with info from plat_io_policy
+note over fconf: get tb_fw_config_dtb from image_info
+note over fconf: set ep_info.args.arg0 of BL2_IMAGE_DESC to FW_CONFIG base address
+note over arm_bl1_setup: load & auth, prepare and jump to BL2
+
+bl1_main->>bl_common: bl1_platform_setup()
+bl_common->>fvp_bl1_setup: arm_bl1_platform_setup()
+fvp_bl1_setup->>arm_bl1_setup: plat_arm_io_setup()
+arm_bl1_setup->>arm_io_storage: fconf_load_config()
+arm_io_storage->>fconf: register and setup fip
+fconf->>arm_io_storage: FCONF_GET_PROPERTY(arm, arm_io_policies, tb_fw_cfg)
+arm_io_storage->>fconf: use statically defined policies in bl1
+fconf->>bl_common: load_auth_image(FW_CONFIG_ID, &image_info)
+bl_common->>arm_io_storage: image_info
+arm_io_storage->>fconf: get tb_fw_config_dtb from image_info
+fconf->>bl1_main: bl1_plat_get_image_desc(BL2_IMAGE_ID)
+bl1_main->>bl_common: BL2_IMAGE_DESC
+bl_common->>fconf: set ep_info.args.arg0 of BL2_IMAGE_DESC to FW_CONFIG base address
+fconf->>arm_bl1_setup: load & auth, prepare and jump to BL2
+
+@enduml

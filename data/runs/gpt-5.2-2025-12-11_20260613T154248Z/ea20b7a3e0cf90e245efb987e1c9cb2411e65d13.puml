@@ -1,0 +1,36 @@
+@startuml
+skinparam backgroundColor white
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #000000
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #000000
+  ParticipantBackgroundColor #E6E6FA
+  ParticipantFontColor #000000
+  ActorBorderColor #000000
+  ActorBackgroundColor #E6E6FA
+  ActorFontColor #000000
+  BoxBorderColor #000000
+  BoxBackgroundColor #FFFFFF
+}
+
+actor "消费者" as C
+participant "监管消费者服务端" as S
+database "db" as DB1
+participant "数字人民币" as DCEP
+database "DB" as DB2
+
+C -> S : 购买课程
+S -> DB1 : 生成订单号并保存
+S -> DCEP : 获取付款二维码
+S -> C : 返回订单号和付款二维码
+C -> DCEP : 支付
+S -> DCEP : 轮询查询支付状况
+
+alt [查询到成功支付]
+  S -> DB2 : 修改订单状态，划拨
+  S -> C : 通知页面跳转
+else [到达最大等待时间仍未查询到成功支付]
+  S -> DB2 : 修改订单状态为关闭
+end
+@enduml

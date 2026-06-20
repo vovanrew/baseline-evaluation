@@ -1,0 +1,19 @@
+@startuml
+left to right direction
+autonumber
+
+actor "«Tariff»\nAgileTariff" as AgileTariff
+actor "Scheduler" as Scheduler
+
+AgileTariff -> Scheduler : poll()
+
+alt [AgileTariff periods updated]
+  AgileTariff -> Scheduler : getNextCheck
+  Scheduler --> AgileTariff : getNextCheck
+  alt [earliest new AgileTariff period is before nextCheck]
+    AgileTariff -> Scheduler : setNextCheck(now)
+    Scheduler --> AgileTariff : 
+  end
+end
+
+@enduml

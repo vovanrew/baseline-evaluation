@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLcbxudEC7SUUDh3mDjUV9O0HARl",
+  "object": "chat.completion",
+  "created": 1781368541,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam sequenceMessageAlign left\nskinparam shadowing false\n\nactor \"Web User\" as WebUser\n\nboundary \"index\" as index\nboundary \"Main.view\" as MainView\nboundary \"Image.View\" as ImageView\ncontrol \"ImageController\" as ImageController\nparticipant \"DB\" as DB\nparticipant \"DBE\" as DBE\nparticipant \"ImageModel\" as ImageModel\ndatabase \"images\" as imagesDB\nartifact \"Images\" as ImagesArtifact\n\nWebUser -> index : 1:Need to see some Pictures\n\nindex -> ImageController : 1:1 new ImageController( new DB ( DBE ) )\nactivate ImageController\n\nImageController -> DB : new DB ( BDE::MySQL)\nactivate DB\n\nDB -> DBE : getDNS(); getUser(); getPass()\nactivate DBE\ndeactivate DBE\n\nImageController -> imagesDB : ImageController->fetchAll() : $stmt = $this->pdo->prepare(SELECT id,filename,title,description FROM images)\nactivate imagesDB\nimagesDB <-> ImagesArtifact\ndeactivate imagesDB\n\nImageController -> imagesDB : ImageController->fetchAll() : $stmt ->execute()\nactivate imagesDB\nimagesDB --> ImageController\ndeactivate imagesDB\n\nImageController ..> ImageModel : $results = $stmt->fetchAll(PDO::FETCH_CLASS, ImageModel::class)\n\nImageController --> index : 1:0|1|* $images array\ndeactivate DB\ndeactivate ImageController\n\nindex -> ImageView : render ()\nactivate ImageView\nImageView -> MainView : + layout\nactivate MainView\nMainView --> ImageView\ndeactivate MainView\nImageView --> index\ndeactivate ImageView\n\nindex --> WebUser : he/she dont know how many work it was ;-)\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1144,
+    "completion_tokens": 382,
+    "total_tokens": 1526,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

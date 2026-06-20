@@ -1,0 +1,95 @@
+```plantuml
+@startuml
+
+package "observer" {
+  package "pattern" {
+
+    package "java" {
+      package "awt" {
+        package "event" {
+          interface ActionListener {
+          }
+        }
+      }
+    }
+
+    package "javax" {
+      package "swing" {
+        package "event" {
+          interface ChangeListener {
+          }
+        }
+        class JPanel {
+        }
+      }
+    }
+
+    abstract class Observable {
+      {abstract} + attach(Observer): void
+      {abstract} + detach(Observer): void
+      {abstract} + notifyObservers(): void
+      {abstract} + getUpdate(): Object
+    }
+
+    class CourseData {
+      + addCourseRecord(CourseRecord): void
+      + changeCourseRecord(String, int): void
+      + getUpdate(): Vector<CourseRecord>
+    }
+
+    interface Observer {
+      {abstract} + update(Observable): void
+    }
+
+    class CourseController {
+      + CourseController(CourseData)
+      + addCourse(CourseRecord): void
+      + update(Observable): void
+      + actionPerformed(ActionEvent): void
+      + stateChanged(ChangeEvent): void
+      + {static} main(String[]): void
+    }
+
+    class BarChartObserver {
+      + BarChartObserver(CourseData)
+      + paint(Graphics): void
+      + update(Observable): void
+    }
+
+    CourseData -up-|> Observable
+    CourseController ..|> Observer
+    CourseController ..|> ActionListener
+    CourseController ..|> ChangeListener
+    CourseController --|> JPanel
+    BarChartObserver ..|> Observer
+    BarChartObserver --|> JPanel
+
+    Observable "observers" o--> Observer
+
+  }
+}
+
+package "javax" {
+  package "swing" {
+    package "event" {
+      interface ChangeListener {
+        + stateChanged(ChangeEvent): void
+      }
+    }
+    class JPanel {
+    }
+  }
+}
+
+package "java" {
+  package "awt" {
+    package "event" {
+      interface ActionListener {
+        + actionPerformed(ActionEvent): void
+      }
+    }
+  }
+}
+
+@enduml
+```

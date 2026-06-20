@@ -1,0 +1,22 @@
+{
+  "id": "8afa5f05-5176-425b-accd-25cace41ee4a",
+  "object": "chat.completion",
+  "created": 1781502575,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Taskset Execution Sequence Diagram\n\n' Define participants with appropriate stereotypes\nparticipant \"Client\" as Client\nrectangle \"Master\" {\n    participant \"Dispatcher\" as Dispatcher\n    database \"Database\" as Database\n    participant \"RSyncServer\" as RSyncServer\n    participant \"Arbiter\" as Arbiter\n}\nrectangle \"Worker\" {\n    participant \"Worker\" as Worker\n}\n\n' Initial task creation and dispatching\nClient -> Dispatcher: Create a taskset\nactivate Dispatcher\nDispatcher -> Database: Enqueue tasks\ndeactivate Dispatcher\n\nClient -> Dispatcher: Taskset request\nactivate Dispatcher\nDispatcher -> Worker: Taskset dispatch\nactivate Worker\nWorker -> Database: Log the worker participation\ndeactivate Worker\n\n' Synchronization phase\nnote over RSyncServer, Worker: RSync\nRSyncServer -> Worker: RSync\nactivate Worker\ndeactivate Worker\n\n' Setup phase\nnote over RSyncServer, Worker: Setup\nWorker -> Worker: Worker setup\nactivate Worker\nWorker -> Database: Add a worker setup log\ndeactivate Worker\n\nalt setup failed\n    Worker -> Arbiter: Fail request\n    activate Arbiter\n    Arbiter -> Database: Mark the taskset as failed\n    Arbiter -> Worker: Notify the taskset is marked as failed\n    deactivate Arbiter\nend\n\n' Testing phase\nnote over Arbiter, Worker: Testing\nWorker -> Slave: Spawn slaves\nactivate Slave\nSlave -> Slave: Slave setup\ndeactivate Slave\n\nloop while tasks exist\n    Slave -> Database: Dequeue a task\n    Database --> Slave: Return a task\n    Slave -> Database: Add a trial\n    Slave -> Slave: Execute a task\n    activate Slave\n    deactive Slave\n    Slave -> Database: Add a trial result\n    Slave -> Arbiter: Notify the trial result\n    activate Arbiter\n    \n    Arbiter -> Database: Query the trial result\n    Database --> Arbiter: Respond to the query\n    \n    alt passed or pending\n        Arbiter -> Database: Mark the task as finished\n    else retry needed\n        Arbiter -> Database: Enqueue the task\n    else no more retries\n        Arbiter -> Database: Mark the task as failed\n    end\n    deactivate Arbiter\nend\n\nSlave -> Database: Dequeue a task\nDatabase --> Slave: No tasks left\ndeactivate Slave\n\nArbiter -> Database: Check request\nactivate Arbiter\nArbiter -> Database: Check whether all tasks are finished\n\nalt some tasks are left\n    Arbiter -> Database: Enqueue the tasks\nelse\n    Arbiter -> Database: Mark the taskset as finished\n    Arbiter -> Worker: Notify the taskset is marked as finished\n    Worker -> Slave: Kill slaves\n    deactivate Slave\n    deactivate Worker\n    Slave -> Database: Add slave logs\nend\ndeactivate Arbiter\n\n' Final status query\nClient -> Database: Query the status of the taskset\nDatabase --> Client: Respond to the query\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1517,
+    "completion_tokens": 634,
+    "total_tokens": 2151
+  }
+}

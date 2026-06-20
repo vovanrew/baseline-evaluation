@@ -1,0 +1,50 @@
+```plantuml
+@startuml
+skinparam handwritten true
+skinparam backgroundColor #F4F1E1
+skinparam sequence {
+    ArrowColor #00BFFF
+    ActorBorderColor #00BFFF
+    LifeLineBorderColor #0000FF
+    LifeLineBackgroundColor #A9D0F5
+    ParticipantBorderColor #1E90FF
+    ParticipantBackgroundColor #1E90FF
+    ParticipantFontColor white
+    ParticipantFontSize 17
+    ParticipantFontName Arial
+    ActorBackgroundColor #00BFFF
+    ActorFontColor #00BFFF
+    ActorFontSize 17
+    ActorFontName Arial
+}
+
+note over developer, HOTFIX
+Please use '!option handwritten true' to enable handwritten
+end note
+
+actor developer
+participant DEV
+participant TEST
+participant MASTER
+participant HOTFIX
+
+DEV -> TEST : 1 增量换包到TEST
+activate TEST #B0E0E6
+TEST -> MASTER : 2 测试通过后，基于TEST打tag
+TEST -> MASTER : 3 check release分支
+TEST -> MASTER : 4 将release分支合并到MASTER
+activate MASTER #B0E0E6
+MASTER -> HOTFIX : 5 ，线上紧急问题，基于MASTER check HOTFIX分支
+MASTER -> HOTFIX : 6 ，开发基于HOTFIX分支check本地分支修复问题
+MASTER -> HOTFIX : 7 修复完成后合回HOTFIX分支
+activate HOTFIX #B0E0E6
+HOTFIX -> MASTER : 8 用CMP工具基于HOTFIX打包换到测试环境进行验证
+HOTFIX -> MASTER : 9 测试通过后，HOTFIX合回MASTER
+HOTFIX -> TEST : 10 测试通过后，HOTFIX合回TEST
+deactivate MASTER
+deactivate TEST
+HOTFIX -> DEV : 11 测试通过后，HOTFIX合回DEV
+deactivate HOTFIX
+
+@enduml
+```

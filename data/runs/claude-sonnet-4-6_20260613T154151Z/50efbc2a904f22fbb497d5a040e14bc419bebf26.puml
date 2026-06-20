@@ -1,0 +1,45 @@
+@startuml
+
+package "controller" {
+
+  package "model" {
+    class User
+  }
+
+  package "view" {
+    class Amount as "Amount_view"
+  }
+
+  interface Controller <<interface>> {
+    {method} execute(args : json) : json
+  }
+
+  class Amount
+  class TransferSend
+  class Transfer
+
+  class Factory {
+    {method} create(name : string) : Controller
+  }
+
+  Amount ..|> Controller
+  TransferSend ..|> Controller
+  Transfer ..|> Controller
+
+  User <|.. Amount_view : <<dashed>>
+  Amount_view <.. Amount : <<dashed>>
+
+  Factory ..> Amount : create
+  Factory ..> TransferSend : create
+  Factory ..> Transfer : create
+}
+
+package "view" as view2 {
+  class Amount as "Amount_view2"
+}
+
+package "model" as model2 {
+  class User as "User2"
+}
+
+@enduml

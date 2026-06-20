@@ -1,0 +1,46 @@
+@startuml
+title Modulo-matrícula/Informática
+
+class Matrícula {
+  -id: Int
+  -cliente: Client
+  -tempo: Int
+  -quadra: Turma
+  +registraMatrícula(): Int
+}
+
+class Aluno {
+  -id: Int
+  -nome: String
+  -locação: List<Matrícula>
+}
+
+interface ControleNúmeroMatrícula <<interface>> {
+  #quantidadeDeMatrícula: Int
+  +registraMatrícula(): Int
+}
+
+class Turma {
+  -numero: Int
+  -aluguel: Matrícula
+  -ginasio: Curso
+  +getcontroleNúmeroMatrícula()
+}
+
+class Curso {
+  -nome: String
+  -profesor: String
+  -quadra: List<Turma>
+}
+
+Aluno "1" *--> "0..*" Matrícula : composição
+
+Matrícula ..|> ControleNúmeroMatrícula : realização
+
+Matrícula "1..*" --* "1" Turma : composição >
+
+Turma ..> ControleNúmeroMatrícula : dependência
+
+Curso "1" *-- "1..*" Turma : composição
+
+@enduml

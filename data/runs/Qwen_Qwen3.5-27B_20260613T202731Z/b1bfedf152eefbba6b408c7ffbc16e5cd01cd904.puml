@@ -1,0 +1,63 @@
+```plantuml
+@startuml
+autonumber
+
+title Provider Login Into Provider App =
+
+participant "Resident" as Resident
+participant "WeResident" as WeResident
+participant "WeID" as WeID
+participant "WeService" as WeService
+
+Resident -> WeResident: Send username:password /login
+
+alt [Provider already exist]
+    WeResident -> WeID: Get Token by username:password\n/oauth/authorize
+    activate WeID
+    WeID --> WeResident: Return Token to WeResident
+    deactivate WeID
+    WeResident -> Resident: Return {"token": "jwt-token"}
+end
+
+== Provider Query/Search Service ==
+
+Resident -> WeService: Query services including token\n/weservices/services\nHeader\nAuthorization: Bear {jwt-token}
+note right of Resident: Query Service schema\n{"query":"string","status":12}
+
+alt [above token is valid]
+    WeService -> WeID: verify token
+    activate WeID
+    WeID --> WeService: 200
+    deactivate WeID
+    WeService -> Resident: Response services data
+    note left of Resident: Service Data Array schema\n[{"id":"string","company":"string","name":"string","rate":4.2,"image":"image.png"},{}],\n"total":10,"currentPage":1,"perPage":5
+else [Token is expired/invalid]
+    WeService -> WeID: verify token
+    activate WeID
+    WeID --> WeService: 400
+    deactivate WeID
+    WeService -> Resident: Response 401 status
+end
+
+== Create Order(Request) ==
+
+Resident -> WeService: Create Service\nPOST: /weservices/service/{serviceID}/order
+note right of Resident: Order Request schema\n{"resident":"$userID",\n"service":"$serviceID",\n"pricingModel":{},\n"noteDetail":"string",\n"address":"string",\n"schedule":Time}
+
+WeService -> WeID: verify token
+activate WeID
+WeID --> WeService: 200
+deactivate WeID
+WeService -> Resident: Response Service Data(JSON)
+
+Resident -> WeService: Comment(chat) in Order\nPOST: /weservices/order/{orderId}/comment
+note right of Resident: Comment Data\n{"content":"string"}
+
+WeService -> WeID: verify token
+activate WeID
+WeID --> WeService: 200
+deactivate WeID
+WeService -> Resident: 200
+
+@enduml
+```

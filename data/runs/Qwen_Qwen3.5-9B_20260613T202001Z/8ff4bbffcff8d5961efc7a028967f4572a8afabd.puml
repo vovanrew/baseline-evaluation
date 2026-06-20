@@ -1,0 +1,30 @@
+@startuml
+autonumber
+left to right direction
+skinparam sequenceMessageSize 100
+
+participant "File" as File
+participant "LexicalAnalysisDriver" as LexicalAnalysisDriver
+participant "LexicalAnalysisJava" as LexicalAnalysisJava
+participant "JavaSyntaxLib" as JavaSyntaxLib
+participant "TypeCheck" as TypeCheck
+participant "ColorCode" as ColorCode
+participant "ErrorCheck" as ErrorCheck
+
+File -> LexicalAnalysisDriver : invokes
+LexicalAnalysisDriver -> LexicalAnalysisJava : Calls
+LexicalAnalysisJava -> JavaSyntaxLib : Calls
+JavaSyntaxLib --> LexicalAnalysisJava : 
+LexicalAnalysisJava -> TypeCheck : SyntaxTypeCheck()
+TypeCheck --> LexicalAnalysisJava : Return(TypeCheck)
+LexicalAnalysisJava -> ColorCode : SyntaxColorCheck()
+ColorCode --> LexicalAnalysisJava : Return(ColorCode)
+LexicalAnalysisJava -> ErrorCheck : SyntaxErrorCheck()
+
+alt [successful case]
+  ErrorCheck --> LexicalAnalysisJava : Error Free
+else [Error Case]
+  ErrorCheck --> LexicalAnalysisJava : Return Error Message
+end
+
+@enduml

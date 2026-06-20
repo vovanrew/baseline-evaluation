@@ -1,0 +1,80 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+package "controller" as controller {
+  class "File" as ControllerFile {
+    - save()
+    - load()
+    - make_directory()
+    - remove_directory()
+    - is_file_path_ok()
+  }
+
+  class "AnalyseData" as AnalyseData
+
+  class "AnalyseWeatherData" as AnalyseWeatherData
+
+  class "conversation" as conversation
+}
+
+package "models" as models {
+  class "Forecaster" as Forecaster {
+    - name: string
+    - my_name: string
+    - speak_color: string
+    + hello()
+    + goodbye()
+  }
+
+  class "MyForecaster" as MyForecaster {
+    + ask_which_area()
+    + ask_from_when_to_when()
+    + say_results()
+  }
+
+  class "CSVModel" as CSVModel
+
+  class "JmaDataModel" as JmaDataModel {
+    + get_daily_weather_data()
+    - get_http_body()
+    - integrate_monthly_data()
+    - str2float()
+  }
+
+  class "File" as ModelsFile
+}
+
+package "views" as views {
+  class "Console" as Console {
+    + downloading_data()
+    + get_template_dir_path()
+    + find_template()
+    + get_template()
+  }
+
+  class "Graph" as Graph
+}
+
+package "template" as template {
+  artifact "say_hello" as say_hello
+  artifact "say_goodbye" as say_goodbye
+  artifact "which_area_do_you_want" as which_area_do_you_want
+  artifact "which_period_do_you_want" as which_period_do_you_want
+  artifact "say_weather_data_analysis_results" as say_weather_data_analysis_results
+}
+
+AnalyseWeatherData -|> AnalyseData
+MyForecaster -|> Forecaster
+JmaDataModel -|> CSVModel
+
+AnalyseWeatherData --> MyForecaster
+MyForecaster --> ModelsFile
+MyForecaster --> Console
+
+Console --> template
+
+@enduml
+```

@@ -1,0 +1,20 @@
+```plantuml
+@startuml
+title Sequence Diagram
+
+actor "User" as User
+participant "CouponPage" as CouponPage
+participant "DB_Beanstalkd" as DB_Beanstalkd
+participant "UserMail" as UserMail
+
+User -> CouponPage : Load merchant page with cashback
+CouponPage -->> User : Return page with discounts
+User -> CouponPage : Clicks on cashback
+CouponPage -->> User : Returns 2 tabs, on tab 1 the reflink to merchant,\non tab 2 a popup with cashback formular(email)
+User -> CouponPage : Fills email, submits form
+CouponPage -x> DB_Beanstalkd : Saves cashback request
+CouponPage -->> User : Sends new content for checkout popup, simultaneosly\nopens reflink with uaid in a new tab(3)
+CouponPage -x> UserMail : Sends new email with link to cashback form
+
+@enduml
+```

@@ -1,0 +1,83 @@
+```plantuml
+@startuml
+
+actor Actor
+boundary Dashboard
+control DashboardController
+control IssuesDetailController
+entity IssuesService
+entity IssuesEntityService
+entity EntityService
+database IssuesRepository
+database IssueRepository
+
+Actor -> Dashboard : /issues
+Dashboard -> DashboardController : createIssues()
+DashboardController -> Dashboard : new / redirect
+destroy DashboardController
+create "Table" as Table
+DashboardController -> Table : new / redirect
+
+par
+    Dashboard -> IssuesDetailController : getIssues()
+    IssuesDetailController -> IssuesService : createIssuesStatistics()
+    IssuesService -> IssuesEntityService : findAll()
+    IssuesEntityService -> EntityService : selectAllIssues()
+    EntityService -> IssuesRepository : findAll()
+    
+    loop
+        IssuesRepository -> IssuesRepository : new
+        create "Issues" as Issues1
+        IssuesRepository -> Issues1 : Issues
+    end
+    
+    loop
+        IssuesRepository -> IssueRepository : findById(id)
+        IssueRepository -> IssueRepository : new
+        create "Issue" as Issue1
+        IssueRepository -> Issue1 : Issue
+        IssueRepository --> IssuesRepository : Issue
+    end
+    
+    IssuesRepository --> EntityService : Set<Issues>
+    EntityService --> IssuesEntityService : Set<Issues>
+    IssuesEntityService --> IssuesService : Set<Issues>
+    IssuesService --> IssuesDetailController : IssuesStatistics
+    IssuesDetailController --> Dashboard : IssuesStatistics
+end
+
+Actor -> Dashboard : select report
+Dashboard -> IssuesDetailController : details
+IssuesDetailController -> Dashboard : new / redirect
+destroy IssuesDetailController
+create "Details" as Details
+IssuesDetailController -> Details : new / redirect
+
+par
+    Dashboard -> IssuesDetailController : getCategories(origin, reference)
+    IssuesDetailController -> IssuesService : createDistributionByCategory(origin, reference)
+    IssuesService -> IssuesEntityService : findByPrimaryKey(origin, reference)
+    IssuesEntityService -> EntityService : select(origin, reference)
+    EntityService -> IssuesRepository : findById(origin, reference)
+    
+    IssuesRepository -> IssueRepository : new
+    create "Issues" as Issues2
+    IssueRepository -> Issues2 : Issues
+    
+    loop
+        IssuesRepository -> IssueRepository : findById(id)
+        IssueRepository -> IssueRepository : new
+        create "Issue" as Issue2
+        IssueRepository -> Issue2 : Issue
+        IssueRepository --> IssuesRepository : Issue
+    end
+    
+    IssuesRepository --> EntityService : Issues
+    EntityService --> IssuesEntityService : Issues
+    IssuesEntityService --> IssuesService : Issues
+    IssuesService --> IssuesDetailController : IssuePropertyDistribution
+    IssuesDetailController --> Dashboard : IssuePropertyDistribution
+end
+
+@enduml
+```

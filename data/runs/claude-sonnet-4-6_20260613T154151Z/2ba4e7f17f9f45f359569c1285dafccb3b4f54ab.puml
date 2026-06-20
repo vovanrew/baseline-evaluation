@@ -1,0 +1,22 @@
+@startuml
+
+actor SecurityEngineer
+participant EventBus
+
+box "Security Profile Manager" #rosybrown
+participant "spm" as spm
+end box
+
+box "Software Defined Infrastructure" #darkolivegreen
+participant "storageresource" as storageresource
+end box
+
+participant "securityprofile" as securityprofile
+
+SecurityEngineer -> spm : Monitor Security Profile
+spm -> storageresource : create (name: secProfileMSP, file: ./templates/secprofile.yml)
+EventBus <-- storageresource : securityprofile.create
+spm -> securityprofile : status (name: secProfileMSP)
+EventBus <-- securityprofile : securityprofile.status
+
+@enduml

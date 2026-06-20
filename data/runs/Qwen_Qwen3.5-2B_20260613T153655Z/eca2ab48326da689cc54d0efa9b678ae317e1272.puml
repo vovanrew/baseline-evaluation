@@ -1,0 +1,22 @@
+@startuml
+participant "starter-admin(超管平台服务)" as Admin
+participant "starter-auth(权限中心)" as Auth
+participant "auth数据库" as AuthDB
+participant "NSQ" as NSQ
+participant "其他业务中台服务" as OtherServices
+
+Admin ..> Auth : 创建租户接口
+
+Auth ..> AuthDB : 生成租户密钥，向数据库保存租户信息
+
+AuthDB ..> Auth : 返回新增的租户ID
+
+Auth ..> OtherServices : 异步通知其他业务中台服务，进行租户初始化
+
+OtherServices ..> Auth : 异步通知，租户初始化
+
+Auth ..> Admin : 响应：租户ID及密钥信息
+
+Auth ..> AuthDB : 创建租户下级的相关表，如：用户表，角色表
+
+@enduml

@@ -1,0 +1,41 @@
+```plantuml
+@startuml
+title 2. プロフィール編集
+
+participant "お嬢" as user
+participant "CABABA" as cababa
+participant "データベース" as db
+participant "LINE" as line
+
+group 登録
+    activate user
+    user -> cababa : ログイン画面
+    activate cababa
+    cababa -> user : LINEへリダイレクト
+    deactivate cababa
+    
+    user -> line : LINEログイン画面
+    activate line
+    line -> cababa : リダイレクト (line_user_id)
+    deactivate line
+    activate cababa
+    
+    cababa -> db : INSERT User
+    db -> cababa
+    
+    cababa -> user : プロフィール登録ページ
+    deactivate cababa
+    
+    user -> cababa : プロフィール送信
+    activate cababa
+    
+    cababa -> db : INSERT HostessProfile
+    db -> cababa
+    
+    cababa -> user : 登録完了画面
+    deactivate cababa
+    deactivate user
+end
+
+@enduml
+```

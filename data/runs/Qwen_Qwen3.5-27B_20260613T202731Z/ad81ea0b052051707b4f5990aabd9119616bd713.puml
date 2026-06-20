@@ -1,0 +1,37 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+participant "TaskExecutionStrategy" as TaskExecutionStrategy
+participant "Action" as Action
+participant "Connection" as Connection
+boundary "SSH client/server connection" as SSHClientServer
+control "ssh daemon (or winrm service)" as sshDaemon
+
+TaskExecutionStrategy -> Action: init(..)
+TaskExecutionStrategy -> Action: init(..)
+TaskExecutionStrategy -> Action: run()
+
+Action -> Connection: put_file()
+Connection -> SSHClientServer: transfer module data
+SSHClientServer -> sshDaemon: 
+activate sshDaemon
+sshDaemon -> sshDaemon: save module to disk
+sshDaemon --> SSHClientServer: 
+deactivate sshDaemon
+SSHClientServer --> Connection: transfer complete
+Connection --> Action: return remote path
+
+Action -> Connection: exec_command()
+Connection -> SSHClientServer: run module remotely
+SSHClientServer -> sshDaemon: 
+activate sshDaemon
+sshDaemon -> sshDaemon: execute shell command
+sshDaemon --> SSHClientServer: 
+deactivate sshDaemon
+SSHClientServer --> Connection: return response code, stdout, stderr
+Connection --> Action: return response code, stdout, stderr
+Action --> TaskExecutionStrategy: return JSON
+
+@enduml
+```

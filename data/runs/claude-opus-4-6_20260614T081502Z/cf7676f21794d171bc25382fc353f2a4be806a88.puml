@@ -1,0 +1,39 @@
+```plantuml
+@startuml
+
+participant "alg:AlgoritmoGeradorPasswords" as alg1
+participant "ro:RepositorioOrganizacao" as ro
+participant "colab:Colaborador" as colab
+participant ":Plataforma" as plat
+participant "aut:AutorizacaoFacade" as aut
+participant "alg:AlgoritmoGeradorPasswords" as alg2
+
+note over alg1
+É uma instância de qualquer classe
+que implemente esta interface.
+end note
+
+ro -> plat : 1 registaGestorComoUtilizador(colab)
+
+plat -> colab : 2 nomeG = getNome()
+plat <-- colab
+
+plat -> colab : 3 emailG = getEmail()
+plat <-- colab
+
+plat -> aut : 4 alg=getAlgoritmoGeradorPwd()
+plat <-- aut
+
+plat -> alg2 : 5 pwd = geraPassword(nomeG, emailG)
+plat <-- alg2
+
+plat -> aut : 6 aut=getAutorizacaoFacade()
+plat <-- aut
+
+plat -> aut : 7 registaUtilizadorComPapeis(nomeG, emailG, pwd, ["GESTOR","COLABORADOR"])
+plat <-- aut
+
+plat -> plat : 8 enviaPwd(emailG,pwd)
+
+@enduml
+```

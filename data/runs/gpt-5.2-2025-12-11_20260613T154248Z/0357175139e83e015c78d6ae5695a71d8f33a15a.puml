@@ -1,0 +1,85 @@
+@startuml
+skinparam backgroundColor #f6f1d6
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam roundcorner 8
+
+skinparam package {
+  BackgroundColor #dff0df
+  BorderColor #000000
+  FontStyle bold
+}
+
+skinparam class {
+  BackgroundColor #f7f7f7
+  BorderColor #8b3a3a
+  FontColor #000000
+}
+
+skinparam interface {
+  BackgroundColor #f7f7f7
+  BorderColor #8b3a3a
+  FontColor #000000
+}
+
+skinparam ArrowColor #8b3a3a
+skinparam ArrowThickness 1.5
+
+package "rugged" as PKG_RUGGED #f6f1d6 {
+
+  package "raster" as PKG_RASTER #dff0df {
+    interface "Tile" as I_Tile {
+      +interpolateElevation(φ, λ)
+      +pixelIntersection(NormalizedGeodeticPoint, los, φ index, λ index)
+    }
+  }
+
+  package "intersection" as PKG_INTERSECTION #dff0df {
+    interface "IntersectionAlgorithm" as I_IntersectionAlgorithm {
+      +intersection(ellipsoid, position, los)
+      +refineIntersection(ellipsoid, position, los, closeGuess)
+    }
+  }
+
+  package "utils" as PKG_UTILS #dff0df {
+    class "ExtendedEllipsoid" as C_ExtendedEllipsoid {
+      +pointAtLatitude(position, los, φ, closereference)
+      +pointAtLongitude(position, los, λ)
+      +pointAtAltitude(position, los, h)
+      +pointOnGround(position, los)
+    }
+
+    class "SpacecraftToObservedBody" as C_SpacecraftToObservedBody
+  }
+
+  package "api" as PKG_API #dff0df {
+    class "Rugged" as C_Rugged {
+      +directLocation(sensorName, line)
+    }
+  }
+
+  package "linesensor" as PKG_LINESENSOR #dff0df {
+    class "LineSensor" as C_LineSensor
+  }
+}
+
+package "mission" as PKG_MISSION #ffffff {
+  package "specific" as PKG_SPECIFIC #cfe3cf {
+    class "UserMain" as C_UserMain
+  }
+}
+
+' Relationships / calls
+I_IntersectionAlgorithm --> I_Tile : evaluate DEM
+I_IntersectionAlgorithm --> C_ExtendedEllipsoid : compute grid points crossings
+
+C_Rugged --> I_IntersectionAlgorithm : delegate DEM intersection
+C_Rugged --> C_ExtendedEllipsoid : convert geodetic points
+C_Rugged --> C_SpacecraftToObservedBody : convert positions/directions
+
+C_Rugged --> C_LineSensor : getLOS(date, pixel)
+C_Rugged --> C_LineSensor : getDate(line)
+
+C_UserMain --> C_Rugged
+
+@enduml

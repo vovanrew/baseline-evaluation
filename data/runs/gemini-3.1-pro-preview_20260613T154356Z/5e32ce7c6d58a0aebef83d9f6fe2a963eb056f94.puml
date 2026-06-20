@@ -1,0 +1,71 @@
+```plantuml
+@startuml
+actor "Project Manager" as PM
+participant ":ProjectManagerUI" as UI
+participant "AGVServer" as Server
+participant "AGVServerThread" as ServerThread
+participant "AVGManagerController" as Controller
+participant "AGVDigitalTwinServer" as TwinServer
+participant "AGVDigitalTwinThread" as TwinThread
+participant "AGVDigitalTwinController" as TwinController
+participant "CodingAndDecoding2" as Codec
+
+activate PM
+PM -> UI : Wants to assign ready to go Orders to an AGV
+activate UI
+UI -> Server : message
+activate Server
+Server -> Server : accept
+Server -> ServerThread : start
+activate ServerThread
+ServerThread -> Codec : Decoding(r)
+activate Codec
+Codec -> ServerThread : Message
+ServerThread -> Controller : FifoAGV()
+activate Controller
+Controller -> Controller : findavailableOrder()
+activate Controller
+deactivate Controller
+
+loop until orderList is empty
+    Controller -> Controller : findavailableAGV(weight,volume)
+    activate Controller
+    deactivate Controller
+    Controller -> Controller : createTaskandSave(description,order,agv)
+    activate Controller
+    deactivate Controller
+    Controller -> Controller : doTask()
+    activate Controller
+    deactivate Controller
+    Controller -> TwinServer : message
+    activate TwinServer
+    TwinServer -> TwinServer : accept
+    TwinServer -> TwinThread : start
+    activate TwinThread
+    TwinThread -> Codec : Decoding(r)
+    activate Codec
+    Codec -> TwinThread : message
+    deactivate Codec
+    TwinThread -> TwinController : doTask(taskPerform)
+    activate TwinController
+    TwinController -> TwinThread : TaskReportMessage
+    deactivate TwinController
+    TwinThread -> TwinServer : TaskReportMessage
+    deactivate TwinThread
+    TwinServer -> Controller : TaskReportMessage
+    deactivate TwinServer
+end
+
+Controller -> ServerThread : ResponseMessage
+deactivate Controller
+ServerThread --> Server : ResponseMessage
+deactivate ServerThread
+activate Server
+Server -> UI : ResponseMessage
+deactivate Server
+UI -> PM : Informs operation success
+deactivate UI
+deactivate PM
+
+@enduml
+```

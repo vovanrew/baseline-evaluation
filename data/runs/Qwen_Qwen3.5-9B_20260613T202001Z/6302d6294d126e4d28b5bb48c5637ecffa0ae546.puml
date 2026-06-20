@@ -1,0 +1,80 @@
+@startuml
+left to right direction
+skinparam sequenceMessageAlign center
+
+actor "User_App" as UserApp
+participant "WebRTC_GW" as WebRTCGW
+participant "SkyWay_Server" as SkyWayServer
+participant "Target_Peer" as TargetPeer
+
+UserApp -> WebRTCGW: POST /peers\n{\n  key: "YOUR_API_KEY",\n  domain: "localhost",\n  turn: true,\n  peer_id: "media_caller"\n}
+WebRTCGW --> UserApp: 201 Created\n{\n  command_type: "PEERS_CREATE",\n  params: {\n    peer_id: "media_caller",\n    token: "pt-be74737d-5762-401f-a526-01fa44d98a11"\n  }\n}
+
+WebRTCGW --> SkyWayServer: CREATE PEER
+SkyWayServer --> WebRTCGW: SUCCESS (to bind peer id)
+
+WebRTCGW -> UserApp: GET /peers/media_caller/events?\ntoken=pt-be74737d-5762-401f-a526-01fa44d98a11
+WebRTCGW --> UserApp: 200 OK\n{\n  "event": "s:OPEN",\n  params: {\n    peer_id: "media_caller",\n    token: "pt-be74737d-5762-401f-a526-01fa44d98a11"\n  }\n}
+
+UserApp -> WebRTCGW: POST /media\nis_video=true
+WebRTCGW --> UserApp: 201 Created\n{\n  ip_v4: "172.16.1.106",\n  media_id: "vi-9856040d-bd3e-4b33-b121-e3435842e5fc",\n  port: 50003\n}
+
+UserApp -> WebRTCGW: POST /media\nis_video=false
+WebRTCGW --> UserApp: 201 Created\n{\n  ip_v4: "172.16.1.106",\n  media_id: "au-a6c4c82c-9d9c-4e12-a52a-c927ec33793e",\n  port: 50004\n}
+
+UserApp -> WebRTCGW: POST /media/rtp
+WebRTCGW --> UserApp: 201 Created\n{\n  "rtp_id": "rc-970f2e5d-4da0-43e7-92b6-796678c104ad",\n  "port": 50003,\n  "ip_v4": "172.16.1.106"\n}
+
+UserApp -> WebRTCGW: POST /media/rtp
+WebRTCGW --> UserApp: 201 Created\n{\n  "rtp_id": "rc-4044f658-dee5-4aac-a60a-ad133abb4f92",\n  "port": 50004,\n  "ip_v4": "172.16.1.106"\n}
+
+UserApp -> WebRTCGW: POST /media/connections\npeer_id: "media_caller",\ntoken: "pt-be74737d-5762-401f-a526-01fa44d98a11",\nvideo: true,\naudio: true,\naudioReceiveEnabled: true,\nvideo_params: {\n  band_width: 1500,\n  media_id: "vi-9856040d-bd3e-4b33-b121-e3435842e5fc",\n  rtpc_id: "rc-970f2e5d-4da0-43e7-92b6-796678c104ad",\n  payload_type: 100\n},\naudio_params: {\n  band_width: 1500,\n  media_id: "au-a6c4c82c-9d9c-4e12-a52a-c927ec33793e",\n  rtpc_id: "rc-4044f658-dee5-4aac-a60a-ad133abb4f92",\n  payload_type: 111\n},\nredirect_params: {\n  video: {\n    ip_v4: "172.16.1.105",\n    port: 20000\n  },\n  video_rtcp: {\n    ip_v4: "172.16.1.105",\n    port: 20010\n  },\n  audio: {\n    ip_v4: "172.16.1.105",\n    port: 20001\n  },\n  audio_rtcp: {\n    ip_v4: "172.16.1.105",\n    port: 20011\n  }\n}
+WebRTCGW --> UserApp: 201 Created\n{\n  command_type: "MEDIA_CONNECTION_CREATE",\n  params: {\n    media_connection_id: "mc-55f0b97c-77c7-42d7-b21b-a6a6bc3fee3a"\n  }\n}
+
+UserApp -> WebRTCGW: GET /media/connections\n/mc-55f0b97c-77c7-42d7-b21b-a6a6bc3fee3a/events
+WebRTCGW --> UserApp: 200 OK\n{\n  event: "READY"\n}
+
+loop
+  UserApp -> WebRTCGW: send RTP Video to 172.16.1.106:50001
+  WebRTCGW -> SkyWayServer: redirect Video with MediaStream
+  SkyWayServer -> TargetPeer: recv Video with MediaStream
+
+  UserApp -> WebRTCGW: send RTP Audio to 172.16.1.106:50002
+  WebRTCGW -> SkyWayServer: redirect Audio with MediaStream
+  SkyWayServer -> TargetPeer: recv Audio with MediaStream
+
+  UserApp -> WebRTCGW: send RTCP for Video to 172.16.1.106:50003
+  WebRTCGW -> SkyWayServer: redirect RTCP with MediaStream
+  SkyWayServer -> TargetPeer: recv RTCP for Video with MediaStream
+
+  UserApp -> WebRTCGW: send RTCP for Audio to 172.16.1.106:50004
+  WebRTCGW -> SkyWayServer: redirect RTCP with MediaStream
+  SkyWayServer -> TargetPeer: recv RTCP for Audio with MediaStream
+
+  UserApp -> WebRTCGW: redirect RTP Video to 172.16.1.105:20000
+  WebRTCGW -> SkyWayServer: redirect RTP Video with MediaStream
+  SkyWayServer -> TargetPeer: recv Video with MediaStream
+
+  UserApp -> WebRTCGW: redirect RTP Audio to 172.16.1.105:20001
+  WebRTCGW -> SkyWayServer: redirect RTP Audio with MediaStream
+  SkyWayServer -> TargetPeer: recv Audio with MediaStream
+
+  UserApp -> WebRTCGW: redirect RTCP for Video to 172.16.1.105:20010
+  WebRTCGW -> SkyWayServer: redirect RTCP for Video with MediaStream
+  SkyWayServer -> TargetPeer: recv RTCP for Video with MediaStream
+
+  UserApp -> WebRTCGW: redirect RTCP for Audio to 172.16.1.105:20011
+  WebRTCGW -> SkyWayServer: redirect RTCP for Audio with MediaStream
+  SkyWayServer -> TargetPeer: recv RTCP for Audio with MediaStream
+end
+
+UserApp -> WebRTCGW: Delete /media/connections\n/mc-55f0b97c-77c7-42d7-b21b-a6a6bc3fee3a
+WebRTCGW -> SkyWayServer: Close MediaStream
+SkyWayServer -> TargetPeer: erase Video object and Audio object
+
+UserApp -> WebRTCGW: Delete /peers/media_caller?token=pt-be74737d-5762-401f-a526-01fa44d98a11
+WebRTCGW --> UserApp: 204 No Content
+WebRTCGW --> TargetPeer: disconnect
+TargetPeer --> WebRTCGW: 204 No Content
+
+@enduml

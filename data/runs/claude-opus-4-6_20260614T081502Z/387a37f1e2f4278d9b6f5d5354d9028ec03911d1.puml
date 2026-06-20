@@ -1,0 +1,32 @@
+```plantuml
+@startuml
+
+actor Nutzer
+
+participant ServiceFactory
+participant PruefHandler
+participant PersonenServiceImpl
+participant Proxy
+
+group Initialisierung
+    Nutzer -> ServiceFactory : 1 getPersonenService()
+    ServiceFactory -> PersonenServiceImpl : 2 create
+    PersonenServiceImpl -> Proxy : 3 create
+    Proxy --> PersonenServiceImpl : 4 ziel
+    PersonenServiceImpl --> ServiceFactory : 5 instanz
+    ServiceFactory -> Proxy : 6 create
+    Proxy --> ServiceFactory : 7 PersonenService
+    ServiceFactory --> Nutzer : 8 service
+end
+
+group service.neu
+    Nutzer -> ServiceFactory : 9 neu
+    ServiceFactory -> PruefHandler : 10 invoke
+    PruefHandler -> PersonenServiceImpl : 11 neu
+    PersonenServiceImpl --> PruefHandler : 12 Person
+    PruefHandler --> ServiceFactory : 13 Person
+    ServiceFactory --> Nutzer : 14 Person
+end
+
+@enduml
+```

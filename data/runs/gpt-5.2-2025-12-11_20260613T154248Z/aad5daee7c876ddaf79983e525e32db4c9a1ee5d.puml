@@ -1,0 +1,44 @@
+```plantuml
+@startuml
+title $update-core
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #2f5fa8
+  ParticipantBackgroundColor #7ea6e6
+  ActorBorderColor #2f5fa8
+  ActorBackgroundColor #7ea6e6
+  BoxBorderColor #2f5fa8
+  BoxBackgroundColor #7ea6e6
+  ArrowColor #000000
+  MessageAlign left
+}
+
+actor "Integrating application user" as User
+participant "Integrating application" as App
+participant "<FHIR API> HPI" as HPI
+participant "HPI MDM" as MDM
+
+User -> App : Provide core details to be\nupdated
+activate App
+
+App -> HPI : POST<Endpoint>/Practitioner/$update-core
+activate HPI
+
+HPI -> HPI : Validate[]
+HPI -> MDM : Request
+activate MDM
+MDM --> HPI
+deactivate MDM
+
+HPI --> App : Return updated Practitioner\nrecord
+deactivate HPI
+
+App -> User : Display updated Provider\ndetails to user
+deactivate App
+
+@enduml
+```

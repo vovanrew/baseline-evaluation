@@ -1,0 +1,61 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+class Supplier {
+  ~find(productName:String):Product
+  ~getProducts():Product[]
+  ~getNumberOfProducts():int
+  ~getName():String
+  ~getDescription(prefix:String):String
+}
+
+class SupplierBase {
+  -supplierName:String
+  +SupplierBase(sn:String)
+  +getName():String
+  +toString():String
+  +getDescription(prefix:String):String
+}
+
+class OneProductProducer {
+  +OneProductProducer(sn:String,p:Product)
+  +find(pn:String):Product
+  +getProducts():Product[]
+  +getNumberOfProducts():int
+  +getDescription(prefix:String):String
+}
+
+class Producer {
+  -{static}template:Product[]
+  +Producer(sn:String,ps:Product)
+  +find(pn:String):Product
+  +getProducts():Product[]
+  +getNumberOfProducts():int
+  +getDescription(prefix:String):String
+}
+
+class Retailer {
+  +Retailer(name:String)
+  +getNumberOfProducts():int
+  +find(productName:String):Product
+  +getProducts():Product[]
+  +add(s:Supplier):Retailer
+  +getDescription(prefix:String):String
+}
+
+class Product {
+}
+
+Supplier <|.. SupplierBase
+SupplierBase <|-- OneProductProducer
+SupplierBase <|-- Producer
+SupplierBase <|-- Retailer
+
+Supplier "*" <--o Retailer : suppliers
+
+OneProductProducer o--> "1" Product : -product
+Producer o--> "*" Product : -products
+
+@enduml
+```

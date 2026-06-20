@@ -1,0 +1,103 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class Principal << (C,#B7E1B0) >> {
+  listCategorias: List[Categoria]
+  listGHormiga: List[GHormiga]
+  Libre : float
+  --
+  nwIngreso()
+  nwGasto()
+  nwMovimiento()
+  CrearCategoria()
+  EliminarCategoria()
+  getListCategorias()
+  getCategoria()
+  getRegistros()
+  nwGHormiga()
+  getGHormigas()
+}
+
+class GHormiga << (C,#B7E1B0) >> {
+  Valor: float
+  Fecha: Date
+  Descripcion: str
+  --
+  getCantidad()
+  getdescripcion()
+  getFecha()
+}
+
+class Categoria << (C,#B7E1B0) >> {
+  parent
+  Nombre: str
+  Descripcion: str
+  Saldo: float
+  --
+  nwIngreso()
+  nwGasto()
+  getRegistro()
+}
+
+class Registro << (C,#B7E1B0) >> {
+  Registros: List[Transaccion]
+  --
+  addTransaccion()
+  getRegistros()
+}
+
+abstract class Transaccion << (A,#BFE7F2) >> {
+  --
+  getTipo()
+  getCantidad()
+  getdescripcion()
+  getFecha()
+}
+
+class Gasto << (C,#B7E1B0) >> {
+  Valor: float
+  Fecha: Date
+  Descripcion: str
+  --
+  getTipo()
+  getCantidad()
+  getdescripcion()
+  getFecha()
+}
+
+class Movimiento << (C,#B7E1B0) >> {
+  NomCat: str
+  Mod: str
+  Valor: float
+  Fecha: Date
+  Descripcion: str
+  --
+  getTipo()
+  getMod()
+  getCantidad()
+  getNomCat()
+  getdescripcion()
+  getFecha()
+}
+
+class Ingreso << (C,#B7E1B0) >> {
+  Valor: float
+  Fecha: Date
+  Descripcion: str
+  --
+  getTipo()
+  getCantidad()
+  getdescripcion()
+  getFecha()
+}
+
+Principal "1" -- "0..*" GHormiga
+Principal "1" o-- "0..*" Categoria
+Principal "1" o-- "1" Registro : regPrincipal
+Categoria "1" o-- "1" Registro : regCategoria
+Registro "1" -- "0..*" Transaccion
+
+Gasto --|> Transaccion
+Movimiento --|> Transaccion
+Ingreso --|> Transaccion
+@enduml

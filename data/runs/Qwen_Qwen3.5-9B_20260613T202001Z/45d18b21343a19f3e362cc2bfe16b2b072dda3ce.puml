@@ -1,0 +1,783 @@
+@startuml
+left to right direction
+package "AspectJExpressionPointcutAdvisor" {
+  class "AspectJExpressionPointcutAdvisor" {
+    <<C>>
+    private Advice advice;
+    private AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+  }
+  class "Advice" {
+    <<C>>
+  }
+  class "AspectJExpressionPointcut" {
+    <<C>>
+    private PointcutParser pointcutParser;
+    private String expression;
+    private PointcutExpression pointcutExpression;
+    public boolean matches(Class targetClass, Class targetClass)
+    public boolean matches(Method method, Class targetClass)
+  }
+  class "Pointcut" {
+    <<C>>
+  }
+  class "ClassFilter" {
+    <<C>>
+  }
+}
+
+package "AbstractBeanFactory" {
+  class "AbstractBeanFactory" {
+    <<A>>
+    public List getBeansForType(Class type) throws Exception;
+  }
+}
+
+package "AspectAwareAdvisorAutoProxyCreator" {
+  class "AspectAwareAdvisorAutoProxyCreator" {
+    <<C>>
+    AbstractBeanFactory beanFactory;
+  }
+}
+
+package "BeanPostProcessor" {
+  class "BeanPostProcessor" {
+    <<C>>
+    Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception;
+    Object postProcessAfterInitialization(Object bean, String beanName) throws Exception;
+  }
+}
+
+package "BeanFactoryAware" {
+  class "BeanFactoryAware" {
+    <<C>>
+    void setBeanFactory(BeanFactory beanFactory) throws Exception;
+  }
+}
+
+package "AppProxy" {
+  class "AppProxy" {
+    <<C>>
+  }
+}
+
+package "InvocationHandler" {
+  class "InvocationHandler" {
+    <<C>>
+  }
+}
+
+package "jdkDynamicAopProxy" {
+  class "jdkDynamicAopProxy" {
+    <<C>>
+    AdvisedSupport advised;
+  }
+}
+
+package "AdvisedSupport" {
+  class "AdvisedSupport" {
+    <<C>>
+    MethodInterceptor methodInterceptor;
+    TargetSource targetSource;
+    private MethodMatcher methodMatcher;
+  }
+}
+
+package "MethodMatcher" {
+  class "MethodMatcher" {
+    <<C>>
+  }
+}
+
+package "MethodInterceptor" {
+  class "MethodInterceptor" {
+    <<C>>
+  }
+}
+
+package "TargetSource" {
+  class "TargetSource" {
+    <<C>>
+    Class targetClass;
+    Object target;
+  }
+}
+
+package "ReflectiveMethodInvocation" {
+  class "ReflectiveMethodInvocation" {
+    <<C>>
+  }
+}
+
+package "PointcutAdvisor" {
+  class "PointcutAdvisor" {
+    <<C>>
+  }
+}
+
+package "ApplicationContextTest" {
+  class "ApplicationContextTest" {
+    <<C>>
+    <bean id="outputService" class="us.codecraft.timycoc.OutputServiceImpl">
+      <property name="text" value="Hello World" />
+      <property name="outputService" ref="outputService" />
+    </bean>
+    <bean id="timerInterceptor" class="us.codecraft.timycoc.app.TimerInterceptor" />
+    <bean id="autoProxyCreator" class="us.codecraft.timycoc.app.AspectAwareAdvisorAutoProxyCreator">
+      <property name="advised" ref="timerInterceptor" />
+      <property name="expression" value="execution(* us.codecraft.timycoc.*.*(..))" />
+    </bean>
+  }
+}
+
+package "timycoc.xml配置" {
+  class "timycoc.xml配置" {
+    <<C>>
+    <bean id="outputService" class="us.codecraft.timycoc.OutputServiceImpl">
+      <property name="text" value="Hello World" />
+      <property name="outputService" ref="outputService" />
+    </bean>
+    <bean id="timerInterceptor" class="us.codecraft.timycoc.app.TimerInterceptor" />
+    <bean id="autoProxyCreator" class="us.codecraft.timycoc.app.AspectAwareAdvisorAutoProxyCreator">
+      <property name="advised" ref="timerInterceptor" />
+      <property name="expression" value="execution(* us.codecraft.timycoc.*.*(..))" />
+    </bean>
+  }
+}
+
+package "特别注意事项" {
+  class "特别注意事项" {
+    <<C>>
+    beanDefinition.setBean(bean);
+    @Override
+    public Object getBean(String name) throws Exception {
+      BeanDefinition beanDefinition = beanDefinitionMap.get(name);
+      if (beanDefinition == null) {
+        throw new IllegalArgumentException("No bean named " + name + " is defined");
+      }
+      Object bean = beanDefinition.getBean();
+      if (bean == null) {
+        bean = beanDefinition.getBeanDefinition();
+        bean = initializeBean(bean, name);
+        beanDefinition.setBean(bean);
+      }
+      return bean;
+    }
+  }
+}
+
+package "AspectJExpressionPointcutAdvisor" {
+  class "AspectJExpressionPointcutAdvisor" {
+    <<C>>
+    private Advice advice;
+    private AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+  }
+}
+
+package "AbstractBeanFactory" {
+  class "AbstractBeanFactory" {
+    <<A>>
+    public List getBeansForType(Class type) throws Exception;
+  }
+}
+
+package "AspectAwareAdvisorAutoProxyCreator" {
+  class "AspectAwareAdvisorAutoProxyCreator" {
+    <<C>>
+    AbstractBeanFactory beanFactory;
+  }
+}
+
+package "BeanPostProcessor" {
+  class "BeanPostProcessor" {
+    <<C>>
+    Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception;
+    Object postProcessAfterInitialization(Object bean, String beanName) throws Exception;
+  }
+}
+
+package "BeanFactoryAware" {
+  class "BeanFactoryAware" {
+    <<C>>
+    void setBeanFactory(BeanFactory beanFactory) throws Exception;
+  }
+}
+
+package "AppProxy" {
+  class "AppProxy" {
+    <<C>>
+  }
+}
+
+package "InvocationHandler" {
+  class "InvocationHandler" {
+    <<C>>
+  }
+}
+
+package "jdkDynamicAopProxy" {
+  class "jdkDynamicAopProxy" {
+    <<C>>
+    AdvisedSupport advised;
+  }
+}
+
+package "AdvisedSupport" {
+  class "AdvisedSupport" {
+    <<C>>
+    MethodInterceptor methodInterceptor;
+    TargetSource targetSource;
+    private MethodMatcher methodMatcher;
+  }
+}
+
+package "MethodMatcher" {
+  class "MethodMatcher" {
+    <<C>>
+  }
+}
+
+package "MethodInterceptor" {
+  class "MethodInterceptor" {
+    <<C>>
+  }
+}
+
+package "TargetSource" {
+  class "TargetSource" {
+    <<C>>
+    Class targetClass;
+    Object target;
+  }
+}
+
+package "ReflectiveMethodInvocation" {
+  class "ReflectiveMethodInvocation" {
+    <<C>>
+  }
+}
+
+package "PointcutAdvisor" {
+  class "PointcutAdvisor" {
+    <<C>>
+  }
+}
+
+package "ApplicationContextTest" {
+  class "ApplicationContextTest" {
+    <<C>>
+    <bean id="outputService" class="us.codecraft.timycoc.OutputServiceImpl">
+      <property name="text" value="Hello World" />
+      <property name="outputService" ref="outputService" />
+    </bean>
+    <bean id="timerInterceptor" class="us.codecraft.timycoc.app.TimerInterceptor" />
+    <bean id="autoProxyCreator" class="us.codecraft.timycoc.app.AspectAwareAdvisorAutoProxyCreator">
+      <property name="advised" ref="timerInterceptor" />
+      <property name="expression" value="execution(* us.codecraft.timycoc.*.*(..))" />
+    </bean>
+  }
+}
+
+package "timycoc.xml配置" {
+  class "timycoc.xml配置" {
+    <<C>>
+    <bean id="outputService" class="us.codecraft.timycoc.OutputServiceImpl">
+      <property name="text" value="Hello World" />
+      <property name="outputService" ref="outputService" />
+    </bean>
+    <bean id="timerInterceptor" class="us.codecraft.timycoc.app.TimerInterceptor" />
+    <bean id="autoProxyCreator" class="us.codecraft.timycoc.app.AspectAwareAdvisorAutoProxyCreator">
+      <property name="advised" ref="timerInterceptor" />
+      <property name="expression" value="execution(* us.codecraft.timycoc.*.*(..))" />
+    </bean>
+  }
+}
+
+package "特别注意事项" {
+  class "特别注意事项" {
+    <<C>>
+    beanDefinition.setBean(bean);
+    @Override
+    public Object getBean(String name) throws Exception {
+      BeanDefinition beanDefinition = beanDefinitionMap.get(name);
+      if (beanDefinition == null) {
+        throw new IllegalArgumentException("No bean named " + name + " is defined");
+      }
+      Object bean = beanDefinition.getBean();
+      if (bean == null) {
+        bean = beanDefinition.getBeanDefinition();
+        bean = initializeBean(bean, name);
+        beanDefinition.setBean(bean);
+      }
+      return bean;
+    }
+  }
+}
+
+package "AspectJExpressionPointcutAdvisor" {
+  class "AspectJExpressionPointcutAdvisor" {
+    <<C>>
+    private Advice advice;
+    private AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+  }
+}
+
+package "AbstractBeanFactory" {
+  class "AbstractBeanFactory" {
+    <<A>>
+    public List getBeansForType(Class type) throws Exception;
+  }
+}
+
+package "AspectAwareAdvisorAutoProxyCreator" {
+  class "AspectAwareAdvisorAutoProxyCreator" {
+    <<C>>
+    AbstractBeanFactory beanFactory;
+  }
+}
+
+package "BeanPostProcessor" {
+  class "BeanPostProcessor" {
+    <<C>>
+    Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception;
+    Object postProcessAfterInitialization(Object bean, String beanName) throws Exception;
+  }
+}
+
+package "BeanFactoryAware" {
+  class "BeanFactoryAware" {
+    <<C>>
+    void setBeanFactory(BeanFactory beanFactory) throws Exception;
+  }
+}
+
+package "AppProxy" {
+  class "AppProxy" {
+    <<C>>
+  }
+}
+
+package "InvocationHandler" {
+  class "InvocationHandler" {
+    <<C>>
+  }
+}
+
+package "jdkDynamicAopProxy" {
+  class "jdkDynamicAopProxy" {
+    <<C>>
+    AdvisedSupport advised;
+  }
+}
+
+package "AdvisedSupport" {
+  class "AdvisedSupport" {
+    <<C>>
+    MethodInterceptor methodInterceptor;
+    TargetSource targetSource;
+    private MethodMatcher methodMatcher;
+  }
+}
+
+package "MethodMatcher" {
+  class "MethodMatcher" {
+    <<C>>
+  }
+}
+
+package "MethodInterceptor" {
+  class "MethodInterceptor" {
+    <<C>>
+  }
+}
+
+package "TargetSource" {
+  class "TargetSource" {
+    <<C>>
+    Class targetClass;
+    Object target;
+  }
+}
+
+package "ReflectiveMethodInvocation" {
+  class "ReflectiveMethodInvocation" {
+    <<C>>
+  }
+}
+
+package "PointcutAdvisor" {
+  class "PointcutAdvisor" {
+    <<C>>
+  }
+}
+
+package "ApplicationContextTest" {
+  class "ApplicationContextTest" {
+    <<C>>
+    <bean id="outputService" class="us.codecraft.timycoc.OutputServiceImpl">
+      <property name="text" value="Hello World" />
+      <property name="outputService" ref="outputService" />
+    </bean>
+    <bean id="timerInterceptor" class="us.codecraft.timycoc.app.TimerInterceptor" />
+    <bean id="autoProxyCreator" class="us.codecraft.timycoc.app.AspectAwareAdvisorAutoProxyCreator">
+      <property name="advised" ref="timerInterceptor" />
+      <property name="expression" value="execution(* us.codecraft.timycoc.*.*(..))" />
+    </bean>
+  }
+}
+
+package "timycoc.xml配置" {
+  class "timycoc.xml配置" {
+    <<C>>
+    <bean id="outputService" class="us.codecraft.timycoc.OutputServiceImpl">
+      <property name="text" value="Hello World" />
+      <property name="outputService" ref="outputService" />
+    </bean>
+    <bean id="timerInterceptor" class="us.codecraft.timycoc.app.TimerInterceptor" />
+    <bean id="autoProxyCreator" class="us.codecraft.timycoc.app.AspectAwareAdvisorAutoProxyCreator">
+      <property name="advised" ref="timerInterceptor" />
+      <property name="expression" value="execution(* us.codecraft.timycoc.*.*(..))" />
+    </bean>
+  }
+}
+
+package "特别注意事项" {
+  class "特别注意事项" {
+    <<C>>
+    beanDefinition.setBean(bean);
+    @Override
+    public Object getBean(String name) throws Exception {
+      BeanDefinition beanDefinition = beanDefinitionMap.get(name);
+      if (beanDefinition == null) {
+        throw new IllegalArgumentException("No bean named " + name + " is defined");
+      }
+      Object bean = beanDefinition.getBean();
+      if (bean == null) {
+        bean = beanDefinition.getBeanDefinition();
+        bean = initializeBean(bean, name);
+        beanDefinition.setBean(bean);
+      }
+      return bean;
+    }
+  }
+}
+
+package "AspectJExpressionPointcutAdvisor" {
+  class "AspectJExpressionPointcutAdvisor" {
+    <<C>>
+    private Advice advice;
+    private AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+  }
+}
+
+package "AbstractBeanFactory" {
+  class "AbstractBeanFactory" {
+    <<A>>
+    public List getBeansForType(Class type) throws Exception;
+  }
+}
+
+package "AspectAwareAdvisorAutoProxyCreator" {
+  class "AspectAwareAdvisorAutoProxyCreator" {
+    <<C>>
+    AbstractBeanFactory beanFactory;
+  }
+}
+
+package "BeanPostProcessor" {
+  class "BeanPostProcessor" {
+    <<C>>
+    Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception;
+    Object postProcessAfterInitialization(Object bean, String beanName) throws Exception;
+  }
+}
+
+package "BeanFactoryAware" {
+  class "BeanFactoryAware" {
+    <<C>>
+    void setBeanFactory(BeanFactory beanFactory) throws Exception;
+  }
+}
+
+package "AppProxy" {
+  class "AppProxy" {
+    <<C>>
+  }
+}
+
+package "InvocationHandler" {
+  class "InvocationHandler" {
+    <<C>>
+  }
+}
+
+package "jdkDynamicAopProxy" {
+  class "jdkDynamicAopProxy" {
+    <<C>>
+    AdvisedSupport advised;
+  }
+}
+
+package "AdvisedSupport" {
+  class "AdvisedSupport" {
+    <<C>>
+    MethodInterceptor methodInterceptor;
+    TargetSource targetSource;
+    private MethodMatcher methodMatcher;
+  }
+}
+
+package "MethodMatcher" {
+  class "MethodMatcher" {
+    <<C>>
+  }
+}
+
+package "MethodInterceptor" {
+  class "MethodInterceptor" {
+    <<C>>
+  }
+}
+
+package "TargetSource" {
+  class "TargetSource" {
+    <<C>>
+    Class targetClass;
+    Object target;
+  }
+}
+
+package "ReflectiveMethodInvocation" {
+  class "ReflectiveMethodInvocation" {
+    <<C>>
+  }
+}
+
+package "PointcutAdvisor" {
+  class "PointcutAdvisor" {
+    <<C>>
+  }
+}
+
+package "ApplicationContextTest" {
+  class "ApplicationContextTest" {
+    <<C>>
+    <bean id="outputService" class="us.codecraft.timycoc.OutputServiceImpl">
+      <property name="text" value="Hello World" />
+      <property name="outputService" ref="outputService" />
+    </bean>
+    <bean id="timerInterceptor" class="us.codecraft.timycoc.app.TimerInterceptor" />
+    <bean id="autoProxyCreator" class="us.codecraft.timycoc.app.AspectAwareAdvisorAutoProxyCreator">
+      <property name="advised" ref="timerInterceptor" />
+      <property name="expression" value="execution(* us.codecraft.timycoc.*.*(..))" />
+    </bean>
+  }
+}
+
+package "timycoc.xml配置" {
+  class "timycoc.xml配置" {
+    <<C>>
+    <bean id="outputService" class="us.codecraft.timycoc.OutputServiceImpl">
+      <property name="text" value="Hello World" />
+      <property name="outputService" ref="outputService" />
+    </bean>
+    <bean id="timerInterceptor" class="us.codecraft.timycoc.app.TimerInterceptor" />
+    <bean id="autoProxyCreator" class="us.codecraft.timycoc.app.AspectAwareAdvisorAutoProxyCreator">
+      <property name="advised" ref="timerInterceptor" />
+      <property name="expression" value="execution(* us.codecraft.timycoc.*.*(..))" />
+    </bean>
+  }
+}
+
+package "特别注意事项" {
+  class "特别注意事项" {
+    <<C>>
+    beanDefinition.setBean(bean);
+    @Override
+    public Object getBean(String name) throws Exception {
+      BeanDefinition beanDefinition = beanDefinitionMap.get(name);
+      if (beanDefinition == null) {
+        throw new IllegalArgumentException("No bean named " + name + " is defined");
+      }
+      Object bean = beanDefinition.getBean();
+      if (bean == null) {
+        bean = beanDefinition.getBeanDefinition();
+        bean = initializeBean(bean, name);
+        beanDefinition.setBean(bean);
+      }
+      return bean;
+    }
+  }
+}
+
+package "AspectJExpressionPointcutAdvisor" {
+  class "AspectJExpressionPointcutAdvisor" {
+    <<C>>
+    private Advice advice;
+    private AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+  }
+}
+
+package "AbstractBeanFactory" {
+  class "AbstractBeanFactory" {
+    <<A>>
+    public List getBeansForType(Class type) throws Exception;
+  }
+}
+
+package "AspectAwareAdvisorAutoProxyCreator" {
+  class "AspectAwareAdvisorAutoProxyCreator" {
+    <<C>>
+    AbstractBeanFactory beanFactory;
+  }
+}
+
+package "BeanPostProcessor" {
+  class "BeanPostProcessor" {
+    <<C>>
+    Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception;
+    Object postProcessAfterInitialization(Object bean, String beanName) throws Exception;
+  }
+}
+
+package "BeanFactoryAware" {
+  class "BeanFactoryAware" {
+    <<C>>
+    void setBeanFactory(BeanFactory beanFactory) throws Exception;
+  }
+}
+
+package "AppProxy" {
+  class "AppProxy" {
+    <<C>>
+  }
+}
+
+package "InvocationHandler" {
+  class "InvocationHandler" {
+    <<C>>
+  }
+}
+
+package "jdkDynamicAopProxy" {
+  class "jdkDynamicAopProxy" {
+    <<C>>
+    AdvisedSupport advised;
+  }
+}
+
+package "AdvisedSupport" {
+  class "AdvisedSupport" {
+    <<C>>
+    MethodInterceptor methodInterceptor;
+    TargetSource targetSource;
+    private MethodMatcher methodMatcher;
+  }
+}
+
+package "MethodMatcher" {
+  class "MethodMatcher" {
+    <<C>>
+  }
+}
+
+package "MethodInterceptor" {
+  class "MethodInterceptor" {
+    <<C>>
+  }
+}
+
+package "TargetSource" {
+  class "TargetSource" {
+    <<C>>
+    Class targetClass;
+    Object target;
+  }
+}
+
+package "ReflectiveMethodInvocation" {
+  class "ReflectiveMethodInvocation" {
+    <<C>>
+  }
+}
+
+package "PointcutAdvisor" {
+  class "PointcutAdvisor" {
+    <<C>>
+  }
+}
+
+package "ApplicationContextTest" {
+  class "ApplicationContextTest" {
+    <<C>>
+    <bean id="outputService" class="us.codecraft.timycoc.OutputServiceImpl">
+      <property name="text" value="Hello World" />
+      <property name="outputService" ref="outputService" />
+    </bean>
+    <bean id="timerInterceptor" class="us.codecraft.timycoc.app.TimerInterceptor" />
+    <bean id="autoProxyCreator" class="us.codecraft.timycoc.app.AspectAwareAdvisorAutoProxyCreator">
+      <property name="advised" ref="timerInterceptor" />
+      <property name="expression" value="execution(* us.codecraft.timycoc.*.*(..))" />
+    </bean>
+  }
+}
+
+package "timycoc.xml配置" {
+  class "timycoc.xml配置" {
+    <<C>>
+    <bean id="outputService" class="us.codecraft.timycoc.OutputServiceImpl">
+      <property name="text" value="Hello World" />
+      <property name="outputService" ref="outputService" />
+    </bean>
+    <bean id="timerInterceptor" class="us.codecraft.timycoc.app.TimerInterceptor" />
+    <bean id="autoProxyCreator" class="us.codecraft.timycoc.app.AspectAwareAdvisorAutoProxyCreator">
+      <property name="advised" ref="timerInterceptor" />
+      <property name="expression" value="execution(* us.codecraft.timycoc.*.*(..))" />
+    </bean>
+  }
+}
+
+package "特别注意事项" {
+  class "特别注意事项" {
+    <<C>>
+    beanDefinition.setBean(bean);
+    @Override
+    public Object getBean(String name) throws Exception {
+      BeanDefinition beanDefinition = beanDefinitionMap.get(name);
+      if (beanDefinition == null) {
+        throw new IllegalArgumentException("No bean named " + name + " is defined");
+      }
+      Object bean = beanDefinition.getBean();
+      if (bean == null) {
+        bean = beanDefinition.getBeanDefinition();
+        bean = initializeBean(bean, name);
+        beanDefinition.setBean(bean);
+      }
+      return bean;
+    }
+  }
+}
+
+package "AspectJExpressionPointcutAdvisor" {
+  class "AspectJExpressionPointcutAdvisor" {
+    <<C>>
+    private Advice advice;
+    private AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+  }
+}
+
+package "AbstractBeanFactory" {
+  class "AbstractBeanFactory" {
+    <<A>>
+    public List getBeansForType(Class type) throws Exception;
+  }
+}
+
+package "AspectAwareAdvisorAutoProxyCreator" {
+  class "AspectAwareAdvisorAutoProxyCreator" {
+    <<C>>
+    AbstractBeanFactory beanFactory;
+  }
+}
+
+package "BeanPostProcessor" {
+  class "BeanPostProcessor" {

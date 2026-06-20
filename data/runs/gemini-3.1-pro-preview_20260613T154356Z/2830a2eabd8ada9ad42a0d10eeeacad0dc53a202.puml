@@ -1,0 +1,98 @@
+```plantuml
+@startuml
+box "Upstream" #F0F8FF
+participant Producer as UP << (C,#ADD8E6) >>
+participant Adapter as UA << (C,#ADD8E6) >>
+end box
+
+participant Transport as UT << (S,#ADD8E6) >>
+
+box "Gateway" #F0F8FF
+participant Adapter as GA << (C,#ADD8E6) >>
+participant Consumer as GC << (C,#ADD8E6) >>
+box "JobExecution" #E0FFFF
+participant GatewayJobHandler as GJH << (C,#ADD8E6) >>
+end box
+participant Gateway as G << (C,#ADD8E6) >>
+participant Producer as GP << (C,#ADD8E6) >>
+participant Adapter as GPA << (C,#ADD8E6) >>
+end box
+
+participant Transport as GT << (S,#ADD8E6) >>
+
+box "Downstream" #F0F8FF
+participant Adapter as DA << (C,#ADD8E6) >>
+participant Consumer as DC << (C,#ADD8E6) >>
+end box
+
+box "JobExecution" #E0FFFF
+participant DownstreamJobHandler as DJH << (C,#ADD8E6) >>
+end box
+
+participant "Lower Layer" as LL << (S,#ADD8E6) >>
+
+activate UP
+UP -> UA : publish(command)
+activate UA
+UA -> UT : publish(command)
+UT -> GA : execute(command)
+activate GA
+GA -> GC : handler(command, done)
+activate GC
+GC -> GJH : subscribe("done")
+activate GJH
+GC -> GJH : emit("command",\nGatewayJobHandler)
+GJH --> G : 
+activate G
+G -> GP : publish(command)
+activate GP
+GP -> GPA : publish(command)
+activate GPA
+GPA -> GT : publish(command)
+GT -> DA : execute(command)
+activate DA
+DA -> DC : handler(command, done)
+activate DC
+DC -> DJH : subscribe("done")
+activate DJH
+DC -> DJH : emit("command",\nGatewayJobHandler)
+DJH --> LL : 
+activate LL
+LL -> DJH : done()
+deactivate LL
+DJH --> DC : emit("done")
+deactivate DJH
+DC -> DA : done(response)
+deactivate DC
+DA -> GT : done(response)
+deactivate DA
+GT -> GPA : getDelay(command)
+GPA <-> GT : 
+GPA --> GP : emit("response", response)
+GP -> GP : handler("response")
+GP -> GP : onTimeOut(getDelay())
+GP -> GPA : unsubscribe()
+deactivate GPA
+GP -> G : resolve(responses)
+deactivate GP
+G -> GJH : done()
+deactivate G
+GJH --> GC : emit("done")
+deactivate GJH
+GC -> GA : done(response)
+deactivate GC
+GA -> UT : done(response)
+deactivate GA
+UT -> UA : getDelay(command)
+UA <-> UT : 
+UA --> UP : emit("response", response)
+UP -> UP : handler("response")
+UA --> UP : emit("response", response)
+UP -> UP : handler("response")
+UP -> UP : onTimeOut(getDelay())
+UP -> UA : unsubscribe()
+deactivate UA
+deactivate UP
+
+@enduml
+```

@@ -1,0 +1,71 @@
+@startuml
+left to right direction
+actor "sidetree-core-go" as actor1
+participant "Instance 1" as instance1
+participant "Operation Queue" as opq1
+participant "orb.operation" as orb1
+participant "op-queue DB" as db1
+participant "Instance 2" as instance2
+participant "Operation Queue" as opq2
+
+actor "sidetree-core-go" as actor2
+
+opq1 -> orb1: Subscribe
+activate orb1
+orb1 --> opq1: ok
+deactivate orb1
+
+opq2 <-..> orb1: Subscribe
+activate orb1
+orb1 --> opq2: ok
+deactivate orb1
+
+actor1 -> opq1: Add(op1)
+activate opq1
+opq1 -> orb1: Publish(op1)
+activate orb1
+orb1 --> opq1: ok
+deactivate orb1
+opq1 --> actor1: ok
+deactivate opq1
+
+actor1 -> opq1: Add(op2)
+activate opq1
+opq1 -> opq2: Publish(op2)
+activate opq2
+opq2 --> opq1: ok
+deactivate opq2
+opq1 --> actor1: ok
+deactivate opq1
+
+opq1 <-..> opq2: op2
+activate opq2
+opq2 --> opq1: ok
+deactivate opq2
+
+opq1 -> db1: Put(op2,handler1ID,expiry)
+activate db1
+db1 --> opq1: ok
+deactivate db1
+
+opq1 -> orb1: Ack(op2)
+activate orb1
+orb1 --> opq1: ok
+deactivate orb1
+
+opq1 -> opq2: op1
+activate opq2
+opq2 --> opq1: ok
+deactivate opq2
+
+opq2 -> db1: Put(op1,handler2ID,expiry)
+activate db1
+db1 --> opq2: ok
+deactivate db1
+
+opq2 -> orb1: Ack(op1)
+activate orb1
+orb1 --> opq2: ok
+deactivate orb1
+
+@enduml

@@ -1,0 +1,143 @@
+@startuml
+left to right direction
+package "temporal_abstraction" as temporal_abstraction {
+  package "discretization" as discretization {
+    class "Discretization" as Discretization {
+      + eb_bins
+      + generate_cutpoints(prop_df)
+      + discretize_property(prop_df)
+      + create_prop_states(eb_cutpoints, scores)
+    }
+    class "Supervised" as Supervised {
+      + entity, class, relations
+    }
+    class "Unsupervised" as Unsupervised {
+    }
+    class "Equal Width" as EqualWidth {
+      + generate_cutpoints(...): List[cutpoints]
+      + equal_width(...)
+    }
+    class "Equal Frequency" as EqualFrequency {
+      + generate_cutpoints(...): List[cutpoints]
+      + equal_frequency(...)
+    }
+    class "KMeans" as KMeans {
+      + generate_cutpoints(...): List[cutpoints]
+      + kmeans_adapter(...)
+    }
+    class "SAX" as SAX {
+      + generate_cutpoints(...): List[cutpoints]
+      + sax(...)
+    }
+    class "td4c_persist" as td4c_persist {
+      package "shared functions" as shared_functions {
+        class "Persist" as Persist {
+          + persist(...)
+          + all_states(persistence)
+          + single_state(persistence)
+          + calc_state_probabilities()
+          + calc_marginal_probabilities()
+        }
+        class "candidate_selection" as candidate_selection {
+          + generate_candidates(cutpoints)
+          + generate_kullback_table()
+        }
+        class "DDM_scoring_function" as DDM_scoring_function {
+          + coeffs, entity, class, relations
+          + distance_measure(p, q)
+        }
+        class "TD4C" as TD4C {
+          + distance_measure(p, q)
+        }
+        class "TD4C Cosine" as TD4C_Cosine {
+          + distance_measure(p, q)
+        }
+        class "TD4C Kullback-Leibler" as TD4C_KullbackLeibler {
+          + distance_measure(p, q)
+        }
+        class "TD4C Entropy" as TD4C_Entropy {
+          + distance_measure(p, q)
+        }
+        class "TD4C Entropy IG" as TD4C_Entropy_IG {
+          + distance_measure(p, q)
+        }
+      }
+    }
+  }
+  class "TemporalAbstraction" as TemporalAbstraction {
+    + discretize_property(prop_df)
+    + discretize_to_bins(cutpoints, values)
+    + create_symbolic_time_series(states, time_point_series)
+    + extract_cutpoints_from_states(states)
+  }
+  class "Node Gradient" as NodeGradient {
+    + window_size
+    + states
+    + discretize_property(prop_df)
+    + gradient_of_window_size(states)
+    + derivative_of_gradient_window_size
+  }
+  class "Node KnowledgeBased" as NodeKnowledgeBased {
+    + states
+    + discretize_property(prop_df)
+    + knowledge_based_states(prop_df)
+  }
+  class "time_intervals_adapter" as TimeIntervalsAdapter {
+    + max_gap
+    + convert_timestamp(df, epsilon=1)
+    + create_time_intervals(symbolic_time_series)
+  }
+  class "abstraction_per_property" as AbstractionPerProperty {
+    + preprocessing_params_df
+    + temporal_abstraction_params_df
+    + preprocessing_per_property(dataset)
+    + temporal_abstraction_per_property(dataset, entity, class, relations=None, states=None)
+    + intervalization_per_property(symbolic_time_series)
+    + generate_preprocessing_by_name(params, row)
+    + generate_abstraction_by_name(params, row, entity, class, relations=None, states=None)
+  }
+  class "preprocessing" as Preprocessing {
+    class "Transformation" as Transformation {
+      + transform(dataset)
+    }
+    class "PAA" as PAA {
+      + window_size
+      + transform(dataset)
+    }
+    class "OutliersRemover" as OutliersRemover {
+      + std_coef
+      + transform(dataset)
+    }
+  }
+  class "Mold" as Mold {
+    + kb_folds
+    + eb_folds
+    + entity_class_relations
+    + divide_dataset(dataset)
+  }
+  Discretization ..> Unsupervised : extends
+  Discretization ..> Supervised : extends
+  EqualWidth ..> Unsupervised : extends
+  EqualFrequency ..> Unsupervised : extends
+  KMeans ..> Unsupervised : extends
+  SAX ..> Unsupervised : extends
+  td4c_persist ..> Unsupervised : extends
+  TemporalAbstraction ..> Discretization : uses
+  NodeGradient ..> Discretization : uses
+  NodeKnowledgeBased ..> Discretization : uses
+  TimeIntervalsAdapter ..> TemporalAbstraction : uses
+  AbstractionPerProperty ..> Preprocessing : uses
+  Preprocessing ..> Transformation : uses
+  Preprocessing ..> PAA : uses
+  Preprocessing ..> OutliersRemover : uses
+  td4c_persist ..> shared_functions : uses
+  shared_functions ..> Persist : uses
+  shared_functions ..> candidate_selection : uses
+  shared_functions ..> DDM_scoring_function : uses
+  shared_functions ..> TD4C : uses
+  shared_functions ..> TD4C_Cosine : uses
+  shared_functions ..> TD4C_KullbackLeibler : uses
+  shared_functions ..> TD4C_Entropy : uses
+  shared_functions ..> TD4C_Entropy_IG : uses
+}
+@enduml

@@ -1,0 +1,46 @@
+```plantuml
+@startuml
+title DefaultMQProducerImpl 启动流程
+
+actor "DefaultMQProducerImpl" as Producer
+participant "Validators" as Validators
+participant "MQClientManager" as Manager
+participant "MQClientInstance" as Instance
+participant "MQClientAPIImpl" as API
+participant "PullMessageService" as PullService
+participant "RebalanceService" as RebalanceService
+
+note left of Producer: start
+
+activate Producer
+
+Producer -> Validators : checkConfig
+Validators -->> Producer : result
+
+Producer -> Manager : getInstance
+activate Manager
+Manager -> Manager : getAndCreateMQClientInstance
+Manager -> Instance : new
+deactivate Manager
+Manager -->> Producer : mQClientFactory: MQClientInstance
+
+Producer -> Instance : registerProducer
+Producer -> Instance : start
+activate Instance
+
+Instance -> API : start
+Instance -> Instance : startScheduledTask
+Instance -> PullService : start
+Instance -> RebalanceService : start
+
+Instance --> Producer : start
+deactivate Instance
+
+Producer -> Instance : sendHeartbeatToAllBrokerWithLock
+
+deactivate Producer
+
+== start 结束 ==
+
+@enduml
+```

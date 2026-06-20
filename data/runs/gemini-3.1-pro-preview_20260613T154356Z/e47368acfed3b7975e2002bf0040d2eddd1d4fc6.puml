@@ -1,0 +1,34 @@
+```plantuml
+@startuml
+database tuple
+actor "Upper\nlayer" as UpperLayer
+
+box "IP Layer"
+participant "IPv4\nlayer" as IPv4Layer
+database "Routing\ntable" as RoutingTable
+end box
+
+box "IPv4 Ineterface"
+participant "IPv4\ninterface" as IPv4Interface
+database ARP
+end box
+
+actor "Lower\nlayer" as LowerLayer
+
+note over tuple: IPv4.dst=192.0.2.1
+UpperLayer -> IPv4Layer: IPdata
+note over IPv4Layer: Allocate\nIPv4\nheader
+IPv4Layer -> RoutingTable: dst=192.0.2.1
+RoutingTable --> IPv4Layer
+IPv4Layer --> tuple
+note over tuple: IPv4.oif=ifp1\nIPv4.gw=198.51.100.1
+IPv4Layer -> IPv4Interface
+IPv4Interface --> tuple
+note over tuple: IPv4.src=198.51.100.2
+IPv4Interface -> ARP: gw=198.51.100.1
+ARP --> IPv4Interface: mac=00:00:0e:00:00:01
+IPv4Interface --> tuple
+note over tuple: Ether.dst = 00:00:0e:00:00:01
+IPv4Interface -> LowerLayer
+@enduml
+```

@@ -1,0 +1,64 @@
+@startuml
+skinparam classBoxStyle bgLight
+skinparam classStyle bgLight
+
+interface QuestReward
+  "RewardPlayer()"
+  "ToString() so that the reward can be described in text in the quest window"
+
+class Quest
+  "isActive"
+  "isComplete"
+  "[SerializedField] string name"
+  "[SerializedField] string description"
+  "[SerializedField] List<QuestReward> questRewards"
+  "make sure it does not derive from monobehaviour"
+  "all classes that inherit from quest need the [Serializable] attribute"
+
+class QuestGiver
+  "attaches to NPC objects, derives from monobehaviour"
+  "[SerializedField] Quest questToGive;"
+  "[SerializedField] GameObject questWindow"
+  "[SerializedField] TextMeshProUGUI titleText"
+  "[SerializedField] TextMeshProUGUI descText"
+  "[SerializedField] TextMeshProUGUI rewardText;"
+  "not sure if the player will need its own new quest script of if questing logic can go in an existing one"
+  "PlayerReference player;"
+  "void OpenQuestWindow()"
+  "void AcceptQuest()"
+  "void CompleteQuest()"
+
+class QuestReward
+  "has" QuestGiver
+  "has" Quest
+  "has" CountQuest
+
+class RivalQuest
+  "inherits from" Quest
+
+class CountQuest
+  "int currentCount"
+  "[SerializedField] int completionCount"
+  "void checkWin() sets isComplete to true if currentCount == completionCount"
+
+class CountQuestTypes
+  "GrindTime, Graffiti, SpeedMeter, Coins, Enemies"
+
+class MonoBehaviour
+  "Unity MonoBehaviour"
+
+class QuestReward
+  "has" RivalQuest
+  "has" Quest
+  "has" CountQuest
+
+class QuestGiver
+  "inherits from" MonoBehaviour
+
+class Quest
+  "inherits from" QuestGiver
+
+class CountQuest
+  "inherits from" Quest
+
+@enduml

@@ -1,0 +1,52 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #777777
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #777777
+  ParticipantBackgroundColor #E9E9F2
+  ActorBorderColor #777777
+  ActorBackgroundColor #E9E9F2
+  ArrowColor #222222
+  NoteBackgroundColor #FFFEDB
+  NoteBorderColor #777777
+}
+
+actor User as U
+boundary "index.jsp" as IDX
+boundary "basket.jsp" as BSK
+participant "Order" as ORD
+participant "Pay" as PAY
+participant "LogicFacade" as LF
+participant "OrderMapper" as OM
+database "Database" as DB
+
+note right of U
+We assume user
+is logged in
+end note
+
+U -> IDX : user clicks "add to cart"
+IDX -> ORD : [for each cupcake] AddToOrder()
+ORD --> IDX : redirect (msg "added to basket")
+IDX --> U : display msg
+
+U -> IDX : user clicks "show basket"
+IDX -> BSK : ShowBasket()
+BSK -> PAY : Pay()
+
+PAY -> PAY : Check date
+PAY -> PAY : Check if logged in
+PAY -> PAY : Check balance
+
+PAY -> LF : saveOrder()
+LF -> OM : saveOrder()
+OM -> DB : saves order
+DB --> OM : return
+OM --> LF : return
+LF --> PAY : return
+
+PAY --> IDX : redirect (msg "order placed")
+IDX --> U : display msg
+@enduml

@@ -1,0 +1,49 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package "model" {
+    package generator <<folder>>{
+        [GenerateHttpTagInfo] as GenerateHttpTagInfo #CCCCCC;
+        note right of GenerateHttpTagInfo : C\nfun generateTagInfo() : Array<TagInfo>\n■ fun generateOneTagInfo(): TagInfo()\n
+        
+        [IGenerateTagInfo] as IGenerateTagInfo #CCCCFF;
+        note left of IGenerateTagInfo : ■\n○ fun generateTagInfo() : Array<TagInfo>\n● fun generateOneTagInfo(): TagInfo()\n
+        
+        [GenerateSQLiteTagInfo] as GenerateSQLiteTagInfo #CCCCCC;
+        note right of GenerateSQLiteTagInfo : C\n○ fun generateTagInfo() : Array<TagInfo>\n■ fun generateOneTagInfo(): TagInfo()\n        
+        GenerateHttpTagInfo --> IGenerateTagInfo 
+        GenerateSQLiteTagInfo -down-> IGenerateTagInfo 
+        
+    }
+    
+    package converter<<Folder>>{
+       [TagInfoConverter ]as TagInfoConverter#CCCCCC ;
+      note top of TagInfoConverter:C \n□ jsonTagInfos: jsonArray\n■ fun getFollowersCount():Int\n■ fun getIconUrl():String?\n■ fun getTagId(): String\n■ fun getItemCounts(): Int
+      
+      
+   } 
+    
+   
+}
+
+
+[sqliteDao]<<database>> as sqliteDAO #CCCCCC;
+note bottom of sqliteDAO:C\n ○ fun insertTaginfo()\n ● fun selectRegesteTag()\n ● fun deleteTagInfo();
+
+
+
+[taginfodto]<<entity >> as tagDTO #CCCCCC;
+tagDTO --|> viewModel 
+
+[vieModel]{
+     [viewholder1] <C>: ViewHolder<T>;
+     
+     viewHolder2<C>: AdapterView<ListAdapter>;
+     
+
+}
+
+
+
+
+@enduml

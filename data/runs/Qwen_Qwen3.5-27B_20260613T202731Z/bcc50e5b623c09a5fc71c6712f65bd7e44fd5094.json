@@ -1,0 +1,22 @@
+{
+  "id": "310e9143-82f8-451b-81a8-c20a93a2fd23",
+  "object": "chat.completion",
+  "created": 1781491154,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nactor \"Admin\" as Admin\nparticipant \":DivisionPage\" as DivisionPage\nparticipant \":DivisionTableContainer\" as DivisionTableContainer\nparticipant \":DivisionTable\" as DivisionTable\nparticipant \":DivisionService (Frontend)\" as DivisionServiceFrontend\nparticipant \":Router\" as Router\nparticipant \":DivisionHTTPTransport\" as DivisionHTTPTransport\nparticipant \":DivisionEndpoint\" as DivisionEndpoint\nparticipant \":DivisionService\" as DivisionService\nparticipant \":DivisionCommand\" as DivisionCommand\nparticipant \":DivisionQuery\" as DivisionQuery\n\nAdmin -> DivisionPage: Open \"Manage Division\" Page\nDivisionPage -> DivisionTableContainer: Render \"Division Table\" Container\nactivate DivisionTableContainer\nDivisionTableContainer -> DivisionTable: Render \"Division Table\"\nactivate DivisionTable\nDivisionTable --> DivisionTableContainer: rendered\ndeactivate DivisionTable\nDivisionTableContainer --> DivisionPage: rendered\ndeactivate DivisionTableContainer\nDivisionPage --> Admin: rendered\n\nAdmin -> DivisionPage: Mark \"Division\"\nDivisionPage -> DivisionTableContainer: Mark \"Division\"\nactivate DivisionTableContainer\nDivisionTableContainer -> DivisionTable: Mark \"Division\"\nactivate DivisionTable\nDivisionTable --> DivisionTableContainer: marked\ndeactivate DivisionTable\nDivisionTableContainer --> DivisionPage: marked\ndeactivate DivisionTableContainer\nDivisionPage --> Admin: marked\n\nAdmin -> DivisionPage: Click \"Delete Selected\" Button\nDivisionPage -> DivisionTableContainer: showDeleteConfirmation(item)\nactivate DivisionTableContainer\n\nalt \"Cancel Delete\"\n    DivisionTableContainer --> DivisionPage: Close Dialog\n    deactivate DivisionTableContainer\n    DivisionPage --> Admin: Close Dialog\nelse\n    DivisionTableContainer -> DivisionTableContainer: handleDeleteConfirmation(item)\n    DivisionTableContainer -> DivisionServiceFrontend: deleteDivision([]payload)\n    activate DivisionServiceFrontend\n    DivisionServiceFrontend -> Router: route(\"DELETE\", \"v2/divisions\", formData)\n    activate Router\n    Router -> DivisionHTTPTransport: DeleteDivisions(DivisionService, []ServerOption)\n    activate DivisionHTTPTransport\n    DivisionHTTPTransport -> DivisionEndpoint: DeleteMany(DivisionService)\n    activate DivisionEndpoint\n    DivisionEndpoint -> DivisionService: DeleteDivisions(context, []uuid)\n    activate DivisionService\n    \n    loop \"for each uuid\"\n        DivisionService -> DivisionQuery: Find(context, uuid)\n        activate DivisionQuery\n        DivisionQuery --> DivisionService: division\n        deactivate DivisionQuery\n        DivisionService -> DivisionCommand: Delete(context, division)\n        activate DivisionCommand\n        DivisionCommand --> DivisionService: isDeleted\n        deactivate DivisionCommand\n    end\n    \n    DivisionService --> DivisionEndpoint: isDeleted\n    deactivate DivisionService\n    DivisionEndpoint -> DivisionEndpoint: response := Response(isDeleted, nil)\n    DivisionEndpoint --> DivisionHTTPTransport: response\n    deactivate DivisionEndpoint\n    DivisionHTTPTransport --> Router: response\n    deactivate DivisionHTTPTransport\n    Router --> DivisionServiceFrontend: response\n    deactivate Router\n    DivisionServiceFrontend --> DivisionTableContainer: response\n    deactivate DivisionServiceFrontend\n    DivisionTableContainer --> DivisionPage: response\n    deactivate DivisionTableContainer\n    DivisionPage --> Admin: response\nend\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1321,
+    "completion_tokens": 671,
+    "total_tokens": 1992
+  }
+}

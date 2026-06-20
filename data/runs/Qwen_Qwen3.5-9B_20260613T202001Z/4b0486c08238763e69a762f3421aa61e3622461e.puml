@@ -1,0 +1,147 @@
+@startuml
+!theme base
+
+package "security" as security {
+  package "auth" as auth {
+    [@Roles] as roles
+    type Role = 'ADMIN' | 'MITARBEITER' | 'KUNDE' as roleType
+    roles --> roleType
+  }
+}
+
+package "auto" as auto {
+  package "entity" as entity {
+    [C] "«entity»" as entityAuto
+    Auto as autoEntity
+    entityAuto --> autoEntity
+  }
+
+  package "rest" as rest {
+    [C] "«control»" as controlAutoWrite
+    «@Controller()» as controllerDecorator
+    «@UseGuards()» as guardsDecorator
+    «@UseInterceptors()» as interceptorsDecorator
+    AutoWriteController as autoWriteController
+    controlAutoWrite --> controllerDecorator
+    controlAutoWrite --> guardsDecorator
+    controlAutoWrite --> interceptorsDecorator
+    controlAutoWrite --> autoWriteController
+
+    [C] "«control»" as controlAutoWriteService
+    AutoWriteService as autoWriteService
+    controlAutoWriteService --> autoWriteService
+
+    [C] "«control»" as controlAutoReadService
+    AutoReadService as autoReadService
+    controlAutoReadService --> autoReadService
+
+    @Post() @Roles() async create(@Body() auto: Auto, @Req() req: Request, @Res() res: Response): Promise<Response> as postCreate
+    @Put() @Roles() async update(@Body() auto: Auto, @Param() id: string, @Headers() version: string, @Res() res: Response): Promise<Response> as putUpdate
+    @Delete() @Roles() async delete(@Param() id: string, @Res() res: Response): Promise<Response> as deleteDelete
+    postCreate --> autoWriteController
+    putUpdate --> autoWriteController
+    deleteDelete --> autoWriteController
+  }
+
+  package "service" as service {
+    [C] "«control»" as controlAutoWriteService
+    AutoWriteService as autoWriteService
+    controlAutoWriteService --> autoWriteService
+
+    [C] "«control»" as controlAutoReadService
+    AutoReadService as autoReadService
+    controlAutoReadService --> autoReadService
+  }
+}
+
+package "express" as express {
+  [C] "Request" as request
+  [C] "Response" as response
+}
+
+package "@nestjs/common" as nestjsCommon {
+  @Controller as controllerDecorator
+  @UseGuards as guardsDecorator
+  @UseInterceptors as interceptorsDecorator
+  @Post as postDecorator
+  @Put as putDecorator
+  @Delete as deleteDecorator
+  @Req as reqDecorator
+  @Res as resDecorator
+  @Param as paramDecorator
+  @Body as bodyDecorator
+  @Headers as headersDecorator
+}
+
+roles --> controllerDecorator
+roles --> autoWriteController
+roles --> autoWriteService
+roles --> autoReadService
+roles --> request
+roles --> response
+roles --> controllerDecorator
+roles --> guardsDecorator
+roles --> interceptorsDecorator
+roles --> postDecorator
+roles --> putDecorator
+roles --> deleteDecorator
+roles --> reqDecorator
+roles --> resDecorator
+roles --> paramDecorator
+roles --> bodyDecorator
+roles --> headersDecorator
+
+entityAuto --> autoWriteController
+entityAuto --> autoWriteService
+entityAuto --> autoReadService
+
+autoWriteController --> request
+autoWriteController --> response
+autoWriteController --> controllerDecorator
+autoWriteController --> guardsDecorator
+autoWriteController --> interceptorsDecorator
+autoWriteController --> postDecorator
+autoWriteController --> putDecorator
+autoWriteController --> deleteDecorator
+autoWriteController --> reqDecorator
+autoWriteController --> resDecorator
+autoWriteController --> paramDecorator
+autoWriteController --> bodyDecorator
+autoWriteController --> headersDecorator
+
+autoWriteService --> request
+autoWriteService --> response
+autoWriteService --> controllerDecorator
+autoWriteService --> guardsDecorator
+autoWriteService --> interceptorsDecorator
+autoWriteService --> postDecorator
+autoWriteService --> putDecorator
+autoWriteService --> deleteDecorator
+autoWriteService --> reqDecorator
+autoWriteService --> resDecorator
+autoWriteService --> paramDecorator
+autoWriteService --> bodyDecorator
+autoWriteService --> headersDecorator
+
+autoReadService --> request
+autoReadService --> response
+autoReadService --> controllerDecorator
+autoReadService --> guardsDecorator
+autoReadService --> interceptorsDecorator
+autoReadService --> postDecorator
+autoReadService --> putDecorator
+autoReadService --> deleteDecorator
+autoReadService --> reqDecorator
+autoReadService --> resDecorator
+autoReadService --> paramDecorator
+autoReadService --> bodyDecorator
+autoReadService --> headersDecorator
+
+request --> Promise
+response --> Promise
+
+Promise as promise
+[C] "I" as interfacePromise
+interfacePromise --> promise
+
+@enduml

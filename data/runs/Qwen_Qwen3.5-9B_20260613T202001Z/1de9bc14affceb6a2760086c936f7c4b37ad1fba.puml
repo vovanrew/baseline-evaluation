@@ -1,0 +1,46 @@
+@startuml
+title Update States
+
+participant "Simulator" as Simulator
+participant "TrackControllers" as TrackControllers
+participant "WaysideController" as WaysideController
+participant "PLC" as PLC
+participant "WaysideControllerGUI" as WaysideControllerGUI
+participant "TrackModel" as TrackModel
+
+rectangle "Wayside Controller" {
+  Simulator -> TrackControllers: timeUpdate(SimTime)
+  
+  loop waysideControllers
+    TrackControllers -> WaysideController: updateStates()
+    
+    loop associatedBlocks
+      WaysideController -> TrackControllers: receiveBlockInfo(line, blockId)
+      TrackControllers -> TrackControllers: getBlockInfo(line, blockId)
+      TrackControllers -> TrackModel: Block
+      TrackModel --> TrackControllers: Block
+      
+      WaysideController -> WaysideController: runPLC(occupancy)
+      WaysideController -> PLC: getLogic()
+      PLC --> WaysideController: String logic
+      
+      if(newState != currentState)
+        TrackControllers -> TrackControllers: transmitState(line, blockId, state)
+        TrackControllers -> TrackModel: setState(line, blockId, state)
+        TrackModel --> TrackControllers: Success
+      endif
+      
+      if(Wayside Controller Selected)
+        WaysideController -> WaysideControllerGUI: displayInfo()
+        WaysideControllerGUI -> TrackControllers: receiveBlockInfo(line, blockId)
+        TrackControllers -> TrackControllers: getBlockInfo(line, blockId)
+        TrackControllers -> TrackModel: Block
+        TrackModel --> TrackControllers: Block
+        
+        TrackControllers -> WaysideController: Block
+      endif
+    end
+  end
+}
+
+@enduml

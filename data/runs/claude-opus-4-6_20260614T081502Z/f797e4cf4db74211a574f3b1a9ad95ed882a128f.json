@@ -1,0 +1,21 @@
+{
+  "id": "msg_014XnyhsBEDBrXPHXEWzfMga",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle PB-749 UC4 \u2013 Update a Banner on System Management\n\nnote top of CoreNext\n**Abstract:**\nThis use case will be responsible to update an existing banner on Next.\nThis endpoint is not responsible for deleting a record. To do this, it\nmust use the use case 5 \u2013 Delete a Banner on System Management.\nHowever, in this use case, SM may enable or disable Banner.\nend note\n\nactor \"System Management\" as SM\nbox \"Next Platform\"\nparticipant \"Core Next\" as CoreNext\ndatabase \"Next Database\" as NextDB\nend box\nparticipant \"Core Bradesco\" as CoreBradesco\n\nSM -> CoreNext : 1 PUT /v1/notification/banner/{bannerID}\n\nnote left of CoreNext\nSystem Management will call this new endpoint\npassing all the fields necessary to update an\nexisting Banner. The fields are:\n1. BANNER_ID\n2. BUSINESS_EVENT_TYPE_ID\n3. TEMPLATE_HEADER\n4. TEMPLATE_BODY\n5. ENABLE_IND\nend note\n\nCoreNext -> NextDB : 2 check if this Banner exists on BANNER table\nnote right of CoreNext\nCore Next will check if this Banner exists on BANNER table\nend note\nCoreNext <-- NextDB : 3 response\n\nalt [if the Banner exists]\n    CoreNext -> NextDB : 4 check if exists an enabled Banner associated with that BUSINESS_EVENT_TYPE received on requisition on BANNER table\n    note left of NextDB #FFCC66\n    **Note to developers**\n    Core Next will check if exists any Banner linked to a BUSINESS_EVENT_TYPE on BANNER\n    table. We can only have one enabled Banner linked to a BUSINESS_EVENT_TYPE. For this\n    rule, we should disregard the records that are with DELETE_FLG enabled and the Card itself.\n    end note\n    CoreNext <-- NextDB : 5 response\n\n    alt [if exists an enabled Banner associated with that BUSINESS_EVENT_TYPE]\n        note right of CoreNext\n        If exists any Banner linked to a BUSINESS_EVENT_TYPE passed by App,\n        we will throw back an error to App side.\n        end note\n        SM <-- CoreNext : 6 error\n        note left of CoreNext #FF9999\n        **HTTP code:** 422\n        end note\n    else [if don't exists an enabled Banner associated with that BUSINESS_EVENT_TYPE]\n        note right of CoreNext\n        If the defensive checks pass, then we will update the register on BANNER table.\n        end note\n        CoreNext -> NextDB : 7 update the register on BANNER table\n        CoreNext <-- NextDB : 8 success\n        SM <-- CoreNext : 9 success\n        note left of CoreNext #90EE90\n        **HTTP code:** 200\n        end note\n    end\n\nelse [if the Banner don't exists]\n    SM <-- CoreNext : 10 error\n    note left of CoreNext #FF9999\n    If the Banner don't exists on\n    BANNER table, then we will\n    throw back an error to SM.\n    **HTTP code:** 404\n    end note\nend\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432839,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 751,
+    "prompt_tokens": 1654,
+    "total_tokens": 2405
+  }
+}

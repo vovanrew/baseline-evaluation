@@ -1,0 +1,43 @@
+@startuml
+left to right direction
+actor Customer
+rectangle "Shopware Platform" as shopware {
+  rectangle "Checkout" as checkout
+  rectangle "Asynchronous Payment Handler" as async_handler
+}
+rectangle "External System" as external {
+  circle "Payment Platform" as payment_platform
+}
+
+Customer --> checkout : pay
+checkout --> async_handler : pay
+async_handler --> Customer : redirect
+Customer --> payment_platform : pay
+payment_platform --> checkout : redirect
+checkout --> async_handler : finalize
+
+note right of Customer
+  Customer
+end note
+
+note right of checkout
+  Checkout
+end note
+
+note right of async_handler
+  Asynchronous Payment Handler
+end note
+
+note right of payment_platform
+  Payment Platform
+end note
+
+note right of shopware
+  Shopware Platform
+end note
+
+note right of external
+  External System
+end note
+
+@enduml

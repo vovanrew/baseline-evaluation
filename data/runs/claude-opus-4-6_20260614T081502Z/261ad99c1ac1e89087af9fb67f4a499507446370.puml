@@ -1,0 +1,25 @@
+```plantuml
+@startuml
+title start EventLoop
+
+participant "server.activeListener.OnAccept" as A
+participant "server.newActiveRawConn" as B
+participant "server.ContinueFilterChain" as C
+participant "server.activeListener.newConnection" as D
+participant "sever.activeListener.OnNewConnection" as E
+participant "sever.newActiveConnection" as F
+participant "network.connection.Start" as G
+participant "network.startRWLoop" as H
+participant "network.attachEventLoop" as I
+
+A -> B : 创建 filter chain
+B -> C : 创建 connection
+C -> D
+D -> E : 调用 activeListener 的处理新连接事件接口
+E -> F : 处理新连接事件
+F -> G : 连接启动
+G -> H : 处理读写时间
+H -> I : 保存 EventLoop
+
+@enduml
+```

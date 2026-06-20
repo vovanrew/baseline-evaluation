@@ -1,0 +1,117 @@
+@startuml
+
+package "UI" {
+  class RegisterPharmacyUI {
+  }
+}
+
+package "Data" {
+  class DataHandler {
+    +openConnection()
+    +closeAll()
+  }
+  class PharmacyDB {
+    +PharmacyDB()
+    +registerPharmacy()
+  }
+}
+
+package "Controller" {
+  class RegisterPharmacyController {
+    +newPharmacy(managerName,email,password, nif, name,latitude,longitude,\nstreetName,doorNumber,postalCode,locality,country)
+    +registerPharmacy()
+  }
+}
+
+package "Model" {
+  package "Service" {
+    class PharmacyService {
+      +PharmacyService()
+      +addPharmacy(name, pharmacyManager,latitude,longitude,\nstreetName,doorNumber,postalCode,locality,country)
+      +registerPharmacy()
+    }
+  }
+
+  class Pharmacy {
+    -int id
+    -String name
+    -String email
+  }
+
+  class Address {
+    -String streetName
+    -String doorNumber
+    -String postalCode
+    -String locality
+    -String country
+    -float longitude
+    -float latitude
+  }
+
+  class ScooterPark {
+    -int maxSlotsNumber
+  }
+
+  class DronePark {
+    -int maxSlotsNumber
+  }
+
+  class ScooterChargingSlot {
+    -int id
+    -float outputPower
+  }
+
+  class ScooterParkingSlot {
+    -int id
+  }
+
+  class DroneChargingSlot {
+    -int id
+    -float outputPower
+  }
+
+  class DroneParkingSlot {
+    -int id
+  }
+}
+
+class "DataHandler" as DataHandlerModel {
+}
+
+class "PharmacyDB" as PharmacyDBModel {
+}
+
+database "Database" as DB
+
+RegisterPharmacyUI ..> RegisterPharmacyController
+RegisterPharmacyController ..> PharmacyService
+
+PharmacyService "1" -- "1" PharmacyDBModel : uses >
+
+PharmacyService "1" -- "*" Pharmacy : manages services of
+
+Pharmacy "1" -- "1" Address : has >
+Pharmacy "1" -- "1" ScooterPark : has >
+Pharmacy "1" -- "1" DronePark : has >
+
+Address "1" -- "*" ScooterChargingSlot : has >
+
+ScooterPark "1" -- "*" ScooterChargingSlot : has >
+ScooterPark "1" -- "*" ScooterParkingSlot : has >
+
+DronePark "1" -- "*" DroneChargingSlot : has >
+DronePark "1" -- "*" DroneParkingSlot : has >
+
+PharmacyDBModel --|> DataHandlerModel
+
+DB "1" -- "*" Pharmacy : has registered >
+DB "1" -- "*" ScooterPark : has registered >
+DB "1" -- "*" DronePark : has registered >
+DB "1" -- "*" ScooterChargingSlot : has registered >
+DB "1" -- "*" ScooterParkingSlot : has registered >
+DB "1" -- "*" DroneChargingSlot : has registered >
+DB "1" -- "*" DroneParkingSlot : has registered >
+
+PharmacyDBModel "1" -- "1" DB : manages >
+
+@enduml

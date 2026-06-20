@@ -1,0 +1,72 @@
+```plantuml
+@startuml
+title Un client loue un bus avec chauffeur par Noël PRÉVAULT
+
+participant "Client" as Client
+participant "SystèmeInformations" as SystèmeInformations
+participant "OpérateurBancaire" as OpérateurBancaire
+participant "Chauffeur" as Chauffeur
+participant "OpérateurMaintenance" as OpérateurMaintenance
+
+alt Le client n'est pas inscrit
+    Client -> SystèmeInformations : Inscription
+    activate SystèmeInformations
+    SystèmeInformations -> SystèmeInformations : Vérification des informations
+    deactivate SystèmeInformations
+    SystèmeInformations -->> Client : Inscription réussie
+end
+
+Client -> SystèmeInformations : Authentification
+activate SystèmeInformations
+SystèmeInformations -> SystèmeInformations : Authentification de l'utilisateur
+deactivate SystèmeInformations
+SystèmeInformations -->> Client : Authentification réussie
+
+Client -> SystèmeInformations : Demande de location
+activate SystèmeInformations
+SystèmeInformations -->> Client : Demande d'informations sur la location
+Client -> SystèmeInformations : Date, durée de location et point de retour
+
+alt Le système d'informations refuse la location si un véhicule et un chauffeur ne sont pas disponibles
+    SystèmeInformations -> SystèmeInformations : Recherche la disponibilité d'un chauffeur
+    SystèmeInformations -->> Client : Annulation de la location en cours
+else Le système d'informations accepte la location
+    SystèmeInformations -> SystèmeInformations : Recherche les disponibilités d'un chauffeur et valide la location
+    SystèmeInformations -->> Client : Demande informations de paiement
+    Client -> SystèmeInformations : Information de paiement (Permettant de payer le trajet)
+    SystèmeInformations -> OpérateurBancaire : Demande confirmation pour le paiement
+    activate OpérateurBancaire
+    OpérateurBancaire -->> SystèmeInformations : Réponse concernant le paiement
+    deactivate OpérateurBancaire
+    
+    alt Les informations de paiement sont refusées
+        SystèmeInformations -->> Client : Refuse le paiement de la location
+        SystèmeInformations -->> Client : Annule la location
+    else Le client annule paiement
+        Client -> SystèmeInformations : Annule la location
+        activate SystèmeInformations
+        SystèmeInformations -> SystèmeInformations : Vérification si frais supplémentaires
+        SystèmeInformations -> OpérateurBancaire : Demande annulation d'un montant du débit bancaire
+        activate OpérateurBancaire
+        OpérateurBancaire -->> Client : Annule la location
+        deactivate OpérateurBancaire
+        deactivate SystèmeInformations
+    else Les informations de paiement sont acceptées
+        SystèmeInformations -->> Client : Valide le paiement de la location
+        SystèmeInformations -> Chauffeur : Notifie un chauffeur
+        activate Chauffeur
+        Chauffeur -> Chauffeur : Utilise la location
+        Chauffeur -->> Client : Utilise la location conduite par le chauffeur
+        Chauffeur -> Chauffeur : Ramène la location
+        Chauffeur -> OpérateurMaintenance : Réception et vérification du véhicule
+        activate OpérateurMaintenance
+        OpérateurMaintenance -> OpérateurMaintenance : Réception et vérification du véhicule
+        OpérateurMaintenance -->> SystèmeInformations : Validation de l'état du véhicule et mise à jour de son état
+        deactivate OpérateurMaintenance
+        deactivate Chauffeur
+    end
+end
+deactivate SystèmeInformations
+
+@enduml
+```

@@ -1,0 +1,43 @@
+@startuml
+participant "sidetree-core-go" as Actor1
+participant "Instance 1" as Inst1
+participant "Instance 2" as Inst2
+participant "sidetree-core-go" as Actor2
+
+participant "Operation Queue" as OpQueue1
+participant "orb.operation" as OpQueue2
+participant "op-queue DB" as OpQueue3
+
+OpQueue1..> OpQueue2
+OpQueue2..> OpQueue3
+
+Actor1 ..> Inst1 : Subscribe
+Inst1 ..> OpQueue2 : ok
+
+Inst1 ..> OpQueue1 : Add(op1)
+OpQueue1 ..> OpQueue2 : Publish(op1)
+OpQueue2 ..> Inst1 : ok
+Inst1 ..> Actor1 : ok
+
+Actor2 ..> Inst2 : Add(op2)
+Inst2 ..> OpQueue2 : Publish(op2)
+OpQueue2 ..> Inst2 : ok
+Inst2 ..> Actor2 : ok
+
+Inst1 ..> OpQueue2 : op2
+OpQueue2 ..> Inst1 : ok
+OpQueue2 ..> OpQueue3 : Put(op2,handler1ID,expiry)
+OpQueue3 ..> Inst1 : ok
+Inst1 ..> OpQueue2 : Ack(op2)
+OpQueue2 ..> Inst1 : ok
+Inst1 ..> Actor1 : ok
+
+Inst2 ..> OpQueue2 : op1
+OpQueue2 ..> Inst2 : ok
+OpQueue2 ..> OpQueue3 : Put(op1,handler2ID,expiry)
+OpQueue3 ..> Inst2 : ok
+OpQueue2 ..> Inst2 : Ack(op1)
+OpQueue2 ..> Inst2 : ok
+Inst2 ..> Actor2 : ok
+
+@enduml

@@ -1,0 +1,43 @@
+@startuml
+left to right direction
+actor "User" as User
+rectangle "BileMo API" as BileMoAPI
+database "BileMo Database" as BileMoDB
+
+User --> BileMoAPI : 1 Authentication Request (email, plain password)
+BileMoAPI --> BileMoDB : 2 Find user with matching email & password combination
+
+alt [invalid credentials]
+  BileMoDB --> BileMoAPI : 3 null
+  BileMoAPI --> User : 4 JSON Authentication response: 401 Invalid credentials
+else [valid credentials]
+  BileMoDB --> BileMoAPI : 5 User object
+  BileMoAPI --> User : 6 JSON Authentication Response: 200 JWT token
+  User --> BileMoAPI : 7 Show products list (JWT token)
+  activate BileMoAPI
+  BileMoAPI --> BileMoAPI : 8 Check route & query parameters are valid
+  deactivate BileMoAPI
+
+  alt [Route does not exist]
+    BileMoAPI --> User : 9 404 Route not found
+  else [Route found]
+    activate BileMoAPI
+    BileMoAPI --> BileMoAPI : 10 Security firewall: check token is valid & user permissions
+    deactivate BileMoAPI
+
+    alt [Access denied]
+      BileMoAPI --> User : 11 403 Forbidden
+    else [Token expired]
+      BileMoAPI --> User : 12 401 Unauthorized
+    else [Token valid & permission granted]
+      activate BileMoAPI
+      BileMoAPI --> BileMoDB : 13 Get products results
+      BileMoDB --> BileMoAPI : 14 Results query response (Products object)
+      BileMoAPI --> BileMoAPI : 15 Serialize(normalize+encode) results object to JSON
+      deactivate BileMoAPI
+      BileMoAPI --> User : 16 Response 200 Serialized JSON results
+    end
+  end
+end
+
+@enduml

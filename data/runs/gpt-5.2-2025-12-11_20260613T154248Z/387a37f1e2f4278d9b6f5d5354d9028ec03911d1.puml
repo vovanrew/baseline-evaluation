@@ -1,0 +1,41 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 30
+  BoxPadding 10
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #D9D9E8
+  ActorBorderColor #666666
+  ActorBackgroundColor #D9D9E8
+}
+
+actor Nutzer as U
+participant ServiceFactory as SF
+participant PruefHandler as PH
+participant PersonenServiceImpl as PSI
+participant Proxy as PX
+
+== Initialisierung ==
+
+U -> SF : 1 getPersonenService()
+SF -> PH : 2 create
+PH -> PSI : 3 create
+PSI --> PH : 4 ziel
+PH --> SF : 5 instanz
+SF -> PX : 6 create
+PX --> SF : 7 PersonenService
+SF --> U : 8 service
+
+== service.neu ==
+
+U -> PX : 9 neu
+PX -> PH : 10 invoke
+PH -> PSI : 11 neu
+PSI --> PH : 12 Person
+PH --> PX : 13 Person
+PX --> U : 14 Person
+
+@enduml

@@ -1,0 +1,37 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6FF
+  ActorBorderColor #666666
+  ActorBackgroundColor #E6E6FF
+  ArrowColor #000000
+}
+
+actor "ユーザ" as U
+boundary "ブラウザ" as B
+control "web.php" as W
+control "PersonController" as C
+entity "Person" as P
+boundary "person.find.blade" as V
+
+U -> B : 該当ページをリクエスト[person/find]
+B -> W : GET[person/find]
+W -> C : @find
+C -> V
+
+U -> V : findボタン押下
+V -> W : POST
+W -> C : @search
+C -> P : find()
+P --> C
+C -> V
+V -> P : getData()
+P --> V
+
+@enduml
+```

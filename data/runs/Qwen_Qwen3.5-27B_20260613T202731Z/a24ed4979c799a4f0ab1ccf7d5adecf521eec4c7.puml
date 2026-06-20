@@ -1,0 +1,35 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "User" as User
+rectangle "Andorid APP" as App
+rectangle "Server" as Server
+
+== 主动更新 ==
+
+User -> App: 进入设置页\n点击“更新地图数据”
+App -> Server: 请求POI数据\nGET /poi.json
+Server --> App: 返回数据
+App -> App: 比较Server版本号和本地版本号
+alt [Server版本号>本地版本号]
+    App -> App: 更新本地数据
+end
+App -->> User
+
+== 被动更新 ==
+
+User -> App: 启动APP
+App -> App: 检查上次更新时间\n与当前时间进行比较
+alt [间隔大于一周，执行自动更新]
+    App -> Server: 请求POI数据\nGET /poi.json
+    Server --> App: 返回数据
+    App -> App: 比较Server版本号和本地版本号
+    alt [Server版本号>本地版本号]
+        App -> App: 更新本地数据
+    end
+end
+App -->> User
+
+@enduml
+```

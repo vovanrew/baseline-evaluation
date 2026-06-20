@@ -1,0 +1,172 @@
+@startuml
+skinparam classTitle "C"
+skinparam interfaceTitle "I"
+skinparam actorTitle "I"
+skinparam stereotypeTitle "E"
+
+class Game {
+    +clock_t start
+    +clock_t end
+    +int curLevel
+    +{const}int MAX_LEVEL
+    +bool isFinish
+    +bool isQuit
+    +Session* curSession
+    +handleCmd(char)
+    +handleStartCmd(char)
+    +initSession()
+    +startSession()
+    +endSession()
+    +start()
+    +isFinish()
+    +getDuration()
+}
+
+class Session {
+    +level
+    +map
+    +step
+    +isFinish
+    +move(Direction)
+    +getMap()
+    +finish()
+    +isFinish()
+    +getLevel()
+    +backToPreviousPlace()
+    +restart()
+}
+
+class Map {
+    +width:int
+    +height:int
+    +tiles:TileMap
+    +MovableList:vector
+    +player:Player
+    +Tile:OUT_SIDE_TILE
+    +getTile()
+    +moveBox()
+    +getWidth()
+    +getHeight()
+    +initMap(const string&)
+    +getStateOf(const Position&)
+    +getBoxes()
+    +getPlayerPosition()
+    +back()
+}
+
+class Player {
+    +move(Direction)
+    +getPreviousDirection()
+    +getPreviousPushFlag()
+    +clear()
+}
+
+class Box {
+    +onTarget:bool
+    +moveToTile(TileType)
+    +getOnTarget()
+}
+
+class Moveable {
+    +position:Position
+    +state:
+    +{virtual}move(Direction)
+    +back(Direction)
+    +getPosition()
+    +setPosition(const Position&)
+}
+
+class Tile {
+    +position:Position
+    +type:TileType
+    +flag:TileFlag
+    +setPosition(const Position&)
+    +getPosition()
+    +setFlag(TileFlag)
+    +getType()
+    +getState()
+}
+
+class Position {
+    +x:int
+    +y:int
+    +DIRS
+    +operator==(const Position&)
+    +operator+=(const Position&)
+    +getX()
+    +getY()
+    +of(int,int)
+}
+
+class Rule {
+    +isWin(const Map&)
+    +isRightMove(const Map&, Direction)
+}
+
+class MapRepository {
+    +MAP_PATH:string
+    +MAP_DIR:string
+    +MAP_ID:enum
+    +MapBuffer:class
+    +getMap(MAP_ID)
+}
+
+class FileUtil {
+    +readFile()
+}
+
+class Viewer {
+    +getInput()
+    +getLevel()
+    +display()
+}
+
+class State {
+    +FLOOR_OUT_SIDE
+    +WALL
+    +FLOOR
+    +BOX
+    +TARGET
+    +PLAYER
+    +BOX_ON_TARGET
+}
+
+class TileType {
+    +WALL
+    +FLOOR
+    +TARGET
+}
+
+class TileFlag {
+    +NULL
+    +PLAYER
+    +BOX
+}
+
+class Directory {
+    +UP
+    +DOWN
+    +LEFT
+    +RIGHT
+    +SITU
+}
+
+Game --> Session
+Session --> Map
+Map --> Player
+Map --> Box
+Map --> Tile
+Map --> Moveable
+Map --> Rule
+Map --> FileUtil
+MapRepository --> FileUtil
+MapRepository --> Map
+MapRepository --> Map
+FileUtil --> Map
+Rule --> Map
+Viewer --> Game
+State --> TileType
+TileType --> TileFlag
+Directory --> TileFlag
+TileFlag --> State
+@enduml

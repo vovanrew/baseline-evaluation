@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Hb2myU9UkYjHZC8g7AennC",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nenum State {\n  FLOOR_OUT_SIDE,WALL,FLOOR,BOX,TARGET,PLAYER,BOX_ON_TARGET\n}\n\nenum TileType {\n  WALL,FLOOR,TARGET\n}\n\nenum TileFlag {\n  NULL,PLAYER,BOX\n}\n\nenum Diractory {\n  UP,DOWN,LEFT,RIGHT,SITU\n}\n\nclass Game {\n  \u25a1 clock_t start\n  \u25a1 clock_t end\n  \u25a1 int curLevel\n  \u25a1 {const}int MAX_LEVEL\n  \u25a1 bool isFinish\n  \u25a1 bool isQuit\n  \u25a1 Session* curSession\n  --\n  - handleCmd(char)\n  - handleStartCmd(char)\n  + initSession()\n  + startSession()\n  + endSession()\n  + start()\n  + isFinish()\n  + getDuration()\n}\n\nclass Session {\n  \u25a1 level\n  \u25a1 map\n  \u25a1 step\n  \u25a1 isFinish\n  --\n  + move(Direction)\n  + getMap()\n  + finish()\n  + isFinish()\n  + getLevel()\n  + backToPreviousPlace()\n  + restart()\n}\n\nclass MapRepository {\n  \u25a1 MAP_PATH:string\n  \u25a1 MAP_DIR:string\n  \u25a1 MAP_ID:enum\n  \u25a1 MapBuffer:class\n  --\n  + getMap(MAP_ID)\n}\n\ninterface Viewer {\n  getInput()\n  getLevel()\n  display()\n}\n\nclass Map {\n  \u25a1 width:int\n  \u25a1 height:int\n  \u25a1 tiles:TileMap\n  \u25a1 MovableList:vector\n  \u25a1 player:Player\n  \u25a1 Tile:OUT_SIDE_TILE\n  --\n  - getTile()\n  + moveBox()\n  + getWidth()\n  + getHeight()\n  + initMap(const string&)\n  + getStateOf(const Position&)\n  + getBoxs()\n  + getPlayerPosition()\n  + back()\n}\n\nclass Rule {\n  + isWin(const Map&)\n  + isRightMove(const Map&,Direction)\n}\n\nclass FileUtil {\n  + readFile()\n}\n\nclass Player {\n  + move(Direction)\n  + getPreviousDirection()\n  + getPreviousPushFlag()\n  + clear()\n}\n\nclass Box {\n  \u25a1 onTarget:bool\n  --\n  + moveToTile(TileType)\n  + getOnTarget()\n}\n\nclass Tile {\n  \u25a1 position:Position\n  \u25a1 type:TileType\n  \u25a1 flag:TileFlag\n  --\n  + setPosition(const Position&)\n  + getPosition()\n  + setFlag(TileFlag)\n  + getType()\n  + getState()\n}\n\nclass Moveable {\n  \u25a1 position:Position\n  \u25a1 state:\n  --\n  + {virtual}move(Direction)\n  + back(Direction)\n  + getPosition()\n  + setPosition(const Position&)\n}\n\nclass Position {\n  \u25a1 x:int\n  \u25a1 y:int\n  + <u>DIRS</u>\n  --\n  + operator==(const Position&)\n  + opeartor+=(const Position&)\n  + getX()\n  + getY()\n  + of(int,int)\n}\n\nGame *-- Session\nGame *-- Viewer\nSession *-- Map\nSession *-- Rule\nSession *-- MapRepository\nMapRepository *-- FileUtil\nMap *-- Player\nMap *-- Box\nMap *-- Tile\nPlayer --|> Moveable\nBox --|> Moveable\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781428593,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 899,
+    "prompt_tokens": 1660,
+    "total_tokens": 2559
+  }
+}

@@ -1,0 +1,37 @@
+```plantuml
+@startuml
+title 2 assignData
+
+actor Actor
+
+participant "CatERingAppManager.eventManager:EventManager" as EM
+participant "eventManager.currentEvent:Event" as EV
+participant "r:EventReceiver" as ER
+
+Actor -> EM : assignData(name,date,location,numberOfParticipants,serviceType,tipologyNote)
+
+alt [currentEvent == null]
+    EM -->> Actor : Throw UseCaseLogicException
+else
+    EM -> EV : setName(name)
+    EV -> EV
+    EM -> EV : setDate(date)
+    EV -> EV
+    EM -> EV : setLocation(location)
+    EV -> EV
+    EM -> EV : setNumberOfParticipants(numberOfParticipants)
+    EV -> EV
+    EM -> EV : setServiceType(serviceType)
+    EV -> EV
+    EM -> EV : setTipologyNote(tipologyNote)
+    EV -> EV
+    
+    loop for each r in receivers
+        EM -> ER : notifyDataAssigned(currentEvent)
+    end
+    
+    EM -->> Actor
+end
+
+@enduml
+```

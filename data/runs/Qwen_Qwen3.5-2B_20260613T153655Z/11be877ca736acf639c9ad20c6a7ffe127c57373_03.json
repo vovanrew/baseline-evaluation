@@ -1,0 +1,22 @@
+{
+  "id": "8aaf27ee-24d2-4066-84b6-cc262ae4435e",
+  "object": "chat.completion",
+  "created": 1781393100,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n\nparticipant \"kubectl\" as kubectl\nparticipant \"K8s Auth Proxy\" as k8sAuthProxy\nparticipant \"K8s API Server\" as k8sApiServer\nparticipant \"Hydra\" as hydra\n\nnote over kubectl, right of kubectl: Set the correct cluster with server pointing to the k8auth in the kubectl config\nnote over kubectl, right of kubectl: GET: https://k8s.dolittle.cloud/api/pods\nnote over kubectl, right of kubectl: Header: { Authentication: Bearer <token> }\n\nk8sAuthProxy->>hydra: GET: http://hydra.system-auth.svc.cluster.local/userinfo\nhydra->>k8sAuthProxy: Status 200 { claims... }\nk8sAuthProxy->>k8sApiServer: Impersonate: Hydra-User-Info\nk8sAuthProxy->>hydra: GET: <local-cluster-url>/api/pods\nhydra->>k8sApiServer: Status 200 (results)\nk8sApiServer->>k8sAuthProxy: Status 200 (results)\nk8sAuthProxy->>kubectl: Status 200 (results)\n\nalt [If good token]\n    k8sAuthProxy->>hydra: Status 200 { claims... }\n    k8sAuthProxy->>k8sApiServer: Impersonate: Hydra-User-Info\n    k8sAuthProxy->>hydra: GET: <local-cluster-url>/api/pods\n    hydra->>k8sApiServer: Status 200 (results)\n    k8sApiServer->>k8sAuthProxy: Status 200 (results)\n    k8sAuthProxy->>kubectl: Status 200 (results)\nelse [If bad/no token]\n    k8sAuthProxy->>hydra: Status 401\n    hydra->>k8sAuthProxy: Status 401\n    k8sAuthProxy->>kubectl: Status 401\nend\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1811,
+    "completion_tokens": 479,
+    "total_tokens": 2290
+  }
+}

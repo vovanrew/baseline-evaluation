@@ -1,0 +1,22 @@
+{
+  "id": "8d136b4e-0582-439e-a60a-6b541286ac02",
+  "object": "chat.completion",
+  "created": 1781397999,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"Resident\" as R\nparticipant \"WeResident\" as WRes\nparticipant \"WeID\" as WID\nparticipant \"WeService\" as WService\n\ntitle Provider Login Into Provider App =\n\nR ->> WRes : Send username:password /login\n\nalt [Provider already exist]\n    WRes ->> WID : Get Token by username:password /oauth/authorize\n    WID -->> WRes : Return Token to WeResident\n    WRes -- R : Return {\"token\": \"jwt-token\"}\nend\n\ntitle Provider Query/Search Service =\n\nQuery services including token\n/weservices/services\nHeader\nAuthorization: Bear {jwt-token}\n\nQuery Service schema\n{\"query\":\"string\",\"status\":12}\n\nalt [above token is valid]\n    WID -- R : verify token\n    WID -- WRes : 200\n    WRes -- WService : Response services data\n\n    note right of WRes\n    Service Data Array schema\n    {\"id\":\"string\",\"company\":\"string\",\"name\":\"string\",\"rate\":4.2,\"image\":\"image.png\"}\n    \"total\":10,\"currentPage\":1,\"perPage\":5\n    endnote\n\n    [Token is expired/invalid]\n    WID -- R : verify token\n    WID -- WRes : 400\n    WRes -- WService : Response 401 status\n\ntitle Create Order(Request) =\n\nCreate Service\nPOST: /weservices/service/{serviceID}/order\n\nOrder Request schema\n{\"resident\":\"$userId\",\"service\":\"$serviceID\",\"pricingModel\":{},\"noteDetail\":\"string\",\"address\":\"string\",\"schedule\":Time}\n\nWID -- R : verify token\nWID -- WRes : 200\nWRes -- WService : Response Service Data(JSON)\n\nComment(chat) in Order\nPOST: /weservices/order/{orderID}/comment\n\nComment Data\n{\"content\":\"string\"}\n\nWID -- R : verify token\nWID -- WRes : 200\nR -- WRes : 200\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1419,
+    "completion_tokens": 450,
+    "total_tokens": 1869
+  }
+}

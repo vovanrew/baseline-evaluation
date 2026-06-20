@@ -1,0 +1,106 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 25
+skinparam BoxPadding 10
+
+actor Actor as A
+boundary Dashboard as Dashboard
+
+control DashboardController as DashboardController
+control IssuesDetailController as IssuesDetailController
+control IssuesService as IssuesService
+control IssuesEntityService as IssuesEntityService
+control EntityService as EntityService
+database IssuesRepository as IssuesRepository
+database IssueRepository as IssueRepository
+
+== Issues ==
+A -> Dashboard : /issues
+Dashboard -> DashboardController : createIssues()
+destroy Dashboard
+create Table
+DashboardController -> Table : new / redirect
+
+par
+  Table -> IssuesDetailController : getIssues()
+  activate IssuesDetailController
+  IssuesDetailController -> IssuesService : createIssuesStatistics()
+  activate IssuesService
+  IssuesService -> IssuesEntityService : findAll()
+  activate IssuesEntityService
+  IssuesEntityService -> EntityService : selectAllIssues()
+  activate EntityService
+  EntityService -> IssuesRepository : findAll()
+  activate IssuesRepository
+
+  loop
+    create Issues
+    IssuesRepository -> Issues : new
+  end
+
+  loop
+    IssuesRepository -> IssueRepository : findById(id)
+    activate IssueRepository
+    create Issue
+    IssueRepository -> Issue : new
+    IssueRepository --> IssuesRepository : Issue
+    deactivate IssueRepository
+  end
+
+  IssuesRepository --> EntityService : Set<Issues>
+  deactivate IssuesRepository
+  EntityService --> IssuesEntityService : Set<Issues>
+  deactivate EntityService
+  IssuesEntityService --> IssuesService : Set<Issues>
+  deactivate IssuesEntityService
+  IssuesService --> IssuesDetailController : IssuesStatistics
+  deactivate IssuesService
+  IssuesDetailController --> Table : IssuesStatistics
+  deactivate IssuesDetailController
+end
+
+A -> Table : select report
+Table -> DashboardController : details
+destroy Table
+create Details
+DashboardController -> Details : new / redirect
+
+par
+  Details -> IssuesDetailController : getCategories(origin, reference)
+  activate IssuesDetailController
+  IssuesDetailController -> IssuesService : createDistributionByCategory(origin, reference)
+  activate IssuesService
+  IssuesService -> IssuesEntityService : findByPrimaryKey(origin, reference)
+  activate IssuesEntityService
+  IssuesEntityService -> EntityService : select(origin, reference)
+  activate EntityService
+  EntityService -> IssuesRepository : findById(origin, reference)
+  activate IssuesRepository
+
+  create Issues
+  IssuesRepository -> Issues : new
+
+  loop
+    IssuesRepository -> IssueRepository : findById(id)
+    activate IssueRepository
+    create Issue
+    IssueRepository -> Issue : new
+    IssueRepository --> IssuesRepository : Issue
+    deactivate IssueRepository
+  end
+
+  IssuesRepository --> EntityService : Issues
+  deactivate IssuesRepository
+  EntityService --> IssuesEntityService : Issues
+  deactivate EntityService
+  IssuesEntityService --> IssuesService : Issues
+  deactivate IssuesEntityService
+  IssuesService --> IssuesDetailController : IssuePropertyDistribution
+  deactivate IssuesService
+  IssuesDetailController --> Details : IssuePropertyDistribution
+  deactivate IssuesDetailController
+end
+
+@enduml

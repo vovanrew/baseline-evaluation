@@ -1,0 +1,69 @@
+@startuml
+package Actor
+  MonoBehaviour
+
+  package Interface
+    TransformGrab
+
+    GrabbedObject
+
+  package Actor
+    TransformGrab
+
+    GrabbedObject
+
+  relationship
+    TransformGrab --> MonoBehaviour : inherits
+    TransformGrab --> GrabbedObject : has
+    GrabbedObject --> TransformGrab : has
+
+  TransformGrab
+    button : InputActionReference
+    modeName : string = ""
+    buttonText : string = ""
+    inputManager : fvInputManager
+    inputModeManager : fvInputModeManager
+    handler : fvInputModeManager.ButtonModeHandler
+    layerMask : LayerMask
+    grabbedObject : GrabbedObject
+    maxDistance : float = 30
+    pullSpeed : float = 1
+    scaleSpeed : float = 1
+    isDominant : bool = true
+    otherHand : TransformGrab
+
+    Start() : void
+    FindOtherHand() : TransformGrab
+    OnButtonDown(context:InputAction.CallbackContext) : void
+    OnButtonUp(context:InputAction.CallbackContext) : void
+    Update() : void
+    HandleDrag() : void
+    CalculatePoints() : void
+    HandleSingleWeild() : void
+    HandleDualWeild() : void
+    HandlePull() : void
+    HandleScale() : void
+    OnDrawGizmos() : void
+
+  GrabbedObject
+    transform : Transform
+    rectTransform : RectTransform
+    rigid : Rigidbody
+    wasKinematic : bool
+    initialDistance : float
+    initialPoint : Vector3
+    initialRotation : Quaternion
+    initialHandPosition : Vector3
+    blockCode : BlockCode
+    blockDrag : BlockDrag
+    blockRotate : BlockRotate
+    currentSmoothing : Vector3
+    smoothedPoint : Vector3
+    currentPoint : Vector3
+
+    GrabbedObject(hit:RaycastHit, handTransform:Transform)
+    GrabbedObject(transform:Transform, handTransform:Transform, worldHitPosition:Vector3)
+    GetBlocker() : void
+    Release() : void
+
+@enduml

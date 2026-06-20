@@ -1,0 +1,55 @@
+```plantuml
+@startuml
+skinparam componentStyle uml2
+skinparam databaseStyle uml2
+
+actor "Teams" as Teams
+participant "API" as API
+participant "BuildService" as BuildService
+participant "CommandParser" as CommandParser
+participant "BuildCommand" as BuildCommand
+participant "BuildSystem" as BuildSystem
+participant "BuildFactory" as BuildFactory
+database "BuildDb" as BuildDb
+participant "BuildMonitor" as BuildMonitor
+participant "NotificationService" as NotificationService
+database "NotificationDb" as NotificationDb
+
+Teams -> API: /api/messages
+activate API
+API -> BuildService: ProcessCommandAsync
+activate BuildService
+BuildService -> CommandParser: ParseCommand
+activate CommandParser
+CommandParser --> BuildService: BuildCommand
+deactivate CommandParser
+BuildService -> BuildCommand: Execute
+activate BuildCommand
+BuildCommand -> BuildSystem: CreateBuildAsync
+activate BuildSystem
+
+rectangle "BuildSystem Library" {
+    BuildSystem -> BuildFactory: CreateBuildAsync
+    activate BuildFactory
+    BuildFactory -> BuildDb: Save build
+    deactivate BuildFactory
+    BuildFactory --> BuildSystem: Build
+    BuildSystem -> BuildMonitor: AddBuildAsync
+    activate BuildMonitor
+    deactivate BuildMonitor
+}
+
+BuildSystem --> BuildCommand: Build
+deactivate BuildSystem
+BuildCommand -> NotificationService: AddNotificationAsync
+activate NotificationService
+NotificationService -> NotificationDb: Save notification
+deactivate NotificationService
+deactivate NotificationService
+deactivate BuildCommand
+deactivate BuildService
+API --> Teams
+deactivate API
+
+@enduml
+```

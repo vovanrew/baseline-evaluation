@@ -1,0 +1,43 @@
+```plantuml
+@startuml
+title 登录验证
+
+participant "WEB" as WEB
+participant "API" as API
+participant "PMS" as PMS
+participant "Cache" as Cache
+database "Redis" as Redis
+
+== 登录验证 ==
+
+WEB -> API: 登录请求，用户名密码
+activate API
+API -> PMS: 验证
+activate PMS
+PMS --> API: 验证完成, 返回GUID
+deactivate PMS
+API -> Cache: 缓存信息
+activate Cache
+API -> Redis: 如果开启,向redis存储数据
+deactivate Cache
+API --> WEB: 返回登录信息 access_token(guid)
+deactivate API
+
+== 访问后台接口 ==
+
+WEB -> API: SET HTTP HEADER "Authorization: Bearer access_token"
+activate API
+API -> Cache: 从缓存读取，验证
+activate Cache
+Cache --> API: 返回
+deactivate Cache
+API -> Redis: 如果开启，Cache没有从redis读取
+activate Redis
+Redis --> API: 返回
+deactivate Redis
+API -> API: 验证有效
+API --> WEB: 失败，http code 401
+deactivate API
+
+@enduml
+```

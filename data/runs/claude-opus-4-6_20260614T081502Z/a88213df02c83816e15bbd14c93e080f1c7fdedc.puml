@@ -1,0 +1,34 @@
+```plantuml
+@startuml
+!option handwritten true
+
+actor User
+
+box "NSheets Client"
+    participant HomeView
+    participant HomePresenter
+end box
+
+box "Server"
+    participant NoteServices
+    participant ListNoteController
+    participant NoteService
+    participant NoteRepository
+end box
+
+box "Database"
+    database Database
+end box
+
+User -> HomeView : onReveal() / navigate to page
+HomeView -> HomePresenter : getNotes()
+HomePresenter -> NoteServices : listNotes()
+NoteServices -> ListNoteController : allNotes()
+ListNoteController -> NoteService : findAll()
+NoteService -> NoteRepository : fetch
+NoteRepository -> Database
+HomePresenter <-- NoteServices : onSuccess()
+HomeView <-- HomePresenter : setContents()
+
+@enduml
+```

@@ -1,0 +1,27 @@
+```plantuml
+@startuml
+title PCWS Sequences
+
+actor Customer
+rectangle "PCWS" as pcws
+database "PostgreSQL" as postgresql
+rectangle "Disk" as disk
+rectangle "transfer_logs.sh" as transfer_logs
+rectangle "Account Service" as account_service
+rectangle "Datalog Service" as datalog_service
+
+Customer -> pcws : request image
+pcws -> account_service : check account permission
+pcws -> pcws : generate image
+pcws -> disk : write data log
+pcws -> Customer : image
+
+note right of disk: some time later
+
+rectangle loop_frame <<loop>> [for each log] {
+    transfer_logs -> disk : read data log
+    transfer_logs -> datalog_service : send data log
+}
+
+@enduml
+```

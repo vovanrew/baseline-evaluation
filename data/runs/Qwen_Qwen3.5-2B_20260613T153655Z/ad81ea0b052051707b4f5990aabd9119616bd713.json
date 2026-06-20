@@ -1,0 +1,22 @@
+{
+  "id": "5dfc2947-c913-4935-b708-91f2ae5320de",
+  "object": "chat.completion",
+  "created": 1781397881,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n\nparticipant TaskExecutionStrategy as \"TaskExecutionStrategy\"\nparticipant Action as \"Action\"\nparticipant Connection as \"Connection\"\nparticipant SSH client/server connection as \"SSH client/server connection\"\nparticipant ssh daemon (or winrm service) as \"ssh daemon (or winrm service)\"\n\nTaskExecutionStrategy->>Action: init(..)\nAction->>Action: init(..)\nAction->>Action: run()\nAction->>Connection: put_file()\nConnection->>SSH client/server connection: transfer module data\nSSH client/server connection->>ssh daemon (or winrm service): save module to disk\nssh daemon (or winrm service)--<Connection: transfer complete\nConnection->>Action: return remote path\nAction->>Connection: exec_command()\nConnection->>ssh daemon (or winrm service): run module remotely\nssh daemon (or winrm service)--<Connection: execute shell command\nssh daemon (or winrm service)--<Connection: return response code, stdout, stderr\nConnection->>Action: return response code, stdout, stderr\nAction->>TaskExecutionStrategy: return JSON\nTaskExecutionStrategy--<Action: return JSON\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1419,
+    "completion_tokens": 252,
+    "total_tokens": 1671
+  }
+}

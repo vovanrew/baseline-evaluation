@@ -1,0 +1,58 @@
+@startuml
+skinparam sequenceMessageAlign center
+autonumber "<b>[0]"
+
+actor User
+participant "JobManager" as JM #LightBlueCircle
+box "" #WhiteSmoke
+  participant Nodes
+end box
+database Storage
+
+== Initialization ==
+User -> JobManager : submit job(IN, OUT)
+activate JobManager
+JM --> Nodes 
+deactivate JobManager
+Nodes -> Storage : read IN=x
+Storage -\->> Nodes : return 
+
+== Loop ==
+loop multiple iterations
+    activate Nodes
+    note over ESDM: In Situ Post Processing
+    
+    rect rgb(245, 238, 197) {
+        loop compute
+            Node <-o+Node
+            
+            
+            node <&arrow-right-up>\nwrite async\nOUT=y <<async>> \nas N#NODENUMBER/NNODES
+                write snapshot (async)\nto storage region R<sub>N</sub><br/>as file F<sub>R,N</sub>.hdf5
+                
+                
+                    trigger post processing if<br/><font color=red>region affected by this step</color></font> to PPL
+                    
+                        perform post processing on all files of type FR,*.<i>(could also be done in parallel)</i>
+                        
+                            could write result directly
+                        
+                    
+                
+                
+        
+    }
+    
+    deactivate Nodes
+    
+    
+    
+
+rect rgb(246, 246, 246){
+
+
+}
+
+
+
+@enduml

@@ -1,0 +1,90 @@
+```plantuml
+@startuml
+title Activity Redirection Sequence Diagram
+
+' Define participants with their process groupings
+rectangle "Main process" #LightBlue {
+    participant "Hook_StartActivity" as Hook
+    participant "VirtualCore" as VC
+    participant "VActivityManager" as VAM
+}
+
+rectangle "Server process" #LightGreen {
+    participant "VActivityManagerService" as VAMS
+    participant "VPackageManagerService" as VPMS
+    participant "ProviderCaller" as PC
+}
+
+rectangle "App Client process" #Gray {
+    participant "StubContentProvider" as SCP
+}
+
+participant "VRedirectActRequest" as VRAR
+participant "VActRedirectResult" as VARes
+
+' Main sequence flow
+activate Hook
+Hook -> VC: resolveActivityInfo
+activate VC
+deactivate VC
+
+Hook -> VRAR: new VRedirectActRequest
+activate VRAR
+VRAR --> Hook: req
+deactivate VRAR
+
+Hook -> VAM: redirectTargetActivity
+activate VAM
+VAM -> VAMS: redirectTargetActivity
+activate VAMS
+
+' Server-side processing
+VAMS -> VAMS: redirectTargetActivityLocked
+activate VAMS
+VAMS -> VAMS: startProcessLocked
+activate VAMS
+VAMS -> VAMS: queryFreeStubForProcess
+activate VAMS
+deactivate VAMS
+VAMS -> VAMS: performStartProcessLocked
+activate VAMS
+VAMS -> VPMS: querySharedPackages
+activate VPMS
+VPMS --> VAMS: sharedPackages : List<String>
+deactivate VPMS
+
+VAMS -> VPMS: queryContentProviders
+activate VPMS
+VPMS --> VAMS: providers : List<ProviderInfo>
+deactivate VPMS
+
+VAMS -> VPMS: getSharedLibraries
+activate VPMS
+VPMS --> VAMS: usesLibraries : List<String>
+deactivate VPMS
+
+VAMS -> PC: call(MethodConstants.INIT_PROCESS)
+activate PC
+PC -> SCP: call
+activate SCP
+SCP -> SCP: initProcess
+activate SCP
+deactivate SCP
+deactivate SCP
+deactivate PC
+
+note right of SCP: StubContentProvider.java中定义了20个静态内部类C1到C20，都\n是StubContentProvider的子类。并且在AndroidManifest.xml\n中声明了process字段，与对应的StubActivity一致。\nVA的服务进程取出一个空的stubContentProvider，\n借助Android ContentProvider机制，系统会创建一个新进程出来，\n稍后被作为双开应用的容身之所。这个偷梁换柱的过程由VA服务进程完成。
+
+VAMS -> VAMS: fetchStubActivityInfo
+activate VAMS
+deactivate VAMS
+deactivate VAMS
+deactivate VAM
+
+VAMS --> VARes: result = new VActRedirectResult
+activate VARes
+deactivate VARes
+deactivate Hook
+
+@enduml
+```

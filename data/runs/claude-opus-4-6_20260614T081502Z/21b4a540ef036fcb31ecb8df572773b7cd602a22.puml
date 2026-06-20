@@ -1,0 +1,36 @@
+```plantuml
+@startuml
+
+actor User
+participant "UIBFF" as UIBFF
+
+box "DomainModel" #LightGray
+participant "CommandBus" as CommandBus
+participant "Aggregate" as Aggregate
+participant "ProcessManager" as ProcessManager
+participant "EventBus" as EventBus
+participant "QueryManager" as QueryManager
+end box
+
+participant "Projectors" as Projectors
+database "ReadModels" as ReadModels
+
+User -> UIBFF : http commands
+UIBFF -> CommandBus : commands
+CommandBus -> Aggregate : commands
+Aggregate -> EventBus : events
+EventBus -> ProcessManager : events
+ProcessManager -> CommandBus : commands
+EventBus -> Projectors : events
+Projectors -> ReadModels : write
+EventBus -> UIBFF : events
+UIBFF -> User : push
+User -> UIBFF : http queries
+UIBFF -> QueryManager : queries
+QueryManager -> ReadModels : results
+ReadModels -> QueryManager : results
+QueryManager -> UIBFF : results
+UIBFF -> User : results
+
+@enduml
+```

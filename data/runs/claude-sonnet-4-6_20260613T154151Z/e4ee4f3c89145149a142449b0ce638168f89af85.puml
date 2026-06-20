@@ -1,0 +1,29 @@
+@startuml
+participant "Admin" as Admin
+participant "Webhook\nServer" as WebhookServer
+participant "Consumer" as Consumer
+
+== Register webhook ==
+
+Admin -> WebhookServer : 1 Register webhook\nconsumer
+Admin <-- WebhookServer : 2 OK
+
+== Event received ==
+
+Admin -> WebhookServer : 3 Event
+WebhookServer -> WebhookServer : 4 Store event\nin DB
+
+== Consumer connected ==
+
+WebhookServer <- Consumer : 5 Connect over WS
+
+loop
+    WebhookServer -> WebhookServer : 6 Load webhooks\nfrom DB
+    WebhookServer -> Consumer : 7 Forward forwarding events
+end
+
+loop
+    WebhookServer <-- Consumer : 8 Ack messages\nby webhook ID
+end
+
+@enduml

@@ -1,0 +1,57 @@
+@startuml
+title nmac notify nbr_pfw mute message
+
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #808080
+  LifeLineBackgroundColor #E6E6FA
+  ParticipantBorderColor #808080
+  ParticipantBackgroundColor #E6E6FA
+  GroupBackgroundColor #BFE3EE
+  GroupBorderColor #808080
+  NoteBackgroundColor #FFF9C4
+  NoteBorderColor #808080
+}
+
+box "CNBRPfwPlayCtl" #BFE3EE
+participant "INBRPlayCCSink" as INBRPlayCCSink
+participant "CNBRPfwPlayCtl" as CNBRPfwPlayCtl
+end box
+
+participant "CNBRPfwUICtl" as CNBRPfwUICtl
+
+box "CNBRUIMgr" #BFE3EE
+participant "INBRCommand" as INBRCommand
+participant "CNBRUIMgr" as CNBRUIMgr
+end box
+
+participant "CNBRPlayMgr" as CNBRPlayMgr
+participant "CNBRPlayBar" as CNBRPlayBar
+participant "CWbxBmpButton" as CWbxBmpButton
+
+INBRPlayCCSink -> CNBRPfwPlayCtl : NotifyInfo
+CNBRPfwPlayCtl -> CNBRPfwPlayCtl : NotifyInfo
+CNBRPfwPlayCtl -> CNBRPfwUICtl : OnMixerMuteNotify
+
+note over CNBRPfwPlayCtl, CNBRPfwUICtl
+NBR_CC_PFW_INFO_MUTE_STATE
+end note
+
+CNBRPfwUICtl -> INBRCommand : OnHandleCommand
+
+note over CNBRPfwUICtl, INBRCommand
+NBR2_PLAY_UI_MIXER_MUTE_NOTIFY
+end note
+
+INBRCommand -> CNBRUIMgr : OnHandleCommand
+
+note over INBRCommand, CNBRUIMgr
+NBR2_PLAY_UI_MIXER_MUTE_NOTIFY
+end note
+
+CNBRUIMgr -> CNBRPlayMgr : HandleMixerMuteNotify
+CNBRPlayMgr -> CNBRPlayBar : MuteVolume
+CNBRPlayBar -> CWbxBmpButton : SetChecked
+
+@enduml

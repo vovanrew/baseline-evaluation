@@ -1,0 +1,28 @@
+@startuml
+skinparam sequenceMessageAlign center
+participant "controller" as controller {
+}
+participant "agent" as agent {
+}
+participant "STA" as STA {
+}
+
+== Perform MAUT setup steps (4.1.1 or 4.1.2) ==
+->> agent : Trigger STA to join the specified MAUT BSSID
+group send 1905, 0x8003,Multi-AP Policy Config Request\n AP Metrics Reporting Interval:0 \n STA MetricsReporting RSSI Threshold:0 \n STA Metrics Reporting RSSI Hysteresis Margin Override:0 \n AP Metrics Channel Utilization Reporting Threshold:1 (0.4%) \n Associated STA Traffic Stats Inclusion Policy bit 7: 1 \nAssociated STA Link Metrics Inclusion Policy bit 6: 1 bits 5~0 set to 0 No Steering Policy TLV 
+    ->> controller :send_cmdu(MULTI_AP_POLICY_CONFIG_REQUEST_MESSAGE)
+end group
+activate agent
+note right of agent #WhiteSmoke;handle_multi_ap_policy_config_request()#LightGray;;
+deactivate agent
+<<-- controller :send_cmdu(ACK_MESSAGE);
+--> STA :Trigger STA to start traffic generation to the controller ;
+loop on_channel_utilization_measurement_period_elapsed()\ Measure current channel utilization.\ If difference with previous value crosses configured threshold,\ then send AP metrics.;\  
+   note left of agent #WhiteSkyBlue;\on_channel_utilization_measurement_period_elapsed();Measure current channel utilization.If difference with previous value crossessconfigured threshold,then send AP metrics.#DarkSlateGrey;;   
+ end loop    
+ <<--- controller :send_cmdu(AP_METRICS_RESPONSE_MESSAGE)\with Associated STA Traffic Statsand Associated STA Link Metrics;
+ activate controller
+     note below controller handle_cmdu_1905_ap_metric_response()
+ deactivate controller
+ 
+@enduml

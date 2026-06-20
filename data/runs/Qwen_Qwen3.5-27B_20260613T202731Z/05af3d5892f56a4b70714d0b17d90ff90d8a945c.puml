@@ -1,0 +1,57 @@
+```plantuml
+@startuml
+title Sequence Diagram for Sharing More Functionality
+
+participant "CShareMoreDlg" as CShareMoreDlg
+participant "CSharingMoreWrapper" as CSharingMoreWrapper
+participant "CPfwMainFrame" as CPfwMainFrame
+participant "CPfwChainMessageMapT" as CPfwChainMessageMapT
+participant "CMCUIMgr" as CMCUIMgr
+participant "CSmDefUIMgr" as CSmDefUIMgr
+participant "CPfwMessageCenterAgent" as CPfwMessageCenterAgent
+participant "CSmFITUIMgr" as CSmFITUIMgr
+participant "CMCFITUIMgr" as CMCFITUIMgr
+participant "CSmAppShareSessionMgr" as CSmAppShareSessionMgr
+participant "CPcmAppShareMgr" as CPcmAppShareMgr
+
+note left of CShareMoreDlg: User Click "Other Application"
+activate CShareMoreDlg
+CShareMoreDlg ->> CSharingMoreWrapper: OnBtnShareOtherApp
+activate CSharingMoreWrapper
+CSharingMoreWrapper ->> CPfwMainFrame: ShareOtherApp
+activate CPfwMainFrame
+note right of CPfwMainFrame: PFW_QS_MENU_SHARE_OTHER_APP_ID
+CPfwMainFrame ->> CPfwChainMessageMapT: SendMessage
+activate CPfwChainMessageMapT
+CPfwChainMessageMapT ->> CPfwMainFrame: PfwChainProcessWindowMessage
+CPfwMainFrame ->> CPfwChainMessageMapT: ProcessWindowMessage
+deactivate CPfwChainMessageMapT
+CPfwMainFrame ->> CMCUIMgr: OnWindowMsg
+activate CMCUIMgr
+CMCUIMgr ->> CSmDefUIMgr: OnWindowMsg
+activate CSmDefUIMgr
+CSmDefUIMgr ->> CSmDefUIMgr: ChainToMsgCenter
+CSmDefUIMgr ->> CPfwMessageCenterAgent: SendMessage
+activate CPfwMessageCenterAgent
+CPfwMessageCenterAgent ->> CSmFITUIMgr: ProcessWindowMessage
+activate CSmFITUIMgr
+CSmFITUIMgr ->> CMCFITUIMgr: OnCommand
+activate CMCFITUIMgr
+CMCFITUIMgr ->> CSmFITUIMgr: OnCommand
+deactivate CMCFITUIMgr
+CSmFITUIMgr ->> CSmAppShareSessionMgr: SelectANewApplication
+activate CSmAppShareSessionMgr
+CSmAppShareSessionMgr ->> CPcmAppShareMgr: ShowInstalledAppDialog
+activate CPcmAppShareMgr
+deactivate CPcmAppShareMgr
+deactivate CSmAppShareSessionMgr
+deactivate CSmFITUIMgr
+deactivate CPfwMessageCenterAgent
+deactivate CSmDefUIMgr
+deactivate CMCUIMgr
+deactivate CPfwMainFrame
+deactivate CSharingMoreWrapper
+deactivate CShareMoreDlg
+
+@enduml
+```

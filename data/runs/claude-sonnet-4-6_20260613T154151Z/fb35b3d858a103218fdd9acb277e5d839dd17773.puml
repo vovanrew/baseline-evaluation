@@ -1,0 +1,22 @@
+@startuml
+participant MobileApp
+participant Apollo
+participant Storage
+participant Ironclad
+participant Onfido
+
+MobileApp -> Apollo : Any proof of XYZ or document related call that could result in a call to Onfido
+Apollo -> Storage : GetLocalApplicant(sub)
+
+alt [when the user was previously provisioned as an onfido applicant]
+    Storage --> Apollo : Applicant { Id = sub; ApplicantId = OnfidoApplicantId; }
+else [when the user was not previously provisioned]
+    Storage --> Apollo : null
+    Apollo -> Ironclad : GetUserInfo(sub)
+    Ironclad --> Apollo : Claims[] { ... }
+    Apollo -> Onfido : POST https://api.onfido.com/v2/applicants
+    Onfido --> Apollo : 200 Applicant { Id = applicantId; [...]}
+    Apollo -> Storage : Applicant { Id = sub, ApplicantId = onfidoApplicantId}
+end
+
+@enduml

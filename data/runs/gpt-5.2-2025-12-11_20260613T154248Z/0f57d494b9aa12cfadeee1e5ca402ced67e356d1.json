@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLiJlJ5Mv8sjjn0QxNZBtMhs6887",
+  "object": "chat.completion",
+  "created": 1781368895,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Find all a vaccination documents in EPD\n\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #000000\n  LifeLineBorderColor #666666\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #000000\n  ParticipantBackgroundColor #FFFFFF\n  BoxBorderColor #999999\n  BoxBackgroundColor #E6E6E6\n  ActorBorderColor #000000\n  ActorBackgroundColor #FFFFFF\n}\n\nactor HCP as HCP\n\nbox \"Community A\" #E6E6E6\nparticipant \"GFPP/PIS\" as GFPP_A #00CC00\nparticipant \"Aggregator\" as AGG_A #00CC00\nparticipant \"CO-Registry\" as COREG_A #00CC00\nparticipant \"CO-Repository\" as COREP_A #00CC00\nparticipant \"CO-IGW\" as COIGW_A #00CC00\nend box\n\nbox \"Community X\" #E6E6E6\nparticipant \"OC-RGW\" as OCRGW_X #33AADD\nparticipant \"OC-Registry\" as OCREG_X #33AADD\nparticipant \"OC-Repository\" as OCREP_X #33AADD\nend box\n\nHCP -> GFPP_A : [01] Get all immunization data\nactivate GFPP_A\n\nGFPP_A -> GFPP_A : [02] query all registries\n\nGFPP_A -> COIGW_A : [03] Registry Stored Query Request [ITI-18]\nactivate COIGW_A\n\nCOIGW_A -> COREG_A : [04] Registry Stored Query Request [ITI-18]\nactivate COREG_A\nCOREG_A -> COREG_A : [05] Lookup Data\nCOREG_A --> COIGW_A : [06] Registry Stored Query Response [ITI-18]\ndeactivate COREG_A\n\nCOIGW_A -> COIGW_A : [07] request all communities\n\nCOIGW_A -> OCRGW_X : [08] Registry Stored Query Request [ITI-38]\nactivate OCRGW_X\nOCRGW_X -> OCREG_X : [09] Registry Stored Query Request [ITI-18]\nactivate OCREG_X\nOCREG_X -> OCREG_X : [10] Lookup Data\nOCREG_X --> OCRGW_X : [11] Registry Stored Query Response [ITI-18]\ndeactivate OCREG_X\nOCRGW_X --> COIGW_A : [12] Registry Stored Query Response [ITI-38]\ndeactivate OCRGW_X\n\nCOIGW_A -> COIGW_A : [13] end loop\nCOIGW_A -> COIGW_A : [14] Assemble Query Responses\n\nCOIGW_A --> GFPP_A : [15] Registry Stored Query Response [ITI-18]\ndeactivate COIGW_A\n\nGFPP_A -> GFPP_A : [16] list of document info\nGFPP_A -> GFPP_A : [17] retrieve all documents\n\nGFPP_A -> COIGW_A : [18] Retrieve Document Request [ITI-43]\nactivate COIGW_A\n\nCOIGW_A -> COREP_A : [19] Retrieve Document Request [ITI-43]\nactivate COREP_A\nCOREP_A -> COREP_A : [20] allocate document data\nCOREP_A --> COIGW_A : [21] Retrieve Document Response [ITI-43]\ndeactivate COREP_A\n\nCOIGW_A -> OCRGW_X : [22] Retrieve Document Request [ITI-39]\nactivate OCRGW_X\nOCRGW_X -> OCREP_X : [23] Retrieve Document Request [ITI-43]\nactivate OCREP_X\nOCREP_X -> OCREP_X : [24] allocate document data\nOCREP_X --> OCRGW_X : [25] Retrieve Document Response [ITI-43]\ndeactivate OCREP_X\nOCRGW_X --> COIGW_A : [26] Retrieve Document Response [ITI-39]\ndeactivate OCRGW_X\n\nCOIGW_A -> COIGW_A : [27] Assemble Retrieve Responses\n\nCOIGW_A --> GFPP_A : [28] Retrieve Document Response [ITI-43]\ndeactivate COIGW_A\n\nGFPP_A -> GFPP_A : [29] Aggregate documents\nGFPP_A -> GFPP_A : [30] one FHIR ch-vacd document\n\nHCP <-- GFPP_A : [31] Show immunization data\ndeactivate GFPP_A\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2000,
+    "completion_tokens": 947,
+    "total_tokens": 2947,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

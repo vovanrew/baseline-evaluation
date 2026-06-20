@@ -1,0 +1,27 @@
+@startuml
+left to right direction
+actor "SalesClerk" as SalesClerk
+participant "«presentation»\nDefineNewCategoryUI" as DefineNewCategoryUI
+participant "«application»\nDefineNewCategoryController" as DefineNewCategoryController
+participant "«builder»\nCategoryBuilder" as CategoryBuilder
+participant "«domain»\ncategory:Category" as Category
+participant "«repository»\nCategoryRepository" as CategoryRepository
+
+SalesClerk -> DefineNewCategoryUI: 1 Define new category
+DefineNewCategoryUI -> DefineNewCategoryController: 2 create
+DefineNewCategoryUI <- SalesClerk: 3 asks user information
+SalesClerk -> DefineNewCategoryUI: 4 Code, Description
+DefineNewCategoryUI -> DefineNewCategoryController: 5 addCategory(categoryCode, categoryDescription)
+DefineNewCategoryController -> CategoryBuilder: 6 create
+DefineNewCategoryController -> CategoryBuilder: 7 withCode(code)
+DefineNewCategoryController -> CategoryBuilder: 8 withDescription(description)
+CategoryBuilder -> Category: 9 create(categoryCode, categoryDescription)
+Category <- CategoryBuilder: 10 category
+CategoryBuilder <- DefineNewCategoryController: 11 category
+DefineNewCategoryController -> CategoryRepository: 12 category()
+CategoryRepository <- DefineNewCategoryController: 13 categoryRepository
+DefineNewCategoryController -> CategoryRepository: 14 save(category)
+CategoryRepository <- DefineNewCategoryController: 15 category
+DefineNewCategoryController <- DefineNewCategoryUI: 16 displayCategoryInfo
+
+@enduml

@@ -1,0 +1,21 @@
+{
+  "id": "msg_015gq2wc2A8zitDDKmXcQE8b",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant Resident\nparticipant WeResident\nparticipant WeID\nparticipant WeService\n\n== Provider Login Into Provider App = ==\n\nResident -> WeResident : Send username:password /login\n\nalt [Provider already exist]\nWeResident -> WeID : Get Token by username:password\\n/oauth/authorize\nWeID --> WeResident : Return Token to WeResident\nWeResident --> Resident : Return {\"token\": \"jwt-token\"}\nend\n\n== Provider Query/Search Service = ==\n\nResident -> WeService : Query services including token\\n/weservices/services\\nHeader\\nAuthorization: Bear **jwt-token**\n\nnote left of WeService\nQuery Service schema\n{\"query\":\"string\",\"status\":12}\nend note\n\nalt [above token is valid]\nWeService -> WeID : verify token\nWeID --> WeService : 200\nWeService --> Resident : Response services data\nnote left of WeService\nService Data Array schema\n[{{\"id\":\"string\",\"company\":\"string\",\"name\":\"string\",\"rate\":4.2,\"image\":\"image.png\"},{},],\n\"total\":10,\"currentPage\":1,\"perPage\":5}\nend note\n\nelse [Token is expired/invalid]\nWeService -> WeID : verify token\nWeID --> WeService : 400\nWeService --> Resident : Response 401 status\nend\n\n== Create Order(Request) = ==\n\nResident -> WeService : Create Service\\nPOST: /weservices/service/{serviceID}/order\n\nnote left of WeService\nOrder Request schema\n{\"resident\":\"$userID\",\n\"service\":\"$serviceID\",\n\"pricingModel\":{},\n\"noteDetail\":\"string\",\n\"address\":\"string\",\n\"schedule\":Time}\nend note\n\nWeService -> WeID : verify token\nWeID --> WeService : 200\nWeService --> Resident : Response Service Data(JSON)\n\nResident -> WeService : Comment(chat) in Order\\nPOST: /weservices/order/{orderID}/comment\n\nnote left of WeService\nComment Data\n{\"content\":\"string\"}\nend note\n\nWeService -> WeID : verify token\nWeID --> WeService : 200\nWeService --> Resident : 200\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370452,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 516,
+    "prompt_tokens": 1662,
+    "total_tokens": 2178
+  }
+}

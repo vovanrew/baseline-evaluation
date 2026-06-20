@@ -1,0 +1,43 @@
+@startuml
+
+actor User as user_top
+actor User as user_bottom
+database "Datastore" as datastore_top
+database "Datastore" as datastore_bottom
+
+box "Application Layer" #LightGray
+participant "«@Controller»\nSubscriptionController" as SC
+end box
+
+box "Domain Model Layer" #LightGray
+participant "«@Bean»\nSubscriptionServiceImpl" as SSI
+end box
+
+box "Infrastructure Layer" #LightGray
+participant "«@Bean»\nJpaSubscriptionRepository" as JSR
+participant "«@Repository»\nSubscriptionPersistenceJpaRepository" as SPJR
+end box
+
+user_top -> SC : 
+hnote over SC, SSI : via SubscriptionService
+SC -> SSI :
+hnote over JSR : via SubscriptionRepository
+SSI -> JSR :
+hnote over SPJR : via Spring data repository
+JSR -> SPJR :
+SPJR -> datastore_top :
+SPJR <-- datastore_top :
+JSR <-- SPJR :
+SSI <-- JSR :
+SC <-- SSI :
+user_top <-- SC :
+
+== ==
+
+user_bottom <- SC
+note over SC : «@Controller»\nSubscriptionController
+note over SSI : «@Bean»\nSubscriptionServiceImpl
+note over JSR : «@Bean»\nJpaSubscriptionRepository
+note over SPJR : «@Repository»\nSubscriptionPersistenceJpaRepository
+
+@enduml

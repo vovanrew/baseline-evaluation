@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nparticipant \"Mojaloop Adapter\" as MA #LightBlue\nnote over MA: Hub operator or\\nDFSP interactions\n\nbox \"Central-Settlement\" #White\nparticipant \"API\" as API #E6E6FA\nnote over API: NodeJS interface\\ninvokes REST API\nparticipant \"api / Handler\" as Handler #E6E6FA\nnote over Handler: JSON request decoded &\\nprocessed via handler\nparticipant \"Application Layer\\n(domain / service / facade)\" as AppLayer #E6E6FA\nnote over AppLayer: Expose service functions &\\nhandle database interactions\nend box\n\nbox \"Storage\" #White\nparticipant \"TigerBeetle Client\" as TBClient #E8F5E9\nparticipant \"TigerBeetle Cluster\" as TBCluster #E8F5E9\ndatabase \"MySQL\" as MySQL #E6F2FF\nend box\n\ngroup Update Settlement\n    MA -> API: 1 //JSON//\\n**(settlement data)**\n    API -> Handler: 2 Invoke handler\n    Handler -> AppLayer: 3 Invoke application layer\n    AppLayer --> MySQL: 4 Retrieve settlement data\\n(excluding accounts)\n    AppLayer <--> TBClient: 5 Retrieve accounts for all //Transfers//\\nfor a settlement window\n    AppLayer -> MySQL: 6 Update settlement data\\n(excluding accounts)\n    AppLayer -> AppLayer: 7 Settlement state\\nprocessing\n    AppLayer -> TBClient: 8 Invoke account creation based on\\nsettlement state of each //Transfer//\n    TBClient <--> TBCluster: 9 Create settlement accounts\\n& return result\n    TBClient --> AppLayer: 10 Return settlement result\n    AppLayer <--> MySQL: 11 Update final settlement state\\n& return result\n    AppLayer --> Handler: 12 Return result\n    Handler --> API: 13 Return result\n    API --> MA: 14 Return result with\\n//settlementData//\nend\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHdKR6ko8yibmlQalTJS+AhCZYIlkIeHXCmIo0SZaiyAFmXcUC7SaeKlOkk1Gs"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1160,
+    "candidatesTokenCount": 448,
+    "totalTokenCount": 1608,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1080
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "zF8xaoLgPMTdxs0P8v2OkA0"
+}

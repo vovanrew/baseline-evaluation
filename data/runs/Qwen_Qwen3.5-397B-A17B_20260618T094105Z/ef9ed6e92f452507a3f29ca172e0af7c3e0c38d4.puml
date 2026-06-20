@@ -1,0 +1,23 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+
+participant "<<Android>>\nAAOSHAL" as AAOSHAL <<android>>
+box "AACS Car Control Service\n(AutoSDK)" #LightYellow
+    participant AACS_CarControlHandler
+end box
+participant AutoSDK
+
+== HVAC_FAN_SPEED ==
+note right of AAOSHAL : 0x500|SYSTEM|3|SEAT
+activate AAOSHAL
+AAOSHAL ->> AACS_CarControlHandler: True/Throw Exception
+deactivate AAOSHAL
+alt Success Case
+    activate AACS_CarControlHandler
+    note over AACS_CarControlHandler,Autosdk: SetRangeControllerValue Reply (AASB Message)
+    deactivate AACS_CarControlHandler
+else Failure Case
+    destroy AACS_CarControlHandler
+end
+@enduml

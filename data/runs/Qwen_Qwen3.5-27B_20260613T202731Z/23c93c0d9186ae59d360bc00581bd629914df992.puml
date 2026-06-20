@@ -1,0 +1,79 @@
+```plantuml
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Nurse" as Nurse
+participant "RecordAdverseReactionUI" as UI
+participant "RecordAdverseReactionController" as Controller
+participant "Company" as Company
+participant "AdverseReactionStore" as Store
+participant "AdverseReactionDTO" as DTO
+participant "AdverseReactionMapper" as Mapper
+participant "WaitingRoomStore" as WaitingRoomStore
+participant "AdverseReaction" as AdverseReaction
+
+Nurse -> UI: 1 Starts recording adverse reaction
+activate UI
+UI --> Nurse: 2. asks for data(SNS Number, Adverse Reaction Text)
+Nurse -> UI: 3 types requested data
+UI -> Controller: 4 createAdverseReaction(SNSNumber, advReact)
+activate Controller
+Controller -> Company: 5 wstore = getWaitingRoomStore()
+activate Company
+Company --> Controller: 
+deactivate Company
+Controller -> Store: 6 store = getRecordAdverseReactionStore()
+activate Store
+Store --> Controller: 
+deactivate Store
+Controller -> WaitingRoomStore: 7 snsu = getSNSUserInTheWaitingRoomByItsSNSNumber(snsuserNumber)
+activate WaitingRoomStore
+WaitingRoomStore --> Controller: 
+deactivate WaitingRoomStore
+Controller -> WaitingRoomStore: 8 vc = getVaccinationCenterBySNSNumber(snsuserNumber)
+activate WaitingRoomStore
+WaitingRoomStore --> Controller: 
+deactivate WaitingRoomStore
+Controller -> Store: 9 ar = createAdverseReaction(snsu, advReact, vc)
+activate Store
+Store -> AdverseReaction: 10 create(snsu,advReact,vc)
+activate AdverseReaction
+AdverseReaction --> Store: 
+deactivate AdverseReaction
+Store -> Store: 11 validateAdverseReaction(ar)
+activate Store
+Store --> Store: 
+deactivate Store
+Store -> Mapper: 12 toDTO(ar)
+activate Mapper
+note over Mapper: ref\nSD_AdverseReactionMapper_toDTO
+Mapper --> Store: 13 arDTO
+deactivate Mapper
+Store --> Controller: 14 arDTO
+deactivate Store
+Controller --> UI: 
+deactivate Controller
+UI --> Nurse: 15 shows SNS User correspondent to the SNS Number\nand adverse reaction waiting for approval
+Nurse -> UI: 16 confirms action
+UI -> Controller: 17 saveAdverseReaction()
+activate Controller
+Controller -> Store: 18 saveAdverseReaction(ar)
+activate Store
+Store -> Store: 19 validateAdverseReaction(ar)
+activate Store
+Store --> Store: 
+deactivate Store
+Store -> Store: 20 addAdverseReaction(ar)
+activate Store
+Store --> Store: 
+deactivate Store
+Store --> Controller: 
+deactivate Store
+Controller --> UI: 
+deactivate Controller
+UI --> Nurse: 21 informs opertion success
+deactivate UI
+
+@enduml
+```

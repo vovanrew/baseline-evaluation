@@ -1,0 +1,43 @@
+@startuml
+skinparam sequenceMessageAlign center
+participant "Client" as Client {
+}
+participant "TEAPServer" as TEAPServer {
+}
+
+== Phase 1 ==
+activate Client #LightBlue 
+deactivate Client 
+
+note right of Client : EAP-Request/Identity\nEAP-Response/\nType=Identity
+
+
+== Phase 2 - TLS Handshake ==
+group Outer Tunnel Establishment [TLS]
+    activate Client #YellowGreen  
+        note left of Client: Server Certificate Validation \n(optional) Mutual Authentication
+        
+            deactivate Client 
+            
+                group Inner Method Exchange
+            
+                    participant "InnerMethod(Client)" as IMC <<Database>>{ }
+                    
+                        rect rgb(0, 56, 34){
+                            color White; fontcolor white
+                        
+                                box "#98FB98" inner method exchange
+                                    participant "" as PseudoParticipantIMC
+                    
+                                        rectangle "<b>Protected</b>\ntunnelled data flow between client & server using negotiated cipher suite from outer tunnel establishment phase." As ProtectedTunneDataFlowNote
+                
+                                            link "@protectedtunneldatanote" to "@pseudoparticipantimc" via EncryptedChannelLink [[#encryptedchannellink]] ::Encrypted Channel::
+                
+                                                endbox
+                            
+                        
+            
+        
+    
+
+@enduml

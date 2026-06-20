@@ -1,0 +1,77 @@
+```plantuml
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+
+skinparam class {
+  BorderColor #333333
+  BackgroundColor #F2F2F2
+  HeaderBackgroundColor #F2F2F2
+}
+
+package "Facelift" as Facelift {
+  class "InterfaceBase" as InterfaceBase <<C>> {
+    Base C++ class for all generated interfaces
+  }
+
+  class "QMLAdapterBase" as QMLAdapterBase <<C>> {
+    Base C++ class for all generated QML frontends
+  }
+
+  class "IPCServiceAdapterBase" as IPCServiceAdapterBase <<C>> {
+    Base C++ for class for all generated IPC adapters
+  }
+
+  class "InterfaceQMLAdapter" as InterfaceQMLAdapter <<C>> {
+    Implements the interface exposed to the QML engine, to be used by the UI code
+    Turns data from the interface implementation into QML-compatible types
+    ...
+    generated from IDL
+  }
+  InterfaceQMLAdapter #A7DDE8;line:#333333
+
+  abstract class "Interface" as Interface <<A>> {
+    C++ abstract class defining the interface
+    ...
+    generated from IDL
+  }
+  Interface #A7DDE8;line:#333333
+
+  abstract class "InterfaceImplementationBase" as InterfaceImplementationBase <<A>> {
+    Abstract helper class which contains boilerplate code to help writing concrete interface implementations
+    ...
+    generated from IDL
+  }
+  InterfaceImplementationBase #A7DDE8;line:#333333
+
+  class "InterfaceDummy" as InterfaceDummy <<C>> {
+    generated from IDL
+  }
+  InterfaceDummy #A7DDE8;line:#333333
+
+  class "InterfaceImplementation" as InterfaceImplementation <<C>> {
+    concrete class implementing the interface
+  }
+
+  class "InterfaceIPCProxy" as InterfaceIPCProxy <<C>> {
+    generated from IDL
+  }
+  InterfaceIPCProxy #A7DDE8;line:#333333
+
+  InterfaceBase <|-- Interface
+  QMLAdapterBase <|-- InterfaceQMLAdapter
+  IPCServiceAdapterBase <|-- InterfaceIPCProxy
+
+  InterfaceQMLAdapter --> Interface : provider
+
+  Interface <|-- InterfaceImplementationBase
+  InterfaceImplementationBase <|-- InterfaceDummy
+  InterfaceImplementationBase <|-- InterfaceImplementation
+  InterfaceImplementationBase <|-- InterfaceIPCProxy
+}
+
+@enduml
+```

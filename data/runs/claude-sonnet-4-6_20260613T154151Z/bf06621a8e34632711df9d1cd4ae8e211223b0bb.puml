@@ -1,0 +1,40 @@
+@startuml
+title TCPClient::connectToServer(string ipAddress, int port)
+
+participant "UC1" as UC1
+participant "TCPClient" as TCP
+participant "clientStructure" as CS
+
+UC1 -> TCP : connectToServer(ipAddress, port)
+
+note right of TCP : create a socket
+
+TCP -> TCP : socket_ = socket(AF_INET, SOCK_STREAM, 0);
+
+opt [socket_ == -1]
+  TCP --> UC1 : return -1 (socket create faild)
+end
+
+note right of CS : objeckt of\nsockaddr_in
+
+TCP -> CS : clientStructure()
+
+TCP -> TCP : clientStructure.sin_family = AF_INET;
+
+TCP -> TCP : clientStructure.sin_port = htons(port);
+
+note right of TCP : linking ipAddress to clientstructure\nusing AF_INET standart
+
+TCP -> TCP : inet_pton(AF_INET, ipAddress.c_str(),\n&clientStructure.sin_addr);
+
+TCP -> TCP : connectRes = connect(socket_, (sockaddr*)&clientStructure,\nsizeof(clientStructure));
+
+opt [connectRes == -1]
+  TCP --> UC1 : return -1 (faild to connect)
+end
+
+destroy CS
+
+TCP --> UC1 : return 0 (connected)
+
+@enduml

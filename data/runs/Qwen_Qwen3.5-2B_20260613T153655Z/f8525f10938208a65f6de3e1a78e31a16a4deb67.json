@@ -1,0 +1,22 @@
+{
+  "id": "e6943057-b9cc-4a64-a585-13ddf076acdf",
+  "object": "chat.completion",
+  "created": 1781398761,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"Project Manager\" as PM\n\ninterface : StartSprintRoute\ninterface : StartSprintController\ninterface : StartSprintService\ninterface : SprintDomainService\ninterface : SprintStore\ninterface : ResourceStore\ninterface : dto : SprintDTO\ninterface : Project\n\nactor PM\n\nsequenceDiagram\n    participant : StartSprintRoute\n    participant : StartSprintController\n    participant : StartSprintService\n    participant : dto : SprintDTO\n    participant : Project\n    participant : SprintDomainService\n    participant : SprintStore\n    participant : ResourceStore\n\n    PM->>StartSprintRoute: Asks to start a Sprint\n    StartSprintRoute->>StartSprintService: startSprint(sprintDTO)\n    StartSprintService->>Project: getProjectTeam()\n    Project-->>StartSprintService: projectTeam\n    StartSprintService->>Project: getSprintDuration()\n    Project-->>StartSprintService: sprintDuration\n    StartSprintService->>SprintStore: startSprint(dto.projectID, dto.sprintID, dto.startDate, projectTeam, sprintDuration)\n    SprintStore->>SprintStore: findAllSprintByProjectID(projectID)\n    SprintStore->>SprintStore: findSprintByID(sprintID)\n    SprintStore->>SprintDomainService: validateStartDate(startDate)\n    SprintDomainService-->>SprintStore: true\n    SprintStore->>SprintDomainService: validateProjectTeam(startDate, sprintDuration)\n    SprintDomainService->>SprintDomainService: getProductOwnerByStartDate(startDate, sprintDuration)\n    SprintDomainService->>SprintDomainService: getScrumMasterByStartDate(startDate, sprintDuration)\n    SprintDomainService-->>SprintStore: true\n    SprintStore->>SprintStore: setStartDate(startDate)\n    StartSprintService-->>StartSprintController: true\n    StartSprintController-->>StartSprintRoute: true\n    StartSprintService-->>PM: true\n    PM-->>StartSprintRoute: Informs Operation Success\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1615,
+    "completion_tokens": 454,
+    "total_tokens": 2069
+  }
+}

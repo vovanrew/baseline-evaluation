@@ -1,0 +1,126 @@
+@startuml
+skinparam ClassBox bgcolor #f5f5f5
+skinparam Actor bgcolor #e0f7fa
+skinparam Interface bgcolor #f5f5f5
+skinparam Class bgcolor #f5f5f5
+
+actor CheckTestUI as CheckTestUI
+
+class CheckTestController as CheckTestController
+    note right of CheckTestController
+        TestStore testStore
+        ClientStore clientStore
+        AuthFacade authFacade
+        List<Test> clientTestList
+        Client client
+    end note
+    note right of CheckTestController
+        getClientTests()
+        getTestReport(String idTest)
+    end note
+
+class Company as Company
+    note right of Company
+        TestStore testStore
+        ClientStore clientStore
+    end note
+    note right of Company
+        getTestStore()
+        getClientStore()
+    end note
+
+class ClientStore as ClientStore
+    note right of ClientStore
+        List<Client> clientList
+    end note
+    note right of ClientStore
+        getClientFromEmail(String email)
+    end note
+
+class TestStore as TestStore
+    note right of TestStore
+        List<Test> testList
+    end note
+    note right of TestStore
+        getTestList()
+    end note
+
+class Test as Test
+    note right of Test
+        String idTest
+        TestReport testReport
+    end note
+    note right of Test
+        getTestReport()
+    end note
+
+class TestMapper as TestMapper
+    note right of TestMapper
+        toDto(testList, client)
+    end note
+
+class TestDTO as TestDTO
+    note right of TestDTO
+        toDto(testList, client)
+    end note
+
+class Client as Client
+    note right of Client
+        String tin
+    end note
+    note right of Client
+        getTin()
+    end note
+
+class TestController as CheckTestController
+    note right of TestController
+        TestStore testStore
+        ClientStore clientStore
+        AuthFacade authFacade
+        List<Test> clientTestList
+        Client client
+    end note
+    note right of TestController
+        getClientTests()
+        getTestReport(String idTest)
+    end note
+
+class CheckTestUI as CheckTestUI
+    note right of CheckTestUI
+        TestStore testStore
+        ClientStore clientStore
+        AuthFacade authFacade
+        List<Test> clientTestList
+        Client client
+    end note
+    note right of CheckTestUI
+        getTestReport(String idTest)
+    end note
+
+CheckTestUI ..> CheckTestController
+
+Company ..> ClientStore
+Company ..> TestStore
+
+ClientStore ..> Client
+ClientStore ..> TestStore
+
+TestStore ..> Test
+TestStore ..> TestMapper
+
+TestMapper ..> TestDTO
+
+TestDTO ..> Test
+
+Test ..> TestReport
+
+Test ..> TestController
+
+TestController ..> ClientStore
+TestController ..> TestStore
+TestController ..> TestMapper
+TestController ..> TestDTO
+
+TestController ..> CheckTestUI
+
+@enduml

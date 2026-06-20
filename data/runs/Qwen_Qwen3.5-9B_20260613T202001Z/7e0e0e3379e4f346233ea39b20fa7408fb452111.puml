@@ -1,0 +1,32 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam sequenceStyle rectangle
+
+package "service process" as service {
+  [ConcretImpl] as concreteImpl
+  [DBusAdapter] as dbusAdapter
+}
+
+package "client process" as client {
+  [DBusProxy] as dbusProxy
+}
+
+[DBus] as dbus
+
+note right of dbusProxy
+  Tries to fetch all properties
+  including "ready" property
+end note
+
+dbusProxy -> dbus: ConnectToRemoteObject
+dbusProxy -> dbus: GetAllProperties
+dbus -> dbusAdapter: GetAllProperties
+dbusAdapter -> dbus: return properties
+dbus -> dbusProxy: return properties
+
+dbusAdapter -> dbusAdapter: Init(ConcretImpl)
+dbusAdapter -> dbus: Export
+dbusProxy -> dbusProxy: Init
+
+@enduml

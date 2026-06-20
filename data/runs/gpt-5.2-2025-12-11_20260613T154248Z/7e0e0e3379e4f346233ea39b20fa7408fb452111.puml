@@ -1,0 +1,44 @@
+@startuml
+title Initialization
+
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #EDEDED
+  BoxBorderColor #666666
+  BoxBackgroundColor #FFFFFF
+  NoteBorderColor #666666
+  NoteBackgroundColor #FFF9C4
+}
+
+box "service process" #A9D7E6
+participant "ConcreteImpl" as CI #F6E2B8
+participant "DBusAdapter" as DA #9BFF8F
+end box
+
+participant "DBus" as BUS #E6E6F2
+
+box "client process" #E6E6FA
+participant "DBusProxy" as DP #9BFF8F
+end box
+
+DA -> DA : Init(ConcreteImpl)
+DA -> BUS : Export
+
+DP -> DP : Init
+DP -> BUS : ConnectToRemoteObject
+note right of DP
+Tries to fetch all properties
+including "ready" property
+end note
+
+DP -> BUS : GetAllProperties
+BUS -> DA : GetAllProperties
+DA --> BUS : return properties
+BUS --> DP : return properties
+
+@enduml

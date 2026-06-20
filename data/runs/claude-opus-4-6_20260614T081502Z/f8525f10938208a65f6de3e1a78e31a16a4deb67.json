@@ -1,0 +1,21 @@
+{
+  "id": "msg_01MzS7tetHi8pwPF3DezAU13",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle US029 - As Project Manager, I want to start a sprint.\n\nactor \"Project Manager\" as PM\n\nparticipant \": StartSprintRoute\" as Route\nparticipant \": StartSprintController\" as Controller\nparticipant \": StartSprintService\" as Service\nparticipant \"dto : SprintDTO\" as DTO\nparticipant \": Project\" as Project\nparticipant \": SprintDomainService\" as DomainService\nparticipant \": SprintStore\" as SprintStore\nparticipant \": ResourceStore\" as ResourceStore\n\nPM -> Route : Asks to start a Sprint\nactivate Route\nRoute -> Controller : startSprint(sprintDTO)\nactivate Controller\nController -> Service : startSprint(sprintDTO)\nactivate Service\n\nService -> Project : getProjectTeam()\nactivate Project\nService <-- Project : projectTeam\ndeactivate Project\n\nService -> DTO : getSprintDuration()\nactivate DTO\nService <-- DTO : sprintDuration\ndeactivate DTO\n\nService -> DomainService : startSprint(dto.projectID, dto.sprintID, dto.startDate,\\n projectTeam, sprintDuration)\nactivate DomainService\n\nDomainService -> SprintStore : findAllSprintByProjectID (projectID)\nactivate SprintStore\nDomainService <-- SprintStore\ndeactivate SprintStore\n\nDomainService -> SprintStore : findSprintByID (sprintID)\nactivate SprintStore\nDomainService <-- SprintStore\ndeactivate SprintStore\n\nDomainService -> DomainService : validateStartDate(startDate)\nactivate DomainService\nDomainService --> DomainService : true\ndeactivate DomainService\n\nDomainService -> ResourceStore : validateProjectTeam(startDate, sprintDuration)\nactivate ResourceStore\n\nResourceStore -> ResourceStore : getProductOwnerByStartDate(startDate, sprintDuration)\nactivate ResourceStore\ndeactivate ResourceStore\n\nResourceStore -> ResourceStore : getScrumMasterByStartDate(startDate, sprintDuration)\nactivate ResourceStore\ndeactivate ResourceStore\n\nDomainService <-- ResourceStore : true\ndeactivate ResourceStore\n\nDomainService -> SprintStore : setStartDate(startDate)\nactivate SprintStore\ndeactivate SprintStore\n\nService <-- DomainService : true\ndeactivate DomainService\n\nController <-- Service : true\ndeactivate Service\n\nRoute <-- Controller : true\ndeactivate Controller\n\nPM <-- Route : Informs Operation Success\ndeactivate Route\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431091,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 612,
+    "prompt_tokens": 1664,
+    "total_tokens": 2276
+  }
+}

@@ -1,0 +1,125 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+package "<<aggregate>> ProductOrder" {
+    class TotalPriceWithoutVAT << (C,#ADD1B2) >>
+    class TotalVolume << (C,#ADD1B2) >>
+    class BillingAddress << (C,#ADD1B2) >>
+    class OrderItem << (E,#ADD1B2) >>
+    class Status << (C,#ADD1B2) >>
+    class DeliveryAddress << (C,#ADD1B2) >>
+    class ProductOrder << (E,#ADD1B2) >>
+    class TotalPriceWithVAT << (C,#ADD1B2) >>
+    class TotalWeight << (C,#ADD1B2) >>
+}
+
+package "<<aggregate>> AGV" {
+    class AGVStatus << (C,#ADD1B2) >>
+    class AGVPosition << (C,#ADD1B2) >>
+    class Model << (C,#ADD1B2) >>
+    class MaxVolumeCapacity << (C,#ADD1B2) >>
+    class BriefDescription << (C,#ADD1B2) >>
+    class MaxWeightCapacity << (C,#ADD1B2) >>
+    class Range << (C,#ADD1B2) >>
+    class AGV << (E,#ADD1B2) >>
+    class AGVTask << (E,#ADD1B2) >>
+    class AGVId << (C,#ADD1B2) >>
+}
+
+class "BriefDescription" as BD << (V,#FF9900) value object >> {
+    -briefDescription
+}
+
+class "Model" as M << (V,#FF9900) value object >> {
+    -model
+}
+
+class "AGVPosition" as AP << (V,#FF9900) value object >> {
+    -agvPosition
+}
+
+class "AGVStatus" as AS << (V,#FF9900) value object >> {
+    -taskState
+}
+
+class "AGV" as A << (E,#ADD1B2) entity root >> {
+    -state
+}
+
+class "AGVTask" as AT << (E,#ADD1B2) entity >> {
+    -id
+    -agvTaskDescription
+}
+
+class "AGVId" as AI << (V,#FF9900) value object >> {
+    -id
+}
+
+class "Range" as R << (V,#FF9900) value object >> {
+    -range
+}
+
+class "MaxWeightCapacity" as MWC << (V,#FF9900) value object >> {
+    -maxWeightCapacity
+}
+
+class "MaxVolumeCapacity" as MVC << (V,#FF9900) value object >> {
+    -volume
+}
+
+class "ProductOrder" as PO << (E,#ADD1B2) entity root >> {
+    -numericIdentifier
+    -dateOfOrder
+    -shipmentMethod
+    -paymentMethod
+}
+
+class "OrderItem" as OI << (E,#ADD1B2) entity >> {
+    -itemQuantity
+}
+
+class "TotalPriceWithVAT" as TPWV << (V,#FF9900) value object >> {
+}
+
+class "DeliveryAddress" as DA << (V,#FF9900) value object >> {
+}
+
+class "BillingAddress" as BA << (V,#FF9900) value object >> {
+}
+
+class "Status" as S << (V,#FF9900) value object >> {
+}
+
+class "TotalVolume" as TV << (V,#FF9900) value object >> {
+}
+
+class "TotalWeight" as TW << (V,#FF9900) value object >> {
+}
+
+class "TotalPriceWithoutVAT" as TPWoV << (V,#FF9900) value object >> {
+}
+
+A --> "1" BD : characterized by
+A --> "1" M : has
+A --> "1" AP : located in
+A --> "1..*" AS : collects
+A --> "1" AT : associated
+A --> "1" AI : has
+A --> "1" R : respects
+A --> "1" MWC : respects
+A --> "1" MVC : respects
+
+AT --> "1..*" PO : composed by
+
+PO --> "1..*" OI : composed by
+PO --> "1" TPWV : is marked
+PO --> "1" DA : associated with
+PO --> "1" BA : associated with
+PO --> "1" S : is in
+PO --> "1" TV : associated with
+PO --> "1" TW : associated with
+PO --> "1" TPWoV : is marked
+
+@enduml
+```

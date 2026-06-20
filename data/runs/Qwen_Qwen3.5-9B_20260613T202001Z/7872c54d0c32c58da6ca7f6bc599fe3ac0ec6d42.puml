@@ -1,0 +1,26 @@
+@startuml
+left to right direction
+skinparam sequenceMessageAlign center
+
+actor "Администратор" as Admin
+participant "Сервис\nавтомасштабирования" as AutoScale
+participant "Платформы облачных\nвычислений" as CloudPlatform
+
+rectangle "Начальная конфигурация" {
+  Admin -> AutoScale: группа ВМ G, шаблон ВМ T,\nлогин L, пароль P...
+  Admin -> AutoScale: namespace N, deployment D, kubeconfig C...
+}
+
+rectangle "Осуществление масштабирования OpenNebula" {
+  AutoScale -> CloudPlatform: подключиться с логином L, паролем P...
+  CloudPlatform --> AutoScale: соединение установлено
+  AutoScale -> CloudPlatform: создать ВМ в группе G по шаблону T...
+}
+
+rectangle "Осуществление масштабирования Kubernetes" {
+  AutoScale -> CloudPlatform: подключиться с kubeconfig C...
+  CloudPlatform --> AutoScale: соединение установлено
+  AutoScale -> CloudPlatform: масштабировать deployment D в namespace N на 2
+}
+
+@enduml

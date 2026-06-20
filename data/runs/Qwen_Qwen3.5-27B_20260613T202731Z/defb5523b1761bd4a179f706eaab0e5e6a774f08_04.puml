@@ -1,0 +1,43 @@
+```plantuml
+@startuml
+title 学生列表用例时序图
+
+actor teacher
+participant "courseClass" as courseClass
+participant "S_C" as S_C
+participant "student" as student
+participant "experimentscores" as experimentscores
+participant "cexperiments" as cexperiments
+participant "experimentclauses" as experimentclauses
+
+teacher ->> courseClass : 根据工号以及默认学期获取\n所授课程开课班号及课程号
+activate courseClass
+courseClass ->> S_C : 获取学生成绩及学号
+activate S_C
+S_C ->> student : 获取学生信息
+activate student
+student --> S_C : 每个所授学生信息及其已批改实验平均成绩列表
+deactivate student
+S_C --> courseClass
+deactivate S_C
+courseClass --> teacher
+deactivate courseClass
+
+rectangle {
+    note left: 点击成绩详情
+    teacher ->> experimentscores : 根据学号,课程号开课班号查找试实验成绩单号
+    activate experimentscores
+    experimentscores ->> cexperiments : 获取实验及成绩信息
+    activate cexperiments
+    cexperiments ->> experimentclauses : 获取实验及成绩信息
+    activate experimentclauses
+    experimentclauses --> cexperiments
+    deactivate experimentclauses
+    cexperiments --> experimentscores
+    deactivate cexperiments
+    experimentscores --> teacher : 返回所点击学生该课程所有相关实验成绩列表
+    deactivate experimentscores
+}
+
+@enduml
+```

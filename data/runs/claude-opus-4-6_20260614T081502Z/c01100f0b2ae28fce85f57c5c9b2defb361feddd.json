@@ -1,0 +1,21 @@
+{
+  "id": "msg_01MsXvPbaMtRWVoNqA3SB7TY",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor Customer\nparticipant Device\nparticipant DeviceProvisioningService #cyan\nparticipant ProductIoTHub #cyan\nparticipant FWProvider #yellow\n\nnote over Device, FWProvider: Device was registered for this product before\n\n== First start ==\n\nCustomer -> Device: 1 Switch On/Power Up\n\nnote over Device, ProductIoTHub: Booting up\n\nDevice -> DeviceProvisioningService: 2 registerDevice(callback)\nDeviceProvisioningService --> Device: 3 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)\nDevice -> Device: 4 setProperties\nDevice -> ProductIoTHub: 5 iamNewToYou(deviceId, firmwareversion)\n\nopt Firmware needs to be updated\n    ProductIoTHub -> Device: 6 updateFWMandantory(URL)\n    Device -> FWProvider: 7 URL.get(OLDFW)\n    FWProvider --> Device: 8 FW, Checksum\n\n    note over Device, FWProvider: Downloading\n\n    Device -> Device: 9 CheckChecksum\n    Device -> Device: 10 update\n\n    note over Device, FWProvider: Installing\n\n    Device -> Device: 11 restart\n\n    note over Device, FWProvider: Booting up\n\n    Device -> ProductIoTHub: 12 iamNewToYou(deviceId, firmwareversion)\nend\n\nProductIoTHub -> Device: 13 youMayStartSending()\nDevice -> ProductIoTHub: 14 sendData(Data)\n\nnote over Device, FWProvider: Working\n\n== Claim/Remove ==\n\nProductIoTHub -> Device: 15 youMustRetire()\nDevice -> Device: 16 waits\n\nopt if Device was not reached\n    Device -> ProductIoTHub: 17 sendData(Data)\n    ProductIoTHub --> Device: 18 Not registered\n    Device -> DeviceProvisioningService: 19 registerDevice(callback)\n    DeviceProvisioningService --> Device: 20 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ERROR, null, null)\n    Device -> Device: 21 NobodyLovesMeMode()\n\n    loop once a day\n        Device -> DeviceProvisioningService: 22 registerDevice(callback)\n    end\nend\n\n== IoT Hub not available ==\n\nloop several times\n    Device -> ProductIoTHub: 23 sendData(Data)\n    ProductIoTHub --> Device: 24 NotAvailable/Network Error\n    Device -> DeviceProvisioningService: 25 registerDevice(callback)\n    DeviceProvisioningService --> Device: 26 callback.RegistrationResult(PROVISIONING_DEVICE_STATUS_ASSIGNED, IoTHubURI, deviceId)\n    Device -> Device: 27 compare IoTHub and change if necessary\nend\n\nnote over Device, FWProvider: if connection is now successfull, go on. If not and IoT Hub has not changed\\nrepeat with low frequence. Also if DPS is not available.\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432337,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 761,
+    "prompt_tokens": 1660,
+    "total_tokens": 2421
+  }
+}

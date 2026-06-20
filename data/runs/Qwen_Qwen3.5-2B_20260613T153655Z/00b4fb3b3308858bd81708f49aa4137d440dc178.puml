@@ -1,0 +1,63 @@
+@startuml
+participant InstallInstalling as InstallInstalling
+participant PackageInstaller as PackageInstaller
+participant PackageInstallerService as PackageInstallerService
+participant InstallingAsyncTask as InstallingAsyncTask
+participant PackageInstallerSession as PackageInstallerSession
+participant Handler as Handler
+participant mHandlerCallback as mHandlerCallback
+participant PkMS as PkMS
+participant PkMS.PackageHandler as PkMS.PackageHandler
+participant PkMS.HandlerParams as PkMS.HandlerParams
+participant PkMS.InstallParams as PkMS.InstallParams
+
+participant InstallInstalling as InstallInstalling
+participant PackageInstaller as PackageInstaller
+participant PackageInstallerService as PackageInstallerService
+participant InstallingAsyncTask as InstallingAsyncTask
+participant PackageInstallerSession as PackageInstallerSession
+participant Handler as Handler
+participant mHandlerCallback as mHandlerCallback
+participant PkMS as PkMS
+participant PkMS.PackageHandler as PkMS.PackageHandler
+participant PkMS.HandlerParams as PkMS.HandlerParams
+participant PkMS.InstallParams as PkMS.InstallParams
+
+InstallInstalling..onCreate()
+InstallInstalling..createSession()
+
+PackageInstaller..createSession()
+PackageInstallerService..sessionId
+
+InstallInstalling..sessionId
+InstallInstalling..onResume()
+InstallInstalling..execute()
+
+InstallingAsyncTask..doInBackground()
+PackageInstallerSession..openSession(sessionId)
+PackageInstallerSession..openWrite()
+PackageInstallerSession..doPostExecute()
+PackageInstallerSession..commit()
+
+PackageInstallerSession..sendToTarget(MSG_COMMIT)
+mHandlerCallback..handleMessage(MSG_COMMIT)
+Handler..handleCommit()
+PackageInstallerSession..commitNonStagedLocked()
+PackageInstallerSession..installStage()
+
+PkMS..sendMessage(INIT_COPY)
+PkMS.PackageHandler..startCopy()
+PkMS.HandlerParams..handleStartCopy()
+PkMS.InstallParams..handleReturnCode()
+
+PkMS.InstallParams..processPendingInstall()
+PkMS.InstallParams..processInstallRequestsAsync()
+PkMS.InstallParams..installPackagesTracedLI()
+PkMS.InstallParams..installPackagesLI()
+PkMS.InstallParams..preparePackageLI()
+PkMS.InstallParams..scanPackageTracedLI()
+PkMS.InstallParams..commitPackagesLocked()
+PkMS.InstallParams..commitReconciledScanResultLocked()
+PkMS.InstallParams..commitPackageSettings()
+
+@enduml

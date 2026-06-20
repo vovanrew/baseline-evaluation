@@ -1,0 +1,67 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #808080
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #808080
+  ParticipantBackgroundColor #E6E6FA
+  BoxBorderColor #808080
+  BoxBackgroundColor #FFFFFF
+}
+
+participant "InstallInstalling" as InstallInstalling
+participant "PackageInstaller" as PackageInstaller
+participant "PackageInstallerService" as PackageInstallerService
+participant "InstallingAsyncTask" as InstallingAsyncTask
+participant "PackageInstallerSession" as PackageInstallerSession
+participant "Handler" as Handler
+participant "mHandlerCallback" as mHandlerCallback
+participant "PkMS" as PkMS
+participant "PkMS.PackageHandler" as PkMS_PackageHandler
+participant "PkMS.HandlerParams" as PkMS_HandlerParams
+participant "PkMS.InstallParams" as PkMS_InstallParams
+
+InstallInstalling -> InstallInstalling : onCreate()
+InstallInstalling -> PackageInstaller : createSession()
+PackageInstaller -> PackageInstallerService : createSession()
+PackageInstallerService --> PackageInstaller : sessionId
+PackageInstaller --> InstallInstalling : sessionId
+InstallInstalling -> InstallInstalling : onResume()
+InstallInstalling -> InstallingAsyncTask : execute()
+
+activate InstallingAsyncTask
+InstallingAsyncTask -> InstallingAsyncTask : doInBackground()
+
+InstallingAsyncTask -> PackageInstaller : openSession(sessionId)
+PackageInstaller --> InstallingAsyncTask : Session
+
+InstallingAsyncTask -> PackageInstallerSession : openWrite()
+InstallingAsyncTask -> InstallingAsyncTask : doPostExecute()
+InstallingAsyncTask -> PackageInstallerSession : commit()
+
+PackageInstallerSession -> Handler : sendToTarget(MSG_COMMIT)
+Handler -> mHandlerCallback : handleMessage(MSG_COMMIT)
+
+mHandlerCallback -> PackageInstallerSession : handleCommit()
+PackageInstallerSession -> PackageInstallerSession : commitNonStagedLocked()
+PackageInstallerSession -> PkMS : installStage()
+
+PkMS -> PkMS_PackageHandler : sendMessage(INIT_COPY)
+PkMS_PackageHandler -> PkMS_HandlerParams : startCopy()
+PkMS_HandlerParams -> PkMS_InstallParams : handleStartCopy()
+PkMS_HandlerParams -> PkMS_InstallParams : handleReturnCode()
+
+PkMS -> PkMS : processPendingInstall()
+PkMS -> PkMS : processInstallRequestsAsync()
+PkMS -> PkMS : installPackagesTracedLI()
+PkMS -> PkMS : installPackagesLI()
+PkMS -> PkMS : preparePackageLI()
+PkMS -> PkMS : scanPackageTracedLI()
+PkMS -> PkMS : commitPackagesLocked()
+PkMS -> PkMS : commitReconciledScanResultLocked()
+PkMS -> PkMS : commitPackageSettings()
+
+deactivate InstallingAsyncTask
+@enduml

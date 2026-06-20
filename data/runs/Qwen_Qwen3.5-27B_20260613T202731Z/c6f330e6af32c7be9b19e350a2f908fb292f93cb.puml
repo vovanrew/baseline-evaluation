@@ -1,0 +1,61 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+title IO Device Registration and Opening Sequence Diagram
+
+participant "arm_io_storage" as arm_io_storage
+participant "io_storage" as io_storage
+participant "io_fip" as io_fip
+participant "io_memmap" as io_memmap
+
+box "io dev registration" #ffffff
+    activate arm_io_storage
+    arm_io_storage ->> arm_io_storage: arm_io_setup()
+    
+    arm_io_storage ->> io_fip: register_io_dev_fip(&fip_dev_con)
+    activate io_fip
+    io_fip ->> io_storage: io_register_device(&dev_info_pool[])
+    activate io_storage
+    note right of io_storage: devices[dev_count] = (fip_)dev_info_pool\n dev_count++
+    deactivate io_storage
+    deactivate io_fip
+    
+    arm_io_storage ->> io_memmap: register_io_dev_memmap(&memmap_dev_con)
+    activate io_memmap
+    io_memmap ->> io_storage: io_register_device(&memmap_dev_info)
+    activate io_storage
+    note right of io_storage: devices[dev_count] = memmap_dev_info\n dev_count++
+    deactivate io_storage
+    deactivate io_memmap
+    
+    arm_io_storage ->> io_storage: io_dev_open(fip_dev_con, NULL, fip_dev_handle)
+    activate io_storage
+    io_storage ->> io_storage: dev_open(dev_con, dev_spec, handle)
+    
+    opt [dev_open() on fip device]
+        io_storage ->> io_fip: fip_dev_open(dev_spec, dev_info)
+        activate io_fip
+        note right of io_fip: dev_info = one of the\n"fip_dev_info" from\ndev_info_pool[]
+        deactivate io_fip
+    endopt
+    
+    deactivate io_storage
+    
+    arm_io_storage ->> io_storage: io_dev_open(memmap_dev_con, NULL, memmap_dev_handle)
+    activate io_storage
+    io_storage ->> io_storage: dev_open(dev_con, dev_spec, handle)
+    
+    opt [dev_open() on memmap device]
+        io_storage ->> io_memmap: memmap_dev_open(dev_spec, dev_info)
+        activate io_memmap
+        note right of io_memmap: dev_info = memmap_dev_info
+        deactivate io_memmap
+    endopt
+    
+    deactivate io_storage
+    deactivate arm_io_storage
+endbox
+
+@enduml
+```

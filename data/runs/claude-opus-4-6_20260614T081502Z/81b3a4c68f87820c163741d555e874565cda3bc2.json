@@ -1,0 +1,21 @@
+{
+  "id": "msg_01DF14erThHMkvJHASZPhbgn",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Authorization token with auth_code\n\nbox \"K8S_ZONE\"\nparticipant \"bff_web_api\" as bff\nparticipant \"authorization_api\" as auth\ndatabase \"k8s_redis\" as redis\nend box\n\nparticipant \"web\" as web\n\nnote left of web\nReuest header\nContent-Type: application/json\n\nRequest body\n\u2013 auth_code: xxxxxx\nend note\n\nweb -> bff : /api/v1/auth/token\n\nnote left of bff\nRequest header\nContent-Type: application/x-www-form-urlencoded\n\nRequest body\n\u2013 auth_code\n\nnote:\n\u2013 handler late limit (brute force attack)\nend note\n\nbff -> bff : validate request\n\nbff -> auth : /api/v1/oauth/token\n\nauth -> auth : validate request\n\nauth -> redis : check auth_code from k8s_redis\n\nnote right of redis\nKey:\n\u2013 auth_code\n\nRedis object\n\u2013 user_id\n\u2013 scope\nend note\n\nredis --> auth : return redis object\n\nnote left of auth\nAccess token:\n{\n  **header**\n  \u2013 alg: rsa256\n  \u2013 typ: JWT\n\n  **payload**\n  \u2013 iss\n  \u2013 Jti\n  \u2013 user_id\n  \u2013 iat\n  \u2013 exp\n  \u2013 roles\n\n  **signature**\n}\nend note\n\nauth <-- redis : generate JWT Token with private key\n\nnote left of auth\nttl: 300000 milliseconds (5 min)\n\nKey: user_id:xxxxx\n\nRedis object value:\n\u2013 access_token\n\u2013 refrech_token\nend note\n\nauth -> redis : put user session into k8s_redis\n\nredis --> auth : save data\n\nauth --> bff : return\n\nnote left of bff\n**Response header**\nContent-Type: application/json\n\n**Response body**\n\u2013 accessToken\n\u2013 RefreshToken\nend note\n\nbff --> web : return\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431826,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 468,
+    "prompt_tokens": 1650,
+    "total_tokens": 2118
+  }
+}

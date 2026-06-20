@@ -1,0 +1,46 @@
+```plantuml
+@startuml
+skinparam note {
+  BackgroundColor #FFFFCC
+  BorderColor #999966
+}
+
+title Multigrid SDC algorithm
+
+rectangle "finest level" as finest_level
+rectangle "intermediate level(s)" as intermediate_levels
+rectangle "base level" as base_level
+
+note as n1: U(k,2) -> F(U(k,2))
+note as n2: U(k',2) -> F(U(k',2))
+note as n3: U(k,1) -> F(U(k,1))
+note as n4: tau = Q(1)*F(U(k,1)) - R*Q(2)*F(U(k',2))
+note as n5: U(k',1) -> F(U(k',1))
+note as n6: U(k,0) -> F(U(k,0))
+note as n7: tau = Q(0)*F(U(k,0)) - R*Q(1)*F(U(k',1))
+note as n8: U(k+,0) -> F(U(k+,0))
+note as n9: c(0) = U(k+,0) - R*U(k',1)
+note as n10: U(k'',1) = U(k',1) + P*c(0)
+note as n11: U(k+,1) -> F(U(k+,1))
+note as n12: c(1) = U(k+,1) - R*U(k',2)
+note as n13: U(k'',2) = U(k',2) + P*c(1)
+note as n14: U(k+,2) -> F(U(k+,2))
+
+n1 --> n2 : SDC
+n2 --> n3 : restrict
+n3 --> n4 : FAS
+n4 --> n5 : SDC with FAS
+n5 --> n6 : restrict
+n6 --> n7 : FAS
+n7 --> n8 : SDC with FAS
+n8 --> n9 : coarse correction
+n9 --> n10 : prolongate
+n10 --> n11 : correct
+n11 --> n12 : SDC
+n12 --> n13 : coarse correction
+n13 --> n14 : prolongate
+n14 --> n14 : correct
+n14 --> n14 : SDC
+
+@enduml
+```

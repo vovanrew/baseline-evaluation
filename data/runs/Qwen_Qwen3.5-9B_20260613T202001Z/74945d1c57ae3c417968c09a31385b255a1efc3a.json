@@ -1,0 +1,22 @@
+{
+  "id": "eed190d8-d06a-47f5-8249-5281f554f159",
+  "object": "chat.completion",
+  "created": 1781415783,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n'!option handwritten true\n'!hide top\n\nactor User\n\nparticipant \"BaseExecutor\" as BaseExecutor\nparticipant \"JdbcTransaction\" as JdbcTransaction\nparticipant \"PooledDataSource\" as PooledDataSource\nparticipant \"PooledConnection\" as PooledConnection\nparticipant \"Proxy\" as Proxy\nparticipant \"Connection\" as Connection\n\nUser -> BaseExecutor: getConnection\nBaseExecutor -> JdbcTransaction: getConnection\nJdbcTransaction -> JdbcTransaction: openConnection\nJdbcTransaction -> PooledDataSource: getConnection\nPooledDataSource -> PooledDataSource: popConnection\nPooledDataSource -> PooledConnection: <create>\nPooledConnection -> Proxy: newProxyInstance\nProxy -> Proxy: \u521b\u5efaConnection\u4ee3\u7406\u7c7b\u5bf9\u8c61\nProxy --> PooledConnection: \u8fd4\u56dePooledConnection\u5b9e\u4f8b\nPooledDataSource -> PooledConnection: isValid\nPooledConnection -> PooledConnection: pingConnection\nPooledConnection --> PooledConnection: \u68c0\u6d4b\u8fde\u63a5\u662f\u5426\u6709\u6548\nPooledConnection --> PooledConnection: \u8fde\u63a5\u662f\u5426\u6709\u6548\u6807\u8bc6\nPooledDataSource -> PooledConnection: getProxyConnection\nPooledConnection --> PooledDataSource: \u8fd4\u56de\u4ee3\u7406\u8fde\u63a5\nPooledDataSource --> JdbcTransaction: \u8fd4\u56de\u4ee3\u7406\u8fde\u63a5\nJdbcTransaction -> Connection: setTransactionIsolation\nConnection --> JdbcTransaction: \u8bbe\u7f6e\u9694\u79bb\u7ea7\u522b\nJdbcTransaction -> JdbcTransaction: setDesiredAutoCommit\nJdbcTransaction -> JdbcTransaction: \u8bbe\u7f6e\u63d0\u4ea4\u6a21\u5f0f\nJdbcTransaction -> JdbcTransaction: \u83b7\u53d6\u8fde\u63a5\nJdbcTransaction -> BaseExecutor: \u901a\u8fc7jdbc\u83b7\u53d6\u6570\u636e\u5e93\u8fde\u63a5\nBaseExecutor --> User: \u8fd4\u56de\u6570\u636e\u5e93\u8fde\u63a5\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2350,
+    "completion_tokens": 343,
+    "total_tokens": 2693
+  }
+}

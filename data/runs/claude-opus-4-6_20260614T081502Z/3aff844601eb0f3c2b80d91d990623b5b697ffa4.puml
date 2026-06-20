@@ -1,0 +1,155 @@
+@startuml
+
+class BundledProductOfferingPriceRelationship <<extends Extensible>> {
+  href : String
+  id : String
+  name : String
+  @baseType : String
+  @schemaLocation : Uri
+  @type : String
+}
+
+class ProductOfferingTerm <<extends Extensible>> {
+  description : String
+  duration : Quantity
+  name : String
+  validFor : TimePeriod
+  @baseType : String
+  @schemaLocation : Uri
+  @type : String
+}
+
+class PricingLogicAlgorithm <<extends Extensible\nAddressable>> {
+  description : String
+  href : Uri
+  id : String
+  name : String
+  plaSpecId : String
+  validFor : TimePeriod
+  @baseType : String
+  @schemaLocation : Uri
+  @type : String
+}
+
+class ProductOfferingPrice <<extends Extensible\nAddressable>> {
+  description : String
+  href : String
+  id : String
+  isBundle : Boolean
+  lastUpdate : DateTime
+  lifecycleStatus : String
+  name : String
+  percentage : Float
+  price : Money
+  priceType : String
+  recurringChargePeriodLength : Integer
+  recurringChargePeriodType : String
+  unitOfMeasure : Quantity
+  validFor : TimePeriod
+  version : String
+  @baseType : String
+  @schemaLocation : String
+  @type : String
+}
+
+class ProductOfferingPriceRelationship <<extends Extensible>> {
+  href : String
+  id : String
+  name : String
+  relationshipType : String
+  @baseType : String
+  @schemaLocation : Uri
+  @type : String
+}
+
+class TaxItem <<extends Entity>> {
+  href : Uri
+  id : String
+  taxAmount : Money
+  taxCategory : String
+  taxRate : Float
+  @baseType : String
+  @schemaLocation : Uri
+  @type : String
+}
+
+class ProductSpecificationCharacteristicValueUse <<extends Extensible>> {
+  description : String
+  id : String
+  maxCardinality : Integer
+  minCardinality : Integer
+  name : String
+  validFor : TimePeriod
+  valueType : String
+  @baseType : String
+  @schemaLocation : Uri
+  @type : String
+}
+
+class PlaceRef <<extends EntityRef>> {
+  href : Uri
+  id : String
+  name : String
+  @baseType : String
+  @referredType : String
+  @schemaLocation : Uri
+  @type : String
+}
+
+class ConstraintRef <<extends EntityRef>> {
+  href : Uri
+  id : String
+  name : String
+  version : String
+  @baseType : String
+  @referredType : String
+  @schemaLocation : Uri
+  @type : String
+}
+
+class ProductSpecificationRef <<extends EntityRef>> {
+  href : Uri
+  id : String
+  name : String
+  version : String
+  @baseType : String
+  @referredType : String
+  @schemaLocation : Uri
+  @type : String
+}
+
+class CharacteristicValueSpecification <<extends Extensible>> {
+  isDefault : Boolean
+  rangeInterval : String
+  regex : String
+  unitOfMeasure : String
+  validFor : TimePeriod
+  value : Any
+  valueFrom : Integer
+  valueTo : Integer
+  valueType : String
+  @baseType : String
+  @schemaLocation : Uri
+  @type : String
+}
+
+class TargetProductSchema {
+  @schemaLocation : Uri [1]
+  @type : String [1]
+}
+
+ProductOfferingPrice *-- "0..*" BundledProductOfferingPriceRelationship : bundledPopRelationship
+ProductOfferingPrice *-- "0..*" ProductOfferingTerm : productOfferingTerm
+ProductOfferingPrice *-- "0..*" PricingLogicAlgorithm : pricingLogicAlgorithm
+ProductOfferingPrice *-- "0..*" TaxItem : tax
+ProductOfferingPrice *-- "0..*" ProductOfferingPriceRelationship : popRelationship
+ProductOfferingPrice *-- "0..*" ProductSpecificationCharacteristicValueUse : prodSpecCharValueUse
+ProductOfferingPrice *-- "0..*" PlaceRef : place
+ProductOfferingPrice *-- "0..*" ConstraintRef : constraint
+
+ProductSpecificationCharacteristicValueUse *-- "0..*" CharacteristicValueSpecification : productSpecCharacteristicValue
+ProductSpecificationCharacteristicValueUse *-- "0..1" ProductSpecificationRef : productSpecification
+
+ProductSpecificationRef *-- "0..1" TargetProductSchema : targetProductSchema
+
+@enduml

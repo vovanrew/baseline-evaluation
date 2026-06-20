@@ -1,0 +1,22 @@
+{
+  "id": "cad7d90d-8c76-4c91-944a-6be3e2bc9d69",
+  "object": "chat.completion",
+  "created": 1781398264,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant UI as \"UI\"\nparticipant sessionRoute as \"sessionRoute\"\nparticipant passport as \"passport\"\nparticipant SessionController as \"SessionController\"\nparticipant innoDB as \"innoDB\"\n\nnote right of UI\nGET() \"/session\"\nAuth: Bearer token\n{userID, DASS21_SCORES, sessionDetails}\nend note\n\nnote right of sessionRoute\n\"/save\", authenticate(\"jwt\")\nend note\n\nalt [Success: Authenticated]\n    sessionRoute -> done(null, user) : done(null, user)\n    sessionRoute -> Request Products : Request Products\n    SessionController -> Validate info : Validate info\n    SessionController -> saveSession() : saveSession()\n    SessionController -> session : session\n    sessionRoute -> httpResponse(200) : httpResponse(200)\n    sessionRoute -> session : session\n    sessionRoute -> httpResponse(200) : httpResponse(200)\n    sessionRoute -> allProducts : allProducts\nend alt\n\nalt [Success: Required info provided]\n    alt [Failure: missing information]\n        sessionRoute -> {\"msg\":\"missing required information\"}(400) : {\"msg\":\"missing required information\"}(400)\n        sessionRoute -> http Response(400) : http Response(400)\n        sessionRoute -> {\"msg\":\"missing required information\"} : {\"msg\":\"missing required information\"}\n    end alt\nend alt\n\nalt [Failure: Unauthorized]\n    sessionRoute -> done(null, false) : done(null, false)\n    sessionRoute -> http Response(401) : http Response(401)\n    sessionRoute -> Unauthorized : Unauthorized\nend alt\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2203,
+    "completion_tokens": 375,
+    "total_tokens": 2578
+  }
+}

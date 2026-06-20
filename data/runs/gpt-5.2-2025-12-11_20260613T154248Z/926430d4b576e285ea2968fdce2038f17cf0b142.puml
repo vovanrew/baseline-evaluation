@@ -1,0 +1,50 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #888888
+  ParticipantBackgroundColor #E6E6F2
+  ArrowColor #000000
+}
+
+participant browser
+participant listener
+participant sequence_1
+participant http_inbound_travelocity
+participant OIDC_IdP
+participant http_inbound_commonauth
+participant sequence_2
+
+browser -> listener : SAML login request
+listener -> sequence_1 : SAML login request
+browser -> http_inbound_travelocity : SAML login request
+http_inbound_travelocity -> sequence_1 : request
+
+note over sequence_1
+  <#FFFFE0>== SAML request process ==
+end note
+note over sequence_1
+  <#FFFFE0>== OIDC request build ==
+end note
+
+sequence_1 -> http_inbound_travelocity : Redirect to IDP
+OIDC_IdP -> browser : Redirect to IDP
+OIDC_IdP -> browser : login page
+browser -> OIDC_IdP : Submit credentials
+
+OIDC_IdP -> http_inbound_commonauth : ID token
+http_inbound_commonauth -> sequence_2 : ID token
+
+note over sequence_2
+  <#FFFFE0>== OIDC response process ==
+end note
+note over sequence_2
+  <#FFFFE0>== SAML response build ==
+end note
+
+sequence_2 -> http_inbound_commonauth : SAML response
+http_inbound_commonauth -> browser : SAML response
+
+@enduml

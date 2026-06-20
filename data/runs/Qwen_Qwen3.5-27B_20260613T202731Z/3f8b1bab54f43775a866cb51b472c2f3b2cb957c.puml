@@ -1,0 +1,97 @@
+```plantuml
+@startuml
+' version: 1.20201106
+' Skins: https://plantuml.com/skin-parameters
+' UML Class Diagrams: https://plantuml.com/class-diagram
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+class Brain {
+    C
+    pythons = []
+    pips = []
+    python_default
+    python2_default
+    python3_default
+    pip_default
+    pip2_default
+    pip3_default
+    visualisation = "
+    verbose = true
+    report_obj = {}
+    sites = {}
+}
+
+class Base {
+    C
+    path = path
+    paths_all = Set
+    is_default = false
+    is_default2 = false
+    is_default3 = false
+    result_shell_ls
+    result_shell_version
+    result_shell_file_size
+    version
+    size
+    warnings = []
+    report_obj = {}
+    ---
+    get exists()
+    analyse()
+    report()
+}
+
+class Python {
+    C
+    result_shell_site_info
+    result_shell_run_pip_as_module
+    sys_path = []
+    pip_module_version
+    pip_module_site_package_path
+    pips = []
+    ---
+    analyse()
+}
+
+class Pip {
+    C
+    site_package_path
+    pythons = []
+    ---
+    analyse()
+    analyse_version()
+    report()
+}
+
+class Site {
+    C
+    path = path
+    pythons = Set
+    pips = Set
+}
+
+Brain --* Python : pythons
+Brain --* Pip : pips *
+Brain --* Site : sites
+Python --|> Base
+Pip --|> Base
+
+note top of Brain
+  Brain's attributes
+  python_default, python2_default, python3_default
+  pip_default, pip2_default, pip3_default
+  get stored into the Brain's report objects'
+  defaults = {}
+  defaults.python
+  defaults.python2
+  defaults.python3
+  defaults.pip
+  defaults.pip2
+  defaults.pip3
+  attributes, respectively.
+end note
+
+@enduml
+```

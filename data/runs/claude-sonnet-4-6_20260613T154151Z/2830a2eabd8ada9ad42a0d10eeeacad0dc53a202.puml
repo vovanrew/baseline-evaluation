@@ -1,0 +1,79 @@
+```plantuml
+@startuml
+
+box "Upstream" #White
+participant "Producer" as UProducer <<C>>
+participant "Adapter" as UAdapter <<C>>
+participant "Tansport" as UTransport <<S>>
+end box
+
+box "Gateway" #White
+participant "Adapter" as GAdapter <<C>>
+participant "Consumer" as GConsumer <<C>>
+box "JobExecution" #LightCyan
+participant "GatewayJobHandler" as GatewayJobHandler <<C>>
+end box
+participant "Gateway" as GGateway <<C>>
+participant "Producer" as GProducer <<C>>
+participant "Adapter" as GAdapter2 <<C>>
+end box
+
+box "Downstream" #White
+participant "Tansport" as DTransport <<S>>
+participant "Adapter" as DAdapter <<C>>
+participant "Consumer" as DConsumer <<C>>
+box "JobExecution" #LightCyan
+participant "DownstreamJobHandler" as DownstreamJobHandler <<C>>
+end box
+participant "Lower Layer" as LowerLayer <<S>>
+end box
+
+UProducer -> UAdapter : publish(command)
+UAdapter -> UTransport : publish(command)
+UTransport -> GAdapter : execute(command)
+UAdapter --> UProducer : resolves()
+UProducer --> UProducer : resolves()
+UProducer -> UAdapter : subscribe(handler)
+UAdapter -> UTransport : subscribe("response")
+
+GAdapter -> GConsumer : handler(command, done)
+GConsumer -> GatewayJobHandler : subscribe("done")
+GConsumer -> GatewayJobHandler : emit("command", GatewayJobHandler)
+
+GatewayJobHandler -> GGateway : publish(command)
+GGateway -> GProducer : publish(command)
+GProducer -> GAdapter2 : publish(command)
+GAdapter2 -> DTransport : execute(command)
+GProducer --> GProducer : resolves()
+GProducer -> GAdapter2 : subscribe(handler)
+GAdapter2 -> DTransport : subscribe("response")
+
+DTransport -> DAdapter : handler(command, done)
+DAdapter -> DConsumer : subscribe("done")
+DAdapter -> DConsumer : emit("command", GatewayJobHandler)
+
+DConsumer -> DownstreamJobHandler : subscribe("done")
+DConsumer -> DownstreamJobHandler : emit("command", GatewayJobHandler)
+DownstreamJobHandler --> DownstreamJobHandler : done()
+DownstreamJobHandler -> DConsumer : emit("done")
+DConsumer -> DAdapter : done(response)
+
+DAdapter -> DTransport : getDelay(command)\ndone(response)
+DTransport -> GAdapter2 : emit("response", response)
+
+GAdapter2 -> GProducer : handler("response")\nonTimeOut(getDelay())\nunsubscribe()
+GProducer --> GAdapter2 : resolve(responses)
+
+GatewayJobHandler -> GConsumer : done()
+GConsumer -> GAdapter : emit("done")
+GAdapter -> UTransport : done(response)
+
+UTransport -> UAdapter : emit("response", response)
+UAdapter -> UProducer : handler("response")
+UAdapter -> UProducer : emit("response", response)
+UProducer --> UProducer : handler("response")\nonTimeOut(getDelay())\nunsubscribe()
+
+GConsumer -> GAdapter : getDelay(command)
+
+@enduml
+```

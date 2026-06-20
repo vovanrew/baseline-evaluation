@@ -1,0 +1,30 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "Player" as Player1
+rectangle "Portal Service" {
+    participant "Telnet Server" as TelnetServer
+    participant "Connection Manager" as ConnectionManager
+    participant "Middleware" as Middleware
+}
+participant "World Service" as WorldService
+
+Player1 -> TelnetServer : 1. connects to server
+activate TelnetServer
+TelnetServer -> ConnectionManager : 2. passes connection to manager
+activate ConnectionManager
+ConnectionManager -> ConnectionManager : 3. calls configured OnConnect callbacks
+ConnectionManager -> Middleware : 4. calls all Middleware OnConnect callbacks
+activate Middleware
+deactivate Middleware
+ConnectionManager -> ConnectionManager : 5. start main Connection loop
+ConnectionManager -> WorldService : 6. initialize World session
+activate WorldService
+deactivate WorldService
+deactivate ConnectionManager
+deactivate TelnetServer
+
+hide circle
+@enduml
+```

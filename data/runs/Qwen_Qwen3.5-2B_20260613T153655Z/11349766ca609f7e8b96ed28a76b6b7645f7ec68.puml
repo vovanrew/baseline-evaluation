@@ -1,0 +1,56 @@
+@startuml
+skinparam sequenceDiagram
+
+participant ListPrivateImpl
+participant ProfileRetrievalService
+participant DFSBasedProfileStorageImpl
+participant DFSSystem
+participant DFSConnectionService
+participant DFSConnectionServiceImpl
+participant GsonSerde
+participant BucketAccessService
+participant BucketAccessServiceImpl
+participant DFSCredentialsService
+participant DFSCredentialsServiceImpl
+participant DocumentListService
+participant ListPathDecryptingServiceImpl
+participant ListPathNonDecryptingServiceImpl
+
+actor User
+
+User ->> ListPrivateImpl: resolvePrivateLocation
+ListPrivateImpl ->> ProfileRetrievalService: privateProfile
+ProfileRetrievalService ->> DFSBasedProfileStorageImpl: privateProfile
+DFSBasedProfileStorageImpl ->> DFSSystem: systemDFSs
+DFSSystem ->> DFSConnectionService: obtain
+DFSConnectionService ->> DFSConnectionServiceImpl: obtain
+DFSConnectionServiceImpl ->> ListPathNonDecryptingServiceImpl: obtain
+ListPathNonDecryptingServiceImpl ->> ListPathDecryptingServiceImpl: obtain
+ListPathDecryptingServiceImpl ->> ListPathNonDecryptingServiceImpl: obtain
+
+User ->> ListPrivateImpl: locatePrivateProfile
+ListPrivateImpl ->> BucketAccessService: BucketPath
+BucketAccessService ->> GsonSerde: getBlob
+GsonSerde ->> ListPathNonDecryptingServiceImpl: Payload
+ListPathNonDecryptingServiceImpl ->> ListPathDecryptingServiceImpl: fromjson
+ListPathDecryptingServiceImpl ->> ListPathNonDecryptingServiceImpl: T
+ListPathNonDecryptingServiceImpl ->> ListPrivateImpl: UserPrivateProfile
+ListPrivateImpl ->> User: UserPrivateProfile
+
+User ->> ListPrivateImpl: privateAccessFor
+ListPrivateImpl ->> DFSBasedProfileStorageImpl: privateAccessFor
+DFSBasedProfileStorageImpl ->> DFSSystem: systemDFSs
+DFSSystem ->> DFSConnectionService: DFSAccess
+DFSConnectionService ->> DFSConnectionServiceImpl: DFSAccess
+DFSConnectionServiceImpl ->> ListPathNonDecryptingServiceImpl: privateUserCredentials
+ListPathNonDecryptingServiceImpl ->> ListPathDecryptingServiceImpl: privateUserCredentials
+ListPathDecryptingServiceImpl ->> ListPathNonDecryptingServiceImpl: DFSCredentials
+ListPathNonDecryptingServiceImpl ->> DFSConnectionService: DFSCredentials
+DFSConnectionService ->> DFSBasedProfileStorageImpl: DFSAccess
+DFSBasedProfileStorageImpl ->> ListPrivateImpl: list
+ListPrivateImpl ->> ListPathDecryptingServiceImpl: list
+ListPathDecryptingServiceImpl ->> ListPathNonDecryptingServiceImpl: Stream
+ListPathNonDecryptingServiceImpl ->> ListPathDecryptingServiceImpl: Stream
+ListPathDecryptingServiceImpl ->> ListPathNonDecryptingServiceImpl: Stream
+
+@enduml

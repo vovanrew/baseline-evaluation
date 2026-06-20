@@ -1,0 +1,94 @@
+```plantuml
+@startuml
+hide circle
+hide methods
+hide empty members
+
+class "app_translation\n((Translations))" as app_translation << (I, #428bca) >> {
+  {field} label string
+  {field} description longText
+  {field} privacyPolicyExtensions longText
+  {field} createdAt createdAt
+  {field} updatedAt updatedAt
+  {field} **appId** foreignKey
+  {field} **languageId** foreignKey
+}
+
+class "app_action_button_translation\n((Translations))" as app_action_button_translation << (I, #428bca) >> {
+  {field} label string
+  {field} createdAt createdAt
+  {field} updatedAt updatedAt
+  {field} **appActionButtonId** foreignKey
+  {field} **languageId** foreignKey
+}
+
+class "language" as language << (T, #a9a9a9) >>
+
+class "app_action_button\n(App action buttons)" as app_action_button << (T, #ffb6c1) >> {
+  {field} **id** id
+  {field} entity string
+  {field} view string
+  {field} url string
+  {field} action string
+  {field} openNewTab bool
+  {field} label translated
+  {field} appId foreignKey
+  {field} createdAt createdAt
+  {field} updatedAt updatedAt
+  {field} translated json
+}
+
+class "app_template\n(App templates)" as app_template << (T, #ffb6c1) >> {
+  {field} **id** id
+  {field} template longText
+  {field} path string
+  {field} active bool
+  {field} appId foreignKey
+  {field} createdAt createdAt
+  {field} updatedAt updatedAt
+}
+
+class "app\n(Apps)" as app << (T, #ffb6c1) >> {
+  {field} **id** id
+  {field} name string
+  {field} path string
+  {field} author string
+  {field} copyright string
+  {field} license string
+  {field} active bool
+  {field} configurable bool
+  {field} privacy string
+  {field} version string
+  {field} iconRaw blob
+  {field} icon string
+  {field} appSecret string
+  {field} modules list
+  {field} cookies list
+  {field} label translated
+  {field} description translated
+  {field} privacyPolicyExtensions translated
+  {field} integrationId foreignKey
+  {field} aclRoleId foreignKey
+  {field} createdAt createdAt
+  {field} updatedAt updatedAt
+  {field} translated json
+}
+
+class "integration" as integration << (T, #a9a9a9) >>
+class "acl_role" as acl_role << (T, #a9a9a9) >>
+class "custom_field_set" as custom_field_set << (T, #a9a9a9) >>
+class "webhook" as webhook << (T, #a9a9a9) >>
+
+app_translation --> language
+app_translation --> app
+app_action_button_translation --> language
+app_action_button_translation --> app_action_button
+app_action_button --> app
+app_template --> app
+app --> integration
+app --> acl_role
+app --> custom_field_set
+app --> webhook
+
+@enduml
+```

@@ -1,0 +1,22 @@
+{
+  "id": "aa09cd01-f21b-465d-bcfb-d89519f4a1cf",
+  "object": "chat.completion",
+  "created": 1781402964,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n\nparticipant API_Gateway\nparticipant UserRouter\nparticipant Middleware\nparticipant UserController\nparticipant UserDB\n\nactor User\n\nUser->>API_Gateway: getUsers(token)\nAPI_Gateway->>UserRouter: withAuth(token)\nUserRouter->>Middleware: jwt.verify(token)\nMiddleware-->>UserRouter: Token Valid\n\nalt [token]\n    UserRouter-->>API_Gateway: 'Unauthorized: No token provided (401)'\n    API_Gateway-->>UserRouter: 'Unauthorized: No token provided (401)'\nend\n\nalt [token != valid]\n    UserRouter-->>API_Gateway: 'Unauthorized: Invalid token (401)'\n    API_Gateway-->>UserRouter: 'Unauthorized: Invalid token (401)'\nend\n\nalt [users.length == 0]\n    UserRouter-->>API_Gateway: 'User not found 404'\n    API_Gateway-->>UserRouter: 'User not found 404'\nend\n\nUserRouter->>UserController: getUsers()\nUserController->>UserDB: find()\nUserDB-->>UserController: users[]\nUserController-->>UserRouter: return(res.status(200), users)\nUserRouter-->>API_Gateway: return(res.status(200), users)\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2007,
+    "completion_tokens": 288,
+    "total_tokens": 2295
+  }
+}

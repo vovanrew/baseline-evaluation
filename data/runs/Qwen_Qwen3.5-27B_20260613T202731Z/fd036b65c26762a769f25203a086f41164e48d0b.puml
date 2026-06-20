@@ -1,0 +1,30 @@
+```plantuml
+@startuml
+skinparam componentStyle rectangle
+
+actor "client" as client
+rectangle "gateway" as gateway
+rectangle "developer-service" as devService
+database "devs-db" as devsDb
+component "broker" as broker << (B,blue) >>
+rectangle "planning-service" as planService
+database "planning-db" as planningDb
+
+client -> gateway : POST dev
+activate gateway
+gateway -> devService : POST dev
+activate devService
+devService -> devsDb : persist
+devService --> gateway : response 201
+deactivate devService
+gateway --> client : 201
+deactivate gateway
+
+devService -> broker : emit DevCreated Event
+broker -> planService : consume Event
+activate planService
+planService -> planningDb : persist Dev
+deactivate planService
+
+@enduml
+```

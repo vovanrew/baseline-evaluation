@@ -1,0 +1,133 @@
+```plantuml
+@startuml
+
+package "Client" {
+  class IInfoPraiaFonte <<I>> {
+    [key: String]: number
+  }
+  
+  class IInfoPontoPrevisãoResponse <<I>> {
+    hours: IInfoPonto[]
+  }
+  
+  class IInfoPonto <<I>> {
+    tempo: String
+    alturaOnda: IInfoPraiaFonte
+    direçãoOnda: IInfoPraiaFonte
+    alturaOndulação: IInfoPraiaFonte
+    direçãoOndulação: IInfoPraiaFonte
+    períodoOndulação: IInfoPraiaFonte
+    velocidadeVento: IInfoPraiaFonte
+    direçãoVento: IInfoPraiaFonte
+  }
+  
+  class ApiInfoPraia {
+    - parameters: []
+    - request: Class Request
+    + buscarPonto(lat, lng): <IPrevisãoPonto[]>
+    + normalizarResponse(points: IInfoPontoPrevisãoResponse): IPrevisãoPonto[]
+    + PontoEValido(point: <InfoPonto>): Boolean
+  }
+}
+
+note right of ApiInfoPraia : parameters: [alturaOnda, direçãoOnda, alturaOndulação,\ndireçãoOndulação, períodoOndulação,\nvelocidadeVento, direçãoVento]
+
+class IPrevisãoPonto <<I>> {
+  tempo: String
+  alturaOnda: Number
+  direçãoOnda: Number
+  alturaOndulação: Number
+  direçãoOndulação: Number
+  períodoOndulação: Number
+  velocidadeVento: Number
+  direçãoVento: Number
+}
+
+package "Models" {
+  class IPraia <<I>> {
+    - id: Integer
+    - position[]: Position
+    - lat: Integer
+    - lng: Integer
+    - user: String
+  }
+  
+  class Position <<C>> {
+  }
+  
+  class IUser <<I>> {
+    id: String
+    name: String
+    email: String
+    password: String
+  }
+}
+
+class URL {
+}
+
+class Request <<C>> {
+  - request: []
+  + get(url)
+}
+
+class PraiaModel <<C>> {
+}
+
+class ModelUser <<C>> {
+}
+
+package "Middlewares" {
+  class IPraia2 as "IPraia" <<I>> {
+  }
+  
+  class IPrevisãoPonto2 as "IPrevisãoPonto" <<C>> {
+  }
+}
+
+package "Services" {
+  class ITempoPrevisão <<I>> {
+    tempo: String
+    previsão: IPrevisãoPraia[]
+  }
+  
+  class Previsão <<C>> {
+    - apiInfoPraia: novo ApiInfoPraia
+    - serviçoAvaliação: Avaliação
+    - processarOndaPrevisãoPraia(praia): <ITempoPrevisão[]>
+  }
+  
+  class IPrevisãoPraia <<I>> {
+    avaliação: Number
+  }
+}
+
+package "Controllers" {
+  class PraiasController <<C>> {
+    - praia: Praia
+    - resultado: mensagem
+    + create(req, res)
+    + nova Praia(req.body)
+    + praia.save()
+  }
+}
+
+class Praia <<C>> {
+}
+
+IPraia "N" -- "S\nL\nO" Position
+IPraia -- IUser
+URL -- Request
+Request ..> PraiaModel
+PraiaModel -- ModelUser
+ApiInfoPraia -- IPrevisãoPonto
+ApiInfoPraia -- Request
+Praia ..> PraiasController
+IPraia2 -- IPrevisãoPonto2
+IPrevisãoPonto2 -- ITempoPrevisão
+ITempoPrevisão -- Previsão
+IPrevisãoPraia -- ITempoPrevisão
+IPraia2 -- Previsão
+
+@enduml
+```

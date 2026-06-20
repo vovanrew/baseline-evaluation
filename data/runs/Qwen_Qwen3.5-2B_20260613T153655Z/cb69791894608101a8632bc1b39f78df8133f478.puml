@@ -1,0 +1,20 @@
+@startuml
+participant "客户端" as Client
+participant "认证中心" as AuthCenter
+participant "网关" as Gateway
+participant "缓存" as Cache
+participant "业务服务" as BusinessService
+
+Client ..> AuthCenter : 1 认证请求
+AuthCenter ..> Client : 2 JWT
+Client ..> Gateway : 3 服务请求 (带JWT)
+Gateway ..> AuthCenter : 4 请求公钥
+AuthCenter ..> Gateway : 5 JWK
+Gateway ..> Cache : 6 验证签名
+Cache ..> Gateway : 7 请求用户权限
+Cache ..> Gateway : 8 返回用户权限列表
+Gateway ..> Cache : 9 鉴权
+Gateway ..> BusinessService : 10 服务请求
+BusinessService ..> Client : 11 服务响应
+
+@enduml

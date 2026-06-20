@@ -1,0 +1,22 @@
+{
+  "id": "2491f28b-d28c-44ba-af7e-5e4c59c43dae",
+  "object": "chat.completion",
+  "created": 1781410391,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor User\nparticipant JobManager as JobManager\nparticipant Nodes\nparticipant ESDM\nparticipant Post Processing Library\nparticipant Storage\n\nUser -> JobManager: submit job(IN, OUT)\nJobManager -> Nodes\n\nrectangle Initialization {\n  Nodes -> Storage: read IN=x\n  Storage --> Nodes: return\n}\n\nrectangle Loop {\n  activate Nodes\n  Nodes -> Nodes: compute\n  Nodes -> ESDM: write async OUT=y\n  ESDM -> Storage: write snapshot (async)\n  ESDM -> Post Processing Library: trigger post processing if region effected\n}\n\nrectangle In Situ Post Processing {\n  activate Post Processing Library\n  Post Processing Library -> Post Processing Library: perform post processing\n  Post Processing Library -> Storage: (could write result directly)\n  Post Processing Library --> ESDM: return\n  ESDM -> Storage: write post processing result\n  ESDM --> Nodes: return\n  Nodes --> User: OUT files become visible\n}\n\nrectangle Finalize {\n  Nodes --> User: All OUT files become visible to subsequent users.\n}\n\nNote right of ESDM: multiple iterations\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2301,
+    "completion_tokens": 251,
+    "total_tokens": 2552
+  }
+}

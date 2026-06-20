@@ -1,0 +1,22 @@
+{
+  "id": "a07017bc-45af-41c9-9ac7-fa95369bafcb",
+  "object": "chat.completion",
+  "created": 1781412255,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nautonumber\nleft to right direction\nskinparam sequenceMessageSize 100\n\nactor \"User\" as User\nparticipant \"Index\" as Index\nparticipant \"User Controller\" as UserController\ndatabase \"Database\" as Database\n\nUser -> Index: GET: /users/signup\nactivate Index\nIndex -> UserController: renderSignup()\nactivate UserController\nUserController -> UserController: render(index)\nUserController --> Index: display signup\ndeactivate UserController\ndeactivate Index\n\nUser -> Index: POST: /users/signup\nactivate Index\nIndex -> UserController: async signup()\nactivate UserController\nUserController -> Database: User.findOne(email)\nactivate Database\nDatabase --> UserController: return false\ndeactivate Database\n\nalt [user not found]\n    alt [accept]\n        UserController -> UserController: User.create()\n        activate UserController\n        UserController --> Index: display home\n        deactivate UserController\n    else [refuse]\n        UserController --> Index: display home\n    end\nelse [user already exist]\n    UserController --> Index: show error\nend\n\ndeactivate UserController\ndeactivate Index\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2056,
+    "completion_tokens": 230,
+    "total_tokens": 2286
+  }
+}

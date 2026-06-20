@@ -1,0 +1,41 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6F2
+  ActorBorderColor #666666
+  ActorBackgroundColor #E6E6F2
+  BoxBorderColor #000000
+  BoxBackgroundColor #FFFFFF
+  GroupBorderColor #000000
+  GroupBackgroundColor #FFFFFF
+  GroupHeaderFontStyle bold
+  ArrowColor #000000
+  ArrowThickness 2
+  MessageAlign left
+}
+
+actor Developer as Dev
+participant "Vercel Build Machine" as Build
+participant CMS as CMS
+participant "Vercel Production Machine" as Prod
+
+Dev -> Build : Git push
+
+Build -> Build : Compile
+
+group Collecting page data
+  Build -> CMS : Fetch content data
+  CMS --> Build : Return content data
+end
+
+Build -> Build : Generate static pages
+
+Build -> Prod : Upload build output
+
+Prod -> Prod : Deploy
+
+@enduml

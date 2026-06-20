@@ -1,0 +1,33 @@
+```plantuml
+@startuml
+
+participant ConnectInterceptor
+participant StreamAllocation
+participant RealConnection
+participant Http2Connection
+participant CallServerInterceptor
+participant Http2Codec
+participant Http2Writer
+participant Sink
+participant Socket
+participant ReaderRunnable
+participant Http2Read
+participant Http2Stream
+participant Source
+
+ConnectInterceptor -> StreamAllocation : newStream
+StreamAllocation -> RealConnection : connect
+RealConnection -> Http2Connection : start()
+CallServerInterceptor -> Http2Codec : writeRequestHeaders
+Http2Codec -> Http2Connection : newStream
+Http2Connection -> Http2Writer : synStream
+Http2Writer -> Sink : write
+Http2Codec -> Socket : write
+Http2Codec -> Http2Connection : execute()
+ReaderRunnable -> Http2Read : nextFrame()
+Http2Connection -> ConnectInterceptor : handle
+Http2Connection -> CallServerInterceptor : receiveXXX()
+Http2Stream -> Source : read()
+
+@enduml
+```

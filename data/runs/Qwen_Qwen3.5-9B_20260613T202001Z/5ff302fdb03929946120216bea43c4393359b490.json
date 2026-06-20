@@ -1,0 +1,22 @@
+{
+  "id": "2456e2c9-c0a1-4be3-8894-dfe68a7a3d39",
+  "object": "chat.completion",
+  "created": 1781415310,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"User\" as User\nparticipant \"Frontend\" as Frontend\nparticipant \"Clerk\" as Clerk\nparticipant \"TicketMaster\" as TicketMaster\nparticipant \"DB\" as DB\n\nClerk >> ReservationService\nClerk >> TicketRepository\nClerk >> EventBus\nTicketMaster >> TicketMasterService\nTicketMaster >> TicketMasterRepository\nTicketMaster >> OrderManager\n\nUser -> Frontend: reserve button\nactivate Frontend\nFrontend -> Frontend: POST /reservations\nnote right of Frontend\n  POST /reservations\n  {\n    tickets: [\n      {\n        programId: 1,\n        sectorId: 1,\n        seatId: 5\n      },\n      {\n        programId: 1,\n        sectorId: 1,\n        seatId: 6\n      }\n    ]\n  }\nend note\nFrontend -> ReservationService: POST /reservations\nactivate ReservationService\nReservationService -> TicketRepository: validate tickets\nactivate TicketRepository\nTicketRepository --> ReservationService: validate tickets\ndeactivate TicketRepository\n\nalt [invalid]\n  ReservationService --> Frontend: ReservationRejected: code, reason\n  Frontend --> User: show error msg\nelse [valid]\n  ReservationService -> ReservationService: createReservationCommand\n  activate ReservationService\n  ReservationService -> EventBus: publish CreateReservation\n  deactivate ReservationService\n  ReservationService --> Frontend: ReservationAccepted: reservationId\n  Frontend --> User: redirect user to Order page\nend\n\nalt [ReservationAccepted]\n  ReservationService -> TicketMaster: handle CreateReservation\n  activate TicketMaster\n  TicketMaster -> TicketMasterRepository: check if all tickets are FREE\n  activate TicketMasterRepository\n  TicketMasterRepository --> TicketMaster: check if all tickets are FREE\n  deactivate TicketMasterRepository\n\n  alt [ticket status = FREE]\n    TicketMaster -> TicketMasterRepository: set status of tickets to RESERVED\n    activate TicketMasterRepository\n    TicketMasterRepository --> TicketMaster: set status of tickets to RESERVED\n    deactivate TicketMasterRepository\n    TicketMaster -> EventBus: publish ReservationAccepted\n  else [ticket status != FREE]\n    TicketMaster -> EventBus: publish ReservationRejected\n  end\n\n  TicketMaster --> ReservationService: handle ReservationEvent\n  deactivate TicketMaster\n\n  alt [ReservationAccepted]\n    ReservationService -> TicketMasterRepository: set status of tickets to RESERVED\n    activate TicketMasterRepository\n    TicketMasterRepository --> ReservationService: set status of tickets to RESERVED\n    deactivate TicketMasterRepository\n  else [ReservationRejected]\n    ReservationService -> ReservationService: Noop\n  end\n\n  ReservationService -> Frontend: publish ReservationEvent on websocket\n  Frontend --> User: redirect user to Order page\nend\n\nTicketMaster -> OrderManager: handle ReservationAccepted\nactivate OrderManager\nOrderManager -> DB: save ReservedTicket object for each ticket\nactivate DB\nDB --> OrderManager: save ReservedTicket object for each ticket\ndeactivate DB\nOrderManager --> TicketMaster: handle ReservationAccepted\ndeactivate OrderManager\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2105,
+    "completion_tokens": 658,
+    "total_tokens": 2763
+  }
+}

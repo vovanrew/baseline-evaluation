@@ -1,0 +1,59 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle stickfigure
+
+package "Application Layer" as app {
+  actor User
+  component ["SubscriptionController" as controller] as controller
+}
+
+package "Domain Model Layer" as domain {
+  component ["SubscriptionServiceImpl" as service] as service
+}
+
+package "Infrastructure Layer" as infra {
+  component ["JpaSubscriptionRepository" as repo] as repo
+  component ["SubscriptionPersistenceJpaRepository" as persistence] as persistence
+}
+
+database "Datastore" as datastore1
+database "Datastore" as datastore2
+
+User -> controller : 
+activate controller
+controller -> service : via SubscriptionService
+activate service
+service -> repo : via SubscriptionRepository
+activate repo
+repo -> persistence : via Spring data repository
+activate persistence
+persistence -> datastore1 : 
+activate datastore1
+deactivate datastore1
+deactivate persistence
+deactivate repo
+service -> controller : 
+deactivate service
+controller -> User : 
+deactivate controller
+
+User -> controller : 
+activate controller
+controller -> service : via SubscriptionService
+activate service
+service -> repo : via SubscriptionRepository
+activate repo
+repo -> persistence : via Spring data repository
+activate persistence
+persistence -> datastore2 : 
+activate datastore2
+deactivate datastore2
+deactivate persistence
+deactivate repo
+service -> controller : 
+deactivate service
+controller -> User : 
+deactivate controller
+
+@enduml

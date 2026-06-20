@@ -1,0 +1,22 @@
+{
+  "id": "53cc706c-4548-4a86-b1ee-8549b4ad6f68",
+  "object": "chat.completion",
+  "created": 1781500788,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nautonumber\n\nparticipant \"ListPrivateImpl\" as ListPrivateImpl\nparticipant \"ProfileRetrievalService\" as ProfileRetrievalService\nparticipant \"DFSBasedProfileStorageImpl\" as DFSBasedProfileStorageImpl\nparticipant \"DFSSystem\" as DFSSystem\nparticipant \"DFSConnectionService\" as DFSConnectionService\nparticipant \"DFSConnectionServiceImpl\" as DFSConnectionServiceImpl\nparticipant \"DFSConnection\" as DFSConnection\nparticipant \"GsonSerde\" as GsonSerde\nparticipant \"BucketAccessService\" as BucketAccessService\nparticipant \"BucketAccessServiceImpl\" as BucketAccessServiceImpl\nparticipant \"DFSCredentialsService\" as DFSCredentialsService\nparticipant \"DFSCredentialsServiceImpl\" as DFSCredentialsServiceImpl\nparticipant \"DocumentListService\" as DocumentListService\nparticipant \"ListPathDecryptingServiceImpl\" as ListPathDecryptingServiceImpl\nparticipant \"ListPathNonDecryptingServiceImpl\" as ListPathNonDecryptingServiceImpl\n\nactivate ListPrivateImpl\nListPrivateImpl -> ProfileRetrievalService: resolvePrivateLocation\nactivate ProfileRetrievalService\nProfileRetrievalService --> ListPrivateImpl: privateProfile\ndeactivate ProfileRetrievalService\nactivate DFSBasedProfileStorageImpl\nListPrivateImpl -> DFSBasedProfileStorageImpl: privateProfile\nactivate DFSSystem\nDFSBasedProfileStorageImpl -> DFSSystem: systemDfs\nDFSSystem --> DFSBasedProfileStorageImpl: DFSAccess\ndeactivate DFSSystem\nactivate DFSConnectionService\nDFSBasedProfileStorageImpl -> DFSConnectionService: obtain\nactivate DFSConnectionServiceImpl\nDFSConnectionService -> DFSConnectionServiceImpl: obtain\nDFSConnectionServiceImpl --> DFSConnectionService: DFSConnection\ndeactivate DFSConnectionServiceImpl\nDFSConnectionService --> DFSBasedProfileStorageImpl: DFSConnection\ndeactivate DFSConnectionService\nDFSBasedProfileStorageImpl --> ListPrivateImpl: locatePrivateProfile\nactivate DFSConnection\nDFSBasedProfileStorageImpl -> DFSConnection: BucketPath\nDFSConnection --> DFSBasedProfileStorageImpl: getBlob\nDFSConnection --> DFSBasedProfileStorageImpl: Payload\nactivate GsonSerde\nDFSBasedProfileStorageImpl -> GsonSerde: fromJson\nGsonSerde --> DFSBasedProfileStorageImpl: T\ndeactivate GsonSerde\nDFSBasedProfileStorageImpl --> ListPrivateImpl: UserPrivateProfile\ndeactivate DFSConnection\ndeactivate DFSBasedProfileStorageImpl\nListPrivateImpl --> ListPrivateImpl: UserPrivateProfile\nactivate BucketAccessService\nListPrivateImpl -> BucketAccessService: privateAccessFor\nactivate BucketAccessServiceImpl\nBucketAccessService -> BucketAccessServiceImpl: privateAccessFor\nactivate DFSCredentialsService\nBucketAccessServiceImpl -> DFSCredentialsService: privateUserCredentials\nactivate DFSCredentialsServiceImpl\nDFSCredentialsService -> DFSCredentialsServiceImpl: privateUserCredentials\nDFSCredentialsServiceImpl --> DFSCredentialsService: privateUserCredentials\ndeactivate DFSCredentialsServiceImpl\nactivate DFSSystem\nDFSCredentialsService -> DFSSystem: systemDfs\nDFSSystem --> DFSCredentialsService: DFSAccess\ndeactivate DFSSystem\nDFSCredentialsService --> BucketAccessServiceImpl: DFSCredentials\ndeactivate DFSCredentialsService\nBucketAccessServiceImpl --> BucketAccessService: DFSCredentials\ndeactivate BucketAccessServiceImpl\nBucketAccessService --> ListPrivateImpl: DFSAccess\ndeactivate BucketAccessService\nactivate DocumentListService\nListPrivateImpl -> DocumentListService: list\nactivate ListPathDecryptingServiceImpl\nDocumentListService -> ListPathDecryptingServiceImpl: list\nactivate ListPathNonDecryptingServiceImpl\nListPathDecryptingServiceImpl -> ListPathNonDecryptingServiceImpl: list\nListPathNonDecryptingServiceImpl --> ListPathDecryptingServiceImpl: Stream\nListPathDecryptingServiceImpl --> DocumentListService: Stream\ndeactivate ListPathNonDecryptingServiceImpl\ndeactivate ListPathDecryptingServiceImpl\nDocumentListService --> ListPrivateImpl: Stream\ndeactivate DocumentListService\ndeactivate ListPrivateImpl\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1223,
+    "completion_tokens": 819,
+    "total_tokens": 2042
+  }
+}

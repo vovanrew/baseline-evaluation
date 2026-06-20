@@ -1,0 +1,31 @@
+@startuml
+title Search Product by ID
+
+actor User
+participant Main as "main"
+participant MainMenu as "frame" MainMenu
+participant ProductReportDialog as "dialog" ProductReportDialog
+participant ProductDatabaseDAO as "DAO" ProductDatabaseDAO
+
+participant Database as "Database"
+
+User -> MainMenu: clicks 'View Products'
+MainMenu -> ProductReportDialog: create
+ProductReportDialog -> ProductDatabaseDAO: create
+
+ProductReportDialog -> Database: list of products displayed
+ProductReportDialog -> User: user types productID into field; clicks "Search"
+ProductReportDialog -> ProductDatabaseDAO: findProd(productID)
+ProductDatabaseDAO -> Database: search product by ID
+Database -> ProductReportDialog: resultSet
+ProductReportDialog -> ProductDatabaseDAO: extract product details from ResultSet into variables
+ProductDatabaseDAO -> ProductReportDialog: (return)
+ProductReportDialog -> ProductDatabaseDAO: «construct»
+ProductDatabaseDAO -> Product: product
+ProductDatabaseDAO -> ProductReportDialog: set products fields from variables
+ProductReportDialog -> SimpleListModel: «construct»
+SimpleListModel -> ProductReportDialog: updateItems(products)
+ProductReportDialog -> SimpleListModel: jList.setModel(model)
+ProductReportDialog -> User: product displayed
+
+@enduml

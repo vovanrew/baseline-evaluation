@@ -1,0 +1,41 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+package "FAMPClient" {
+    participant "AudioBundleAssembler" as aba
+    participant "UDPBundleReceiver" as ubr
+}
+
+package "FAMPServer" {
+    participant "UDPBundleSender" as uds
+    participant "QUdpSocket" as qus
+}
+
+aba -> ubr : rozpocznij watek odbierajacy
+aba -> uds : rozpocznij wyslanie paczek
+uds -> qus : grupa 50 paczek
+
+rectangle loop [dopoki nie pobrano wszystkich paczek] {
+    rectangle loop [dopoki dostepne sa datagramy] {
+        aba -> ubr : przekaz pobrane dotychczas datagramy
+        ubr -->> aba : dane
+        aba -> aba : odczytaj id paczki i zapisz
+    }
+    
+    rectangle alt [nie wszystkie paczki wyslane] {
+        aba -> uds : wyslij nastepny zestaw paczek
+        uds -> qus : grupa 50 paczek
+        uds -->> aba : czy to ostatni zestaw
+        
+        alt [istnieja paczki do retransmisji] {
+            uds -> qus : wyslij zestaw brakujacych paczek
+        }
+    }
+}
+
+aba -> aba : posortuj paczki
+aba -> aba : zapisz paczki do pliku
+
+@enduml
+```

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Bxoe37FSmYW1Kb5FJSyRbi",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\npackage \"domain\" {\n\ninterface INodeVisitor {\n  + visit(node: Probe)\n  + visit(node: Input)\n  + visit(node: AndGate)\n  + visit(node: NAndGate)\n  + visit(node: NOrGate)\n  + visit(node: OrGate)\n  + visit(node: XOrGate)\n}\n\nclass Circuit {\n  + Circuit()\n  + addNode(node: Node)\n  + addInput(node: Input)\n  + addProbe(node: Probe)\n  + getNodes(): Set<Node>\n  + getInputs(): Set<Input>\n  + getInput(name: String)\n  + getProbes(): Set<Probe>\n  + getProbe(name: String)\n  + simulate()\n  + addSimulationListener(simulationListener: ISimulationListener)\n  + addSimulationListeners(simulationListeners: Collection<ISimulationListener>)\n}\n\nabstract class Node {\n  # value: boolean\n  # name: String\n  + Node(name: String)\n  + getValue(): boolean\n  + getName(): String\n  + addToCircuit(circuit: Circuit)\n  + addSimulationListener(simulationListener: ISimulationListener)\n  + notifyStartCalculation()\n  + notifyStopCalculation(calculatedValue: boolean)\n  # {abstract} calculate(): boolean\n  + {abstract} accept(nodeVisitor: INodeVisitor)\n}\n\nabstract class NodeComposite {\n  # parents: List<Node>\n  + NodeComposite(parents: List<Node>, name: String)\n  + add(parent: Node)\n  + remove(parent: Node)\n  + getParents(): List<Node>\n  # calculate(): boolean\n}\n\ninterface ISimulationListener {\n}\n\nclass Input {\n  + Input(value: boolean, name: String)\n  + setValue(value: boolean)\n  + calculate(): boolean\n  + accept(nodeVisitor: INodeVisitor)\n  + addToCircuit(circuit: Circuit)\n}\n\nclass Probe {\n  + Probe(name: String)\n  + Probe(parents: List<Node>, name: String)\n  + calculate(): boolean\n  + accept(nodeVisitor: INodeVisitor)\n  + addToCircuit(circuit: Circuit)\n}\n\nclass AndGate {\n  + AndGate(name: String)\n  + AndGate(parents: List<Node>, name: String)\n  + calculate(): boolean\n  + accept(nodeVisitor: INodeVisitor)\n}\n\nclass NAndGate {\n  + NAndGate(name: String)\n  + NAndGate(parents: List<Node>, name: String)\n  + calculate(): boolean\n  + accept(nodeVisitor: INodeVisitor)\n}\n\nclass NOrGate {\n  + NOrGate(name: String)\n  + NOrGate(parents: List<Node>, name: String)\n  + calculate(): boolean\n  + accept(nodeVisitor: INodeVisitor)\n}\n\nclass NotGate {\n  + NotGate(name: String)\n  + NotGate(parents: List<Node>, name: String)\n  + calculate(): boolean\n  + accept(nodeVisitor: INodeVisitor)\n}\n\nclass OrGate {\n  + OrGate(name: String)\n  + OrGate(parents: List<Node>, name: String)\n  + calculate(): boolean\n  + accept(nodeVisitor: INodeVisitor)\n}\n\nclass XOrGate {\n  + XOrGate(name: String)\n  + XOrGate(parents: List<Node>, name: String)\n  + calculate(): boolean\n  + accept(nodeVisitor: INodeVisitor)\n}\n\nCircuit \"1\" o-- \"0..*\" Node : nodes\nCircuit \"1\" o-- \"0..*\" Input : inputs\nCircuit \"1\" o-- \"0..*\" Probe : probes\nCircuit \"1\" o-- \"0..*\" ISimulationListener : simulationListeners\n\nNode \"1\" o-- \"0..*\" ISimulationListener : simulationListeners\nNode \"1\" <-- \"0..*\" NodeComposite : parents\n\nNode <|-- NodeComposite\nNode <|-- Input\n\nNodeComposite <|-- AndGate\nNodeComposite <|-- NAndGate\nNodeComposite <|-- NOrGate\nNodeComposite <|-- NotGate\nNodeComposite <|-- OrGate\nNodeComposite <|-- XOrGate\nNodeComposite <|-- Probe\n\n}\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781368261,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 1135,
+    "prompt_tokens": 1440,
+    "total_tokens": 2575
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01WPKyKBzpsUVtNpbrUFDNA3",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Skava Integration \u2013 Order Replaced Completed\n\nbox \"Skava AWS\" #LightBlue\nparticipant \"Skava Event\\nOrchestration\" as SEO\nend box\n\nbox \"Kafka\" #LightCyan\nparticipant \"Topics\" as KT\nend box\n\nbox \"YL Services\" #LightBlue\nparticipant \"Order Sync Service\" as OSS\nend box\n\ndatabase \"Legacy DB\" as LDB\n\nSEO -> KT : 1 Produce OrderReplacedCompleted Message\n\nnote over KT : Async\n\nKT -> OSS : 2 Consume OrderReplacedCompleted Message\n\nOSS -> LDB : 3 Update order status in legacy db\nLDB ..> OSS : 4 Response/Order ID\n\nOSS -> KT : 5 Produce OrderReplacedCompletedProcessed Message\n\nnote over KT : Async\n\nKT -> SEO : 6 Consume OrderReplacedCompletedProcessed Message\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781430587,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 250,
+    "prompt_tokens": 1608,
+    "total_tokens": 1858
+  }
+}

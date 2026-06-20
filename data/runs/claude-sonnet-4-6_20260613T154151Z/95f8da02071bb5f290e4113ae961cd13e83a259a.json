@@ -1,0 +1,21 @@
+{
+  "id": "msg_01NgjtpUi1j8LRL6F9hDebH7",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor Administrative\n\nparticipant \":AddScooterUI\" as UI\nparticipant \":AddScooterController\" as Controller\nparticipant \":Pharmacy\" as Pharmacy\nparticipant \"ls:ListScooters\" as ListScooters\nparticipant \"sc:Scooter\" as Scooter\nparticipant \"bat:Battery\" as Battery\nparticipant \"scdb:ScooterDB\" as ScooterDB\nparticipant \"batdb:BatteryDB\" as BatteryDB\n\nAdministrative -> UI : 1 begins the process of adding a scooter\nUI -> Administrative : 2 asks for the necessary data(id_Scooter, qrCode, status, id_Battery, capacity)\nAdministrative -> UI : 3 inserts the solicited data\nUI -> Controller : 4 newScooter(id_Scooter, qrCode, status, id_Battery, capacity)\nController -> Pharmacy : 5 ls = getListScooters()\nPharmacy --> Controller :\nController -> Pharmacy : 6 sc=newScooter(id_Scooter, qrCode, status, id_Battery, capacity)\nPharmacy -> ListScooters : 7 create(id_Scooter, qrCode, status, id_Battery, capacity)\nListScooters -> Scooter : \nScooter -> Battery : 8 create(id_Battery, capacity)\nBattery -> Battery : 9 validateBattery(bat)\nBattery --> Scooter :\nController -> ListScooters : 10 validateScooter(sc)\nListScooters --> Controller :\nController -> UI : 11 validates the data, presents it and asks the administrator for its confirmation\nAdministrative -> UI : 12 confirms\nUI -> Controller : 13 registerScooter()\nController -> Pharmacy : 14 registerScooter(sc)\nPharmacy -> ListScooters : 15 validateScooter(sc)\nListScooters --> Pharmacy :\nPharmacy -> ListScooters : 16 addScooter(sc)\nPharmacy -> ListScooters : 17 save(sc)\nListScooters ..> ScooterDB : 18 save(sc)\nScooterDB --> ListScooters :\nListScooters ..> BatteryDB : 19 save(bat)\nBatteryDB --> ListScooters :\nPharmacy ..> UI : 20 adds the scooter to a list of scooters\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371527,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 591,
+    "prompt_tokens": 1328,
+    "total_tokens": 1919
+  }
+}

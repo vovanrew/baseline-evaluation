@@ -1,0 +1,103 @@
+@startuml
+title RqP - Request Resource
+
+hide footbox
+skinparam shadowing false
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 25
+skinparam BoxPadding 15
+skinparam NoteBackgroundColor #FFF9C4
+skinparam NoteBorderColor #999999
+
+actor "Requesting Party\n(RqP)" as RqP
+
+box "Client Application (CA)\n<<Custom Application>>" #98FB98
+participant "User Interface" as UI
+end box
+
+box "Resource Server (RS)\n<<Custom Application>>" #FAD7B5
+participant "REST API" as RS_REST
+database "Resource" as RS_Resource
+database "Credential" as RS_Credential
+end box
+
+box "Authorization Server (AS)\nForgeRock Access Manager" #F7E7D3
+participant "AM API" as AM_API
+participant "UMA API" as UMA_API
+participant "OAuth API" as OAUTH_API
+end box
+
+box "Content Server (CS)\n<<Custom Application>>" #AEEEEE
+participant "REST API" as CS_REST
+database "Data" as CS_Data
+end box
+
+RqP -> UI : Authenticate
+UI --> RqP : Authenticated
+RqP -> UI : Access Interface
+
+activate UI
+UI -> UI : Obtain Resource Id\n(maybe from Discover Resources)
+UI -> RS_REST : GET /share/resources/{resourceId}\nscopes (no valid RPT)
+deactivate UI
+
+activate RS_REST
+RS_REST -> RS_Resource : Get _id
+activate RS_Resource
+RS_Resource --> RS_REST : meta data
+deactivate RS_Resource
+
+RS_REST -> RS_Credential : Get PAT
+activate RS_Credential
+RS_Credential --> RS_REST : PAT
+deactivate RS_Credential
+
+note left of RS_REST
+Get permission ticket for the
+resource and scope
+end note
+
+RS_REST -> UMA_API : POST /am/uma/permission_request\nresource_id + scopes
+activate UMA_API
+UMA_API --> RS_REST : permission ticket
+deactivate UMA_API
+
+RS_REST --> UI : permission ticket + AS URI
+deactivate RS_REST
+
+activate UI
+UI -> UI : Get client auth basic
+
+note left of UI
+Get claim token for the
+Requesting Party (RqP)
+end note
+
+UI -> OAUTH_API : POST /am/oauth2/access_token\nscope=openid\nSSO session
+activate OAUTH_API
+OAUTH_API -> OAUTH_API : Validate SSO session
+OAUTH_API --> UI : claim token
+deactivate OAUTH_API
+
+note left of UI
+Get Requesting Party Token (RPT)
+using the permission ticket
+and claim token
+end note
+
+UI -> OAUTH_API : POST /am/oauth2/access_token\ngrant_type=urn:ietf:params:oauth:grant-type:uma-ticket\nscope=..., ticket=..., claim_token=..., claim_token_format=...
+activate OAUTH_API
+
+activate AM_API
+AM_API -> AM_API : Check Access
+AM_API -> AM_API : No Policy for RqP + Resource + scopes\nCreate Access Request for Resource Owner
+AM_API -> AM_API : No Access, request Submitted
+deactivate AM_API
+
+OAUTH_API --> UI : Error: Request Submitted
+deactivate OAUTH_API
+deactivate UI
+
+UI --> RqP : Error: Request Submitted
+
+@enduml

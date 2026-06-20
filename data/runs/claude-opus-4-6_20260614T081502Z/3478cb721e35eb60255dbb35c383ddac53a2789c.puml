@@ -1,0 +1,30 @@
+```plantuml
+@startuml
+title GameEnginePluginLifecycle
+
+participant "Host Application" as HA
+participant "Host Application Interop" as HAI
+participant "Game Engine Plugin" as GEP
+
+HA -> HA : Initialization
+HA -> HAI : new
+
+group Load GE Plugin(s)
+    HAI -> HAI
+    HAI -> GEP : load into memory
+    HAI -> GEP : GEP_Initialize
+    GEP --> HAI : initialization_ok = 0
+end
+
+loop Repeat Every Frame Period
+    HAI -> GEP : GEP_HandleSimulationReponseMessages
+    GEP --> HAI : handled_ok = 0
+    
+    ... delays ...
+    
+    HAI -> GEP : GEP_HandleSimulationControlMessages
+    GEP --> HAI : handled_ok = 0
+end
+
+@enduml
+```

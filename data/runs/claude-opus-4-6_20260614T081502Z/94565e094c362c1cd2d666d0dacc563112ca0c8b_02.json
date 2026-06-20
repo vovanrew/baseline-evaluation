@@ -1,0 +1,21 @@
+{
+  "id": "msg_01HP7FSgTaNC7MDWMcdi4MeB",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nparticipant \"Node\" as Node\nparticipant \"RF\" as RF\nparticipant \"Link\" as Link\nparticipant \"Hub\" as Hub\nparticipant \"testdomain.com\" as TD\n\nNode -> Link : BROADCAST: 256LW,R,F,KI7EST-0\n\nnote over RF : Repeated every 5 minutes while link is idle\n\n...\n\nNode -> RF : CONTROL: Request Link KI7EST-1,KI7EST-0\nRF -> Link : CONTROL: Request Link KI7EST-1,KI7EST-0\nLink -> RF : CONTROL: Grant Link KI7EST-0,KI7EST-1\nRF -> Node : CONTROL: Grant Link KI7EST-0,KI7EST-1\n\nnote over RF : First frame has Start Flag set\n\nNode -> RF : DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>\nRF -> Link : DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>\nLink -> RF : ACK: 0x0001 0x0000, _N, _R, 0C, <FEC>\nRF -> Node : ACK: 0x0001 0x0000, _N, _R, 0C, <FEC>\n\nnote left of Link\nRepeat until all data frames are sent.\nNote that last frame has end flag set\n\nIf Link as response for command/packet then\n Response Flag will be set and second data transfer happens in reverse.\nend note\n\nNode -> RF : DATA: 0x0020 256B,4F,_S,E <FEC> <payload> <FEC>\nRF -> Link : DATA: 0x0020 256B,4F,_S,E <FEC> <payload> <FEC>\n\nLink -> Hub : Final packet, assembled sequence\nHub <- Link : <sig> 0001 REST KI7EST@rfnethub.net\\nPOST testdomain.com/ping\nHub -> TD : /user/KI7EST/keys\nHub <- TD : \"MTIzNDU2NzgxMjM0NTY3ODEyMzQ1Njc4MTIzNDU2Nzg=\"\nHub -> Hub : Verify signature\nHub -> TD : /ping\nHub <- TD : 200\n\nLink <- Hub : ACK: 0x0001 0x0000, _N, R, 0C, <FEC>\nRF <- Link\nNode <- RF : ACK: 0x0001 0x0000, _N, R, 0C, <FEC>\n\nRF <- Link : DATA: 0x0001 256B,4F,S,E <FEC>\\nKI7EST@rfnethub.net 0001 REST\\n200\nNode <- RF : DATA: 0x0001 256B,4F,S,E <FEC>\\nKI7EST@rfnethub.net 0001 REST\\n200\n\nNode -> RF : ACK: 0x0001 0x0000,_N,_R,0C <FEC>\nRF -> Link : ACK: 0x0001 0x0000,_N,_R,0C <FEC>\n\nNode -> RF : CONTROL: Close Link KI7EST-1,KI7EST-0\nRF -> Link : CONTROL: Close Link KI7EST-1,KI7EST-0\nLink -> RF : CONTROL: Closed Link KI7EST-0,KI7EST-1\nRF -> Node : CONTROL: Closed Link KI7EST-0,KI7EST-1\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781430574,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 896,
+    "prompt_tokens": 1654,
+    "total_tokens": 2550
+  }
+}

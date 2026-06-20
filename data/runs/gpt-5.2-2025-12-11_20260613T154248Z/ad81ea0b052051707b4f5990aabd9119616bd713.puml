@@ -1,0 +1,56 @@
+@startuml
+skinparam backgroundColor white
+skinparam sequence {
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6F2
+  ActorBorderColor #666666
+  ActorBackgroundColor #E6E6F2
+  ArrowColor #222222
+  ArrowThickness 1
+  MessageAlign left
+}
+skinparam participant {
+  BackgroundColor #A8F04A
+  BorderColor #6A8F2A
+  FontColor #000000
+}
+skinparam actor {
+  BackgroundColor #E6E6F2
+  BorderColor #666666
+  FontColor #000000
+}
+
+participant "TaskExecutionStrategy" as TES #A8F04A
+participant "Action" as ACT #A8F04A
+participant "Connection" as CON #E6E6F2
+actor "SSH client/server connection" as SSH
+actor "ssh daemon (or winrm service)" as DAEMON
+
+TES -> ACT : init(..)
+TES -> ACT : init(..)
+TES -> ACT : run()
+
+ACT -> CON : put_file()
+CON -> SSH : transfer module data
+SSH -> DAEMON : transfer module data
+activate DAEMON
+DAEMON -> DAEMON : save module to disk
+deactivate DAEMON
+DAEMON --> SSH : transfer complete
+SSH --> CON : transfer complete
+CON --> ACT : return remote path
+
+ACT -> CON : exec_command()
+CON -> SSH : run module remotely
+SSH -> DAEMON : run module remotely
+activate DAEMON
+DAEMON -> DAEMON : execute shell command
+deactivate DAEMON
+DAEMON --> SSH : return response code, stdout, stderr
+SSH --> CON : return response code, stdout, stderr
+CON --> ACT : return response code, stdout, stderr
+ACT --> TES : return JSON
+
+@enduml

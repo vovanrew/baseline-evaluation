@@ -1,0 +1,22 @@
+{
+  "id": "c7e05ac2-0815-4085-8d13-b1c39636f68c",
+  "object": "chat.completion",
+  "created": 1781437535,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\nactor \"User\" as User\nparticipant \"JobManager\" as JobManager\nparticipant \"Nodes\" as Nodes\nparticipant \"ESDM\" as ESDM\nparticipant \"Post Processing Library\" as PostProcessingLibrary\ndatabase \"Storage\" as Storage\n\nUser -> JobManager: submit_job(IN, OUT)\nactivate JobManager\nJobManager -> Nodes: \nactivate Nodes\n\nbox \"Initialization\" #LightGrey\n    Nodes -> Storage: read IN=x\n    activate Storage\n    Storage --> Nodes: return\n    deactivate Storage\nendbox\n\nbox \"Loop\" #White\n    Nodes -> Nodes: compute\n    Nodes -> ESDM: write async OUT=y\n    activate ESDM\n    ESDM -> Storage: write snapshot (async)\n    \n    box \"In Situ Post Processing\" #White\n        ESDM -> PostProcessingLibrary: trigger post processing if region effected\n        activate PostProcessingLibrary\n        PostProcessingLibrary -> PostProcessingLibrary: perform post processing\n        PostProcessingLibrary -> Storage: (could write result directly)\n        PostProcessingLibrary --> ESDM: return\n        deactivate PostProcessingLibrary\n    endbox\n    \n    ESDM -> Storage: write post processing result\n    ESDM --> Nodes: return\n    deactivate ESDM\nendbox\n\nNodes --> User: OUT files become visible\ndeactivate Nodes\ndeactivate JobManager\n\nnote right of Nodes: multiple iterations\n\nbox \"Finalize\" #LightGrey\nendbox\n\nStorage --> User: All OUT files become visible to subsequent users.\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2301,
+    "completion_tokens": 339,
+    "total_tokens": 2640
+  }
+}

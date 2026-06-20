@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLugsxDJV3DY20p5v3jARhyvuMNp",
+  "object": "chat.completion",
+  "created": 1781369662,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  ArrowColor #000000\n  LifeLineBorderColor #666666\n  LifeLineBackgroundColor transparent\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #EDEDED\n  BoxBorderColor #666666\n  BoxPadding 10\n}\n\nbox \"Main process\" #BFE3F2\nparticipant Hook_StartActivity as HSA\nparticipant VirtualCore as VC\nparticipant VActivityManager as VAM\nend box\n\nbox \"Server process\" #8EF08E\nparticipant VActivityManagerService as VAMS\nparticipant VPackageManagerService as VPMS\nparticipant ProviderCaller as PC\nend box\n\nbox \"App Client process\" #6F6F6F\nparticipant StubContentProvider as SCP\nend box\n\nparticipant VRedirectActRequest as VRAR\nparticipant VActRedirectResult as VARR\n\nHSA -> VC : resolveActivityInfo\nactivate VC\ndeactivate VC\n\nHSA -> VRAR : new VRedirectActRequest\nactivate VRAR\nVRAR --> HSA : req\ndeactivate VRAR\n\nHSA -> VAM : redirectTargetActivity\nactivate VAM\nVAM -> VAMS : redirectTargetActivity\nactivate VAMS\n\nVAMS -> VAMS : redirectTargetActivityLocked\nVAMS -> VAMS : startProcessLocked\nVAMS -> VAMS : queryFreeStubForProcess\nVAMS -> VAMS : performStartProcessLocked\n\nVAMS -> VPMS : querySharedPackages\nactivate VPMS\nVPMS --> VAMS : sharedPackages : List<String>\ndeactivate VPMS\n\nVAMS -> VPMS : queryContentProviders\nactivate VPMS\nVPMS --> VAMS : providers : List<ProviderInfo>\ndeactivate VPMS\n\nVAMS -> VPMS : getSharedLibraries\nactivate VPMS\nVPMS --> VAMS : usesLibraries : List<String>\ndeactivate VPMS\n\nVAMS -> PC : call(MethodConstants.INIT_PROCESS)\nactivate PC\nPC -> SCP : call\nactivate SCP\nSCP -> SCP : initProcess\ndeactivate SCP\ndeactivate PC\n\nnote over VAMS, SCP\nStubContentProvider.java\u4e2d\u5b9a\u4e49\u4e8620\u4e2a\u9759\u6001\u5185\u90e8\u7c7bC1\u5230C20\uff0c\u90fd\u662fStubContentProvider\u7684\u5b50\u7c7b\uff0c\u5e76\u4e14\u5728AndroidManifest.xml\u7684stub\u4e2d\u58f0\u660e\u4e86process\u5b57\u6bb5\uff0c\u4e0e\u5bf9\u5e94\u7684StubActivity\u4e00\u81f4\u3002\nVA\u7684\u670d\u52a1\u8fdb\u7a0b\u53d6\u51fa\u4e00\u4e2a\u7a7a\u7684stubContentProvider\uff0c\u501f\u52a9Android ContentProvider\u673a\u5236\uff0c\u7cfb\u7edf\u4f1a\u521b\u5efa\u4e00\u4e2a\u65b0\u8fdb\u7a0b\u51fa\u6765\uff0c\u7136\u540e\u88ab\u4f5c\u4e3a\u53cc\u5f00\u5e94\u7528\u7684\u5bb9\u8eab\u4e4b\u6240\u3002\u8fd9\u4e2a\u5077\u6881\u6362\u67f1\u7684\u8fc7\u7a0b\u7531VA\u670d\u52a1\u8fdb\u7a0b\u5b8c\u6210\u3002\nend note\n\nVAMS -> VAMS : fetchStubActivityInfo\nVAMS --> VAM : result = new VActRedirectResult\ndeactivate VAMS\nVAM --> HSA : result = new VActRedirectResult\ndeactivate VAM\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2146,
+    "completion_tokens": 608,
+    "total_tokens": 2754,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

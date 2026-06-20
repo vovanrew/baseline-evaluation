@@ -1,0 +1,80 @@
+```plantuml
+@startuml
+title Capture Credit Card Payment
+
+participant "Client" as Client
+participant "Shop" as Shop
+participant "PAYONE" as Payone
+
+== Initial Request ==
+Client -> Shop: POST prepare.php
+activate Shop
+Shop -->> Client: 302 capture.php
+deactivate Shop
+
+Client -> Shop: GET capture.php
+activate Shop
+
+== No Pseudo Card PAN present ==
+alt [No Pseudo Card PAN present]
+    Shop -> Client: 200 Credit Card Form
+    deactivate Shop
+    
+    Client -> Payone: POST Card PAN
+    activate Payone
+    Payone -->> Client: 200 Pseudo Card PAN
+    deactivate Payone
+    
+    Client -> Shop: POST capture.php
+    activate Shop
+end
+
+== Authorization Request ==
+Shop -> Payone: POST request=authorization
+activate Payone
+
+== 3-D Secure Flow ==
+alt [With 3-D Secure]
+    Payone -->> Shop: 302 3-D Secure Form
+    Shop -->> Client: 302 3-D Secure Form
+    Client -> Payone: POST 3-D Secure Password
+    Payone -> Shop: POST notify.php txaction=appointed
+    activate Shop
+    Shop -> Shop: Set Payment Status to "captured"
+    Shop -->> Payone: 200 TSOK
+    deactivate Shop
+    Payone -->> Client: 302 done.php
+    deactivate Payone
+else [No 3-D Secure]
+    Payone -->> Shop: 200 status=APPROVED
+    activate Shop
+    Shop -> Shop: Set Payment Status to "pending"
+    Shop -->> Client: 302 done.php
+    deactivate Shop
+    deactivate Payone
+end
+
+== Completion ==
+Client -> Shop: GET done.php
+activate Shop
+Shop -->> Client: 200 Thanks
+deactivate Shop
+
+== Asynchronous Notifications ==
+alt [No 3-D Secure]
+    note right of Shop: some time later
+    Payone -> Shop: POST notify.php txaction=appointed transaction_status=completed
+    activate Shop
+    Shop -> Shop: Set Payment Status to "captured"
+    Shop -->> Payone: 200 TSOK
+    deactivate Shop
+end
+
+note right of Shop: some time later
+Payone -> Shop: POST notify.php txaction=paid
+activate Shop
+Shop -->> Payone: 200 TSOK
+deactivate Shop
+
+@enduml
+```

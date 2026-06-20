@@ -1,0 +1,21 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "client" as C
+participant "auth_service" as AS
+participant "IDP" as IDP
+participant "Gatekeeper" as G
+participant "PASTA_service" as PASTA
+participant "LDAP" as LDAP
+
+C ->> G : "request" as public
+G ->> G: generate internal (public) token
+G ->> PASTA : "request" internal (public) token
+PASTA ->> G: authorize service
+PASTA ->> G: authorize resource
+PASTA ->> G: perform service
+PASTA ->> G: "response"
+G ->> G: drop internal (public) token
+G ->> C: "response"
+
+@enduml

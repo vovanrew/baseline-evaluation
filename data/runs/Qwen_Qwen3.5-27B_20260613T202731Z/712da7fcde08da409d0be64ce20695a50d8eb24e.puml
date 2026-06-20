@@ -1,0 +1,23 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "Customer" as Customer
+rectangle "Shopware Platform" {
+    box "Checkout" as Checkout
+    box "Asynchronous Payment Handler" as AsyncHandler
+}
+
+rectangle "External System" {
+    circle "Payment Platform" as PaymentPlatform
+}
+
+Customer --> Checkout : pay
+Checkout --> AsyncHandler : pay
+AsyncHandler --> Customer : redirect
+Customer --> PaymentPlatform : pay
+PaymentPlatform --> Checkout : redirect
+Checkout --> AsyncHandler : finalize
+
+@enduml
+```

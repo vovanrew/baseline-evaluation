@@ -1,0 +1,90 @@
+```plantuml
+@startuml
+title 3.1.0 Get Participant Callback Details
+
+package "ML API Adapter Service" as ML {
+    actor "ML-API-ADAPTER" as adapter
+}
+
+package "Central Services" as CS {
+    boundary "Central Service API" as api
+    usecase "Participant Handler" as handler
+    database "Participant DAO" as dao
+    database "Central Store" as store
+}
+
+rectangle "Get Callback Details" as main {
+    adapter -> api : 1 Request to get callback details - GET - /participants/{name}/endpoints?type={typeValue}
+    
+    activate api
+    api -> handler : 2 Fetch Callback details for Participant
+    activate handler
+    
+    handler -> dao : 3 Fetch Participant\nError code: 3200
+    activate dao
+    dao -> store : 4 Fetch Participant
+    activate store
+    store --> dao : 5 Retrieved Participant
+    deactivate store
+    dao --> handler : 6 Return Participant
+    deactivate dao
+    
+    handler -> handler : 7 Validate DFSP
+    
+    alt Validate participant (success)
+        handler -> handler : 8 check if "type" parameter is sent
+        
+        alt Check if "type" parameter is sent (Sent)
+            handler -> dao : 9 Fetch Callback details for Participant and type\nError code: 3000
+            activate dao
+            
+            dao -> store : 10 Fetch Callback details for Participant and type
+            activate store
+            note right of store: Condition:\nisActive = 1\n[endpointTypeId = <type>]
+            store --> dao : 11 Retrieved Callback details for Participant and type
+            deactivate store
+            
+            dao --> handler : 12 Return Callback details for Participant and type
+            deactivate dao
+            
+            note right of handler: Message:\n{\n  endpoints: {type: <type>, value: <value>}\n}
+            
+            handler -> api : 13 Return Callback details for Participant
+            deactivate handler
+            api -> adapter : 14 Return Callback details for Participant
+            deactivate api
+            
+        else Check if "type" parameter is sent (Not Sent)
+            handler -> dao : 15 Fetch Callback details for Participant\nError code: 3000
+            activate dao
+            
+            dao -> store : 16 Fetch Callback details for Participant
+            activate store
+            note right of store: Condition:\nisActive = 1
+            store --> dao : 17 Retrieved Callback details for Participant
+            deactivate store
+            
+            dao --> handler : 18 Return Callback details for Participant
+            deactivate dao
+            
+            note right of handler: Message:\n{\n  endpoints: [\n    {type: <type>, value: <value>},\n    {type: <type>, value: <value>}\n  ]\n}
+            
+            handler -> api : 19 Return Callback details for Participant
+            deactivate handler
+            api -> adapter : 20 Return Callback details for Participant
+            deactivate api
+        end
+        
+    else Validate participant (failure)/ Error
+        note right of handler: Validation failure/ Error!
+        note right of handler: Message:\n{\n  "errorInformation": {\n    "errorCode": <errorCode>,\n    "errorDescription": <ErrorMessage>\n  }\n}
+        
+        handler -> api : 21 Return Error code: 3000, 3200
+        deactivate handler
+        api -> adapter : 22 Return Error code: 3000, 3200
+        deactivate api
+    end
+}
+
+@enduml
+```

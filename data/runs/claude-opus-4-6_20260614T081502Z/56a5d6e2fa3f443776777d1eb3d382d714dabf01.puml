@@ -1,0 +1,30 @@
+```plantuml
+@startuml
+
+actor TaskControl
+participant Reins_Agent
+participant ExecCommands
+database HostRegistry
+
+loop all_clients
+    TaskControl -> Reins_Agent : [01] identified_key
+
+    group connection check
+        Reins_Agent -> ExecCommands : [02] check(identified_key)
+        ExecCommands -> ExecCommands : [03] varid?(identified_key)
+        Reins_Agent <-- ExecCommands : [04] status
+        destroy ExecCommands
+    end
+
+    TaskControl <.. Reins_Agent : [05] status
+
+    group logging status
+        TaskControl -> ExecCommands : [06] rewrite_status(identified_key, status)
+        ExecCommands -> HostRegistry : [07] set_status(identified_key, IPaddress, status)
+        ExecCommands <-- HostRegistry : [08] store()
+        TaskControl <.. ExecCommands : [09] true or false
+    end
+end
+
+@enduml
+```

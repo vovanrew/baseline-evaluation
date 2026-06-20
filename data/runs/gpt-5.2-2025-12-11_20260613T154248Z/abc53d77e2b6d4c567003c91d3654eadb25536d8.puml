@@ -1,0 +1,28 @@
+@startuml
+title Gson源码 策略模式+工厂方法模式
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 12
+
+class Gson << (C,#B7DDBB) >> {
+  factories:List<TypeAdapterFactory>
+  --
+  fromJson(String):Object
+  toJson(Object):String
+}
+
+interface TypeAdapter << (I,#B9B2E6) >> {
+  read()
+  --
+  write()
+}
+
+interface TypeAdapterFactory << (I,#B9B2E6) >> {
+  create(Gson gson, TypeToken<T> type) : <T> TypeAdapter<T>
+}
+
+Gson "1..*" *--> TypeAdapterFactory
+TypeAdapterFactory ..> TypeAdapter
+
+@enduml

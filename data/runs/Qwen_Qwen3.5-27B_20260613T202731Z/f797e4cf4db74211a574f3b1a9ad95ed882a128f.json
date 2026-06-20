@@ -1,0 +1,22 @@
+{
+  "id": "77efef0c-1518-4107-9d54-239fb5fa82db",
+  "object": "chat.completion",
+  "created": 1781494935,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle PB-749 UC4 \u2013 Update a Banner on System Management\n\nactor \"System Management\" as SM\nrectangle \"Next Platform\" {\n    participant \"Core Next\" as CN\n    database \"Next Database\" as DB\n}\nparticipant \"Core Bradesco\" as CB\n\nnote over SM,CN:Abstract:\\nThis use case will be responsible to update an existing banner on Next.\\nThis endpoint is not responsible for deleting a record. To do this, it\\nmust use the use case 5 \u2013 Delete a Banner on System Management.\\nHowever, in this use case, SM may enable or disable Banner.\n\nSM -> CN: 1 PUT /v1/notification/banner/{bannerID}\nactivate CN\nnote right of SM:System Management will call this new endpoint\\npassing all the fields necessary to update an\\nexisting Banner. The fields are:\\n1. BANNER_ID\\n2. BUSINESS_EVENT_TYPE_ID\\n3. TEMPLATE_HEADER\\n4. TEMPLATE_BODY\\n5. ENABLE_IND\n\nCN -> DB: 2 check if this Banner exists on BANNER table\nactivate DB\nnote right of CN:Core Next will check if this Banner exists on BANNER table\nDB --> CN: 3 response\ndeactivate DB\n\nalt [if the Banner exists]\n    CN -> DB: 4 check if exists an enabled Banner associated with that BUSINESS_EVENT_TYPE received on requisition on BANNER table\n    activate DB\n    note orange right of CN:Note to developers\\nCore Next will check if exists any Banner linked to a BUSINESS_EVENT_TYPE on BANNER\\ntable. We can only have one enabled Banner linked to a BUSINESS_EVENT_TYPE. For this\\nrule, we should disregard the records that are with DELETE_FLG enabled and the Card itself.\n    DB --> CN: 5 response\n    deactivate DB\n    \n    alt [if exists an enabled Banner associated with that BUSINESS_EVENT_TYPE]\n        CN --> SM: 6 error\n        note left of SM:#FFCCCC<<HTTP code: 422>>\n    else [if don't exists an enabled Banner associated with that BUSINESS_EVENT_TYPE]\n        note right of CN:If the defensive checks pass, then we will update the register on BANNER table.\n        CN -> DB: 7 update the register on BANNER table\n        activate DB\n        DB --> CN: 8 success\n        deactivate DB\n        CN --> SM: 9 success\n        note left of SM:#ADD8E6<<HTTP code: 200>>\n    end\nelse [if the Banner don't exists]\n    CN --> SM: 10 error\n    note left of SM:#FFCCCC<<If the Banner don't exists on BANNER table, then we will throw back an error to SM.\\nHTTP code: 404>>\nend\n\ndeactivate CN\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2252,
+    "completion_tokens": 609,
+    "total_tokens": 2861
+  }
+}

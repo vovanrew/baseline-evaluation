@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Dpg8v1ePBk66RTfJ1o924S",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\ntitle Traffic influencing flows between OpenNESS controller and 5G Core\n\nactor \"User/Admin\" as user\n\nbox \"OpenNESS Controller components\" #lightblue\nparticipant \"UI/CLI\" as ui\nparticipant \"AF Microservice\" as af\nend box\n\nbox \"5G Core components\" #lightgreen\nparticipant \"NEF\" as nef\nparticipant \"NGC\\nCP Functions\" as ngc\nend box\n\nnote over nef : OpenNESS provided\\nCore component with\\nlimited functionality\n\ngroup Get all subscribed traffic influence info\n    user -> ui : Request all traffic influence\\nsubscribed\n    ui -> af : /af/v1/subscriptions : GET\n    af -> nef : /3gpp-traffic-Influence/v1/{afId}/subscriptions\\n: GET\n    note right of nef : NGC_STUB(PCF,UDR,BSF)\n    nef -> ngc\n    note right of nef : {Open: 3rd party NGC\\nintegration with\\nOpenNESS(NEF)}\n    ngc --> nef\n    nef --> af : OK: traffic influence info\\n<font color=red>ERROR: {400/500}</font>\n    af --> ui : OK: traffic influence info\\n<font color=red>ERROR: {400/500}</font>\n    ui --> user : Traffic influence details\nend\n\ngroup Get subscribed traffic influence info by subscriptionId\n    user -> ui : Request traffic influence using\\nsubscriptionId\n    ui -> af : /af/v1/subscriptions/{subscriptionId}\\n: GET\n    af -> nef : /3gpp-traffic-Influence/v1/{afId}/subscriptions/{subscriptionId}\\n: GET\n    note right of nef : NGC_STUB(PCF,UDR,BSF)\n    nef -> ngc\n    note right of nef : {Open: 3rd party NGC\\nintegration with\\nOpenNESS(NEF)}\n    ngc --> nef\n    nef --> af : OK: traffic influence info\\n<font color=red>ERROR: {400/500}</font>\n    af --> ui : OK: traffic influence info\\n<font color=red>ERROR: {400/500}</font>\n    ui --> user : Traffic influence details\nend\n\ncenter footer Proprietary and Confidential\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432879,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 570,
+    "prompt_tokens": 1626,
+    "total_tokens": 2196
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ninterface BeanPostProcessor {\n  Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception;\n  Object postProcessAfterInitialization(Object bean, String beanName) throws Exception;\n}\n\ninterface BeanFactoryAware {\n  void setBeanFactory(BeanFactory beanFactory) throws Exception;\n}\n\nclass AspectJAwareAdvisorAutoProxyCreator {\n  AbstractBeanFactory beanFactory;\n}\n\nclass JdkDynamicAopProxy {\n  AdvisedSupport advised;\n  public Object getProxy()\n  public Object invoke(final Object proxy, final Method method, final Object[] args)\n}\n\nclass AopProxy\nclass InvocationHandler\n\nclass AbstractBeanFactory {\n  public List getBeansForType(Class type) throws Exception {\n}\n\nclass AdvisedSupport {\n  MethodInterceptor methodInterceptor;\n  TargetSource targetSource;\n  private MethodMatcher methodMatcher;\n}\n\nclass ReflectiveMethodInvocation\n\nclass TargetSource {\n  Class targetClass;\n  Object target;\n}\n\nclass MethodMatcher\nclass MethodInterceptor\n\nclass AspectJExpressionPointcutAdvisor {\n  private Advice advice;\n  private AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();\n}\n\nclass PointcutAdvisor\nclass ApplicationContextTest\n\nclass Advice\n\nclass AspectJExpressionPointcut {\n  private PointcutParser pointcutParser;\n  private String expression;\n  private PointcutExpression pointcutExpression;\n  public boolean matches(Class targetClass)\n  public boolean matches(Method method, Class targetClass)\n}\n\nclass Pointcut\nclass ClassFilter\n\nBeanPostProcessor <|.. AspectJAwareAdvisorAutoProxyCreator\nBeanFactoryAware <|.. AspectJAwareAdvisorAutoProxyCreator\n\nAspectJAwareAdvisorAutoProxyCreator --> AbstractBeanFactory\nAspectJAwareAdvisorAutoProxyCreator --> JdkDynamicAopProxy\nAspectJAwareAdvisorAutoProxyCreator --> TargetSource\nAspectJAwareAdvisorAutoProxyCreator --> AspectJExpressionPointcutAdvisor\n\nAopProxy <|.. JdkDynamicAopProxy\nInvocationHandler <|.. JdkDynamicAopProxy\n\nJdkDynamicAopProxy --> AdvisedSupport\nJdkDynamicAopProxy --> ReflectiveMethodInvocation\n\nAdvisedSupport --> TargetSource\nAdvisedSupport --> MethodMatcher\nAdvisedSupport --> MethodInterceptor\n\nPointcutAdvisor <|.. AspectJExpressionPointcutAdvisor\nAspectJExpressionPointcutAdvisor --> Advice\nAspectJExpressionPointcutAdvisor --> AspectJExpressionPointcut\n\nPointcut <|.. AspectJExpressionPointcut\nClassFilter <|.. AspectJExpressionPointcut\n\nnote top of AspectJAwareAdvisorAutoProxyCreator\n@Override\npublic Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {\n    if (bean instanceof AspectJExpressionPointcutAdvisor) {\n        return bean;\n    }\n    if (bean instanceof MethodInterceptor) {\n        return bean;\n    }\n    List<AspectJExpressionPointcutAdvisor> advisors = beanFactory\n            .getBeansForType(AspectJExpressionPointcutAdvisor.class);\n    for (AspectJExpressionPointcutAdvisor advisor : advisors) {\n        if (advisor.getPointcut().getClassFilter().matches(bean.getClass())) {\n            AdvisedSupport advisedSupport = new AdvisedSupport();\n            advisedSupport.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());\n            advisedSupport.setMethodMatcher(advisor.getPointcut().getMethodMatcher());\n\n            TargetSource targetSource = new TargetSource(bean, bean.getClass().getInterfaces());\n            advisedSupport.setTargetSource(targetSource);\n\n            return new JdkDynamicAopProxy(advisedSupport).getProxy();\n        }\n    }\n    return bean;\n}\nend note\n\nnote left of JdkDynamicAopProxy\n@Override\npublic Object getProxy() {\n    return Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] { advised.getTargetSource()\n            .getTargetClass() }, this);\n}\n\n@Override\npublic Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {\n    MethodInterceptor methodInterceptor = advised.getMethodInterceptor();\n    if (advised.getMethodMatcher() != null\n            && advised.getMethodMatcher().matches(method, advised.getTargetSource().getTarget().getClass())) {\n        return methodInterceptor.invoke(new ReflectiveMethodInvocation(advised.getTargetSource().getTarget(),\n                method, args));\n    } else {\n        return method.invoke(advised.getTargetSource().getTarget(), args);\n    }\n}\nend note\n\nnote right of AbstractBeanFactory\n\u7279\u522b\u6ce8\u610f\u4e0b\u9762\u7684\uff1a\n        beanDefinition.setBean(bean);\n\n@Override\npublic Object getBean(String name) throws Exception {\n    BeanDefinition beanDefinition = beanDefinitionMap.get(name);\n    if (beanDefinition == null) {\n        throw new IllegalArgumentException(\"No bean named \" + name + \" is defined\");\n    }\n    Object bean = beanDefinition.getBean();\n    if (bean == null) {\n        bean = doCreateBean(beanDefinition);\n        bean = initializeBean(bean, name);\n        beanDefinition.setBean(bean);\n    }\n    return bean;\n}\nend note\n\nnote top of ApplicationContextTest\n@Test\npublic void test() throws Exception {\n    ApplicationContext applicationContext = new ClassPathXmlApplicationContext(\"tinyioc.xml\");\n    HelloWorldService helloWorldService = (HelloWorldService) applicationContext.getBean(\"helloWorldService\");\n    helloWorldService.helloWorld();\n}\n\ntinyioc.xml\u914d\u7f6e\n\n<bean id=\"outputService\" class=\"us.codecraft.tinyioc.OutputServiceImpl\">\n</bean>\n\n<bean id=\"helloWorldService\" class=\"us.codecraft.tinyioc.HelloWorldServiceImpl\">\n    <property name=\"text\" value=\"Hello World!\"></property>\n    <property name=\"outputService\" ref=\"outputService\"></property>\n</bean>\n\n<bean id=\"timeInterceptor\" class=\"us.codecraft.tinyioc.aop.TimerInterceptor\"></bean>\n\n<bean id=\"autoProxyCreator\" class=\"us.codecraft.tinyioc.aop.AspectJAwareAdvisorAutoProxyCreator\"></bean>\n\n<bean id=\"aspectJAspect\" class=\"us.codecraft.tinyioc.aop.AspectJExpressionPointcutAdvisor\">\n    <property name=\"advice\" ref=\"timeInterceptor\"></property>\n    <property name=\"expression\" value=\"execution(* us.codecraft.tinyioc.*.*(..))\"></property>\n</bean>\nend note\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHuKv9yUNVVzCijwHt/BwVFgwMF79GEOJ5dfVYaf6nzDBf2rTX9czL3xsVp+mW"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "citationMetadata": {
+        "citationSources": [
+          {
+            "startIndex": 1200,
+            "endIndex": 1441,
+            "uri": "https://github.com/dohoby/dohoby.github.io",
+            "license": ""
+          },
+          {
+            "startIndex": 2420,
+            "endIndex": 2672,
+            "uri": "https://chinalhr.github.io/post/spring-aop/",
+            "license": ""
+          },
+          {
+            "startIndex": 3692,
+            "endIndex": 4181,
+            "uri": "https://github.com/MuyiG/muyig.github.io",
+            "license": ""
+          },
+          {
+            "startIndex": 4542,
+            "endIndex": 4827,
+            "uri": "https://blog.csdn.net/chiduo3959/article/details/100641612",
+            "license": ""
+          },
+          {
+            "startIndex": 4927,
+            "endIndex": 5154,
+            "uri": "http://blog.csdn.net/mengdonghui123456/article/details/77521573",
+            "license": ""
+          },
+          {
+            "startIndex": 5372,
+            "endIndex": 5693,
+            "uri": "https://github.com/pigjay/spring",
+            "license": ""
+          },
+          {
+            "startIndex": 5666,
+            "endIndex": 5919,
+            "uri": "https://my.oschina.net/u/190591/blog/194481",
+            "license": ""
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1172,
+    "candidatesTokenCount": 1420,
+    "totalTokenCount": 2592,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1092
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "OlkuauuKJLOGxs0PrbO_8Qs"
+}

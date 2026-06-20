@@ -1,0 +1,67 @@
+```plantuml
+@startuml
+title PFD flow between Openness and 5G core
+
+actor "Admin" as admin
+package "OpenNESS Controller Components" {
+    participant "UI/CLI" as ui
+    participant "Af Microservice" as af
+}
+package "5G Core Components" {
+    participant "NEF" as nef
+    participant "NGC CP Function" as ngc
+    note right of nef: OpenNESS provided\nCore component with\nlimited functionality
+}
+
+rectangle "Get all transactions with PFD" as frame1 {
+    admin -> ui : Request all PFD transactions
+    activate ui
+    ui -> af : af/v1/pfd/transaction GET
+    activate af
+    af -> nef : 3gpp-pfd-management/v1/{scsAsId}/transactions/ GET
+    activate nef
+    nef -> nef : NGC_STUB (UDR SMF)
+    deactivate nef
+    nef --> af : OK: PFD information \ ERROR
+    deactivate af
+    af --> ui : OK: PFD information \ ERROR
+    deactivate ui
+    ui --> admin : PFD details
+}
+
+rectangle "Get transactions with transactionId" as frame2 {
+    admin -> ui : Request transaction with transactionId
+    activate ui
+    ui -> af : af/v1/pfd/transactions/{transactionId} GET
+    activate af
+    af -> nef : 3gpp-pfd-management/v1/{scsAsId}/transactions/{transactionId} GET
+    activate nef
+    nef -> nef : NGC_STUB (UDR SMF)
+    deactivate nef
+    nef --> af : OK: PFD information \ ERROR
+    deactivate af
+    af --> ui : OK: PFD information \ ERROR
+    deactivate ui
+    ui --> admin : PFD details
+}
+
+rectangle "Get transactions with applicationId" as frame3 {
+    admin -> ui : Request transactions with applicationId
+    activate ui
+    ui -> af : af/v1/pfd/transactions/{transactionId}/applications/{appId} GET
+    activate af
+    af -> nef : 3gpp-pfd-management/v1/{scsAsId}/transactions/{transactionId}/applications/{appId} GET
+    activate nef
+    nef -> nef : NGC_STUB (UDR SMF)
+    deactivate nef
+    nef --> af : OK: PFD information \ ERROR
+    deactivate af
+    af --> ui : OK: PFD information \ ERROR
+    deactivate ui
+    ui --> admin : PFD details
+}
+
+footer Proprietary and Confidential
+right Intel Corporation
+@enduml
+```

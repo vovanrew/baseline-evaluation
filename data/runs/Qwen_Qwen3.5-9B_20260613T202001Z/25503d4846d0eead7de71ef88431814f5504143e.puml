@@ -1,0 +1,22 @@
+@startuml
+left to right direction
+autonumber
+skinparam sequenceMessageAlign center
+
+participant "SendMessageController" as SendMessageController
+participant "SendMessageEngine" as SendMessageEngine
+participant "SendMessageSender" as SendMessageSender
+participant "Socket" as Socket
+participant "ObjectOutputStream" as ObjectOutputStream
+
+SendMessageController -> SendMessageEngine : sendMessage(message)
+SendMessageEngine -> SendMessageSender : create(message, port)
+SendMessageSender -> Socket : create(message.getInetAddress(), port)
+SendMessageEngine -> SendMessageSender : sendMessage()
+SendMessageSender -> ObjectOutputStream : create(socket.getOutputStream())
+SendMessageSender -> ObjectOutputStream : writeObject(message.getSheetTalkMessage())
+SendMessageSender -> ObjectOutputStream : flush()
+SendMessageSender -> ObjectOutputStream : close()
+SendMessageSender -> Socket : close()
+
+@enduml

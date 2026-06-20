@@ -1,0 +1,51 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    component LoginUI as loginUI
+}
+
+package "Controller" {
+    component LoginController as loginController {
+        +login(email, password)
+    }
+    
+    component ApplicationPOT as appPOT {
+        +static getInstance()
+        +clearCurrentSession()
+    }
+}
+
+package "Model" {
+    package "Service" {
+        component UserService as userService {
+            +UserService()
+            +newUserSession()
+        }
+    }
+    
+    component UserSession as userSession {
+        -String email
+        +UserSession()
+    }
+    
+    actor User as user {
+        -Integer id
+        -String email
+        -String password
+        -Integer nif
+        -String name
+        +User(email, password, nif, name)
+    }
+}
+
+loginUI ..> loginController : 
+loginController ..> appPOT : 
+appPOT "1" --> "1" userSession : has
+userService "1" --> "*" userSession : creates
+userSession "1" --> "1" user : allocates
+loginController ..> userService : 
+
+@enduml
+```

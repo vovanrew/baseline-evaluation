@@ -1,0 +1,22 @@
+{
+  "id": "d3e554c2-21bf-4b89-b836-1f875beb5c27",
+  "object": "chat.completion",
+  "created": 1781399113,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"sidetree-core-go\" as Actor1\nparticipant \"Instance 1\" as Inst1\nparticipant \"Instance 2\" as Inst2\nparticipant \"sidetree-core-go\" as Actor2\n\nparticipant \"Operation Queue\" as OpQueue1\nparticipant \"orb.operation\" as OpQueue2\nparticipant \"op-queue DB\" as OpQueue3\n\nOpQueue1..> OpQueue2\nOpQueue2..> OpQueue3\n\nActor1 ..> Inst1 : Subscribe\nInst1 ..> OpQueue2 : ok\n\nInst1 ..> OpQueue1 : Add(op1)\nOpQueue1 ..> OpQueue2 : Publish(op1)\nOpQueue2 ..> Inst1 : ok\nInst1 ..> Actor1 : ok\n\nActor2 ..> Inst2 : Add(op2)\nInst2 ..> OpQueue2 : Publish(op2)\nOpQueue2 ..> Inst2 : ok\nInst2 ..> Actor2 : ok\n\nInst1 ..> OpQueue2 : op2\nOpQueue2 ..> Inst1 : ok\nOpQueue2 ..> OpQueue3 : Put(op2,handler1ID,expiry)\nOpQueue3 ..> Inst1 : ok\nInst1 ..> OpQueue2 : Ack(op2)\nOpQueue2 ..> Inst1 : ok\nInst1 ..> Actor1 : ok\n\nInst2 ..> OpQueue2 : op1\nOpQueue2 ..> Inst2 : ok\nOpQueue2 ..> OpQueue3 : Put(op1,handler2ID,expiry)\nOpQueue3 ..> Inst2 : ok\nOpQueue2 ..> Inst2 : Ack(op1)\nOpQueue2 ..> Inst2 : ok\nInst2 ..> Actor2 : ok\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1811,
+    "completion_tokens": 376,
+    "total_tokens": 2187
+  }
+}

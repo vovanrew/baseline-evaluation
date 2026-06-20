@@ -1,0 +1,47 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+package "controller" as controllerPkg {
+
+  package "model" as controllerModelPkg {
+    class "User" as C_User_ControllerModel
+  }
+
+  interface "Controller" as I_Controller {
+    +execute(args : json) : json
+  }
+
+  class "Amount" as C_Amount_Controller
+  class "TransferSend" as C_TransferSend_Controller
+  class "Transfer" as C_Transfer_Controller
+
+  class "Factory" as C_Factory {
+    +create(name : string) : Controller
+  }
+
+  package "view" as controllerViewPkg {
+    class "Amount" as C_Amount_ControllerView
+  }
+
+  C_Amount_Controller ..> C_User_ControllerModel
+  C_Amount_Controller --> C_Amount_ControllerView
+
+  C_Amount_Controller ..|> I_Controller
+  C_TransferSend_Controller ..|> I_Controller
+  C_Transfer_Controller ..|> I_Controller
+
+  C_Factory ..> C_Amount_Controller : create
+  C_Factory ..> C_TransferSend_Controller : create
+  C_Factory ..> C_Transfer_Controller : create
+}
+
+package "view" as viewPkg {
+  class "Amount" as V_Amount
+}
+
+package "model" as modelPkg {
+  class "User" as M_User
+}
+@enduml

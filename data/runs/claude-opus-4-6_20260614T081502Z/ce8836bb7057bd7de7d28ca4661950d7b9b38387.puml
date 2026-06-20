@@ -1,0 +1,61 @@
+```plantuml
+@startuml
+
+class TeleAlgo <<C>> {
+  -abonoMensual : float
+  -llamadas : Llamada
+  -tarifaInternacional : float
+  --
+  +<u>conAbonoMensual(abono : float)</u>
+  -abonoMensual(unAbono : Float)
+  -aplicarTarifaPorMinutoALlamadaInternacional(tarifa : float)
+  -calcularGastoFinal() : float
+  -consultarPorLlamadaEfectuadaMasCostosa() : str
+  -registrarLlamadaNacional(duracion : int, horario : int)
+  -registrarLlamadaInternacional(duracion : int, horario : int, destino : str)
+}
+
+abstract class Llamada <<A>> {
+  #duracion: int
+  #horario: int
+  #tarifa : Tarifa
+  --
+  +costoTotal() : float
+  +<i>descripcion() : str</i>
+  #duracion(unaDuracion : int)
+  #esDeLargaDuracion() : bool
+  #horario(horario : int)
+  #montoDescuento(montoBruto : float) : float
+  #tarifa(tarifa : float)
+}
+
+class Tarifa <<C>> {
+  -monto : float
+  --
+  +<u>conMontoEnBaseAHorario(horario : int)</u>
+  +<u>conMontoFijo(monto : int)</u>
+  -monto() : float
+  -monto(monto : float)
+}
+
+class LlamadaNacional <<C>> {
+  --
+  +<u>conDuracionYHorario(duracion : int, horario : int)</u>
+  +descripcion() : str
+}
+
+class LlamadaInternacional <<C>> {
+  -destino : str
+  --
+  +<u>conDuracionHorarioTarifaYDestino(</u>\n\t<u>duracion : int,</u>\n\t<u>horario : int,</u>\n\t<u>tarifa : float,</u>\n\t<u>destino: str</u>\n<u>)</u>
+  +descripcion() : str
+  -destino(destino : str)
+}
+
+TeleAlgo "1" *-- "*" Llamada
+Llamada "1" -- "1" Tarifa
+LlamadaNacional --|> Llamada
+LlamadaInternacional --|> Llamada
+
+@enduml
+```

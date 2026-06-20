@@ -1,0 +1,27 @@
+@startuml
+participant "User" as User
+participant "UIFF" as UIBFF
+participant "CommandBus" as CommandBus
+participant "Aggregate" as Aggregate
+participant "ProcessManager" as ProcessManager
+participant "EventBus" as EventBus
+participant "QueryManager" as QueryManager
+participant "Projectors" as Projectors
+participant "ReadModels" as ReadModels
+
+User ->> UIBFF : http commands
+UIFF -> CommandBus : commands
+CommandBus -> Aggregate : commands
+Aggregate -> EventBus : events
+EventBus -> ProcessManager : events
+ProcessManager -> CommandBus : events
+CommandBus -> UIBFF : commands
+UIFF -> User : push
+User -> UIBFF : http queries
+UIFF -> QueryManager : queries
+QueryManager -> Projectors : results
+Projectors -> ReadModels : write
+QueryManager -> UIBFF : results
+UIFF -> User : results
+
+@enduml

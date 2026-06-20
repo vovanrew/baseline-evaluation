@@ -1,0 +1,186 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "expr\\" as expr {
+
+  class ExpressionEvaluator << (C,#A9D18E) >> {
+    + main(String[]): void
+  }
+
+  class ExpressionEvaluatorConfig << (C,#A9D18E) >> {
+    + repl(): REPL
+    + expressionParser(): ExpressionParser
+    + expressionFactory(): ExpressionFactory
+  }
+
+  package "repl\\" as repl {
+    interface REPL << (I,#B4A7D6) >> {
+      + loop(): void
+    }
+
+    class ConsoleREPL << (C,#A9D18E) >> {
+      + ConsoleREPL(ExpressionParser)
+    }
+
+    ConsoleREPL ..|> REPL
+  }
+
+  package "parser\\" as parser {
+    interface ExpressionParser << (I,#B4A7D6) >> {
+      + parse(s:String): Optional<Expression>
+    }
+
+    class DefaultExpressionParser << (C,#A9D18E) >> {
+      + DefaultExpressionParser(ExpressionFactory)
+    }
+
+    DefaultExpressionParser ..|> ExpressionParser
+  }
+
+  package "expression\\" as expression {
+
+    class AddExpression << (C,#A9D18E) >> {
+      - operandA: Integer
+      - operandB: Integer
+      - operator: String
+      + AddExpression(String, Integer, Integer)
+    }
+
+    class SubExpression << (C,#A9D18E) >> {
+      - operandA: Integer
+      - operandB: Integer
+      - operator: String
+      + SubExpression(String, Integer, Integer)
+    }
+
+    class MulExpression << (C,#A9D18E) >> {
+      - operandA: Integer
+      - operandB: Integer
+      - operator: String
+      + MulExpression(String, Integer, Integer)
+    }
+
+    class QuotExpression << (C,#A9D18E) >> {
+      - operandA: Integer
+      - operandB: Integer
+      - operator: String
+      + QuotExpression(String, Integer, Integer)
+    }
+
+    class FPAddExpression << (C,#A9D18E) >> {
+      - operandA: Double
+      - operandB: Double
+      - operator: String
+      + AddExpression(String, Double, Double)
+    }
+
+    class FPSubExpression << (C,#A9D18E) >> {
+      - operandA: Double
+      - operandB: Double
+      - operator: String
+      + SubExpression(String, Double, Double)
+    }
+
+    class FPMulExpression << (C,#A9D18E) >> {
+      - operandA: Double
+      - operandB: Double
+      - operator: String
+      + MulExpression(String, Double, Double)
+    }
+
+    class FPDivExpression << (C,#A9D18E) >> {
+      - operandA: Double
+      - operandB: Double
+      - operator: String
+      + QuotExpression(String, Double, Double)
+    }
+
+    interface Expression << (I,#B4A7D6) >> {
+      + eval(): T
+    }
+  }
+
+  interface ExpressionFactory << (I,#B4A7D6) >> {
+    + create(op:String, operandA:Integer, operandB:Integer): Expression
+    + create(op:String, operandA:Double, operandB:Double): Expression
+  }
+
+  class DefaultExpressionFactory << (C,#A9D18E) >> {
+    - intFactories: Map<String, IntExpressionFactory>
+    - fpFactories: Map<String, FPExpressionFactory>
+    + DefaultExpressionFactory(Map<String, IntExpressionFactory>, Map<String, FPExpressionFactory>)
+  }
+
+  package "ints\\" as ints {
+    interface IntExpressionFactory << (I,#B4A7D6) >> {
+      + create(op:String, operandA:Integer, operandB:Integer): IntExpression
+    }
+
+    class SubExpressionFactory << (C,#A9D18E) >>
+    class MulExpressionFactory << (C,#A9D18E) >>
+    class QuotExpressionFactory << (C,#A9D18E) >>
+    class AddExpressionFactory << (C,#A9D18E) >>
+
+    SubExpressionFactory ..> expression.SubExpression
+    MulExpressionFactory ..> expression.MulExpression
+    QuotExpressionFactory ..> expression.QuotExpression
+    AddExpressionFactory ..> expression.AddExpression
+
+    SubExpressionFactory ..|> IntExpressionFactory
+    MulExpressionFactory ..|> IntExpressionFactory
+    QuotExpressionFactory ..|> IntExpressionFactory
+    AddExpressionFactory ..|> IntExpressionFactory
+  }
+
+  package "fps\\" as fps {
+    interface FPExpressionFactory << (I,#B4A7D6) >> {
+      + create(op:String, operandA:Double, operandB:Double): FPExpression
+    }
+
+    class FPSubExpressionFactory << (C,#A9D18E) >>
+    class FPMulExpressionFactory << (C,#A9D18E) >>
+    class FPDivExpressionFactory << (C,#A9D18E) >>
+    class FPAddExpressionFactory << (C,#A9D18E) >>
+
+    FPSubExpressionFactory ..> expression.FPSubExpression
+    FPMulExpressionFactory ..> expression.FPMulExpression
+    FPDivExpressionFactory ..> expression.FPDivExpression
+    FPAddExpressionFactory ..> expression.FPAddExpression
+
+    FPSubExpressionFactory ..|> FPExpressionFactory
+    FPMulExpressionFactory ..|> FPExpressionFactory
+    FPDivExpressionFactory ..|> FPExpressionFactory
+    FPAddExpressionFactory ..|> FPExpressionFactory
+  }
+
+  ' Wiring / dependencies
+  ExpressionEvaluator ..> ExpressionEvaluatorConfig
+  ExpressionEvaluatorConfig ..> repl.REPL
+  ExpressionEvaluatorConfig ..> parser.ExpressionParser
+  ExpressionEvaluatorConfig ..> ExpressionFactory
+
+  repl.ConsoleREPL --> parser.ExpressionParser
+  parser.DefaultExpressionParser --> ExpressionFactory
+
+  DefaultExpressionFactory ..|> ExpressionFactory
+  DefaultExpressionFactory ..> ints.IntExpressionFactory
+  DefaultExpressionFactory ..> fps.FPExpressionFactory
+
+  ' Generic bindings shown in diagram
+  expression.Expression ..> expression.AddExpression : <<bind>>\nT:Integer
+  expression.Expression ..> expression.SubExpression : <<bind>>\nT:Integer
+  expression.Expression ..> expression.MulExpression : <<bind>>\nT:Integer
+  expression.Expression ..> expression.QuotExpression : <<bind>>\nT:Integer
+
+  expression.Expression ..> expression.FPAddExpression : <<bind>>\nT:Double
+  expression.Expression ..> expression.FPSubExpression : <<bind>>\nT:Double
+  expression.Expression ..> expression.FPMulExpression : <<bind>>\nT:Double
+  expression.Expression ..> expression.FPDivExpression : <<bind>>\nT:Double
+}
+
+@enduml
+```

@@ -1,0 +1,135 @@
+```plantuml
+@startuml
+
+package "Bleu" {
+
+  package "heap" {
+    class HeapUsage {
+      + {static} Add(int)
+      + {static} Subtract(int)
+      + {static} WarnIfNeeded(void)
+      o Get(void): int
+      o Clear(void)
+      o SetWarning(int, WarningDelegate)
+    }
+
+    class Heap {
+      o New(int): void*
+      o Delete(void**)
+    }
+  }
+
+  package "io_data" {
+    class IoData {
+      o Write(IoAddress, IoData)
+      o Add(IoAddress, IoData)
+      o Remove(IoAddress, IoData)
+      o Read(IoAddress): IoData
+    }
+  }
+
+  package "queue" {
+    class Queue {
+      o New(int): Queue
+      o Delete(Queue*)
+      o Enqueue(Queue, uint8_t)
+      o Dequeue(Queue): uint8_t
+      o Add(Queue, int, const void* data)
+      o Pop(Queue, int, void*)
+      o Clear(Queue)
+      o UsedSize(Queue)
+      o AvailableSize(Queue)
+    }
+  }
+
+  package "rng" {
+    package "xorshift" {
+      abstract class Xorshift {
+        o New(int, XorshiftAbstractMethod): Xorshift
+        o Delete(Xorshift*)
+        o Give(Xorshift, const uint32_t*)
+        o {abstract} Generate(Xorshift): uint32_t
+      }
+
+      class Xorshift32 {
+        o New(void): Xorshift
+      }
+
+      class Xorshift64 {
+        o New(void): Xorshift
+      }
+
+      class Xorshift96 {
+        o New(void): Xorshift
+      }
+
+      class Xorshift128 {
+        o New(void): Xorshift
+      }
+    }
+
+    package "xorshift_plus" {
+      abstract class XorshiftPlus {
+        o New(int, XorshiftPlusAbstractMethod): XorshiftPlus
+        o Delete(XorshiftPlus*)
+        o Give(XorshiftPlus, const uint64_t*)
+        o {abstract} Generate(XorshiftPlus): uint64_t
+      }
+
+      class Xorshift128Plus {
+        o New(void): XorshiftPlus
+      }
+    }
+  }
+
+  package "list" {
+    class ListNode {
+      + New(const void*): ListNode
+      + Delete(ListNode*)
+      + GetItem(ListNode): void*
+      + SetItem(ListNode, const void*)
+      + GetNext(ListNode): ListNode
+      + SetNext(ListNode, ListNode)
+    }
+
+    interface Comparer {
+      o Compare(const void*, const void*): int
+    }
+
+    interface Deleter {
+      o Delete(void**)
+    }
+
+    class List {
+      o New(const void*): List
+      o Delete(List*)
+      o Count(List): int
+      o Get(List, int): void*
+      o Add(List, const void*)
+      o Clear(List)
+      o Find(List, const void*): void*
+      o Pop(List, int): void*
+      o SetItemComparer(List, ComparerInterface)
+      o SetItemDeleter(List, DeleterInterface)
+    }
+  }
+}
+
+HeapUsage --> Heap
+Heap <-- Xorshift
+Heap <-- XorshiftPlus
+Heap <-- ListNode
+Heap <-- List
+
+Xorshift32 --|> Xorshift
+Xorshift64 --|> Xorshift
+Xorshift96 --|> Xorshift
+Xorshift128 --|> Xorshift
+Xorshift128Plus --|> XorshiftPlus
+
+List --> ListNode
+List --> Comparer
+List --> Deleter
+
+@enduml
+```

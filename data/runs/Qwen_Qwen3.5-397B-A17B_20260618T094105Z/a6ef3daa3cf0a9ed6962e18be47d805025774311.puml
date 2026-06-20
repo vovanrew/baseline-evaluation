@@ -1,0 +1,21 @@
+@startuml
+skinparam nodesep 100
+skinparam ranksep 50
+
+package "finest level" {
+    note top of finest_level : U(k,2) -> F(U(k,2))
+}
+
+note bottom of intermediate_levels_1 : tau = Q(1)*F(U(k,1)) - R*Q(2)*F(U'(k',2))
+note right of base_level : c(0) = U(k+,0) - R*U(k',1)
+
+rectangle SDC <<SDC>> as sdc_finest
+sdc_finest --> finest_level : restrict
+
+interface IntermediateLevel1 <<intermediate levels(s)>> as ilvls1
+ilvls1 --|> sdc_finest : prolongate/correct
+
+database BaseLevel <<base level>> as blvl
+blvl --|> ilvls1 : coarse correction/prolongation/tau calculation
+
+@enduml

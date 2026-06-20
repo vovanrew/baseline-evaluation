@@ -1,0 +1,22 @@
+{
+  "id": "edffb995-0c04-4854-a373-7a5a9eb97905",
+  "object": "chat.completion",
+  "created": 1781437846,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Scheduled Events\n\nactor \"Recording Staff\" as RS\nactor \"Coach\" as C\nparticipant \"IP/Mobile Cams\" as IC\nparticipant \"Consumer Apps\" as CA\nparticipant \"Security Gateway\" as SG\nparticipant \"Control Domain\\n(win10/linux)\" as CD\nparticipant \"Streaming Service\\n(encoder)\" as SS\nparticipant \"Media\\n(mediaID)\" as M\nparticipant \"Transfer Service\" as TS\n\nCA -> SG: authenticate(ID)\nSG --> CA: return(token)\n\nIC -> CD: register(endpoint)\nCA -> CD: register(token, priority)\n\nRS -> CD: createEvent(configuration{description, sources, consumers{priorities}})\nactivate CD\nCD ..> CD: create(newEvent)\ndeactivate CD\n\nRS -> CD: start(newEvent)\nactivate CD\nCD -> SS: encode()\nSS --> CA: notify(recording)\nCD -> SS: saveAs(mediaID)\nSS -> M: save(mediaID)\nCD -> TS: host(mediaID, consumers{token, priority})\nTS --> CA: notify(newMediaAvailable, mediaID, transferServiceEndpoint)\ndeactivate CD\n\nalt auto-download enabled\n    CA -> TS: fetchMedia(token, mediaID)\n    TS --> CA: returnByPriority(mediaStream)\nelse manual-download enabled\n    C -> CA: showMedia(token)\n    CA -> TS: fetchMedia(token, mediaID)\n    TS --> CA: returnByPriority(mediaStream)\nend\n\nRS -> CD: stop(newEvent)\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1762,
+    "completion_tokens": 334,
+    "total_tokens": 2096
+  }
+}

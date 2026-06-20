@@ -1,0 +1,30 @@
+@startuml
+title User Log in
+
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBorderThickness 1
+  ParticipantBorderColor #333333
+  ParticipantBackgroundColor #E6E6FA
+  ParticipantFontSize 22
+  TitleFontSize 28
+  MessageFontSize 22
+  ArrowColor #111111
+  ArrowThickness 2
+}
+
+participant "client" as client
+participant "/auth" as auth
+participant "AuthDatabase" as db
+participant "/user" as user
+
+client -> auth : POST\nusername/password
+auth -> db : authToken
+auth --> client : RESPONSE\nauthToken
+
+client -> user : GET\nauthToken/userId
+user --> client : RESPONSE\nuser profile data
+
+@enduml

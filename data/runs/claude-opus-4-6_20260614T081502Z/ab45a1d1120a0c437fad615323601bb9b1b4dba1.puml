@@ -1,0 +1,45 @@
+```plantuml
+@startuml
+
+class InMemoryDomainRepository {
+  eapli.framework.infrastructure.repositories.impl.inmemory
+  --
+  + InMemoryDomainRepository()
+  # InMemoryDomainRepository(Function<?, I> identityGenerator)
+  + Optional<T> ofIdentity(Comparable id)
+  + void deleteOfIdentity(Comparable id)
+}
+
+class "InMemoryRepository<T, I>" as InMemoryRepository {
+  eapli.framework.infrastructure.repositories.impl.inmemory
+}
+
+interface AggregateRoot << I >> {
+  eapli.framework.domain.model
+}
+
+interface Comparable << I >> {
+  java.lang
+}
+
+interface "DomainRepository<I, T>" as DomainRepository << I >> {
+  eapli.framework.domain.repositories
+}
+
+class Object << C >> {
+  java.lang
+}
+
+interface ActiveRecord << I >> {
+  eapli.framework.domain.activerecord
+}
+
+InMemoryDomainRepository --|> InMemoryRepository
+InMemoryDomainRepository ..|> DomainRepository
+InMemoryDomainRepository ..> AggregateRoot
+InMemoryDomainRepository ..> Comparable
+DomainRepository -right-> Object
+InMemoryDomainRepository ..> ActiveRecord
+
+@enduml
+```

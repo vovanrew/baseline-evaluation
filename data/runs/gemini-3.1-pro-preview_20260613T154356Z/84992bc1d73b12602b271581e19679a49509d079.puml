@@ -1,0 +1,56 @@
+```plantuml
+@startuml
+class UmlReverseApp
+
+class MainController
+
+package javafx {
+  class Stage
+  class Scene
+  class BorderPane
+  class MenuBar
+  class TabPane
+  class MenuItem
+}
+
+package diagram {
+  package visitor {
+    interface IDiagramVisitor {
+      + visit(ClassDiagram visitor) : void
+      + visit(SequenceDiagram visitor) : void
+      + visit(UseCaseDiagram visitor) : void
+      + visit(DiagramManager visitor) : void
+    }
+    class ToViewVisitor {
+      + getDiagramMenu() : IDiagramMenu
+      + getDiagramEditor() : IDiagramEditor
+    }
+  }
+}
+
+class TreeFileManagerView
+interface IDiagramMenu
+interface IDiagramEditor
+
+UmlReverseApp o--> "1" MainController : controller
+UmlReverseApp o--> "1" Stage : stage
+UmlReverseApp ..> IDiagramVisitor
+
+MainController ..> Stage
+
+Stage o--> "1" Scene : scene
+Scene o--> "1" BorderPane : borderpane
+
+BorderPane o--> "1" MenuBar : north
+BorderPane o--> "1" TabPane : center
+BorderPane o--> "1" TreeFileManagerView : fileManagerView
+BorderPane o--> "1" IDiagramMenu : est
+
+MenuBar o--> "0..n" MenuItem : items
+
+TabPane o--> "0..*" IDiagramEditor : editors
+
+IDiagramVisitor <|.. ToViewVisitor
+
+@enduml
+```

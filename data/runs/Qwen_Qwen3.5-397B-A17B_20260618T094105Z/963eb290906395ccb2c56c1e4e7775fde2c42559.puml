@@ -1,0 +1,44 @@
+@startuml
+title 查询钥匙信息
+
+participant "app" as app #D3D8E5#000000 {
+}
+participant "apps" as apps #D3D8E5#000000 {
+}
+participant "ams" as ams #D3D8E5#000000 {
+}
+
+note right of app : keyId 钥匙id\n cardId 通行证 id 
+
+app ->> apps:1 查询钥匙信息 
+activate apps  
+    note left of this :keyId 钥匙id\ncardId 通行证 id
+    
+   apps->>ams:2 查询钥匙信息 keyId 钥匙id，通行证id
+   
+     activate ams
+     
+      loop 循环处理每个锁的信息
+      
+         ams <-a ms:3 查询钥匙信息表得到钥匙有效时间段，是否自动开门，授权开门时间段list，锁id
+        
+        ams<-ams:4根据锁id查询锁的名称 
+        
+       ams<-ams:5根据卡号得到发卡机构名称   
+       
+      
+endloop
+
+
+deactivate ams  
+
+ams-->apps:6返回有效时间段，授权开始时间段 list ，发卡机构名称 
+
+
+ deactivate apps
+ 
+ 
+ 
+ apps -->app:7返回结果 
+  
+@enduml

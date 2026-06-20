@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Psv83i26kSFaNCScxyuFyg",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle US004 \u2013 As Administrator, I want to search for users\n\nactor Administrator\n\nparticipant \": SearchUsersByParamsRoute\" as Route\nparticipant \"inDto : SearchUserDto\" as inDto\nparticipant \": UsersController\" as Controller\nparticipant \": SearchUsersByParamsService\" as Service\nparticipant \": ISystemUserRepo\" as SystemUserRepo\nparticipant \": IUserProfileRepo\" as UserProfileRepo\nparticipant \"usersFound : List<SystemUser>\" as usersFound\nparticipant \"usersFoundDto : List<UserDto>\" as usersFoundDto\nparticipant \"user : SystemUser\" as user\nparticipant \": SystemUserMapper\" as Mapper\nparticipant \"userDto : OutputUserDto\" as userDto\nparticipant \"usersJson : ResponseEntity\" as usersJson\n\nAdministrator -> Route : 1 GET /users?name={name}&email={email}&profile{profile}&func={func}\n\nnote left of Route\nThe parameters (name, email, profile and function) will be in the query of the request. At least, one of than must be typed or chosen.\nend note\n\nRoute -> Controller : 2 searchUsersByTypedParams(inDto)\nController -> Service : 3 searchUsersByTypedParams(inDto)\n\nopt [if the request has a profile]\n    Service -> UserProfileRepo : 4 result : existByUserProfileId(profile)\nend\n\nalt [depending on which params came from inputDto, the service class will invoke the respective method]\n    Service -> SystemUserRepo : 5 findAllBy...()\n    SystemUserRepo -> usersFound : 6 create()\n    Service <-- usersFound : 7 usersFound\nend\n\nService -> usersFoundDto : 8 create()\n\nloop [for which user found at the list]\n    Service -> Mapper : 9 model2Dto(user)\n    Mapper -> userDto : 10 create()\n    Service <-- Mapper : 11 userDto\n    Service -> usersFoundDto : 12 add(userDto)\nend\n\nController <-- Service : 13 usersFoundDto\nController -> usersJson : 14 create(usersFoundDto)\nRoute <-- Controller : 15 usersJson\nAdministrator <-- Route : 16 Show the list of user found by typed/chosen parameters\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781372123,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 549,
+    "prompt_tokens": 1104,
+    "total_tokens": 1653
+  }
+}

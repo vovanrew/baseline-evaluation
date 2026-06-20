@@ -1,0 +1,72 @@
+```plantuml
+@startuml
+title Authorization token with auth_code
+
+participant "web" as web
+rectangle K8S_ZONE {
+    participant "bff_web_api" as bff
+    participant "authorization_api" as auth
+    database "k8s_redis" as redis
+}
+
+note left of web
+    Reuquest header\nContent-Type: application/json
+    Request body\n- auth_code: xxxxxx
+end note
+
+web -> bff : /api/v1/auth/token
+activate bff
+bff -> bff : validate request
+
+note left of bff
+    Request header\nContent-Type: application/x-www-form-urlencoded
+    Request body\n- auth_code
+    note:\n- handler late limit (brute force attack)
+end note
+
+bff -> auth : /api/v1/oauth/token
+activate auth
+auth -> auth : validate request
+auth -> redis : check auth_code from k8s_redis
+activate redis
+
+note right of redis
+    Key:\n- auth_code
+    Redis object\n- user_id\n- scope
+end note
+
+redis -->> auth : return redis object
+deactivate redis
+
+note left of auth
+    Access token:\n{\n  header\n  - alg: rsa256\n  - typ: JWT
+  payload\n  - iss\n  - jti\n  - user_id\n  - iat\n  - exp\n  - roles
+  signature\n}
+end note
+
+auth -> auth : generate JWT Token with private key
+
+note left of auth
+    ttl: 300000 milliseconds (5 min)\nKey: user_id:xxxxx
+    Redis object value:\n- access_token\n- refrech_token
+end note
+
+auth -> redis : put user session into k8s_redis
+activate redis
+redis -> redis : save data
+redis -->> auth : 
+deactivate redis
+deactivate auth
+
+auth -->> bff : return
+deactivate bff
+
+note right of bff
+    Response header\nContent-Type: application/json
+    Response body\n- accessToken\n- RefreshToken
+end note
+
+bff -->> web : return
+
+@enduml
+```

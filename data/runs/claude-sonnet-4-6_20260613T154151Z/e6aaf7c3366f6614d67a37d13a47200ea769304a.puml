@@ -1,0 +1,45 @@
+@startuml
+participant halon
+participant ios1
+participant ios2
+participant client
+
+box "SNS operation start"
+note over halon, ios2 : notification [(pool, repair), (disk, repair)]
+
+loop [until all ios are ready]
+  halon -> ios2 : repair status request
+  halon <- ios2 : repair status reply
+end
+
+halon -> ios1 : spiel_repair_start
+end box
+
+note over halon, ios2 : repair process
+
+alt [sucessful case]
+  halon <- ios1 : notify [(pool, repaired), (disk, repaired)]
+
+  box "SNS status query"
+  loop [unil all ios are in IDLE]
+    halon -> ios2 : repair status request
+    halon <- ios2 : repair status reply [IDLE, IDLE]
+  end
+  halon -> client : notify [(pool, REPAIRED), (disk, REPAIRED)]
+  end box
+
+else [partial repair]
+  halon <- ios1 : notify [(pool, repair), (disk, repair)]
+  note over halon, ios2 : Abort SNS operation
+
+else [transient disk]
+  halon <- halon : notify [(disk, transient)]
+  note over halon, ios2 : Pause SNS operation
+
+else [failed disk]
+  halon <- halon : notify [(disk, failed)]
+  note over halon, ios2 : Abort SNS operation
+
+end
+
+@enduml

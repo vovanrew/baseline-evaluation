@@ -1,0 +1,21 @@
+{
+  "id": "msg_01MiDwMBgMgwK5UwQWufNMBM",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nbox \"BL1 common code\" #LightGray\nparticipant \"bl1_main\" as bl1_main\nparticipant \"bl_common\" as bl_common\nend box\n\nbox \"arm platform code\" #LightBlue\nparticipant \"fvp_bl1_setup\" as fvp_bl1_setup\nparticipant \"arm_bl1_setup\" as arm_bl1_setup\nparticipant \"arm_io_storage\" as arm_io_storage\nend box\n\nbox \"platform common code\" #LightGray\nparticipant \"plat_bl1_common\" as plat_bl1_common\nparticipant \"fconf\" as fconf\nend box\n\nbl1_main -> fvp_bl1_setup : bl1_platform_setup()\nfvp_bl1_setup -> arm_bl1_setup : arm_bl1_platform_setup()\narm_bl1_setup -> arm_io_storage : plat_arm_io_setup()\nnote right of arm_io_storage : register and setup fip\narm_bl1_setup -> plat_bl1_common : fconf_load_config()\nnote right of fconf : create and populate an\\nimage_desc_t for FW_CONFIG\nplat_bl1_common -> bl1_main : load_auth_image(FW_CONFIG_ID, &image_info)\nnote left of bl1_main : load and auth image from fip\\nwith info from plat_io_policy\nbl1_main -> arm_io_storage\narm_io_storage -> plat_bl1_common : FCONF_GET_PROPERTY(arm, arm_io_policies, tb_fw_cfg)\nnote right of plat_bl1_common : use staticaly defined policies in bl1\nbl1_main -> plat_bl1_common : image_info\nnote right of fconf : get tb_fw_config_dtb from image_info\nplat_bl1_common -> fconf : bl1_plat_get_image_desc(BL2_IMAGE_ID)\nfconf -> plat_bl1_common : BL2_IMAGE_DESC\nnote right of fconf : set ep_info.args.arg0 of BL2_IMAGE_DESC\\nto FW_CONFIG base address\nplat_bl1_common -> fvp_bl1_setup\n\nnote over fvp_bl1_setup, arm_io_storage : **load & auth, prepare and jump to BL2**\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781432715,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 603,
+    "prompt_tokens": 1646,
+    "total_tokens": 2249
+  }
+}

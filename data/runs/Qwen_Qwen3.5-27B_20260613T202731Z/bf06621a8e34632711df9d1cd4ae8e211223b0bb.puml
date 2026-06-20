@@ -1,0 +1,40 @@
+```plantuml
+@startuml
+title TCPClient::connectToServer(string ipAddress, int port)
+
+actor "UC1" as UC1
+participant "TCPClient" as TC
+participant "clientStructure" as CS
+
+note right of CS: object of sockaddr_in
+
+UC1 -> TC: connectToServer(ipAddress, port)
+
+activate TC
+note right of TC: create a socket
+TC -> TC: socket_ = socket(AF_INET, SOCK_STREAM, 0);
+
+opt [socket_ == -1]
+    TC --> UC1: return -1 (socket create faild)
+end
+
+TC -> CS: clientStructure()
+activate CS
+TC -> TC: clientStructure.sin_family = AF_INET;
+TC -> TC: clientStructure.sin_port = htons(port);
+
+note left of TC: linking ipAddress to clientstructure\nusing AF_INET standart
+TC -> TC: inet_pton(AF_INET, ipAddress.c_str(),\n&clientStructure.sin_addr);
+TC -> TC: connectRes = connect(socket_, (sockaddr*)&clientStructure,\nsizeof(clientStructure));
+
+opt [connectRes == -1]
+    TC --> UC1: return -1 (faild to connect)
+end
+
+CS -x> CS
+deactivate CS
+TC --> UC1: return 0 (connected)
+deactivate TC
+
+@enduml
+```

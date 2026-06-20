@@ -1,0 +1,22 @@
+{
+  "id": "23d0912c-32f7-4e91-b9bb-828d30a0e790",
+  "object": "chat.completion",
+  "created": 1781410968,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"User Agent\" as UA\ninterface \"Content Upload API\" as API\ndatabase \"Content database\" as DB\ninterface \"CAFF Parser\" as Parser\n\nnote right of API\nMUST also include a CSRF token to prevent users of other,\npotentially XSS vulnerable sites to take part in a massive distributed spam or DoS operation.\nend note\n\nUA -> API: Upload request (HTTP POST),\\ncontains a single CAFF file in its body.\n\nactivate API\nAPI -> Parser: Validate upload request\nactivate Parser\nParser --> API: Return result\ndeactivate Parser\n\nalt [Failed to validate uploaded content]\n  API --> UA: Return an HTTP status code that signals validation failure.\\nExact value depends on how the validation failed.\nelse [Request is deemed valid]\n  note right of API\n  Uploads should be validated by at LEAST:\\n* Content-Size header against max file size.\\n* All size fields against their respective supported bounds.\\n* Structure of all fields match expectations from the spec.\\n* Number of bytes from the upload matches number of bytes expected from in-file metadata.\n  end note\n\n  API -> DB: Store content in database\n  activate DB\n  DB --> API: Return result of request\n  deactivate DB\n\n  alt [Upload succeeded]\n    API --> UA: Return HTTP 201 Created\n  else\n    API --> UA: Return HTTP status code signaling the reason for failure.\n  end\nend\n\ndeactivate API\n\nnote left of UA\nend note\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1027,
+    "completion_tokens": 336,
+    "total_tokens": 1363
+  }
+}

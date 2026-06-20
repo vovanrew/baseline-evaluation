@@ -1,0 +1,32 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 10
+  LifeLineBorderColor #666666
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E6E6F2
+  ParticipantFontSize 24
+  MessageFontSize 24
+}
+
+participant "DASH client" as DASH
+participant "License proxy" as PROXY
+participant "License server" as SERVER
+
+DASH -> PROXY : Get license
+
+activate PROXY
+PROXY -> PROXY : Check if user is authorized
+
+PROXY -> SERVER : Get license\n(Proprietary proof of authorization attached)
+activate SERVER
+SERVER --> PROXY : License
+deactivate SERVER
+
+PROXY --> DASH : License
+deactivate PROXY
+@enduml

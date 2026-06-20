@@ -1,0 +1,72 @@
+@startuml
+title [組織_プロジェクト遅延削除]
+
+participant "«lambda»\nタスクコントローラ" as controller #pink
+participant "«lambda»\nプロジェクト削除バッチ" as batch #pink
+
+database "«sqs»\n組織タスクキュー" as sqs #yellow
+database "«dynamodb»\n組織タスク" as taskdb #blue
+database "«dynamodb»\nプロジェクト" as projectdb #blue
+database "«dynamodb»\nAWSアカウント連携" as awsdb #blue
+
+box "レポート" #lightgray
+database "«dynamodb»\nレポート" as reportdb #blue
+database "«dynamodb»\nレポートジョブ履歴" as reportjobdb #blue
+database "«s3»\nレポートストレージ" as s3 #red
+end box
+
+controller -> batch : invoke (InvocationType='Event')
+batch -> sqs : タスクID、メッセージのメッセージIDと受信ハンドルを渡す
+batch -> taskdb : query
+taskdb --> batch : タスクIDをキーとしてタスク情報を取得
+
+alt [ステータス=0（待機中）]
+  batch -> taskdb : 更新
+  taskdb --> batch : タスクのステータスを1（実行中）に更新（更新条件：ステータスが0）
+
+  alt [ステータス=1（実行中）]
+    note over batch : 処理終了
+  end
+
+  alt [ステータス=2（完了）]
+    note over batch : 処理終了
+  end
+
+  alt [ステータス=-1（エラー）、かつリトライ回数=最大リトライ回数]
+    note over batch : 処理終了
+  end
+
+  alt [ステータス=-1（エラー）、かつリトライ回数<最大リトライ回数]
+    batch -> taskdb : 更新
+    taskdb --> batch : タスクのステータスを1（実行中）、リトライ回数+1に更新（更新条件：ステータスが-1）
+  end
+end
+
+batch -> batch : タスク情報から処理対象（プロジェクトID）を取得
+
+box "プロジェクト削除処理" #lightyellow
+  batch -> awsdb : レコード削除
+  awsdb --> batch : 親プロジェクトがプロジェクトIDに該当するAWSアカウント連携を削除
+  batch -> reportdb : query
+  reportdb --> batch : 親プロジェクトがプロジェクトIDに該当するレポート情報を取得
+
+  loop [1..レポート数]
+    batch -> batch : レポートIDを取得
+    batch -> reportdb : レポート情報を削除
+    reportdb --> batch
+  end
+
+  ref over batch, taskdb, projectdb, awsdb, reportdb, reportjobdb, s3 : レポート削除処理
+end box
+
+alt [削除処理成功]
+  batch -> taskdb : 更新
+  taskdb --> batch : タスクのステータスを2（完了）に更新（更新条件：ステータスが1）
+  batch -> sqs : 処理済みのメッセージを削除
+  sqs --> batch
+else [削除処理エラー]
+  batch -> taskdb : 更新
+  taskdb --> batch : タスクのステータスを-1（エラー）に更新（更新条件：ステータスが1）
+end
+
+@enduml

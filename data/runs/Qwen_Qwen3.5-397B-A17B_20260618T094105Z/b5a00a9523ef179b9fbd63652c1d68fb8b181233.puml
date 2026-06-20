@@ -1,0 +1,33 @@
+@startuml
+title Create User Profile
+
+actor "User" as user1 at top left
+participant "API Gateway" as api_gateway_top
+participant "Auth-Service" as auth_service_top
+participant "User-Service" as user_service_top
+
+activate user1
+user1 ->> api_gateway_top : POST /api/users\n
+deactivate user1
+
+activate api_gateway_top
+api_gateway_top ->> auth_service_top : check authorization\n
+activate auth_service_top
+auth_service_top --> api_gateway_top : http_status: 200\n
+deactivate auth_service_top
+
+api_gateway_top ->> user_service_top : POST /api/users\n
+activate user_service_top
+user_service_top --> api_gateway_top : http_status: 200\n
+deactivate user_service_top
+
+api_gateway_top -->> user1 : profile created..\n
+deactivate api_gateway_top
+
+
+' Bottom actors for visual completeness matching source layout
+actor "User" as user_bottom bottom right
+rectangle "" { } ' Placeholder to push elements down if needed visually in some renderers, though standard sequence handles spacing. 
+note over user_bottom #DDDDDD;hidden note:end_note 
+
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+left to right direction
+autonumber
+
+participant "Data Consumer" as Consumer
+participant "Data Source" as Source
+
+alt [No updates]
+  Consumer -> Source: 1a. GET [query URL]
+  Consumer -> Source: 1b. POST [base query URL] with
+end
+
+alt [No updates]
+  Source --> Consumer: 2a. search-response Bundle with new records
+  (use most recent meta.lastUpdated in filter for subsequent polls)
+  Source --> Consumer: 2b. Empty search-response bundle
+end
+
+opt
+  loop
+    Consumer -> Source: 3a. GET [next URL]
+    Source --> Consumer: 3b. search-response with Bundle of next results
+  end
+end
+
+@enduml

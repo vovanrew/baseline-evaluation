@@ -1,0 +1,22 @@
+{
+  "id": "5db54afb-6f85-4e26-8328-4a052ba50e28",
+  "object": "chat.completion",
+  "created": 1781502772,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle User getUsers\n\nactor API_Gateway\nactor UserRouter\nactor Middleware\nactor UserController\ndatabase UserDB\n\nAPI_Gateway -> UserRouter: getUsers(token)\nactivate UserRouter\nUserRouter -> Middleware: withAuth(token)\nactivate Middleware\n\nalt !token\n    Middleware --> UserRouter: 'Unauthorized: No token provided (401)'\n    deactivate Middleware\n    UserRouter --> API_Gateway: 'Unauthorized: No token provided (401)'\nelse\n    Middleware -> Middleware: jwt.verify(token)\n    alt [token != valid]\n        Middleware --> UserRouter: 'Unauthorized: Invalid token (401)'\n        deactivate Middleware\n        UserRouter --> API_Gateway: 'Unauthorized: Invalid token (401)'\n    else\n        Middleware --> UserRouter: Token Valid\n        deactivate Middleware\n        UserRouter -> UserController: getUsers()\n        activate UserController\n        UserController -> UserDB: find()\n        activate UserDB\n        UserDB --> UserController: users[]\n        deactivate UserDB\n        \n        alt [users.length == 0]\n            UserController --> UserRouter: 'User not found 404'\n            deactivate UserController\n            UserRouter --> API_Gateway: 'User not found 404'\n        else\n            UserController --> UserRouter: return(res.status(200), users)\n            deactivate UserController\n            UserRouter --> API_Gateway: return(res.status(200), users)\n        end\n    end\nend\ndeactivate UserRouter\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2007,
+    "completion_tokens": 331,
+    "total_tokens": 2338
+  }
+}

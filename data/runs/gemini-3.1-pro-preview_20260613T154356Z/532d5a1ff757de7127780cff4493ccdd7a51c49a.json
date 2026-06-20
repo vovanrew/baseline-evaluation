@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nactor \"Sales Clerk\" as SC\nparticipant \": OrderDeliveredUI\" as UI <<Presentation>>\nparticipant \": OrderDeliveredController\" as Controller <<Application>>\nparticipant \": OrderDeliveredService\" as Service <<Service>>\nparticipant \": PersistenceContext\" as PC <<Persistence>>\nparticipant \"factory : RepositoryFactory\" as RF <<Factory>>\ndatabase \"orderRepository : Repository\" as OR <<Repository>>\nparticipant \"orderList : List<Order>\" as OL <<Domain>>\nparticipant \"orderDTOList : List<OrderDTO>\" as ODL <<DTO>>\nparticipant \": OrderMapper\" as OM <<DTO>>\nparticipant \"orderDTO : OrderDTO\" as ODTO <<DTO>>\nparticipant \"selectedOrderDTOList : List<OrderDTO>\" as SODL <<DTO>>\nparticipant \"order : Order\" as O <<Domain>>\n\nSC -> UI : The Sales Clerk initializes\\nthe process of updating the status of the order\nactivate UI\nUI -> Controller : create\nactivate Controller\nController -> Service : create\nactivate Service\nService -> PC : repositories()\nactivate PC\nPC -> RF : create\nactivate RF\nRF --> PC : factory\ndeactivate RF\nPC --> Service : orderRepository()\ndeactivate PC\nService -> OR : create\nactivate OR\nOR --> Service : orderRepository\ndeactivate OR\ndeactivate Service\nUI -> Controller : listAllDispatchedOrders()\nController -> Service : listAllDispatchedOrders()\nactivate Service\nService -> OR : getAllDispatchedOrders()\nactivate OR\nOR -> OL : create\nactivate OL\nOL --> OR : orderList\ndeactivate OL\nOR --> Service : orderList\ndeactivate OR\nService -> ODL : create\nactivate ODL\nloop foreach\n    Service -> OL : getNext()\n    activate OL\n    OL --> Service : order\n    deactivate OL\n    Service -> OM : toDTO(order)\n    activate OM\n    OM -> ODTO : create\n    activate ODTO\n    ODTO --> OM : orderDTO\n    deactivate ODTO\n    OM --> Service : orderDTO\n    deactivate OM\n    Service -> ODL : add(orderDTO)\n    activate ODL\n    ODL --> Service\n    deactivate ODL\nend\nService --> Controller : orderDTOList\ndeactivate Service\nController --> UI : orderDTOList\ndeactivate Controller\nUI --> SC : The System presents a list of Orders to the\\nSales Clerk whose Status are \"Preparation\"\\nand asks the Sales Clerk to choose Orders\\nwhose Status will be updated to \"Delivered\";\ndeactivate UI\n\nSC -> UI : The Sales Clerk selects the Orders whose\\nStatus are to be updated;\nactivate UI\nUI -> Controller : updateStatus(selectedOrderDTOList)\nactivate Controller\nController -> Service : updateStatusAndPersist(selectedOrderDTOList)\nactivate Service\nloop foreach\n    Service -> SODL : getNext()\n    activate SODL\n    SODL --> Service : orderDTO\n    deactivate SODL\n    Service -> OM : toOrder(orderDTO)\n    activate OM\n    OM --> Service : order\n    deactivate OM\n    Service -> O : changeStatusToDelivered()\n    activate O\n    O --> Service\n    deactivate O\n    Service -> OR : update(order)\n    activate OR\n    OR --> Service\n    deactivate OR\nend\nService --> Controller\ndeactivate Service\nController --> UI\ndeactivate Controller\nUI --> SC : The System updates the Status of the selected Orders\\nand informs the Sales Clerk of the operation success;\ndeactivate UI\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHSUVkgJio0Pp1Txblcj49XJPYXwLHVaqM4RyPpWsZBeh28AZiyijBSUw5eDiQ"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1138,
+    "candidatesTokenCount": 778,
+    "totalTokenCount": 1916,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1058
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "kV8xap2NDYrqvdIPpLe36Qc"
+}

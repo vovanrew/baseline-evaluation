@@ -1,0 +1,21 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "store: SnsUserStore" as store
+
+participant "«interface»: :LoadSnsUsersFromExternalSource" as externalInterface
+
+note over externalInterface, externalInterface
+multiple interactions in the externalSource to extract a list of SnsUserDTO
+end note
+
+store ->> externalInterface: 1 getListFromExternalModule(fileName)
+externalInterface ->> store: 2 className = getClassName(fileName)
+store ->> externalInterface: 3 dtoList = readFileFromExternalSource(fileName)
+externalInterface ->> store: 4 create()
+store ->> externalInterface: 5 return dtoList
+
+externalInterface ->> store: :List<SnsUserDTO>
+store ->> externalInterface: :List<SnsUserDTO>
+
+@enduml

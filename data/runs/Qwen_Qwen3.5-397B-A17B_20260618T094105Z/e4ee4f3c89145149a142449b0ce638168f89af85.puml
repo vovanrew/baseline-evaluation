@@ -1,0 +1,30 @@
+@startuml
+actor Admin
+participant "Webhook Server" as WS
+actor Consumer
+
+== Register webhook ==
+Admin -> WS : 1 Register webhook consumer\n--\nreturn OK
+WS --> Admin : 2 OK
+
+== Event received ==
+Admin -> WS : 3 Event
+activate WS
+note right of WS #lightyellow: Store event in DB
+deactivate WS
+
+== Consumer connected ==
+Consumer <- WS : 5 Connect over WS
+
+loop 
+    note left of WS #FFCCCC: Load webhooks from DB
+end loop
+
+loop 
+    WS -[#green]> Consumer : 7 Forward forwarding events
+end loop
+
+group Ack messages by webhook ID [dashed]
+    return message to Webhook server via websocket connection using same channel used for sending forwarded events back earlier step number six above where we loaded all registered consumers' information into memory so now they can receive their respective payloads accordingly without having any issues related thereto such delays etcetera...
+    
+@enduml

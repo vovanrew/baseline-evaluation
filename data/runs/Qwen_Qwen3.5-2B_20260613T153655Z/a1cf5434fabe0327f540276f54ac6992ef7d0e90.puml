@@ -1,0 +1,31 @@
+@startuml
+participant Agent as Agent
+participant VirtualCoffeeMachine as VirtualCoffeeMachine
+participant TestThing as TestThing
+
+participant "strict" as strict1
+participant "par" as par1
+participant "par" as par2
+
+participant "strict" as strict2
+participant "par" as par3
+participant "par" as par4
+
+Agent ->> VirtualCoffeeMachine : top:wait()
+
+strict1 --> par1
+par1 --> VirtualCoffeeMachine : subscribeEvent: "maintenance"
+VirtualCoffeeMachine --> par1 : confirmation
+par1 --> VirtualCoffeeMachine : data-pushed
+par1 --> VirtualCoffeeMachine : writeProperty: "string"
+
+VirtualCoffeeMachine --> par2 : wait 500ms
+
+strict2 --> par3
+par3 --> VirtualCoffeeMachine : readProperty: "state"
+VirtualCoffeeMachine --> par3 : response
+par3 --> VirtualCoffeeMachine : writeProperty: "string"
+
+Agent --> VirtualCoffeeMachine : exit
+
+@enduml

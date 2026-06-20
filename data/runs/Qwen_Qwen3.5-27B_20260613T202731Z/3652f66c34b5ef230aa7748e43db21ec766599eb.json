@@ -1,0 +1,22 @@
+{
+  "id": "580e6b28-7e0b-48b4-893a-1617b2c48e0b",
+  "object": "chat.completion",
+  "created": 1781436652,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\nactor \"User\" as User\nparticipant \"JobManager\" as JobManager\npackage \"Process/Application\" as Process {\n}\npackage \"ESDM\" as ESDM {\n}\nparticipant \"Post Processing\" as PostProcessing\ndatabase \"Storage System\" as Storage\nactor \"Observer\" as Observer\n\n== Observer ==\nactivate Observer\nObserver -> Observer : collects observations\ndeactivate Observer\nObserver -> Storage : (may write directly)\nObserver -> ESDM : write observation t\nactivate ESDM\nESDM -> ESDM : (transform for efficiency)\nESDM -> Storage : write container for observation t\ndeactivate ESDM\n\n== Simulation Runs ==\nactivate JobManager\nJobManager -> JobManager : periodically submit job(IN=t, OUT)\nJobManager -> Process : allocates resources and calls\ndeactivate JobManager\nactivate Process\nProcess -> ESDM : read IN=x\nactivate ESDM\nESDM -> Storage : read\nStorage --> ESDM : return\ndeactivate ESDM\nESDM --> Process : return\nProcess -> Process : compute\nProcess -> ESDM : write async OUT=y\ndeactivate Process\n\n== Value-added products ==\nactivate ESDM\nESDM -> PostProcessing : make available\nactivate PostProcessing\nPostProcessing -> PostProcessing : perform analysis\nPostProcessing -> Storage : (may write directly)\nPostProcessing --> ESDM : return result\ndeactivate PostProcessing\nESDM --> Process : return\ndeactivate ESDM\nnote right of Process: multiple iterations\n\n== Finalise ==\nStorage -> User : OUT files become visible\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2350,
+    "completion_tokens": 357,
+    "total_tokens": 2707
+  }
+}

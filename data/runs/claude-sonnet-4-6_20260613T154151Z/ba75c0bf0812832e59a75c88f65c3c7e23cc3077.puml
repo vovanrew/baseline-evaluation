@@ -1,0 +1,29 @@
+@startuml
+actor SalesClerk
+
+participant ChangeOrderToBeingDeliveredUI
+participant ChangeOrderToBeingDeliveredController
+participant ChangeAllToBeingDeliveredService
+participant OrderRepository
+participant ChangeToBeingDeliveredService
+
+SalesClerk -> SalesClerk : 1 Update the status of dispatched orders to "Being delivered" for customer delivery.
+
+SalesClerk -> ChangeOrderToBeingDeliveredUI : 2 orderDispatched()
+ChangeOrderToBeingDeliveredUI -> ChangeOrderToBeingDeliveredController : 3 orderDispatched()
+ChangeOrderToBeingDeliveredController -> ChangeAllToBeingDeliveredService : 4 orderDispatched()
+
+ChangeOrderToBeingDeliveredController --> ChangeOrderToBeingDeliveredUI : 5 ordersDispatched
+
+ChangeOrderToBeingDeliveredUI --> SalesClerk : 6 Shows all the orders that are dispatched.
+ChangeOrderToBeingDeliveredUI --> SalesClerk : 7 Asks to choose one of the orders
+SalesClerk -> ChangeOrderToBeingDeliveredUI : 8 Selects the order he wants to change status
+
+ChangeOrderToBeingDeliveredUI -> ChangeOrderToBeingDeliveredController : 9 changeToBeingDelivered(order)
+ChangeOrderToBeingDeliveredController -> ChangeToBeingDeliveredService : 10 changeToBeingDelivered(order)
+ChangeToBeingDeliveredService -> OrderRepository : 11 changeToBeingDelivered(order)
+
+ChangeToBeingDeliveredService --> ChangeOrderToBeingDeliveredUI : 12 Successful change
+ChangeOrderToBeingDeliveredUI --> SalesClerk : 13 Informs that is changed
+
+@enduml

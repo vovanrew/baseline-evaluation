@@ -1,0 +1,34 @@
+@startuml
+participant "UserController" as UC
+participant "ThemeController" as TC
+participant "CommentController" as CC
+
+section UserController
+    UC.login() -> TC
+    TC.Success(save session) <- UC
+    alt [successful]
+        UC.register() -> UC
+    end
+    alt [no register]
+        UC.register() -> UC
+    end
+end
+
+section ThemeController
+    TC.list() -> UC
+    UC.themeID -> CC
+    CC.list(themeID) -> CC
+    alt [your comments]
+        CC.edit() -> CC
+    end
+    alt [not your comments]
+        CC.can't edit -> CC
+    end
+    CC.add() -> CC
+end
+
+section CommentController
+    UC.logOut() -> UC
+end
+
+@enduml

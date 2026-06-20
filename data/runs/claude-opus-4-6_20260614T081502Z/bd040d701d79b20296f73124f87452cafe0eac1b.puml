@@ -1,0 +1,32 @@
+```plantuml
+@startuml
+
+actor User as User
+participant "Index" as Index
+participant "User\nController" as UC
+database "Database" as DB
+
+User -> Index : GET: /users/signup
+Index -> UC : renderSignup()
+UC -> UC : render(index)
+Index <-- UC
+User <-- Index : display signup
+User -> Index : POST: /users/signup
+Index -> Index : async signup()
+Index -> UC
+UC -> DB : User.findOne(email)
+
+alt [user not found]
+    DB --> UC : return false
+    alt [accept]
+        UC -> UC : User.create()
+        User <-- Index : display home
+    else [refuse]
+        User <-- Index : display home
+    end
+else [user already exist]
+    User <-- Index : show error
+end
+
+@enduml
+```

@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam sequenceStyle rectangle
+
+package "sw-explorer" as swExplorer {
+  participant "WebApp" as webApp
+  participant "SWData" as swData
+}
+
+package "Example background processing module" as bgpModule {
+  participant "Manager" as manager
+  participant "MessageQueue" as messageQueue
+  participant "Worker" as worker
+  participant "Memcache" as memcache
+}
+
+note right of manager
+  This is just an example.
+  We could got wi go with Celery, but sometimes it's good to hide the concrete engine behind the abstraction layer.
+end note
+
+webApp -> webApp : fetch new collection
+webApp -> swData : fetch new collection
+swData -> manager : schedule a job
+
+manager -> messageQueue : schedule a job
+messageQueue -> worker : execute a job
+worker -> manager : update job status
+manager -> memcache : update job status
+worker -> manager : job result
+manager -> memcache : job result
+
+webApp -> webApp : view pending collection
+webApp -> swData : get job status
+swData -> manager : get job status
+manager -> memcache : get job status
+
+@enduml

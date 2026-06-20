@@ -1,0 +1,22 @@
+{
+  "id": "7e991285-e8d6-4337-b812-0366d503a06f",
+  "object": "chat.completion",
+  "created": 1781401016,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant as Client\nparticipant as RegisterClientUI\nparticipant as RegisterClientController\nparticipant as ApplicationPOT\nparticipant as app_ApplicationPOT\nparticipant as EncryptPassword\nparticipant as EmailSender\nparticipant as DataHandler\n\nRegisterClientUI ..> Client : Engages the register feature/button\nRegisterClientUI ..> RegisterClientUI : Asks for all the information required\nRegisterClientUI ..> RegisterClientUI : Fills all the information required\nRegisterClientUI ..> RegisterClientUI : Presents the data and asks for a confirmation\nRegisterClientUI ..> RegisterClientUI : Confirms\n\nRegisterClientUI ..> RegisterClientController : registerNewClient(name, email, password, latitude, longitude, altitude, streetName, doorNumber, postalCode, locality, country, creditCardNr, validityDate, CCV)\n\nRegisterClientController ..> RegisterClientUI : create()\nRegisterClientController ..> clientServiceClientService : create()\nclientServiceClientService ..> clientDBClientDB : create()\nclientDBClientDB ..> RegisterClientUI : validateInput(name, email, password, latitude, longitude, altitude, streetName, doorNumber, postalCode, locality, country, creditCardNr, validityDate, CCV)\n\nalt (if all the information given as input has a valid format)\n    RegisterClientUI ..> RegisterClientController : newClient(name, email, password, latitude, longitude, altitude, streetName, doorNumber, postalCode, locality, country, creditCardNr, validityDate, CCV)\n    RegisterClientController ..> clientClientClient : create(name, email, password, latitude, longitude, altitude, streetName, doorNumber, postalCode, locality, country, creditCardNr, validityDate, CCV)\n    clientClientClient ..> clientUserUser : create(email, password, name)\n    clientUserUser ..> EncryptPassword : encryptPassword(MD5(password))\n    EncryptPassword ..> clientClientClient : create(latitude, longitude, altitude, streetName, doorNumber, postalCode, locality, country)\n    clientClientClient ..> clientCreditCardClient : create(creditCardNr, validityDate, CCV)\n    clientCreditCardClient ..> DataHandler : Address\n    clientClientClient ..> clientDBClient : registerNewClient(client)\n    clientDBClient ..> clientDBClient : addClientToDBClients\n    clientDBClient ..> clientDBClient : ref 10, CONNECTIONS\n    clientDBClient ..> EmailSender : sendEmail(email, subject, body)\n    EmailSender ..> DataHandler : sendEmail(email, subject, body)\n    DataHandler ..> Client : Validates and informs about the success of the operation\n    DataHandler ..> Client : (if any information does not have a valid format)\n    DataHandler ..> Client : informs the User that the operation was not successful\nelse\n    RegisterClientUI ..> RegisterClientController : registerNewClient(client)\n    RegisterClientController ..> clientDBClient : addClientToDBClients\n    clientDBClient ..> clientDBClient : ref 10, CONNECTIONS\n    clientDBClient ..> EmailSender : sendEmail(email, subject, body)\n    EmailSender ..> DataHandler : sendEmail(email, subject, body)\n    DataHandler ..> Client : Validates and informs about the success of the operation\n    DataHandler ..> Client : (if any information does not have a valid format)\n    DataHandler ..> Client : informs the User that the operation was not successful\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 978,
+    "completion_tokens": 752,
+    "total_tokens": 1730
+  }
+}

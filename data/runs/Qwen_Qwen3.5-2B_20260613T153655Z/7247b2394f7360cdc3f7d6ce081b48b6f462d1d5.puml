@@ -1,0 +1,45 @@
+@startuml
+skinparam actorStyle fillcolor:#6495ED
+skinparam lifestyle default
+
+actor "Bruker" as User
+lifecycle "System" as System
+lifecycle "Database" as Database
+
+User -> System: Trykker logg inn knapp
+System -> User: Send til skjema for innlogging
+User -> System: Send inn e-mail og passord
+System -> Database: Validere brukerdetaljer
+Database -> System: Brukerdetaljer godkjent
+System -> User: Send til innlogget side
+
+alt [Logg inn godkjent]
+    System -> Database: Brukerdetaljer godkjent
+    Database -> System: Brukerdetaljer godkjent
+    System -> User: Send til innlogget side
+    User -> System: Send inn e-mail og passord
+    System -> Database: Validere brukerdetaljer
+    Database -> System: Brukerdetaljer godkjent
+    System -> User: Send til innlogget side
+end alt
+
+alt [Feil Passord]
+    System -> Database: Feil passord
+    Database -> System: Feil passord
+    System -> User: "Du har oppgitt feil passord. Glemt passordet?"
+    User -> System: Glemt passord
+    System -> User: Send til skjema for glemt passord
+    User -> System: Send inn e-mail adresse
+    System -> Database: Verifiser e-mail adresse
+    Database -> System: E-mail adresse verifisert
+    System -> User: Send e-mail for å gjenopprette passord
+    System -> User: "Vi har sendt en mail til denne adressen..."
+end alt
+
+alt [Brukeren eksisterer ikke]
+    System -> Database: Finner ikke bruker
+    Database -> System: Finner ikke bruker
+    System -> User: "Vi finner ingen bruker registrert med denne e-mailadressen"
+end alt
+
+@enduml

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01Qb5mvDfa3dqL27B3645M63",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor \"Sales Clerk\" as SalesClerk\n\nparticipant \"\u00abPresentation\u00bb\\n: OrderDeliveredUI\" as UI\nparticipant \"\u00abApplication\u00bb\\n: OrderDeliveredController\" as Controller\nparticipant \"\u00abService\u00bb\\n: OrderDeliveredService\" as Service\nparticipant \"\u00abPersistence\u00bb\\n: PersistenceContext\" as Persistence\nparticipant \"\u00abFactory\u00bb\\nfactory : RepositoryFactory\" as Factory\ndatabase \"\u00abRepository\u00bb\\norderRepository : Repository\" as Repository\ncollections \"\u00abDomain\u00bb\\norderList : List<Order>\" as OrderList\ncollections \"\u00abDTO\u00bb\\norderDTOList : List<OrderDTO>\" as OrderDTOList\nparticipant \"\u00abDTO\u00bb\\n: OrderMapper\" as OrderMapper\nparticipant \"\u00abDTO\u00bb\\norderDTO : OrderDTO\" as OrderDTO\ncollections \"\u00abDTO\u00bb\\nselectedOrderDTOList : List<OrderDTO>\" as SelectedOrderDTOList\nparticipant \"\u00abDomain\u00bb\\norder : Order\" as Order\n\nnote left of SalesClerk\nThe Sales Clerk initializes\nthe process of updating the status of the order\nend note\n\nSalesClerk -> UI : create\nUI -> Controller : create\nController -> Persistence : repositories()\nPersistence -> Factory : create\nController -> Persistence : factory\nController -> Persistence : orderRepository()\nPersistence -> Repository : create\nController -> Persistence : orderRepository\n\nSalesClerk -> UI : listAllDispatchedOrders()\nUI -> Controller : listAllDispatchedOrders()\nController -> Service : getAllDispatchedOrders()\nService -> OrderList : create\nService -> OrderList : create\n\nloop [foreach]\n  Service -> OrderList : getNext()\n  OrderList --> Service : order\n  Service -> OrderMapper : toDTO(order)\n  OrderMapper -> OrderDTO : create\n  OrderMapper --> Service : orderDTO\n  Service -> OrderDTOList : add(orderDTO)\nend\n\nService --> Controller : orderDTOList\nController --> UI : orderDTOList\n\nnote left of SalesClerk\nThe System presents a list of Orders to the\nSales Clerk whose Status are \"Preparation\"\nand asks the Sales Clerk to choose Orders\nwhose Status will be updated to \"Delivered\".\nend note\n\nnote left of SalesClerk\nThe Sales Clerk selects the Orders whose\nStatus are to be updated.\nend note\n\nSalesClerk -> UI : updateStatus(selectedOrderDTOList)\nUI -> Controller : updateStatusAndPersist(selectedOrderDTOList)\n\nloop [foreach]\n  Controller -> SelectedOrderDTOList : getNext()\n  SelectedOrderDTOList --> Controller : orderDTO\n  Controller -> OrderMapper : toOrder(orderDTO)\n  OrderMapper --> Controller : order\n  Controller -> Order : changeStatusToDelivered()\n  Controller -> Repository : update(order)\nend\n\nnote left of SalesClerk\nThe System updates the Status of the selected Orders\nand informs the Sales Clerk of the operation success.\nend note\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781371142,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 723,
+    "prompt_tokens": 1636,
+    "total_tokens": 2359
+  }
+}

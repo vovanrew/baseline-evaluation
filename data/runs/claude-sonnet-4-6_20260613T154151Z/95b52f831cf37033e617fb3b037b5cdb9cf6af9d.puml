@@ -1,0 +1,26 @@
+@startuml
+actor Nutzer
+boundary Webshop
+database Webshopdatenbank
+
+Nutzer -> Webshop : **1** Zahlungsdaten löschen
+Webshop -> Webshopdatenbank : **2** Zahlungsdaten abrufen
+Webshopdatenbank --> Webshop : **3** Zahlungsdaten
+Webshop -> Webshop : **4** Zahlungsdaten prüfen
+
+alt [keine weiteren Zahlungsdaten vorhanden]
+    Webshop -> Webshop : Aboboxen prüfen
+    alt [Abobox vorhanden]
+        Webshop --> Nutzer : Error
+    else [keine Abobox vorhanden]
+        Webshop -> Webshopdatenbank : Daten löschen
+        Webshopdatenbank --> Webshop : Succes
+        Webshop --> Nutzer : Bestätigung
+    end
+else [weitere Zahlungsdaten vorhanden]
+    Webshop -> Webshopdatenbank : Daten löschen
+    Webshopdatenbank --> Webshop : Succes
+    Webshop --> Nutzer : Bestätigung
+end
+
+@enduml

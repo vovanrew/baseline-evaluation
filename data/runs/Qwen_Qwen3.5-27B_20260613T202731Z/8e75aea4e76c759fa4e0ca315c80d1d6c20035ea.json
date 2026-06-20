@@ -1,0 +1,22 @@
+{
+  "id": "f889ef14-b7ed-4d4f-a16d-ed64047bfbe2",
+  "object": "chat.completion",
+  "created": 1781503435,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle \u4efb\u52a1\u4e0b\u53d1\u6d41\u7a0b\n\nactor nsq as \"nsq\"\nparticipant \"GuideTaskCrmVisitAssignListener\" as listener\nparticipant \"guideTaskCrmVisitAssignProcessor\" as processor\nparticipant \"GuideTaskAssignDomainService\" as domainService\nparticipant \"ShoppingGuideReadApi\" as readApi\nparticipant \"GuideTaskDepartmentAssignStrategy\" as strategy\nparticipant \"GuideTaskAssignFactory\" as factory\nparticipant \"GuideTaskAssignRepository\" as assignRepo\nparticipant \"GuideTaskRepository\" as taskRepo\nparticipant \"NsqProducer\" as producer\n\n== \u4efb\u52a1\u4e0b\u53d1\u6d41\u7a0b ==\n\nactivate listener\nactivate processor\nactivate domainService\nactivate readApi\nactivate strategy\nactivate factory\nactivate assignRepo\nactivate taskRepo\nactivate producer\n\n' Step 1: nsq sends task\nnsq -> listener : 1 \u4e0b\u53d1\u4efb\u52a1\n\n' Step 2: Listener starts processing\nlistener -> processor : 2 \u5f00\u59cb\u5904\u7406\n\n' Step 3: Processor assigns task to domain service\nprocessor -> domainService : 3 \u4efb\u52a1\u5206\u914d\n\n' Step 4: Domain service queries department\ndomainService -> readApi : 4 \u67e5\u8be2\u4e0b\u53d1\u5bf9\u8c61 department\nnote left of readApi : \u4e0b\u53d1\u7ed9\u6240\u6709\u90e8\u95e8\n\n' Step 5: Domain service assigns task\nreadApi --> domainService\ndomainService -> strategy : 5 \u5206\u914d\u4efb\u52a1\n\n' Step 6: Strategy creates task entity\nstrategy -> factory : 6 \u521b\u5efa\u5206\u914d\u7684\u4efb\u52a1\u5b9e\u4f53\nnote left of factory : \u53ea\u6709\u4efb\u52a1\u4e0b\u53d1\u7ed9\u5bfc\u8d2d\u7684\u65f6\u5019\\n\u624d\u521b\u5efa\u5bfc\u8d2d\u7684\u4efb\u52a1\u660e\u7ec6\n\n' Transaction block for saving states\nrectangle \"Transaction\" {\n    ' Step 7: Save status flow to completed\n    factory --> domainService\n    domainService -> assignRepo : 7 \u4fdd\u5b58\u5206\u914d\u72b6\u6001 status flow \u4efb\u52a1\u6d41\u8f6c\u81f3 \u5206\u914d\u5b8c\u6210\n    \n    ' Step 8: Save status flow to pending\n    assignRepo --> domainService\n    domainService -> taskRepo : 8 \u4fdd\u5b58\u5206\u914d\u72b6\u6001 status flow \u4efb\u52a1\u6d41\u8f6c\u81f3 \u5f85\u542f\u52a8\n}\n\n' Step 9: Send completion message\ntaskRepo --> domainService\ndomainService -> producer : 9 \u53d1\u9001\u4e0b\u53d1\u5b8c\u6210\u6d88\u606f\uff0c\u51c6\u5907\u542f\u52a8\u4efb\u52a1\n\ndeactivate producer\ndeactivate taskRepo\ndeactivate assignRepo\ndeactivate factory\ndeactivate strategy\ndeactivate readApi\ndeactivate domainService\ndeactivate processor\ndeactivate listener\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 586,
+    "completion_tokens": 503,
+    "total_tokens": 1089
+  }
+}

@@ -1,0 +1,35 @@
+@startuml
+skinparam sequenceMessageAlign center
+
+participant "Администратор" as Admin #LightGray
+box "" #White
+    participant "Сервис\nавтомасштабирования" as Service #LightGreen
+end box
+participant "Платформы облачных\nвычислений" as CloudPlatforms #OrangeRed
+
+
+== Начальная конфигурация ==
+
+Admin ->> Service : группа ВМ G, шаблон ВМ T,\nлогин L, пароль P...
+note right of this line: OpenNebula configuration parameters
+Admin ->> Service : namespace N, deployment D, kubeconfig C...
+note left of this line: Kubernetes cluster access details
+
+
+
+== Осуществление масштабирования OpenNebula ==
+
+Service ->> CloudPlatforms : подключиться с логином L, паролем P...
+CloudPlatforms --> Service : соединение установлено
+Service ->> CloudPlatforms : создать ВМ в группе G по шаблону Т...
+
+
+
+
+== Осуществление масштабирования Kubernetes ==
+
+Service ->> CloudPlatforms : подключиться c kubeconfig С...
+CloudPlatforms --> Service : соединение установлено
+Service ->> CloudPlatforms : масштабировать deployment D \nin namespace N на 2 replicas 
+
+@enduml

@@ -1,0 +1,79 @@
+@startuml
+skinparam classDiagram
+    class Matrícula {
+        -id: Int
+        -cliente: Client
+        -tempo: Int
+        -quadra: Turma
+        +registraMatrícula(): Int
+    }
+
+    class Aluno {
+        -id: Int
+        -nome: String
+        -locação: List<Matrícula>
+    }
+
+    class Curso {
+        -nome: String
+        -profe
+        -quadra: List<Turma>
+    }
+
+    class Turma {
+        -numero: Int
+        -aluguel: Matrícula
+        -ginasio: Curso
+        +getcontroleNúmeroMatrícula()
+    }
+
+    interface ControleNúmeroMatrícula {
+        #quantidadeDeMatrícula: Int
+        +registraMatrícula(): Int
+    }
+
+    class Matrícula {
+        <<composite>>
+        -id: Int
+        -cliente: Client
+        -tempo: Int
+        -quadra: Turma
+        +registraMatrícula(): Int
+    }
+
+    class Aluno {
+        <<composite>>
+        -id: Int
+        -nome: String
+        -locação: List<Matrícula>
+    }
+
+    class Curso {
+        <<composite>>
+        -nome: String
+        -profe
+        -quadra: List<Turma>
+    }
+
+    class Turma {
+        <<composite>>
+        -numero: Int
+        -aluguel: Matrícula
+        -ginasio: Curso
+        +getcontroleNúmeroMatrícula()
+    }
+
+    class ControleNúmeroMatrícula {
+        <<interface>>
+        <<abstract>>
+        #quantidadeDeMatrícula: Int
+        +registraMatrícula(): Int
+    }
+
+    Matrícula --> Aluno : composição
+    Aluno --> Matrícula : composição
+    Curso --> Turma : composição
+    Turma --> Curso : composição
+    Turma --> ControleNúmeroMatrícula : dependência
+    Matrícula --> ControleNúmeroMatrícula : realização
+    @enduml

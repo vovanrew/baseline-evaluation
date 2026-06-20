@@ -1,0 +1,22 @@
+{
+  "id": "c507174b-d920-4494-bc58-c6d80b33346f",
+  "object": "chat.completion",
+  "created": 1781438071,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam sequence {\n  ArrowColor DarkSlateGray\n  ActorBorderColor Black\n  ActorBackgroundColor WhiteSmoke\n  ParticipantBorderColor Black\n  ParticipantBackgroundColor WhiteSmoke\n}\n\nactor \"User Agent\" as UserAgent\nparticipant \"Content Upload API\" as ContentUploadAPI\ndatabase \"Content database\" as ContentDatabase\nparticipant \"CAFF Parser\" as CAFFParser\n\nUserAgent -> ContentUploadAPI: Upload request (HTTP POST),\\ncontains a single CAFF file in its body.\n\nnote right of ContentUploadAPI: MUST also include a CSRF token to prevent users of other,\\npotentially XSS vulnerable sites to take part in a massive distributed spam or DoS operation.\n\nactivate ContentUploadAPI\nContentUploadAPI -> CAFFParser: Validate upload request\nactivate CAFFParser\nCAFFParser --> ContentUploadAPI: Return result\ndeactivate CAFFParser\n\nalt [Failed to validate uploaded content]\n    note right of CAFFParser: Uploads should be validated by at LEAST:\\n* Content-Size header against max file size.\\n* All size fields against their respective supported bounds.\\n* Structure of all fields match expectations from the spec.\\n* Number of bytes from the upload matches number of bytes expected from in-file metadata.\n    ContentUploadAPI -->> UserAgent: Return an HTTP status code that signals validation failure.\\nExact value depends on how the validation failed.\nelse [Request is deemed valid]\n    ContentUploadAPI -> ContentDatabase: Store content in database\n    activate ContentDatabase\n    ContentDatabase --> ContentUploadAPI: Return result of request\n    deactivate ContentDatabase\n    \n    alt [Upload succeeded]\n        ContentUploadAPI -->> UserAgent: Return HTTP 201 Created\n    else\n        ContentUploadAPI -->> UserAgent: Return HTTP status code signaling the reason for failure.\n    end\nend\ndeactivate ContentUploadAPI\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1027,
+    "completion_tokens": 406,
+    "total_tokens": 1433
+  }
+}

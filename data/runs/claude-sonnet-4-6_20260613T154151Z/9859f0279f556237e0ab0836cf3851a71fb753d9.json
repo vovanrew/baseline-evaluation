@@ -1,0 +1,21 @@
+{
+  "id": "msg_015Jm8kUeT8x5sE4Zv2B1HSF",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nbox \"FAMPClient\"\nparticipant AudioBundleAssembler\nparticipant UDPBundleReceiver\nend box\n\nbox \"FAMPServer\"\nparticipant UDPBundleSender\nparticipant QUdpSocket\nend box\n\nAudioBundleAssembler -> UDPBundleReceiver : rozpocznij watek\\nodbierajacy\nAudioBundleAssembler -> UDPBundleSender : rozpocznij wysylanie\\npaczek\nUDPBundleSender -> QUdpSocket : grupa 50 paczek\n\nloop [dopoki nie pobrano wszystkich paczek]\n  loop [dopoki dostepne sa datagramy]\n    AudioBundleAssembler -> UDPBundleReceiver : przekaz pobrane\\ndotychczas datagramy\n    UDPBundleReceiver --> AudioBundleAssembler : dane\n    AudioBundleAssembler -> AudioBundleAssembler : odczytaj id paczki i zapisz\n  end\n\n  alt [nie wszystkie paczki wyslane]\n    AudioBundleAssembler -> UDPBundleSender : wyslij nastepny zestaw paczek\n    UDPBundleSender -> QUdpSocket : grupa 50 paczek\n    UDPBundleSender --> AudioBundleAssembler : czy to ostatni zestaw\n  else [istnieja paczki do retransmisji]\n    UDPBundleSender -> QUdpSocket : wyslij zestaw brakujacych paczek\n  end\nend\n\nAudioBundleAssembler -> AudioBundleAssembler : posortuj paczki\nAudioBundleAssembler -> AudioBundleAssembler : zapisz paczki do pliku\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371546,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 457,
+    "prompt_tokens": 1656,
+    "total_tokens": 2113
+  }
+}

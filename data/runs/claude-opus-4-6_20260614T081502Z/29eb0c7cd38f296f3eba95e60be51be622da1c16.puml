@@ -1,0 +1,148 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+class Player {
+  log: Logger
+  id: Integer
+  start_field: ConnectedField
+  pieces: List of Piece
+  home: List of HomeField
+  dest: List of Field
+  # name: String
+  ~ id: Integer
+  ~ start_field: ConnectedField
+  ~ home: List of HomeField
+  ~ dest: List of Field
+  --
+  + Player(\n\tlog: Logger ,\n\tplayer_id: Integer,\n\tstart_field: ConnectedField,\n\thome_obsv: (\n\t\tCallable(owner: Integer, field: Integer),\n\t\tCallable(owner: Integer, field: Integer),\n\t),\n\tdest_obsv: (\n\t\tCallable(owner: Integer, field: Integer),\n\t\tCallable(owner: Integer, field: Integer),\n\t),\n\t): Player
+  + init_home(\n\tobsv: (\n\t\tCallable(owner: Integer, field: Integer),\n\t\tCallable(owner: Integer, field: Integer),\n\t)\n\t)
+  + init_dest(\n\tobsv: (\n\t\tCallable(owner: Integer, field: Integer),\n\t\tCallable(owner: Integer, field: Integer),\n\t)\n\t)
+  --
+  + calc_dests(distance: Integer)
+  + can_move(): Boolean
+  + can_throw(): Boolean
+  + has_won(): Boolean
+  + wrap_obsv(\n\tobsv: (\n\t\tCallable(owner: Integer, field: Integer),\n\t\tCallable(owner: Integer, field: Integer),\n\t)\n\t): (\n\tCallable(field: Integer),\n\tCallable(field: Integer)\n\t)
+  + __str__(): String
+}
+
+class Game {
+  log: Logger
+  die: Die
+  players: List of Player
+  all_players: List of Player
+  active_player_idx: Integer
+  track: List of ConnectedField
+  tries: Integer
+  allow_move: Boolean
+  - active_player: Player
+  --
+  end_turn_obsv: Callable(player: Integer)
+  begin_turn_obsv: Callable(player: Integer)
+  home_vacated_obsv: Callable(owner: Integer, field: Integer)
+  home_filled_obsv: Callable(owner: Integer, field: Integer, place: Integer)
+  track_vacated_obsv: Callable(field: Integer)
+  track_filled_obsv: Callable(field: Integer, place: Integer)
+  dest_vacated_obsv: Callable(owner: Integer, field: Integer)
+  dest_filled_obsv: Callable(owner: Integer, field: Integer, place: Integer)
+  game_end_obsv: Callable(winner: Integer)
+  --
+  + Game(\n\tlog: Logger,\n\tend_turn_obsv: Callable(player: Integer),\n\tbegin_turn_obsv: Callable(player: Integer),\n\thome_vacated_obsv: Callable(owner: Integer, field: Integer),\n\thome_filled_obsv: Callable(owner: Integer, field: Integer, place: Integer),\n\ttrack_vacated_obsv: Callable(field: Integer),\n\ttrack_filled_obsv: Callable(field: Integer, place: Integer),\n\tdest_vacated_obsv: Callable(owner: Integer, field: Integer),\n\tdest_filled_obsv: Callable(owner: Integer, field: Integer, place: Integer),\n\tgame_end_obsv: Callable(winner: Integer),\n\t): Game
+  + init_track()
+  --
+  ~ set_players(players: Iterator over (Integer, Boolean))
+  ~ roll_die(): Integer
+  --
+  ~ try_move_home(owner_id: Integer, field_id: Integer)
+  ~ try_move_track(field_id: Integer)
+  ~ try_move_dest(owner_id: Integer, field_id: Integer)
+  ~ allow_move()
+  ~ try_move(src: Field)
+  --
+  - player(num: int): Player
+  - end_move()
+  - next_player()
+  - begin_turn()
+  - begin_move()
+}
+
+class Die {
+  log: Logger
+  pips: Integer
+  --
+  + Die(log: Logger): Die
+  + roll()
+  + get(): Integer
+  --
+  + __str__(): String
+}
+
+class HomeField {
+  --
+  HomeField(\n\tfield_id: Integer,\n\tlog: Logger,\n\tstart_field: Field,\n\tvacate_obsv: Callable(field: Integer),\n\tfill_obsv: Callable(field: Integer, place: Integer),\n\t): HomeField
+  + try_dest(player: Player, distance: Integer): Optional Field
+  + skip(distance: Integer, player: Player): Optional Field
+}
+
+class ConnectedField {
+  next_field: Field
+  --
+  ConnectedField(\n\tfield_id: Integer,\n\tlog: Logger,\n\tname: String,\n\tvacate_obsv: Callable(field: Integer),\n\tfill_obsv: Callable(field: Integer, place: Integer),\n\t): ConnectedField
+  + connect_next(next_field: Field)
+  + try_dest(player: Player, distance: Integer): Optional Field
+  + is_packed(): Boolean
+  ~ skip(distance: Integer, player: Player)
+  - player_next_field(player: Player): Field
+}
+
+class Field {
+  ~ log: Logger
+  ~ id: Integer
+  ~ piece: Piece
+  # id: Integer
+  # piece: Piece
+  ~ occupant: Player
+  ~ vacated_obsv: Callable(field: Integer)
+  ~ filled_obsv: Callable(field: Integer, place: Integer)
+  --
+  + Field(\n\tfield_id: Integer,\n\tlog: Logger,\n\tname: String,\n\tvacate_obsv: Callable(field: Integer),\n\tfill_obsv: Callable(field: Integer, place: Integer),\n\t): Field
+  + vacate()
+  + fill(piece: Piece)
+  + try_dest(player: Player, distance: Integer): Optional Field
+  + is_packed(): Boolean
+  + skip(distance: Integer): Optional Field
+}
+
+class Piece {
+  log: Logger
+  owner: Player
+  location: Field
+  dest: Optional Field
+  ~ owner: Player
+  ~ dest: Optional Field
+  --
+  + Piece(\n\tlog: Logger,\n\tpiece_id: Integer,\n\towner: Player,\n\tlocation: HomeField,\n\t): Piece
+  + calc_dest(distance: Integer)
+  + move_to_home()
+  + move_to_dest()
+  - move_to(dest: Field)
+  + __str__(): String
+}
+
+Field <|-- HomeField
+Field <|-- ConnectedField
+
+Game "1" --> "1" Die
+Game "1" --> "4" Player
+Player "1" --> "4" HomeField
+Player "1" --> "1" ConnectedField : 1
+Game "1" --> "1" Player : 1
+ConnectedField "40" --> "1" ConnectedField
+Game "1" --> "3" ConnectedField
+Piece "0..1" --> "1" Field
+Piece "0..1" --> "1" Field
+Player "1" --> "1" Piece : 1
+HomeField "4" --> "4" Piece
+@enduml
+```

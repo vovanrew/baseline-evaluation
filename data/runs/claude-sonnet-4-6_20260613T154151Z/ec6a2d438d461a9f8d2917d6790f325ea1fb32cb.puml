@@ -1,0 +1,26 @@
+@startuml
+actor "任务开始 nsq 消息" as Actor
+
+participant "GuideTaskStartListener" as Listener
+participant "GuideTaskStartProcessor" as Processor
+participant "GuideTaskStartDomainService" as DomainService
+participant "GuideTaskStartStrategy" as Strategy
+participant "ShoppingGuideReadApi" as ReadApi
+participant "GuideTaskRepository" as TaskRepo
+participant "GuideTaskDataRepository" as DataRepo
+
+Actor -> Listener : 1 监听任务开始消息
+Listener -> Processor : 2 开始处理
+Processor -> TaskRepo : 3 查询任务
+Processor -> DomainService : 4 开始任务
+DomainService -> Strategy : 5 构建任务
+Strategy -> ReadApi : 6 根据部门查询导购
+ReadApi --> Strategy : 7 根据导购进行任务分配
+
+box "Transaction"
+DomainService -> DataRepo : 8 保存分配给导购的任务
+DomainService -> TaskRepo : 9 status flow 任务状态流转至 已启动
+DomainService -> DataRepo : 10 任务流转为执行中
+end box
+
+@enduml

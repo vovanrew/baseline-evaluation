@@ -1,0 +1,46 @@
+@startuml
+left to right direction
+actor "Member" as Member
+participant ":TicketDetailPage" as TicketDetailPage
+participant ":TicketDetailContainer" as TicketDetailContainer
+participant ":AttendanceService (Frontend)" as AttendanceServiceFrontend
+participant ":Router" as Router
+participant ":AttendanceHTTPTransport" as AttendanceHTTPTransport
+participant ":AttendanceEndpoint" as AttendanceEndpoint
+participant ":AttendanceService" as AttendanceService
+participant ":RequesterService" as RequesterService
+participant ":AttendanceCommand" as AttendanceCommand
+participant ":AttendanceQuery" as AttendanceQuery
+
+Member -> TicketDetailPage : Click "Yes" Button
+TicketDetailPage -> TicketDetailContainer : handleConfirmation(input)
+TicketDetailContainer -> AttendanceServiceFrontend : confirmAttendance(classId, payload)
+AttendanceServiceFrontend -> Router : route("PATCH", "/v2/class/{class_id}/attendance/confirmation")
+Router -> AttendanceService : Confirmation/AttendanceService, {IServerOption}
+AttendanceService -> AttendanceEndpoint : Confirmation(context, payload)
+AttendanceEndpoint -> AttendanceService : Validate()
+
+alt "Data Valid?"
+AttendanceService -> AttendanceQuery : GetPureModel(context, {ISliceCondition})
+AttendanceQuery --> AttendanceService : ticket
+
+alt "Ticket Status is Accepted"
+AttendanceService -> AttendanceCommand : Register(context, {Ipayload})
+AttendanceCommand --> AttendanceService : is updated
+AttendanceService -> AttendanceCommand : UpdateRequestStatus(context, ticket)
+AttendanceCommand --> AttendanceService : is updated
+AttendanceService -> AttendanceEndpoint : is updated
+AttendanceEndpoint -> AttendanceHTTPTransport : response := Response(is updated, nil)
+AttendanceHTTPTransport -> Router : response
+Router -> AttendanceServiceFrontend : response
+AttendanceServiceFrontend -> TicketDetailContainer : response
+TicketDetailContainer -> Member : response
+else
+AttendanceService -> AttendanceEndpoint : UnprocessableEntity
+AttendanceEndpoint -> AttendanceHTTPTransport : UnprocessableEntity
+AttendanceHTTPTransport -> Router : UnprocessableEntity
+Router -> AttendanceServiceFrontend : UnprocessableEntity
+AttendanceServiceFrontend -> TicketDetailContainer : UnprocessableEntity
+TicketDetailContainer -> Member : UnprocessableEntity
+end
+@enduml

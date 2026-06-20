@@ -1,0 +1,100 @@
+@startuml
+title band301
+
+participant BTManager as BTManager
+participant BTCallback as BTCallback
+participant BLEController as BLEController
+participant ScannerPresenter as ScannerPresenter
+participant LeScannerV21 as LeScannerV21
+participant WristbandManager as WristbandManager
+participant L2Layer as L2Layer
+participant L2KeyPacket as L2KeyPacket
+participant L2CMDPacket as L2CMDPacket
+participant L1Layer as L1Layer
+participant L1Packet as L1Packet
+participantGattLayer as GattLayer
+participant BluetoothGatt as BluetoothGatt
+
+BTManager -- BTCallback : onCreate
+BLEController -- L2Layer : new
+ScannerPresenter -- LeScannerV21 : new
+LeScannerV21 -- L2Layer : new
+WristbandManager -- L2Layer : new
+
+L2Layer -- L2KeyPacket : new
+L2Layer -- L2CMDPacket : new
+L2KeyPacket -- L1Layer : new
+L2CMDPacket -- L1Layer : new
+
+L1Layer -- L1Packet : new
+L1Packet -- GattLayer : new
+GattLayer -- BluetoothGatt : new
+
+@subgraph 搜索设备
+BTManager --> BTCallback : onCreate
+BLEController --> L2Layer : new
+ScannerPresenter --> LeScannerV21 : new
+LeScannerV21 --> L2Layer : new
+WristbandManager --> L2Layer : new
+
+L2Layer --> L2KeyPacket : new
+L2Layer --> L2CMDPacket : new
+L2KeyPacket --> L1Layer : new
+L2CMDPacket --> L1Layer : new
+
+L1Layer --> L1Packet : new
+L1Packet --> GattLayer : new
+GattLayer --> BluetoothGatt : new
+
+@subgraph 建立GATT连接
+Connect --> connect : Connect : 找到合适的地址线, 使用该地址进行蓝牙连接
+connect --> startTxSchedule : startTxSchedule
+startTxSchedule --> startRxSchedule : startRxSchedule
+startRxSchedule --> connect : Connect
+
+onConnectionStateChange --> requestMtu : 设置MTU, 240
+requestMtu --> onMtuChanged : onMtuChanged
+onMtuChanged --> discoverServices : discoverServices
+discoverServices --> onServicesDiscovered : onServicesDiscovered
+onServicesDiscovered --> onDescriptorWrite : onDescriptorWrite
+
+mTransportCallback --> mGattCallback : mTransportCallback.onConnectionStateChange
+mGattCallback --> mHandler.handleMessage : mGattCallback.onConnectionStateChange
+
+MSG_STATE_CONNECTED --> mHandler.handleMessage : MSG_STATE_CONNECTED
+mHandler.handleMessage --> StartLoginProcess : StartLoginProcess
+StartLoginProcess --> RequestLogin : RequestLogin
+RequestLogin --> RequestSetNeedInfo : RequestSetNeedInfo
+RequestSetNeedInfo --> SettiserProfile : SettiserProfile
+
+@subgraph 封装并发送数据-Tx
+SettingCmdUserSetting --> preparePacket : SettingCmdUserSetting
+preparePacket --> preparePacket : preparePacket : key(1 B)data.len(2 B)
+preparePacket --> preparePacket : preparePacket : cmd(1B),version(1B)
+preparePacket --> sendData : sendData
+
+prepareDataPacket --> preparePacket : prepareDataPacket
+preparePacket --> addToFtPacketList : addToFtPacketList
+addToFtPacketList --> ThreadTx.run : ThreadTx.run
+ThreadTx.run --> getFromTxPacketList : getFromTxPacketList
+getFromTxPacketList --> UnpackSendPacket : UnpackSendPacket
+UnpackSendPacket --> sendGattLayerData : sendGattLayerData
+sendGattLayerData --> sendData : sendData
+sendData --> tellUpstackPacketSend : tellUpstackPacketSend
+tellUpstackPacketSend --> onDataSend : onDataSend
+
+@subgraph 接收数据-Rx
+onDataSend --> receiveData : receiveData
+receiveData --> decodeReceiveData : decodeReceiveData
+decodeReceiveData --> parseHeader : parseHeader : 解析出magic, ack, 总长度, crc, sequenid
+parseHeader --> parseData : parseData : 解析key(1B), len(2 B) :data
+parseData --> parseData : parseData : 解析key(1B), len(2 B) :data
+
+@subgraph handshake
+handshake --> handshake : handshake
+handshake --> handshake : handshake
+handshake --> sendData : sendData
+sendData --> onDataReceive : onDataReceive
+onDataReceive --> onHandshakeCallback : onHandshakeCallback
+
+@enduml

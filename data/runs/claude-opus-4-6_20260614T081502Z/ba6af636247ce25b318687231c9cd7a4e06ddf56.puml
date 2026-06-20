@@ -1,0 +1,44 @@
+```plantuml
+@startuml
+
+actor User
+participant "Web Client" as WC
+participant "DutchPay Server" as DS
+database "Group" as G
+
+User -> WC : GET /
+WC -> DS : static asset 요청(HTML/CSS 등)
+WC <-- DS : HTML/CSS 등 응답
+WC <-- DS : 그룹 입력 페이지로 redirection
+User <-- WC : 그룹 입력 페이지
+User -> WC : 1. 그룹 이름 입력 & 저장
+WC -> DS : POST groups/
+DS -> DS : GUID 생성
+DS -> G : Item 생성(groupName, guid)
+DS <-- G : created
+WC <-- DS : guid
+WC -> WC : store에 그룹 이름, guid 저장
+WC -> WC : 그룹 멤버 추가 페이지로 redirection
+User <-- WC : 그룹 멤버 추가 페이지
+User -> WC : 2. 그룹 멤버 이름 입력 & 저장
+WC -> DS : PUT groups/{guid}/members
+DS -> G : Item 업데이트(members)
+DS <-- G : updated
+WC <-- DS : success
+WC -> WC : store에 그룹 멤버 이름 저장
+WC -> WC : 비용 관리 페이지로 redirection
+User <-- WC : 비용 관리 페이지
+
+loop
+    User -> WC : 3. 비용 정보 입력 & 추가
+    WC -> DS : PUT groups/{guid}/expenses
+    DS -> G : Item 업데이트(expense)
+    DS <-- G : updated
+    WC <-- DS : success
+    WC -> WC : store에 비용 정보 저장
+    WC -> WC : 정산 결과 계산
+    User <-- WC : 정산 결과 노출
+end
+
+@enduml
+```

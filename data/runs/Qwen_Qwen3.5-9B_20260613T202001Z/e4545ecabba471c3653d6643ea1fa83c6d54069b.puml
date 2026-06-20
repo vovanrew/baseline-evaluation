@@ -1,0 +1,56 @@
+@startuml
+left to right direction
+actor "User Agent" as UA
+interface "Content removal API" as API
+interface "User Manager" as UM
+database "User database" as UD
+database "Content database" as CD
+
+note right of UA
+  Should also include a CSRF token to prevent admins who are also
+  visit other, potentially XSS vulnerable or malicious sites
+  from helping an unknown actor remove content without authorization.
+end note
+
+UA -> API: Removal request (HTTP POST),\ncontains ID of content to be removed.
+
+activate API
+API -> UM: Retrieve role of requesting user.
+activate UM
+UM -> UD: Fetch user information from database.
+activate UD
+UD --> UM: Return query result.
+deactivate UD
+UM --> API: Return user role.
+deactivate UM
+
+alt [User has admin role]
+  activate API
+  API -> API: Validate removal request
+  alt [Failed to validate removal request]
+    API --> UA: Return an HTTP status code that signals validation failure.\nExact value depends on how the validation failed.
+  else [Request is deemed valid]
+    API -> CD: Remove content from DB.
+    activate CD
+    CD --> API: Result of delete operation
+    deactivate CD
+    alt [Content has been removed succesfully]
+      API --> UA: Return HTTP 204 No Content
+    else [Removal failed]
+      API --> UA: Return HTTP Status code to signal reason for failure.
+    end
+  end
+  deactivate API
+else [User is not authorized to remove content]
+  API --> UA: Return HTTP 403 Forbidden to signal that the user has no permission to request what they just did.
+end
+
+deactivate API
+
+note right of UA
+  Should also include a CSRF token to prevent admins who are also
+  visit other, potentially XSS vulnerable or malicious sites
+  from helping an unknown actor remove content without authorization.
+end note
+
+@enduml

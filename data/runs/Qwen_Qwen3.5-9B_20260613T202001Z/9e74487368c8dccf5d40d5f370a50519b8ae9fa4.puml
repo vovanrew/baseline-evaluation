@@ -1,0 +1,56 @@
+@startuml
+left to right direction
+actor "laboratory coordinator" as labCoordinator
+participant ":LabCoordinatorUI" as labCoordinatorUI
+participant ":ValidateTestReportController" as validateTestReportController
+participant ":Company" as company
+participant "rp : TestStore" as testStore
+participant "rp : Test" as test
+participant "rp : TestReportStore" as testReportStore
+participant "rp : TestReport" as testReport
+participant ":TestDiagnosis" as testDiagnosis
+
+labCoordinator -> labCoordinatorUI : 1 asks to validate report and diagnosis
+labCoordinatorUI -> validateTestReportController : 2 createTestList()
+validateTestReportController -> company : 3 get = testReportsToValidate()
+company -> testStore : 4 get = testReportsToValidate()
+testStore -> test : 5 get = getTestList()
+company -> testReportStore : 6 get = testReportsToValidate()
+testReportStore -> testReport : 7 get = getTestReportList()
+testReport -> testDiagnosis : 8 get = getTestDiagnosis()
+
+activate validateTestReportController
+activate labCoordinatorUI
+activate company
+activate testStore
+activate test
+activate testReportStore
+activate testReport
+activate testDiagnosis
+
+labCoordinatorUI --> labCoordinator : 10 shows the available test reports and diagnosis and requests selection
+labCoordinator -> labCoordinatorUI : 11 chooses all tests
+labCoordinatorUI --> validateTestReportController : 12 asks for confirmation
+labCoordinator -> labCoordinatorUI : 13 confirms selection
+
+validateTestReportController -> validateTestReportController : 14 validateAllTestReport()
+activate validateTestReportController
+loop
+  validateTestReportController -> testStore : 15 validateTestReport(testId)
+  testStore -> testStore : 16 setState(VAIDATED)
+  validateTestReportController -> testStore : 17 registerValidationDate(date)
+  testStore -> testStore : 18 setValidationDate(date)
+end
+
+labCoordinatorUI --> labCoordinator : 19 informs operation success
+
+deactivate testDiagnosis
+deactivate testReport
+deactivate testReportStore
+deactivate test
+deactivate testStore
+deactivate company
+deactivate validateTestReportController
+deactivate labCoordinatorUI
+
+@enduml

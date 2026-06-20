@@ -1,0 +1,45 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle Compass Sequence Diagram\n\nactor User\nparticipant HubSpot\nparticipant TypeForm\nparticipant \"TypeForm API\" as TypeFormAPI\nparticipant \"Node App\" as NodeApp\nbox \"AWS\" #e2e2e2\nparticipant \"S3 Bucket\" as S3Bucket\nparticipant SES\nend box\n\nUser -> HubSpot : Loads Compass\nHubSpot -> HubSpot : Generate UUID to identify user\nHubSpot -> TypeForm : Load embedded TypeForm survery\nUser -> HubSpot : Completes survey\nTypeForm -> HubSpot : Redirects to HubSpot Landing Page Submission Form\\nhttps://info.codurance.com/en/compass-details-submission\nUser -> HubSpot : Completes submission form\nHubSpot -> HubSpot : Save submission info\\n& contact in Hubspot\nHubSpot -> NodeApp : Redirects to /report/submit/:uuid (to generate report)\nactivate NodeApp\nNodeApp -> NodeApp : Start report generation\nNodeApp -> HubSpot : Redirects to HubSpot Thanks Landing Page\\n\"https://info.codurance.com/en/compass-successful-submission\"\nNodeApp -> TypeFormAPI : Gets survery questions & answers\nactivate TypeFormAPI\nTypeFormAPI --> NodeApp\ndeactivate TypeFormAPI\nNodeApp -> HubSpot : Get user details\nnote left: generate report\\nand send email\nactivate HubSpot\nHubSpot --> NodeApp\ndeactivate HubSpot\nNodeApp -> NodeApp : Build report and render with jsreport\nNodeApp -> S3Bucket : Upload report to AWS S3 bucket\nNodeApp -> S3Bucket : Query report link\nactivate S3Bucket\nS3Bucket --> NodeApp\ndeactivate S3Bucket\nNodeApp -> NodeApp : Compose email data with report pdf link\nNodeApp -> SES : Queue email for sending\ndeactivate NodeApp\nSES -> User : Send email to user\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHoaIuLwWUa/pI+0m2Vn6J7x2IQBDtfyPYS3LpPoOffIADJcjZazeJ7R0wEAUx"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "citationMetadata": {
+        "citationSources": [
+          {
+            "startIndex": 236,
+            "endIndex": 502,
+            "uri": "https://github.com/codurance/soft-mod-compass",
+            "license": ""
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1187,
+    "candidatesTokenCount": 402,
+    "totalTokenCount": 1589,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1107
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "UmIxavrDCbO1kdUP6KeAoAU"
+}

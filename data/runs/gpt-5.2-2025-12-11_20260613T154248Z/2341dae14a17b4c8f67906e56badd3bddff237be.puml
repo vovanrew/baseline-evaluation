@@ -1,0 +1,33 @@
+@startuml
+title カレンダー表示機能
+
+actor "ユーザー" as User
+participant "カレンダー表示機能" as Cal
+database "画像DB" as ImgDB
+
+ref over User,Cal,ImgDB
+  画像取得 from Locix
+end ref
+
+User -> Cal : カレンダー表示
+
+== 画像取得 ==
+activate Cal
+Cal -> ImgDB : 日付単位で画像取得
+activate ImgDB
+ImgDB --> Cal : レスポンス
+deactivate ImgDB
+
+== カレンダー表示 ==
+alt [画像取得中]
+  Cal --> User : ローディングインジケーター表示
+else [画像取得完了]
+  Cal --> User : カレンダーを表示
+end
+
+== 一覧表示 ==
+User -> Cal : 撮影日付選択
+Cal --> User : 画像一覧を撮影時間の降順で表示
+deactivate Cal
+
+@enduml

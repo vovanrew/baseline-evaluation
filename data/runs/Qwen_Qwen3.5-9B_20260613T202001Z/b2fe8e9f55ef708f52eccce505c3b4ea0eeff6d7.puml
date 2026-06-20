@@ -1,0 +1,100 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+  FontColor Black
+  FontName Arial
+  FontSize 12
+}
+
+class "Team" as Team {
+  o name: string
+  o description: string
+  o ownerId: User
+  o participants: Participant[]
+  o topics: Topic[]
+}
+
+class "Topic" as Topic {
+  o name: string
+  o icon: string
+  o isSequential: boolean
+  o subtopics: Subtopic[]
+}
+
+class "Subtopic" as Subtopic {
+  o name: string
+  o description: string
+  o challenges: Challenge[]
+}
+
+class "Challenge" as Challenge {
+  o name: string
+  o body: string
+  o type: ChallengeType
+  o selection: string[]
+  o correct: string[]
+  o points: number
+  o feedback: string
+}
+
+class "ChallengeType" as ChallengeType {
+  INPUT
+  RADIO
+  CHECKBOX
+}
+
+class "Participant" as Participant {
+  o userId: User
+  o points: number
+  o status: ParticipantStatus
+}
+
+class "ParticipantStatus" as ParticipantStatus {
+  PENDING
+  ACCEPTED
+  DISABLED
+}
+
+class "User" as User {
+  o name: string
+  o email: string
+  o educationalInstitution: string
+  o educationalBackground: EducationalBackground
+  o birthDate: Date
+  o points: number
+}
+
+class "EducationalBackground" as EducationalBackground {
+  MIDDLE_INCOMPLETE
+  MIDDLE_ONGOING
+  MIDDLE_COMPLETE
+  HIGH_INCOMPLETE
+  HIGH_ONGOING
+  HIGH_COMPLETE
+  GRADUATION_INCOMPLETE
+  GRADUATION_ONGOING
+  GRADUATION_COMPLETE
+}
+
+class "ChallengeReport" as ChallengeReport {
+  o userId: User
+  o challengeId: Challenge
+  o answer: string[]
+  o answeredCorrectly: boolean
+}
+
+Team --|> Topic : 1..*
+Team --|> Participant : 1..*
+Topic --|> Subtopic : 1..*
+Subtopic --|> Challenge : 1..*
+Challenge --|> ChallengeType : 1
+Participant --|> ParticipantStatus : 1
+User --|> EducationalBackground : 1
+ChallengeReport --|> User : 1
+ChallengeReport --|> Challenge : 1
+
+@enduml

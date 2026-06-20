@@ -1,0 +1,56 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "User" as User
+participant "JobManager" as JobManager
+participant "Nodes" as Nodes
+participant "ESDM" as ESDM
+participant "Post Processing Library" as PostProcessingLibrary
+database "Storage" as Storage
+
+User -> JobManager: submit_job(IN, OUT)
+activate JobManager
+JobManager -> Nodes: 
+activate Nodes
+
+box "Initialization" #LightGrey
+    Nodes -> Storage: read IN=x
+    activate Storage
+    Storage --> Nodes: return
+    deactivate Storage
+endbox
+
+box "Loop" #White
+    Nodes -> Nodes: compute
+    Nodes -> ESDM: write async OUT=y
+    activate ESDM
+    ESDM -> Storage: write snapshot (async)
+    
+    box "In Situ Post Processing" #White
+        ESDM -> PostProcessingLibrary: trigger post processing if region effected
+        activate PostProcessingLibrary
+        PostProcessingLibrary -> PostProcessingLibrary: perform post processing
+        PostProcessingLibrary -> Storage: (could write result directly)
+        PostProcessingLibrary --> ESDM: return
+        deactivate PostProcessingLibrary
+    endbox
+    
+    ESDM -> Storage: write post processing result
+    ESDM --> Nodes: return
+    deactivate ESDM
+endbox
+
+Nodes --> User: OUT files become visible
+deactivate Nodes
+deactivate JobManager
+
+note right of Nodes: multiple iterations
+
+box "Finalize" #LightGrey
+endbox
+
+Storage --> User: All OUT files become visible to subsequent users.
+
+@enduml
+```

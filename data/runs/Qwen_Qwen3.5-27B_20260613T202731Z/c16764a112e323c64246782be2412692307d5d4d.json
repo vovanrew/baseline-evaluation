@@ -1,0 +1,22 @@
+{
+  "id": "b63b53a4-5354-40c5-94fc-f5bd812aecc4",
+  "object": "chat.completion",
+  "created": 1781491375,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nleft to right direction\nskinparam packageStyle rectangle\n\nactor \"Specialist Doctor\" as doctor\nparticipant \":CreateReportUI\" as UI\nparticipant \":CreateReportController\" as Controller\nparticipant \":Company\" as Company\nparticipant \":TestDiagnosis\" as TestDiagnosis\nparticipant \"rp : TestReportStore\" as ReportStore\nparticipant \"obj : diagnosis\" as Diagnosis\nparticipant \"rp : TestReport\" as Report\n\ndoctor -> UI: 1 asks to create a new diagnosis\nactivate UI\nref over UI,Controller {US4_SD_testsDTO.puml}\ndeactivate UI\nUI --> doctor: 2 requests to choose a given test\ndoctor -> UI: 3 chooses a given test\nactivate UI\nUI -> Controller: 4 createTestDiagnosis(idTest)\nactivate Controller\nController -> TestDiagnosis: 5 createTestDiagnosis(test)\nactivate TestDiagnosis\nTestDiagnosis -> Diagnosis: 6 createTestDiagnosis(testParameterList)\nactivate Diagnosis\nDiagnosis --> TestDiagnosis: \ndeactivate Diagnosis\nTestDiagnosis --> Controller: 7 getDiagnosis()\ndeactivate TestDiagnosis\nController --> UI: 8 getDiagnosis()\ndeactivate Controller\nUI --> doctor: 9 shows the diagnosis done automatically and requests the data for the report\ndoctor -> UI: 10 types the requested data\nactivate UI\nUI -> Controller: 11 createReport(idTest, diagnosis, report)\nactivate Controller\nController -> Company: 12 store = getTestReportStore()\nactivate Company\nCompany --> Controller: \ndeactivate Company\nController -> ReportStore: 13 createReport(idTest, diagnosis, report)\nactivate ReportStore\nReportStore -> Report: 14 create(idTest, diagnosis, report)\nactivate Report\nReport --> ReportStore: \ndeactivate Report\nController -> ReportStore: 15 validateReport()\nactivate ReportStore\nReportStore --> Controller: \ndeactivate ReportStore\ndeactivate Controller\nUI --> doctor: 16 shows the typed data and asks for confirmation\ndoctor -> UI: 17 confirms the data\nactivate UI\nUI -> Controller: 18 saveReport(report)\nactivate Controller\nController -> Company: 19 saveReport(report)\nactivate Company\nCompany -> ReportStore: 20 saveReport(report)\nactivate ReportStore\nReportStore -> ReportStore: 21 validateReport(report)\nactivate ReportStore\nReportStore --> ReportStore: \ndeactivate ReportStore\nReportStore -> ReportStore: 22 addReport(report)\nactivate ReportStore\nReportStore --> ReportStore: \ndeactivate ReportStore\nReportStore --> Company: \ndeactivate ReportStore\nCompany --> Controller: \ndeactivate Company\nController --> UI: \ndeactivate Controller\ndeactivate UI\nUI --> doctor: 23 informs operation success\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1566,
+    "completion_tokens": 610,
+    "total_tokens": 2176
+  }
+}

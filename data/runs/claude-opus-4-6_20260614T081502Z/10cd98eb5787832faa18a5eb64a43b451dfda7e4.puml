@@ -1,0 +1,137 @@
+@startuml
+
+skinparam ParticipantPadding 5
+skinparam BoxPadding 5
+
+box "VideoSink" #White
+participant "SurfaceViewRenderer" as SVR
+participant "ProxyVideoSink" as PVS
+participant "VideoSinkWrapper" as VSW
+participant "VideoBroadcaster" as VB
+end box
+
+box "VideoDecoder" #White
+participant "MediaCodecVideoDecoderStream" as MCVDS
+participant "IncomingVideoStream" as IVS
+participant "VideoStreamDecoder" as VSD
+participant "VCMDecodedFrameCallback" as VDFC
+participant "VideoDecoderCallback" as VDC
+participant "AndroidVideoDecoder" as AVD
+participant "VideoDecodeAndFrameCallbackWrapper" as VDFCW
+participant "VCMGenericDecoder" as VCMGD
+end box
+
+box "VideoReceiver" #White
+participant "VideoReceiver" as VR
+participant "VideoRtpDecompressionHandler" as VRDH
+participant "VideoRtpReceiver" as VRR
+end box
+
+box "RTPReceiver" #White
+participant "RtpDemuxer" as RD
+participant "RtpStreamReceiverController" as RSRC
+participant "RtpStreamReceiver" as RSR
+end box
+
+box "Transceiver" #White
+participant "RtpTransport" as RT
+participant "SrtpTransport" as ST
+participant "webrtcDtlsTransport" as WDT
+end box
+
+box "DTLS" #White
+participant "DtlsTransport" as DT
+participant "AsyncUDPSocket" as AUP
+end box
+
+== Receive RTP ==
+
+AUP -> DT : OnReadPacket()
+
+note right of AUP
+  RecvFrom()
+  MakeReceived
+  ...
+  readcb()
+end note
+
+DT -> DT : SignalReadEvent
+activate DT
+DT -> DT : OnReadPacket()
+DT -> DT : HandleIncomingPacket()
+deactivate DT
+
+DT -> WDT : UDPPort : OnReadPacket()
+DT -> WDT : PacketTransportInternal() : OnReadPacket()
+WDT -> WDT : ProcessConnection : OnReadPacket()
+
+WDT -> ST : webrtcDtlsTransport : OnReadPacket()
+ST -> ST : RtpTransport::OnReadPacket()
+
+note left of ST
+  SrtpTransportInternal()
+  RtpTransport
+  DtlsSrtpTransport
+  SrtpTransport
+  (DtlsSrtpTransport)
+end note
+
+ST -> RT : RtpTransport : OnRtpPacketReceived()
+
+RT -> RD : OnRtpPacket()
+
+RD -> RSR : OnRtpPacket()
+
+note right of RSR
+  RtpStreamReceiver()
+  (RtpVideoStreamReceiver2)
+  OnRtpPacket()
+end note
+
+RSR -> RSR : OnRtpPacket()
+RSR -> RSRC : OnRtpPacket()
+RSRC -> RSRC : OnRtpPacket()
+
+== Receive Video ==
+
+RSR -> RSR : OnRtpPacket()
+
+activate RSR
+RSR -> RSR : ReceivePacket()
+RSR -> RSR : OnReceivedPayloadData()
+RSR -> RSR : OnAssembledFrame()
+RSR -> RSR : OnCompletePacket()
+deactivate RSR
+
+VRDH -> VRDH : OnRtpPacket()
+
+RSR -> VRR : VideoRtpReceiver : OnCompleteFrame()
+VRR -> VRR : InsertFrame() : FrameBuffer
+
+note over VRR : RESUME
+
+VRR -> VRR : HandleEncodedFrame()
+VRR -> VRR : VideoReceiver2 : Decode()
+
+VRR -> VCMGD : VCMGenericDecoder : Decode()
+VDFCW -> VDFCW : VideoDecodeAndFrameCallbackWrapper : Decode()
+AVD -> AVD : AndroidVideoDecoder : qbFrame()
+VDC -> VDC : VideoDecoderCallback : qbDecodedFrame()
+VDFC -> VDFC : VCMDecodedFrameCallback : Decoded()
+VSD -> VSD : VideoStreamDecoder : FrameToRender()
+IVS -> IVS : IncomingVideoStream : OnFrame()
+
+note left of IVS
+  OnFrame()
+  ...
+end note
+
+IVS -> IVS : StartNewDecoder()
+
+MCVDS -> VB : OnFrame()
+VB -> VB : VideoBroadcaster : OnFrame()
+VSW -> VSW : VideoSinkWrapper : OnFrame()
+PVS -> PVS : ProxyVideoSink : onFrame()
+SVR -> SVR : SurfaceViewRenderer : onFrame()
+
+@enduml

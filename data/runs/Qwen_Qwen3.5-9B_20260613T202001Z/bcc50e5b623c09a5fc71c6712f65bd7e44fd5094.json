@@ -1,0 +1,22 @@
+{
+  "id": "9e1131a7-38d3-4084-8ef3-52ccf97719e5",
+  "object": "chat.completion",
+  "created": 1781586638,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"Admin\" as Admin\nparticipant \":DivisionPage\" as DivisionPage\nparticipant \":DivisionTableContainer\" as DivisionTableContainer\nparticipant \":DivisionTable\" as DivisionTable\nparticipant \":DivisionService (Frontend)\" as DivisionServiceFrontend\nparticipant \":Router\" as Router\nparticipant \":DivisionHTTPTransport\" as DivisionHTTPTransport\nparticipant \":DivisionEndpoint\" as DivisionEndpoint\nparticipant \":DivisionService\" as DivisionService\nparticipant \":DivisionCommand\" as DivisionCommand\nparticipant \":DivisionQuery\" as DivisionQuery\n\nAdmin -> DivisionPage : Open \"Manage Division\" Page\nDivisionPage -> DivisionTableContainer : Render \"Division Table\" Container\nDivisionTableContainer -> DivisionTable : Render \"Division Table\"\nDivisionTable --> DivisionTableContainer : rendered\nDivisionTableContainer --> DivisionPage : rendered\nDivisionPage -> Admin : rendered\n\nAdmin -> DivisionPage : Mark \"Division\"\nDivisionPage -> DivisionTableContainer : Mark \"Division\"\nDivisionTableContainer -> DivisionTable : Mark \"Division\"\nDivisionTable --> DivisionTableContainer : marked\nDivisionTableContainer --> DivisionPage : marked\nDivisionPage --> Admin : marked\n\nAdmin -> DivisionPage : Click \"Delete Selected\" Button\nDivisionPage -> DivisionTableContainer : showDeleteConfirmation(item)\n\nalt [\"Cancel Delete\"]\n  DivisionTableContainer --> DivisionPage : Close Dialog\n  DivisionPage --> Admin : Close Dialog\nelse\n  DivisionTableContainer -> DivisionTableContainer : handleDeleteConfirmation(item)\n  DivisionTableContainer -> DivisionServiceFrontend : deleteDivision([]payload)\n  DivisionServiceFrontend -> Router : route(\"DELETE\", \"v2/divisions\", formData)\n  Router -> DivisionHTTPTransport : DeleteDivisions(DivisionService, []ServerOption)\n  DivisionHTTPTransport -> DivisionEndpoint : DeleteMany(DivisionService)\n  DivisionEndpoint -> DivisionService : DeleteDivisions(context, []uuid)\n  \n  loop [\"For each uuid\"]\n    DivisionService -> DivisionQuery : Find(context, uuid)\n    DivisionQuery --> DivisionService : division\n    DivisionService -> DivisionCommand : Delete(context, division)\n    DivisionCommand --> DivisionService : isDeleted\n  end\n  \n  DivisionService -> DivisionEndpoint : isDeleted\n  DivisionEndpoint -> DivisionHTTPTransport : response := Response(isDeleted, nil)\n  DivisionHTTPTransport -> Router : response\n  Router -> DivisionServiceFrontend : response\n  DivisionServiceFrontend -> DivisionTableContainer : response\n  DivisionTableContainer -> DivisionPage : response\n  DivisionPage -> Admin : response\nend\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1321,
+    "completion_tokens": 531,
+    "total_tokens": 1852
+  }
+}

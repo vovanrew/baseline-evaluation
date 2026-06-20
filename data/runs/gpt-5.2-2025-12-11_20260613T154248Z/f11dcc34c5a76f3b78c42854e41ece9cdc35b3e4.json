@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLLKEseMFNMukRsXYh7LlXijMbDD",
+  "object": "chat.completion",
+  "created": 1781367470,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Zh\u10d8\u10dcahan Classes\n\nskinparam classAttributeIconSize 0\nskinparam packageStyle rectangle\nskinparam shadowing false\nskinparam linetype ortho\n\npackage \"Zh\u10d8\u10dcahan\" as P_Zh {\n  package \"Parser\" as P_Parser {\n\n    class Parser <<C>> {\n      - matchers : Array<AbstractLineMatcher>\n      - appendix_detector : AppendixDetector\n      - context : Context\n      + parse(file : string) : Dictionary\n      - per_line(line : string, index : int)\n      - parse_line(line : string, index : int)\n    }\n\n    class AppendixDetector <<C>> {\n      + starts_appendix_section?(line : string) : bool\n      + has_leaved_appendix_section?(line : string) : bool\n    }\n\n    class Context <<C>> {\n      - while_appendix : bool\n      - line : string?\n      - index : int?\n      + within_appendix?() : bool\n      + enter_appendix() : void\n      + leave_appendix() : void\n      + update_position(line : string, index : int) : void\n    }\n\n    class LineParser <<C>> {\n      + parse(context : Context)\n    }\n\n    package \"LineMatchers\" as P_LineMatchers {\n      abstract class AbstractLineMatcher <<A>> {\n        + match(context : Context) : MatchResult?\n        + pattern(context : Context) : RexExp\n        + type() : Symbol\n      }\n\n      class RadicalLineMatcher <<C>>\n      class ExplanationLineMatcher <<C>>\n      class PronunciationLineMatcher <<C>>\n      class CharacterLineMatcher <<C>>\n\n      class MatchResult <<C>> {\n        - matched : MatchData\n        + type : String\n        + matched() : Hash<String, String>\n      }\n    }\n\n    Parser *-- AppendixDetector\n    Parser *-- Context\n    Parser *-- LineParser\n\n    LineParser --> Context\n    LineParser --> P_LineMatchers.AbstractLineMatcher\n    LineParser --> P_LineMatchers.MatchResult\n\n    P_LineMatchers.RadicalLineMatcher --|> P_LineMatchers.AbstractLineMatcher\n    P_LineMatchers.ExplanationLineMatcher --|> P_LineMatchers.AbstractLineMatcher\n    P_LineMatchers.PronunciationLineMatcher --|> P_LineMatchers.AbstractLineMatcher\n    P_LineMatchers.CharacterLineMatcher --|> P_LineMatchers.AbstractLineMatcher\n  }\n\n  package \"Core\" as P_Core {\n    class Dictionary <<C>> {\n      - characters : Array<Character>\n      + find(character : string) : Character?\n    }\n\n    class Character <<C>> {\n      - radical : Radical\n      - char : string\n      + is?(character : string) : bool\n    }\n\n    class Description <<C>>\n    class Radical <<C>>\n    class Explanation <<C>>\n    class Pronunciation <<C>>\n\n    Dictionary \"1\" o-- \"*\" Character\n\n    Character \"1\" *-- \"1..*\" Description\n    Character \"1\" *-- \"1\" Radical\n\n    Description \"1\" *-- \"0..*\" Explanation\n    Description \"1\" *-- \"0..1\" Pronunciation\n  }\n\n  P_Parser.Parser --> P_Core.Dictionary\n}\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1849,
+    "completion_tokens": 676,
+    "total_tokens": 2525,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

@@ -1,0 +1,102 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #808080
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #808080
+  ParticipantBackgroundColor #EDEDED
+  ActorBorderColor #808080
+  ActorBackgroundColor #EDEDED
+}
+
+actor Actor as A
+participant LoginController as LC
+participant Md5Util as MD5
+participant ISysUserService as SVC
+participant PasswordUtil as PWD
+participant JwtUtil as JWT
+participant LoginUser as LU
+
+A -> LC : login
+activate LC
+
+LC -> MD5 : md5Encode
+activate MD5
+
+MD5 -> MD5 : byteArrayToHexString
+activate MD5
+deactivate MD5
+
+MD5 -> MD5 : byteToHexString
+activate MD5
+deactivate MD5
+
+MD5 --> MD5
+MD5 --> MD5
+
+MD5 -> MD5 : byteArrayToHexString
+activate MD5
+deactivate MD5
+
+MD5 -> MD5 : byteToHexString
+activate MD5
+deactivate MD5
+
+MD5 --> MD5
+MD5 --> MD5
+
+MD5 --> LC
+deactivate MD5
+
+LC -> SVC : checkUserIsEffective
+activate SVC
+SVC --> LC
+deactivate SVC
+
+LC -> PWD : encrypt
+activate PWD
+
+PWD -> PWD : getPbeKey
+activate PWD
+deactivate PWD
+
+PWD --> PWD
+
+PWD -> PWD : bytesToHexString
+activate PWD
+deactivate PWD
+
+PWD --> PWD
+
+PWD --> LC
+deactivate PWD
+
+LC -> LC : userInfo
+
+LC -> JWT : sign
+activate JWT
+JWT --> LC
+deactivate JWT
+
+LC -> SVC : updateUserDepart
+activate SVC
+SVC --> LC
+deactivate SVC
+
+LC -> SVC : updateUserDepart
+activate SVC
+SVC --> LC
+deactivate SVC
+
+LC --> LC
+
+LC -> LU : new
+activate LU
+LU --> LC
+deactivate LU
+
+LC --> A
+deactivate LC
+@enduml

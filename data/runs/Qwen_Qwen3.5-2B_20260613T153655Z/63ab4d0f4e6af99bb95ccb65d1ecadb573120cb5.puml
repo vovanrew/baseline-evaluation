@@ -1,0 +1,30 @@
+@startuml
+left to right direction
+
+participant "Client" as Client
+participant "TEAPServer" as TEAPServer
+
+Client -> TEAPServer : EAP-Request/Identity
+TEAPServer -> Client : EAP-Response/Type=Identity
+
+Client -> TEAPServer : EAP-Request/Type=TEAP, TEAP Start, Authority-ID TLV
+TEAPServer -> Client : EAP-Response/Type=TEAP, TLS(ClientHello)
+
+note right of Client
+(1)
+(2)
+end note
+
+Client -> TEAPServer : EAP-Request/Type=TEAP, TLS(ServerHello, ServerKeyExchange, ServerHelloDone)
+TEAPServer -> Client : EAP-Response/Type=TEAP, ClientKeyExchange, CertificateVerify, ChangeCipherSpec, Finished)
+
+note right of Client
+(3)
+end note
+
+Client -> TEAPServer : EAP-Request/Type=TEAP, TLS(ChangeCipherSpec, Finished), {Crypto-Binding TLV, Result TLV=Success}
+TEAPServer -> Client : EAP-Response/Type=TEAP, {Crypto-Binding TLV, Result TLV=Success}
+
+Client -> TEAPServer : EAP-Success
+
+@enduml

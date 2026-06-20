@@ -1,0 +1,21 @@
+{
+  "id": "msg_01AGrwRJBF7Fn4bzJFdzZWUp",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle User getUsers\n\nparticipant API_Gateway\nparticipant UserRouter\nparticipant Middleware\nparticipant UserController\ndatabase UserDB\n\nAPI_Gateway -> UserRouter : getUsers(token)\nUserRouter -> Middleware : withAuth(token)\n\nalt [!token]\n    Middleware --> UserRouter : 'Unauthorized: No token provided (401)'\n    UserRouter --> API_Gateway : 'Unauthorized: No token provided (401)'\nend\n\nMiddleware -> Middleware : jwt.verify(token)\n\nalt [token != valid]\n    Middleware --> UserRouter : 'Unauthorized: Invalid token (401)'\n    UserRouter --> API_Gateway : 'Unauthorized: Invalid token (401)'\nend\n\nMiddleware --> UserRouter : Token Valid\nUserRouter -> UserController : getUsers()\n\nUserController -> UserDB : find()\nUserDB --> UserController : users[]\n\nalt [users.length == 0]\n    UserController --> UserRouter : 'User not found 404'\n    UserRouter --> API_Gateway : 'User not found 404'\nend\n\nUserController --> UserRouter : return(res.status(200), users)\nUserRouter --> API_Gateway : return(res.status(200), users)\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781371902,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 286,
+    "prompt_tokens": 1636,
+    "total_tokens": 1922
+  }
+}

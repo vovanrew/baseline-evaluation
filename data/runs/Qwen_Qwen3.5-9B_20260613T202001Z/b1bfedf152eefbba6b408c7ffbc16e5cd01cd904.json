@@ -1,0 +1,22 @@
+{
+  "id": "1f1a65d0-e2a7-45ec-ad1f-a4cbdfa5cbf1",
+  "object": "chat.completion",
+  "created": 1781411954,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nskinparam sequenceMessageAlign center\n\nparticipant \"Resident\" as Resident\nparticipant \"WeResident\" as WeResident\nparticipant \"WeID\" as WeID\nparticipant \"WeService\" as WeService\n\nactivate WeResident\nResident -> WeResident: Send username:password /login\nalt [Provider already exist]\n  WeResident -> WeID: Get Token by username:password /oauth/authorize\n  WeID --> WeResident: Return Token to WeResident\n  WeResident --> Resident: Return {\"token\": \"jwt-token\"}\nend\ndeactivate WeResident\n\nactivate WeResident\nWeResident -> WeService: Query services including token /weservices/services\\nHeader\\nAuthorization: Bear {jwt-token}\nnote right of WeResident: Query Service schema\\n{\"query\":\"string\",\"status\":12}\nalt [above token is valid]\n  WeID --> WeResident: verify token\n  WeID --> WeResident: 200\n  WeService --> WeResident: Response services data\n  note right of WeService: Service Data Array schema\\n[{\"id\":\"string\",\"company\":\"string\",\"name\":\"string\",\"rate\":4.2,\"image\":\"image.png\"},{}],\\n\"total\":10,\"currentPage\":1,\"perPage\":5}\nelse [Token is expired/invalid]\n  WeID --> WeResident: verify token\n  WeID --> WeResident: 400\n  WeService --> WeResident: Response 401 status\nend\ndeactivate WeResident\n\nactivate WeResident\nWeResident -> WeService: Create Service\\nPOST: /weservices/service/{serviceID}/order\nnote right of WeResident: Order Request schema\\n{\"resident\":\"$userID\",\\n\"service\":\"$serviceID\",\\n\"pricingModel\":{},\\n\"noteDetail\":\"string\",\\n\"address\":\"string\",\\n\"schedule\":Time}\nWeID --> WeResident: verify token\nWeID --> WeResident: 200\nWeService --> WeResident: Response Service Data(JSON)\nWeResident -> WeService: Comment(chat) in Order\\nPOST: /weservices/order/{orderID}/comment\nnote right of WeResident: Comment Data\\n{\"content\":\"string\"}\nWeID --> WeResident: verify token\nWeID --> WeResident: 200\nWeService --> Resident: 200\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1419,
+    "completion_tokens": 541,
+    "total_tokens": 1960
+  }
+}

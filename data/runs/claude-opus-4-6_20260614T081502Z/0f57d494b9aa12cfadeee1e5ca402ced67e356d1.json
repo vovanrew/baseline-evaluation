@@ -1,0 +1,21 @@
+{
+  "id": "msg_01XwCk5ZsRcF72rwnn2AHyQC",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Find all a vaccination documents in EPD\n\nactor HCP\n\nbox \"Community A\"\nparticipant \"GFPP/PIS\" as GFPP #00CC00\nparticipant \"Aggregator\" as Agg #00CC00\nparticipant \"CO-Registry\" as COReg #gray\nparticipant \"CO-Repository\" as CORepo #gray\nparticipant \"CO-IGW\" as COIGW #00CC00\nend box\n\nbox \"Community X\"\nparticipant \"OC-RGW\" as OCRGW #cyan\nparticipant \"OC-Registry\" as OCReg #cyan\nparticipant \"OC-Repository\" as OCRepo #cyan\nend box\n\nHCP -> GFPP : [01] Get all immunization data\nGFPP -> Agg : [02] query all registries\nAgg -> COIGW : [03] Registry Stored Query Request [ITI-18]\nCOIGW -> COReg : [04] Registry Stored Query Request [ITI-18]\nCOReg -> COReg : [05] Lookup Data\nCOReg -> COIGW : [06] Registry Stored Query Response [ITI-18]\nCOIGW -> COIGW : [07] request all communities\nCOIGW -> OCRGW : [08] Registry Stored Query Request [ITI-38]\nOCRGW -> OCReg : [09] Registry Stored Query Request [ITI-18]\nOCReg -> OCReg : [10] Lookup Data\nOCReg -> OCRGW : [11] Registry Stored Query Response [ITI-18]\nOCRGW -> COIGW : [12] Registry Stored Query Response [ITI-38]\nCOIGW -> COIGW : [13] end loop\nCOIGW -> COIGW : [14] Assemble Query Responses\nCOIGW -> Agg : [15] Registry Stored Query Response [ITI-18]\nAgg -> GFPP : [16] list of document info\nGFPP -> GFPP : [17] retrieve all documents\nGFPP -> COIGW : [18] Retrieve Document Request [ITI-43]\nCOIGW -> CORepo : [19] Retrieve Document Request [ITI-43]\nCORepo -> CORepo : [20] allocate document data\nCORepo -> COIGW : [21] Retrieve Document Response [ITI-43]\nCOIGW -> OCRGW : [22] Retrieve Document Request [ITI-39]\nOCRGW -> OCRepo : [23] Retrieve Document Request [ITI-43]\nOCRepo -> OCRepo : [24] allocate document data\nOCRepo -> OCRGW : [25] Retrieve Document Response [ITI-43]\nOCRGW -> COIGW : [26] Retrieve Document Response [ITI-39]\nCOIGW -> COIGW : [27] Assemble Retrieve Responses\nCOIGW -> GFPP : [28] Retrieve Document Response [ITI-43]\nGFPP -> Agg : [29] Aggregate documents\nAgg -> GFPP : [30] one FHIR ch-vacd document\nGFPP -> HCP : [31] Show immunization data\n\ncenter footer Version 1.0\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431199,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 813,
+    "prompt_tokens": 1664,
+    "total_tokens": 2477
+  }
+}

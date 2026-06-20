@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLiSlrjlO2lOAq7blN6n18lC14lw",
+  "object": "chat.completion",
+  "created": 1781368904,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam backgroundColor white\nskinparam sequence {\n  ArrowColor #333333\n  LifeLineBorderColor #999999\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #999999\n  ParticipantBackgroundColor #F8F8F8\n  BoxBorderColor #CCCCCC\n  BoxBackgroundColor #FFFFFF\n}\n\nbox \"VideoSink\" #FFFFFF\nparticipant VideoSink as VideoSink\nend box\n\nbox \"VideoDecoder\" #FFFFFF\nparticipant VideoDecoder as VideoDecoder\nend box\n\nbox \"VideoReceiver\" #FFFFFF\nparticipant VideoReceiver as VideoReceiver\nend box\n\nbox \"RTPReceiver\" #FFFFFF\nparticipant RTPReceiver as RTPReceiver\nend box\n\nbox \"Transcoder\" #FFFFFF\nparticipant Transcoder as Transcoder\nend box\n\nbox \"DPLA\" #FFFFFF\nparticipant DPLA as DPLA\nend box\n\nbox \"AzureKVSClient\" #FFFFFF\nparticipant AzureKVSClient as AzureKVSClient\nend box\n\n== Receive RTP ==\nVideoReceiver -> VideoReceiver : Receive RTP ...\n\n== Receive Video ==\nVideoReceiver -> VideoReceiver : Receive Video\n\nRTPReceiver -> RTPReceiver : RtpReceiver ...\nRTPReceiver -> Transcoder : OnRtpPacket\nTranscoder -> DPLA : OnRtpPacket\n\nDPLA -> DPLA : PreConnection\nDPLA -> DPLA : OpenRtpPacket\nDPLA -> DPLA : SignalReadEvent\nDPLA -> AzureKVSClient : OnReadEvent\nAzureKVSClient -> AzureKVSClient : ReadFrame\nAzureKVSClient --> DPLA : OnReadEvent()\n\nTranscoder -> Transcoder : RtpTransportProtocol\\n(transport protocol)\nTranscoder -> Transcoder : RtpTransportProtocol\\n(transport protocol)\nTranscoder -> DPLA : OnRtpPacketReceived\n\nRTPReceiver -> RTPReceiver : RtpReceiverStateController\nRTPReceiver -> RTPReceiver : SetState\nRTPReceiver -> RTPReceiver : SetStateController\n\nVideoDecoder -> VideoDecoder : StartVideoDecode()\n\nVideoSink -> VideoReceiver : SurfaceAvailable(surface)\nVideoReceiver -> VideoReceiver : VideoReceiver(surface)\nVideoReceiver -> VideoDecoder : IncomingVideoFrame(frame)\nVideoDecoder -> VideoDecoder : VideoDecoder(frame)\nVideoDecoder -> VideoDecoder : VideoDecoderInit()\nVideoDecoder -> VideoDecoder : AddVideoDecoder()\nVideoDecoder -> VideoDecoder : VideoDecoderStart()\nVideoDecoder -> VideoDecoder : VideoDecoderThreadStart()\nVideoDecoder -> VideoDecoder : Decode()\nVideoDecoder -> VideoDecoder : OnDecodedFrame()\nVideoDecoder -> VideoSink : OnFrame()\n\nVideoReceiver -> VideoReceiver : RESUME\nVideoReceiver -> VideoReceiver : HandleDecodedFrame()\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1144,
+    "completion_tokens": 557,
+    "total_tokens": 1701,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

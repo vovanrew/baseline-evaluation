@@ -1,0 +1,47 @@
+@startuml
+title agregar jugadores a la partida
+
+actor "jugador" as jugador
+participant "VistaNuevaPartida" as vistaNuevaPartida
+participant "SubVistaSeleccionEquipos" as subVistaSeleccionEquipos
+participant "ControladorNuevaPartida" as controladorNuevaPartida
+participant "Jugador" as jugadorObjeto
+
+jugador -> vistaNuevaPartida : click agregar jugador
+activate vistaNuevaPartida
+
+vistaNuevaPartida ..> controladorNuevaPartida : 
+activate controladorNuevaPartida
+
+controladorNuevaPartida -> jugadorObjeto : obtenerJugadorAleatorio()
+activate jugadorObjeto
+jugadorObjeto --> controladorNuevaPartida : jugador jug
+deactivate jugadorObjeto
+
+controladorNuevaPartida -> controladorNuevaPartida : agregarJugador(jug)
+activate controladorNuevaPartida
+deactivate controladorNuevaPartida
+
+alt [jugadores<4]
+  controladorNuevaPartida -> vistaNuevaPartida : agregarVistaInfoJugador(jug)
+  activate vistaNuevaPartida
+  vistaNuevaPartida --> jugador : muestra el nuevo jugador agregado
+  deactivate vistaNuevaPartida
+
+  alt [vista seleccion equipos activada]
+    controladorNuevaPartida -> subVistaSeleccionEquipos : agregarJugador(Jugador jug)
+    activate subVistaSeleccionEquipos
+    subVistaSeleccionEquipos --> jugador : muestra nuevo jugador agregado en equipo
+    deactivate subVistaSeleccionEquipos
+  end
+else [de lo contrario]
+  controladorNuevaPartida -> vistaNuevaPartida : mostrarMensaje("Maximo 4 jugadores.")
+  activate vistaNuevaPartida
+  vistaNuevaPartida --> jugador : muestra mensaje de maximo 4 jugadores
+  deactivate vistaNuevaPartida
+end
+
+deactivate vistaNuevaPartida
+deactivate controladorNuevaPartida
+
+@enduml

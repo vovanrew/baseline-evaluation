@@ -1,0 +1,45 @@
+@startuml
+actor Actor
+participant "WizardAction" as WizardAction #D3D8E9#051627;
+note right of WizardAction : Extention loading and integration\nwith main UI can be found on Example Extention diagrams
+Actor ->> WizardAction: starts use case 
+create participant frame as "frame : WizardFrame"#D3D8E9#051627;;
+WizardAction->>+frame:new(UIController)
+activate frame  
+create controller  as "controller : WizardController"#D3D8E9#051627;;
+frame->>+controller:new(UIController)
+activate controller   
+loop getFunctions()    
+    activate Language     
+        controller->Language:getInstance()        
+         loop displayInformation()             
+             selfMessage loadTextFields():loadTextFields();         
+          end       
+     deactivate Language      
+end 
+
+deactivate controller  
+
+group Select Function
+    
+   note over Controller,UIControler:Get Expression from user input
+   
+      rect rgb(240, 240, 240)          
+            alt expression is null               
+                UIControler-->self:createErrorDialog("No function selected")            
+           else                
+               create cellObject              
+              par Get Cell Object                  
+                  UIControler->CellFactory:getActiveCell(cellId);                 
+                 opt if object was deleted                     
+                     CellFactory-->>cellObject:return NULL                   
+                    end                    
+                   group Compile Formula                        
+                       compileFormula(expression,getParameters());                      
+                      end                       
+                        return result(resultType,resultValue);                         
+                         destroy cellObject                          
+                          end                            
+                            end                              
+                              end                               
+                                @enduml

@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\ntitle \u89e3\u6790\u5904\u7406@EnableTransactionManagement\u6ce8\u89e3\n\nparticipant ConfigurationClassPostProcessor\nparticipant ConfigurationClassParser\nparticipant ComponentScanAnnotationParser\nparticipant AdviceModeImportSelector\nparticipant TransactionManagementConfigurationSelector\nparticipant ConfigurationClass\nparticipant ConfigurationClassBeanDefinitionReader\nparticipant AutoProxyRegistrar\nparticipant AopConfigUtils\n\n-> ConfigurationClassPostProcessor: postProcessBeanDefinitionRegistry\nactivate ConfigurationClassPostProcessor\n\nConfigurationClassPostProcessor -> ConfigurationClassParser: parse(AnnotationMetadata metadata, String beanName)\nactivate ConfigurationClassParser\n\nConfigurationClassParser -> ConfigurationClassParser: processConfigurationClass(ConfigurationClass configClass)\nactivate ConfigurationClassParser\nConfigurationClassParser -> ConfigurationClassParser: doProcessConfigurationClass(ConfigurationClass configClass, SourceClass sourceClass)\nactivate ConfigurationClassParser\n\nalt \u5f53\u524d\u88ab\u89e3\u6790\u7684Class\u88ab@ComponentScan\u6807\u6ce8\uff0c\u8fdb\u884c\u626b\u63cf\n    group @ComponentScan\u626b\u63cf\n        ConfigurationClassParser -> ComponentScanAnnotationParser: parse(AnnotationAttributes componentScan, final String declaringClass)\n        activate ComponentScanAnnotationParser\n        ComponentScanAnnotationParser -> ConfigurationClassParser: parse(String className, String beanName)\n        deactivate ComponentScanAnnotationParser\n        ConfigurationClassParser -> ConfigurationClassParser: processConfigurationClass(ConfigurationClass configClass) \u9012\u5f52\u89e3\u6790\u626b\u63cf\u5230\u7684\u7c7b\n    end\nelse \u4e0d\u8fdb\u884c\u626b\u63cf,\u5904\u7406\u5e26@EnableTransactionManagementImportBean\u914d\u7f6e\u7c7b\n    ConfigurationClassParser -> ConfigurationClassParser: processImports(configClass, sourceClass, getImports(sourceClass), true)\n    activate ConfigurationClassParser\n    \n    group \u83b7\u53d6\u5230AutoProxyRegistrar\u3001ProxyTransactionManagementConfiguration\n        ConfigurationClassParser -> AdviceModeImportSelector: selectImports(AnnotationMetadata)\n        activate AdviceModeImportSelector\n        AdviceModeImportSelector -> TransactionManagementConfigurationSelector: selectImports(AdviceMode)\n        activate TransactionManagementConfigurationSelector\n        TransactionManagementConfigurationSelector --> AdviceModeImportSelector\n        deactivate TransactionManagementConfigurationSelector\n        AdviceModeImportSelector --> ConfigurationClassParser\n        deactivate AdviceModeImportSelector\n    end\n    \n    group \u9012\u5f52\u5904\u7406AutoProxyRegistrar\u3001ProxyTransactionManagementConfiguration\n        note left of ConfigurationClassParser\n            \u6dfb\u52a0AutoProxyRegistrar\u3001AspectJAutoProxyRegistrar\u5230\u5173\u8054\u914d\u7f6e\u7c7b\n            \uff08\u5373\u6807\u8bb0@EnableTransactionManagement\u7684\u7c7b\uff09\n            \u7684importBeanDefinitionRegistrars\u5c5e\u6027\u4e2d\n        end note\n        ConfigurationClassParser -> ConfigurationClass: addImportBeanDefinitionRegistrar\n        note left of ConfigurationClassParser\n            \u6309\u7167\u666e\u901a\u914d\u7f6e\u7c7b\u5904\u7406ProxyTransactionManagementConfiguration\n        end note\n        ConfigurationClassParser -> ConfigurationClassParser: processConfigurationClass\n    end\n    deactivate ConfigurationClassParser\nend\n\nConfigurationClassParser --> ConfigurationClassParser: \u89e3\u6790\u5b8c\u914d\u7f6e\u7c7b\ndeactivate ConfigurationClassParser\ndeactivate ConfigurationClassParser\ndeactivate ConfigurationClassParser\n\ngroup \u52a0\u8f7d\u914d\u7f6e\u7c7b\u7684\u914d\u7f6e\u4fe1\u606f\n    ConfigurationClassPostProcessor -> ConfigurationClassBeanDefinitionReader: loadBeanDefinitions\n    activate ConfigurationClassBeanDefinitionReader\n    \n    ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: loadBeanDefinitionsForConfigurationClass\n    activate ConfigurationClassBeanDefinitionReader\n    \n    ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: registerBeanDefinitionForImportedConfigurationClass\n    note left: \u5982\u679c\u662f\u7531\u914d\u7f6e\u7c7b\u5bfc\u5165\u7684\uff0c\u76f4\u63a5\u6ce8\u518c\u5230beanFactory\n    \n    group \u5904\u7406ProxyTransactionManagementConfiguration\uff0c\u5bfc\u5165\u4e86\u5207\u9762BeanFactoryTransactionAttributeSourceAdvisor\n        ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: loadBeanDefinitionsForBeanMethod\n        note left: \u52a0\u8f7d@Bean\u6807\u8bb0\u7684\u6ce8\u518c\u65b9\u6cd5\n    end\n    \n    ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: loadBeanDefinitionsFromImportedResources\n    note left: \u5904\u7406@ImportResource\n    \n    group \u5904\u7406AutoProxyRegistrar\uff0c\u6ce8\u518c\u4e86InfrastructureAdvisorAutoProxyCreator\n        ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: loadBeanDefinitionsFromRegistrars\n        note left: \u5904\u7406@Import\uff0c\u5bfc\u5165\u7684ImportBeanDefinitionRegistrar\u7c7b\n        activate ConfigurationClassBeanDefinitionReader\n        ConfigurationClassBeanDefinitionReader -> AutoProxyRegistrar: registerBeanDefinitions\n        activate AutoProxyRegistrar\n        \n        group \u6ce8\u518cInfrastructureAdvisorAutoProxyCreator\n            AutoProxyRegistrar -> AopConfigUtils: registerAutoProxyCreatorIfNecessary\n            activate AopConfigUtils\n            AopConfigUtils --> AutoProxyRegistrar\n            deactivate AopConfigUtils\n        end\n        \n        AutoProxyRegistrar --> ConfigurationClassBeanDefinitionReader\n        deactivate AutoProxyRegistrar\n        deactivate ConfigurationClassBeanDefinitionReader\n    end\n    \n    deactivate ConfigurationClassBeanDefinitionReader\n    deactivate ConfigurationClassBeanDefinitionReader\nend\n\ndeactivate ConfigurationClassPostProcessor\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHCCMVvXjUx0aQRp9WqVUOw9uHNDHhPmvaWyZnRm1tdCh0U4w9sV3D8b2486rx"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1172,
+    "candidatesTokenCount": 992,
+    "totalTokenCount": 2164,
+    "promptTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1092
+      },
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "R2IxaqD6PJmzxN8Pg63HgAE"
+}

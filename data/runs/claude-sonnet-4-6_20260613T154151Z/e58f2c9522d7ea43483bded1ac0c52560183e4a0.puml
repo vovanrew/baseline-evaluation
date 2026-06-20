@@ -1,0 +1,50 @@
+```plantuml
+@startuml
+
+interface SessionRepository<S extends Session> {
+  + S createSession();
+  + void save(S session);
+  + S getSession(String id);
+  + void delete(String id);
+}
+
+interface Session {
+}
+
+interface ExpiringSession {
+}
+
+class MapSessionRepository {
+}
+
+interface FindByIndexNameSessionRepository {
+  + Map<String, S> findByIndexNameAndIndexValue(String indexName, String indexValue);
+}
+
+class JdbcOperationsSessionRepository {
+}
+
+class MongoOperationsSessionRepository {
+}
+
+class RedisSession {
+}
+
+class RedisOperationsSessionRepository <<RedisSession>> {
+}
+
+Session <|-- ExpiringSession
+SessionRepository --> Session
+MapSessionRepository ..|> SessionRepository
+ExpiringSession <|.. RedisSession
+
+FindByIndexNameSessionRepository --|> SessionRepository
+
+JdbcOperationsSessionRepository ..|> FindByIndexNameSessionRepository
+MongoOperationsSessionRepository ..|> FindByIndexNameSessionRepository
+RedisOperationsSessionRepository ..|> FindByIndexNameSessionRepository
+
+RedisSession --> RedisOperationsSessionRepository
+
+@enduml
+```

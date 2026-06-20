@@ -1,0 +1,112 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+
+skinparam class {
+  BackgroundColor White
+  BorderColor #666666
+}
+
+skinparam stereotypeCBackgroundColor #FFF59D
+skinparam stereotypeCBorderColor #666666
+
+class Creator #98FB98 {
+  + SceneManager makeScene(QJsonObject spec)
+  # Table makeTable(QJsonObject spec);
+  # Ball makeBall(QJsonObject spec);
+}
+
+class SceneBuilder {
+  + void setTable(Table);
+  + void addBall(Ball);
+  + void resetBalls();
+  + SceneManager build();
+}
+
+class MainWindow {
+  - QTimer updater;
+  - QTimer ticker;
+  - QElapsedTimer timer;
+  - SceneManager scene;
+  --
+  + void paintEvent(QPaintEvent event);
+  .. slots ..
+  + void tick();
+  + void nextFrame();
+}
+
+class SceneManager {
+  - Table table;
+  - vector<Ball> balls;
+  - QPoint offset;
+  --
+  QSize viewPort();
+  void tick(float dtime);
+  void draw(QPainter painter);
+}
+
+interface Graphic #BFEFF2 {
+  + void draw(QPainter painter);
+}
+
+class SimpleCreator {
+  # Table makeTable(QJsonObject spec);
+  # Ball makeBall(QJsonObject spec);
+}
+
+class Table #98FB98 {
+  + QSize dimension;
+  + float surface_friction;
+}
+
+class Ball #98FB98 {
+  + float mass;
+  + QVector2D position;
+  + QVector2D velocity;
+  + float radius;
+}
+
+class SimpleTable {
+  - QColor color;
+  --
+  + void draw(QPainter painter);
+}
+
+class SimpleBall {
+  - QColor color;
+  --
+  + void draw(QPainter painter);
+}
+
+class Key #FFF59D {
+  "○ public" as k1
+  "◇ protected" as k2
+  "□ private" as k3
+  --
+  "○ public method()" as k4
+  "◇ protected method()" as k5
+  "□ private method()" as k6
+}
+
+Creator <|.. SimpleCreator
+Creator --> SceneBuilder
+
+SceneBuilder ..> SceneManager
+
+MainWindow *-- SceneManager
+
+SceneManager *-- Table
+SceneManager *-- Ball
+
+Graphic <|.. Table
+Graphic <|.. Ball
+Table <|-- SimpleTable
+Ball <|-- SimpleBall
+
+SimpleCreator ..> SimpleTable
+SimpleCreator ..> SimpleBall
+
+SceneManager ..|> Graphic
+
+@enduml

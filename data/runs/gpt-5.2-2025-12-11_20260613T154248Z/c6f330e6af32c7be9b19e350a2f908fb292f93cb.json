@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLriBZ3RNOMN7qGhLzn5Ae2YQQbf",
+  "object": "chat.completion",
+  "created": 1781369478,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  ParticipantPadding 40\n  BoxPadding 10\n  MessageAlign left\n}\n\nparticipant arm_io_storage\nparticipant io_storage\nparticipant io_fip\nparticipant io_memmap\n\narm_io_storage -> arm_io_storage : arm_io_setup()\n\nbox \"io dev registration\" #FFFFFF\n  arm_io_storage -> io_fip : register_io_dev_fip(&fip_dev_con)\n  io_fip -> io_storage : io_register_device(&dev_info_pool[])\n  note over io_storage\n    devices[dev_count] = (fip_)dev_info_pool\n    dev_count++\n  end note\n\n  arm_io_storage -> io_memmap : register_io_dev_memmap(&memmap_dev_con)\n  io_memmap -> io_storage : io_register_device(&memmap_dev_info)\n  note over io_storage\n    devices[dev_count] = memmap_dev_info\n    dev_count++\n  end note\n\n  arm_io_storage -> io_storage : io_dev_open(fip_dev_con, NULL, fip_dev_handle)\n  activate io_storage\n  io_storage -> io_storage : dev_open(dev_con, dev_spec, handle)\n\n  opt [dev_open() on fip device]\n    io_storage -> io_fip : fip_dev_open(dev_spec, dev_info)\n    note over io_fip\n      dev_info = one of the\n      \"fip_dev_info\" from\n      dev_info_pool[]\n    end note\n  end opt\n  deactivate io_storage\n\n  arm_io_storage -> io_storage : io_dev_open(memmap_dev_con, NULL, memmap_dev_handle)\n  activate io_storage\n  io_storage -> io_storage : dev_open(dev_con, dev_spec, handle)\n\n  opt [dev_open() on memmap device]\n    io_storage -> io_memmap : memmap_dev_open(dev_spec, dev_info)\n    note over io_memmap\n      dev_info = memmap_dev_info\n    end note\n  end opt\n  deactivate io_storage\nend box\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2195,
+    "completion_tokens": 437,
+    "total_tokens": 2632,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

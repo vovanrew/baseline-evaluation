@@ -1,0 +1,114 @@
+@startuml
+title PD parse detail
+
+participant "Chi" as Chi
+participant "pipeline" as pipeline
+participant "pdlibwrapper" as pdlibwrapper
+participant "pdlibinterface" as pdlibinterface
+participant "camxsensornode" as camxsensornode
+participant "camxpdlibraryhandler" as camxpdlibraryhandler
+
+note right of Chi
+ChiPDEntry[] = "ChiPDLibraryEntry"
+ChiASDEntry[] = "ChiASDAlgorithmEntry"
+ChiAFDEntry[] = "ChiAFDAlgorithmEntry"
+ChiAWBEntry[] = "ChiAWBAlgorithmEntry"
+ChiAFEntry[] = "ChiAFAlgorithmEntry"
+from this text, can get Algorithm Entry
+end note
+
+note right of pdlibwrapper
+pdlibwrapper
+camxpdlibwrapper.cpp
+end note
+
+note right of pdlibinterface
+pdlibinterface
+camxpdlibinterface.cpp
+end note
+
+note right of camxsensornode
+camxsensornode.cpp
+end note
+
+note right of camxpdlibraryhandler
+camxpdlibraryhandler.cpp
+end note
+
+note left of Chi
+chi stats algo
+end note
+
+note left of pdlibwrapper
+PD lib create
+end note
+
+note left of pipeline
+ProbeChiComponents
+GetAECAlgorithmCallback
+GetAFDAlgorithmCallback
+GetAFAlgorithmCallback
+GetAWBAlgorithmCallback
+GetASDAlgorithmCallback
+GetPDLibraryCallback
+GetHVXAlgorithmCallback
+return
+These Callback used in camxpipeline.cpp when call pipeline:CreateNodes
+end note
+
+note left of camxpdlibraryhandler
+for m_pStatscallback.pDPCallback
+contain these interface
+pCallBacks->pfnGetCapabilities = PDWrapperGetCapabilities;
+pCallBacks->pfnCreate = CreatePDLibWrapper;
+pCallBacks->pfnQueryVendorTag = NULL;
+pCallBacks->pfnSetAlgoInterface = PDWrapperSetNodeInterface;
+end note
+
+note left of camxpdlibraryhandler
+CreatePDLibWrapper
+end note
+
+note left of camxpdlibraryhandler
+CamX::LoadPDLib
+" %s%s%s%s "
+"VendorLibPath"
+"PathSeparator"
+"pLibName"
+"SharedLibraryExtension"
+return Addr
+pfnCreate
+return
+end note
+
+note left of camxpdlibraryhandler
+call PD lib
+end note
+
+note left of camxpdlibraryhandler
+Init PDLib
+end note
+
+note left of camxpdlibraryhandler
+for pipeline create, will create every node
+and pdlib is init in sensor node
+end note
+
+note left of camxpdlibraryhandler
+ProcessingNodeFinalizeInitialization
+1. ReadEEPROMData
+2. GetCSInfo
+3. GetOTPData
+4. PopulatePDAFInformation
+5. PublishPDAFinformation
+why we need publish this info?
+actually for PropertyIDSensorPDAFInfo, in IFE PDPCv1.1 and BPS PDPCv2.0 will use it.
+since type 3 sensor will not do pdpc
+end note
+
+note left of camxpdlibraryhandler
+LoadPDLibrary
+CPDLibHandler::CreateLib
+end note
+
+@enduml

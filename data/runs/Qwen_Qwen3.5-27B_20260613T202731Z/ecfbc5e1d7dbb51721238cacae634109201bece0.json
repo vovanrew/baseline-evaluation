@@ -1,0 +1,22 @@
+{
+  "id": "7cb250b6-4ca0-476d-813f-e2c987e85d84",
+  "object": "chat.completion",
+  "created": 1781494720,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml Compass Sequence Diagram\n\nactor User\nparticipant \"HubSpot\" as HubSpot\nparticipant \"TypeForm\" as TypeForm\nparticipant \"TypeForm API\" as TypeFormAPI\nparticipant \"Node App\" as NodeApp\nrectangle AWS {\n    participant \"S3 Bucket\" as S3Bucket\n    participant \"SES\" as SES\n}\n\nUser -> HubSpot: Loads Compass\nactivate HubSpot\nHubSpot -> HubSpot: Generate UUID to identify user\ndeactivate HubSpot\nHubSpot -> TypeForm: Load embedded TypeForm survrey\nUser -> HubSpot: Completes survey\nHubSpot -> HubSpot: Redirects to HubSpot Landing Page Submission Form\\nhttps://info.codurance.com/en/compass-details-submission\nUser -> HubSpot: Completes submission form\nactivate HubSpot\nHubSpot -> HubSpot: Save submission info & contact in Hubspot\ndeactivate HubSpot\nHubSpot -> NodeApp: Redirects to /report/submit/:uuid (to generate report)\nactivate NodeApp\nNodeApp -> NodeApp: Start report generation\ndeactivate NodeApp\nNodeApp -> HubSpot: Redirects to HubSpot Thanks Landing Page\\n\"https://info.codurance.com/en/compass-successful-submission\"\nNodeApp -> TypeFormAPI: Gets survrey questions & answers\nactivate TypeFormAPI\nTypeFormAPI --> NodeApp\ndeactivate TypeFormAPI\nnote left of HubSpot: generate report and send email\nNodeApp -> HubSpot: Get user details\nactivate HubSpot\ndeactivate HubSpot\nNodeApp -> NodeApp: Build report and render with jsreport\nactivate NodeApp\ndeactivate NodeApp\nNodeApp -> S3Bucket: Upload report to AWS S3 bucket\nactivate S3Bucket\nS3Bucket --> NodeApp: Query report link\ndeactivate S3Bucket\nNodeApp -> NodeApp: Compose email data with report pdf link\nactivate NodeApp\ndeactivate NodeApp\nNodeApp -> SES: Queue email for sending\nactivate SES\ndeactivate SES\nNodeApp -> User: Send email to user\ndeactivate NodeApp\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1664,
+    "completion_tokens": 446,
+    "total_tokens": 2110
+  }
+}

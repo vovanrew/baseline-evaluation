@@ -1,0 +1,125 @@
+@startuml
+title Interactions between the Control Plane (master node) and the Worker Node
+
+actor Georgina as G
+
+participant "API-Server" as API #lightblue
+participant "etcd" as etcd #lightblue
+participant "Controller Manager" as CM #lightblue
+participant "Scheduler" as SCH #lightblue
+participant "Power Operator" as PO #lightblue
+participant "Kubelet" as KUB #lightgreen
+participant "Power Node Agent" as PNA #lightgreen
+participant "Power Optimization Library" as POL #lightgreen
+participant "K8s Objects" as K8S #lightgreen
+participant "Kube-Proxy" as KP #lightgreen
+
+== Kubernetes Initialization ==
+
+G -> API : 1 kubectl create -f pod.yaml
+API -> etcd : 2 save new state
+etcd -> CM : 3 check for changes
+CM -> SCH : 4 watch for unassigned pods(s)
+SCH -> API : 5 notify about pod w nodename=""
+API -> SCH : 6 assign pod to node
+SCH -> etcd : 7 save new state
+etcd -> KUB : 8 look for newly assigned pod(s)
+KUB -> API : 9 bind pod to node
+KUB -> KUB : 10 start container
+KUB -> API : 11 update pod status
+API -> etcd : 12 save new state
+
+== Power Manager Initialization ==
+
+G -> KP : 1 Ensure correct proxy configuration
+G -> KUB : 2 Confirm CPU Manager policy
+KUB --> G : cpuManagerPolicy = "static"
+G -> KUB : 3 Reserve System CPUs
+KUB --> G : reservedSystemCPUs = "0"
+G -> PO : 4 Create Namespace
+PO -> K8S : apply config/rbac/namespace.yaml
+G -> PO : 5 Create RBAC and Service Accounts
+PO -> K8S : apply config/rbac/rbac.yaml
+G -> POL : 6 Create CRDs
+POL -> K8S : make
+G -> PNA : 7 Label nodes
+PNA -> K8S : label node <NODE_NAME> feature.node.kubernetes.io/power-node="true"
+
+== Power Manager Deployment ==
+
+G -> PO : 1 Deploy Controller Manager
+PO -> K8S : apply config/manager/manager.yaml
+G -> PO : 2 Deploy the config
+PO -> K8S : examples/example-powerconfig.yaml
+G -> PO : 3 Set Shared Profile
+PO -> K8S : examples/example-shared-profile.yaml
+G -> PO : 4 Deploy th Workload
+PO -> K8S : examples/example-shared-workload.yaml
+G -> PO : 5 Deploy Pod
+PO -> K8S : examples/example-pod.yaml
+
+== Power Manager additional functionality ==
+
+group Uncore
+G -> KUB : 1 Confirm Kernel verson
+KUB --> G : kernel 5.6+ required for uncore
+G -> PO : 2 Set Freq in Die and Pkg
+PO -> K8S : examples/example-uncore
+G -> PO : 3 Deploy Controller Manager
+PO -> K8S : apply config/manager/manager.yaml
+G -> PO : 4 Deploy the config
+PO -> K8S : examples/example-powerconfig.yaml
+G -> PO : 5 Set Shared Profile
+PO -> K8S : examples/example-shared-profile.yaml
+G -> PO : 6 Deploy th Workload
+PO -> K8S : examples/example-shared-workload.yaml
+G -> PO : 7 Deploy Pod
+PO -> K8S : examples/example-pod.yaml
+G -> PO : 8 Set Time of Day functionality
+PO -> K8S : examples/example-timeofday
+end
+
+group P-State
+G -> PO : 1 Deploy Controller Manager
+PO -> K8S : apply config/manager/manager.yaml
+G -> PO : 2 Deploy the config
+PO -> K8S : examples/example-powerconfig.yaml
+G -> PO : 3 Set Shared Profile\nand configure the P-State governor
+PO -> K8S : examples/example-shared-profile.yaml
+G -> PO : 4 Deploy th Workload
+PO -> K8S : examples/example-shared-workload.yaml
+G -> PO : 5 Deploy Pod
+PO -> K8S : examples/example-pod.yaml
+end
+
+group C-State
+G -> PO : Deploy Controller Manager
+PO -> K8S : apply config/manager/manager.yaml
+G -> PO : Deploy the config
+PO -> K8S : examples/example-powerconfig.yaml
+G -> PO : Set Shared Profile
+PO -> K8S : examples/example-shared-profile.yaml
+G -> PO : Deploy th Workload
+PO -> K8S : examples/example-shared-workload.yaml
+G -> PO : Deploy Pod
+PO -> K8S : examples/example-pod.yaml
+G -> PO : Set C-State functionality
+PO -> K8S : examples/example-cstates
+end
+
+group Time of Day
+G -> PO : Deploy Controller Manager
+PO -> K8S : apply config/manager/manager.yaml
+G -> PO : Deploy the config
+PO -> K8S : examples/example-powerconfig.yaml
+G -> PO : Set Shared Profile
+PO -> K8S : examples/example-shared-profile.yaml
+G -> PO : Deploy th Workload
+PO -> K8S : examples/example-shared-workload.yaml
+G -> PO : Deploy Pod
+PO -> K8S : examples/example-pod.yaml
+G -> PO : Set Time of Day functionality
+PO -> K8S : examples/example-timeofday
+end
+
+@enduml

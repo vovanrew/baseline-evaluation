@@ -1,0 +1,44 @@
+@startuml
+participant "Project Manager" as PM
+participant ":ProjectManagerUI" as :ProjectManagerUI
+participant "AGVServer" as AGVServer
+participant "AGVServerThread" as AGVServerThread
+participant "AVGManagerController" as AVGManagerController
+participant "AGVDigitalTwinServer" as AGVDigitalTwinServer
+participant "AGVDigitalTwinThread" as AGVDigitalTwinThread
+participant "AGVDigitalTwinController" as AGVDigitalTwinController
+participant "CodingAndDecoding2" as CodingAndDecoding2
+
+actor PM
+
+PM -> :ProjectManagerUI :Wants to assign ready to go Orders to an AGV
+:ProjectManagerUI -> AGVServer :message
+AGVServer -> AGVServerThread :accept
+AGVServerThread -> CodingAndDecoding2 :start
+CodingAndDecoding2 -> AGVDigitalTwinServer :Decoding(r)
+AGVDigitalTwinServer -> AGVDigitalTwinThread :message
+AGVDigitalTwinThread -> AGVDigitalTwinController :accept
+AGVDigitalTwinController -> AGVDigitalTwinThread :doTask(taskPerform)
+AGVDigitalTwinThread -> CodingAndDecoding2 :TaskReportMessage
+CodingAndDecoding2 -> AGVDigitalTwinThread :TaskReportMessage
+AGVDigitalTwinThread -> AGVDigitalTwinController :ResponseMessage
+AGVDigitalTwinController -> AGVServerThread :ResponseMessage
+AGVServerThread -> :ProjectManagerUI :ResponseMessage
+:ProjectManagerUI -> PM :Informs operation success
+
+loop [until orderList is empty]
+    AVGManagerController -> AGVServer :findavailableOrder()
+    AGVServer -> AVGManagerController :findavailableAGV(weight, volume)
+    AVGManagerController -> AGVServer :createTaskandSave(description, order, agv)
+    AVGManagerController -> AGVDigitalTwinServer :doTask()
+    AGVDigitalTwinServer -> AGVDigitalTwinThread :message
+    AGVDigitalTwinThread -> AGVDigitalTwinController :accept
+    AGVDigitalTwinController -> AGVDigitalTwinThread :doTask(taskPerform)
+    AGVDigitalTwinThread -> CodingAndDecoding2 :TaskReportMessage
+    CodingAndDecoding2 -> AGVDigitalTwinThread :TaskReportMessage
+    AGVDigitalTwinThread -> AGVDigitalTwinController :ResponseMessage
+    AGVDigitalTwinController -> AGVServerThread :ResponseMessage
+    AGVServerThread -> :ProjectManagerUI :ResponseMessage
+end
+
+@enduml

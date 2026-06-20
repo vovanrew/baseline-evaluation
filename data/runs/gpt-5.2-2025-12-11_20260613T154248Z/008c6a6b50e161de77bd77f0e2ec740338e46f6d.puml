@@ -1,0 +1,61 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam class {
+  BackgroundColor #F3F3F3
+  BorderColor #333333
+  ArrowColor #333333
+}
+
+abstract class Expression << (A,#BFE7EA) >> {
+}
+
+class Value << (C,#BFE3C2) >> {
+  int value
+}
+
+class Addition << (C,#BFE3C2) >> {
+  Expression& lhs
+  Expression& lhs
+}
+
+class Multiplication << (C,#BFE3C2) >> {
+  Expression& lhs
+  Expression& lhs
+}
+
+abstract class Visitor << (A,#BFE7EA) >> {
+  visit(Expression& expr)
+}
+
+class Printer << (C,#BFE3C2) >> {
+  stringstream oss
+  --
+  visit(Expression& expr)
+  if (auto de = dynamic_cast<Value&>(e))
+    oss << de.value
+  else if (auto ae = dynamic_cast<Addition&>(e))
+    visit(ae.left)
+    oss << "+"
+    visit(ae.right)
+  else if...
+}
+
+class Evaluator << (C,#BFE3C2) >> {
+  int total
+  --
+  visit(Expression& expr)
+}
+
+Value --|> Expression
+Addition --|> Expression
+Multiplication --|> Expression
+
+Printer ..|> Value
+Printer ..|> Addition
+Printer ..|> Multiplication
+
+Printer --|> Visitor
+Evaluator --|> Visitor
+@enduml

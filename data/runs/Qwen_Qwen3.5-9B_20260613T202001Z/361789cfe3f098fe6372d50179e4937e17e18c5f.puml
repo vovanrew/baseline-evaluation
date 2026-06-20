@@ -1,0 +1,108 @@
+@startuml
+' Define package structure
+package "UI" {
+  class "RegisterPharmacyUI" as UI {
+    <<C>>
+  }
+}
+
+package "Data" {
+  class "DataHandler" as DataHandler {
+    <<C>>
+    +openConnection()
+    +closeAll()
+  }
+  class "PharmacyDB" as PharmacyDB {
+    <<C>>
+    +PharmacyDB()
+    +registerPharmacy()
+  }
+}
+
+package "Controller" {
+  class "RegisterPharmacyController" as Controller {
+    <<C>>
+    +newPharmacy(managerName,email,password, nif, name,latitude,longitude, streetName,doorNumber,postalCode,locality,country)
+    +registerPharmacy()
+  }
+}
+
+package "Model" {
+  package "Service" {
+    class "PharmacyService" as Service {
+      <<C>>
+      +PharmacyService()
+      +addPharmacy(name, pharmacyManager,latitude,longitude, streetName,doorNumber,postalCode,locality,country)
+      +registerPharmacy()
+    }
+    class "Pharmacy" as Pharmacy {
+      <<C>>
+      -int id
+      -String name
+      -String email
+    }
+    class "Address" as Address {
+      <<C>>
+      -String streetName
+      -String doorNumber
+      -String postalCode
+      -String locality
+      -String country
+      -float longitude
+      -float latitude
+    }
+    class "ScooterPark" as ScooterPark {
+      <<C>>
+      -int maxSlotsNumber
+    }
+    class "DronePark" as DronePark {
+      <<C>>
+      -int maxSlotsNumber
+    }
+    class "ScooterChargingSlot" as ScooterChargingSlot {
+      <<C>>
+      -int id
+      -float outputPower
+    }
+    class "ScooterParkingSlot" as ScooterParkingSlot {
+      <<C>>
+      -int id
+    }
+    class "DroneChargingSlot" as DroneChargingSlot {
+      <<C>>
+      -int id
+      -float outputPower
+    }
+    class "DroneParkingSlot" as DroneParkingSlot {
+      <<C>>
+      -int id
+    }
+  }
+}
+
+' Relationships
+UI ..> Controller : dashed
+Controller ..> Service : dashed
+Service --> PharmacyDB : uses
+Service --> Pharmacy : manages services of
+Pharmacy --> Address : has
+Pharmacy --> ScooterPark : has
+Pharmacy --> DronePark : has
+ScooterPark --> ScooterChargingSlot : has
+ScooterPark --> ScooterParkingSlot : has
+DronePark --> DroneChargingSlot : has
+DronePark --> DroneParkingSlot : has
+
+' Database relationships
+PharmacyDB --> Database : manages
+Database --> Pharmacy : has registered
+Database --> ScooterPark : has registered
+Database --> DronePark : has registered
+Database --> ScooterChargingSlot : has registered
+Database --> ScooterParkingSlot : has registered
+Database --> DroneChargingSlot : has registered
+Database --> DroneParkingSlot : has registered
+
+' Additional relationships
+PharmacyDB --> DataHandler : extends
+@enduml

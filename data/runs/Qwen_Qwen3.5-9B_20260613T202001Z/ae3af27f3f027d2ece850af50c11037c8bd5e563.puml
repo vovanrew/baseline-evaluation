@@ -1,0 +1,71 @@
+@startuml
+left to right direction
+skinparam sequenceMessageAlign center
+
+actor "main" as main
+participant "bkup.BackupFacade" as BackupFacade
+participant "srcrepo.SourceRepository" as SourceRepo
+participant "dstrepo.DestinationRepository" as DestRepo
+participant "metarepo.MetadataRepository" as MetadataRepo
+participant "scanner.AllFileScanner" as Scanner
+database "FileSystem" as FileSystem
+database "SQLite3" as SQLite3
+
+main -> BackupFacade: execute()
+
+rectangle "Get all files" {
+  BackupFacade -> Scanner: get_all_files()
+  Scanner --> FileSystem
+  FileSystem --> Scanner
+  Scanner --> BackupFacade: all_files
+}
+
+rectangle "Get source files" {
+  BackupFacade -> SourceRepo: get_files_matching_criteria(all_files)
+  SourceRepo --> BackupFacade: src_files
+}
+
+rectangle "Cleanup of metadata corresponding to already deleted files" {
+  BackupFacade -> MetadataRepo: get_uncontained_keys(src_files)
+  MetadataRepo -> SQLite3: SELECT
+  SQLite3 --> MetadataRepo: result
+  MetadataRepo --> BackupFacade: uncontained_keys
+  BackupFacade -> MetadataRepo: remove_metadatas(uncontained_keys)
+  
+  loop [until the generator finishes]
+    MetadataRepo -> SQLite3: DELETE
+    SQLite3 --> MetadataRepo
+    MetadataRepo --> BackupFacade: yield removed_metadata <return value is discarded>
+  end
+}
+
+rectangle "Create backup and update metadata" {
+  BackupFacade -> BackupFacade: _get_backup_list(src_files)
+  BackupFacade --> BackupFacade: backup_list
+  BackupFacade -> DestRepo: create_backups(backup_list)
+  
+  loop [until the generator finishes]
+    DestRepo -> FileSystem: shutil.copy2(src_file, dst_file)
+    FileSystem --> DestRepo
+    DestRepo --> BackupFacade: yield backed_up_src_file
+    BackupFacade -> MetadataRepo: update_metadata(backed_up_src_file)
+    MetadataRepo -> SQLite3: REPLACE INTO
+    SQLite3 --> MetadataRepo
+  end
+}
+
+rectangle "Discard old backups" {
+  BackupFacade -> DestRepo: get_discard_list(today, all_files)
+  DestRepo --> BackupFacade: discard_list
+  BackupFacade -> DestRepo: remove_backups(discard_list)
+  
+  loop [until the generator finishes]
+    DestRepo -> FileSystem: os.remove(file_to_be_removed)
+    FileSystem --> DestRepo
+    DestRepo --> BackupFacade: yield removed_file <return value is discarded>
+  end
+}
+
+BackupFacade --> main: return
+
+@enduml

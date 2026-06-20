@@ -1,0 +1,99 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #333333
+  LifeLineBorderColor #999999
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9F7FF
+  BoxBorderColor #B0B0B0
+  BoxBackgroundColor #F7F7F7
+  GroupBorderColor #B0B0B0
+  GroupBackgroundColor #F7F7F7
+  ActorBorderColor #666666
+  ActorBackgroundColor #E9F7FF
+}
+
+' --- Upstream ---
+box "Upstream" #F7F7F7
+participant "C Producer" as U_Producer
+participant "C Adapter" as U_Adapter
+end box
+
+participant "S Transport" as U_Transport
+
+participant "C Adapter" as U2_Adapter
+participant "C Consumer" as U_Consumer
+
+box "JobExecution" #D9FFFF
+participant "C GatewayJobHandler" as GatewayJobHandler
+end box
+
+' --- Gateway ---
+participant "C Gateway" as Gateway
+participant "C Producer" as G_Producer
+participant "C Adapter" as G_Adapter
+
+participant "S Transport" as G_Transport
+
+box "Downstream" #F7F7F7
+participant "C Adapter" as D_Adapter
+participant "C Consumer" as D_Consumer
+end box
+
+box "JobExecution" #D9FFFF
+participant "C DownstreamJobHandler" as DownstreamJobHandler
+end box
+
+participant "S Lower Layer" as LowerLayer
+
+' --- Sequence ---
+U_Producer -> U_Adapter : publish(command)
+U_Adapter -> U_Transport : publish(command)
+U_Transport -> U2_Adapter : execute(command)
+U2_Adapter -> U_Consumer : handler(command, done)
+
+U_Producer <- U_Adapter : resolves()
+U_Adapter -> U_Transport : subscribe(handler)
+U_Transport <- U_Adapter : subscribe("response")
+
+U_Consumer -> GatewayJobHandler : subscribe("done")
+U_Consumer -> GatewayJobHandler : emit("command", GatewayJobHandler)
+
+GatewayJobHandler -> Gateway : publish(command)
+Gateway -> G_Producer : publish(command)
+G_Producer -> G_Adapter : publish(command)
+G_Adapter -> G_Transport : publish(command)
+G_Transport -> D_Adapter : execute(command)
+D_Adapter -> D_Consumer : handler(command, done)
+
+G_Producer <- G_Adapter : resolves()
+G_Adapter -> G_Transport : subscribe(handler)
+G_Transport <- G_Adapter : subscribe("response")
+
+D_Adapter -> G_Transport : getDelay(command)
+G_Transport -> D_Adapter : done(response)
+D_Adapter -> D_Consumer : done(response)
+
+D_Consumer -> DownstreamJobHandler : subscribe("done")
+D_Consumer -> DownstreamJobHandler : emit("command", GatewayJobHandler)
+
+DownstreamJobHandler -> LowerLayer : done()
+GatewayJobHandler <- Gateway : done()
+
+Gateway -> G_Producer : resolve(response)
+G_Producer -> G_Adapter : handler("response")
+G_Adapter -> G_Producer : emit("response", response)
+G_Producer -> G_Adapter : onTimeOut(getDelay())
+G_Producer -> G_Adapter : unsubscribe()
+
+U2_Adapter -> U_Transport : done(response)
+U_Transport -> U_Adapter : done(response)
+U_Adapter -> U_Producer : emit("response", response)
+U_Adapter -> U_Producer : emit("response", response)
+U_Producer -> U_Adapter : handler("response")
+U_Producer -> U_Adapter : handler("response")
+U_Producer -> U_Adapter : onTimeOut(getDelay())
+U_Producer -> U_Adapter : unsubscribe()
+@enduml

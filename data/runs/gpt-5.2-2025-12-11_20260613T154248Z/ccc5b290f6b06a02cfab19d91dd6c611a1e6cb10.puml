@@ -1,0 +1,123 @@
+```plantuml
+@startuml
+skinparam backgroundColor white
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #999999
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #999999
+  ParticipantBackgroundColor #E9E9F2
+  BoxBorderColor #999999
+  BoxBackgroundColor #FFFFFF
+  GroupBorderColor #000000
+  GroupBackgroundColor #FFFFFF
+  NoteBackgroundColor #FFF9C4
+  NoteBorderColor #999999
+}
+hide footbox
+
+actor CenterCoordinator
+
+participant ":DataFromLegacySystemUI" as UI
+participant ":DataFromLegacySystemController()" as C1
+participant ":DataFromLegacySystemController" as C2
+participant ":ReadLegacyDataFile" as R
+participant ":Company" as Company
+participant ":SNSUserStore" as SNS
+participant ":App" as App
+participant ":VaccinationCenter" as VC
+participant ":Arrival" as Arrival
+participant ":Departure" as Departure
+participant ":vaccinationCentersStore" as VCS
+
+CenterCoordinator -> UI : 1 Asks to load a CSV file with legacy data.
+UI -> C1 : 2 DataFromLegacySystemController()
+C1 -> C2 : 2 DataFromLegacySystemController
+
+C2 -> Company : 3 getVaccinationCentersStore()
+Company --> C2 : 4 returns the store
+C2 -> VCS : 5 getVaccinationCenterAssociatedToCoordinator(id)
+VCS --> C2 : 6 returns the vaccination center
+C2 -> R : 7 ReadLegacyDataFile(center)
+
+UI -> CenterCoordinator : 8 request path of the CSV file
+CenterCoordinator -> UI : 9 types path
+UI -> C2 : 10 readFile(path)
+C2 -> R : 11 readFile(String path)
+
+loop while csv has new lines
+  R -> R : 12 validateFile(legacySNSUserNumber,\nfirstDate,secondDate,thirdDate,fourthDate)
+  R -> R : 13 Saves data into an ArrayList<String> called\nlegacyDataList
+end
+
+R -> Company : 14 getSNSUserList()
+Company -> SNS : 15 getSNSUserList()
+SNS --> Company : 16 returns list
+Company --> R : 17 returns list
+
+R -> Company : 18 getVaccineList()
+Company --> R : 19 returns list
+
+loop while legacyDataList has new lines
+  R -> R : 20 findPosOfSNSUser(snsUsersList,\nvalues,positionInSNSUserList)
+  R -> R : 21 findPosOfVax(vaccineList,values,positionInVaccinesList)
+  R -> R : 22 checksDuplicates(updatedList,snsUsersList,vaccineList,positionInSNSUserList,positionInVaccinesList,lineOfTheData)
+  R -> R : 23 Saves data into an ArrayList<String> called updatedList
+
+  R -> App : 24 createArrival()
+  App -> Arrival : 25 createArrival()
+  Arrival --> App : 26 returns Arrival
+  App -> App : 27 Saves arrival into List<Arrival> called arrivalsList
+  App -> App : 28 genericsArrivals.binaryFileWrite(Constants.FILE_PATH_ARRIVALS, arrivalsList)
+
+  R -> App : 29 createDeparture()
+  App -> Departure : 30 createDeparture()
+  Departure --> App : 31 returns departure
+  App -> App : 32 Saves departure into List<Departure> called departuresList
+  App -> App : 33 genericsDeparture.binaryFileWrite(Constants.FILE_PATH_DEPARTURES, departuresList)
+end
+
+R --> C2 : 34 returns updatedList
+C2 --> UI : 35 returns updatedList
+
+UI -> CenterCoordinator : 36 requests the option to sort
+CenterCoordinator -> UI : 37 selects option
+UI -> C2 : 38 chooseCriteriaToSort(option)
+C2 -> R : 39 setList(option)
+
+loop while updatedList has new lines
+  R -> R : 40 Saves dates to\n a List<LocalDateTime>\n called listToSort
+end
+
+UI -> CenterCoordinator : 41 requests the order of the sort
+CenterCoordinator -> UI : 42 selects order
+
+alt (algorithmToBeUsed == "InsertionSort", option == "0" - Ascending)
+  UI -> C2 : 43 getAlgorithm()
+  C2 -> Company : 44 getSortingAlgorithm()
+  Company --> C2 : 45 returns algorithm
+  C2 --> UI : 46 returns algorithm
+
+  UI -> R : 47 sortListWithAlgo(algorithmToBeUsed,option)
+  note right of R
+    algorithmToBeUsed can be InsertionSort or HeapSort, both have methods that
+    can sort in ascending/descending order, here we are just representing the
+    InsertionSort algorithm because HeapSort functions in a similar way.
+  end note
+  R -> R : 48 insertionSortAscending()
+  R --> UI : 49 returns sortedList
+  UI --> CenterCoordinator : 51 prints sortedList
+else (algorithmToBeUsed == "InsertionSort", option == "1" - Descending)
+  UI -> C2 : 53 getAlgorithm()
+  C2 -> Company : 54 getSortingAlgorithm()
+  Company --> C2 : 55 returns algorithm
+  C2 --> UI : 56 returns algorithm
+
+  UI -> R : 57 sortListWithAlgo(algorithmToBeUsed,option)
+  R -> R : 58 insertionSortDescending()
+  R --> UI : 59 returns sortedList
+  UI --> CenterCoordinator : 61 prints sortedList
+end
+
+@enduml
+```

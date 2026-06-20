@@ -1,0 +1,44 @@
+@startuml
+participant actor1 as "did:....:GS1"
+participant actor2 as "did:....:Manufacturer"
+
+subgraph "Ausstellungsprozess der GCP"
+    actor1
+    actor2
+endsubgraph
+
+subgraph "Ausstellungsprozess zertifizierter Stammdaten"
+    actor1
+    actor2
+endsubgraph
+
+subgraph "Ausstellungsprozess der GCP"
+    actor1 -> actor2: GCP Anfrage
+    actor2 -> actor1: Berechtigung Prüfen
+    actor1 -> actor2: ISSUE
+    actor2 -> actor1: ISSUE
+    note right of actor1
+        GCP Credential
+        gcp: 4047111
+    endnote
+    note right of actor2
+        Party GLN Credential
+        urn:epc:id:pgln:4047111.00000
+    endnote
+endsubgraph
+
+subgraph "Ausstellungsprozess zertifizierter Stammdaten"
+    actor1 -> actor2: PRESENT GCP
+    actor2 -> actor1: Anfrage + Nachweis der Stammdaten
+    actor1 -> actor2: Prüfung der Stammdaten basierend auf Dokumenten oder eigener Recherche
+    actor2 -> actor1: ISSUE
+    note right of actor1
+        Stammdaten Credential (e.g.)
+        name: European EPC Competence Center,
+        legal_form: GmbH,
+        trade_register_number: Köln HBR 61026,
+        ...
+    endnote
+endsubgraph
+
+@enduml

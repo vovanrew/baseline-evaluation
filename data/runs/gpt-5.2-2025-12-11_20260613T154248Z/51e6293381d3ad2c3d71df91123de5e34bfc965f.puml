@@ -1,0 +1,73 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 10
+
+class KinematicModelClient <<C>> {
+  updateKinematics(): void
+}
+
+class RoutePlanningClient <<C>> {
+  updateRoute(): void
+}
+
+class PositionSensor <<C>> {
+  position: Position
+  resourceId:int = 1
+  --
+  getPosition(): struct Position
+  setPosition(p: struct Position): void
+  lockDyadic(): int
+  releaseDyadic(): void
+}
+
+class VelocitySensor <<C>> {
+  velocity: Velocity
+  resourceID:int = 2
+  --
+  getVelocity(): struct Position
+  setVelocity(p: struct Position): void
+  lockDyadic(): int
+  releaseDyadic(): void
+}
+
+class AltitudeSensor <<C>> {
+  alttitude: Altitude
+  resourceID:int = 2
+  --
+  getAltitude(): struct Position
+  setAltitude(p: struct Position): void
+  lockDyadic(): int
+  releaseDyadic(): void
+}
+
+class ResourceList <<C>> {
+  rIDList: int rIDList[20]
+  nIDs: int = 0
+  --
+  isInOrder(rID:int):char
+  addLock(rID:int):int
+  removeLock(rID:int):void
+}
+
+class Mutex <<C>> {
+}
+
+KinematicModelClient --> PositionSensor
+KinematicModelClient --> VelocitySensor
+KinematicModelClient --> AltitudeSensor
+
+RoutePlanningClient --> PositionSensor
+RoutePlanningClient --> VelocitySensor
+RoutePlanningClient --> AltitudeSensor
+
+PositionSensor --> ResourceList
+VelocitySensor --> ResourceList
+AltitudeSensor --> ResourceList
+
+PositionSensor --> Mutex
+VelocitySensor --> Mutex
+AltitudeSensor --> Mutex
+
+ResourceList --> Mutex
+@enduml

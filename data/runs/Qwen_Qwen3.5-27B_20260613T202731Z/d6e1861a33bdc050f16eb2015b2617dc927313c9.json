@@ -1,0 +1,22 @@
+{
+  "id": "23c259f0-2e05-484b-b345-d84418fb83dc",
+  "object": "chat.completion",
+  "created": 1781492867,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam packageStyle rectangle\n\ntitle ApplicationContext.refresh() \u65b9\u6cd5\u6d41\u7a0b\n\nparticipant \"AbstractApplicationContext\" as AAC\nparticipant \"GenericApplicationContext\" as GAC\nparticipant \"ApplicationContextAwareProcessor\" as ACAP\nparticipant \"AbstractAutowireCapableBeanFactory\" as AACBF\nparticipant \"DefaultListableBeanFactory\" as DLBF\n\nnote over AAC: \u4ee5\u4e0b\u6d41\u7a0b\u90fd\u5728refresh()\u65b9\u6cd5\u5185\u90e8\n\n== \u7b2c1\u6b65 ==\nactivate AAC\nAAC -> AAC: 1 prepareRefresh\ndeactivate AAC\nactivate AAC\nAAC -> AAC: initPropertySources()\nnote left: \u7a7a\u65b9\u6cd5,\u7559\u7ed9\u5b50\u7c7b\u91cd\u5199\ndeactivate AAC\nactivate AAC\nAAC -> AAC: getEnvironment()\ndeactivate AAC\nactivate AAC\nAAC -> AAC: validateRequiredProperties()\ndeactivate AAC\nactivate AAC\nAAC -> AAC: new LinkedHashSet<>()\nnote left: \u6cdb\u578bApplicationEvent\ndeactivate AAC\n\n== \u7b2c2\u6b65 ==\nactivate AAC\nAAC -> AAC: 2 obtainFreshBeanFactory()\ndeactivate AAC\nactivate AAC\nAAC -> GAC: refreshBeanFactory()\nactivate GAC\nGAC -> DLBF: new DefaultListableBeanFactory()\nactivate DLBF\nDLBF -> DLBF: setSerializationId(getId())\ndeactivate DLBF\nGAC --> AAC: \u672a\u5b9a\u4e49\u53d8\u91cf\u63a5\u6536\u8fd4\u56de\u503c\ndeactivate GAC\nactivate AAC\nAAC -> GAC: getBeanFactory\nactivate GAC\nGAC --> AAC: \u8fd4\u56de DefaultListableBeanFactory\ndeactivate GAC\ndeactivate AAC\n\n== \u7b2c3\u6b65 ==\nactivate AAC\nAAC -> AAC: 3 prepareBeanFactory\ndeactivate AAC\nnote over AAC: \u8bbe\u7f6eBeanFactory\u7684\u7c7b\u52a0\u8f7d\u5668\u3001\u652f\u6301\u8868\u8fbe\u5f0f\u89e3\u6790\u5668\n\nactivate AAC\nnote over AAC: \u6dfb\u52a0Bean\u540e\u7f6e\u5904\u7406\u5668 \u4f8b\u5982\nAAC -> ACAP: addBeanPostProcessor(new ApplicationContextAwareProcessor(this))\nactivate ACAP\nACAP -> ACAP: \u6784\u9020\u5668\ndeactivate ACAP\nACAP --> AAC: \u8fd4\u56de ApplicationContextAwareProcessor\ndeactivate AAC\n\nactivate AAC\nnote over AAC: \u8bbe\u7f6e\u5ffd\u7565\u7684\u81ea\u52a8\u88c5\u914d\u7684\u63a5\u53e3 \u4f8b\u5982\nAAC -> AACBF: ignoreDependencyInterface(ApplicationEventPublisherAware.class)\nactivate AACBF\nAACBF -> AACBF: ignoredDependencyInterfaces.add(ifc)\ndeactivate AACBF\nAACBF --> AAC: \u672a\u5b9a\u4e49\u53d8\u91cf\u63a5\u6536\u8fd4\u56de\u503c\ndeactivate AAC\n\nactivate AAC\nnote over AAC: \u6ce8\u518c\u53ef\u4ee5\u89e3\u6790\u7684\u81ea\u52a8\u88c5\u914d \u4f8b\u5982\nAAC -> DLBF: registerResolvableDependency(BeanFactory.class, beanFactory)\nactivate DLBF\nnote right of DLBF: params { dependencyType, autowiredValue }\nDLBF -> DLBF: resolvableDependencies.put();\ndeactivate DLBF\nDLBF --> AAC: \u672a\u5b9a\u4e49\u53d8\u91cf\u63a5\u6536\u8fd4\u56de\u503c\ndeactivate AAC\n\nactivate AAC\nnote over AAC: \u6dfb\u52a0ApplicationListenerDetector\u7684Bean\u540e\u7f6e\u5904\u7406\u5668\ndeactivate AAC\nactivate AAC\nnote over AAC: \u6dfb\u52a0\u7f16\u8bd1\u65f6\u7684AspectJ\ndeactivate AAC\nactivate AAC\nnote over AAC: \u7ed9BeanFactory\u4e2d\u6ce8\u518c\u4e00\u4e9b\u80fd\u7528\u7684\u7ec4\u4ef6\nAAC -> DLBF: registerSingleton(ENVIRONMENT_BEAN_NAME / SYSTEM_PROPERTIES_BEAN_NAME) / SYSTEM_ENVIRONMENT_BEAN_NAME)\nactivate DLBF\nnote right of DLBF: params{beanName, singletonObject}\nDLBF -> DLBF: addSingleton();\ndeactivate DLBF\nDLBF --> AAC: \u672a\u5b9a\u4e49\u53d8\u91cf\u63a5\u6536\u8fd4\u56de\u503c\ndeactivate AAC\n\n== \u7b2c4\u6b65 ==\nactivate AAC\nnote over AAC: \u5728\u5e94\u7528\u7a0b\u5e8f\u4e0a\u4e0b\u6587\u7684\u6807\u51c6\u521d\u59cb\u5316\u4e4b\u540e\u4fee\u6539\u5176\u5185\u90e8bean\u5de5\u5382\nAAC -> AAC: postProcessBeanFactory(beanFactory);\nnote left: \u7a7a\u65b9\u6cd5 \u7559\u7ed9\u5b50\u7c7b\u91cd\u5199\ndeactivate AAC\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2301,
+    "completion_tokens": 794,
+    "total_tokens": 3095
+  }
+}

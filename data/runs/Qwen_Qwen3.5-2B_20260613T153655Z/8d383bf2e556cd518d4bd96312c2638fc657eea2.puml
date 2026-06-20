@@ -1,0 +1,36 @@
+@startuml
+participant "browser" as B
+participant "proxy" as P
+participant "backend" as BC
+participant "component_config" as CC
+participant "subscription_map" as SM
+participant "normalized_object_map" as NOM
+participant "normalized_object" as NO
+
+B --> P : get_state(configuration_name, geo_bounding_box)
+
+P --> BC : +TENANT_HEADER
+
+BC --> CC : component_config[configuration_name].subscription_usages
+
+CC -.-> P : [subscription_usage_config]
+
+P --> SM : foreach subscription_usage_config.subscription_id
+
+SM --> BC : subscription_map[subscription_id] (= normalized_object_map)
+
+SM --> NOM : foreach key
+
+NOM --> SM : normalized_object
+
+SM --> BC : foreach normalized_object:
+    if object.in(geo_bounding_box):
+        object.to_dto(subscription_usage_config)
+
+BC --> NO : object_dto
+
+P -.-> B : [object_dto]
+
+B --> P : 12
+
+@enduml

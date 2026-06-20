@@ -1,0 +1,111 @@
+```plantuml
+@startuml
+
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor White
+    BorderColor Black
+}
+
+abstract class Creator #lightgreen {
+    {method} + SceneManager makeScene(QJsonObject spec)
+    {method} # Table makeTable(QJsonObject spec);
+    {method} # Ball makeBall(QJsonObject spec);
+}
+
+class SceneBuilder #White {
+    {method} + void setTable(Table);
+    {method} + void addBall(Ball);
+    {method} + void resetBalls();
+    {method} + SceneManager build();
+}
+
+class MainWindow #lightgray {
+    {field} - QTimer updater;
+    {field} - QTimer ticker;
+    {field} - QElapsedTimer timer;
+    {field} - SceneManager scene;
+    __
+    {method} + void paintEvent(QPaintEvent event);
+    __ slots __
+    {method} + void tick();
+    {method} + void nextFrame();
+}
+
+class SceneManager #lightgray {
+    {field} - Table table;
+    {field} - vector<Ball> balls;
+    {field} - QPoint offset;
+    __
+    {method} QSize viewPort();
+    {method} void tick(float dtime);
+    {method} void draw(QPainter painter);
+}
+
+abstract class Graphic #lightblue {
+    {method} + {abstract} void draw(QPainter painter);
+}
+
+abstract class Table #lightgreen {
+    {field} + QSize dimension;
+    {field} + float surface_friction;
+}
+
+abstract class Ball #lightgreen {
+    {field} + float mass;
+    {field} + QVector2D position;
+    {field} + QVector2D velocity;
+    {field} + float radius;
+}
+
+class SimpleCreator #lightgray {
+    {method} # Table makeTable(QJsonObject spec);
+    {method} # Ball makeBall(QJsonObject spec);
+}
+
+class SimpleTable #lightgray {
+    {field} - QColor color;
+    __
+    {method} + void draw(QPainter painter);
+}
+
+class SimpleBall #lightgray {
+    {field} - QColor color;
+    __
+    {method} + void draw(QPainter painter);
+}
+
+' Legend/Key
+note as Key #lightyellow
+**Key**
++ public
+# protected
+- private
+
++ publiic method()
+# protected method()
+- private method()
+end note
+
+' Relationships
+Creator <|-- SimpleCreator : extends
+Creator ..> SceneBuilder : uses
+Creator ..> SceneManager : creates
+
+MainWindow *-- SceneManager : contains
+MainWindow ..> SceneManager : uses
+
+SceneManager ..> Graphic : uses
+
+Graphic <|.. Table : implements
+Graphic <|.. Ball : implements
+
+Table <|-- SimpleTable : extends
+Ball <|-- SimpleBall : extends
+
+SimpleCreator ..> SimpleTable : creates
+SimpleCreator ..> SimpleBall : creates
+SimpleTable ..> SimpleBall : uses
+
+@enduml
+```

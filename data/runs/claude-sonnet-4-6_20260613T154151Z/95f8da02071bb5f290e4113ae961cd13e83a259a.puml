@@ -1,0 +1,41 @@
+@startuml
+actor Administrative
+
+participant ":AddScooterUI" as UI
+participant ":AddScooterController" as Controller
+participant ":Pharmacy" as Pharmacy
+participant "ls:ListScooters" as ListScooters
+participant "sc:Scooter" as Scooter
+participant "bat:Battery" as Battery
+participant "scdb:ScooterDB" as ScooterDB
+participant "batdb:BatteryDB" as BatteryDB
+
+Administrative -> UI : 1 begins the process of adding a scooter
+UI -> Administrative : 2 asks for the necessary data(id_Scooter, qrCode, status, id_Battery, capacity)
+Administrative -> UI : 3 inserts the solicited data
+UI -> Controller : 4 newScooter(id_Scooter, qrCode, status, id_Battery, capacity)
+Controller -> Pharmacy : 5 ls = getListScooters()
+Pharmacy --> Controller :
+Controller -> Pharmacy : 6 sc=newScooter(id_Scooter, qrCode, status, id_Battery, capacity)
+Pharmacy -> ListScooters : 7 create(id_Scooter, qrCode, status, id_Battery, capacity)
+ListScooters -> Scooter : 
+Scooter -> Battery : 8 create(id_Battery, capacity)
+Battery -> Battery : 9 validateBattery(bat)
+Battery --> Scooter :
+Controller -> ListScooters : 10 validateScooter(sc)
+ListScooters --> Controller :
+Controller -> UI : 11 validates the data, presents it and asks the administrator for its confirmation
+Administrative -> UI : 12 confirms
+UI -> Controller : 13 registerScooter()
+Controller -> Pharmacy : 14 registerScooter(sc)
+Pharmacy -> ListScooters : 15 validateScooter(sc)
+ListScooters --> Pharmacy :
+Pharmacy -> ListScooters : 16 addScooter(sc)
+Pharmacy -> ListScooters : 17 save(sc)
+ListScooters ..> ScooterDB : 18 save(sc)
+ScooterDB --> ListScooters :
+ListScooters ..> BatteryDB : 19 save(bat)
+BatteryDB --> ListScooters :
+Pharmacy ..> UI : 20 adds the scooter to a list of scooters
+
+@enduml

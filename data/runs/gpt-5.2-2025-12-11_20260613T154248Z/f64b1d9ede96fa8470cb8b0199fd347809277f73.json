@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLhNmYOVsnRmxGSh7jwhIvS4kMVC",
+  "object": "chat.completion",
+  "created": 1781368837,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  LifeLineBorderColor #888888\n  LifeLineBackgroundColor transparent\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #E9E9F6\n  ActorBorderColor #666666\n  ActorBackgroundColor #E9E9F6\n  NoteBackgroundColor #FFF9C4\n  NoteBorderColor #666666\n  BoxBorderColor #000000\n  BoxBackgroundColor transparent\n}\n\nactor Client\nparticipant Service1\nparticipant Service2\n\nnote right of Service1\nSessionFactory\none per node\nend note\n\nnote right of Service2\nSession\none per request\nend note\n\nbox \"model check\"\n  Client -> Service1 : register(Class<Pojo>)\n  activate Service1\n\n  Service1 -> Service1 : checkModel\n  Service1 -> Service1 : createModelForPojo\n\n  alt mode=\"create\"\n    alt model exists\n      Service1 --> Service1 : throw exception\n    else\n      Service1 -> Service1 : createModelInDB\n    end\n  else mode=\"drop-create\"\n    Service1 -> Service1 : dropModelInDB\n    Service1 -> Service1 : createModelInDB\n  else mode=\"update\"\n    Service1 -> Service1 : getModelDeltaInDB\n    Service1 -> Service1 : updateModelInDB\n  else mode=\"none\"\n    Service1 -> Service1 : checkModelInDB\n    alt model differs\n      Service1 --> Service1 : throw exception\n    end\n  end\n\n  deactivate Service1\nend box\n\nClient -> Service2 : store(pojo)\nactivate Service2\nService2 -> Service2 : getDelta(pojo)\ndeactivate Service2\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1555,
+    "completion_tokens": 376,
+    "total_tokens": 1931,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

@@ -1,0 +1,37 @@
+@startuml
+'!option handwritten true
+
+title NSheets Client - Server - Database Interaction
+
+actor "User" as user
+
+package "NSheets Client" {
+  participant "HomeView" as homeView
+  participant "HomePresenter" as homePresenter
+}
+
+package "Server" {
+  participant "NoteServices" as noteServices
+  participant "ListNoteController" as listNoteController
+  participant "NoteService" as noteService
+  participant "NoteRepository" as noteRepository
+}
+
+package "Database" {
+  database "Database" as db
+}
+
+user -> homeView: onReveal() / navigate to page
+homePresenter -> noteServices: getNotes()
+noteServices -> listNoteController: listNotes()
+listNoteController -> noteService: allNotes()
+noteService -> noteRepository: findAll()
+noteRepository -> db: fetch
+db --> noteRepository: (implicit response)
+noteRepository --> noteService: (implicit response)
+noteService --> listNoteController: (implicit response)
+listNoteController --> noteServices: (implicit response)
+noteServices --> homePresenter: onSuccess()
+homePresenter --> homeView: setContents()
+
+@enduml

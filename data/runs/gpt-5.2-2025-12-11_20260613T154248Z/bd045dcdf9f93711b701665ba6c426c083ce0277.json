@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLIx2Rq8HmI13DtesjB6Rjf6PZ6q",
+  "object": "chat.completion",
+  "created": 1781367323,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Facebook Smart View -- Class Diagram\nskinparam classAttributeIconSize 0\nskinparam shadowing false\nskinparam packageStyle rectangle\n\n'======================\n' Left: Login / Main\n'======================\nclass Form <<Form>>\nclass FormLogin <<Form>>\nclass FormLoader <<Form>>\n\nFormLogin -up-|> Form\nFormLoader -up-|> Form\n\nclass LoginLogic {\n  +constructor()\n  +GetSavedAccessToken(): string\n  +SaveAccessToken(string): void\n  +LoginToFacebook(): LoginResult\n  +LoginToFacebookAndSaveToken(): LoginResult\n  +ConnectToFacebook(string): LoginResult\n  +SaveRememberBox(bool): void\n  +GetRememberBoxCheckedValue(): bool\n}\n\nclass AppUser {\n  +Name: string {getter}\n  +Birthday: string {getter}\n  +Gender: string {getter}\n  +Age: int {getter}\n  +UserImage: string {getter}\n  +LastFinishedStudyPlace: string {getter}\n  +constructor(User)\n  +GetNewsFeed(PostFilter: FacebookObjectCollection<Post>): FacebookObjectCollection<Album>\n  +GetUserProfilePicture(): string\n  +PostToUserWall(string): string\n  +LikePhoto(string): bool\n  +CommentPhoto(string, string): bool\n}\n\nclass Album\nclass User\nclass Post\n\nAppUser ..> Album\nAppUser ..> User\nAppUser ..> Post\n\nnote bottom of AppUser\nHolds the facebook user\nend note\n\nclass FormMain <<Form>> {\n  +event MainFormLoadEventArgs\n}\n\nclass EventArgs\nclass MainFormLoadEventArgs {\n  +FinishedLoading: bool {getter, setter}\n  +Message: string {getter, setter}\n  +constructor()\n}\n\nMainFormLoadEventArgs -up-|> EventArgs\n\nFormMain ..> EventArgs\nFormMain ..> MainFormLoadEventArgs\n\nFormLogin \"1\" -- \"1\" LoginLogic\nFormLogin \"1\" -- \"1\" AppUser\nFormLogin \"1\" -- \"1\" FormMain\n\n'======================\n' Middle: Top Photos Feature\n'======================\npackage \"Top Photos Feature\" {\n  class PictureObjectBasic {\n    +NumberOfLikes: int {getter, setter}\n    +NumberOfComments: int {getter, setter}\n    +PictureUrl: string {getter, setter}\n    +Score: int {getter, setter}\n    +ObjectId: string {getter, setter}\n    +constructor(string, int, int, int, string, string)\n  }\n\n  class PictureObject {\n    +constructor(string, int, int, int, string, string, PictureBox, Label)\n    +LoadInformation(): void\n  }\n\n  PictureObject -up-|> PictureObjectBasic\n\n  class PopularPanelMgmt {\n    +CurrentObjectId: string {getter, setter}\n    +InformationLabel: Label {getter, setter}\n    +InformationTextBox: TextBox {getter, setter}\n    +PictureObjectList: List<SpecialPictureBox> {getter}\n    +Instance: static PopularPanelMgmt {getter}\n    +constructor()\n    +SetPanels(Panel, Panel): void\n    +TryAddToPanel(SpecialPictureBox): bool\n    +getNextFreeLocationInContainer(Size, out Point): bool\n  }\n\n  class SpecialPictureBox {\n    +ObjectLocation: Point {getter, setter}\n    +PictureBoxTopPhotosSize: Size {getter, setter}\n    +PictureObject: PictureObject {getter, setter}\n    +FatherPanel: Panel {getter}\n    +PicLabel: Label {getter}\n    +constructor(Panel)\n    +SpecialPictureBoxOnClick(object, EventArgs)\n    +UpdateName(): int\n    +RemoveObjectFromPanel(): void\n    +OnMouseHover(EventArgs)\n    +OnMouseLeave(EventArgs)\n  }\n\n  class TopPhotosFeature {\n    +constructor(AppUser, ref List<SpecialPictureBox>)\n    +RankUserPhotos(): void\n    +LoadTopPhotos(): void\n  }\n\n  class PictureBox\n  class Label\n  class TextBox\n  class Panel\n  class Size\n  class Point\n\n  PictureObject \"1\" -- \"1\" PictureBox\n  PictureObject \"1\" -- \"1\" Label\n\n  SpecialPictureBox \"1\" -- \"1\" PictureObject\n  SpecialPictureBox \"1\" -- \"1\" Panel\n  SpecialPictureBox \"1\" -- \"1\" Label\n\n  PopularPanelMgmt ..> Label\n  PopularPanelMgmt ..> TextBox\n  PopularPanelMgmt ..> Panel\n  PopularPanelMgmt ..> Size\n  PopularPanelMgmt ..> Point\n  PopularPanelMgmt ..> SpecialPictureBox\n\n  TopPhotosFeature ..> AppUser\n  TopPhotosFeature ..> SpecialPictureBox\n\n  FormMain ..> TopPhotosFeature\n  FormMain ..> PictureObjectBasic\n}\n\n'======================\n' Right: Post Filtering Feature\n'======================\npackage \"Post Filtering Feature\" {\n  interface IXmlSerializable {\n    +ReadXml(XmlReader reader): void\n    +WriteXml(XmlWriter writer): void\n  }\n\n  interface IEnumerable {\n    +GetEnumerator(): IEnumerator\n  }\n\n  interface IEnumerator\n\n  class XmlReader\n  class XmlWriter\n\n  class Form <<Form>>\n  class FormFilterGroup <<Form>> {\n    +GroupFilter: FilterGroup {getter, setter}\n  }\n  class FormPostFilterSettings <<Form>> {\n    +PostFilter: PostFilter {getter, setter}\n  }\n\n  FormFilterGroup -up-|> Form\n  FormPostFilterSettings -up-|> Form\n\n  class FilterItem {\n    +constructor()\n    +constructor(Regex)\n    +IsMatch(Post): bool\n  }\n\n  class FilterGroup {\n    -List<FilterItem>\n    +Name: string {getter, setter}\n    +constructor()\n    +AddItem(FilterItem)\n    +RemoveItem(FilterItem)\n    +IsMatch(Post): bool\n  }\n\n  class PostFilter {\n    +FilterGroups: List<FilterGroup> {getter, setter}\n    +constructor()\n    +AddGroup(FilterGroup)\n    +RemoveGroup(FilterGroup)\n    +Save()\n  }\n\n  FilterItem ..> Post\n  FilterGroup ..> FilterItem\n  PostFilter ..> FilterGroup\n\n  FilterItem ..|> IXmlSerializable\n  FilterGroup ..|> IXmlSerializable\n  PostFilter ..|> IXmlSerializable\n\n  FilterGroup ..|> IEnumerable\n\n  IXmlSerializable ..> XmlReader\n  IXmlSerializable ..> XmlWriter\n\n  FormFilterGroup ..> FilterGroup\n  FormPostFilterSettings ..> PostFilter\n\n  FormMain ..> PostFilter\n}\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1261,
+    "completion_tokens": 1408,
+    "total_tokens": 2669,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

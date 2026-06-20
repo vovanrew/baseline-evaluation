@@ -1,0 +1,85 @@
+```plantuml
+@startuml
+
+class Airport <<Thread>> {
+    list<Runway> lst_runways
+    list<AirportOperation> lst_operations
+    --
+    bool permission_to_take_off(Airplane)
+    bool permission_to_land(Airplane)
+    --
+    void start_thread()
+}
+
+class AirportOperation {
+    Runway run_way
+    Airplane airplane
+    uint32_t time_request
+    uint32_t time_last_update
+    EnumAirportOperation operation_state
+    --
+    void free_runway()
+}
+
+class Airplane <<Thread>> {
+    uint32_t id
+    uint32_t fuel
+    uint32_t fuel_consumption_rate
+    uint32_t airport_answer_timeout
+    AirplaneState state
+    --
+    void start_thread()
+    --
+    void take_off_authorized()
+    void take_off_denied()
+    --
+    void land_authorized()
+    void land_denied()
+}
+
+class Runway {
+    uint32_t id
+    RunwayState state
+}
+
+enum RunwayState {
+    Free
+    InUse
+}
+
+enum AirplaneState {
+    Stopped
+    AskingPermissionToTakeOff
+    TakingOff
+    Flying
+    AskingPermissionToLand
+    Landing
+    Crashed
+}
+
+enum EnumAirportOperation {
+    WaitingToTakeOff
+    AuthorizedToTakeOff
+    WaitingToLand
+    AuthorizedToLand
+}
+
+note right of Airport
+    Iterate through lst_operations
+        if it matchs the criteria that airplane is already flying
+            release runway
+            update airplane status and related info
+
+    order lst_operations to update next events
+end note
+
+Airport *-- "*" AirportOperation
+Airport *-- "*" Runway
+AirportOperation o-- Runway
+AirportOperation o-- Airplane
+Airplane --> AirplaneState
+Runway *-- RunwayState
+AirportOperation --> EnumAirportOperation
+
+@enduml
+```

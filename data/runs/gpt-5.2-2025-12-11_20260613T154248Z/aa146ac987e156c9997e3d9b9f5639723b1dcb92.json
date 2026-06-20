@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLpShnPURGGFL7fn9DuDSeu5NEXR",
+  "object": "chat.completion",
+  "created": 1781369338,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle SignUp Flow\n\nactor Client\nparticipant Mobile\nparticipant \"SMS Gateway\" as SMS\nparticipant \"Push Gateway\" as Push\ndatabase DigitalDB as DB\nparticipant \"Keycloak + Extension\" as KC\n\nClient -> Mobile : 1 Enter PhoneNumber, Birthday\nClient -> Mobile : 2 Enter Password\n\nMobile -> KC : 3 POST /auth/signup (PhoneNumber, Birthday)\nKC -> DB : 4 findClientRecord(PhoneNumber, Birthday): ClientRecord\nDB --> KC : 5 ClientRecord\n\nalt [ClientRecord is NOT found]\n  KC --> Mobile : 6 HTTP 202\n  KC -> KC : 7 saveInOTPContext(ClientRecord.id)\n  KC -> KC : 8 generateAndSaveOTP(): OTP\n  KC --> Mobile : 9 HTTP 202\n  KC -> SMS : 10 sendSMS(phone=PhoneNumber, data=OTP)\n  SMS --> Mobile : 11 SMS with OTP\n  Mobile -> Push : 12 getPushToken(): Push Token\n  Push --> Mobile : 13 Push Token\n  Mobile -> Mobile : 14 generateKeys(): [PublicKey, PrivateKey]\nend\n\nClient -> Mobile : 15 Enter OTP\nMobile -> KC : 16 POST /auth/signup/complete (OTP, Password, Push Token, PublicKey)\n\nKC -> KC : 17 validateOTP(OTP)\nKC -> DB : 18 updateUser(ClientId, KeycloakUserId)\nDB --> KC : 19\nKC -> DB : 20 createMobileDevice(ClientId, Push Token, PublicKey)\nDB --> KC : 21\nKC -> KC : 22 generateJWT(scope=\"regular_user\"): JWT\nKC --> Mobile : 23 HTTP 200 {jwt: JWT}\n\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2052,
+    "completion_tokens": 367,
+    "total_tokens": 2419,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

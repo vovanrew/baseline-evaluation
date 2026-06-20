@@ -1,0 +1,96 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+
+class CreateClinicalAnalysisLaboratoryUI << (C,#B7E1B0) >> {
+}
+
+class CreateClinicalController << (C,#B7E1B0) >> {
+  + createClinical(idLaboratory, name, address, phoneNumber, tin, testTypes)
+  + saveClinical()
+}
+
+class TestTypeMapper << (C,#B7E1B0) >> {
+  + List<TestTypeDTO> toDTO(List<TestType> list)
+  + TestTypeDTO toDTO(TestType obj)
+}
+
+class TestTypeDTO << (C,#B7E1B0) >> {
+  - type
+  - collectingMethods
+  + TestTypeDTO(type, collectingMethods)
+}
+
+class TestTypeStore << (C,#B7E1B0) >> {
+  + createTestType(type, collectingMethods)
+  + validateTestType(tt)
+  + saveTestType(tt)
+  + addTestType(tt)
+  + getTestType(tt)
+}
+
+class Administrator << (C,#B7E1B0) >> {
+  + createClinical(idLaboratory, name, address, phoneNumber, tin, testTypes)
+  + saveClinical(clinical)
+  - validate(clinical)
+}
+
+class Clinical << (C,#B7E1B0) >> {
+  - String idLaboratory
+  - String name
+  - String address
+  - String phoneNumber
+  - String tin
+  - String[] testTypes
+  + Client(idLaboratory, name, address, phoneNumber, tin, testTypes)
+}
+
+class TestType << (C,#B7E1B0) >> {
+  - String type
+  - String collectingMethods
+  + getTestType()
+}
+
+class Employee << (C,#B7E1B0) >> {
+  - String idEmployee
+  - String name
+  - String function
+  - String phoneNumber
+  - String email
+  - String address
+  - String soc
+}
+
+class Platform << (C,#B7E1B0) >> {
+  + getClinicals()
+  + addClinical(clinical)
+}
+
+class ClinicalStore << (C,#B7E1B0) >> {
+  + getClinicals()
+  + addClinicals()
+}
+
+' Dependencies / associations as in diagram
+CreateClinicalAnalysisLaboratoryUI ..> CreateClinicalController
+
+CreateClinicalAnalysisLaboratoryUI ..> TestTypeDTO
+CreateClinicalController ..> TestTypeDTO
+TestTypeMapper ..> TestTypeDTO
+
+CreateClinicalController ..> TestTypeMapper
+CreateClinicalController ..> TestTypeStore
+
+CreateClinicalController ..> Administrator
+CreateClinicalController ..> Platform
+
+Administrator "1" --> "*" Clinical : create
+Administrator "1" --> "*" TestType : create
+Administrator "1" --> Employee : is
+
+Clinical "1" --> "1" TestType : conducts
+
+Employee --> Platform : uses
+Platform ..> ClinicalStore
+@enduml

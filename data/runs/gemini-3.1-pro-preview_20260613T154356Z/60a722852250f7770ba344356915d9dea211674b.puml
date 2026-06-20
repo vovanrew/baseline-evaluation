@@ -1,0 +1,34 @@
+```plantuml
+@startuml
+actor ": Teacher" as Teacher
+boundary ": UpdateRollCallForm" as UpdateRollCallForm
+control ": StudentController" as StudentController
+entity ": RollCall" as RollCall
+entity ": ClassroomMember" as ClassroomMember
+
+activate Teacher
+Teacher -> UpdateRollCallForm : 1 // request update roll call
+activate UpdateRollCallForm
+UpdateRollCallForm -> StudentController : 2 // request update roll call
+activate StudentController
+StudentController -> ClassroomMember : 3 // checking information is valid
+activate ClassroomMember
+
+alt information is valid
+    ClassroomMember --> StudentController : 5 // Information is valid
+    StudentController -> RollCall : 6 // Request make roll call
+    activate RollCall
+    deactivate RollCall
+    StudentController --> UpdateRollCallForm : 8 // Roll call update done
+    UpdateRollCallForm --> Teacher : 9 // Roll call done
+else information is not valid
+    ClassroomMember --> StudentController : 5.1 // Information is not valid
+    deactivate ClassroomMember
+    StudentController --> UpdateRollCallForm : 5.2 // Roll call update failed
+    deactivate StudentController
+    UpdateRollCallForm --> Teacher : 5.3 // Roll call failed,\ncheck information again
+    deactivate UpdateRollCallForm
+end
+deactivate Teacher
+@enduml
+```

@@ -1,0 +1,103 @@
+```plantuml
+@startuml
+title Zhინahan Classes
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+
+package "Zhინahan" as P_Zh {
+  package "Parser" as P_Parser {
+
+    class Parser <<C>> {
+      - matchers : Array<AbstractLineMatcher>
+      - appendix_detector : AppendixDetector
+      - context : Context
+      + parse(file : string) : Dictionary
+      - per_line(line : string, index : int)
+      - parse_line(line : string, index : int)
+    }
+
+    class AppendixDetector <<C>> {
+      + starts_appendix_section?(line : string) : bool
+      + has_leaved_appendix_section?(line : string) : bool
+    }
+
+    class Context <<C>> {
+      - while_appendix : bool
+      - line : string?
+      - index : int?
+      + within_appendix?() : bool
+      + enter_appendix() : void
+      + leave_appendix() : void
+      + update_position(line : string, index : int) : void
+    }
+
+    class LineParser <<C>> {
+      + parse(context : Context)
+    }
+
+    package "LineMatchers" as P_LineMatchers {
+      abstract class AbstractLineMatcher <<A>> {
+        + match(context : Context) : MatchResult?
+        + pattern(context : Context) : RexExp
+        + type() : Symbol
+      }
+
+      class RadicalLineMatcher <<C>>
+      class ExplanationLineMatcher <<C>>
+      class PronunciationLineMatcher <<C>>
+      class CharacterLineMatcher <<C>>
+
+      class MatchResult <<C>> {
+        - matched : MatchData
+        + type : String
+        + matched() : Hash<String, String>
+      }
+    }
+
+    Parser *-- AppendixDetector
+    Parser *-- Context
+    Parser *-- LineParser
+
+    LineParser --> Context
+    LineParser --> P_LineMatchers.AbstractLineMatcher
+    LineParser --> P_LineMatchers.MatchResult
+
+    P_LineMatchers.RadicalLineMatcher --|> P_LineMatchers.AbstractLineMatcher
+    P_LineMatchers.ExplanationLineMatcher --|> P_LineMatchers.AbstractLineMatcher
+    P_LineMatchers.PronunciationLineMatcher --|> P_LineMatchers.AbstractLineMatcher
+    P_LineMatchers.CharacterLineMatcher --|> P_LineMatchers.AbstractLineMatcher
+  }
+
+  package "Core" as P_Core {
+    class Dictionary <<C>> {
+      - characters : Array<Character>
+      + find(character : string) : Character?
+    }
+
+    class Character <<C>> {
+      - radical : Radical
+      - char : string
+      + is?(character : string) : bool
+    }
+
+    class Description <<C>>
+    class Radical <<C>>
+    class Explanation <<C>>
+    class Pronunciation <<C>>
+
+    Dictionary "1" o-- "*" Character
+
+    Character "1" *-- "1..*" Description
+    Character "1" *-- "1" Radical
+
+    Description "1" *-- "0..*" Explanation
+    Description "1" *-- "0..1" Pronunciation
+  }
+
+  P_Parser.Parser --> P_Core.Dictionary
+}
+@enduml
+```

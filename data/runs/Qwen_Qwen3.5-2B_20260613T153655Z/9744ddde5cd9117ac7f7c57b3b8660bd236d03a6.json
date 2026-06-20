@@ -1,0 +1,22 @@
+{
+  "id": "db62686c-b5a2-42ff-a96a-60266c1b54d3",
+  "object": "chat.completion",
+  "created": 1781397229,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"User Agent\" as UA\nparticipant \"Wallet\" as Wallet\n    participant \"Frontend\" as WF\n    participant \"Backend\" as WB\n    participant \"Issuer\" as Issuer\n        participant \"Metadata\" as Meta\n        participant \"Web Site\" as WS\n        participant \"Token Endpoint\" as TE\n        participant \"Credential Endpoint\" as CE\n\n    UA -> WS: get credential\n\n    note right of WS\n        prepare credential issuance\n    end note\n\n    UA -> WS: Issuance Initiation Request\n        (pre-authz-code, credential_type, expected_key_types, issuer)\n\n    UA -> WS: Issuance Initiation Request\n        (pre-authz-code, credential_type, expected_key_types, issuer)\n\n    WB -> WB: gen DPoP key\n    WB -> WB: gen DPoP proof for issuer token endpoint\n    WB -> WB: get nonce (for app attestation)\n    WB -> WB: nonce\n    WB -> WB: obtain app attestation (nonce)\n    WB -> WB: get assertion for code exchange (hash(pre-authz-code), app attestation)\n    WB -> TE: check app_attestation\n    WB -> WB: generate assertion (iss=wallet backend, pre_authz_code_hash, client_id)\n    WB -> WB: assertion\n    WB -> Meta: get issuer metadata\n    WB -> TE: token request\n        (pre-authz-code, pin, client_id, assertion, dpop_proof)\n\n    note right of TE\n        wallet authenticates with issuer as OAuth Client using the assertion issued by its backend (RFC 7523)\n        issuer checks wallet backend id and key against trust registry\n    end note\n\n    note right of TE\n        Token Endpoint validates pre-authorized code and creates corresponding access token\n    end note\n\n    WB -> TE: token response\n        (access_token, c_nonce)\n    WB -> WB: gen key : key, key_attestation\n    WB -> WB: create proof of posssion (c_nonce)\n    WB -> WB: create DPoP proof for issuance request\n    WB -> CE: issue credential\n        (access_token, credential_type, format, proof, key_policy, dpop_proof)\n\n    note right of CE\n        Credential Endpoint Token checks whether the access token is good for requested credential type and\n        whether the proof of possession is valid\n    end note\n\n    WB -> UA: credential response (credential, format)\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1811,
+    "completion_tokens": 531,
+    "total_tokens": 2342
+  }
+}

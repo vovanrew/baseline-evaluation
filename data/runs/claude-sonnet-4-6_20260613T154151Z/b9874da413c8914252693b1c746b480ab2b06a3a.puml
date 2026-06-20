@@ -1,0 +1,85 @@
+@startuml
+actor User
+participant "executor:AnalysisExecutor" as executor
+participant ":Analysis" as Analysis
+participant ":CountryCaseAPIGetter" as CaseGetter
+participant ":CountryDeathAPIGetter" as DeathGetter
+participant ":CountryPopulationAPIGetter" as PopGetter
+participant ":APIInformationGetter" as InfoGetter
+actor "Covid API" as CovidAPI
+
+User -> executor : runAnalysis()
+opt [At least one country selected for analysis]
+  executor -> Analysis : analyze()
+  alt [CasesPerCapitaAnalysis]
+    par
+      Analysis -> CaseGetter : getCases()
+      CaseGetter -> CaseGetter : getDataURL()
+      CaseGetter --> CaseGetter : API Endpoint URL
+      CaseGetter -> CovidAPI : API Call
+      CovidAPI --> CaseGetter : API Information
+      CaseGetter --> Analysis : Cases in target Countries
+    end
+    Analysis -> PopGetter : getPopulation()
+    par
+      PopGetter -> PopGetter : getDataURL()
+      PopGetter --> PopGetter : API Endpoint URL
+      PopGetter -> CovidAPI : API Call
+      CovidAPI --> PopGetter : API Information
+      PopGetter --> Analysis : Population of target Countries
+    end
+  else [TotalCaseAnalysis]
+    Analysis -> CaseGetter : getCases()
+    par
+      CaseGetter -> CaseGetter : getDataURL()
+      CaseGetter --> CaseGetter : API Endpoint URL
+      CaseGetter -> CovidAPI : API Call
+      CovidAPI --> CaseGetter : API Information
+      CaseGetter --> Analysis : Cases in target Countries
+    end
+  else [MajorityCaseSexPerCapitaAnalysis]
+    par
+      Analysis -> CaseGetter : getMaleCases()
+      CaseGetter -> CaseGetter : getDataURL()
+      CaseGetter --> CaseGetter : API Endpoint URL
+      CaseGetter -> CovidAPI : API Call
+      CovidAPI --> CaseGetter : API Information
+      CaseGetter --> Analysis : Male cases in target Countries
+    end
+    Analysis -> CaseGetter : getFemaleCases()
+    note over CaseGetter : A call to the endpoint has\nalready been made so\nanother is not necessary
+    CaseGetter --> Analysis : Female cases in target Countries
+    Analysis -> PopGetter : getMalePopulation()
+    par
+      PopGetter -> PopGetter : getDataURL()
+      PopGetter --> PopGetter : API Endpoint URL
+      PopGetter -> CovidAPI : API Call
+      CovidAPI --> PopGetter : API Information
+      PopGetter --> Analysis : Male population in target Countries
+    end
+    Analysis -> PopGetter : getFemalePopulation()
+    note over PopGetter : A call to the endpoint has\nalready been made so\nanother is not necessary
+    PopGetter --> Analysis : Female population in target Countries
+  else [DeathsPerCapitaAnalysis]
+    par
+      Analysis -> DeathGetter : getDeaths()
+      DeathGetter -> DeathGetter : getDataURL()
+      DeathGetter --> DeathGetter : API Endpoint URL
+      DeathGetter -> CovidAPI : API Call
+      CovidAPI --> DeathGetter : API Information
+      DeathGetter --> Analysis : Deaths in target Countries
+    end
+    Analysis -> PopGetter : getPopulation()
+    par
+      PopGetter -> PopGetter : getDataURL()
+      PopGetter --> PopGetter : API Endpoint URL
+      PopGetter -> CovidAPI : API Call
+      CovidAPI --> PopGetter : API Information
+      PopGetter --> Analysis : Population of target Countries
+    end
+  end
+  Analysis --> executor : Analysis Result
+end
+executor --> User : Finish (void)
+note over executor : Per country analysis results\nare stored for later rendering
+@enduml

@@ -1,0 +1,49 @@
+```plantuml
+@startuml
+
+participant "InstallInstalling" as II
+participant "PackageInstaller" as PI
+participant "PackageInstallerService" as PIS
+participant "InstallingAsyncTask" as IAT
+participant "PackageInstallerSession" as PISess
+participant "Handler" as H
+participant "mHandlerCallback" as mHC
+participant "PkMS" as PkMS
+participant "PkMS.PackageHandler" as PkMSPH
+participant "PkMS.HandlerParams" as PkMSHP
+participant "PkMS.InstallParams" as PkMSIP
+
+II -> II : onCreate()
+II -> PI : createSession()
+PI -> PIS : createSession()
+PIS --> PI : sessionId
+PI --> II : sessionId
+II -> II : onResume()
+II -> IAT : execute()
+IAT -> IAT : doInBackground()
+IAT -> PIS : openSession(sessionId)
+PIS --> IAT : Session
+IAT -> PISess : openWrite()
+IAT -> IAT : doPostExecute()
+IAT -> PISess : commit()
+PISess -> H : sendToTarget(MSG_COMMIT)
+H -> mHC : handleMessage(MSG_COMMIT)
+mHC -> PISess : handleCommit()
+PISess -> PISess : commitNonStagedLocked()
+PISess -> PkMS : installStage()
+PkMS -> PkMSPH : sendMessage(INIT_COPY)
+PkMSPH -> PkMSHP : startCopy()
+PkMSHP -> PkMSIP : handleStartCopy()
+PkMSHP -> PkMSIP : handleReturnCode()
+PkMSIP -> PkMS : processPendingInstall()
+PkMS -> PkMS : processInstallRequestsAsync()
+PkMS -> PkMS : installPackagesTracedLI()
+PkMS -> PkMS : installPackagesLI()
+PkMS -> PkMS : preparePackageLI()
+PkMS -> PkMS : scanPackageTracedLI()
+PkMS -> PkMS : commitPackagesLocked()
+PkMS -> PkMS : commitReconciledScanResultLocked()
+PkMS -> PkMS : commitPackageSettings()
+
+@enduml
+```

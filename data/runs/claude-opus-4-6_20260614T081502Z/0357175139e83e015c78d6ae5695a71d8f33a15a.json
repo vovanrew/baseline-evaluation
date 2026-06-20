@@ -1,0 +1,21 @@
+{
+  "id": "msg_01SR5aWx2qpENgXGu4gTj1k6",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nskinparam packageStyle rectangle\n\npackage \"rugged\" {\n    package \"raster\" {\n        interface \"Tile\" {\n            + interpolateElevation(\u03c6, \u03bb)\n            + pixelIntersection(NormalizedGeodeticPoint, los, \u03c6 index, \u03bb index)\n        }\n    }\n\n    package \"intersection\" {\n        interface \"IntersectionAlgorithm\" {\n            + intersection(ellipsoid, position, los)\n            + refineIntersection(ellipsoid, position, los, closeGuess)\n        }\n    }\n\n    package \"utils\" {\n        class \"ExtendedEllipsoid\" {\n            + pointAtLatitude(position, los, \u03c6, closereference)\n            + pointAtLongitude(position, los, \u03bb)\n            + pointAtAltitude(position, los, h)\n            + pointOnGround(position, los)\n        }\n\n        class \"SpacecraftToObservedBody\" {\n        }\n    }\n\n    package \"api\" {\n        class \"Rugged\" {\n            + directLocation(sensorName, line)\n        }\n    }\n\n    package \"linesensor\" {\n        class \"LineSensor\" {\n        }\n    }\n}\n\npackage \"mission\" {\n    package \"specific\" {\n        class \"UserMain\" {\n        }\n    }\n}\n\nIntersectionAlgorithm ..> Tile : evaluate DEM\nExtendedEllipsoid ..> IntersectionAlgorithm : \"compute grid points crossings\"\nIntersectionAlgorithm \"1\" -- ExtendedEllipsoid\n\nRugged --> ExtendedEllipsoid : \"convert geodetic points\"\nRugged --> SpacecraftToObservedBody : \"convert positions/directions\"\nRugged --> LineSensor : \"getLOS(date, pixel)\"\nRugged --> LineSensor : \"getDate(line)\"\nRugged *-- Rugged\n\nUserMain --> Rugged : \"delegate DEM intersection\"\n\nSpacecraftToObservedBody ..> ExtendedEllipsoid\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781426977,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 526,
+    "prompt_tokens": 1650,
+    "total_tokens": 2176
+  }
+}

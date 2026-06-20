@@ -1,0 +1,64 @@
+@startuml
+!theme base
+
+package "billing" as billing {
+  package "discount" as discount {
+    class "TotalFee" as TotalFee {
+      <<component>>
+    }
+    class "DiscountFee" as DiscountFee {
+      <<component>>
+    }
+    class "DiscountService" as DiscountService {
+      <<component>>
+    }
+    class "ContractForDiscount" as ContractForDiscount {
+      <<component>>
+    }
+  }
+  package "contract" as contract {
+    class "ContractFee" as ContractFee {
+      <<component>>
+    }
+    class "ContractForCharge" as ContractForCharge {
+      <<component>>
+      "DataMax5GPlan"
+    }
+  }
+  TotalFee --> DiscountFee
+  TotalFee --> ContractFee
+  DiscountService --> DiscountFee
+  DiscountService --> ContractForDiscount
+  ContractForDiscount --> Contract
+}
+
+package "otherservice" as otherservice {
+  class "SmartValueTargetServiceContracts" as SmartValueTargetServiceContracts {
+    <<component>>
+  }
+  DiscountService --> SmartValueTargetServiceContracts
+}
+
+package "contractmanage" as contractmanage {
+  class "FamilyContracts" as FamilyContracts {
+    <<component>>
+  }
+  class "Contract" as Contract {
+    <<component>>
+  }
+  class "ContractRepository" as ContractRepository {
+    <<interface>>
+  }
+  ContractRepository --> FamilyContracts
+  ContractRepository --> Contract
+}
+
+package "plan" as plan {
+  class "Plan" as Plan {
+    <<component>>
+  }
+  ContractForCharge --> Plan
+  Contract --> Plan
+}
+
+@enduml

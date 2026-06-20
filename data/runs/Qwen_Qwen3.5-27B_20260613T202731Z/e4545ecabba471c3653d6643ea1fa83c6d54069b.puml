@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+actor "User Agent" as UserAgent
+participant "Content removal API" as ContentRemovalAPI
+participant "User Manager" as UserManager
+database "User database" as UserDB
+database "Content database" as ContentDB
+
+note left of UserAgent: Should also include a CSRF token to prevent admins who are also\nvisit other, potentially XSS vulnerable or malicious sites\nfrom helping an unknown actor remove content without authorization.
+
+UserAgent -> ContentRemovalAPI: Removal request (HTTP POST),\ncontains ID of content to be removed.
+activate ContentRemovalAPI
+
+ContentRemovalAPI -> UserManager: Retrieve role of requesting user.
+activate UserManager
+UserManager -> UserDB: Fetch user information from database.
+activate UserDB
+UserDB --> UserManager: Return query result.
+deactivate UserDB
+UserManager --> ContentRemovalAPI: Return user role.
+deactivate UserManager
+
+alt [User has admin role]
+    ContentRemovalAPI -> ContentRemovalAPI: Validate removal request
+    
+    alt [Failed to validate removal request]
+        ContentRemovalAPI --> UserAgent: Return an HTTP status code that signals validation failure.\nExact value depends on how the validation failed.
+    else [Request is deemed valid]
+        ContentRemovalAPI -> ContentDB: Remove content from DB.
+        activate ContentDB
+        ContentDB --> ContentRemovalAPI: Result of delete operation
+        deactivate ContentDB
+        
+        alt [Content has been removed succesfully]
+            ContentRemovalAPI --> UserAgent: Return HTTP 204 No Content
+        else [Removal failed]
+            ContentRemovalAPI --> UserAgent: Return HTTP Status code to signal reason for failure.
+        end
+    end
+else [User is not authorized to remove content]
+    ContentRemovalAPI --> UserAgent: Return HTTP 403 Forbidden to signal that the user has no permission to request what they just did.
+end
+
+deactivate ContentRemovalAPI
+
+@enduml
+```

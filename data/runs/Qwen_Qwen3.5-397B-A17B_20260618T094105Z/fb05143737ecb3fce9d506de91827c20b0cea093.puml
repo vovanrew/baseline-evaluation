@@ -1,0 +1,72 @@
+@startuml
+title Traffic influencing flows between OpenNESS controller and 5G Core
+
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam note {
+    BackgroundColor LightYellow
+}
+skinparam lifelineStrategy nosolid
+
+actor "User/Admin" as UserAdmin1 at leftmost
+participant "<b>OpenNESS Controller components</b>" as ONC_Comp_Container <<container>> #LightBlue [0] 
+rectangle UI_CLI within ONC_Comp_Container [[UI/CLI]]
+rectangle AF_Microservice within ONC_Comp_Container [[AF Microservice]] 
+
+note right of NEF : <u><font color=black size="24">NEF\nNetwork Exposure Function </font></u>\n<color=#38761d>The Network \nexposure function provides means to expose capabilities\nto third party applications.</color>
+
+
+box "#9ACD32"<b>5G Core Components</b>#Black [/]<#white>[/]
+   participant NGCP_Functions<<component>>[[NGC CP Functions]][[Next Generation Control Plane functions ]]as NGCFunc  
+end box 
+
+
+== Get all subscribed traffic influence info ==
+activate UserAdmin1
+UserAdmin1 -> UI_CLI++: Request all traffic influence subscribed
+deactivate UserAdmin1
+UI_CLI->AF_Microservice ++:/af/v1/subscriptions : GET
+AF_Microservice -->ONC_Comp_Container /3gpp-traffic-Influence/v1/{aflId}/subscriptions :GET
+on call overline
+group{On Call OverLine}{
+	autonumber "[0]" "." "" hide footbox
+	
+	ONC_Comp_Container-->NGCFunc:{Open: 3rd party NGC integration with OpenNESS(NEF)}	
+	deactivate ONC_Comp_Container
+	note on link #lightgreen:<i>{Open: 3rd party NGC<br/>integration with<br/><b>OpenNESS(NEF)</b>}</i>
+	end group
+	on return underline
+	group{return under line }{
+		
+			hide footbox
+			
+				return OK: traffic influence info ERROR: {400/500}
+			
+				
+					UI_CLI<-return--OK: traffic influence info ERROR: {400/500}
+					
+						UserAdmin1 <- -Traffic influence details
+		
+						 end group
+
+
+
+==Get subscribed traffic influence info by subscriptionID==
+ activate UserAdmin1
+ 
+ useradmin1->ui_cli:request traffic influence using Subscriptionid 
+ 
+ ui_cli-> af_microservice:/af/v1/Subscriptions/(Subscriptionld):get
+ 
+ af_mircoservice -- >onc_comp_container/:3gpp_traffic_influencelvl(aft)/subscription(subscription id) get
+ 
+ onc-comp-container --->ngc_func:(open:third-party ngc intergration openness(nef))
+ deactivate ong_copm_containerr
+ 
+ autnumber"[O].""Hide FootBox
+ 
+ Group(on-call-over-line){
+ autonumer"(0)"."HIDE FOOTBOX
+  
+ Onc-camp-containeer---->Ngc-funcl(open-third-pary-ngc-integration-openess-nef)
+ Deactive-onc-compt-conainer-note-right-of-link-light-green(i)(open-thirparty-nge-interaction-with-bold-opennesseef)i-end-group-return-underlined-hiden-foot-box-retur-ok-trafic-infuence-info-error-(four-zero-slash-five-zeros)-ui-cli-left-arrow-dashdash-o-k-t-r-a-i-e-l-u-e-n-c-e i n f o e r r or four zero slash five zeros-user-admin-one dash minus t raic inf lu en ce det ail s de act iv ate us er ad min one footer ProprietaryandConfidential header IntelCorporat ion@end um l

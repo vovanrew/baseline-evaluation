@@ -1,0 +1,97 @@
+```plantuml
+@startuml
+package Client {
+    interface IInfoPraiaData {
+        [key: String]: number
+    }
+
+    interface IInfoPonto {
+        alturaOnda: IInfoPraiaData
+        direçãoOnda: IInfoPraiaData
+        alturaOndulação: IInfoPraiaData
+        direçãoOndulação: IInfoPraiaData
+        períodoOndulação: IInfoPraiaData
+        velocidadeVento: IInfoPraiaData
+        direçãoVento: IInfoPraiaData
+    }
+
+    class ApiInfoPraia {
+        - parameters: []
+        # request: Class Request
+        + buscarPonto(lat, lng)<IPrevisãoPonto>
+    }
+
+    interface IPrevisãoPonto {
+        alturaOnda: Number
+        direçãoOnda: Number
+        alturaOndulação: Number
+        direçãoOndulação: Number
+        períodoOndulação: Number
+        velocidadeVento: Number
+        direçãoVento: Number
+    }
+
+    note "parameters: [alturaOnda, direçãoOnda, alturaOndulação,\ndireçãoOndulação, períodoOndulação,\nvelocidadeVento, direçãoVento]" as N1
+    ApiInfoPraia .. N1
+}
+
+package Util {
+    class Request {
+        # request: {}
+        + get(url)
+    }
+}
+
+package Models {
+    interface IPraia {
+        - id: Integer
+        - name: String
+        - position[1]: Position
+        - lat: Integer
+        - lng: Integer
+        - user: String
+    }
+
+    enum Position {
+        N
+        S
+        L
+        O
+    }
+
+    interface IUser {
+        id: String
+        name: String
+        email: String
+        password: String
+    }
+
+    interface PraiaModel {
+    }
+
+    interface ModelUser {
+    }
+
+    class Praia {
+    }
+
+    IPraia -> Position
+    IPraia <|-- PraiaModel
+    PraiaModel <|.. Praia
+    IUser <|-- ModelUser
+}
+
+package Controllers {
+}
+
+package Middlewares {
+}
+
+package Services {
+}
+
+ApiInfoPraia *- IPrevisãoPonto
+ApiInfoPraia -> Request
+
+@enduml
+```

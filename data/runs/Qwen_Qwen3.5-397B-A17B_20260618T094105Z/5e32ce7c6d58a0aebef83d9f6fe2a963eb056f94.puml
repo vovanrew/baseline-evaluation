@@ -1,0 +1,20 @@
+@startuml
+actor "Project Manager" as PM1
+participant ":ProjectManagerUI" as UI
+participant AGVServerThread
+participant AVGManagerController
+participant CodingAndDecoding2
+
+PM1 -> UI : Wants to assign ready go Orders to an AGY\nmessage
+activate UI
+UI->AGVServerThread:start
+deactivate UI
+activate AGVServerThread
+note right of AGVServerThread: Decoding(r)
+CodingAndDecoding2<-AGVServerThread:message
+AVGManagerController <- AGVServerThread:FifoAGV()
+loop until orderList is empty 
+    note left of AVGManagerController: findavailableOrder()\nfindavailableAGV(weight,volume)\ncreateTaskandSave(description,order.agv)\ndoTask()
+end loop 
+
+@enduml

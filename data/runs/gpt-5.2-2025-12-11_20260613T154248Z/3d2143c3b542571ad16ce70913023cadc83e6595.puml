@@ -1,0 +1,73 @@
+@startuml
+title シーケンス：コンテンツフォルダ編集
+
+participant ContentFolder
+participant BcContentsBehavior
+participant Content
+
+ContentFolder -> ContentFolder : edit
+activate ContentFolder
+
+ContentFolder -> BcContentsBehavior : setup
+activate BcContentsBehavior
+note right of BcContentsBehavior
+hasOneでコンテンツをフォルダに繋ぎこむ
+end note
+
+ContentFolder -> BcContentsBehavior : beforeValidate
+note right of BcContentsBehavior
+・コンテンツの初期化
+・コンテンツのバリデーション
+・バリデーション結果のマージ
+・バリデーション後のコンテンツのマージ
+end note
+
+ContentFolder -> BcContentsBehavior : beforeSave
+note right of BcContentsBehavior
+・コンテンツのバリデーションチェック
+・エラーが出ていれば終了
+end note
+
+ContentFolder -> BcContentsBehavior : afterSave
+note right of BcContentsBehavior
+コンテンツの生成
+end note
+
+BcContentsBehavior -> Content : save
+activate Content
+
+Content -> Content : beforeValidate
+note right of Content
+・タイトル整形
+・更新日のセット
+・URLの整形
+・トップフォルダの場合に
+  URLバリデーションを除外
+・URLの重複チェック
+（重複していた場合は自動生成）
+end note
+
+Content -> Content : beforeSave
+note right of Content
+変更前の親コンテンツIDを取得
+end note
+
+Content -> Content : afterSave
+note right of Content
+・関連するキャッシュを削除
+・システムデータを更新
+・子コンテンツの更新
+・別サイトの関連するコンテンツを更新
+・親コンテンツが変更となった場合は、
+  最終並び替え日時を更新
+end note
+
+deactivate Content
+
+note left of BcContentsBehavior
+生成後のContent をマージ
+end note
+
+deactivate BcContentsBehavior
+deactivate ContentFolder
+@enduml

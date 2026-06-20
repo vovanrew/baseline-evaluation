@@ -1,0 +1,132 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 20
+  LifeLineBorderColor #888888
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor transparent
+  MessageAlign center
+  ArrowColor #000000
+  ArrowThickness 1
+  ActorBorderColor #666666
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9F2
+}
+
+hide footbox
+
+box "Client" #DDDDDD
+participant client as C
+participant tcpclient as TC
+end box
+
+box "Server" #DDDDDD
+participant tcpserver as TS
+participant server as S
+end box
+
+activate C #FFFFFF
+C -> TC : connect
+deactivate C
+
+activate TC #0B8F86
+note over TC #0B8F86
+SYN-SENT
+end note
+
+TC -> TS : SYN
+
+activate TS #1E88E5
+note over TS #1E88E5
+LISTEN
+end note
+
+S -> TS : listen
+
+note over TS #4FC3F7
+SYN-RECEIVED
+end note
+
+TS -> TC : SYN, ACK
+TC -> TS : ACK
+
+deactivate TC
+activate TC #BFE6C6
+note over TC #CFE8CF
+ESTABLISHED
+end note
+
+deactivate TS
+activate TS #BFE6C6
+note over TS #CFE8CF
+ESTABLISHED
+end note
+
+TS -> S : EPOLLIN
+S -> TS : write
+
+TS -> TC : PSH, ACK
+TC -> TS : ACK
+
+C <- TC : EPOLLIN
+C -> TC : read
+
+S -> TS : close
+
+deactivate TS
+activate TS #B9A7E6
+note over TS #B9A7E6
+FIN_WAIT1
+end note
+
+TS -> TC : FIN, ACK
+
+deactivate TC
+activate TC #F3A6E8
+note over TC #F3A6E8
+CLOSE_WAIT
+end note
+
+TC -> TS : ACK
+
+deactivate TS
+activate TS #F2A36B
+note over TS #F2A36B
+FIN_WAIT2
+end note
+
+C <- TC : EPOLLRDHUP
+C -> TC : close
+
+deactivate TC
+activate TC #FF00FF
+note over TC #FF00FF
+LAST_ACK
+end note
+
+TC -> TS : FIN
+TS -> TC : ACK
+
+deactivate TC
+note over TC #FF6B6B
+CLOSE
+end note
+
+deactivate TS
+activate TS #F3F36B
+note over TS #F3F36B
+TIMEWAIT
+end note
+
+note right of TS
+timer 60s
+end note
+
+deactivate TS
+note over TS #FF6B6B
+CLOSE
+end note
+
+@enduml

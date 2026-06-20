@@ -1,0 +1,47 @@
+@startuml
+participant as "任务开始" as Actor
+
+participant "GuideTaskStartListener" as Listener
+participant "GuideTaskStartProcessor" as Processor
+participant "GuideTaskStartDomainService" as DomainService
+participant "GuideTaskStartStrategy" as Strategy
+participant "ShoppingGuideReadApi" as ShoppingApi
+participant "GuideTaskRepository" as Repository
+participant "GuideTaskDataRepository" as DataRepository
+
+Actor "任务开始" as Actor
+Actor "nsq 消息" as Message
+
+Message "1 监听任务开始消息" as Msg1
+Msg1 -> Listener : 监听任务开始消息
+
+Message "2 开始处理" as Msg2
+Msg2 -> Processor : 开始处理
+
+Message "3 查询任务" as Msg3
+Msg3 -> DomainService : 查询任务
+
+Message "4 开始任务" as Msg4
+Msg4 -> DomainService : 开始任务
+
+Message "5 构建任务" as Msg5
+Msg5 -> Strategy : 构建任务
+
+Message "6 根据部门查询导购" as Msg6
+Msg6 -> ShoppingApi : 根据部门查询导购
+
+Message "7 根据导购进行任务分配" as Msg7
+Msg7 -> Strategy : 根据导购进行任务分配
+
+Rectangle "Transaction" as Txn
+
+Message "8 保存分配给导购的任务" as Msg8
+Msg8 -> Strategy : 保存分配给导购的任务
+
+Message "9 status flow 任务状态流转至 已启动" as Msg9
+Msg9 -> Strategy : status flow 任务状态流转至 已启动
+
+Message "10 任务流转为执行中" as Msg10
+Msg10 -> Strategy : 任务流转为执行中
+
+@enduml

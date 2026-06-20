@@ -1,0 +1,26 @@
+```plantuml
+@startuml
+
+actor Administrator
+
+participant ":Main UI" as MainUI
+participant ":ImportReadingsFromFileUI" as UI
+participant ":ImportReadingsFromFileController" as Controller
+participant ":ListOfGeographicArea" as ListGA
+participant "reader:XmlReader" as Reader
+
+Administrator <- UI : Request file path
+Administrator --> UI : file path
+
+UI -> Controller : addReadingsToSensors(reader,path)
+Controller -> Reader : importReadingsOfSensor(path)
+Controller <-- Reader : listOfReadingsDto
+Controller -> ListGA : getAllSensors( )
+Controller <-- ListGA : listOfAreaSensors
+Controller -> Controller : setReadingsBySensorIDescription( )
+
+UI <-- Controller : number of lines added
+Administrator <-- UI : number of lines added
+
+@enduml
+```

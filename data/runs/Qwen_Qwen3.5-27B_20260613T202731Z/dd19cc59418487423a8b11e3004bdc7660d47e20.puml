@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+title Session Management Sequence Diagram
+
+actor UI as ui
+participant "sessionRoute" as route
+participant passport
+participant SessionController
+database innoDB
+
+ui -> route: GET() "/session"\nAuth: Bearer token\n{userID, DASS21_SCORES, sessionDetails}
+
+activate route
+route -> passport: "/save", authenticate("jwt")
+activate passport
+
+alt Success: Authenticated
+    passport --> route: done(null, user)
+    
+    route -> SessionController: Request Products
+    activate SessionController
+    
+    alt Success: Required info provided
+        SessionController -> SessionController: Validate info
+        SessionController -> innoDB: saveSession()
+        activate innoDB
+        innoDB --> SessionController: session
+        deactivate innoDB
+        
+        SessionController --> route: httpResponse(200)\nsession
+        route --> ui: httpResponse(200)\nallProducts
+    else Failure: missing information
+        SessionController --> route: {"msg":"missing required information"}(400)
+        route --> ui: http Response(400)\n{"msg":"missing required information"}
+    end
+    
+    deactivate SessionController
+else Failure: Unauthorized
+    passport --> route: done(null,false)
+    route --> ui: http Response(401)\nUnauthorized
+end
+
+deactivate passport
+deactivate route
+
+@enduml
+```

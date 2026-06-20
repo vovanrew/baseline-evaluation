@@ -1,0 +1,25 @@
+```plantuml
+@startuml
+title start EventLoop
+
+participant "server.activeListener.OnAccept" as OnAccept
+participant "server.newActiveRawConn" as newActiveRawConn
+participant "server.ContinueFilterChain" as ContinueFilterChain
+participant "server.activeListener.newConnection" as newConnection
+participant "sever.activeListener.OnNewConnection" as OnNewConnection
+participant "sever.newActiveConnection" as newActiveConnection
+participant "network.connection.Start" as Start
+participant "network.startRWLoop" as startRWLoop
+participant "network.attachEventLoop" as attachEventLoop
+
+OnAccept -> newActiveRawConn : 创建 filter chain
+newActiveRawConn -> ContinueFilterChain : 
+ContinueFilterChain -> newConnection : 创建 connection
+newConnection -> OnNewConnection : 调用 activeListener 的处理新连接事件接口
+OnNewConnection -> newActiveConnection : 处理新连接事件
+newActiveConnection -> Start : 连接启动
+Start -> startRWLoop : 处理读写时间
+startRWLoop -> attachEventLoop : 保存 EventLoop
+
+@enduml
+```

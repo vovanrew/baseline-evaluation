@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLS4HOKwS23Io1X3kkhEt8dGfxUG",
+  "object": "chat.completion",
+  "created": 1781367888,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam shadowing false\nskinparam sequence {\n  LifeLineBorderColor #888888\n  LifeLineBackgroundColor #FFFFFF\n  ParticipantBorderColor #888888\n  ParticipantBackgroundColor #E6E6F0\n  ArrowColor #000000\n}\n\nparticipant \"beerocks_cli\" as beerocks_cli\nparticipant \"bml_internal\" as bml_internal\nparticipant \"controller\" as controller\nparticipant \"controller_db\" as controller_db\n\nbeerocks_cli -> beerocks_cli : beerocks_cli -c\\n\"bml_clear_wifi_credentials <al-mac>\"\nactivate beerocks_cli\nbeerocks_cli -> beerocks_cli : cli_bml::clear_wifi_credentials_caller(args)\nbeerocks_cli -> beerocks_cli : cli_bml::clear_wifi_credentials(\\nargs.stringArgs[0])\nbeerocks_cli -> beerocks_cli : bml_clear_wifi_credentials(\\nctx,\\nal-mac.c_str())\nbeerocks_cli -> bml_internal : clear_wifi_credentials(\\nconst sMacAddr &al_mac)\nactivate bml_internal\n\nbml_internal -> controller : message_com::send_cmdu(\\nm_sockMaster,\\nACTION_BML_WIFI_CREDENTIALS_CLEAR_REQUEST)\nactivate controller\n\ncontroller -> controller_db : clear_bss_info_configuration(\\nconst sMacAddr &al_mac)\nactivate controller_db\ndeactivate controller_db\n\ncontroller -> bml_internal : message_com::send_cmdu(\\nm_sockMaster,\\nACTION_BML_WIFI_CREDENTIALS_CLEAR_RESPONSE)\ndeactivate controller\ndeactivate bml_internal\ndeactivate beerocks_cli\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1379,
+    "completion_tokens": 331,
+    "total_tokens": 1710,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

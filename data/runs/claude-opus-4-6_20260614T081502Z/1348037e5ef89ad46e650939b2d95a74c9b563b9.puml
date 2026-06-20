@@ -1,0 +1,173 @@
+```plantuml
+@startuml
+
+package "Hugobot" {
+
+  package "time_intervals_adapter" {
+    class TimeIntervalsAdapter {
+      o max_gap
+      # connect_timestamps(df, epsilon=1)
+      # create_time_intervals(symbolic_time_series)
+    }
+  }
+
+  package "temporal_abstraction" {
+    abstract class TemporalAbstraction {
+      # discretize_property(prop_df)
+      # discretize_to_bins(cutpoints, values)
+      # create_symbolic_time_series(states, time_point_series)
+      # extract_cutpoints_from_states(states)
+    }
+
+    class "<<Node>>\nGradient" as Gradient {
+      o window_size
+      o states
+      # discretize_property(prop_df)
+      # gradient(df, window_size, states)
+      # derivative(df, gradient_window_size)
+    }
+
+    class "<<Node>>\nKnowledgeBased" as KnowledgeBased {
+      o states
+      # discretize_property(prop_df)
+      # knowledge_based(states, prop_df)
+    }
+
+    package "discretization" {
+      abstract class Discretization {
+        o nb_bins
+        # generate_cutpoints(prop_df)
+        # discretize_property(prop_df)
+        # create_prop_states(prop_id, cutpoints, scores)
+      }
+
+      abstract class Unsupervised
+
+      abstract class Supervised {
+        o entity_class_relations
+      }
+
+      package "methods" {
+        class "Equal Width" as EqualWidth {
+          # generate_cutpoints(...) : List[cutpoints]
+          # equal_width(...)
+        }
+
+        class "Equal Frequency" as EqualFrequency {
+          # generate_cutpoints(...) : List[cutpoints]
+          # equal_frequency(...)
+        }
+
+        class KMeans {
+          # generate_cutpoints(...) : List[cutpoints]
+          # kmeans_adapter(...)
+        }
+
+        class SAX {
+          # generate_cutpoints(...) : List[cutpoints]
+          # sax(...)
+        }
+      }
+
+      package "td4c_persist" {
+        class Persist {
+          # persist(...)
+          # all_states_persistance()
+          # single_state_persistance()
+          # calc_state_probabilities()
+          # calc_marginal_probabilities()
+        }
+
+        class "shared functions" as SharedFunctions {
+          # candidate_selection()
+          # generate_candidate_cutpoints()
+          # symmetric_kullback_leibler()
+        }
+
+        class TD4C {
+          # DOM_scoring_function(df, cutoffs, entity_class_relations)
+          # distance_measure(p, q)
+        }
+
+        class "TD4C Cosine" as TD4CCosine {
+          # distance_measure(p, q)
+        }
+
+        class "TD4C Kullback-Leibler" as TD4CKL {
+          # distance_measure(p, q)
+        }
+
+        class "TD4C Entropy" as TD4CEntropy {
+          # distance_measure(p, q)
+        }
+
+        class "TD4C Entropy IG" as TD4CEntropyIG {
+          # distance_measure(p, q)
+        }
+      }
+    }
+  }
+
+  package "preprocessing" {
+    class Transformation {
+      # transform(dataset)
+    }
+
+    class PAA {
+      o window_size
+      # transform(dataset)
+    }
+
+    class OutliersRemover {
+      o std_coef
+      # transform(dataset)
+    }
+  }
+
+  package "kfold" {
+    class KFold {
+      o nb_folds
+      o entity_class_relations
+      # divide_dataset(dataset)
+    }
+  }
+
+  package "abstraction_per_property" {
+    class AbstractionPerProperty {
+      o preprocessing_params_df
+      o temporal_abstraction_params_df
+      # preprocessing_per_property(dataset)
+      # temporal_abstraction_per_property(dataset, entity_class_relations=None, states=None)
+      # intervalization_per_property(symbolic_time_series)
+      # generate_preprocessing_by_name(params_row)
+      # generate_abstraction_by_name(params_row, entity_class_relations=None, states=None)
+    }
+  }
+
+  Gradient --|> TemporalAbstraction
+  KnowledgeBased --|> TemporalAbstraction
+
+  Discretization --|> TemporalAbstraction
+
+  Unsupervised --|> Discretization
+  Supervised --|> Discretization
+
+  EqualWidth --|> Unsupervised
+  EqualFrequency --|> Unsupervised
+  KMeans --|> Unsupervised
+  SAX --|> Unsupervised
+
+  Persist --|> Supervised
+  TD4C --|> Supervised
+
+  TD4CCosine --|> TD4C
+  TD4CKL --|> TD4C
+  TD4CEntropy --|> TD4C
+  TD4CEntropyIG --|> TD4C
+
+  PAA --|> Transformation
+  OutliersRemover --|> Transformation
+}
+
+@enduml
+```

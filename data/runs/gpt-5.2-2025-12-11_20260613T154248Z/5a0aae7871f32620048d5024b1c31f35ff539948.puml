@@ -1,0 +1,122 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #999999
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #999999
+  ParticipantBackgroundColor #EEEEEE
+  BoxBorderColor #000000
+  BoxBackgroundColor transparent
+  GroupBorderColor #000000
+  GroupBackgroundColor transparent
+  NoteBorderColor #000000
+  NoteBackgroundColor #FFFFFF
+}
+
+participant "DefaultResultSetHandler" as DRSH
+participant "DefaultResultSetHandler1" as DRSH1
+participant "DefaultResultSetHandler2" as DRSH2
+participant "DefaultResultSetHandler3" as DRSH3
+participant "DefaultResultSetHandler4" as DRSH4
+participant "DefaultResultSetHandler5" as DRSH5
+participant "DefaultResultSetHandler6" as DRSH6
+participant "DefaultResultSetHandler7" as DRSH7
+participant "DefaultResultSetHandler8" as DRSH8
+
+DRSH -> DRSH1 : handleResultSets()
+activate DRSH1
+
+loop
+  DRSH1 -> DRSH2 : 1. handleResultSet()  使用MappedStatement指定的ResultMap将结果集映射成对象
+  activate DRSH2
+
+  DRSH2 -> DRSH3 : handleRowValues()  处理结果集
+  activate DRSH3
+
+  box "映射对象含有子对象的情况"
+    DRSH3 -> DRSH4 : handleRowValuesForNestedResultMap()
+    activate DRSH4
+
+    loop
+      DRSH4 -> DRSH5 : getRowValue()
+      activate DRSH5
+
+      DRSH5 -> DRSH6 : 1. createResultObject()  创建结果对象并初始化
+      DRSH5 -> DRSH6 : 2. applyAutomaticMappings()  使用自动映射将查询列映射到对象对应的属性
+      DRSH5 -> DRSH6 : 3. applyPropertyMappings()  使用映射配置将查询列映射到对象对应的属性
+      activate DRSH6
+
+      loop
+        DRSH6 -> DRSH7 : getPropertyMappingValue()
+        activate DRSH7
+
+        note right of DRSH7
+          属性的值是简单的子查询映射（可能是嵌套查询）
+        end note
+        DRSH7 -> DRSH8 : getNestedQueryMappingValue()
+        activate DRSH8
+        deactivate DRSH8
+
+        note right of DRSH7
+          属性的值是嵌套resultSet映射（可能是嵌套结果）
+        end note
+        DRSH7 -> DRSH8 : addPendingChildRelation()
+        activate DRSH8
+        deactivate DRSH8
+
+        note right of DRSH7
+          属性的值是普通结果映射
+        end note
+        DRSH7 -> DRSH8 : TypeHandler.getResult()
+        activate DRSH8
+        deactivate DRSH8
+
+        deactivate DRSH7
+      end
+
+      DRSH6 --> DRSH5 : 4. applyNestedResultMappings()  使用映射配置将嵌套结果映射（会递归getRowValue()方法）
+      deactivate DRSH6
+      deactivate DRSH5
+    end
+
+    deactivate DRSH4
+  end box
+
+  box "映射对象不含有子对象的情况"
+    DRSH3 -> DRSH4 : handleRowValuesForSimpleResultMap()
+    activate DRSH4
+
+    loop
+      DRSH4 -> DRSH5 : getRowValue()
+      activate DRSH5
+
+      DRSH5 -> DRSH6 : 1. createResultObject()  创建结果对象并初始化
+      DRSH5 -> DRSH6 : 2. applyAutomaticMappings()  使用自动映射将查询列映射到对象对应的属性
+      DRSH5 -> DRSH6 : 3. applyPropertyMappings()  使用映射配置将查询列映射到对象对应的属性
+      activate DRSH6
+      deactivate DRSH6
+
+      deactivate DRSH5
+    end
+
+    deactivate DRSH4
+  end box
+
+  deactivate DRSH3
+  deactivate DRSH2
+end
+
+loop
+  DRSH1 -> DRSH2 : 2. handleResultSet()  使用ResultMapping指定的ResultMap将resultMapping指定的结果集映射成对象（嵌套）
+  activate DRSH2
+  note right of DRSH2
+    这部分与上面完全一样，不同的是映射结果对象：此处映射后的结果对象可能是嵌套结果集中某个子对象
+  end note
+  deactivate DRSH2
+end
+
+DRSH1 --> DRSH : done
+deactivate DRSH1
+@enduml

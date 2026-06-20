@@ -1,0 +1,53 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #D9D9E6
+  ActorBorderColor #666666
+  ActorBackgroundColor #D9D9E6
+  BoxBorderColor #000000
+  BoxBackgroundColor #FFFFFF
+  ArrowColor #000000
+}
+
+actor A as A
+participant "CircuitBreaker" as CB
+actor B as B
+
+alt [no errors]
+  A -> CB : call()
+  activate CB
+  CB -> B : call()
+  activate B
+  B --> CB : response
+  deactivate B
+  CB --> A : response
+  deactivate CB
+else [errors]
+  A -> CB : call()
+  activate CB
+
+  loop [while err_count < max_errors]
+    CB -> B : call()
+    destroy B
+    CB -> CB : err_count ++
+  end
+
+  CB -> CB : sleep(timeout)
+
+  CB -> B : call()
+  destroy B
+  CB -> CB : sleep(timeout*2)
+
+  CB -> B : call()
+  destroy B
+
+  CB --> A : error
+  deactivate CB
+end
+@enduml
+```

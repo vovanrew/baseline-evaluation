@@ -1,0 +1,112 @@
+@startuml
+package persistence {
+    entity server {
+        entity Server {
+            seq : Integer
+            name : String
+            ip : String
+        }
+    }
+    entity author {
+        entity Author {
+            seq : Integer
+            name : String
+            regDate : Date
+        }
+    }
+    entity member {
+        entity Member {
+            seq : Integer
+            id : String
+            password : String
+            name : String
+            type : MemberType
+        }
+        entity MemberType {
+            USER, ADMIN
+        }
+    }
+    entity book {
+        entity Book {
+            seq : Integer
+            title : String
+            author : Author
+            regDate : Date
+            expireDate : Date
+            register : Member
+            descriptionUrl : String
+            tags : List<Tag>
+        }
+        entity Tag {
+            seq : Integer
+            value : String
+        }
+        entity RidiBook {
+            url : String
+            ridiUserId : String
+        }
+        entity ScanBook {
+            fileName : String
+            fileHash : String
+            path : String
+            server : Server
+            size : Integer
+        }
+    }
+}
+
+@subgraph persistence {
+    server
+    author
+    member
+    book
+}
+
+@subgraph book {
+    entity entity {
+        entity Book {
+            seq : Integer
+            title : String
+            author : Author
+            regDate : Date
+            expireDate : Date
+            register : Member
+            descriptionUrl : String
+            tags : List<Tag>
+        }
+        entity Tag {
+            seq : Integer
+            value : String
+        }
+        entity RidiBook {
+            url : String
+            ridiUserId : String
+        }
+        entity ScanBook {
+            fileName : String
+            fileHash : String
+            path : String
+            server : Server
+            size : Integer
+        }
+    }
+}
+
+Book <|-- Book
+Book <|-- Tag
+Book <|-- RidiBook
+Book <|-- ScanBook
+Book ..> Book
+Book ..> Tag
+Book ..> RidiBook
+Book ..> ScanBook
+Book ..> Member
+Book ..> Author
+Book ..> Server
+Book ..> MemberType
+Member ..> MemberType
+Author ..> Member
+Server ..> Member
+Author ..> Member
+Member ..> Server
+@enduml

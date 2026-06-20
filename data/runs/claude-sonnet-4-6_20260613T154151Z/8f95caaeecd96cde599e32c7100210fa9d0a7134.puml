@@ -1,0 +1,39 @@
+@startuml
+participant "User" as User
+participant "pub.com" as pub
+participant "prebid.js" as prebid
+participant "prebid_[SSP_MODULE].js" as sspmodule
+participant "SSPs" as SSPs
+participant "DSPs" as DSPs
+participant "gam.js" as gam
+participant "GAM/AdX" as GAMAdX
+
+User -> pub : 1. navigates browser to pub.com
+pub -> prebid : 2. load, configure, execute prebid.js
+prebid -> sspmodule : 3. invoke SSP bid adapter
+sspmodule -> SSPs : 4. ad request
+SSPs -> SSPs : 5. traffic quality controls
+SSPs -> DSPs : 6. make bid requests
+DSPs -> SSPs : 7. respond with bids
+SSPs -> SSPs : 8. pub ad controls
+SSPs -> sspmodule : 9. ad w/price
+sspmodule -> prebid : 10. ad w/price
+prebid -> prebid : 11. select appropriate ad
+prebid -> gam : 12. configure k/v pair for selected ad
+gam -> prebid : 13. wait for ad slot to load
+
+note over User, gam : At this point control over the ad loading process is transferred from Prebid.js to GAM (final selection layer)
+
+pub -> GAMAdX : 14. load slot
+GAMAdX -> GAMAdX : 15. ad request
+GAMAdX -> gam : 16. respond with winning ad, which may be prebid.js line item
+
+alt [GAM/AdX highest bid]
+    GAMAdX -> gam : 17.1 render GAM/AdX result
+else [Prebid.js highest bid]
+    gam -> pub : 17.2 render selected SSP ad
+end
+
+gam -> User : 18. show highest value advertisement
+
+@enduml

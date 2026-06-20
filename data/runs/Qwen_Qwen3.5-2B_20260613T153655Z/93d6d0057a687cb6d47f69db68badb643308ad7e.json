@@ -1,0 +1,22 @@
+{
+  "id": "e933f30f-ea82-436a-a525-c400bb58b260",
+  "object": "chat.completion",
+  "created": 1781397008,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n\nparticipant HealthCloud\nparticipant Embedded Browser\nparticipant Apigee Edge\nparticipant Orion Health Platform\n\nnote right of HealthCloud\nOAuth2 Authorization Code Grant Workflow\nwith SAML2 Post Binding for user provisioning\nend note\n\nHealthCloud ->> Embedded Browser: GET /authorize?response_type=code\nEmbedded Browser ->> Apigee Edge: 302 https://<redirect_url> (SAML OR token)\n\nnote right of Apigee Edge\nSAML Authentication\nend note\n\nEmbedded Browser ->> Apigee Edge: POST /oauth2/saml\nApigee Edge ->> Orion Health Platform: POST /login-auth/saml?path=/actor/current\nOrion Health Platform ->> Apigee Edge: Verify SAMLResponse\nApigee Edge ->> Orion Health Platform: Generate authorization code\nOrion Health Platform ->> Apigee Edge: 302 https://<redirect_url>?code=<code>\n\nApigee Edge ->> Embedded Browser: POST /token?code=<code>\nEmbedded Browser ->> HealthCloud: 200 access_token + refresh_token\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1272,
+    "completion_tokens": 244,
+    "total_tokens": 1516
+  }
+}

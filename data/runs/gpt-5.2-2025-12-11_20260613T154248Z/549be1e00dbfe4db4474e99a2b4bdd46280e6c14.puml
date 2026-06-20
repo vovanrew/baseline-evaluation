@@ -1,0 +1,28 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+interface IEvent {
+  IgnoreThis : bool <<get>> <<set>>
+  IsSystemMessage : bool <<get>> <<set>>
+}
+
+class "EventHelpers" <<static>> {
+  + GetPlayer(event:IEvent, GetPlayerFunc:Func<VersaCommsID, TPlayer>) : TPlayer
+  + GetPlayerID(evnt:IEvent) : VersaCommsID
+  + GetEntity(event:IEvent, getEntityFunc:Func<VersaCommsID, TEntity>) : TEntity
+  + GetEntityID(evnt:IEvent) : VersaCommsID
+  + GetScenario(evnt:IEvent, getScenarioFunction:Func<VersaCommsID, TScenario>) : TScenario
+  + GetScenarioID(evnt:IEvent) : VersaCommsID
+}
+
+class "UnionType`2" as UnionType2
+class "IList`1" as IList1
+class IEventPipe
+class IServiceProvider
+
+IEvent --> UnionType2 : Scenario<VersaCommsID,TScenario>,\nPlayer<VersaCommsID,TPlayer>,\nEntity<VersaCommsID,TEntity>,\nTerminal<VersaCommsID,TTerminal>
+IEvent --> IList1 : IEventPipeCommands<ICommandGroup>
+IEvent --> IEventPipe : Services
+IEvent --> IServiceProvider
+
+@enduml

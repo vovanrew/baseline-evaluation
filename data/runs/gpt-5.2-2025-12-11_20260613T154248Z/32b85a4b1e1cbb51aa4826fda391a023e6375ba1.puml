@@ -1,0 +1,72 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9FF
+  ActorBorderColor #666666
+  ActorBackgroundColor #FFFFFF
+  ArrowColor #333333
+  BoxBorderColor #666666
+  BoxBackgroundColor #DDDDDD
+  NoteBackgroundColor #FFF9C4
+  NoteBorderColor #999999
+}
+
+actor User as user
+database Datastore as ds
+
+box "Application Layer" #DDDDDD
+  participant "«@Controller»\nSubscriptionController" as ctrl <<C>>
+end box
+
+box "Domain Model Layer" #DDDDDD
+  participant "«@Bean»\nSubscriptionServiceImpl" as svc <<C>>
+end box
+
+box "Infrastructure Layer" #DDDDDD
+  participant "«@Bean»\nJpaSubscriptionRepository" as jpa <<C>>
+  participant "«@Repository»\nSubscriptionPersistenceJpaRepository" as spr <<C>>
+end box
+
+user -> ctrl : 
+activate ctrl
+
+ctrl -> svc : 
+note over ctrl,svc
+via SubscriptionService
+end note
+activate svc
+
+svc -> jpa :
+note over svc,jpa
+via SubscriptionRepository
+end note
+activate jpa
+
+jpa -> spr :
+note over jpa,spr
+via Spring data repository
+end note
+activate spr
+
+spr -> ds :
+activate ds
+ds --> spr :
+deactivate ds
+
+spr --> jpa :
+deactivate spr
+
+jpa --> svc :
+deactivate jpa
+
+svc --> ctrl :
+deactivate svc
+
+ctrl --> user :
+deactivate ctrl
+
+@enduml

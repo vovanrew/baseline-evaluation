@@ -1,0 +1,34 @@
+```plantuml
+@startuml
+actor "Admin\nSAV Manager\nSAV Technician\nScooter Owner" as Actor
+boundary verifyEmail
+control VerificationController
+entity User
+
+activate Actor
+Actor -> verifyEmail : FillVerifyEmailForm(email,token)
+activate verifyEmail
+verifyEmail --> Actor : FormFilled
+deactivate verifyEmail
+
+verifyEmail -> verifyEmail : VerifyVerifyEmailForm(email,token)
+activate verifyEmail
+verifyEmail --> verifyEmail : FormVerified
+deactivate verifyEmail
+
+alt FormVerified is true
+    activate verifyEmail
+    verifyEmail -> VerificationController : verifyUser(email,code)
+    activate VerificationController
+    VerificationController -> User : verifyUser(email,code)
+    User --> VerificationController : user enabled
+    VerificationController --> verifyEmail : user enabled
+    deactivate VerificationController
+    verifyEmail --> Actor : user enabled
+    deactivate verifyEmail
+else FormVerified is false
+    verifyEmail --> Actor : showErrorMessage
+end
+deactivate Actor
+@enduml
+```

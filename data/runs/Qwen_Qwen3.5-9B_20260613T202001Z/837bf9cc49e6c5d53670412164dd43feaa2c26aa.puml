@@ -1,0 +1,54 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam note {
+  BackgroundColor #FFFFE0
+  BorderColor #FFD700
+}
+
+package "IP Layer" {
+  [IPv4 layer]
+  [Routing table] as rt
+}
+
+package "IPv4 Ineterface" {
+  [IPv4 interface]
+  [ARP] as arp
+}
+
+actor "Upper layer" as ul
+actor "Lower layer" as ll
+database "tuple" as tuple
+database "Routing table" as rt_db
+database "ARP" as arp_db
+
+note left of ul
+IPv4.dst=192.0.2.1
+IPv4.src=198.51.100.2
+end note
+
+note left of IPv4 layer
+IPv4.oif=ifp1
+IPv4.gw=198.51.100.1
+end note
+
+note right of IPv4 layer
+Allocate IPv4 header
+end note
+
+note right of ARP
+enqueue packet
+end note
+
+ul --> IPv4 layer : IPdata
+IPv4 layer --> rt : dst=192.0.2.1
+rt --> IPv4 layer : 
+IPv4 layer --> ARP : gw=198.51.100.1
+ARP --> ARP : 
+ARP --> IPv4 interface : ARP request
+IPv4 interface --> ARP : ARP response
+ARP --> IPv4 interface : resolved packets
+IPv4 interface --> IPv4 interface : send as send thread
+IPv4 interface --> ll : 
+
+@enduml

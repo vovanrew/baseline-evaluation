@@ -1,0 +1,22 @@
+{
+  "id": "72499b05-8939-4da7-999b-8e41905ed0aa",
+  "object": "chat.completion",
+  "created": 1781392839,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceDiagram\n\nparticipant \"beerocks_cli\" as cli\nparticipant \"bml_internal\" as bml_internal\nparticipant \"controller\" as controller\nparticipant \"controller_db\" as controller_db\n\ncli ->> bml_internal: \"bml_clear_wifi_credentials <al-mac>\"\nbml_internal ->> cli: cli_bml::clear_wifi_credentials_caller(args)\ncli ->> bml_internal: cli_bml::clear_wifi_credentials(args.stringArgs[0])\nbml_internal ->> cli: bml_clear_wifi_credentials(ctx, al-mac.c_str())\ncli ->> bml_internal: clear_wifi_credentials(const sMacAddr &al_mac)\n\nbml_internal ->> controller: message_com::send_cmdu(m_sockMaster, ACTION_BML_WIFI_CREDENTIALS_CLEAR_REQUEST)\ncontroller ->> controller_db: clear_bss_info_configuration(const sMacAddr &al_mac)\ncontroller_db ->> controller: message_com::send_cmdu(m_sockMaster, ACTION_BML_WIFI_CREDENTIALS_CLEAR_RESPONSE)\ncontroller ->> bml_internal: message_com::send_cmdu(m_sockMaster, ACTION_BML_WIFI_CREDENTIALS_CLEAR_RESPONSE)\nbml_internal ->> controller: message_com::send_cmdu(m_sockMaster, ACTION_BML_WIFI_CREDENTIALS_CLEAR_RESPONSE)\n\nnote right of cli\nbeerocks_cli -c\n\"bml_clear_wifi_credentials <al-mac>\"\nend note\n\nnote right of bml_internal\nbml_internal\nend note\n\nnote right of controller\ncontroller\nend note\n\nnote right of controller_db\ncontroller_db\nend note\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1174,
+    "completion_tokens": 341,
+    "total_tokens": 1515
+  }
+}

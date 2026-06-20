@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLMyRB3EklVyKb5duLW7xl8kC427",
+  "object": "chat.completion",
+  "created": 1781367572,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nhide footbox\nskinparam sequenceMessageAlign left\nskinparam ParticipantPadding 20\nskinparam BoxPadding 10\n\nparticipant client\nparticipant fastAPI\nparticipant JobsCollection\nparticipant Poller\nparticipant IngestService\nparticipant MappingIngestor\nparticipant MongoSerializer\nparticipant DatabrokerCollections\nparticipant SciCatIngestor\nparticipant Catamel\n\nclient ->> fastAPI : file ready to ingest\nactivate fastAPI\nfastAPI ->> JobsCollection : create Job\ndeactivate fastAPI\n\nPoller ->> JobsCollection : poll for job\n\nPoller ->> IngestService : ingest\nactivate IngestService\n\nIngestService ->> MappingIngestor : ingest\nactivate MappingIngestor\n\nMappingIngestor ->> MongoSerializer : send docs\nactivate MongoSerializer\n\nMongoSerializer ->> DatabrokerCollections : Persist docstream\ndeactivate MongoSerializer\ndeactivate MappingIngestor\n\nIngestService ->> SciCatIngestor : ingest\nactivate SciCatIngestor\n\nSciCatIngestor ->> Catamel : many messages\ndeactivate SciCatIngestor\ndeactivate IngestService\n@enduml",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 967,
+    "completion_tokens": 243,
+    "total_tokens": 1210,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

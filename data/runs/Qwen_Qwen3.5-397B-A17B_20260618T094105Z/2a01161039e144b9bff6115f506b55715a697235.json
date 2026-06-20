@@ -1,0 +1,22 @@
+{
+  "id": "622b7141-8a4f-4a34-ac85-5736b7f8234e",
+  "object": "chat.completion",
+  "created": 1781876535,
+  "model": "Qwen/Qwen3.5-397B-A17B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle PCWS Sequences\n\nactor Customer\nparticipant \"PCWS\" as pcws\ndatabase PostgreSQL\nentity Disk\nagent transfer_logs.sh\nbox \"\" #LightBlue2\n  participant AccountService as account_service\nend box\npackage Datalog {\n    service datalog_service\n}\n\n\nCustomer -> pcws : request image \npcws->account_service: check account permission \n\nactivate pcws  \npcws <- pcws : generate image   \ndeactivate pcws  \n\npcws-->Disk: write data log    \ncustomer <-- pcws :image   \n\nnote over disk,disk:some time later    \n\nloop for each log     \n   agent<-disk: read data log      \n   activate agent       \n   agent -->datalog_service: send data log        \n   deactivate agent         \n end loop     \n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1713,
+    "completion_tokens": 165,
+    "total_tokens": 1878
+  }
+}

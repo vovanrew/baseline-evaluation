@@ -1,0 +1,67 @@
+```plantuml
+@startuml
+title Project – Staff – Update
+
+participant Client #FF6347
+participant ProjectService #FF6347
+participant RedisCache #FF6347
+participant Kafka #FF6347
+participant PersisterService #FF6347
+participant IndexerService #FF6347
+participant ErrorService #FF6347
+participant ElasticSearch #FF6347
+database Database #00FFFF
+
+Client -> ProjectService : /project/staff/v1/_update
+ProjectService -> ProjectService : Validate request body
+
+alt request validation fails
+    ProjectService -> ProjectService : Request validation failed
+    Client <-- ProjectService : HttpStatus: 400 with appropriate error code
+    note left of Client #FF6347 : Error Code: REQUEST_VALIDATION_FAILED
+end
+
+ProjectService -> ProjectService : Request validation successful
+
+alt record doesn't exist
+    ProjectService -> RedisCache : Search record based on serverGeneratedId
+    RedisCache --> ProjectService : 0 rows
+    ProjectService -> Database : Search record based on serverGeneratedId
+    Database --> ProjectService : 0 row
+    Client <-- ProjectService : HttpStatus: 400 with appropriate error code
+    note left of Client #FF6347 : Error Code: RECORD_NOT_FOUND
+end
+
+alt record doesn't exists in cache
+    ProjectService -> RedisCache : Search record based on serverGeneratedId
+    RedisCache --> ProjectService : 0 rows
+    ProjectService -> Database : Search record based on serverGeneratedId
+    Database --> ProjectService : 1 row
+    ProjectService -> ProjectService : 1 record
+end
+
+ProjectService -> Database : Fetch the existing record
+Database --> ProjectService : 1 row
+
+alt incorrect rowVersion
+    ProjectService -> ProjectService : Compare rowVersion between request and db
+    ProjectService -> ProjectService : Incorrect rowVersion [request: should be +1 only]
+    Client <-- ProjectService : HttpStatus: 400 with appropriate error code
+    note left of Client #FF6347 : Error Code: BAD_REQUEST
+end
+
+ProjectService -> ProjectService : Compare rowVersion between request and db
+ProjectService -> ProjectService : rowVersion in request = rowVersion in db + 1
+ProjectService -> Kafka : Project Staff Data /update_topic
+ProjectService -> RedisCache : Update new record in cache against serverGeneratedId
+Client <-- ProjectService : HttpStatus: 202 ACCEPTED
+
+group async
+    Kafka -> PersisterService : Consume Project Staff Data
+    Kafka -> IndexerService : Consume Project Staff Data
+    PersisterService -> Database : Store Project Staff Data
+    IndexerService -> ElasticSearch : Update Project Staff Data
+end
+
+@enduml
+```

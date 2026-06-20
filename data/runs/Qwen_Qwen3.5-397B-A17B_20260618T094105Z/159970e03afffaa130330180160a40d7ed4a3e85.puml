@@ -1,0 +1,24 @@
+@startuml
+participant "client application" as client #D3D8E9
+participant kong #D3D8E9
+participant "resource service" as resource #D3D8E9
+
+== get token ==
+->kong : Post (provision_key etc.)
+<-kong  : return redirect url and token 
+
+== get resource == 
+ ->kong   :Post(sending Host and Token)  
+ activate kong   
+ <-kong    :verify token    
+ deactivate kong     
+ -->resource     :Proxy，load balance...      
+ <--resource       
+ <---client    
+
+== refresh token ==        
+-->kong      :send refresh token and other info         
+<--kong       :return token and refreshtoken         
+
+
+@enduml

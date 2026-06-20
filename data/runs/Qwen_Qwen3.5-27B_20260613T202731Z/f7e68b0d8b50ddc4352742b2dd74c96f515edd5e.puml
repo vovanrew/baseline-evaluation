@@ -1,0 +1,80 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+interface DataBase {
+}
+
+class Repository {
+    <<C>>
+    +Repository(DataBase, ProjectFabric)
+}
+
+class RepositoryCache {
+    <<C>>
+    +RepositoryCache(ProjectManager)
+}
+
+interface RepositoryManager {
+    +createProject(project name)
+    +deleteProject(project name)
+    +getProject(project name) ProjectManager
+}
+
+note as note1: интерфейс баз данных
+note as note2: Класс для работы с проектами в базе данных
+note as note3: Обёртка над репозиторием для кэширования данных
+
+note1 ..> DataBase
+note2 ..> Repository
+note3 ..> RepositoryCache
+
+Repository --> RepositoryManager
+RepositoryCache --> RepositoryManager
+
+class ProjectFabric {
+    <<C>>
+    +createProjectObject(map[versionName]code, projectGUID, name) Project
+}
+
+note as note4: фабрика для создания объекта project
+note4 ..> ProjectFabric
+
+class Project {
+    <<C>>
+    +map[apiVersion]ProjectVersion
+    +map[entityName][]uniqueField
+    +DataBase
+}
+
+class ProjectVersion {
+    <<C>>
+    +Code
+    +map[name]Entity
+    +map[path]map[method]ast
+    +DataBase Ref
+}
+
+interface ProjectVersionManager {
+    +GetUniqueFields() map[entityName][]uniqueField
+    +ExecRequest(path, method, params, accessToken)
+}
+
+interface ProjectManager {
+    +CreateVersion(versionName, code) ok
+    +GetVersion(versionName) ProjectVersion
+    +UpdateVersion(versionName, code) ok
+    +DeleteVersion(versionName) ok
+    +SetUniqFields(map[entityName][]uniqueField)
+    +GetUniqFields() map[entityName][]uniqueField
+}
+
+note as note5: У всех версий в итоге работает общая схема уникальных и неуникальных полей: если среди версий находится указание на уникальность поля, то оно становится уникальным для всех
+note5 ..> Project
+
+Project --> ProjectVersion
+ProjectVersion --> ProjectVersionManager
+Project --> ProjectManager
+
+@enduml
+```

@@ -1,0 +1,77 @@
+@startuml
+
+box "Upstream" #LightBlue
+participant "Producer" as UP <<C>>
+participant "Adapter" as UA <<C>>
+end box
+
+participant "Tansport" as UT <<S>>
+
+box "Gateway\nJobExecution" #LightBlue
+participant "Adapter" as GA <<C>>
+participant "Consumer" as GC <<C>>
+participant "GatewayJobHandler" as GJH <<C>>
+participant "Gateway" as GW <<C>>
+end box
+
+box "" #LightBlue
+participant "Producer" as GP <<C>>
+participant "Adapter" as GA2 <<C>>
+end box
+
+participant "Tansport" as DT <<S>>
+
+box "Downstream" #LightBlue
+participant "Adapter" as DA <<C>>
+participant "Consumer" as DC <<C>>
+end box
+
+box "JobExecution" #LightBlue
+participant "DownstreamJobHandler" as DJH <<C>>
+end box
+
+participant "Lower Layer" as LL <<S>>
+
+UP -> UP : publish(command)
+UP -> UA : publish(command)
+UA -> UT : execute(command)
+UA <-- UT : resolves()
+UP <-- UA : resolves()
+UP -> UP : subscribe(handler)
+UA -> UA : subscribe("response")
+UT -> GA : handler(command, done)
+GA -> GJH : subscribe("done")
+GA -> GJH : emit("command",\nGatewayJobHandler)
+GJH -> GW : publish(command)
+GW -> GA2 : publish(command)
+GA2 -> DT : execute(command)
+DT -> DC : handler(command, done)
+DC -> DJH : subscribe("done")
+DC -> DJH : emit("command",\nGatewayJobHandler)
+DJH -> LL : done()
+DJH --> DC : emit("done")
+DC -> DT : done(response)
+DT --> GA2 : resolves()
+GW <-- GA2 : resolves()
+GW -> GW : subscribe(handler)
+GA2 -> GA2 : subscribe("response")
+GA2 <-- DT : getDelay(command)
+GA2 <-- DT : done(response)
+GA2 -> GA2 : emit("response", response)
+GA2 -> GA2 : handler("response")
+GA2 -> GA2 : onTimeOut(getDelay())
+GA2 -> GA2 : unsubscribe()
+GW -> GW : resolve(responses)
+GJH -> GJH : done()
+GJH --> GC : emit("done")
+GC -> GA : done(response)
+GA -> UT : done(response)
+UT --> UA : emit("response", response)
+UA --> UA : handler("response")
+UT --> UA : emit("response", response)
+UA --> UA : handler("response")
+UA -> UA : onTimeOut(getDelay())
+UA -> UA : unsubscribe()
+UT --> UA : getDelay(command)
+
+@enduml

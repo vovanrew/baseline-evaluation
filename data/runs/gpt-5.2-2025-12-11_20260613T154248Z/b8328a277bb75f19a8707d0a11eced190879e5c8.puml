@@ -1,0 +1,64 @@
+@startuml
+skinparam backgroundColor white
+skinparam sequence {
+  ParticipantPadding 60
+  BoxPadding 20
+  LifeLineBorderColor #666666
+  LifeLineBorderThickness 1
+  LifeLineBackgroundColor transparent
+  ActorBorderColor #000000
+  ActorFontColor #000000
+  ParticipantBorderColor #333333
+  ParticipantBackgroundColor #E6E6F2
+  BoxBorderColor #333333
+  BoxBackgroundColor #D9D9D9
+  ArrowColor #000000
+  ArrowFontColor #000000
+  MessageAlign left
+}
+
+actor "Programador" as Prog
+
+box "LEA" #D9D9D9
+participant "front: Ceed" as Front
+participant "agent: Ceed" as Agent
+end box
+
+activate Front
+Front -> Front : see(addBrain, brain)
+deactivate Front
+
+activate Front
+Front -> Front : see('listen', port)
+deactivate Front
+
+Prog -> Front : ws://lea
+activate Front
+Front -> Front : see('onSocketConnection', socket)
+activate Front
+deactivate Front
+
+Front --> Prog : socket.emit(agents)
+
+Prog -> Front : see(agent, action, args)
+activate Front
+Front -> Agent : see(action, args)
+activate Agent
+Agent --> Front
+deactivate Agent
+Front --> Prog : resolve()
+deactivate Front
+
+Prog -> Front : http://lea/:agent/:action
+activate Front
+Front -> Front : see('http', [req, res])
+activate Front
+Front -> Agent : see(action, [req, res])
+activate Agent
+Agent --> Front
+deactivate Agent
+Front --> Prog : res.send()
+deactivate Front
+deactivate Front
+
+@enduml

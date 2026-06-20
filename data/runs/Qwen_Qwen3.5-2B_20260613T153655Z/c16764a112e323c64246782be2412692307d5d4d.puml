@@ -1,0 +1,95 @@
+@startuml
+participant "Specialist Doctor" as Doctor
+
+participant ":CreateReportUI" as CreateReportUI
+
+participant ":CreateReportController" as CreateReportController
+
+participant ":Company" as Company
+
+participant ":TestDiagnosis" as TestDiagnosis
+
+participant "rp : TestReportStore" as TestReportStore
+
+participant "obj : diagnosis" as objDiagnosis
+
+participant "rp : TestReport" as rpTestReport
+
+note right of CreateReportUI
+  ref
+  US4_SD_testsDTO.puml
+end note
+
+1..1
+Doctor ->| asks to create a new diagnosis | CreateReportUI
+
+CreateReportUI -> CreateReportUI : ref
+CreateReportUI ..> CreateReportUI : US4_SD_testsDTO.puml
+
+2..2
+Doctor <-| requests to choose a given test | CreateReportUI
+
+3..3
+Doctor -> CreateReportUI : chooses a given test
+
+4..4
+CreateReportUI -> CreateReportController : createTestDiagnosis(idTest)
+
+5..5
+CreateReportController -> TestDiagnosis : createTestDiagnosis(test)
+
+6..6
+TestDiagnosis -> TestDiagnosis : createTestDiagnosis(testParameterList)
+TestDiagnosis ..> TestDiagnosis : obj : diagnosis
+
+7..7
+TestDiagnosis <-| getDiagnosis() | CreateReportController
+
+8..8
+CreateReportController <-| getDiagnosis() | TestDiagnosis
+
+9..9
+CreateReportUI -> Doctor : shows the diagnosis done automatically and requests the data for the report
+
+10..10
+Doctor -> CreateReportUI : types the requested data
+
+11..11
+CreateReportUI -> CreateReportController : createReport(idTest, diagnosis, report)
+
+12..12
+CreateReportController -> Company : store = getTestReportStore()
+
+13..13
+CreateReportController -> TestReportStore : createReport(idTest, diagnosis, report)
+
+14..14
+TestReportStore -> TestReport : create(idTest, diagnosis, report)
+
+15..15
+CreateReportController -> TestReportStore : validateReport()
+
+16..16
+TestReportStore <-| shows the typed data and asks for confirmation | CreateReportController
+
+17..17
+Doctor -> CreateReportUI : confirms the data
+
+18..18
+CreateReportUI -> CreateReportController : saveReport(report)
+
+19..19
+CreateReportController -> Company : saveReport(report)
+
+20..20
+Company -> TestReportStore : saveReport(report)
+
+21..21
+TestReportStore -> TestReport : validateReport(report)
+
+22..22
+TestReportStore -> TestReport : addReport(report)
+
+23..23
+CreateReportUI <-| informs operation success | Doctor
+@enduml

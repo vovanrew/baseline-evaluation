@@ -1,0 +1,57 @@
+```plantuml
+@startuml
+participant "タスク管理" as TaskManager
+box "メモリ管理" #E2E2E2
+participant "ページング\n管理" as PagingManager
+participant "物理メモリ\n領域管理" as PhysicalMemoryManager
+end box
+participant "MLIB" as MLIB
+
+activate TaskManager
+TaskManager -> PagingManager : ページディレクトリ解放\n（ページディレクトリID）
+activate PagingManager
+
+PagingManager -> MLIB : 管理情報取得
+activate MLIB
+ref over MLIB : 動的配列
+MLIB --> PagingManager
+deactivate MLIB
+
+PagingManager -> PagingManager : ページディレクトリ操作領域マッピング設定
+activate PagingManager
+ref over PagingManager : マッピング設定
+deactivate PagingManager
+
+loop カーネル領域以外の全有効エントリ毎
+    PagingManager -> PagingManager : ページテーブル操作領域マッピング設定
+    activate PagingManager
+    ref over PagingManager : マッピング設定
+    deactivate PagingManager
+
+    PagingManager -> PagingManager : ページテーブル0初期化
+    PagingManager -> PhysicalMemoryManager : ページテーブル解放
+    activate PhysicalMemoryManager
+    ref over PhysicalMemoryManager : 物理メモリ領域解放
+    PhysicalMemoryManager --> PagingManager
+    deactivate PhysicalMemoryManager
+end
+
+PagingManager -> PagingManager : ページディレクトリ0初期化
+PagingManager -> PhysicalMemoryManager : ページディレクトリ解放
+activate PhysicalMemoryManager
+ref over PhysicalMemoryManager : 物理メモリ領域割当
+PhysicalMemoryManager --> PagingManager
+deactivate PhysicalMemoryManager
+
+PagingManager -> MLIB : 管理情報解放
+activate MLIB
+ref over MLIB : 動的配列
+MLIB --> PagingManager
+deactivate MLIB
+
+PagingManager --> TaskManager
+deactivate PagingManager
+deactivate TaskManager
+
+@enduml
+```

@@ -1,0 +1,28 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 10
+
+interface IPreference
+
+class "ScalarPreference" as ScalarPreference<T> {
+  {field} {static} «readonly» provider : IPreferenceProvider
+  {method} DataType : PreferenceDataType «get»
+  {method} Visible : bool «get» = true
+  {method} HasDefaultValue : bool «get»
+  {method} HasValueSet : bool «get»
+  {method} Complete : bool «get»
+  {method} Name : string «get»
+  {method} Value : T «get» «set»
+  {method} ValueType : Type «get»
+  --
+  ScalarPreference(preferences:IPreferenceProvider, name:string, value:T)
+  ToView() : string
+  FromView(line:string) : void
+  ToggleVisibility() : ScalarPreference<T>
+  UpdateDataType(dataType:PreferenceDataType) : ScalarPreference<T>
+  TryParseValue(input:string, result:TTo) : bool
+}
+
+ScalarPreference<T> ..|> IPreference
+@enduml

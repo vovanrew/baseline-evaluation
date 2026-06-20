@@ -1,0 +1,31 @@
+@startuml
+left to right direction
+actor Admin
+actor Customer
+interface "Games Interface"
+interface "Games Input Interface"
+interface "Games Controller"
+database "Database"
+
+Admin --> Games Interface : CRUD games
+Games Interface --> Games Input Interface : Input games info
+Games Input Interface --> Games Controller : Send CRUD request to server
+Games Controller --> Database : Query request to DB
+Database --> Games Controller : Response
+
+alt
+  [success case]
+    Games Controller --> Games Interface : CRUD successfully
+  [fail case]
+    Games Controller --> Games Interface : CRUD fail
+end
+
+Games Interface --> Admin : Show notification
+Customer --> Games Interface : View Game
+Games Interface --> Games Controller : FETCH game from server
+Games Controller --> Database : Query games
+Database --> Games Controller : Games data
+Games Controller --> Games Interface : Games data
+Games Interface --> Customer : Show all games
+
+@enduml

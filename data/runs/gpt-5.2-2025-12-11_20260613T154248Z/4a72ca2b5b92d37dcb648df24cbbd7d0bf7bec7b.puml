@@ -1,0 +1,49 @@
+@startuml
+hide footbox
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 40
+skinparam BoxPadding 10
+
+actor SalesClerk
+
+participant "«presentation»\nDefineNewCategoryUI" as UI
+participant "«application»\nDefineNewCategoryController" as C
+participant "«builder»\nCategoryBuilder" as B
+participant "«domain»\ncategory:Category" as Cat
+database "«repository»\nCategoryRepository" as R
+
+SalesClerk -> UI : 1 Define new category
+activate UI
+
+UI -> C : 2 create
+
+UI -> SalesClerk : 3 asks user information
+SalesClerk -> UI : 4 Code, Description
+
+UI -> C : 5 addCategory(categoryCode, categoryDescription)
+activate C
+
+C -> B : 6 create
+activate B
+
+C -> B : 7 withCode(code)
+C -> B : 8 withDescription(description)
+
+B -> Cat : 9 create(categoryCode, categoryDescription)
+activate Cat
+Cat --> B : 10 category
+deactivate Cat
+
+B --> C : 11 category
+deactivate B
+
+C -> R : 12 category()
+R --> C : 13 categoryRepository
+C -> R : 14 save(category)
+
+C --> UI : 15 category
+deactivate C
+
+UI -> SalesClerk : 16 displayCategoryInfo
+deactivate UI
+@enduml

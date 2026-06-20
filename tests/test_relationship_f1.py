@@ -2,6 +2,7 @@
 import math
 
 import relationship_f1 as rf
+import relationship_f1_runner as rfr
 
 
 def approx(a, b):
@@ -205,3 +206,67 @@ def test_aggregate_micro_and_macro_available():
     agg = rf.aggregate(per)
     assert agg["n"] == 2
     assert approx(agg["macro"]["f1"], 0.5)
+
+
+# --- per_relation_counts: the new additive per-diagram per-relation emission ---
+#
+# The runner additionally writes, per diagram, a `by_relation` map of
+# {rel: {tp, fp, fn}} over the canonical RELATIONS. These pins guard the two
+# structural invariants the per-relation bootstrap relies on (the runner re-score
+# gates iii/iv in miniature): edges partition by relation type, and pooling the
+# per-relation counts reproduces summary.by_relation.
+
+def test_per_relation_counts_has_all_canonical_relations():
+    gt = {"k": {"edges": [e("A", "B", "inheritance")]}}
+    pred = {"k": {"edges": [e("A", "B", "inheritance")]}}
+    per = rfr.per_relation_counts(gt, pred, ["k"])
+    assert set(per) == {"k"}
+    assert list(per["k"]) == rf.RELATIONS  # all six, in canonical order
+    assert per["k"]["inheritance"] == {"tp": 1, "fp": 0, "fn": 0}
+    assert per["k"]["association"] == {"tp": 0, "fp": 0, "fn": 0}
+
+
+def test_per_relation_counts_partition_reproduces_overall():
+    # The match key carries the relation, so a diagram's edges partition by type:
+    # summing tp/fp/fn across the six relations must equal the overall counts.
+    gt = {"k": {"edges": [e("A", "B", "inheritance"),
+                          e("A", "C", "association"),
+                          e("X", "Y", "message"),
+                          e("P", "Q", "composition")]}}
+    pred = {"k": {"edges": [e("A", "B", "inheritance"),   # hit
+                            e("C", "A", "association"),    # undirected -> hit
+                            e("X", "Z", "message"),        # wrong endpoint -> miss (fp+fn)
+                            e("P", "Q", "aggregation")]}}  # wrong relation -> miss (fp+fn)
+    per = rfr.per_relation_counts(gt, pred, ["k"])
+    overall = rf.compute(gt, pred, ["k"])[0]
+    for field in ("tp", "fp", "fn"):
+        assert sum(per["k"][rel][field] for rel in rf.RELATIONS) == overall[field], field
+
+
+def test_per_relation_counts_pooling_reproduces_micro_with_support():
+    # Pooling the per-diagram per-relation counts across keys must reproduce the
+    # summary's by_relation micro P/R/F1 + support (runner gate iv in miniature).
+    gt = {"k1": {"edges": [e("A", "B", "inheritance"), e("C", "D", "message")]},
+          "k2": {"edges": [e("E", "F", "inheritance")]}}
+    pred = {"k1": {"edges": [e("A", "B", "inheritance")]},          # message missing
+            "k2": {"edges": [e("F", "E", "inheritance")]}}          # reversed -> miss
+    keys = ["k1", "k2"]
+    per = rfr.per_relation_counts(gt, pred, keys)
+    for rel in rf.RELATIONS:
+        tp = sum(per[k][rel]["tp"] for k in keys)
+        fp = sum(per[k][rel]["fp"] for k in keys)
+        fn = sum(per[k][rel]["fn"] for k in keys)
+        ref = rfr.micro_with_support(rf.compute(gt, pred, keys, relation=rel))
+        p = tp / (tp + fp) if (tp + fp) else 1.0
+        r = tp / (tp + fn) if (tp + fn) else 1.0
+        assert approx(p, ref["precision"]) and approx(r, ref["recall"]), rel
+        assert tp + fn == ref["support_gt"] and tp + fp == ref["support_pred"], rel
+
+
+def test_per_relation_counts_missing_prediction_is_all_fn():
+    gt = {"k": {"edges": [e("A", "B", "inheritance"), e("C", "D", "message")]}}
+    pred = {}  # missing prediction -> empty graph
+    per = rfr.per_relation_counts(gt, pred, ["k"])
+    assert per["k"]["inheritance"] == {"tp": 0, "fp": 0, "fn": 1}
+    assert per["k"]["message"] == {"tp": 0, "fp": 0, "fn": 1}
+    assert per["k"]["association"] == {"tp": 0, "fp": 0, "fn": 0}

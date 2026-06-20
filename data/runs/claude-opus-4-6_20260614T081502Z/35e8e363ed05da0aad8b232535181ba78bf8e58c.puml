@@ -1,0 +1,52 @@
+```plantuml
+@startuml
+
+class BindableBase
+
+class UserViewModel {
+  - _selectedOwnedCommand : ICommand?
+  - _selectedFollowingCommand : ICommand?
+  - _offerCommand : ICommand?
+  - _selectedPlant : IPlant?
+  - _selectedFollow : IOfferFollow?
+  - _filterText : string = ""
+  - _isOwnedDetails : bool
+  o User : IUser? «get»
+  o FilterText : string «get» «set»
+  o SelectedPlant : IPlant? «get» «set»
+  o SelectedFollow : IOfferFollow? «get» «set»
+  + UserViewModel(eventAggregator:IEventAggregator, plantStore:IPlantStore, regionManager:IRegionManager, authService:IAuthService, dialogService:IDialogService)
+  - «async» LoadPlants() : void
+  - FilterPlants() : void
+  - «async» AddFollow(offerId:int) : Task
+  - NavigateDetails(args:SelectionChangedEventArgs, isOwned:bool) : void
+  # «override» OnPropertyChanged(args:PropertyChangedEventArgs) : void
+  - «async» OpenOffer(arg:object) : void
+}
+
+class ICollectionView
+
+class "ObservableCollection`1" as ObservableCollection1
+
+class IPlantStore
+class IRegionManager
+class IAuthService
+class IDialogService
+class ICommand
+
+UserViewModel --|> BindableBase
+
+UserViewModel --> ICollectionView : FilteredPlants
+UserViewModel --> ObservableCollection1 : OfferFollows<IOfferFollow>
+UserViewModel --> ObservableCollection1 : _offerFollows<IOfferFollow>
+ICollectionView <-- ObservableCollection1 : _filteredPlants
+
+UserViewModel --> IPlantStore : _plantStore
+UserViewModel --> IRegionManager : _regionManager
+UserViewModel --> IAuthService : _authService
+UserViewModel --> IDialogService : _dialogService
+UserViewModel --> ICommand : _selectedFollowingCommand
+UserViewModel --> ICommand : _selectedOwnedCommand
+
+@enduml
+```

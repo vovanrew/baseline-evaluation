@@ -1,0 +1,21 @@
+{
+  "id": "msg_01CagfHx3WBYUGaoDW2BjW7y",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle 3.1.0 Get Participant Callback Details\n\nbox \"ML API Adapter Service\" #LightBlue\nparticipant \"ML-API-ADAPTER\" as ADAPTER\nend box\n\nbox \"Central Services\" #LightYellow\nparticipant \"Central Service API\" as CSAPI\nparticipant \"Participant Handler\" as PH\nparticipant \"Participant DAO\" as PDAO\ndatabase \"Central Store\" as CS\nend box\n\ngroup Get Callback Details\nADAPTER -> CSAPI: 1 Request to get callback details \u2013 GET \u2013 /participants/{name}/endpoints?type={typeValue}\nCSAPI -> PH: 2 Fetch Callback details for Participant\n\nPH -> PDAO: 3 Fetch Participant\\n<color:red>Error code: 3200</color>\nPDAO -> CS: 4 Fetch Participant\nnote right of CS: participant\nCS --> PDAO: 5 Retrieved Participant\nPDAO --> PH: 6 Return Participant\nPH -> PH: 7 Validate DFSP\n\nalt [Validate participant (success)]\n\nPH --> CSAPI: 8 check if \"type\" parameter is sent\n\nalt [Check if \"type\" parameter is sent (Sent)]\n\nCSAPI -> PDAO: 9 Fetch Callback details for Participant and type\\n<color:red>Error code: 3000</color>\nPDAO -> CS: 10 Fetch Callback details for Participant and type\nnote right of PDAO\nCondition:\n  isActive = 1\n  endpointTypeId = <type>\nend note\nnote right of CS: participantEndpoint\nCS --> PDAO: 11 Retrieved Callback details for Participant and type\nPDAO --> CSAPI: 12 Return Callback details for Participant and type\nnote over CSAPI, PH #Yellow\nMessage:\n{\n  endpoints: {type: <type>, value: <value>}\n}\nend note\nCSAPI --> ADAPTER: 13 Return Callback details for Participant\nADAPTER <-- CSAPI: 14 Return Callback details for Participant\n\nelse [Check if \"type\" parameter is sent (Not Sent)]\n\nCSAPI -> PDAO: 15 Fetch Callback details for Participant\\n<color:red>Error code: 3000</color>\nPDAO -> CS: 16 Fetch Callback details for Participant\nnote right of PDAO\nCondition:\n  isActive = 1\nend note\nnote right of CS: participantEndpoint\nCS --> PDAO: 17 Retrieved Callback details for Participant\nPDAO --> CSAPI: 18 Return Callback details for Participant\nnote over CSAPI, PH #Yellow\nMessage:\n{\n  endpoints: [\n    {type: <type>, value: <value>},\n    {type: <type>, value: <value>}\n  ]\n}\nend note\nCSAPI --> ADAPTER: 19 Return Callback details for Participant\nADAPTER <-- CSAPI: 20 Return Callback details for Participant\n\nend\n\nelse [Validate participant (failure)/ Error]\n\nnote over PH #Red: Validation failure/ Error\nnote over PH #Yellow\nMessage:\n{\n  \"errorInformation\": {\n    \"errorCode\": <errorCode>,\n    \"errorDescription\": <ErrorMessage>,\n  }\n}\nend note\nPH --> CSAPI: 21 Return <color:red>Error code: 3000, 3200</color>\nCSAPI --> ADAPTER: 22 Return <color:red>Error code: 3000, 3200</color>\n\nend\n\nend\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781431511,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 896,
+    "prompt_tokens": 1650,
+    "total_tokens": 2546
+  }
+}

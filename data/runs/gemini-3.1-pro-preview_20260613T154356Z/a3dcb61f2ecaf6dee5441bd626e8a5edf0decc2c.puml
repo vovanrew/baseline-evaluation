@@ -1,0 +1,127 @@
+```plantuml
+@startuml
+title Interactions between the Control Plane (master node) and the Worker Node
+
+legend top right
+  | Legend |
+  |<#LightBlue> Control Plane ~ Master Node |
+  |<#LightGreen> Worker Node |
+  |<#LightGray> Power Manager System Setup |
+  |<#White> Power Manager Configuration |
+  |<#Orange> Power Manager Deployment |
+endlegend
+
+actor Georgina
+participant "API-Server" as API #LightBlue
+participant "etcd" as etcd #LightBlue
+participant "Controller Manager" as CM #LightBlue
+participant "Scheduler" as Sched #LightBlue
+participant "Power Operator" as PO #LightBlue
+participant "Kubelet" as Kubelet #LightGreen
+participant "Power Node Agent" as PNA #LightGreen
+participant "Power Optimization Library" as POL #LightGreen
+participant "K8s Objects" as K8s #LightGreen
+participant "Kube-Proxy" as KP #LightGreen
+
+== Kubernetes Initialization ==
+Georgina -> API : 1 kubectl create -f pod.yaml
+API --> etcd : 2 save new state
+etcd --> API : 3 check for changes
+API -> Sched : 4 watch for unassigned pods(s)
+Sched -> API : 5 notify about pod w nodename=""
+API -> CM : 6 assign pod to node
+CM --> etcd : 7 save new state
+etcd --> API : 8 look for newly assigned pod(s)
+API -> Kubelet : 9 bind pod to node
+Kubelet -> PNA : 10 start container
+PNA -> Kubelet : 11 update pod status
+Kubelet --> etcd : 12 save new state
+
+== Power Manager Initialization ==
+Georgina -> KP : 1 Ensure correct proxy configuration
+Georgina -> Kubelet : 2 Confirm CPU Manager policy
+note right of Kubelet #LightGray: cpuManagerPolicy = "static"
+Georgina -> Kubelet : 3 Reserve System CPUs
+note right of Kubelet #LightGray: reservedSystemCPUs = "0"
+Kubelet -> PNA : 4 Create Namespace
+note right of PNA #White: apply config/rbac/namespace.yaml
+Kubelet -> PNA : 5 Create RBAC and Service Accounts
+note right of PNA #White: apply config/rbac/rbac.yaml
+Kubelet -> K8s : 6 Create CRDs
+note right of K8s #White: make
+Kubelet -> PNA : 7 Label nodes
+note right of PNA #White: label node <NODE_NAME> feature.node.kubernetes.io/power-node="true"
+
+== Power Manager Deployment ==
+Kubelet -> PNA : 1 Deploy Controller Manager
+note right of PNA #Orange: apply config/manager/manager.yaml
+Kubelet -> POL : 2 Deploy the config
+note right of POL #Orange: examples/example-powerconfig.yaml
+POL -> POL : 3 Set Shared Profile
+note right of POL #Orange: examples/example-shared-profile.yaml
+POL -> POL : 4 Deploy th Workload
+note right of POL #Orange: examples/example-shared-workload.yaml
+POL -> POL : 5 Deploy Pod
+note right of POL #Orange: examples/example-pod.yaml
+
+== Power Manager additional functionality ==
+=== Uncore ===
+Georgina -> Kubelet : 1 Confirm Kernel version
+note right of Kubelet #LightGray: kernel 5.6+ required for uncore
+Kubelet -> POL : 2 Set Freq in Die and Pkg
+note right of POL #Orange: examples/example-uncore
+Kubelet -> PNA : 3 Deploy Controller Manager
+note right of PNA #Orange: apply config/manager/manager.yaml
+Kubelet -> POL : 4 Deploy the config
+note right of POL #Orange: examples/example-powerconfig.yaml
+POL -> POL : 5 Set Shared Profile
+note right of POL #Orange: examples/example-shared-profile.yaml
+POL -> POL : 6 Deploy th Workload
+note right of POL #Orange: examples/example-shared-workload.yaml
+POL -> POL : 7 Deploy Pod
+note right of POL #Orange: examples/example-pod.yaml
+POL -> POL : 8 Set Time of Day functionality
+note right of POL #Orange: examples/example-timeofday
+
+=== P-State ===
+Kubelet -> PNA : 1 Deploy Controller Manager
+note right of PNA #Orange: apply config/manager/manager.yaml
+Kubelet -> POL : 2 Deploy the config
+note right of POL #Orange: examples/example-powerconfig.yaml
+POL -> POL : 3 Set Shared Profile\nand configure the P-State governor
+note right of POL #Orange: examples/example-shared-profile.yaml
+POL -> POL : 4 Deploy th Workload
+note right of POL #Orange: examples/example-shared-workload.yaml
+POL -> POL : 5 Deploy Pod
+note right of POL #Orange: examples/example-pod.yaml
+
+=== C-State ===
+Kubelet -> PNA : Deploy Controller Manager
+note right of PNA #Orange: apply config/manager/manager.yaml
+Kubelet -> POL : Deploy the config
+note right of POL #Orange: examples/example-powerconfig.yaml
+POL -> POL : Set Shared Profile
+note right of POL #Orange: examples/example-shared-profile.yaml
+POL -> POL : Deploy th Workload
+note right of POL #Orange: examples/example-shared-workload.yaml
+POL -> POL : Deploy Pod
+note right of POL #Orange: examples/example-pod.yaml
+POL -> POL : Set C-State functionality
+note right of POL #Orange: examples/example-cstates
+
+=== Time of Day ===
+Kubelet -> PNA : Deploy Controller Manager
+note right of PNA #Orange: apply config/manager/manager.yaml
+Kubelet -> POL : Deploy the config
+note right of POL #Orange: examples/example-powerconfig.yaml
+POL -> POL : Set Shared Profile
+note right of POL #Orange: examples/example-shared-profile.yaml
+POL -> POL : Deploy th Workload
+note right of POL #Orange: examples/example-shared-workload.yaml
+POL -> POL : Deploy Pod
+note right of POL #Orange: examples/example-pod.yaml
+POL -> POL : Set Time of Day functionality
+note right of POL #Orange: examples/example-timeofday
+
+@enduml
+```

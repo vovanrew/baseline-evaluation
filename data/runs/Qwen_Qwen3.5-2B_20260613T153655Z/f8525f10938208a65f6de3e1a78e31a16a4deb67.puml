@@ -1,0 +1,46 @@
+@startuml
+participant "Project Manager" as PM
+
+interface : StartSprintRoute
+interface : StartSprintController
+interface : StartSprintService
+interface : SprintDomainService
+interface : SprintStore
+interface : ResourceStore
+interface : dto : SprintDTO
+interface : Project
+
+actor PM
+
+sequenceDiagram
+    participant : StartSprintRoute
+    participant : StartSprintController
+    participant : StartSprintService
+    participant : dto : SprintDTO
+    participant : Project
+    participant : SprintDomainService
+    participant : SprintStore
+    participant : ResourceStore
+
+    PM->>StartSprintRoute: Asks to start a Sprint
+    StartSprintRoute->>StartSprintService: startSprint(sprintDTO)
+    StartSprintService->>Project: getProjectTeam()
+    Project-->>StartSprintService: projectTeam
+    StartSprintService->>Project: getSprintDuration()
+    Project-->>StartSprintService: sprintDuration
+    StartSprintService->>SprintStore: startSprint(dto.projectID, dto.sprintID, dto.startDate, projectTeam, sprintDuration)
+    SprintStore->>SprintStore: findAllSprintByProjectID(projectID)
+    SprintStore->>SprintStore: findSprintByID(sprintID)
+    SprintStore->>SprintDomainService: validateStartDate(startDate)
+    SprintDomainService-->>SprintStore: true
+    SprintStore->>SprintDomainService: validateProjectTeam(startDate, sprintDuration)
+    SprintDomainService->>SprintDomainService: getProductOwnerByStartDate(startDate, sprintDuration)
+    SprintDomainService->>SprintDomainService: getScrumMasterByStartDate(startDate, sprintDuration)
+    SprintDomainService-->>SprintStore: true
+    SprintStore->>SprintStore: setStartDate(startDate)
+    StartSprintService-->>StartSprintController: true
+    StartSprintController-->>StartSprintRoute: true
+    StartSprintService-->>PM: true
+    PM-->>StartSprintRoute: Informs Operation Success
+
+@enduml

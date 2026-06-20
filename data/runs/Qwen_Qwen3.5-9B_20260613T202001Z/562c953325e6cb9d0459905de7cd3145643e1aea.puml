@@ -1,0 +1,40 @@
+@startuml
+left to right direction
+actor "Service" as service
+participant "Access token guard" as guard
+participant "Auth microservice" as auth
+participant "Session module" as session
+participant "Auth module" as auth_module
+
+auth -> auth : Session module
+auth -> auth : Auth module
+
+service -> guard : request
+guard -> guard : get headers
+guard -> guard : check authentication header existence
+
+alt [Authentication header is undefined]
+  guard -> service : 401
+end
+
+guard -> guard : get access token from header
+guard -> auth_module : validate access token
+auth_module -> guard : result of validation
+
+alt [Access token is Invalid]
+  guard -> service : 401
+end
+
+guard -> auth_module : get embedded client id from access token
+auth_module -> auth_module : extract id
+
+alt [Client id is missing]
+  auth_module -> guard : error
+  guard -> service : 401
+end
+
+auth_module -> guard : client id
+guard -> guard : modify request with client id
+guard -> service : modified request
+
+@enduml

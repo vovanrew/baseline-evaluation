@@ -1,0 +1,61 @@
+@startuml
+actor Admin
+
+participant ":DivisionPage" as DivisionPage
+participant ":DivisionTableContainer" as DivisionTableContainer
+participant ":DivisionTable" as DivisionTable
+participant ":DivisionService (Frontend)" as DivisionServiceFE
+participant ":Router" as Router
+participant ":DivisionHTTPTransport" as DivisionHTTPTransport
+participant ":DivisionEndpoint" as DivisionEndpoint
+participant ":DivisionService" as DivisionService
+participant ":DivisionCommand" as DivisionCommand
+participant ":DivisionQuery" as DivisionQuery
+
+Admin -> DivisionPage : Open "Manage Division" Page
+DivisionPage -> DivisionTableContainer : Render "Division Table" Container
+DivisionTableContainer -> DivisionTable : Render "Division Table"
+DivisionTableContainer <-- DivisionTable : rendered
+DivisionPage <-- DivisionTableContainer : rendered
+Admin <-- DivisionPage : rendered
+
+Admin -> DivisionPage : Mark "Division"
+DivisionPage -> DivisionTableContainer : Mark "Division"
+DivisionTableContainer -> DivisionTable : Mark "Division"
+DivisionTableContainer <-- DivisionTable : marked
+DivisionPage <-- DivisionTableContainer : marked
+Admin <-- DivisionPage : marked
+
+Admin -> DivisionPage : Click "Delete Selected" Button
+DivisionPage -> DivisionTableContainer : showDeleteConfirmation(item)
+
+alt ["Cancel Delete"]
+    DivisionTableContainer --> DivisionPage : Close Dialog
+    Admin <-- DivisionPage : Close Dialog
+end
+
+DivisionTableContainer -> DivisionServiceFE : handleDeleteConfirmation(item)
+DivisionTableContainer <-- DivisionServiceFE : 
+DivisionTableContainer -> DivisionServiceFE : deleteDivision([]payload)
+DivisionServiceFE -> Router : route("DELETE", "v2/divisions", formData)
+Router -> DivisionHTTPTransport : DeleteDivisions(DivisionService, []ServerOption)
+DivisionHTTPTransport -> DivisionEndpoint : DeleteMany(DivisionService)
+DivisionEndpoint -> DivisionService : DeleteDivisions(context, []uuid)
+
+loop ["for each uuid"]
+    DivisionService -> DivisionQuery : Find(context, uuid)
+    DivisionService <-- DivisionQuery : division
+    DivisionService -> DivisionCommand : Delete(context, division)
+    DivisionService <-- DivisionCommand : isDeleted
+end
+
+DivisionEndpoint <-- DivisionService : isDeleted
+DivisionEndpoint -> DivisionEndpoint : response := Response(isDeleted, nil)
+DivisionHTTPTransport <-- DivisionEndpoint : response
+Router <-- DivisionHTTPTransport : response
+DivisionServiceFE <-- Router : response
+DivisionTableContainer <-- DivisionServiceFE : response
+DivisionPage <-- DivisionTableContainer : response
+Admin <-- DivisionPage : response
+
+@enduml

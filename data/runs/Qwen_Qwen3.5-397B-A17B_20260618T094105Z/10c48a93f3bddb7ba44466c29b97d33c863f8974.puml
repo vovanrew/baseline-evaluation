@@ -1,0 +1,67 @@
+@startuml
+skinparam sequenceMessageAlign center
+autonumber "<b>[0]"
+
+box "drv-ns16550" #LightGray
+  participant I/OControl as IOCtrl <<module>> {
+    note right of IOCtrl : Input/Output Control\nHandles device register access
+  }
+  
+  partition TransferController { 
+    participant TC <<controller>> {
+      note left of TC : Manages data transfer state machine
+    }
+    
+    opt "[TransferState == Stopped]"{
+        activate TC
+        
+        alt [IERWrite]{
+            group COM{COM}=[1]=1
+            
+                ref over IOCtrl: Device Write Operation
+                
+                
+            
+        
+         else THRInterruptEnable
+             note right of TC: Enable Transmit Holding Register interrupt
+             
+         
+       end
+      
+      
+       
+     
+     self ->self ++:"Set State(Transferring)"
+   
+   deactivate TC
+   
+   
+
+end
+
+
+ref over DFMgr++,"Device File Management"\nStatus Transition Task32
+
+
+
+TC <-DFMgrr :"Request(COM#)";activate DFMgr;deactivate DFMgr;; 
+
+group SpinLocking[Critical Section Protection]:<color:red>Hardware Access</color>:
+note top:Demonstrates thread-safe hardware interaction pattern
+    
+    
+
+  
+
+  
+
+
+' Cleanup phase - symmetric to initialization
+  
+spinunlock-> MLib-->"Unlock Success":Release resource ownership
+
+
+
+
+@enduml

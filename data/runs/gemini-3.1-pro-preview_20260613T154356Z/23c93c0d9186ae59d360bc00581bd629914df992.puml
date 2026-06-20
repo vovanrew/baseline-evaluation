@@ -1,0 +1,74 @@
+```plantuml
+@startuml
+autonumber
+actor Nurse as N
+participant ": RecordAdverseReactionUI" as UI
+participant ": RecordAdverseReactionController" as CTRL
+participant ": Company" as COMP
+participant ": AdverseReactionStore" as ARS
+participant ": AdverseReactionDTO" as DTO
+participant ": AdverseReactionMapper" as MAP
+participant ": WaitingRoomStore" as WRS
+participant ": AdverseReaction" as AR
+
+activate N
+N -> UI : Starts recording adverse reaction
+activate UI
+UI --> N : asks for data(SNS Number, Adverse Reaction Text)
+deactivate UI
+
+N -> UI : types requested data
+activate UI
+UI -> CTRL : createAdverseReaction(SNSNumber, advReact)
+activate CTRL
+
+CTRL -> COMP : wstore = getWaitingRoomStore()
+CTRL -> COMP : store = getRecordAdverseReactionStore()
+CTRL -> WRS : snsu = getSNSUserInTheWaitingRoomByItsSNSNumber(snsuserNumber)
+CTRL -> WRS : vc = getVaccinationCenterBySNSNumber(snsuserNumber)
+
+CTRL -> ARS : ar = createAdverseReaction(snsu, advReact, vc)
+activate ARS
+ARS --> AR ** : create(snsu,advReact,vc)
+deactivate ARS
+
+CTRL -> ARS : validateAdverseReaction(ar)
+activate ARS
+deactivate ARS
+
+CTRL -> MAP : toDTO(ar)
+activate MAP
+ref over MAP : SD_AdverseReactionMapper_toDTO
+MAP --> CTRL : arDTO
+deactivate MAP
+
+CTRL --> UI : arDTO
+deactivate CTRL
+
+UI --> N : shows SNS User correspondent to the SNS Number\nand adverse reaction waiting for approval
+deactivate UI
+
+N -> UI : confirms action
+activate UI
+UI -> CTRL : saveAdverseReaction()
+activate CTRL
+
+CTRL -> ARS : saveAdverseReaction(ar)
+activate ARS
+ARS -> ARS : validateAdverseReaction(ar)
+activate ARS
+deactivate ARS
+ARS -> ARS : addAdverseReaction(ar)
+activate ARS
+deactivate ARS
+deactivate ARS
+
+CTRL --> UI
+deactivate CTRL
+
+UI --> N : informs oppertion success
+deactivate UI
+deactivate N
+
+@enduml
+```

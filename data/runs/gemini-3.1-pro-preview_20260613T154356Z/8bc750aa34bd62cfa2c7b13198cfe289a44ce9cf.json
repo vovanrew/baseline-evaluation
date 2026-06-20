@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nactor mobile\nparticipant www\nboundary endpoint\nboundary haproxy\nentity ipfs\nentity postgraphile\nentity \"CITY Custom Net\" as city\nboundary logstash\ncontrol dApp\ndatabase postgres\ndatabase elastic\nparticipant prometheus\nparticipant kibana\n\ngroup webUI\n    mobile -> www : sign & send events\n    note right of mobile : browser ext or mobile wallet\n    www -> endpoint : HTTPS gateway & peer tcp/4001\n    endpoint -> ipfs : /ipfs/{CID}\n    activate ipfs\n    endpoint -> haproxy : HTTPS (oauth by EC Address)\n    note right of www : User makes deposit / signs entry to trigger events.\nend\n\ngroup api - Admin/Write api\n    haproxy -> city : /v2 - read/write factom api\n    activate city\n    haproxy -> ipfs : /ipfs/{CID} - readonly gateway\n    haproxy -> postgraphile : /graphql - readonly graphql queries\n    activate postgraphile\n    city -> logstash : livefeed log\n    activate logstash\n    logstash -> elastic : index event logs\n    activate elastic\n    logstash -> postgres : dApp specific events\n    activate postgres\n    dApp -> postgres : sign and dispatch requests\n    activate dApp\n    dApp -> city : read/write signed factom entries\nend\n\ngroup dashboard\n    elastic -> kibana : dashboard query\n    activate kibana\n    prometheus -> prometheus : poll()\n    activate prometheus\n    prometheus -> city : Monitor(FA2XXXXXXXXX) Balance changes\n    prometheus -> logstash : HTTP GET /metrics\n    prometheus -> ipfs : HTTP GET /metrics\n    kibana -> prometheus : metrics query\n    postgres -> kibana : dApp specific rollup\nend\n\ngroup dApp - controller\n    postgres -> dApp : dispatch on-chain event\n    dApp -> logstash : dApp specific logging\n    dApp -> ipfs : pin entry content on IPFS\nend\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbH1SXgqzIWcvi94ZcJZ9gid/DDVfYvqIhKlJz2qH3CCKss81XbiGXo+nqgJdbb"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1155,
+    "candidatesTokenCount": 442,
+    "totalTokenCount": 1597,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1075
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "WGAxauuRFY65kdUPh6nM2QU"
+}

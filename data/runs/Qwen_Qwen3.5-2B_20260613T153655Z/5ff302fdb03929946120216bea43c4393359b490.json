@@ -1,0 +1,22 @@
+{
+  "id": "aa05ab1a-6911-4c27-844b-8981a51b6511",
+  "object": "chat.completion",
+  "created": 1781400704,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"User\" as User\nparticipant \"Frontend\" as Frontend\nparticipant \"ReservationService\" as ReservationService\nparticipant \"TicketRepository\" as TicketRepository\nparticipant \"EventBus\" as EventBus\nparticipant \"TicketMasterService\" as TicketMasterService\nparticipant \"TicketMasterRepository\" as TicketMasterRepository\nparticipant \"OrderManager\" as OrderManager\nparticipant \"DB\" as DB\n\nactor User\nparticipant Frontend\n\nnote right of Frontend\nPOST /reservations\n{\n  tickets: [\n    {\n      programId: 1,\n      sectorId: 1,\n      seatId: 5\n    },\n    {\n      programId: 1,\n      sectorId: 1,\n      seatId: 6\n    }\n  ]\n}\nnote right of ReservationService\nCreateReservation\n{\n  reservation: {\n    reservationId: \"abc123\"\n    tickets: [\n      {\n        programId: 1,\n        sectorId: 1,\n        seatId: 5\n      },\n      {\n        programId: 1,\n        sectorId: 1,\n        seatId: 6\n      }\n    ]\n  }\n}\nnote right of TicketMasterService\nhandle CreateReservation\ncheck if all tickets are FREE\nalt [ticket status = FREE]\n  set status of tickets to RESERVED\n  publish ReservationAccepted\nalt [ticket status != FREE]\n  publish ReservationRejected\nend\nnote right of ReservationService\nhandle ReservationEvent\nalt [ReservationAccepted]\n  set status of tickets to RESERVED\nalt [ReservationRejected]\n  Noop\nend\nnote right of Frontend\nalt [ReservationAccepted]\n  redirect user to Order page\nalt [ReservationRejected]\n  show error msg\nend\n\nUser -> Frontend: reserve button\nFrontend -> ReservationService: POST /reservations\nReservationService -> TicketRepository: validate tickets\nReservationService -> TicketRepository: createReservationCommand\nReservationService -> EventBus: publish CreateReservation\nEventBus -> TicketMasterService: handle CreateReservation\nTicketMasterService -> TicketMasterRepository: check if all tickets are FREE\nTicketMasterService -> TicketMasterRepository: set status of tickets to RESERVED\nTicketMasterService -> TicketMasterRepository: publish ReservationAccepted\nReservationService -> TicketMasterService: handle ReservationEvent\nReservationService -> TicketMasterRepository: Noop\nReservationService -> Frontend: publish ReservationEvent on websocket\nFrontend -> User: redirect user to Order page\nFrontend -> User: show error msg\n\nTicketMasterService -> OrderManager: handle ReservationAccepted\nOrderManager -> DB: save ReservedTicket object for each ticket\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2105,
+    "completion_tokens": 572,
+    "total_tokens": 2677
+  }
+}

@@ -1,0 +1,30 @@
+@startuml
+left to right direction
+autonumber
+
+participant "uic : UIController" as uic
+participant "ExtensionManager" as em
+participant "extension : NetworkWorkbookSearchExtension" as ext
+participant "uiExtension : UIExtensionNetworkWorkbookSearch" as uiExt
+participant "NetworkWorkbookSearchPanel : JPanel" as panel
+
+uic -> em: extensions=getExtensions()
+
+loop [for Extension ext : extensions]
+  uic -> em: uiExtension=getUIExtension(this)
+  activate em
+  em -> ext: new(extension, uic)
+  activate ext
+  ext -> uiExt: getSidebar()
+  activate uiExt
+  uiExt -> panel: new (uic)
+  activate panel
+  panel --> uiExt
+  deactivate panel
+  deactivate uiExt
+  deactivate ext
+  deactivate em
+  uic --> uic: uiExtensions.add(uiExtension)
+endloop
+
+@enduml

@@ -1,0 +1,63 @@
+```plantuml
+@startuml
+actor "User" as User
+participant "CellEditor" as CellEditor
+participant "Address" as Address
+participant "Controller" as Controller
+participant "Cell" as Cell
+participant "CellImpl" as CellImpl
+participant "FormulaCompiler" as FormulaCompiler
+participant "ExcelExpressionCompiler" as ExcelExpressionCompiler
+participant "ANTLRStringStream" as ANTLRStringStream
+participant "FormulaLexer" as FormulaLexer
+participant "CommonTokenStream" as CommonTokenStream
+participant "FormulaParser" as FormulaParser
+participant "Expression" as Expression
+participant "Formula" as Formula
+
+User -> CellEditor: Inputs block of instructions
+activate CellEditor
+CellEditor -> Address: address = getAddress()
+CellEditor -> Controller: cell = getCell(address)
+CellEditor -> Cell: setContent(content)
+deactivate CellEditor
+
+activate Cell
+Cell -> CellImpl: setContent(content)
+activate CellImpl
+CellImpl -> CellImpl: storeContent(content)
+CellImpl -> FormulaCompiler: compile(cell, content)
+activate FormulaCompiler
+FormulaCompiler -> ExcelExpressionCompiler: compile(cell, content)
+activate ExcelExpressionCompiler
+ExcelExpressionCompiler -> ANTLRStringStream: input = create(source)
+activate ANTLRStringStream
+deactivate ANTLRStringStream
+ExcelExpressionCompiler -> FormulaLexer: lexer = create(input)
+activate FormulaLexer
+deactivate FormulaLexer
+ExcelExpressionCompiler -> CommonTokenStream: tokens = create(lexer)
+activate CommonTokenStream
+deactivate CommonTokenStream
+ExcelExpressionCompiler -> FormulaParser: parser = create(tokens)
+activate FormulaParser
+ExcelExpressionCompiler -> FormulaParser: tree = parser.expression()
+deactivate FormulaParser
+ExcelExpressionCompiler -> Expression: create()
+activate Expression
+deactivate Expression
+ExcelExpressionCompiler -> ExcelExpressionCompiler: expression = convert(cell, tree)
+ExcelExpressionCompiler -> FormulaCompiler: expression
+deactivate ExcelExpressionCompiler
+FormulaCompiler -> Formula: formula = create(cell, expression)
+activate Formula
+deactivate Formula
+FormulaCompiler -> CellImpl: formula
+deactivate FormulaCompiler
+CellImpl -> Cell: show()
+deactivate CellImpl
+Cell -> User: Result
+deactivate Cell
+
+@enduml
+```

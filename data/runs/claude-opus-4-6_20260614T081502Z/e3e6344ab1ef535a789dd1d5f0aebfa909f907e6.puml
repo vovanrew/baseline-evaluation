@@ -1,0 +1,269 @@
+```plantuml
+@startuml
+
+class ProductOrder {
+  cancellationDate: date-time
+  cancellationReason: string
+  completionDate: date-time
+  href: string
+  id*: string
+  orderDate*: date-time
+  state*: MEFProductOrderStateType
+}
+
+class MEFProductOrderItem_Common {
+  action*: MEFProductActionType
+  agreementName: string
+  endOfTermAction: string
+  expediteIndicator: boolean
+  id*: string
+  relatedBuyerPON: string
+  requestedCompletionDate: date-time
+  tspRestorationPriority: string
+}
+
+class ProductOrder_Common {
+  externalId: string
+  projectId: string
+}
+
+class ProductOrder_Update {
+  externalId: string
+  projectId: string
+}
+
+class MEFProductOrderStateChange {
+  changeDate: date-time
+  changeReason: string
+  state: MEFProductOrderStateType
+}
+
+class ProductOrderItem {
+  completionDate: date-time
+  expectedCompletionDate: date-time
+  expediteAcceptedIndicator: boolean
+  state: MEFProductOrderItemStateType
+}
+
+class MEFQuoteItemRef {
+  id*: string
+  quoteHref: string
+  quoteId*: string
+}
+
+class OrderItemRelationship {
+  id*: string
+  relationshipType*: string
+}
+
+class MEFProductOfferingQualificationItemRef {
+  id*: string
+}
+
+class MEFProductRefOrValueOrder {
+  href: string
+  id: string
+}
+
+class MEFBillingAccountRef {
+  id*: string
+}
+
+class Note {
+  author*: string
+  date*: date-time
+  id*: string
+  source*: MEFBuyerSellerType
+  text*: string
+}
+
+class RelatedContactInformation {
+  emailAddress*: string
+  name*: string
+  number*: string
+  numberExtension: string
+  organization: string
+  role*: string
+}
+
+class MEFProductOrderItem_Update {
+}
+
+class MEFProductOrderChargeRef {
+}
+
+class MEFProductOrderItemStateChange {
+  changeDate: date-time
+  changeReason: string
+  state: MEFProductOrderItemStateType
+}
+
+class TerminationError {
+  code: Error422Code
+  propertyPath: string
+  value: string
+}
+
+class MEFMilestone {
+  date: date-time
+  name*: string
+  note: string
+}
+
+class MEFOrderItemCoordinatedAction {
+  coordinationDependency*: MEFOrderItemCoordinationDependencyType
+  itemId*: string
+}
+
+class MEFItemTerm {
+  description: string
+  endOfTermAction*: MEFEndOfTermAction
+  name*: string
+}
+
+class RelatedPlaceRefOrValue {
+  @schemaLocation: uri
+  @type*: string
+  role*: string
+}
+
+class ProductOfferingRef {
+  href: string
+  id*: string
+}
+
+class ProductRelationship {
+  id*: string
+  href: string
+  relationshipType*: string
+}
+
+class MEFProductConfiguration {
+  @type*: string
+}
+
+class Duration {
+  amount*: integer
+  units*: TimeUnit
+}
+
+class GeographicSiteRef {
+  href: string
+  id*: string
+}
+
+class MEFGeographicPoint {
+  spatialRef*: string
+  x*: string
+  y*: string
+  z: string
+}
+
+class FormattedAddress {
+  addrLine1*: string
+  addrLine2: string
+  city*: string
+  country*: string
+  locality: string
+  postcode: string
+  postcodeExtension: string
+  stateOrProvince: string
+}
+
+class GeographicAddressLabel {
+  externalReferenceId*: string
+  externalReferenceType*: string
+}
+
+class GeographicAddressRef {
+  href: string
+  id*: string
+}
+
+class FieldedAddress {
+  city*: string
+  country*: string
+  locality: string
+  postcode: string
+  postcodeExtension: string
+  stateOrProvince: string
+  streetName*: string
+  streetNr: string
+  streetNrLast: string
+  streetNrLastSuffix: string
+  streetNrSuffix: string
+  streetSuffix: string
+  streetType: string
+}
+
+class GeographicSubAddress {
+  buildingName: string
+  levelNumber: string
+  levelType: string
+  privateStreetName: string
+  privateStreetNumber: string
+}
+
+class MEFSubUnit {
+  subUnitNumber*: string
+  subUnitType*: string
+}
+
+ProductOrder --> "stateChange" MEFProductOrderStateChange
+ProductOrder --> "productOrderItem\n1..*" ProductOrderItem
+ProductOrder --> "cancellationCharge" MEFProductOrderChargeRef
+
+ProductOrderItem --> "charge" MEFProductOrderChargeRef
+ProductOrderItem --> "stateChange" MEFProductOrderItemStateChange
+ProductOrderItem --> "terminationError" TerminationError
+ProductOrderItem --> "milestone" MEFMilestone
+
+MEFProductOrderItem_Common --> "quoteItem" MEFQuoteItemRef
+MEFProductOrderItem_Common --> "productOrderItemRelationship" OrderItemRelationship
+MEFProductOrderItem_Common --> "coordinatedAction" MEFOrderItemCoordinatedAction
+MEFProductOrderItem_Common --> "productOfferingQualificationItem" MEFProductOfferingQualificationItemRef
+MEFProductOrderItem_Common --> "product" MEFProductRefOrValueOrder
+MEFProductOrderItem_Common --> "billingAccount" MEFBillingAccountRef
+MEFProductOrderItem_Common --> "requestedItemTerm" MEFItemTerm
+
+MEFOrderItemCoordinatedAction --> "itemTerm" MEFItemTerm
+
+MEFItemTerm --> "coordinatedActionDelay" MEFItemTerm
+MEFItemTerm --> "duration*" Duration
+MEFItemTerm --> "rollInterval" Duration
+
+MEFProductRefOrValueOrder --> "place" RelatedPlaceRefOrValue
+MEFProductRefOrValueOrder --> "productOffering" ProductOfferingRef
+MEFProductRefOrValueOrder --> "productRelationship" ProductRelationship
+MEFProductRefOrValueOrder --> "productConfiguration" MEFProductConfiguration
+
+ProductOrder_Common --> "note" Note
+ProductOrder_Common --> "relatedContactInformation" RelatedContactInformation
+
+ProductOrder_Update --> "relatedContactInformation" RelatedContactInformation
+
+MEFProductOrderItem_Update --> "relatedContactInformation" RelatedContactInformation
+MEFProductOrderItem_Update --> "productOrderItem" MEFProductOrderItem_Update
+
+ProductOrder_Common <|-- ProductOrder
+MEFProductOrderItem_Common <|-- ProductOrderItem
+MEFProductOrderItem_Common <|-- MEFProductOrderItem_Update
+
+ProductOrder_Common --> "note" Note
+ProductOrder_Update --> "relatedContactInformation" RelatedContactInformation
+
+RelatedPlaceRefOrValue <|-- GeographicSiteRef
+RelatedPlaceRefOrValue <|-- MEFGeographicPoint
+RelatedPlaceRefOrValue <|-- FormattedAddress
+RelatedPlaceRefOrValue <|-- GeographicAddressLabel
+RelatedPlaceRefOrValue <|-- GeographicAddressRef
+RelatedPlaceRefOrValue <|-- FieldedAddress
+
+MEFProductConfiguration --> "postalAddress" FieldedAddress
+
+FieldedAddress --> "geographicSubAddress" GeographicSubAddress
+
+GeographicSubAddress --> "subUnit" MEFSubUnit
+
+@enduml
+```

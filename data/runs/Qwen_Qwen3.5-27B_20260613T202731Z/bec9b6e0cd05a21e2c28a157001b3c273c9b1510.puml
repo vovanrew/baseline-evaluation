@@ -1,0 +1,31 @@
+```plantuml
+@startuml
+skinparam componentStyle rectangle
+
+package "host" {
+    component "MultiDisplayService" as MultiDisplayService
+}
+
+package "rcv" {
+    component "IMultipleDisplaysUiController" as IMultipleDisplaysUiController
+    component "IMultipleDisplaysDelegate" as IMultipleDisplaysDelegate
+}
+
+package "controller" {
+    component "DisplaysSwapViewController" as DisplaysSwapViewController
+    component "DisplaysSwapPresenter" as DisplaysSwapPresenter
+}
+
+MultiDisplayService -> MultiDisplayService: onDisplayAdded
+MultiDisplayService --> IMultipleDisplaysUiController: updateDisplayInfos
+MultiDisplayService -> MultiDisplayService: onDisplayRemoved
+MultiDisplayService --> IMultipleDisplaysUiController: updateDisplayInfos
+DisplaysSwapViewController --> DisplaysSwapPresenter: swap()
+DisplaysSwapPresenter --> IMultipleDisplaysUiController: swap()
+DisplaysSwapPresenter --> IMultipleDisplaysDelegate: onUpdateDisplayInfo(IMultipleDisplaysUiController var1, EMultipleDisplaysAction var2)
+DisplaysSwapPresenter -> DisplaysSwapPresenter: loadMonitorsIndicator()
+IMultipleDisplaysDelegate --> MultiDisplayService: onUpdateDisplayInfo(IMultipleDisplaysUiController var1, EMultipleDisplaysAction var2)
+MultiDisplayService -> MultiDisplayService: notifyMultiDisplayChanged(type: MultiDisplayChangeType,displayId: Int)
+
+@enduml
+```

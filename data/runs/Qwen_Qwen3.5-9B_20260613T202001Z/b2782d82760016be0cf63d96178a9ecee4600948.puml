@@ -1,0 +1,69 @@
+@startuml
+!theme base
+
+package "surcharge" {
+  package "seat" {
+    class "SeatType" {
+      <<enumeration>>
+      FreeSeat
+      ReservedSeat
+      abstract createSeat(superExpress : SuperExpress) : Seat
+    }
+
+    interface "Seat" {
+      getSeatSurcharge()
+    }
+
+    class "FreeSeat" {
+      <<enumeration>>
+      Hikari
+      getSeatSurcharge() : Yen
+    }
+
+    class "ReservedSeat" {
+      <<enumeration>>
+      SuperExpress
+      getSeatSurcharge() : Yen
+    }
+
+    SeatType --|> Seat : implements
+    FreeSeat --|> Seat : implements
+    ReservedSeat --|> Seat : implements
+  }
+
+  package "superexpress" {
+    class "ShinkansenType" {
+      <<enumeration>>
+      Hikari
+      Nozomi
+      abstract createSuperExpress(destination : Destination) : SuperExpress
+    }
+
+    interface "SuperExpress" {
+      getSuperExpressSurcharge() : Yen
+    }
+
+    class "Hikari" {
+      <<enumeration>>
+      ShinOsaka
+      Himeji
+      getSuperExpressSurcharge() : Yen
+    }
+
+    class "Nozomi" {
+      <<enumeration>>
+      ShinOsaka
+      Himeji
+      getSuperExpressSurcharge() : Yen
+    }
+
+    ShinkansenType --|> SuperExpress : implements
+    Hikari --|> SuperExpress : implements
+    Nozomi --|> SuperExpress : implements
+  }
+
+  FreeSeat --> SuperExpress : uses
+  ReservedSeat --> SuperExpress : uses
+}
+
+@enduml

@@ -1,0 +1,66 @@
+@startuml
+!theme base
+
+class "Facelift" {
+  class "InterfaceBase" {
+    <<C>>
+    Base C++ class for all generated interfaces
+  }
+  class "QMLAdapterBase" {
+    <<C>>
+    Base C++ class for all generated QML frontends
+  }
+  class "IPCSERVICEAdapterBase" {
+    <<C>>
+    Base C++ for class for all generated IPC adapters
+  }
+}
+
+class "InterfaceQMLAdapter" {
+  <<C>>
+  Implements the interface exposed to the QML engine, to be used by the UI code
+  Turns data from the interface implementation into QML-compatible types
+  ...
+  generated from IDL
+}
+
+class "Interface" {
+  <<A>>
+  C++ abstract class defining the interface
+  ...
+  generated from IDL
+}
+
+class "InterfaceImplementationBase" {
+  <<A>>
+  Abstract helper class which contains boilerplate code to help writing concrete interface implementations
+  ...
+  generated from IDL
+}
+
+class "InterfaceDummy" {
+  <<C>>
+  generated from IDL
+}
+
+class "InterfaceImplementation" {
+  <<C>>
+  concrete class implementing the interface
+}
+
+class "InterfaceIPCProxy" {
+  <<C>>
+  generated from IDL
+}
+
+"InterfaceBase" <|-- "Interface"
+"QMLAdapterBase" <|-- "InterfaceQMLAdapter"
+"IPCSERVICEAdapterBase" <|-- "InterfaceIPCProxy"
+
+"InterfaceQMLAdapter" ..> "Interface" : provider
+
+"InterfaceImplementationBase" <|-- "InterfaceDummy"
+"InterfaceImplementationBase" <|-- "InterfaceImplementation"
+"InterfaceImplementationBase" <|-- "InterfaceIPCProxy"
+
+@enduml

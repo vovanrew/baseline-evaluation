@@ -1,0 +1,77 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+  FontColor Black
+}
+
+class "Points" as Points {
+  [E]
+  value: Int
+  LOVE
+  FIFTEEN
+  THIRTY
+  next(): Points
+}
+
+class "ByPoints" as ByPoints {
+  [C]
+  placard = "$A - $B"
+  next(): Score
+}
+
+class "Forty" as Forty {
+  [C]
+  placard = "$A - 40" | "40 - $B"
+  next(): Score
+}
+
+class "Score" as Score {
+  [A] <<sealed>>
+  placard: String
+  isGame: Boolean = false
+  next(): Score
+}
+
+class "Deuce" as Deuce {
+  [O]
+  placard = "Deuce"
+  next(): Score
+}
+
+class "Advantage" as Advantage {
+  [C]
+  placard = "Advantage $W"
+  next(): Score
+}
+
+class "Game" as Game {
+  [C]
+  placard = "Game $W"
+  isGame = true
+  next() = throw
+}
+
+class "Player" as Player {
+  [E]
+  A
+  B
+}
+
+Points --|> ByPoints : pointsA
+Points --|> ByPoints : pointsB
+Points --|> Forty : pointsOther
+ByPoints --|> Score
+Forty --|> Score
+Deuce --|> Score
+Advantage --|> Score
+Game --|> Score
+
+Player --|> Game : player
+Player --|> Advantage : player
+Player --|> Game : winner
+
+@enduml

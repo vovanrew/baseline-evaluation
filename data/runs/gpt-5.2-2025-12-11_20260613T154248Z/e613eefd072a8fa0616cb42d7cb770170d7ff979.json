@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLuKyXaFFwRXfhPUeYsiDzEfBbRB",
+  "object": "chat.completion",
+  "created": 1781369640,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam backgroundColor white\nskinparam shadowing false\nskinparam sequence {\n  LifeLineBorderColor #666666\n  LifeLineBackgroundColor transparent\n  ParticipantBorderColor #666666\n  ParticipantBackgroundColor #E9E9FF\n  BoxBorderColor #666666\n  BoxBackgroundColor #FFFFFF\n  ArrowColor #000000\n  NoteBackgroundColor #FFF9C4\n  NoteBorderColor #666666\n}\n\nbox \"BL1 common code\" #E6E6E6\nparticipant \"bl1_main\" as bl1_main\nparticipant \"bl_common\" as bl_common\nend box\n\nbox \"arm platform code\" #BFE7F2\nparticipant \"fvp_bl1_setup\" as fvp_bl1_setup\nparticipant \"arm_bl1_setup\" as arm_bl1_setup\nparticipant \"arm_io_storage\" as arm_io_storage\nend box\n\nbox \"platform common code\" #E6E6E6\nparticipant \"plat_bl1_common\" as plat_bl1_common\nparticipant \"fconf\" as fconf\nend box\n\nbl1_main -> fvp_bl1_setup : bl1_platform_setup()\nfvp_bl1_setup -> arm_bl1_setup : arm_bl1_platform_setup()\narm_bl1_setup -> arm_io_storage : plat_arm_io_setup()\nnote right of arm_io_storage\nregister and setup fip\nend note\n\narm_bl1_setup -> fconf : fconf_load_config()\nnote right of fconf\ncreate and populate an\\nimage_desc_t for FW_CONFIG\nend note\n\nbl_common -> fconf : load_auth_image(FW_CONFIG_ID, &image_info)\nnote left of bl_common\nload and auth image from fip\\nwith info from plat_io_policy\nend note\n\narm_io_storage -> fconf : FCONF_GET_PROPERTY(arm, arm_io_policies, tb_fw_cfg)\nnote right of fconf\nuse staticaly defined policies in bl1\nend note\n\narm_io_storage -> fconf : image_info\nnote right of fconf\nget tb_fw_config_dtb from image_info\nend note\n\nfconf -> plat_bl1_common : bl1_plat_get_image_desc(BL2_IMAGE_ID)\nplat_bl1_common -> fconf : BL2_IMAGE_DESC\nnote right of fconf\nset ep_info.args.arg0 of BL2_IMAGE_DESC\\nto FW_CONFIG base address\nend note\n\n== load & auth, prepare and jump to BL2 ==\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1908,
+    "completion_tokens": 523,
+    "total_tokens": 2431,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

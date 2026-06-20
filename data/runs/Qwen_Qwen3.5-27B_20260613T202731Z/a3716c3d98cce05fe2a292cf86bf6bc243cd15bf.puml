@@ -1,0 +1,89 @@
+```plantuml
+@startuml
+skinparam sequence {
+  ArrowColor DarkSlateGray
+  ActorBorderColor Black
+  ActorBackgroundColor WhiteSmoke
+  ParticipantBorderColor Black
+  ParticipantBackgroundColor LightSteelBlue
+  LifeLineBorderColor Black
+  LifeLineBackgroundColor WhiteSmoke
+}
+
+title TCP Connection Lifecycle
+
+participant "client" as ClientApp
+participant "tcpclient" as TcpClient
+participant "tcpserver" as TcpServer
+participant "server" as ServerApp
+
+== Connection Establishment ==
+activate ServerApp
+TcpServer -> TcpServer: listen
+activate TcpServer
+TcpServer -[blue]> TcpServer: LISTEN
+deactivate TcpServer
+
+activate ClientApp
+ClientApp -> TcpClient: connect
+activate TcpClient
+TcpClient -[teal]> TcpClient: SYN-SENT
+TcpClient -> TcpServer: SYN
+activate TcpServer
+TcpServer -[blue]> TcpServer: SYN-RECEIVED
+TcpServer --> TcpClient: SYN, ACK
+TcpClient --> TcpServer: ACK
+TcpClient -[green]> TcpClient: ESTABLISHED
+TcpServer -[green]> TcpServer: ESTABLISHED
+deactivate ClientApp
+deactivate TcpClient
+deactivate TcpServer
+
+== Data Transfer ==
+activate ServerApp
+ServerApp -> TcpServer: write
+TcpServer -> TcpServer: EPOLLIN
+TcpServer --> TcpClient: PSH, ACK
+TcpClient --> TcpServer: ACK
+deactivate ServerApp
+
+activate ClientApp
+TcpClient -> TcpClient: EPOLLIN
+ClientApp -> TcpClient: read
+deactivate ClientApp
+deactivate TcpClient
+deactivate TcpServer
+
+== Connection Termination (Server Initiated) ==
+activate ServerApp
+ServerApp -> TcpServer: close
+activate TcpServer
+TcpServer -[purple]> TcpServer: FIN_WAIT1
+TcpServer --> TcpClient: FIN, ACK
+activate TcpClient
+TcpClient -[pink]> TcpClient: CLOSE_WAIT
+TcpClient --> TcpServer: ACK
+TcpServer -[orange]> TcpServer: FIN_WAIT2
+deactivate TcpClient
+
+== Connection Termination (Client Initiated) ==
+activate ClientApp
+TcpClient -> TcpClient: EPOLLRDHUP
+ClientApp -> TcpClient: close
+activate TcpClient
+TcpClient -[magenta]> TcpClient: LAST_ACK
+TcpClient --> TcpServer: FIN
+TcpServer --> TcpClient: ACK
+TcpClient -[red]> TcpClient: CLOSE
+deactivate TcpClient
+deactivate ClientApp
+
+== Final Cleanup ==
+TcpServer -[yellow]> TcpServer: TIMEWAIT
+note right of TcpServer: timer 60s
+TcpServer -[red]> TcpServer: CLOSE
+deactivate TcpServer
+deactivate ServerApp
+
+@enduml
+```

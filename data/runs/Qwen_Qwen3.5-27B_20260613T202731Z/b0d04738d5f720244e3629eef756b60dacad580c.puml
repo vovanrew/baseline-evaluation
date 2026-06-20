@@ -1,0 +1,32 @@
+```plantuml
+@startuml
+skinparam componentStyle rectangle
+
+actor "Actor" as actor1
+circle "EventBus" as eventbus1
+rectangle "Service Orchestrator" as so_box {
+    component "so" as so1
+}
+rectangle "Software Defined Infrastructure" as sdi_box {
+    component "storageresource" as storage1
+}
+
+actor "Actor" as actor2
+circle "EventBus" as eventbus2
+component "so" as so2
+component "storageresource" as storage2
+
+actor1 -> so1 : Version Application Stack
+activate so1
+so1 -> storage1 : list (name: hello,file: ./templates/world.yml)
+activate storage1
+storage1 --> eventbus1 : data.list
+deactivate storage1
+so1 -> storage1 : list (name: hello,file: ./templates/world.yml)
+activate storage1
+storage1 --> eventbus2 : data.list
+deactivate storage1
+deactivate so1
+
+@enduml
+```

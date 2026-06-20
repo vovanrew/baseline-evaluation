@@ -1,0 +1,78 @@
+@startuml
+actor Administrator as Admin
+interface SpecifyNewVaccineUI as SpecifyNewVaccineUI
+interface SpecifyNewVaccineController as SpecifyNewVaccineController
+interface VaccineTypeStore as VaccineTypeStore
+interface VaccineType as VaccineType
+
+participant Company as Company
+
+participant VaccineStore as VaccineStore
+
+participant admPro_AdministrationProcess as admPro_AdministrationProcess
+
+participant vc_Vaccine as vc_Vaccine
+
+participant VaccineTypeList as VaccineTypeList
+
+participant VaccineTypeCode as VaccineTypeCode
+
+note right of SpecifyNewVaccineUI
+1 starts specifying a new vaccine and its administration process
+2 create(Vaccine)
+3 typeList = getVaccineTypeList()
+4 getVaccineTypeList()
+6 request data (name, manufacturer, type, age groups,doses, elapsing interval, dosage) and show vaccineType list
+7 types requested data
+8 createVaccineId,name,manufacturer,type,administrationProcess
+9 createVaccineId,name,manufacturer,type,administrationProcess
+10 createVaccineId,name,manufacturer,type,administrationProcess
+11 vc = createVaccineId,name,manufacturer,type,administrationProcess
+12 administrationProcess(minAge,maxAge,numberOfDoses,dosage,timeElapsed)
+13 validate(vaccine)
+14 saveVaccine()
+15 shows data and request confirmation
+16 confirms data
+17 saveVaccine()
+18 saveVaccine()
+19 saveVaccine()
+20 adVaccine()
+21 informs operation (intsuccess)
+@endnote
+
+Admin ..>> SpecifyNewVaccineUI : 1 starts specifying a new vaccine and its administration process
+
+SpecifyNewVaccineUI ..>> SpecifyNewVaccineController : 2 create(Vaccine)
+
+SpecifyNewVaccineController ..>> VaccineStore : 3 typeList = getVaccineTypeList()
+
+VaccineStore ..>> Company : 4 getVaccineTypeList()
+
+Company ..>> VaccineStore : 5 VaccineTypeList
+
+VaccineStore ..>> VaccineTypeCode : loop (for all vaccine types)
+VaccineTypeCode ..>> VaccineStore : 5 VaccineType(code name)
+
+VaccineStore ..>> admPro_AdministrationProcess : 11 vc = createVaccineId,name,manufacturer,type,administrationProcess
+
+VaccineStore ..>> vc_Vaccine : 12 administrationProcess(minAge,maxAge,numberOfDoses,dosage,timeElapsed)
+
+vc_Vaccine ..>> admPro_AdministrationProcess : 13 validate(vaccine)
+
+vc_Vaccine ..>> VaccineStore : 14 saveVaccine()
+
+VaccineStore ..>> Company : 15 shows data and request confirmation
+
+Company ..>> SpecifyNewVaccineUI : 16 confirms data
+
+SpecifyNewVaccineUI ..>> Administrator : 17 saveVaccine()
+
+Administrator ..>> SpecifyNewVaccineUI : 18 saveVaccine()
+
+Administrator ..>> SpecifyNewVaccineUI : 19 saveVaccine()
+
+Administrator ..>> SpecifyNewVaccineUI : 20 adVaccine()
+
+Administrator ..>> SpecifyNewVaccineUI : 21 informs operation (intsuccess)
+
+@enduml

@@ -1,0 +1,32 @@
+```plantuml
+@startuml
+actor Caller
+
+participant "RoomTransactionService" as Service
+participant "RoomTransactionCommand" as Command
+participant "Nats Streaming" as Nats
+
+Caller -> Service: Create(context, payload)
+activate Service
+Service -> Service: Validate()
+
+alt "Data Not Valid"
+    Service -->> Caller: UnprocessableEntity
+else
+    loop "For each shift"
+        Service -> Service: rt := RoomTransactionModel()
+        Service -> Command: Create(context, rt)
+        activate Command
+        Command -->> Service: uuid
+        deactivate Command
+    end
+    Service -> Nats: publishTransactionCreated(context, []uuid)
+    activate Nats
+    Nats -->> Service: published
+    deactivate Nats
+    Service -->> Caller: created
+end
+deactivate Service
+
+@enduml
+```

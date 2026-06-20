@@ -1,0 +1,21 @@
+{
+  "id": "msg_014FUfLSgukDb1Sw7ahyZHVT",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nclass Game {\n  -clock_t start\n  -clock_t end\n  -int curLevel\n  -{const}int MAX_LEVEL\n  -bool isFinish\n  -bool isQuit\n  -Session* curSession\n  --\n  -handleCmd(char)\n  -handleStartCmd(char)\n  -initSession()\n  -startSession()\n  -endSession()\n  +start()\n  +isFinish()\n  +getDuration()\n}\n\nclass Session {\n  -level\n  -map\n  -step\n  -isFinish\n  --\n  +move(Direction)\n  +getMap()\n  +finish()\n  +isFinish()\n  +getLevel()\n  +backToPreviousPlace()\n  +restart()\n}\n\nclass MapRepository {\n  +MAP_PATH:string\n  +MAP_DIR:string\n  +MAP_ID:enum\n  +MapBuffer:class\n  --\n  +getMap(MAP_ID)\n}\n\ninterface Viewer {\n  +getInput()\n  +getLevel()\n  +display()\n}\n\nenum State {\n  FLOOR_OUT_SIDE,WALL,FLOOR,BOX,TARGET,PLAYER,BOX_ON_TARGET\n}\n\nenum TileType {\n  WALL,FLOOR,TARGET\n}\n\nenum TileFlag {\n  NULL,PLAYER,BOX\n}\n\nenum Diractory {\n  UP,DOWN,LEFT,RIGHT,SITU\n}\n\nclass Map {\n  -width:int\n  -height:int\n  -tiles:TileMap\n  -MovableList:vector\n  -player:Player\n  -Tile:OUT_SIDE_TILE\n  --\n  -getTile()\n  -moveBox()\n  +getWidth()\n  +getHeight()\n  +initMap(const string&)\n  +getStateOf(const Position&)\n  +getBoxs()\n  +getPlayerPosition()\n  +back()\n}\n\nclass Rule {\n  +isWin(const Map&)\n  +isRightMove(const Map&,Direction)\n}\n\nclass FileUtil {\n  +readFile()\n}\n\nclass Tile {\n  -position:Position\n  -type:TileType\n  -flag:TileFlag\n  --\n  +setPosition(const Position&)\n  +getPosition()\n  +setFlag(TileFlag)\n  +getType()\n  +getState()\n}\n\nclass Position {\n  -x:int\n  -y:int\n  +DIRS\n  --\n  +operator==(const Position&)\n  +opeartor+=(const Position&)\n  +getX()\n  +getY()\n  +of(int,int)\n}\n\nclass Player {\n  +move(Direction)\n  +getPreviousDirection()\n  +getPreviousPushFlag()\n  +clear()\n}\n\nclass Box {\n  -onTarget:bool\n  --\n  +moveToTile(TileType)\n  +getOnTarget()\n}\n\nclass Moveable {\n  -position:Position\n  -state:\n  --\n  +{virtual}move(Direction)\n  +back(Direction)\n  +getPosition()\n  +setPosition(const Position&)\n}\n\nGame --> Session\nGame --> MapRepository\nGame --> Viewer\nSession --> Map\nSession --> Rule\nMapRepository --> FileUtil\nMap *-- Tile\nMap *-- Player\nMap *-- Box\nTile *-- Position\nPlayer --|> Moveable\nBox --|> Moveable\nMoveable --> Position\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781368632,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 865,
+    "prompt_tokens": 1660,
+    "total_tokens": 2525
+  }
+}

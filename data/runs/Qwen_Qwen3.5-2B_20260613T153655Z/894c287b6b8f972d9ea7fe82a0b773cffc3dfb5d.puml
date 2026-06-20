@@ -1,0 +1,33 @@
+@startuml
+participant "Web User" as User
+participant "index" as Index
+participant "Main.view" as MainView
+participant "Image.View" as ImageView
+participant "ImageController" as ImageController
+participant "DB" as DB
+participant "DBE" as DBE
+participant "ImageModel" as ImageModel
+participant "images" as ImagesDB
+participant "Images" as Images
+
+User --> Index : "1:Need to see some Pictures"
+
+ImageController --> DB : "1:1 new ImageController( new DB ( DBE ) )"
+
+DB --> DBE : getDNS(); getUsers(); getPass()
+
+ImageController --> ImagesDB : ImageController->fetchAll() : $stmt = $this->pdo->prepare(SELECT id,filename,title,description FROM images)
+
+ImageController --> ImagesDB : ImageController->fetchAll() : $stmt -> execute()
+
+$results = $stmt->fetchAll(PDO::FETCH_CLASS, ImageModel::class)
+
+Index --> ImageController : "1:0|1|* $images array"
+
+ImageController --> MainView : render ()
+
+MainView --> ImageView : + layout
+
+ImageView --> User : he/she dont know how many work it was :-)
+
+@enduml

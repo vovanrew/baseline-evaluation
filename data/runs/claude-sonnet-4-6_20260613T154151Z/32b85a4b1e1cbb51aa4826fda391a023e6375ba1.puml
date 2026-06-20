@@ -1,0 +1,51 @@
+```plantuml
+@startuml
+
+actor User
+database Datastore
+
+box "Application Layer" #LightGray
+participant "«@Controller»\nSubscriptionController" as SC <<C>>
+end box
+
+box "Domain Model Layer" #LightGray
+participant "«@Bean»\nSubscriptionServiceImpl" as SSI <<C>>
+end box
+
+box "Infrastructure Layer" #LightGray
+participant "«@Bean»\nJpaSubscriptionRepository" as JSR <<C>>
+participant "«@Repository»\nSubscriptionPersistenceJpaRepository" as SPJR <<C>>
+end box
+
+User -> SC : 
+activate SC
+
+note over SSI : via SubscriptionService
+SC --> SSI : 
+activate SSI
+
+note over JSR : via SubscriptionRepository
+SSI --> JSR : 
+activate JSR
+
+note over SPJR : via Spring data repository
+JSR --> SPJR : 
+activate SPJR
+
+SPJR --> Datastore : 
+Datastore --> SPJR : 
+deactivate SPJR
+
+JSR <-- SPJR : 
+deactivate JSR
+
+SSI <-- JSR : 
+deactivate SSI
+
+SC <-- SSI : 
+
+User <-- SC : 
+deactivate SC
+
+@enduml
+```

@@ -1,0 +1,21 @@
+{
+  "id": "msg_01RrZQPkKwins6wxjQbrZtE5",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor browser\nparticipant proxy\nparticipant backend\nparticipant component_config\nparticipant subscription_map\nparticipant normalized_object_map\nparticipant normalized_object\n\nbrowser -> browser : 1 get_state(\\n    configuration_name,\\n    geo_bounding_box\\n    )\nbrowser -> proxy : 2 +TENANT_HEADER\nproxy -> backend : 2 +TENANT_HEADER\nbackend -> component_config : 3 component_config[configuration_name]\\n.subscription_usages\ncomponent_config --> backend : 4 [ subscription_usage_config ]\nbackend -> subscription_map : 5 forEach subscription_usage_config.subscription_id\nsubscription_map --> backend : 6 subscription_map[subscription_id] (= normalized_object_map)\nbackend -> normalized_object_map : 7 forEach key\nnormalized_object_map --> backend : 8 normalized_object\nbackend -> normalized_object : 9 forEach normalized_object:\\n    if object.in(geo_bounding_box):\\n        object.to_dto(\\n            subscription_usage_config\\n        )\nnormalized_object --> backend : 10 object_dto\nbackend --> proxy : 11 [ object_dto ]\nproxy --> browser : 12\n@enduml"
+      }
+    }
+  ],
+  "created": 1781370233,
+  "model": "claude-sonnet-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 300,
+    "prompt_tokens": 1552,
+    "total_tokens": 1852
+  }
+}

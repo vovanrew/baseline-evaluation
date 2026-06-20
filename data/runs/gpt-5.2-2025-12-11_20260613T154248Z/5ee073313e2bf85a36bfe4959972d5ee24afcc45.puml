@@ -1,0 +1,53 @@
+@startuml
+title create order sequence diagram
+
+actor Customer
+actor Cashier
+
+participant ":Inventory System" as IS
+participant ":Order" as O
+participant ":Product" as P
+participant ":Stock" as S
+participant ":Invoice" as I
+participant ":Transaction" as T
+
+Customer -> Cashier : 1. Request order product
+Cashier --> Customer : 2. Receive order
+
+Cashier -> IS : 3. requestCreateOrder()
+activate IS
+
+IS -> P : 3.1 selectProduct()
+activate P
+P -> S : 3.2 checkStock()
+activate S
+S --> P : 3.3 return stock
+deactivate S
+P --> IS : 3.4 return product
+deactivate P
+
+alt [IF (stock.qty > order.qty)]
+  IS -> O : 3.5 createOrder(order)
+  activate O
+  O -> S : 3.6 updateStock()
+  activate S
+  S --> IS : 3.7 return update stock
+  deactivate S
+
+  O -> I : 3.8 systemCreateInvoice()
+  activate I
+  I -> I : 3.9 printInvoice()
+  I --> IS : 3.10 return invoice
+  deactivate I
+
+  O --> IS : 3.11 return order
+  deactivate O
+else [ELSE]
+  O --> IS : 3.12 can't create order
+end
+
+IS --> Cashier : 4. response create order status
+deactivate IS
+
+Cashier --> Customer : 5. Invoice
+@enduml

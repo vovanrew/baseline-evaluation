@@ -1,0 +1,59 @@
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #000000
+  LifeLineBorderColor #888888
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #888888
+  ParticipantBackgroundColor #EDEDED
+  ActorBorderColor #888888
+  ActorBackgroundColor #FFFFFF
+  BoxBorderColor #888888
+  BoxBackgroundColor #FFFFFF
+  ReferenceBorderColor #000000
+  ReferenceBackgroundColor #FFFFFF
+}
+
+actor "Specialist Doctor" as SD
+participant ":CreateReportUI" as UI
+participant ":CreateReportController" as C
+participant ":Company" as Company
+participant ":TestDiagnosis" as TD
+participant "rp : TestReportStore" as Store
+participant "rp : TestReport" as Report
+participant "obj : diagnosis" as Diagnosis
+
+SD -> UI : 1 asks to create a new diagnosis
+
+ref over UI, C : US4_SD_testsDTO.puml
+
+UI --> SD : 2 requests to choose a given test
+SD -> UI : 3 chooses a given test
+
+UI -> C : 4 createTestDiagnosis(idTest)
+C -> TD : 5 createTestDiagnosis(test)
+TD -> Diagnosis : 6 createTestDiagnosis(testParameterList)
+TD --> C : 7 getDiagnosis()
+C --> UI : 8 getDiagnosis()
+
+UI --> SD : 9 shows the diagnosis done automatically and requests the data for the report
+SD -> UI : 10 types the requested data
+
+UI -> C : 11 createReport(idTest, diagnosis, report)
+C -> Company : 12 store = getTestReportStore()
+C -> Store : 13 createReport(idTest, diagnosis, report)
+Store -> Report : 14 create(idTest, diagnosis, report)
+C -> Store : 15 validateReport()
+
+UI --> SD : 16 shows the typed data and asks for confirmation
+SD -> UI : 17 confirms the data
+
+UI -> C : 18 saveReport(report)
+C -> Company : 19 saveReport(report)
+Company -> Store : 20 saveReport(report)
+Store -> Store : 21 validateReport(report)
+Store -> Store : 22 addReport(report)
+
+UI --> SD : 23 informs operation success
+@enduml

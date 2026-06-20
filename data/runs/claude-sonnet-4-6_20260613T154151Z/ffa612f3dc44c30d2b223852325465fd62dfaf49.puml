@@ -1,0 +1,77 @@
+```plantuml
+@startuml
+
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor #f0f0f0
+    BorderColor #888888
+}
+
+class Points <<enumeration>> {
+    value: Int
+    <u>LOVE</u>
+    <u>FIFTEEN</u>
+    <u>THIRTY</u>
+    --
+    next(): Points
+}
+
+abstract class Score <<sealed>> {
+    placard: String
+    isGame: Boolean = false
+    --
+    {abstract} next(): Score
+}
+
+class ByPoints <<class>> {
+    placard = "$A - $B"
+    --
+    next(): Score
+}
+
+class Forty <<class>> {
+    placard = "$A - 40" | "40 - $B"
+    --
+    next(): Score
+}
+
+class Game <<class>> {
+    placard = "Game $W"
+    isGame = true
+    --
+    next() = throw
+}
+
+class Advantage <<class>> {
+    placard = "Advantage $W"
+    --
+    next(): Score
+}
+
+class Deuce <<object>> {
+    placard = "Deuce"
+    --
+    next(): Score
+}
+
+enum Player <<enumeration>> {
+    o <u>A</u>
+    o <u>B</u>
+}
+
+ByPoints --> Score : extends
+Forty --> Score : extends
+Game --> Score : extends
+Advantage --> Score : extends
+Deuce --> Score : extends
+
+ByPoints "pointsB" *-- Points
+ByPoints "pointsA" *-- Points
+Points "pointsOther" *-- Forty
+
+Player "player" --o Forty
+Player "winner" --o Game
+Player "player" --o Advantage
+
+@enduml
+```

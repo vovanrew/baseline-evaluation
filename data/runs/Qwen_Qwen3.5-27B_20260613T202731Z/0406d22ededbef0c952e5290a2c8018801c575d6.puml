@@ -1,0 +1,26 @@
+```plantuml
+@startuml
+skinparam componentStyle rectangle
+
+package "SnapHelper" {
+  component OnFlingListener as onFlingListener
+  component OnScrollListener as onScrollListener
+  component SnapHelper as snapHelper
+  component LinearSmoothScroller as linearSmoothScroller
+}
+
+participant "snap" as snap
+
+onFlingListener -> onFlingListener : onFling
+onFlingListener -> snapHelper : snapFromFling
+snapHelper -> snap : findTargetSnapPosition
+snapHelper -> linearSmoothScroller : createSnapScroller
+linearSmoothScroller ..> snapHelper : onTargetFound
+snapHelper -> snap : calculateDistanceToFinalSnap
+onScrollListener -> onScrollListener : onScrollStateChanged
+onScrollListener -> snapHelper : snapToTargetExistingView
+snapHelper -> snap : findSnapView
+snapHelper -> snap : calculateDistanceToFinalSnap
+
+@enduml
+```

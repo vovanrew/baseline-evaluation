@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "```plantuml\n@startuml\nskinparam maxMessageSize 150\n\nbox \"RTP\" #F8F8F8\nparticipant RtpSenderEgress\nparticipant ModuleRtpRtcpImpl\nparticipant PacketRouter\nparticipant ProcessThreadImpl\nparticipant PacingController\nparticipant PacedSender\nparticipant RTPSender\nparticipant RTPSenderAudio\nend box\n\nbox \"Call\" #F8F8F8\nparticipant AudioCodingModuleImpl\nparticipant ChannelReceive\nparticipant ChannelSend\nparticipant AcmReceiver\nend box\n\nbox \"NetEq\" #F8F8F8\nparticipant AudioSendStream\nparticipant AudioMixerImpl\nparticipant AudioTransportImpl\nend box\n\nbox \"Audio\" #F8F8F8\nparticipant AudioDeviceBuffer\nparticipant AudioTrackJni\nparticipant AudioRecordJni\nend box\n\n-> AudioRecordJni : DataIsRecorded()\nactivate AudioRecordJni\nAudioRecordJni -> AudioDeviceBuffer : DeliverRecordedData()\nactivate AudioDeviceBuffer\nAudioDeviceBuffer -> AudioTransportImpl : RecordedDataIsAvailable()\nactivate AudioTransportImpl\nAudioTransportImpl -> AudioSendStream : SendAudioData()\nactivate AudioSendStream\nAudioSendStream -> ChannelSend : ProcessAndEncodeAudio()\nactivate ChannelSend\nChannelSend -[#blue]> AudioCodingModuleImpl : Add10MsData()\nactivate AudioCodingModuleImpl\nAudioCodingModuleImpl -> AudioCodingModuleImpl : Encode()\nactivate AudioCodingModuleImpl\nAudioCodingModuleImpl -> ChannelSend : SendData()\ndeactivate AudioCodingModuleImpl\ndeactivate AudioCodingModuleImpl\nChannelSend -> ChannelSend : SendRtpAudio()\nactivate ChannelSend\nChannelSend -> RTPSenderAudio : SendAudio()\ndeactivate ChannelSend\ndeactivate ChannelSend\nactivate RTPSenderAudio\nRTPSenderAudio -> RTPSender : SendToNetwork()\ndeactivate RTPSenderAudio\nactivate RTPSender\nRTPSender -> PacedSender : EnqueuePackets()\ndeactivate RTPSender\n\nProcessThreadImpl -> ProcessThreadImpl : Process()\nactivate ProcessThreadImpl\nProcessThreadImpl -> PacingController : Process()\ndeactivate ProcessThreadImpl\nactivate PacingController\nPacingController -> PacingController : ProcessPackets()\nactivate PacingController\nPacingController -> PacingController : SendRtpPacket()\nactivate PacingController\nPacingController -> PacketRouter : SendPacket()\ndeactivate PacingController\ndeactivate PacingController\ndeactivate PacingController\nactivate PacketRouter\nPacketRouter -> ModuleRtpRtcpImpl : TrySendPacket()\ndeactivate PacketRouter\nactivate ModuleRtpRtcpImpl\nModuleRtpRtcpImpl -> RtpSenderEgress : SendPacket()\ndeactivate ModuleRtpRtcpImpl\nactivate RtpSenderEgress\nRtpSenderEgress -> RtpSenderEgress : SendPacketToNetwork()\nactivate RtpSenderEgress\nRtpSenderEgress ->]\ndeactivate RtpSenderEgress\ndeactivate RtpSenderEgress\n\n@enduml\n```",
+            "thoughtSignature": "EjQKMgEMOdbHIy+IqTER5iBmY9hz3+UNtLX1AN9Sr2tOnVPH2TCkKWEK2dT621onRagDwt0H"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1151,
+    "candidatesTokenCount": 650,
+    "totalTokenCount": 1801,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 80
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1071
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-pro-preview",
+  "responseId": "CWAxavmeIpCMvdIP1YKwqAg"
+}

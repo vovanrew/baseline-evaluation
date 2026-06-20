@@ -1,0 +1,22 @@
+{
+  "id": "89f10072-d615-4534-8b5e-5c3e2ecf1882",
+  "object": "chat.completion",
+  "created": 1781485781,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nleft to right direction\nskinparam packageStyle rectangle\n\nactor \"Project Manager\" as PM\nparticipant \":ProjectManagerUI\" as UI\nparticipant \"AGVServer\" as AGVS\nparticipant \"AGVServerThread\" as AGVST\nparticipant \"AVGManagerController\" as AMC\nparticipant \"AGVDigitalTwinServer\" as DTWS\nparticipant \"AGVDigitalTwinThread\" as DTWT\nparticipant \"AGVDigitalTwinController\" as DTWC\nparticipant \"CodingAndDecoding2\" as CAD\n\nPM -> UI : Wants to assign ready to go Orders to an AGV\nactivate UI\nUI -> AGVS : message\nactivate AGVS\nAGVS -> AGVS : accept\nAGVS -> AGVST : start\nactivate AGVST\nAGVST -> CAD : Decoding(r)\nactivate CAD\nCAD --> AGVST : Message\ndeactivate CAD\nAGVST -> AMC : FifoAGV()\nactivate AMC\nAMC -> AMC : findavailableOrder()\nloop until orderList is empty\n    AMC -> AMC : findavailableAGV(weight,volume)\n    AMC -> AMC : createTaskandSave(description,order,agv)\n    AMC -> AMC : doTask()\n    AMC -> DTWS : message\n    activate DTWS\n    DTWS -> DTWS : accept\n    DTWS -> DTWT : start\n    activate DTWT\n    DTWT -> CAD : Decoding(r)\n    activate CAD\n    CAD --> DTWT : message\n    deactive CAD\n    DTWT -> DTWC : doTask(taskPerform)\n    activate DTWC\n    DTWC --> DTWT : TaskReportMessage\n    deactivate DTWC\n    DTWT --> DTWS : TaskReportMessage\n    deactivate DTWT\n    DTWS --> AMC : TaskReportMessage\n    deactivate DTWS\nend\nAMC --> AGVST : ResponseMessage\ndeactivate AMC\nAGVST --> AGVS : ResponseMessage\ndeactivate AGVST\nAGVS --> UI : ResponseMessage\ndeactivate AGVS\nUI --> PM : Informs operation success\ndeactivate UI\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1713,
+    "completion_tokens": 460,
+    "total_tokens": 2173
+  }
+}

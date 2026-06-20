@@ -1,0 +1,69 @@
+```plantuml
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor transparent
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #E9E9FF
+  BoxBorderColor #666666
+  BoxBackgroundColor #FFFFFF
+  ArrowColor #000000
+  NoteBackgroundColor #FFF9C4
+  NoteBorderColor #666666
+}
+
+box "BL1 common code" #E6E6E6
+participant "bl1_main" as bl1_main
+participant "bl_common" as bl_common
+end box
+
+box "arm platform code" #BFE7F2
+participant "fvp_bl1_setup" as fvp_bl1_setup
+participant "arm_bl1_setup" as arm_bl1_setup
+participant "arm_io_storage" as arm_io_storage
+end box
+
+box "platform common code" #E6E6E6
+participant "plat_bl1_common" as plat_bl1_common
+participant "fconf" as fconf
+end box
+
+bl1_main -> fvp_bl1_setup : bl1_platform_setup()
+fvp_bl1_setup -> arm_bl1_setup : arm_bl1_platform_setup()
+arm_bl1_setup -> arm_io_storage : plat_arm_io_setup()
+note right of arm_io_storage
+register and setup fip
+end note
+
+arm_bl1_setup -> fconf : fconf_load_config()
+note right of fconf
+create and populate an\nimage_desc_t for FW_CONFIG
+end note
+
+bl_common -> fconf : load_auth_image(FW_CONFIG_ID, &image_info)
+note left of bl_common
+load and auth image from fip\nwith info from plat_io_policy
+end note
+
+arm_io_storage -> fconf : FCONF_GET_PROPERTY(arm, arm_io_policies, tb_fw_cfg)
+note right of fconf
+use staticaly defined policies in bl1
+end note
+
+arm_io_storage -> fconf : image_info
+note right of fconf
+get tb_fw_config_dtb from image_info
+end note
+
+fconf -> plat_bl1_common : bl1_plat_get_image_desc(BL2_IMAGE_ID)
+plat_bl1_common -> fconf : BL2_IMAGE_DESC
+note right of fconf
+set ep_info.args.arg0 of BL2_IMAGE_DESC\nto FW_CONFIG base address
+end note
+
+== load & auth, prepare and jump to BL2 ==
+
+@enduml
+```

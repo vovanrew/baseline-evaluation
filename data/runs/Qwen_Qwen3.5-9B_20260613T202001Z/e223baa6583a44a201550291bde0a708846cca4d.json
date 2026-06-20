@@ -1,0 +1,22 @@
+{
+  "id": "4fa70ee7-18a6-4eef-a922-f1efd1b2f0d2",
+  "object": "chat.completion",
+  "created": 1781419874,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Capture Credit Card Payment\n\nparticipant \"Client\" as Client\nparticipant \"Shop\" as Shop\nparticipant \"PAYONE\" as PAYONE\n\nClient -> Shop: POST prepare.php\nactivate Shop\nShop --> Client: 302 capture.php\ndeactivate Shop\n\nClient -> Shop: GET capture.php\nactivate Shop\n\nalt [No Pseudo Card PAN present]\n  Shop --> Client: 200 Credit Card Form\n  Client -> Shop: POST Card PAN\n  activate Shop\n  Shop --> PAYONE: 200 Pseudo Card PAN\n  deactivate Shop\n  Shop --> Client: 200 Pseudo Card PAN\n  Client -> Shop: POST capture.php\n  activate Shop\n  Shop --> PAYONE: POST request=authorization\n  activate PAYONE\n  alt [With 3-D Secure]\n    Shop --> Client: 302 3-D Secure Form\n    Client -> Shop: POST 3-D Secure Password\n    activate Shop\n    Shop --> PAYONE: POST notify.php txaction=appointed\n    activate PAYONE\n    Shop --> Shop: Set Payment Status to \"captured\"\n    PAYONE --> Shop: 200 TSOK\n    Shop --> Client: 302 done.php\n    deactivate Shop\n    deactivate PAYONE\n  else [No 3-D Secure]\n    Shop --> PAYONE: 200 status=APPROVED\n    activate PAYONE\n    Shop --> Shop: Set Payment Status to \"pending\"\n    PAYONE --> Shop: 200 TSOK\n    Shop --> Client: 302 done.php\n    deactivate Shop\n    deactivate PAYONE\n  end\n  Client -> Shop: GET done.php\n  activate Shop\n  Shop --> Client: 200 Thanks\n  deactivate Shop\n  deactivate Shop\nelse\n  some time later\n  Shop --> PAYONE: POST notify.php txaction=appointed transaction_status=completed\n  activate PAYONE\n  Shop --> Shop: Set Payment Status to \"captured\"\n  PAYONE --> Shop: 200 TSOK\n  deactivate Shop\n  deactivate PAYONE\n  some time later\n  Shop --> PAYONE: POST notify.php txaction=paid\n  activate PAYONE\n  Shop --> Shop: 200 TSOK\n  deactivate Shop\n  deactivate PAYONE\nend\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1664,
+    "completion_tokens": 505,
+    "total_tokens": 2169
+  }
+}

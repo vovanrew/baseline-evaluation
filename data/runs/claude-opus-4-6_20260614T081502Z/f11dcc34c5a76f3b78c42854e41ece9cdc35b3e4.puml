@@ -1,0 +1,94 @@
+```plantuml
+@startuml
+title Zhinahan Classes
+
+package "Zhinahan" {
+  package "Parser" {
+    class AppendixDetector {
+      + starts_appendix_section?(line : string) : bool
+      + has_leaved_appendix_section?(line : string) : bool
+    }
+
+    class Context {
+      - while_appendix : bool
+      - line : string?
+      - index : int?
+      + within_appendix?() : bool
+      + enter_appendix() : void
+      + leave_appendix() : void
+      + update_position(line : string, index : int) : void
+    }
+
+    class Parser {
+      - matchers : Array<AbstractLineMatcher>
+      - appendix_detector : AppendixDetector
+      - context : Context
+      + parse(file : string) : Dictionary
+      - per_line(line : string, index : int)
+      - parse_line(line : string, index : int)
+    }
+
+    class LineParser {
+      + parse(context : Context)
+    }
+
+    package "LineMatchers" {
+      abstract class AbstractLineMatcher {
+        + match(context : Context) : MatchResult?
+        + pattern(context : Context) : RexExp
+        + type() : Symbol
+      }
+
+      class RadicalLineMatcher
+      class ExplanationLineMatcher
+      class PronunciationLineMatcher
+      class CharacterLineMatcher
+
+      class MatchResult {
+        - matched : MatchData
+        ~ type : String
+        + matched() : Hash<String, String>
+      }
+
+      RadicalLineMatcher --|> AbstractLineMatcher
+      ExplanationLineMatcher --|> AbstractLineMatcher
+      PronunciationLineMatcher --|> AbstractLineMatcher
+      CharacterLineMatcher --|> AbstractLineMatcher
+    }
+
+    Parser --> AppendixDetector
+    Parser --> Context
+    Parser --> AbstractLineMatcher
+    LineParser --> Context
+    AbstractLineMatcher --> MatchResult
+    AbstractLineMatcher --> Context
+  }
+
+  package "Core" {
+    class Dictionary {
+      - characters : Array<Character>
+      + find(character : string) : Character?
+    }
+
+    class Character {
+      - radical : Radical
+      - char : string
+      + is?(character : string) : bool
+    }
+
+    class Description
+    class Explanation
+    class Radical
+    class Pronunciation
+
+    Dictionary "1" -- "*" Character
+    Character "1" -- "1..*" Description
+    Character "1" -- "1" Radical
+    Description "1" -- "0..*" Explanation
+    Description "1" -- "0..1" Pronunciation
+  }
+
+  Parser --> Dictionary
+}
+@enduml
+```

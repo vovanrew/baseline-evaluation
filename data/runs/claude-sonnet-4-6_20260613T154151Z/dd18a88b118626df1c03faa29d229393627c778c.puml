@@ -1,0 +1,189 @@
+```plantuml
+@startuml
+title 'R19584 KU1 - Knihovna'
+
+class Library {
+  o books : ArrayList<Book>
+  o persons : ArrayList<Person>
+  o borrowings : ArrayList<Borrowing>
+  o StandardBorrowingPeriod : int
+  --
+  + Library()
+  --
+  + addBook(book : Book) : void
+  + addPerson(person : Person) : void
+  + addBorrowing(borrowing : Borrowing) : void
+  --
+  + addBooks(books : ArrayList<Book>) : void
+  + addPersons(persons : ArrayList<Person>) : void
+  + addBorrowings(borrowings : ArrayList<Borrowing>) : void
+  --
+  + getBooks() : ArrayList<Book>
+  + getPersons() : ArrayList<Person>
+  + getBorrowings(book : Book) : ArrayList<Borrowing>
+  + getPenalties(person : Person) : ArrayList<Penalty>
+  + penalizePerson(person : Person, penalty : Penalty) : void
+  --
+  + getAllBorrowings() : ArrayList<Borrowing>
+  + getAllBorrowingsThatAreOverdue() : ArrayList<Borrowing>
+  --
+  + isBorrowingOverdue(borrowing : Borrowing) : boolean
+  --
+  + extendBorrowing(borrowing : Borrowing) : void
+  + returnBookAndEndBorrowing(borrowing : Borrowing) : void
+  + borrowBookToPerson(person : Person, book : Book) : void
+  --
+  + toString() : String
+}
+
+class Borrowing {
+  o id : int
+  o book : Book
+  o person : Person
+  o borrowed_since : DateTime
+  o borrowed_until : DateTime
+  --
+  + init() : int
+  + getBook() : Book
+  + getPerson() : Person
+  + getBorrowedSince() : DateTime
+  + getBorrowedUntil() : DateTime
+  --
+  + setBorrowedUntil() : void
+  --
+  + toString() : String
+  + Borrowing(id : int, book : Book, person : Person, borrowed_since : DateTime, borrowed_until : DateTime)
+}
+
+class DateTime {
+  o daysInMonths : int[]
+  o day : int
+  o month : EMonth
+  o year : int
+  o hour : int
+  o minutes : int
+  o seconds : int
+  --
+  + DateTime(day : int, month : EMonth, year : int)
+  + DateTime(day : int, month : EMonth, year : int, hour : int)
+  + DateTime(day : int, month : EMonth, year : int, hour : int, minutes : int, seconds : int)
+  + DateTime(day : int, month : int, year : int, hour : int, minutes : int, seconds : int)
+  --
+  + getDay() : int
+  + getMonth() : EMonth
+  + getYear() : int
+  + getHour() : int
+  + getMinutes() : int
+  + getSeconds() : int
+  --
+  + setDay(day : int) : void
+  + setMonth(month : EMonth) : void
+  + setYear(year : int) : void
+  + setHour(hour : int) : void
+  + setMinutes(minutes : int) : void
+  + setSeconds(seconds : int) : void
+  --
+  + addDays(days : int) : void
+  + getDateTimeInSecondsSince1970() : double
+  --
+  + copy() : DateTime
+  + toString() : String
+}
+
+enum EMonth {
+  JANUARY
+  FEBRUARY
+  MARCH
+  APRIL
+  MAY
+  JUNE
+  JULY
+  AUGUST
+  SEPTEMBER
+  OCTOBER
+  NOVEMBER
+  DECEMBER
+  --
+  + getFromEMonth(month : EMonth) : int «static»
+  + getEMonthFromInt(month : int) : EMonth «static»
+}
+
+class Book {
+  o author : Person
+  o title : String
+  o publisher : String
+  o isbn : String
+  --
+  + Book(author : Person, title : String, publisher : String, isbn : String)
+  --
+  + getAuthor() : Person
+  + getTitle() : String
+  + getPublisher() : String
+  + getISBN() : String
+  --
+  + toString() : String
+}
+
+class Person {
+  o name : String
+  o surname : String
+  o phone_numbers : ArrayList<Integer>
+  o emails : ArrayList<String>
+  o penalties : ArrayList<Penalty>
+  --
+  + PersonName(String, surname : String)
+  + PersonName(String, surname : String, phone_number : int)
+  + PersonName(String, surname : String, String, email : String)
+  + PersonName(String, surname : String, String, phone_number : int, email : String)
+  --
+  + getName() : String
+  + getSurname() : String
+  + getFullName() : String
+  + getPhoneNumber() : ArrayList<Integer>
+  + getEmail() : ArrayList<String>
+  + getPenalties() : ArrayList<Penalty>
+  --
+  + setName(name : String) : void
+  + setSurname(surname : String) : void
+  + addPhone(phone_number : String) : void
+  + addMail(email : String) : void
+  + addPhoneNumber(phone_numbers : ArrayList<Integer>) : void
+  + addEmails(emails : ArrayList<String>) : void
+  + addPenalty(penalty : Penalty) : void
+  --
+  + toString() : String
+}
+
+class Penalty {
+  o Description : String
+  o Penaltydescription : String
+  --
+  + getDescription() : String
+  --
+  + toString() : String
+}
+
+class IOSingleton {
+  o instance : IOSingleton «static»
+  o idCounter : int «static»
+  --
+  + IOSingleton()
+  --
+  + getInstance() : IOSingleton «static»
+  + toString() : String
+  + getId() : int
+}
+
+Library --> Borrowing
+Library --> Book
+Library --> Person
+Library --> Penalty
+Borrowing --> Book
+Borrowing --> Person
+Borrowing --> DateTime
+Book --> Person
+Person --> Penalty
+DateTime --> EMonth
+
+@enduml
+```

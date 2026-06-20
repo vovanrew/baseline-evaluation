@@ -1,0 +1,46 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequenceMessageAlign left
+skinparam responseMessageBelowArrow true
+
+participant "IntegrationTest" as IT
+participant "Spring\nApplication" as SPR
+participant "De /nSerializer" as SER
+participant "ctrl:AddMember\nToGroupController" as CTRL
+participant "AddMember\nRequestAssembler" as REQASM
+participant "AddMemberResponse\nDTOAssembler" as RESPASM
+participant "srv:AddMember\nToGroupService" as SRV
+
+note right of SRV
+Continues through
+next Diagram
+end note
+
+IT -> SPR : POST\n1 /groups/"Family"/\nmembers/"ana@gmail.com"
+SPR -> SER : 1.1 deserialize("groupDesc":"Family",\n"personEmail":"ana@gmail.com")
+create participant "info:AddMember\nRequestInfoDTO" as INFO
+SER -> INFO : 1.1.1 create (groupDesc,\nPersonEmail)
+
+SPR -> CTRL : 1.2 addMember(info)
+
+CTRL -> REQASM : 1.2.1\naddMemberMapToDto\n(info.getGroupDescription(),\ninfo.getPersonEmail())
+create participant "requestDTO:\nAddMemberRequestDTO" as REQDTO
+REQASM -> REQDTO : 1.2.1.1 create
+
+CTRL -> SRV : 1.2.2 addMember(requestDTO)
+SRV --> CTRL : 1.2.3 groupDTO
+
+CTRL -> RESPASM : 1.2.4 mapToGroupResponseDTO(groupDTO)
+create participant "groupRespDTO:\nGroupResponseDTO" as GROUPRESP
+RESPASM -> GROUPRESP : 1.2.4.1 create
+RESPASM --> CTRL : 1.2.5 groupRespDTO
+
+CTRL --> SPR : 1.2.6 ResponseEntity(groupRespDTO,\nHttpStatus.OK)
+SPR -> SER : 1.3 serialize(ResponseEntity(groupRespDTO,\nHttpStatus.OK))
+SPR --> IT : 1.4 HttpResponse
+IT --> IT : 1.5 HttpResponse
+
+@enduml
+```

@@ -1,0 +1,31 @@
+@startuml
+participant generate_delta_main.cc as "generate_delta_main.cc"
+participant delta_diff_generator.cc as "delta_diff_generator.cc"
+participant payload_file.cc as "payload_file.cc"
+participant payload_generation_config.cc as "payload_generation_config.cc"
+
+"generate_delta_main.cc" ..|> "payload_generation_config.cc" : "--dynamic_partition_info_file"
+
+"generate_delta_main.cc" ..|> "payload_generation_config.cc" : brillo::KeyValueStore.Load(file)
+
+"generate_delta_main.cc" ..|> "payload_generation_config.cc" : payload_config.target.LoadDynamicPartitionMetadata(store)
+
+"generate_delta_main.cc" ..|> "payload_generation_config.cc" : payload_config.target.ValidateDynamicPartitionMetadata()
+
+"generate_delta_main.cc" ..|> "delta_diff_generator.cc" : GenerateUpdatePayloadFile()
+
+"delta_diff_generator.cc" ..|> "payload_file.cc" : payload.Init(config)
+
+"payload_file.cc" ..|> "payload_generation_config.cc" : manifest_.dynamic_partition_metadata
+
+"payload_file.cc" ..|> "delta_diff_generator.cc" : generate payload data
+
+"delta_diff_generator.cc" ..|> "payload_file.cc" : payload.WritePayload()
+
+"payload_file.cc" ..|> "payload_generation_config.cc" : manifest_.SerializeToString()
+
+"payload_file.cc" ..|> "payload_generation_config.cc" : Write(serialized_manifest.data())
+
+"generate_delta_main.cc" ..|> "delta_diff_generator.cc" : done
+
+@enduml

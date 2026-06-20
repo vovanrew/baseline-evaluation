@@ -1,0 +1,21 @@
+{
+  "id": "msg_01XUsbW4YAFcn3DA9Z7TGbSC",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\n\nactor \"havenarbeider\" as havenarbeider\nactor \"douane en voedselinspectie\" as douane\nactor \"scheepsagent\" as scheepsagent\nparticipant \"Api gateway\" as api\nparticipant \"kapiteinsdienst\" as kapiteinsdienst\nparticipant \"administratie\" as administratie\nparticipant \"containerbeheer en \u2013transport\" as containerbeheer\n\ngroup per schip\n    scheepsagent -> api : registerVessel\n    api -> kapiteinsdienst : registerVessel\n    kapiteinsdienst -> administratie : requestOffer\n    administratie -> kapiteinsdienst : offerCreated\n    kapiteinsdienst -> containerbeheer : newContainerList\n\n    opt deleteOffer\n        scheepsagent -> api : offerConfirmation(isConfirmed == false)\n        api -> kapiteinsdienst : offerConfirmation(isConfirmed == false)\n        kapiteinsdienst -> administratie : deleteOffer\n    end\n\n    scheepsagent -> api : getDocuments\n    api -> containerbeheer : getDocuments\n    containerbeheer --> scheepsagent : \nend\n\ngroup per havenarbeider\n    havenarbeider -> api : timeBadging\n    api -> administratie : timeBadging\n    administratie -> containerbeheer : \n    havenarbeider -> api : getPayCheck\n    api -> administratie : getPayCheck\n    administratie --> havenarbeider : \nend\n\n@enduml\n```"
+      }
+    }
+  ],
+  "created": 1781430631,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 372,
+    "prompt_tokens": 1662,
+    "total_tokens": 2034
+  }
+}

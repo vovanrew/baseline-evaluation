@@ -1,0 +1,22 @@
+{
+  "id": "98cf8c4b-d6c8-4f60-a14b-d1441c1db5ab",
+  "object": "chat.completion",
+  "created": 1781415260,
+  "model": "Qwen/Qwen3.5-9B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nleft to right direction\nactor \"Project Manager\" as PM\nparticipant \":ProjectManagerUI\" as PMUI\nparticipant \"AGVServer\" as AGVServer\nparticipant \"AGVServerThread\" as AGVServerThread\nparticipant \"AVGManagerController\" as AVGManagerController\nparticipant \"AGVDigitalTwinServer\" as AGVDigitalTwinServer\nparticipant \"AGVDigitalTwinThread\" as AGVDigitalTwinThread\nparticipant \"AGVDigitalTwinController\" as AGVDigitalTwinController\nparticipant \"CodingAndDecoding2\" as CodingAndDecoding2\n\nPM -> PMUI : Wants to assign ready to go Orders to an AGV\nPMUI -> AGVServer : message\nAGVServer -> AGVServer : accept\nAGVServer -> AGVServerThread : start\nAGVServerThread -> CodingAndDecoding2 : Decoding(r)\nCodingAndDecoding2 -> AGVServerThread : Message\nAGVServerThread -> AVGManagerController : FifoAGV()\nAVGManagerController -> AVGManagerController : findavailableOrder()\nloop [until orderList is empty]\n  AVGManagerController -> AVGManagerController : findavailableAGV(weight,volume)\n  AVGManagerController -> AVGManagerController : createTaskandSave(description,order,agv)\n  AVGManagerController -> AVGManagerController : doTask()\n  AVGManagerController -> AGVDigitalTwinServer : message\n  AGVDigitalTwinServer -> AGVDigitalTwinServer : accept\n  AGVDigitalTwinServer -> AGVDigitalTwinThread : start\n  AGVDigitalTwinThread -> CodingAndDecoding2 : Decoding(r)\n  CodingAndDecoding2 -> AGVDigitalTwinThread : message\n  AGVDigitalTwinThread -> AGVDigitalTwinController : doTask(taskPerform)\n  AGVDigitalTwinController -> AGVDigitalTwinThread : TaskReportMessage\n  AGVDigitalTwinThread -> AGVDigitalTwinServer : TaskReportMessage\n  AGVDigitalTwinServer -> AVGManagerController : TaskReportMessage\nend\nAGVServerThread -> AGVServer : ResponseMessage\nAGVServer -> PMUI : ResponseMessage\nPMUI -> PM : Informs operation success\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1713,
+    "completion_tokens": 490,
+    "total_tokens": 2203
+  }
+}

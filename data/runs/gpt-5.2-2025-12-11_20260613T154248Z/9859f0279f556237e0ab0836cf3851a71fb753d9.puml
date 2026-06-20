@@ -1,0 +1,58 @@
+```plantuml
+@startuml
+hide footbox
+skinparam shadowing false
+skinparam sequence {
+  ParticipantPadding 40
+  BoxPadding 20
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #FFFFFF
+  ActorBorderColor #000000
+  ParticipantBorderColor #000000
+  ParticipantBackgroundColor #E6E6E6
+  BoxBorderColor #000000
+  BoxBackgroundColor #DDDDDD
+  ArrowColor #000000
+  ArrowThickness 2
+}
+
+box "FAMPClient" #DDDDDD
+participant "AudioBundleAssembler" as ABA
+participant "UDPBundleReceiver" as UBR
+end box
+
+box "FAMPServer" #DDDDDD
+participant "UDPBundleSender" as UBS
+participant "QUdpSocket" as QUS
+end box
+
+activate ABA
+ABA -> UBR : rozpocznij watek\nodbierajacy
+ABA -> UBS : rozpocznij wysylanie\npaczek
+activate UBS
+UBS -> QUS : grupa 50 paczek
+
+loop [dopoki nie pobrano wszystkich paczek]
+  loop [dopoki dostepne sa datagramy]
+    ABA -> UBR : przekaz pobrane\ndotychczas datagramy
+    activate UBR
+    UBR --> ABA : dane
+    deactivate UBR
+    ABA -> ABA : odczytaj id paczki i zapisz
+  end
+
+  alt [nie wszystkie paczki wyslane]
+    ABA -> UBS : wyslij nastepny zestaw paczek
+    activate UBS
+    UBS -> QUS : grupa 50 paczek
+    UBS --> ABA : czy to ostatni zestaw
+  else [istnieja paczki do retransmisji]
+    UBS -> QUS : wyslij zestaw brakujacych paczek
+  end
+end
+
+ABA -> ABA : posortuj paczki
+ABA -> ABA : zapisz paczki do pliku
+deactivate ABA
+@enduml
+```

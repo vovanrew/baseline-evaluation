@@ -1,0 +1,62 @@
+```plantuml
+@startuml
+title SOURCE's Class Diagram
+
+package "model" {
+  package "data" {
+    package "source" {
+      abstract class Collector {
+        + Collector()
+        + {abstract} getDatumLinkListByTree()
+        + {abstract} getEntityDescription()
+        + {abstract} getEntityName()
+        + {abstract} getQualifiers()
+        + {abstract} getReferences()
+        + {abstract} getSingleStatement()
+        + {abstract} getStatementList()
+        + {abstract} triggerLoad()
+        + {abstract} triggerSave()
+      }
+
+      class WebCollector {
+        # loaded : Entities
+        - gson : Gson
+        - seen : ArrayList<Entities>
+        + WebCollector()
+        + getDatumLinkListByTree()
+        + getEntityDescription()
+        + getEntityName()
+        + getQualifiers()
+        + getReferences()
+        + getSingleStatement()
+        + getStatementList()
+        + triggerLoad()
+        + triggerSave()
+        # getJson()
+        - formatURL()
+        - iterateSnaks()
+        - tryGetQualifiers()
+      }
+
+      class LocalCollector {
+        + LocalCollector()
+        + triggerSave()
+        # getJson()
+      }
+    }
+
+    class LocalRepository {
+      - file : File
+      + LocalRepository()
+      + load()
+      + save()
+    }
+  }
+}
+
+WebCollector --|> Collector
+LocalCollector --|> WebCollector
+Collector "repository" o-- LocalRepository
+
+@enduml
+```

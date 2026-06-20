@@ -1,0 +1,22 @@
+{
+  "id": "bfdbefb2-ae92-447b-a3e2-48478b7f5476",
+  "object": "chat.completion",
+  "created": 1781494529,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Activity Redirection Sequence Diagram\n\n' Define participants with their process groupings\nrectangle \"Main process\" #LightBlue {\n    participant \"Hook_StartActivity\" as Hook\n    participant \"VirtualCore\" as VC\n    participant \"VActivityManager\" as VAM\n}\n\nrectangle \"Server process\" #LightGreen {\n    participant \"VActivityManagerService\" as VAMS\n    participant \"VPackageManagerService\" as VPMS\n    participant \"ProviderCaller\" as PC\n}\n\nrectangle \"App Client process\" #Gray {\n    participant \"StubContentProvider\" as SCP\n}\n\nparticipant \"VRedirectActRequest\" as VRAR\nparticipant \"VActRedirectResult\" as VARes\n\n' Main sequence flow\nactivate Hook\nHook -> VC: resolveActivityInfo\nactivate VC\ndeactivate VC\n\nHook -> VRAR: new VRedirectActRequest\nactivate VRAR\nVRAR --> Hook: req\ndeactivate VRAR\n\nHook -> VAM: redirectTargetActivity\nactivate VAM\nVAM -> VAMS: redirectTargetActivity\nactivate VAMS\n\n' Server-side processing\nVAMS -> VAMS: redirectTargetActivityLocked\nactivate VAMS\nVAMS -> VAMS: startProcessLocked\nactivate VAMS\nVAMS -> VAMS: queryFreeStubForProcess\nactivate VAMS\ndeactivate VAMS\nVAMS -> VAMS: performStartProcessLocked\nactivate VAMS\nVAMS -> VPMS: querySharedPackages\nactivate VPMS\nVPMS --> VAMS: sharedPackages : List<String>\ndeactivate VPMS\n\nVAMS -> VPMS: queryContentProviders\nactivate VPMS\nVPMS --> VAMS: providers : List<ProviderInfo>\ndeactivate VPMS\n\nVAMS -> VPMS: getSharedLibraries\nactivate VPMS\nVPMS --> VAMS: usesLibraries : List<String>\ndeactivate VPMS\n\nVAMS -> PC: call(MethodConstants.INIT_PROCESS)\nactivate PC\nPC -> SCP: call\nactivate SCP\nSCP -> SCP: initProcess\nactivate SCP\ndeactivate SCP\ndeactivate SCP\ndeactivate PC\n\nnote right of SCP: StubContentProvider.java\u4e2d\u5b9a\u4e49\u4e8620\u4e2a\u9759\u6001\u5185\u90e8\u7c7bC1\u5230C20\uff0c\u90fd\\n\u662fStubContentProvider\u7684\u5b50\u7c7b\u3002\u5e76\u4e14\u5728AndroidManifest.xml\\n\u4e2d\u58f0\u660e\u4e86process\u5b57\u6bb5\uff0c\u4e0e\u5bf9\u5e94\u7684StubActivity\u4e00\u81f4\u3002\\nVA\u7684\u670d\u52a1\u8fdb\u7a0b\u53d6\u51fa\u4e00\u4e2a\u7a7a\u7684stubContentProvider\uff0c\\n\u501f\u52a9Android ContentProvider\u673a\u5236\uff0c\u7cfb\u7edf\u4f1a\u521b\u5efa\u4e00\u4e2a\u65b0\u8fdb\u7a0b\u51fa\u6765\uff0c\\n\u7a0d\u540e\u88ab\u4f5c\u4e3a\u53cc\u5f00\u5e94\u7528\u7684\u5bb9\u8eab\u4e4b\u6240\u3002\u8fd9\u4e2a\u5077\u6881\u6362\u67f1\u7684\u8fc7\u7a0b\u7531VA\u670d\u52a1\u8fdb\u7a0b\u5b8c\u6210\u3002\n\nVAMS -> VAMS: fetchStubActivityInfo\nactivate VAMS\ndeactivate VAMS\ndeactivate VAMS\ndeactivate VAM\n\nVAMS --> VARes: result = new VActRedirectResult\nactivate VARes\ndeactivate VARes\ndeactivate Hook\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 1860,
+    "completion_tokens": 612,
+    "total_tokens": 2472
+  }
+}

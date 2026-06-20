@@ -1,0 +1,22 @@
+{
+  "id": "eec320a1-76ef-4366-afbd-209024fb3e10",
+  "object": "chat.completion",
+  "created": 1781402680,
+  "model": "Qwen/Qwen3.5-2B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nparticipant \"user\" as User\nparticipant \"FindWorkbookUI\" as FindWorkbookUI\nparticipant \"UIController\" as UIController\nparticipant \"FindWorkbooksController\" as FindWorkbooksController\nparticipant \"StartWorkbooksSearch\" as StartWorkbooksSearch\nparticipant \"fw : FindWorkbooks\" as FindWorkbooks\nparticipant \"Paths\" as Paths\nparticipant \"Files\" as Files\nparticipant \"Cleansheets\" as Cleansheets\n\nUser ->> FindWorkbookUI : startWorkbooksSearch()\n\nalt [adicionar]\n    loop [todas as adicoes]\n        FindWorkbookUI ->> FindWorkbooksController : add(path)\n        FindWorkbooksController ->> FindWorkbooksController : create()\n        FindWorkbooksController ->> FindWorkbooksController : start()\n        FindWorkbooksController ->> FindWorkbooksController : run()\n        FindWorkbooksController ->> FindWorkbooksController : create()\n        FindWorkbooksController ->> Paths : p : get()\n        FindWorkbooksController ->> Files : walkFileTree(p, fw)\n    end\n    loop [todas as remocoes]\n        FindWorkbookUI ->> FindWorkbooksController : remover(path)\n        FindWorkbooksController ->> FindWorkbooksController : create()\n    end\nend\n\nFindWorkbookUI ->> FindWorkbooksController : startWorkbooksSearch()\n\nloop [todas as paths]\n    FindWorkbookUI ->> FindWorkbooksController : create(path, WorkbooksFoundList)\n    FindWorkbooksController ->> FindWorkbooksController : create()\n    FindWorkbooksController ->> FindWorkbooksController : start()\n    FindWorkbooksController ->> FindWorkbooksController : run()\n    FindWorkbooksController ->> FindWorkbooksController : create()\n    FindWorkbooksController ->> Paths : p : get()\n    FindWorkbooksController ->> Files : walkFileTree(p, fw)\nend\n\nUser ->> FindWorkbookUI : openFoundWorkbook()\n\nFindWorkbookUI ->> UIController : app : getApp()\nnote right of FindWorkbookUI\n    f represents a file that is created when the user selects a workbook to open from the list of found workbooks\nend note\n\nFindWorkbookUI ->> UIController : w : getWorkbook(f)\nFindWorkbookUI ->> Cleansheets : setActiveWorkbook(w)\n\n@enduml"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2105,
+    "completion_tokens": 506,
+    "total_tokens": 2611
+  }
+}

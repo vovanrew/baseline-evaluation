@@ -1,0 +1,35 @@
+{
+  "id": "chatcmpl-DqLhJzt0IANiAkGjidM5tNB1SGTum",
+  "object": "chat.completion",
+  "created": 1781368833,
+  "model": "gpt-5.2-2025-12-11",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Retrieve Part value\n\nactor User\nparticipant \"libdrift\" as libdrift\n\nbox \"driftd service\" #ADD8E6\n  participant \"Advertisement channel\" as adv\n  participant \"Control channel\" as ctrl\n  participant \"driftd\" as driftd\nend box\n\nparticipant \"Neo4j\" as neo4j\nparticipant \"MongoDB\" as mongodb\n\nUser -> libdrift : get Part value\n\nnote left of libdrift\nRetrieval message contains\nindex specifier\nindex value\nend note\n\nlibdrift -> ctrl : send retrieval message\nlibdrift -> User : ACK\n\nctrl -> driftd : get Part value\n\ndriftd -> driftd : Lookup Part UUID in index\ndriftd -> neo4j : Get Part info\n\nalt [Composite Part]\n  loop [foreach Part]\n    driftd -> neo4j : Get Part metadata with UUID\n    driftd -> mongodb : Get Part values\n  end\nelse [Simple Part]\n  driftd -> neo4j : Get Part metadata with UUID\n  driftd -> mongodb : Get Part values\nend\n\ndriftd -> driftd : build update message\ndriftd -> adv : Update messages for Part values\nadv -> User : receive update message\n\n@enduml\n```",
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2289,
+    "completion_tokens": 290,
+    "total_tokens": 2579,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

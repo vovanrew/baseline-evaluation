@@ -1,0 +1,72 @@
+```plantuml
+@startuml
+participant User
+participant "Web Client" as WebClient
+participant "DutchPay Server" as Server
+database Group
+
+User -> WebClient : GET /
+activate WebClient
+
+WebClient -> Server : static asset 요청(HTML/CSS 등)
+activate Server
+Server --> WebClient : HTML/CSS 등 응답
+deactivate Server
+
+WebClient -> WebClient : 그룹 입력 페이지로 redirection
+WebClient --> User : 그룹 입력 페이지
+
+User -> WebClient : 1. 그룹 이름 입력 & 저장
+WebClient -> Server : POST groups/
+activate Server
+
+Server -> Server : GUID 생성
+Server -> Group : Item 생성(groupName, guid)
+activate Group
+Group --> Server : created
+deactivate Group
+
+Server --> WebClient : guid
+deactivate Server
+
+WebClient -> WebClient : store에 그룹 이름, guid 저장
+WebClient -> WebClient : 그룹 멤버 추가 페이지로 redirection
+WebClient --> User : 그룹 멤버 추가 페이지
+
+User -> WebClient : 2. 그룹 멤버 이름 입력 & 저장
+WebClient -> Server : PUT groups/{guid}/members
+activate Server
+
+Server -> Group : Item 업데이트(members)
+activate Group
+Group --> Server : updated
+deactivate Group
+
+Server --> WebClient : success
+deactivate Server
+
+WebClient -> WebClient : store에 그룹 멤버 이름 저장
+WebClient -> WebClient : 비용 관리 페이지로 redirection
+WebClient --> User : 비용 관리 페이지
+
+loop
+    User -> WebClient : 3. 비용 정보 입력 & 추가
+    WebClient -> Server : PUT groups/{guid}/expenses
+    activate Server
+
+    Server -> Group : Item 업데이트(expense)
+    activate Group
+    Group --> Server : updated
+    deactivate Group
+
+    Server --> WebClient : success
+    deactivate Server
+
+    WebClient -> WebClient : store에 비용 정보 저장
+    WebClient -> WebClient : 정산 결과 계산
+    WebClient --> User : 정산 결과 노출
+end
+
+deactivate WebClient
+@enduml
+```

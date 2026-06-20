@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+title Sequence Diagram for DIFA Operation Access
+
+actor "Bruker" as User
+package "Kjede" {
+    participant "Kjedesystem" as KS
+    participant "Identity Provider" as IP
+}
+package "DIFA" {
+    participant "DifaGUI" as GUI
+    participant "Tilgangskontroll" as TC
+    database "HPR-DB" as HPR
+}
+participant "HDIR" as HDIR
+
+User -> KS: Velg DIFA operasjon fra meny
+KS -->> User: Redirect
+User -> GUI: Utfør operasjon
+GUI -->> User: Krever pålogging – redirect
+User -> IP: Logg på
+IP -->> User: Access token
+User -> GUI: Access token
+activate GUI
+GUI -> TC: Autoriser bruker
+activate TC
+TC --> IP: Access token
+IP -->> TC: JWT
+note right of IP: token er en signert JSON payload
+TC --> KS: «cached» Hent kjedesertifikat
+TC -> TC: Verifiser token signatur
+TC -> TC: Hent HPR nr fra token (+ roller)
+TC -> HPR: HPR nummer
+HPR -->> TC: Autorisasjon (eks "farmasøyt")
+TC -> TC: Avgjør tilgang
+TC --> GUI: 
+deactivate TC
+GUI -> GUI: utfør operasjon
+GUI -->> User: 
+deactivate GUI
+
+HDIR -> HPR: Oppdatert helsepersonellregister
+
+@enduml
+```

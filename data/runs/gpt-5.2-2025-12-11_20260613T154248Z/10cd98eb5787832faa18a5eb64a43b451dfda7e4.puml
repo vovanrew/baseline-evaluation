@@ -1,0 +1,84 @@
+@startuml
+hide footbox
+skinparam backgroundColor white
+skinparam sequence {
+  ArrowColor #333333
+  LifeLineBorderColor #999999
+  LifeLineBackgroundColor #FFFFFF
+  ParticipantBorderColor #999999
+  ParticipantBackgroundColor #F8F8F8
+  BoxBorderColor #CCCCCC
+  BoxBackgroundColor #FFFFFF
+}
+
+box "VideoSink" #FFFFFF
+participant VideoSink as VideoSink
+end box
+
+box "VideoDecoder" #FFFFFF
+participant VideoDecoder as VideoDecoder
+end box
+
+box "VideoReceiver" #FFFFFF
+participant VideoReceiver as VideoReceiver
+end box
+
+box "RTPReceiver" #FFFFFF
+participant RTPReceiver as RTPReceiver
+end box
+
+box "Transcoder" #FFFFFF
+participant Transcoder as Transcoder
+end box
+
+box "DPLA" #FFFFFF
+participant DPLA as DPLA
+end box
+
+box "AzureKVSClient" #FFFFFF
+participant AzureKVSClient as AzureKVSClient
+end box
+
+== Receive RTP ==
+VideoReceiver -> VideoReceiver : Receive RTP ...
+
+== Receive Video ==
+VideoReceiver -> VideoReceiver : Receive Video
+
+RTPReceiver -> RTPReceiver : RtpReceiver ...
+RTPReceiver -> Transcoder : OnRtpPacket
+Transcoder -> DPLA : OnRtpPacket
+
+DPLA -> DPLA : PreConnection
+DPLA -> DPLA : OpenRtpPacket
+DPLA -> DPLA : SignalReadEvent
+DPLA -> AzureKVSClient : OnReadEvent
+AzureKVSClient -> AzureKVSClient : ReadFrame
+AzureKVSClient --> DPLA : OnReadEvent()
+
+Transcoder -> Transcoder : RtpTransportProtocol\n(transport protocol)
+Transcoder -> Transcoder : RtpTransportProtocol\n(transport protocol)
+Transcoder -> DPLA : OnRtpPacketReceived
+
+RTPReceiver -> RTPReceiver : RtpReceiverStateController
+RTPReceiver -> RTPReceiver : SetState
+RTPReceiver -> RTPReceiver : SetStateController
+
+VideoDecoder -> VideoDecoder : StartVideoDecode()
+
+VideoSink -> VideoReceiver : SurfaceAvailable(surface)
+VideoReceiver -> VideoReceiver : VideoReceiver(surface)
+VideoReceiver -> VideoDecoder : IncomingVideoFrame(frame)
+VideoDecoder -> VideoDecoder : VideoDecoder(frame)
+VideoDecoder -> VideoDecoder : VideoDecoderInit()
+VideoDecoder -> VideoDecoder : AddVideoDecoder()
+VideoDecoder -> VideoDecoder : VideoDecoderStart()
+VideoDecoder -> VideoDecoder : VideoDecoderThreadStart()
+VideoDecoder -> VideoDecoder : Decode()
+VideoDecoder -> VideoDecoder : OnDecodedFrame()
+VideoDecoder -> VideoSink : OnFrame()
+
+VideoReceiver -> VideoReceiver : RESUME
+VideoReceiver -> VideoReceiver : HandleDecodedFrame()
+
+@enduml

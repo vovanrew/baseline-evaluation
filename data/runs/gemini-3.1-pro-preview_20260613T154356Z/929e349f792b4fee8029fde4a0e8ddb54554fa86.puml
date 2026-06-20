@@ -1,0 +1,52 @@
+```plantuml
+@startuml
+participant "ebiz-salesman" as ebiz
+participant "guide-event" as guide
+participant "retail-sales" as retail
+participant "tsp" as tsp
+
+autonumber
+
+ebiz -> ebiz: 监听账号合并消息，执行合并
+activate ebiz
+ebiz --> ebiz: 返回
+deactivate ebiz
+
+ebiz -> ebiz: 定时器扫表[扫描过滤出还未执行完成的明细任务], 并调用相应 processor 执行
+activate ebiz
+
+alt <font color=blue>[ 未完成 ]</font>
+    loop <font color=blue>[ tsp 回调执行 ]</font>
+        ebiz -> ebiz: 返回，等待其他 processor 任务执行
+        ebiz --> ebiz: 
+    end
+else <font color=blue>[ 完成 ]</font>
+    ebiz -> guide: 发送账号合并完成消息[一个导购可能在 N 多家店有身份，那么将发送出 N 条消息]
+    activate guide
+    guide --> ebiz: ebiz-salesman 所有流程结束
+    deactivate ebiz
+    
+    guide -> guide: 开始消息处理流程
+    activate guide
+    guide -> guide: 检查 apollo 是否开启帐号合并开关
+    guide --> guide: 
+    
+    note left of guide: 以 task_id 作为幂等键, task_id = SG:AM-rootKdtId-fromUId-toUId
+    guide -> guide: 检查 shopping_guide_event_task 表是否已经存在此任务
+    guide --> guide: 
+    
+    note left of guide: 1.shopping_guide_event_task\n2.shopping_guide_event_detail_task\n3.shopping_guide_event_exec_task
+    guide -> guide: 创建帐号合并任务，将任务写入表
+    guide --> guide: 
+    
+    guide -> tsp: 创建 30 分钟延时任务，30分钟后检查并执行该任务
+    activate tsp
+    tsp --> guide: 
+    deactivate tsp
+    
+    guide --> guide: 结束
+    deactivate guide
+end
+
+@enduml
+```

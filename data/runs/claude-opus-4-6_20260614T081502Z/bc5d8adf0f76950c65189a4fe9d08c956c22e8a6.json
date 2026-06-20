@@ -1,0 +1,21 @@
+{
+  "id": "msg_01WppRerMqnc9rKYvsR36fAx",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\n\nactor user\n\nparticipant \"FindWorkbookUI\" as FindWorkbookUI\nparticipant \"UIController\" as UIController\nparticipant \"FindWorkbooksController\" as FindWorkbooksController\nparticipant \"StartWorkbooksSearch\" as StartWorkbooksSearch\nparticipant \"fw : FindWorkbooks\" as fw\nparticipant \"Paths\" as Paths\nparticipant \"Files\" as Files\nparticipant \"Cleansheets\" as Cleansheets\n\nuser -> FindWorkbookUI : startWorkbooksSearch()\nFindWorkbookUI -> FindWorkbooksController : create()\n\nalt adicionar\n    loop todas as adicoes\n        FindWorkbookUI -> FindWorkbooksController : add(path)\n    end\nelse remover\n    loop todas as remocoes\n        FindWorkbookUI -> FindWorkbooksController : remover(path)\n    end\nend\n\nFindWorkbookUI -> FindWorkbooksController : startWorkbooksSearch()\n\nloop todas as paths\n    FindWorkbooksController -> StartWorkbooksSearch : create(path, WorkbooksFoundList)\n    FindWorkbooksController -> StartWorkbooksSearch : startWorkbooksSearch()\n    StartWorkbooksSearch -> StartWorkbooksSearch : create()\n    note right of StartWorkbooksSearch\n        this create() call represents\n        the creation of a new thread\n        of this same class\n    end note\n    StartWorkbooksSearch -> StartWorkbooksSearch : start()\n    StartWorkbooksSearch -> StartWorkbooksSearch : run()\n    StartWorkbooksSearch -> fw : create()\n    StartWorkbooksSearch -> Paths : p : get()\n    StartWorkbooksSearch -> Files : walkFileTree(p, fw)\nend\n\nuser -> FindWorkbookUI : openFoundWorkbook()\nFindWorkbookUI -> UIController : app : getApp()\n\nnote left of FindWorkbooksController\n    f represents a file that is created when\n    the user selects a workbook to open from\n    the list of found workbooks\nend note\n\nFindWorkbookUI -> Cleansheets : w : getWorkbook(f)\nFindWorkbookUI -> Cleansheets : setActiveWorkbook(w)\n\n@enduml"
+      }
+    }
+  ],
+  "created": 1781432306,
+  "model": "claude-opus-4-6",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 515,
+    "prompt_tokens": 1644,
+    "total_tokens": 2159
+  }
+}

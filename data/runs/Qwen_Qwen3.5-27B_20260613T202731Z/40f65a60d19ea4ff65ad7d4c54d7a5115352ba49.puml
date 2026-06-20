@@ -1,0 +1,128 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+actor "Actor" as Actor
+participant "Dashboard" as Dashboard
+participant "DashboardController" as DashboardController
+participant "IssuesDetailController" as IssuesDetailController
+participant "IssuesService" as IssuesService
+participant "IssuesEntityService" as IssuesEntityService
+participant "EntityService" as EntityService
+participant "IssuesRepository" as IssuesRepository
+participant "IssueRepository" as IssueRepository
+
+== Initial Interaction ==
+Actor -> Dashboard: /issues
+activate Dashboard
+Dashboard -> DashboardController: createIssues()
+activate DashboardController
+DashboardController --> Dashboard: new / redirect
+deactivate DashboardController
+Dashboard -x Dashboard
+deactivate Dashboard
+
+== Parallel Processing for getIssues ==
+par
+    Dashboard -> IssuesDetailController: getIssues()
+    activate IssuesDetailController
+    
+    IssuesDetailController -> IssuesService: createIssuesStatistics()
+    activate IssuesService
+    
+    IssuesService -> IssuesEntityService: findAll()
+    activate IssuesEntityService
+    
+    IssuesEntityService -> EntityService: selectAllIssues()
+    activate EntityService
+    
+    EntityService -> IssuesRepository: findAll()
+    activate IssuesRepository
+    
+    loop
+        IssuesRepository -> IssuesRepository: new
+        database "Issues" as IssuesDB
+    end
+    
+    loop
+        IssuesRepository -> IssueRepository: findById(id)
+        activate IssueRepository
+        IssueRepository -> IssueRepository: new
+        database "Issue" as IssueDB
+        IssueRepository --> IssuesRepository: Issue
+        deactivate IssueRepository
+    end
+    
+    IssuesRepository --> EntityService: Set<Issues>
+    deactivate IssuesRepository
+    
+    EntityService --> IssuesEntityService: Set<Issues>
+    deactivate EntityService
+    
+    IssuesEntityService --> IssuesService: Set<Issues>
+    deactivate IssuesEntityService
+    
+    IssuesService --> IssuesDetailController: IssuesStatistics
+    deactivate IssuesService
+    
+    IssuesDetailController --> Dashboard: IssuesStatistics
+    deactivate IssuesDetailController
+end
+
+== Report Selection and Details ==
+Actor -> Dashboard: select report
+activate Dashboard
+Dashboard -> DashboardController: details
+activate DashboardController
+DashboardController --> Dashboard: new / redirect
+deactivate DashboardController
+Dashboard -x Dashboard
+deactivate Dashboard
+
+== Parallel Processing for Categories ==
+par
+    Dashboard -> IssuesDetailController: getCategories(origin, reference)
+    activate IssuesDetailController
+    
+    IssuesDetailController -> IssuesService: createDistributionByCategory(origin, reference)
+    activate IssuesService
+    
+    IssuesService -> IssuesEntityService: findByPrimaryKey(origin, reference)
+    activate IssuesEntityService
+    
+    IssuesEntityService -> EntityService: select(origin, reference)
+    activate EntityService
+    
+    EntityService -> IssuesRepository: findById(origin, reference)
+    activate IssuesRepository
+    
+    IssuesRepository -> IssuesRepository: new
+    database "Issues" as IssuesDB2
+    
+    loop
+        IssuesRepository -> IssueRepository: findById(id)
+        activate IssueRepository
+        IssueRepository -> IssueRepository: new
+        database "Issue" as IssueDB2
+        IssueRepository --> IssuesRepository: Issue
+        deactivate IssueRepository
+    end
+    
+    IssuesRepository --> EntityService: Issues
+    deactivate IssuesRepository
+    
+    EntityService --> IssuesEntityService: Issues
+    deactivate EntityService
+    
+    IssuesEntityService --> IssuesService: Issues
+    deactivate IssuesEntityService
+    
+    IssuesService --> IssuesDetailController: IssuePropertyDistribution
+    deactivate IssuesService
+    
+    IssuesDetailController --> Dashboard: IssuePropertyDistribution
+    deactivate IssuesDetailController
+end
+
+@enduml
+```

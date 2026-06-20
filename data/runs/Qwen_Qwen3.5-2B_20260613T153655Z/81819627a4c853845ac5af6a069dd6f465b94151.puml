@@ -1,0 +1,36 @@
+@startuml
+skinparam sequenceDiagram
+
+participant "お嬢" as お嬢
+participant "グループスタッフ" as グループスタッフ
+participant "CABABA" as CABABA
+participant "データベース" as データベース
+participant "CABABA管理者" as CABABA管理者
+
+note over お嬢, グループスタッフ, CABABA, データベース, CABABA管理者
+3. 女の子の招待
+end note
+
+note over お嬢, グループスタッフ, CABABA, データベース, CABABA管理者
+女の子登録
+end note
+
+actor お嬢
+actor グループスタッフ
+actor CABABA
+actor データベース
+actor CABABA管理者
+
+rectangle 女の子登録
+    CABABA -> データベース: SELECT Group.group_id
+    データベース <- CABABA: SELECT Group.group_id
+    CABABA -> グループスタッフ: 参加招待URLを表示
+    グループスタッフ <- CABABA: 参加招待URLを表示
+    グループスタッフ -> お嬢: URLを共有
+    お嬢 -> CABABA: URLをクリック, LINEログイン画面へ
+    CABABA -> データベース: UPDATE hostess.groups.add
+    データベース <- CABABA: UPDATE hostess.groups.add
+    CABABA -> グループスタッフ: お嬢のグループ登録完了
+end rectangle
+
+@enduml

@@ -1,0 +1,60 @@
+```plantuml
+@startuml
+skinparam sequence {
+    LifeLineBackgroundColor #f5f5dc
+    ActorBorderColor #87ceeb
+    ActorBackgroundColor #f0f8ff
+}
+
+actor "任务开始 nsq 消息" as TaskStartMsg
+
+participant "GuideTaskStartListener" as Listener
+participant "GuideTaskStartProcessor" as Processor
+participant "GuideTaskStartDomainService" as DomainService
+participant "GuideTaskStartStrategy" as Strategy
+participant "ShoppingGuideReadApi" as ReadApi
+participant "GuideTaskRepository" as Repository
+participant "GuideTaskDataRepository" as DataRepository
+
+TaskStartMsg ->> Listener: 1 监听任务开始消息
+activate Listener
+Listener ->> Processor: 2 开始处理
+activate Processor
+Processor ->> Repository: 3 查询任务
+activate Repository
+Repository --> Processor
+deactivate Repository
+Processor ->> DomainService: 4 开始任务
+activate DomainService
+DomainService ->> Strategy: 5 构建任务
+activate Strategy
+Strategy ->> ReadApi: 6 根据部门查询导购
+activate ReadApi
+ReadApi --> Strategy
+deactivate ReadApi
+Strategy ->> Strategy: 7 根据导购进行任务分配
+
+rectangle "Transaction" {
+    Strategy ->> DataRepository: 8 保存分配给导购的任务
+    activate DataRepository
+    DataRepository --> Strategy
+    deactivate DataRepository
+    
+    Strategy ->> Repository: 9 status flow 任务状态流转至 已启动
+    activate Repository
+    Repository --> Strategy
+    deactivate Repository
+    
+    Strategy ->> DataRepository: 10 任务流转为执行中
+    activate DataRepository
+    DataRepository --> Strategy
+    deactivate DataRepository
+}
+
+deactivate Strategy
+deactivate DomainService
+deactivate Processor
+deactivate Listener
+
+@enduml
+```

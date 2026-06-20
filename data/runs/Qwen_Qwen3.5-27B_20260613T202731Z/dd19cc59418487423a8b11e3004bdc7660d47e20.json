@@ -1,0 +1,22 @@
+{
+  "id": "def73dc4-2734-4c23-a9b7-4b5d27234bfd",
+  "object": "chat.completion",
+  "created": 1781439862,
+  "model": "Qwen/Qwen3.5-27B",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Session Management Sequence Diagram\n\nactor UI as ui\nparticipant \"sessionRoute\" as route\nparticipant passport\nparticipant SessionController\ndatabase innoDB\n\nui -> route: GET() \"/session\"\\nAuth: Bearer token\\n{userID, DASS21_SCORES, sessionDetails}\n\nactivate route\nroute -> passport: \"/save\", authenticate(\"jwt\")\nactivate passport\n\nalt Success: Authenticated\n    passport --> route: done(null, user)\n    \n    route -> SessionController: Request Products\n    activate SessionController\n    \n    alt Success: Required info provided\n        SessionController -> SessionController: Validate info\n        SessionController -> innoDB: saveSession()\n        activate innoDB\n        innoDB --> SessionController: session\n        deactivate innoDB\n        \n        SessionController --> route: httpResponse(200)\\nsession\n        route --> ui: httpResponse(200)\\nallProducts\n    else Failure: missing information\n        SessionController --> route: {\"msg\":\"missing required information\"}(400)\n        route --> ui: http Response(400)\\n{\"msg\":\"missing required information\"}\n    end\n    \n    deactivate SessionController\nelse Failure: Unauthorized\n    passport --> route: done(null,false)\n    route --> ui: http Response(401)\\nUnauthorized\nend\n\ndeactivate passport\ndeactivate route\n\n@enduml\n```"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "system_fingerprint": "fp1-nst-nes",
+  "usage": {
+    "prompt_tokens": 2203,
+    "completion_tokens": 296,
+    "total_tokens": 2499
+  }
+}

@@ -1,0 +1,19 @@
+@startuml
+participant "User" as U
+participant "CouponPage" as CP
+participant "DB_Beanstalkd" as DB
+participant "UserMail" as UM
+
+U ->> CP : Load merchant page with cashback
+CP ->> U : Return page with discounts
+
+U ->> CP : Clicks on cashback
+CP ->> U : Returns 2 tabs, on tab 1 the reflink to merchant, on tab 2 a popup with cashback formular(email)
+
+U ->> CP : Fills email, submits form
+CP ->> DB : Saves cashback request
+
+CP ->> U : Sends new content for checkout popup, simultaneously opens reflink with uaid in a new tab(3)
+CP ->> UM : Sends new email with link to cashback form
+
+@enduml
