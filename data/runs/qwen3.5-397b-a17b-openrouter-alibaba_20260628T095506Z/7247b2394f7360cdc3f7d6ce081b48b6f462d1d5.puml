@@ -1,0 +1,33 @@
+@startuml
+title Logg inn system
+actor Bruker
+participant "System" as System
+participant "Database" as Database
+
+Bruker -> System: Trykker logg inn knapp
+System --> Bruker: Send til skjema for innlogging
+Bruker -> System: Send inn e-mail og passord
+System -> Database: Validere brukerdetaljer
+
+alt [Logg inn godkjent]
+    Database --> System: Brukerdetaljer godkjent
+    System --> Bruker: Send til innlogget side
+else [Feil Passord]
+    Database --> System: Feil passord
+    System --> Bruker: "Du har oppgitt feil passord. Glemt passordet?"
+    Bruker -> System: Glemt passord
+    System --> Bruker: Send til skjema for glemt passord
+    Bruker -> System: Send inn e-mail adresse
+    System -> Database: Verifiser e-mail adresse
+    Database --> System: E-mail adresse verifisert
+    System --> Bruker: Send e-mail for å gjenopprette passord
+    System --> Bruker: "Vi har sendt en mail til denne adressen..."
+else [Brukeren eksisterer ikke]
+    Database --> System: Finner ikke bruker
+    System --> Bruker: "Vi finner ingen bruker registrert med denne e-mailadressen"
+end
+
+actor Bruker
+participant "System" as System
+participant "Database" as Database
+@enduml

@@ -1,0 +1,60 @@
+```plantuml
+@startuml
+package "surcharge" {
+    package "seat" {
+        class SeatType << (E, #FFCCCC) >> {
+            FreeSeat
+            ReservedSeat
+            + {static} abstract createSeat(superExpress : SuperExpress) : Seat
+        }
+
+        interface Seat << (I, #CCCCFF) >> {
+            + getSeatSurcharge()
+        }
+
+        class FreeSeat << (C, #CCFFCC) >> {
+            - Hikari
+            + getSeatSurcharge() : Yen
+        }
+
+        class ReservedSeat << (C, #CCFFCC) >> {
+            - SuperExpress
+            + getSeatSurcharge() : Yen
+        }
+    }
+
+    package "superexpress" {
+        class ShinkansenType << (E, #FFCCCC) >> {
+            Hikari
+            Nozomi
+            + {static} abstract createSuperExpress(destination : Destination) : SuperExpress
+        }
+
+        interface SuperExpress << (I, #CCCCFF) >> {
+            + getSuperExpressSurcharge() : Yen
+        }
+
+        class Hikari << (E, #FFCCCC) >> {
+            ShinOsaka
+            Himeji
+            + getSuperExpressSurcharge() : Yen
+        }
+
+        class Nozomi << (E, #FFCCCC) >> {
+            ShinOsaka
+            Himeji
+            + getSuperExpressSurcharge() : Yen
+        }
+    }
+}
+
+SeatType o-- Seat
+Seat <|-- FreeSeat
+Seat <|-- ReservedSeat
+ShinkansenType o-- SuperExpress
+SuperExpress <|-- Hikari
+SuperExpress <|-- Nozomi
+FreeSeat --> Hikari
+ReservedSeat --> SuperExpress
+@enduml
+```

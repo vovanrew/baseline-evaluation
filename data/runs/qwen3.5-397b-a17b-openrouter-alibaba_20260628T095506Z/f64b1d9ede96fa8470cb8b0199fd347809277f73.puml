@@ -1,0 +1,41 @@
+@startuml
+actor Client
+participant "Service1" as Service1
+participant "Service2" as Service2
+
+note right of Service1: SessionFactory\none per node
+note right of Service2: Session\none per request
+
+frame "model check" {
+    Client -> Service1: register(Class<Pojo>)
+    activate Service1
+    Service1 -> Service1: checkModel
+    Service1 -> Service1: createModelForPojo
+    
+    alt [mode="create"]
+        alt [model exists]
+            Service1 <- - Service1: throw exception
+        else
+            Service1 -> Service1: createModelInDB
+        end
+    else [mode="drop-create"]
+        Service1 -> Service1: dropModelInDB
+        Service1 -> Service1: createModelInDB
+    else [mode="update"]
+        Service1 -> Service1: getModelDeltaInDB
+        Service1 -> Service1: updateModelInDB
+    else [mode="none"]
+        Service1 -> Service1: checkModelInDB
+        alt [model differs]
+            Service1 <- - Service1: throw exception
+        end
+    end
+    deactivate Service1
+}
+
+Client -> Service2: store(pojo)
+activate Service2
+Service2 -> Service2: getDelta(pojo)
+deactivate Service2
+
+@enduml

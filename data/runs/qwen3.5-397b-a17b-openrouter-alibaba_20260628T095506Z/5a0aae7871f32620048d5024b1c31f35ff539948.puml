@@ -1,0 +1,68 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam note {
+  BackgroundColor White
+  BorderColor Black
+}
+skinparam participant {
+  BackgroundColor White
+  BorderColor Black
+}
+skinparam loop {
+  BackgroundColor White
+  BorderColor Black
+}
+
+participant "DefaultResultSetHandler" as A
+participant "DefaultResultSetHandler1" as B
+participant "DefaultResultSetHandler2" as C
+participant "DefaultResultSetHandler3" as D
+participant "DefaultResultSetHandler4" as E
+participant "DefaultResultSetHandler5" as F
+participant "DefaultResultSetHandler6" as G
+participant "DefaultResultSetHandler7" as H
+participant "DefaultResultSetHandler8" as I
+
+A -> B: handleResultSets()
+loop
+    B -> C: 1. handleResultSet() :使用mappedStatement指定的ResultMap将结果集映射成对象
+    note right of C: handleRowValues()：映射结果集
+    loop
+        D -> E: handleRowValuesForNestedResultMap()
+        note right of E: 映射包含嵌套子映射的结果集
+        loop
+            E -> F: getRowValue()
+            F -> G: 1. createResultObject()：使用构造器属性映射构造对象
+            F -> G: 2. applyAutomaticMappings()：使用自动映射映射没有定义映射的
+            F -> G: 3. applyPropertyMappings()：使用映射映射属性对应的列
+            loop
+                G -> H: getPropertyMappingValue()
+                note right of H: 属性的值来源于查询结果（可能是嵌套值）
+                H -> I: getNestedQueryMappingValue()
+                note right of I: 属性的值需要使用resultSet属性指定的结果集来映射（延迟映射的钩子）
+                I -> I: _addPendingChildRelation()
+                note right of I: 属性的值直接从结果集中获取
+                I -> I: _TypeHandler.getResult()
+            end
+            note right of G: 通过反射将值设置到宿主对象的属性上
+            F -> F: 4. applyNestedResultMappings()：使用内嵌子映射映射生成属性对象（会调用getRowValue()方法）
+        end
+        note right of E: 收集映射生成的结果对象，并且返回
+    end
+    loop
+        D -> D: handleRowValuesForSimpleResultMap()
+        note right of D: 映射没有嵌套子映射的结果集
+        loop
+            D -> D: getRowValue()
+            D -> D: 1. createResultObject()：使用构造器属性映射构造对象
+            D -> D: 2. applyAutomaticMappings()：使用自动映射映射没有定义映射的
+            D -> D: 3. applyPropertyMappings()：使用映射映射属性对应的列
+        end
+        note right of D: 收集映射生成的结果对象，并且返回
+    end
+    B -> B: 2. handleResultSet()：使用resultMapping指定的ResultMap或resultMapping指定的结果集映射成对象（属性值）
+    note right of B: 过程与上面完全一样，不同的是收集结果对象，此流程将生成的结果对象设置到宿主属性上
+end
+A -> A: done
+@enduml

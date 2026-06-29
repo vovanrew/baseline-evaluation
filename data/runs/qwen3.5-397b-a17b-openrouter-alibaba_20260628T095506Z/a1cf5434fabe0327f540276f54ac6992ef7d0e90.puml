@@ -1,0 +1,54 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantFontColor #000000
+skinparam participantPadding 10
+skinparam noteBackgroundColor #FFFFE0
+skinparam noteBorderColor #000000
+skinparam noteFontColor #000000
+skinparam notePadding 5
+skinparam arrowColor #000000
+skinparam arrowThickness 1
+skinparam activationBackgroundColor #FFFFFF
+skinparam activationBorderColor #000000
+skinparam activationFontColor #000000
+skinparam activationPadding 5
+skinparam combinedFragmentBackgroundColor #F0F0F0
+skinparam combinedFragmentBorderColor #000000
+skinparam combinedFragmentFontColor #000000
+skinparam combinedFragmentPadding 5
+
+participant "Agent" as Agent
+participant "VirtualCoffeeMachine" as VirtualCoffeeMachine
+participant "TestThing" as TestThing
+
+Agent ->> Agent: top:wait()
+
+box "strict" #F0F0F0
+  box "par" #F0F0F0
+    Agent ->> VirtualCoffeeMachine: subscribeEvent: "maintenance"
+    VirtualCoffeeMachine -->> Agent: confirmation
+    VirtualCoffeeMachine ->> Agent: data-pushed
+  end
+  box "par" #F0F0F0
+    Agent ->> TestThing: writeProperty: "string"
+  end
+end
+
+note over Agent,VirtualCoffeeMachine: wait 500ms
+
+box "strict" #F0F0F0
+  box "par" #F0F0F0
+    Agent ->> VirtualCoffeeMachine: readProperty: "state"
+    VirtualCoffeeMachine -->> Agent: response
+  end
+  box "par" #F0F0F0
+    Agent ->> TestThing: writeProperty: "string"
+  end
+end
+
+@enduml

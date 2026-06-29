@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782657130-mqjTpwFCMrILdXhstw7k",
+  "object": "chat.completion",
+  "created": 1782657130,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nactor Admin\nparticipant \":DivisionPage\" as DivisionPage\nparticipant \":DivisionTableContainer\" as DivisionTableContainer\nparticipant \":DivisionTable\" as DivisionTable\nparticipant \":DivisionService (Frontend)\" as DivisionServiceFrontend\nparticipant \":Router\" as Router\nparticipant \":DivisionHTTPTransport\" as DivisionHTTPTransport\nparticipant \":DivisionEndpoint\" as DivisionEndpoint\nparticipant \":DivisionService\" as DivisionService\nparticipant \":DivisionCommand\" as DivisionCommand\nparticipant \":DivisionQuery\" as DivisionQuery\n\nAdmin -> DivisionPage: Open \"Manage Division\" Page\nDivisionPage -> DivisionTableContainer: Render \"Division Table\" Container\nDivisionTableContainer -> DivisionTable: Render \"Division Table\"\nDivisionTable --> DivisionTableContainer: rendered\nDivisionTableContainer --> DivisionPage: rendered\nDivisionPage --> Admin: rendered\n\nAdmin -> DivisionPage: Mark \"Division\"\nDivisionPage -> DivisionTableContainer: Mark \"Division\"\nDivisionTableContainer -> DivisionTable: Mark \"Division\"\nDivisionTable --> DivisionTableContainer: marked\nDivisionTableContainer --> DivisionPage: marked\nDivisionPage --> Admin: marked\n\nAdmin -> DivisionPage: Click \"Delete Selected\" Button\nDivisionPage -> DivisionTableContainer: showDeleteConfirmation(item)\n\nalt \"Cancel Delete\"\n    DivisionTableContainer --> DivisionPage: Close Dialog\n    DivisionPage --> Admin: Close Dialog\nelse\n    DivisionTableContainer -> DivisionTableContainer: handleDeleteConfirmation(item)\n    DivisionTableContainer -> DivisionServiceFrontend: deleteDivision([]payload)\n    DivisionServiceFrontend -> Router: route(\"DELETE\", \"v2/divisions\", formData)\n    Router -> DivisionHTTPTransport: DeleteDivisions(DivisionService, []ServerOption)\n    DivisionHTTPTransport -> DivisionEndpoint: DeleteMany(DivisionService)\n    DivisionEndpoint -> DivisionService: DeleteDivisions(context, []uuid)\n    \n    loop \"for each uuid\"\n        DivisionService -> DivisionQuery: Find(context, uuid)\n        DivisionQuery --> DivisionService: division\n        DivisionService -> DivisionCommand: Delete(context, division)\n        DivisionCommand --> DivisionService: isDeleted\n    end\n    \n    DivisionService --> DivisionEndpoint: isDeleted\n    DivisionEndpoint -> DivisionEndpoint: response := Response(isDeleted, nil)\n    DivisionEndpoint --> DivisionHTTPTransport: response\n    DivisionHTTPTransport --> Router: response\n    Router --> DivisionServiceFrontend: response\n    DivisionServiceFrontend --> DivisionTableContainer: response\n    DivisionTableContainer --> DivisionPage: response\n    DivisionPage --> Admin: response\nend\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1320,
+    "completion_tokens": 537,
+    "total_tokens": 1857,
+    "cost": 0.00177138,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00177138,
+      "upstream_inference_prompt_cost": 0.0005148,
+      "upstream_inference_completions_cost": 0.00125658
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

@@ -1,0 +1,135 @@
+```plantuml
+@startuml
+title Find all a vaccination documents in EPD
+skinparam sequenceMessageAlign center
+skinparam lifelinestrategy solid
+skinparam participantPadding 20
+skinparam boxPadding 10
+skinparam noteFontColor black
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #CCCCCC
+skinparam actorStyle awesome
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #E0E0E0
+skinparam participantBorderColor #999999
+skinparam participantFontColor #000000
+skinparam participantFontStyle bold
+skinparam participantFontSize 12
+skinparam participantPadding 10
+skinparam participantMargin 5
+skinparam participantBorderThickness 2
+skinparam participantBorderRadius 5
+skinparam participantShadowing true
+skinparam participantShadowColor #CCCCCC
+skinparam participantShadowOffset 2
+skinparam participantShadowBlur 5
+skinparam participantShadowOpacity 0.5
+skinparam participantShadowStyle solid
+skinparam participantShadowDirection bottom-right
+skinparam participantShadowAngle 45
+skinparam participantShadowDistance 5
+skinparam participantShadowSpread 0
+skinparam participantShadowInset 0
+skinparam participantShadowInnerColor #FFFFFF
+skinparam participantShadowOuterColor #CCCCCC
+skinparam participantShadowInnerOpacity 0.8
+skinparam participantShadowOuterOpacity 0.3
+skinparam participantShadowInnerBlur 3
+skinparam participantShadowOuterBlur 5
+skinparam participantShadowInnerOffset 1
+skinparam participantShadowOuterOffset 2
+skinparam participantShadowInnerAngle 45
+skinparam participantShadowOuterAngle 45
+skinparam participantShadowInnerDistance 3
+skinparam participantShadowOuterDistance 5
+skinparam participantShadowInnerSpread 0
+skinparam participantShadowOuterSpread 0
+skinparam participantShadowInnerInset 0
+skinparam participantShadowOuterInset 0
+skinparam participantShadowInnerStyle solid
+skinparam participantShadowOuterStyle solid
+skinparam participantShadowInnerDirection bottom-right
+skinparam participantShadowOuterDirection bottom-right
+skinparam participantShadowInnerColor #FFFFFF
+skinparam participantShadowOuterColor #CCCCCC
+skinparam participantShadowInnerOpacity 0.8
+skinparam participantShadowOuterOpacity 0.3
+skinparam participantShadowInnerBlur 3
+skinparam participantShadowOuterBlur 5
+skinparam participantShadowInnerOffset 1
+skinparam participantShadowOuterOffset 2
+skinparam participantShadowInnerAngle 45
+skinparam participantShadowOuterAngle 45
+skinparam participantShadowInnerDistance 3
+skinparam participantShadowOuterDistance 5
+skinparam participantShadowInnerSpread 0
+skinparam participantShadowOuterSpread 0
+skinparam participantShadowInnerInset 0
+skinparam participantShadowOuterInset 0
+skinparam participantShadowInnerStyle solid
+skinparam participantShadowOuterStyle solid
+skinparam participantShadowInnerDirection bottom-right
+skinparam participantShadowOuterDirection bottom-right
+
+actor "HCP" as HCP
+participant "GFPP/PIS" as GFPP_PIS
+participant "Aggregator" as Aggregator
+participant "CO-Registry" as CO_Registry
+participant "CO-Repositiory" as CO_Repositiory
+participant "CO-IGW" as CO_IGW
+participant "OC-RGW" as OC_RGW
+participant "OC-Registry" as OC_Registry
+participant "OC-Repositiory" as OC_Repositiory
+
+box "Community A" #LightGray
+  participant "GFPP/PIS" as GFPP_PIS
+  participant "Aggregator" as Aggregator
+  participant "CO-Registry" as CO_Registry
+  participant "CO-Repositiory" as CO_Repositiory
+  participant "CO-IGW" as CO_IGW
+end box
+
+box "Community X" #LightGray
+  participant "OC-RGW" as OC_RGW
+  participant "OC-Registry" as OC_Registry
+  participant "OC-Repositiory" as OC_Repositiory
+end box
+
+HCP -> GFPP_PIS: [01] Get all immunization data
+GFPP_PIS -> Aggregator: [02] query all registries
+Aggregator -> CO_Registry: [03] Registry Stored Query Request [ITI-18]
+CO_Registry -> CO_Repositiory: [04] Registry Stored Query Request [ITI-18]
+CO_Repositiory -> CO_Repositiory: [05] Lookup Data
+CO_Repositiory -> CO_Registry: [06] Registry Stored Query Response [ITI-18]
+CO_Registry -> CO_IGW: [07] request all communities
+CO_IGW -> OC_RGW: [08] Registry Stored Query Request [ITI-38]
+OC_RGW -> OC_Registry: [09] Registry Stored Query Request [ITI-18]
+OC_Registry -> OC_Repositiory: [10] Lookup Data
+OC_Repositiory -> OC_Registry: [11] Registry Stored Query Response [ITI-18]
+OC_Registry -> OC_RGW: [12] Registry Stored Query Response [ITI-38]
+OC_RGW -> CO_IGW: [13] end loop
+CO_IGW -> CO_IGW: [14] Assemble Query Responses
+CO_IGW -> GFPP_PIS: [15] Registry Stored Query Response [ITI-18]
+GFPP_PIS -> GFPP_PIS: [16] list of document info
+GFPP_PIS -> GFPP_PIS: [17] retrieve all documents
+GFPP_PIS -> CO_IGW: [18] Retrieve Document Request [ITI-43]
+CO_IGW -> CO_Repositiory: [19] Retrieve Document Request [ITI-43]
+CO_Repositiory -> CO_Repositiory: [20] allocate document data
+CO_Repositiory -> CO_IGW: [21] Retrieve Document Response [ITI-43]
+CO_IGW -> OC_RGW: [22] Retrieve Document Request [ITI-39]
+OC_RGW -> OC_Repositiory: [23] Retrieve Document Request [ITI-43]
+OC_Repositiory -> OC_Repositiory: [24] allocate document data
+OC_Repositiory -> OC_RGW: [25] Retrieve Document Response [ITI-43]
+OC_RGW -> CO_IGW: [26] Retrieve Document Response [ITI-39]
+CO_IGW -> CO_IGW: [27] Assemble Retrieve Responses
+CO_IGW -> GFPP_PIS: [28] Retrieve Document Response [ITI-43]
+GFPP_PIS -> Aggregator: [29] Aggregate documents
+Aggregator -> GFPP_PIS: [30] one FHIR ch-vacd document
+GFPP_PIS -> HCP: [31] Show immunization data
+
+note right of HCP
+  Version 1.0
+end note
+
+@enduml
+```

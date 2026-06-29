@@ -1,0 +1,39 @@
+@startuml
+actor User
+participant "Index" as Index
+participant "User Controller" as UserController
+database "Database" as Database
+
+User -> Index: GET: /users/signup
+activate Index
+Index -> UserController: renderSignup()
+activate UserController
+UserController -> UserController: render(index)
+UserController --> Index: display signup
+deactivate UserController
+deactivate Index
+
+User -> Index: POST: /users/signup
+activate Index
+Index -> UserController: async signup()
+activate UserController
+UserController -> Database: User.findOne(email)
+activate Database
+Database --> UserController: return false
+deactivate Database
+
+alt [user not found]
+    alt [accept]
+        UserController -> UserController: User.create()
+        UserController --> Index: display home
+    else [refuse]
+        UserController --> Index: display home
+    end
+else [user already exist]
+    UserController --> Index: show error
+end
+
+deactivate UserController
+deactivate Index
+
+@enduml

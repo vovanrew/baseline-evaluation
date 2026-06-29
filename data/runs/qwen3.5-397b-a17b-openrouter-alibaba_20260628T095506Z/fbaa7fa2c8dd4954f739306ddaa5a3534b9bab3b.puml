@@ -1,0 +1,179 @@
+```plantuml
+@startuml
+title Project - Staff - Update
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam noteStyle rectangle
+skinparam actorStyle rectangle
+skinparam lifelineStrategy nosolid
+skinparam responseMessageBelowArrow true
+skinparam responseMessageFontColor black
+skinparam responseMessageBorderColor black
+skinparam responseMessageBackgroundColor #98FB98
+skinparam participantFontColor black
+skinparam participantBorderColor black
+skinparam participantBackgroundColor #FF6347
+skinparam participantPadding 5
+skinparam boxPadding 5
+skinparam noteFontColor black
+skinparam noteBorderColor black
+skinparam noteBackgroundColor #98FB98
+skinparam notePadding 5
+skinparam arrowColor black
+skinparam arrowThickness 1
+skinparam arrowFontColor black
+skinparam arrowFontName Arial
+skinparam arrowFontSize 10
+skinparam arrowFontStyle plain
+skinparam arrowTextAlign center
+skinparam arrowTextPadding 5
+skinparam arrowTextBackgroundColor white
+skinparam arrowTextBorderColor black
+skinparam arrowTextBorderThickness 1
+skinparam arrowTextBorderRadius 0
+skinparam arrowTextBorderStyle solid
+skinparam arrowTextBorderDashArray
+skinparam arrowTextBorderDashOffset
+skinparam arrowTextBorderLineCap
+skinparam arrowTextBorderLineJoin
+skinparam arrowTextBorderMiterLimit
+skinparam arrowTextBorderOpacity
+skinparam arrowTextBorderWidth
+skinparam arrowTextBorderHeight
+skinparam arrowTextBorderMargin
+skinparam arrowTextBorderPadding
+skinparam arrowTextBorderSpacing
+skinparam arrowTextBorderCollapse
+skinparam arrowTextBorderVisibility
+skinparam arrowTextBorderDisplay
+skinparam arrowTextBorderPosition
+skinparam arrowTextBorderZIndex
+skinparam arrowTextBorderClip
+skinparam arrowTextBorderOverflow
+skinparam arrowTextBorderWhiteSpace
+skinparam arrowTextBorderWordWrap
+skinparam arrowTextBorderWordBreak
+skinparam arrowTextBorderTextOverflow
+skinparam arrowTextBorderTextAlign
+skinparam arrowTextBorderTextDecoration
+skinparam arrowTextBorderTextTransform
+skinparam arrowTextBorderTextIndent
+skinparam arrowTextBorderTextShadow
+skinparam arrowTextBorderTextStroke
+skinparam arrowTextBorderTextFill
+skinparam arrowTextBorderTextOpacity
+skinparam arrowTextBorderTextVisibility
+skinparam arrowTextBorderTextDisplay
+skinparam arrowTextBorderTextPosition
+skinparam arrowTextBorderTextZIndex
+skinparam arrowTextBorderTextClip
+skinparam arrowTextBorderTextOverflow
+skinparam arrowTextBorderTextWhiteSpace
+skinparam arrowTextBorderTextWordWrap
+skinparam arrowTextBorderTextWordBreak
+skinparam arrowTextBorderTextTextOverflow
+skinparam arrowTextBorderTextTextAlign
+skinparam arrowTextBorderTextTextDecoration
+skinparam arrowTextBorderTextTextTransform
+skinparam arrowTextBorderTextTextIndent
+skinparam arrowTextBorderTextTextShadow
+skinparam arrowTextBorderTextTextStroke
+skinparam arrowTextBorderTextTextFill
+skinparam arrowTextBorderTextTextOpacity
+skinparam arrowTextBorderTextTextVisibility
+skinparam arrowTextBorderTextTextDisplay
+skinparam arrowTextBorderTextTextPosition
+skinparam arrowTextBorderTextTextZIndex
+skinparam arrowTextBorderTextTextClip
+skinparam arrowTextBorderTextTextOverflow
+skinparam arrowTextBorderTextTextWhiteSpace
+skinparam arrowTextBorderTextTextWordWrap
+skinparam arrowTextBorderTextTextWordBreak
+skinparam arrowTextBorderTextTextTextOverflow
+
+actor Client
+participant ProjectService
+participant RedisCache
+participant Kafka
+participant PersisterService
+participant IndexerService
+participant ErrorService
+participant ElasticSearch
+database Database
+
+Client -> ProjectService: /project/staff/v1/_update
+activate ProjectService
+ProjectService -> ProjectService: Validate request body
+deactivate ProjectService
+
+alt request validation fails
+    ProjectService -> ProjectService: Request validation failed
+    ProjectService -> Client: Error Code: REQUEST_VALIDATION_FAILED
+    note right of Client: HttpStatus: 400 with appropriate error code
+else
+    ProjectService -> ProjectService: Request validation successful
+    alt record doesn't exist
+        ProjectService -> RedisCache: Search record based on serverGeneratedId
+        activate RedisCache
+        RedisCache --> ProjectService: 0 rows
+        deactivate RedisCache
+        ProjectService -> Database: Search record based on serverGeneratedId
+        activate Database
+        Database --> ProjectService: 0 row
+        deactivate Database
+        ProjectService -> Client: Error Code: RECORD_NOT_FOUND
+        note right of Client: HttpStatus: 400 with appropriate error code
+    else
+        alt record doesn't exists in cache
+            ProjectService -> RedisCache: Search record based on serverGeneratedId
+            activate RedisCache
+            RedisCache --> ProjectService: 0 rows
+            deactivate RedisCache
+            ProjectService -> Database: Search record based on serverGeneratedId
+            activate Database
+            Database --> ProjectService: 1 row
+            deactivate Database
+            ProjectService -> RedisCache: 1 record
+            activate RedisCache
+            RedisCache --> ProjectService: 1 row
+            deactivate RedisCache
+        end
+        ProjectService -> RedisCache: Fetch the existing record
+        activate RedisCache
+        RedisCache --> ProjectService: 1 row
+        deactivate RedisCache
+        alt incorrect rowVersion
+            ProjectService -> ProjectService: Compare rowVersion between request and db
+            ProjectService -> ProjectService: Incorrect rowVersion [request: should be +1 only]
+            ProjectService -> Client: Error Code: BAD_REQUEST
+            note right of Client: HttpStatus: 400 with appropriate error code
+        else
+            ProjectService -> ProjectService: Compare rowVersion between request and db
+            ProjectService -> ProjectService: rowVersion in request = rowVersion in db + 1
+            ProjectService -> Kafka: Project Staff Data /update_topic
+            activate Kafka
+            ProjectService -> RedisCache: Update new record in cache against serverGeneratedId
+            activate RedisCache
+            RedisCache --> ProjectService: 
+            deactivate RedisCache
+            ProjectService -> Client: HttpStatus: 202 ACCEPTED
+            deactivate ProjectService
+            deactivate Kafka
+            async
+                Kafka -> PersisterService: Consume Project Staff Data
+                activate PersisterService
+                PersisterService -> PersisterService: Store Project Staff Data
+                deactivate PersisterService
+                Kafka -> IndexerService: Consume Project Staff Data
+                activate IndexerService
+                IndexerService -> ElasticSearch: Update Project Staff Data
+                activate ElasticSearch
+                ElasticSearch --> IndexerService: 
+                deactivate ElasticSearch
+                deactivate IndexerService
+            end async
+        end
+    end
+end
+@enduml
+```

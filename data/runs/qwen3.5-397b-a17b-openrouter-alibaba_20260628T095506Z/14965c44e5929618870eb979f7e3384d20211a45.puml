@@ -1,0 +1,87 @@
+```plantuml
+@startuml
+title Beregning af BMI
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam noteStyle rectangle
+skinparam backgroundColor #FFFFFF
+skinparam sequence {
+    LifeLineBackgroundColor #E0E0E0
+    LifeLineBorderColor #808080
+    ParticipantBackgroundColor #F0F0F0
+    ParticipantBorderColor #808080
+    ParticipantPadding 10
+    BoxPadding 10
+}
+
+actor "bruger" as User
+participant "index.jsp" as IndexJsp
+participant "resultat.jsp" as ResultJsp
+
+box "BmiUtil" #LightGray
+    participant "Initializer" as Initializer
+end box
+
+box "PresentationLayer" #LightGray
+    participant "FrontController" as FrontController
+    participant "Command" as Command
+    participant "Resultat" as Resultat
+end box
+
+box "LogicFacade" #LightGray
+    participant "LogicFacade" as LogicFacade
+end box
+
+box "DBAccess" #LightGray
+    participant "BmiMapper" as BmiMapper
+end box
+
+participant "BmiDB" as BmiDB
+
+User -> IndexJsp: 1 start
+
+== Initialization ==
+
+IndexJsp -> Initializer: 2 getSportList()
+IndexJsp <-- Initializer: 3 ArrayList<Sport>
+
+== Beregn BMI ==
+
+IndexJsp -> FrontController: 4 doPost()
+activate FrontController
+FrontController -> FrontController: 5 processRequest()
+FrontController -> Command: 6 from()
+FrontController <-- Command: 7 Resultat
+FrontController -> Resultat: 8 execute()
+activate Resultat
+Resultat -> LogicFacade: 9 insertBmiItem()
+activate LogicFacade
+LogicFacade -> BmiMapper: 10 insertBmiItem()
+activate BmiMapper
+BmiMapper -> BmiDB: 11 executeQuery()
+activate BmiDB
+BmiMapper <-- BmiDB: 12 OK
+deactivate BmiDB
+LogicFacade <-- BmiMapper: 13 OK
+deactivate BmiMapper
+Resultat <-- LogicFacade: 14 OK
+deactivate LogicFacade
+FrontController <-- Resultat: 15 resultat
+deactivate Resultat
+FrontController --> ResultJsp: 16 forward()
+deactivate FrontController
+
+User
+IndexJsp
+ResultJsp
+Initializer
+FrontController
+Command
+Resultat
+LogicFacade
+BmiMapper
+BmiDB
+
+@enduml
+```

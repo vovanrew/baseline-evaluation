@@ -1,0 +1,52 @@
+```plantuml
+@startuml
+skinparam sequenceMessageAlign center
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #CCCCCC
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantPadding 10
+skinparam lifelineStrategy solid
+skinparam activationStyle rectangle
+
+package "Central-Settlement" {
+    participant "API" as API
+    participant "api / Handler" as Handler
+    participant "Application Layer\n(domain / service / facade)" as AppLayer
+}
+
+package "Storage" {
+    participant "TigerBeetle Client" as TBClient
+    participant "TigerBeetle Cluster" as TBCluster
+    database "MySQL" as MySQL
+}
+
+participant "Mojaloop Adapter" as Mojaloop
+
+note right of Mojaloop: Hub operator or\nDFSP interactions
+
+note right of API: NodeJS interface\ninvokes REST API
+note right of Handler: JSON request decoded &\nprocessed via handler
+note right of AppLayer: Expose service functions &\nhandle database interactions
+
+frame "Update Settlement" {
+    Mojaloop -> API: 1 JSON\n(settlement data)
+    API -> Handler: 2 Invoke handler
+    Handler -> AppLayer: 3 Invoke application layer
+    AppLayer -> MySQL: 4 Retrieve settlement data\n(excluding accounts)
+    AppLayer -> TBCluster: 5 Retrieve accounts for all\nfor a settlement window Transfers
+    AppLayer -> MySQL: 6 Update settlement data\n(excluding accounts)
+    activate AppLayer
+    AppLayer -> AppLayer: 7 Settlement state\nprocessing
+    AppLayer -> TBClient: 8 Invoke account creation based on\nsettlement state of each Transfer
+    TBClient -> TBCluster: 9 Create settlement accounts\n& return result
+    TBClient --> AppLayer: 10 Return settlement result
+    AppLayer -> MySQL: 11 Update final settlement state\n& return result
+    deactivate AppLayer
+    AppLayer --> Handler: 12 Return result
+    Handler --> API: 13 Return result
+    API --> Mojaloop: 14 Return result with\nsettlementData
+}
+
+@enduml
+```

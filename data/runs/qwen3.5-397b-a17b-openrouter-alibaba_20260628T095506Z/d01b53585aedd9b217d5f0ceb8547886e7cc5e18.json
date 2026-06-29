@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782657456-80Be9nPfvjLWYUAeLTc9",
+  "object": "chat.completion",
+  "created": 1782657456,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle RqP \u2013 Request Resource\n\nactor \"Requesting Party\\n(RqP)\" as RqP\nparticipant \"Client Application (CA)\\n\u00abCustom Application\u00bb\" as CA\nparticipant \"Resource Server (RS)\\n\u00abCustom Application\u00bb\" as RS\nparticipant \"Authorization Server (AS)\\nForgeRock Access Manager\" as AS\nparticipant \"Content Server (CS)\\n\u00abCustom Application\u00bb\" as CS\n\nbox \"Client Application (CA)\" #LightGreen\n    participant \"User Interface\" as UI\nend box\n\nbox \"Resource Server (RS)\" #LightOrange\n    participant \"REST API\" as RS_API\n    database \"Resource\" as RS_DB\n    database \"Credential\" as RS_Cred\nend box\n\nbox \"Authorization Server (AS)\" #LightYellow\n    participant \"AM API\" as AM_API\n    participant \"UMA API\" as UMA_API\n    participant \"OAuth API\" as OAuth_API\nend box\n\nbox \"Content Server (CS)\" #LightCyan\n    participant \"REST API\" as CS_API\n    database \"Data\" as CS_DB\nend box\n\nRqP -> UI: Authenticate\nactivate UI\nUI -> AM_API: Authenticate\nactivate AM_API\nAM_API --> UI: Authenticated\ndeactivate AM_API\ndeactivate UI\n\nRqP -> UI: Access Interface\nactivate UI\nUI -> UI: Obtain Resource Id\\n(maybe from Discover Resources)\nUI -> RS_API: GET /share/resources/{resourceId}\\nscopes (no valid RPT)\nactivate RS_API\nRS_API -> RS_DB: Get_id\nactivate RS_DB\nRS_DB --> RS_API: meta data\ndeactivate RS_DB\nRS_API -> RS_Cred: Get PAT\nactivate RS_Cred\nRS_Cred --> RS_API: PAT\ndeactivate RS_Cred\ndeactivate RS_API\n\nnote right of UI\nGet permission ticket for the\\nresource and scope\nend note\n\nRS_API -> UMA_API: POST /am/uma/permission_request\\nresource_id + scopes\nactivate UMA_API\nUMA_API --> RS_API: permission ticket\ndeactivate UMA_API\nRS_API --> UI: permission ticket + AS URI\ndeactivate UI\n\nactivate UI\nUI -> UI: Get client auth basic\nnote left of UI\nGet claim token for the\\nRequesting Party (RqP)\nend note\nUI -> OAuth_API: POST /am/oauth2/access_token\\nscope=openid\\nSSO session\nactivate OAuth_API\nOAuth_API -> OAuth_API: Validate SSO session\nOAuth_API --> UI: claim token\ndeactivate OAuth_API\ndeactivate UI\n\nnote left of UI\nGet Requesting Party Token (RPT)\\nusing the permission ticket\\nand claim token\nend note\n\nactivate UI\nUI -> OAuth_API: POST /am/oauth2/access_token\\ngrant_type=urn:ietf:params:oauth:grant-type:uma-ticket\\nscope=..., ticket=..., claim_token=..., claim_token_format=...\nactivate OAuth_API\nOAuth_API -> UMA_API: Check Access\nactivate UMA_API\nUMA_API -> UMA_API: No Policy for RqP + Resource + scopes\\nCreate Access Request for Resource Owner\nUMA_API --> OAuth_API: No Access, request Submitted\ndeactivate UMA_API\ndeactivate OAuth_API\nOAuth_API --> UI: Error: Request Submitted\ndeactivate UI\ndeactivate UI\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1712,
+    "completion_tokens": 713,
+    "total_tokens": 2425,
+    "cost": 0.0023361,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.0023361,
+      "upstream_inference_prompt_cost": 0.00066768,
+      "upstream_inference_completions_cost": 0.00166842
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

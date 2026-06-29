@@ -1,0 +1,106 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #F5F5F5
+  BorderColor #CCCCCC
+  ArrowColor #666666
+}
+skinparam interface {
+  BackgroundColor #F5F5F5
+  BorderColor #CCCCCC
+  ArrowColor #666666
+}
+skinparam actor {
+  BackgroundColor #F5F5F5
+  BorderColor #CCCCCC
+  ArrowColor #666666
+}
+skinparam database {
+  BackgroundColor #F5F5F5
+  BorderColor #CCCCCC
+  ArrowColor #666666
+}
+
+package "observer" {
+  package "pattern" {
+    class "Observable" as Observable {
+      +attach(Observer): void
+      +detach(Observer): void
+      +notifyObservers(): void
+      +getUpdate(): Object
+    }
+    interface "Observer" as Observer {
+      +update(Observable): void
+    }
+    class "CourseData" as CourseData {
+      +addCourseRecord(CourseRecord): void
+      +changeCourseRecord(String, int): void
+      +getUpdate(): Vector<CourseRecord>
+    }
+    class "CourseController" as CourseController {
+      +CourseController(CourseData)
+      +addCourse(CourseRecord): void
+      +update(Observable): void
+      +actionPerformed(ActionEvent): void
+      +stateChanged(ChangeEvent): void
+      +main(String[]): void
+    }
+    class "BarChartObserver" as BarChartObserver {
+      +BarChartObserver(CourseData)
+      +paint(Graphics): void
+      +update(Observable): void
+    }
+  }
+  package "java" {
+    package "awt" {
+      package "event" {
+        interface "ActionListener" as ActionListener {
+          +actionPerformed(ActionEvent): void
+        }
+      }
+    }
+  }
+  package "javax" {
+    package "swing" {
+      package "event" {
+        interface "ChangeListener" as ChangeListener {
+          +stateChanged(ChangeEvent): void
+        }
+      }
+      class "JPanel" as JPanel
+    }
+  }
+}
+
+package "javax" {
+  package "swing" {
+    package "event" {
+      interface "ChangeListener" as ChangeListener2 {
+        +stateChanged(ChangeEvent): void
+      }
+    }
+    class "JPanel" as JPanel2
+  }
+}
+
+package "java" {
+  package "awt" {
+    package "event" {
+      interface "ActionListener" as ActionListener2 {
+        +actionPerformed(ActionEvent): void
+      }
+    }
+  }
+}
+
+Observable <|-- CourseData
+Observer <|-- CourseController
+Observer <|-- BarChartObserver
+CourseController ..> ActionListener
+CourseController ..> ChangeListener
+CourseController --|> JPanel
+BarChartObserver ..> Observer
+CourseData --> Observer : observers
+
+@enduml

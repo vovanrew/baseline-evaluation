@@ -1,0 +1,91 @@
+@startuml
+skinparam backgroundColor #EEEEEE
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam note {
+  BackgroundColor #99FF99
+  BorderColor #33CC33
+}
+skinparam lifeline {
+  BackgroundColor #66CCFF
+  BorderColor #0066CC
+}
+
+title NameServer 启动流程
+participant "producer" as P
+participant "consumer" as C
+participant "broker" as B
+participant "NameServer" as NS1
+participant "NameServer" as NS2
+
+P -> NS1: 1 启动 NameServer 服务器
+activate NS1
+NS1 -> NS1: 2 启动监听
+note right of NS1
+  监听 broker 链接
+  监听 producer 链接
+  监听 consumer 链接
+end note
+NS1 -> NS1: 3
+deactivate NS1
+NS1 --> P: 4
+
+title broker 启动流程
+P -> B: 5 启动 broker 服务器
+activate B
+B -> NS1: 6 每个 broker 与 每个 NameServer 建立长链接
+activate NS1
+NS1 --> B: 7
+deactivate NS1
+B --> P: 8
+B --> NS1: 9 每 30 秒发送心跳
+
+title producer 启动/发消息流程
+P -> P: 10 启动
+activate P
+P -> NS1: 11 先与一台 NameServer 建立长链接
+activate NS1
+NS1 --> P: 12
+deactivate NS1
+P -> NS1: 13 获取路由信息，获取 topic 与 broker queue 的对应关系
+activate NS1
+NS1 --> P: 14
+deactivate NS1
+P --> P: 15
+P --> NS1: 16 每 30 秒更新一次路由信息
+P -> P: 17 发送消息
+activate P
+P -> B: 18 随机选择一个 queue，并发送消息
+activate B
+B --> P: 19
+deactivate B
+P --> P: 20
+deactivate P
+
+title consumer 启动/pull消息流程
+C -> C: 21 启动
+activate C
+C -> NS1: 22 与一台 NameServer 建立长链接
+activate NS1
+NS1 --> C: 23
+deactivate NS1
+C -> NS1: 24 获取 topic 的路由信息
+activate NS1
+NS1 --> C: 25
+deactivate NS1
+C -> B: 26 建立长链接并获取 queue
+activate B
+B --> C: 27
+deactivate B
+C --> C: 28
+C --> B: 29 每 30 秒发送心跳，确保 broker 存活
+C --> NS1: 30 每 30 秒更新路由信息
+C -> C: 31 消息消费
+activate C
+C -> B: 32 拉取消息消费
+activate B
+B --> C: 33
+deactivate B
+C --> C: 34
+deactivate C
+@enduml

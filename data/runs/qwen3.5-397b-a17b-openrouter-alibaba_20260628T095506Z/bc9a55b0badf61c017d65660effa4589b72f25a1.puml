@@ -1,0 +1,83 @@
+@startuml
+title Secure Map Reduce 2 – Shuffle Service Token Flow
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam noteStyle rectangle
+skinparam actorStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantFontColor #000000
+skinparam participantFontName Arial
+skinparam participantFontSize 12
+skinparam participantFontStyle plain
+skinparam participantPadding 5
+skinparam participantMargin 5
+skinparam participantBorderThickness 1
+skinparam participantCornerRadius 5
+skinparam participantShadowing false
+skinparam participantAlignment center
+skinparam participantTextAlignment center
+skinparam participantVerticalAlignment middle
+skinparam participantHorizontalAlignment center
+skinparam participantVerticalPadding 5
+skinparam participantHorizontalPadding 5
+skinparam participantVerticalMargin 5
+skinparam participantHorizontalMargin 5
+skinparam participantVerticalBorderThickness 1
+skinparam participantHorizontalBorderThickness 1
+skinparam participantVerticalCornerRadius 5
+skinparam participantHorizontalCornerRadius 5
+skinparam participantVerticalShadowing false
+skinparam participantHorizontalShadowing false
+skinparam participantVerticalAlignment middle
+skinparam participantHorizontalAlignment center
+skinparam participantVerticalPadding 5
+skinparam participantHorizontalPadding 5
+skinparam participantVerticalMargin 5
+skinparam participantHorizontalMargin 5
+skinparam participantVerticalBorderThickness 1
+skinparam participantHorizontalBorderThickness 1
+skinparam participantVerticalCornerRadius 5
+skinparam participantHorizontalCornerRadius 5
+skinparam participantVerticalShadowing false
+skinparam participantHorizontalShadowing false
+
+participant "Client\n(c)" as c
+participant "Resource Manager\n(rm)" as rm
+participant "Node Manager\n(nm)" as nm
+participant "Shuffle Handler\n(ss)" as ss
+participant "File System\n(fs)" as fs
+
+== Bootstrap ==
+== Job Definition ==
+c -> rm: 1 createJob [...] ()\n: job-id
+c -> c: 2 createShuffleToken\n( shfl-tkn-mk )\n: shfl-tkn
+c -> c: 3 serializeTokens\n( shfl-tkn, ... )\n: c-tokens{shfl-tkn,...}
+
+== Job Submission ==
+c -> rm: 4 submitApplication\n[...]\n( job-id, c-tokens{shfl-tkn}, ... )\n: app-rpt{clnt-tkn}
+
+== Job Initiation ==
+rm -> nm: 5 startContainer\n[...]\n( c-tokens{shfl-tkn},svc-tokens{shfl-tkn}, ... )
+nm -> ss: 6 initApp\n( job-id, shfl-tkn )
+nm -> am: 7 exec
+participant "Application Master\n(am)" as am
+am -> nm: 8 startContainer\n[...]\n( svc-tokens{shfl-tkn}, ... )
+nm -> ac: 9 exec
+participant "Application Container\n(ac)" as ac #FF0000
+ac -> t: 10 exec
+participant "Task\n(t)" as t #FFA500
+
+== Map Task Execution ==
+t -> fs: 11 writeShuffleData[]():
+
+== Reduce Task Execution ==
+ss -> ss: 12 readShuffleData [SDT:shfl-tkn] (...): shfl-data
+ss -> fs: 13 readShuffleData
+fs --> ss: 14 shfl-data
+
+== Job Completion ==
+
+footer Client (c) | Resource Manager (rm) | Node Manager (nm) | Shuffle Handler (ss) | Application Master (am) | Application Container (ac) | Task (t) | File System (fs)
+@enduml

@@ -1,0 +1,37 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantFontColor #000000
+skinparam actorFontColor #000000
+skinparam actorBackgroundColor #E6E6FA
+skinparam actorBorderColor #000000
+skinparam noteBackgroundColor #F5F5F5
+skinparam noteBorderColor #000000
+skinparam noteFontColor #000000
+skinparam arrowColor #000000
+skinparam arrowThickness 2
+skinparam lifelineColor #000000
+skinparam lifelineThickness 1
+
+actor Developer
+participant "Vercel Build Machine" as VBM
+participant "CMS" as CMS
+participant "Vercel Production Machine" as VPM
+
+Developer -> VBM: Git push
+VBM -> VBM: Compile
+
+frame "Collecting page data" {
+    VBM -> CMS: Fetch content data
+    CMS --> VBM: Return content data
+}
+
+VBM -> VBM: Generate static pages
+VBM -> VPM: Upload build output
+VPM -> VPM: Deploy
+
+Developer -> Developer
+@enduml

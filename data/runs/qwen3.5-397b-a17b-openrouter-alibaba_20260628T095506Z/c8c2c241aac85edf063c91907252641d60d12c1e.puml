@@ -1,0 +1,133 @@
+```plantuml
+@startuml
+title PD parse detail
+skinparam sequenceMessageAlign center
+skinparam noteFontColor black
+skinparam noteBackgroundColor #FFFFCC
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor black
+skinparam participantPadding 5
+skinparam lifelineStrategy nosolid
+skinparam activationBorderColor black
+skinparam activationBackgroundColor #FFCCCB
+skinparam arrowColor black
+skinparam arrowThickness 1
+skinparam boxPadding 5
+skinparam boxBorderColor black
+skinparam boxBackgroundColor #F0F8FF
+
+box "Chi" #LightBlue
+participant Chi
+end box
+
+box "pipeline" #LightBlue
+participant pipeline
+end box
+
+box "pdlibwrapper\ncamxpdlibwrapper.cpp" #LightBlue
+participant pdlibwrapper
+end box
+
+box "pdlibinterface\ncamxpdlibinterface.cpp" #LightBlue
+participant pdlibinterface
+end box
+
+box "camxsensornode.cpp" #LightBlue
+participant camxsensornode
+end box
+
+box "camxpdlibraryhandler.cpp" #LightBlue
+participant camxpdlibraryhandler
+end box
+
+== chi stats algo ==
+
+note over Chi
+ChiPDEntry[] = "ChiPDLibraryEntry"
+ChiASEntry[] = "ChiASDAlgorithmEntry"
+ChiAFDEntry[] = "ChiAFDAlgorithmEntry"
+ChiAWBEntry[] = "ChiAWBAlgorithmEntry"
+ChiAFEntry[] = "ChiAFAlgorithmEntry"
+from this text, can get Algorithm Entry
+end note
+
+== PD lib create ==
+
+activate Chi
+Chi -> Chi: ProbeChiComponents
+Chi -> Chi: GetAECAlgorithmCallback
+Chi -> Chi: GetAFDAlgorithmCallback
+Chi -> Chi: GetAFAlgorithmCallback
+Chi -> Chi: GetAWBAlgorithmCallback
+Chi -> Chi: GetASDAlgorithmCallback
+Chi -> Chi: GetPDLibraryCallback
+Chi -> Chi: GetHVXAlgorithmCallback
+Chi -> Chi: return
+deactivate Chi
+
+note over Chi
+These Callback used in camxpipeline.cpp
+when call pipeline:CreateNodes
+end note
+
+note over Chi
+for m_pStatscallback.pPDCallback
+contain these interface
+pCallbacks->pfnGetCapabilities = PDWrapperGetCapabilities;
+pCallbacks->pfnCreate = CreatePDLibWrapper;
+pCallbacks->pfnQueryVendorTag = NULL;
+pCallbacks->pfnSetAlgoInterface = PDWrapperSetNodeInterface;
+end note
+
+== CreatePDLibWrapper ==
+
+pipeline -> pdlibwrapper: CamX::LoadPDLib
+activate pdlibwrapper
+note right of pdlibwrapper
+"%s%s%s.%s"
+"VendorLibPath"
+"PathSeparator"
+"pLibName"
+"SharedLibraryExtension"
+end note
+pdlibwrapper -> pdlibwrapper: return Addr
+pdlibwrapper -> pdlibwrapper: pfnCreate
+pdlibwrapper -> pipeline: return
+deactivate pdlibwrapper
+
+== call PD lib ==
+
+note over pdlibwrapper
+in dir:
+1. camx-lib-3a/system/statsalgo/pdlib
+2. camx-lib/system/statsalgo/pdlibsony
+both have camxpdlibinterface.cpp
+end note
+
+== Init PDLib ==
+
+note over pipeline
+for pipeline create, will create every node
+and pdlib is init in sensor node
+end note
+
+pipeline -> camxsensornode: ProcessingNodeFinalizeInitialization
+activate camxsensornode
+note right of camxsensornode
+1. ReadEEPROMData
+2. GetCSIInfo
+3. GetOTPData
+4. PopulatePDAFInformation
+5. PublishPDAFInformation
+why we need publish this info?
+actually for PropertyIDSensorPDAFInfo, in IFE PDPCv1.1 and BPS PDPC2.0 will use it.
+since type 3 sensor will not do pdpc
+end note
+camxsensornode -> camxpdlibraryhandler: LoadPDLibrary
+activate camxpdlibraryhandler
+camxpdlibraryhandler -> camxpdlibraryhandler: CPDLibHandler::CreateLib
+deactivate camxpdlibraryhandler
+deactivate camxsensornode
+
+@enduml
+```

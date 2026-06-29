@@ -35,6 +35,7 @@ __all__ = [
     "dense_ladder", "moe_entries", "frontier_entries",
     "scaling_stat_id", "per_relation_stat_id",
     "cell_point", "per_relation_point", "ci_lookup", "yerr_about",
+    "crowding_caption", "tier_crowding_label",
     "save_figure", "render_all",
     "fig_scaling_curve", "fig_per_relation",
     "fig_breakdown_by_tier", "fig_breakdown_by_type", "fig_frontier_bars",
@@ -194,6 +195,33 @@ def yerr_about(point, ci_entry):
 
 
 # --------------------------------------------------------------------------- #
+# crowding descriptor (Task-5 -> Task-3 hook)
+# --------------------------------------------------------------------------- #
+# The per-tier image-crowding descriptor is content_lines per megapixel after the
+# 1568px resize (``crowding.json``'s ``lines_per_mp_by_tier``, string tier keys).
+# It rises monotonically with tier (denser images at higher complexity) and is the
+# legibility context for the per-tier degradation curve.
+
+def crowding_caption(crowding) -> str:
+    """Compact one-line per-tier crowding descriptor for a figure footer, or ``""``
+    when ``crowding`` is None/empty. Tiers are emitted in numeric order."""
+    if not crowding:
+        return ""
+    parts = [f"T{t} {float(crowding[t]):.1f}" for t in sorted(crowding, key=int)]
+    return ("Image crowding (content_lines/MP after 1568px resize): "
+            + ", ".join(parts) + ".")
+
+
+def tier_crowding_label(crowding, tier) -> str:
+    """The crowding value for one tier as a short string (1 dp), or ``""`` when the
+    descriptor is absent. Used as a secondary x-tick line on the per-tier figure."""
+    if not crowding:
+        return ""
+    v = crowding.get(str(tier))
+    return "" if v is None else f"{float(v):.1f}"
+
+
+# --------------------------------------------------------------------------- #
 # shared figure scaffolding
 # --------------------------------------------------------------------------- #
 
@@ -262,10 +290,11 @@ def fig_scaling_curve(entries, master, ci, *, crowding=None):
     its ~17B active params (annotated 397B total / 17B active); pending rungs are
     reserved with a dotted guide, never a faked value.
 
-    ``crowding`` is a Task-5 hook (per-tier content-lines/MP degradation
-    descriptor); it does not exist yet and is ignored when None.
+    ``crowding`` is the per-tier content-lines/MP image-crowding descriptor
+    (``crowding.json`` ``lines_per_mp_by_tier``). The scaling axis is parameters,
+    not tier, so it is surfaced here as a footer caption (legibility context for
+    the curve); the per-tier figure carries the tier-resolved annotation.
     """
-    _ = crowding  # Task-5 hook: reserved, not yet produced.
     ladder = dense_ladder(entries)
     moes = moe_entries(entries)
 
@@ -337,9 +366,12 @@ def fig_scaling_curve(entries, master, ci, *, crowding=None):
         ax.set_xlabel("Parameters (log scale)", fontsize=8)
         ax.grid(True, which="major", axis="y", alpha=0.25)
 
-    _finish_multipanel(fig, axes, master, handle_axis=1,
-                       extra="Dotted = pending rung (reserved). "
-                             "chrF++ panel is macro (micro has no CI).")
+    extra = ("Dotted = pending rung (reserved). "
+             "chrF++ panel is macro (micro has no CI).")
+    cap = crowding_caption(crowding)
+    if cap:
+        extra += "  " + cap
+    _finish_multipanel(fig, axes, master, handle_axis=1, extra=extra)
     return fig
 
 
@@ -401,11 +433,19 @@ def fig_per_relation(entries, master, ci, *, population="zeros_for_failed"):
 def fig_breakdown_by_tier(entries, master, *, population="zeros_for_failed", crowding=None):
     """Headline metrics across the 4 complexity tiers, one line per scored model.
     **Point estimates only** — the CI table bootstraps overall + per-relation, not
-    per-tier cells (stated on the figure). ``crowding`` is the Task-5 degradation
-    descriptor hook (ignored when None)."""
-    _ = crowding  # Task-5 hook: per-tier crowding/degradation annotation (not yet produced).
+    per-tier cells (stated on the figure). ``crowding`` is the per-tier
+    content-lines/MP image-crowding descriptor; when supplied, each tier tick gains
+    a secondary line with its crowding value (the degradation context)."""
     scored = _scored_in_order(entries, master)
     colors = assign_colors([e.id for e in scored])
+
+    # Tier tick labels gain a secondary crowding line when the descriptor is given.
+    if crowding:
+        xlabels = [f"{t}\n({tier_crowding_label(crowding, t)})" for t in TIERS]
+        xlab = "Complexity tier (content_lines quartile; lower line = content_lines/MP)"
+    else:
+        xlabels = [str(t) for t in TIERS]
+        xlab = "Complexity tier (content_lines quartile)"
 
     fig, axes = plt.subplots(2, 2, figsize=(9, 8.4))
     fig.suptitle(f"Per-tier breakdown — {population} (point estimates)", fontsize=12)
@@ -420,14 +460,17 @@ def fig_breakdown_by_tier(entries, master, *, population="zeros_for_failed", cro
             if xs:
                 ax.plot(xs, ys, marker="o", ms=5, lw=1.5, color=colors[e.id], label=e.display)
         ax.set_xticks(TIERS)
-        ax.set_xlabel("Complexity tier (content_lines quartile)", fontsize=8)
+        ax.set_xticklabels(xlabels, fontsize=8)
+        ax.set_xlabel(xlab, fontsize=8)
         ax.set_title(title, fontsize=10)
         ax.set_ylim(*ylim)
         ax.grid(True, axis="y", alpha=0.25)
 
-    _finish_multipanel(fig, axes, master, handle_axis=0,
-                       extra="No error bars: per-tier CIs not bootstrapped "
-                             "(Task 2 = overall + per-relation).")
+    extra = ("No error bars: per-tier CIs not bootstrapped "
+             "(Task 2 = overall + per-relation).")
+    if crowding:
+        extra += " Secondary tick line = content_lines/MP after 1568px resize."
+    _finish_multipanel(fig, axes, master, handle_axis=0, extra=extra)
     return fig
 
 
@@ -548,19 +591,23 @@ def save_figure(fig, out_dir, name: str, *, dpi: int = 150, close: bool = True) 
     return {"png": png, "pdf": pdf}
 
 
-def render_all(entries, master, ci, out_dir) -> dict:
+def render_all(entries, master, ci, out_dir, *, crowding=None) -> dict:
     """Render the full Task-3 inventory into ``out_dir``; return {name: paths}.
     Both reporting populations are emitted where they matter (per-relation,
-    frontier); the scaling curve overlays them in one figure."""
+    frontier); the scaling curve overlays them in one figure. ``crowding`` is the
+    per-tier content-lines/MP descriptor, annotated onto the scaling + per-tier
+    figures when supplied."""
     out: dict[str, dict] = {}
     out["scaling_curve"] = save_figure(
-        fig_scaling_curve(entries, master, ci), out_dir, "scaling_curve")
+        fig_scaling_curve(entries, master, ci, crowding=crowding),
+        out_dir, "scaling_curve")
     for pop, suf in (("zeros_for_failed", "zeros"), ("compiled_only", "compiled")):
         out[f"per_relation_{suf}"] = save_figure(
             fig_per_relation(entries, master, ci, population=pop),
             out_dir, f"per_relation_f1_{suf}")
     out["breakdown_by_tier"] = save_figure(
-        fig_breakdown_by_tier(entries, master), out_dir, "breakdown_by_tier")
+        fig_breakdown_by_tier(entries, master, crowding=crowding),
+        out_dir, "breakdown_by_tier")
     out["breakdown_by_type"] = save_figure(
         fig_breakdown_by_type(entries, master), out_dir, "breakdown_by_type")
     for pop, suf in (("zeros_for_failed", "zeros"), ("compiled_only", "compiled")):

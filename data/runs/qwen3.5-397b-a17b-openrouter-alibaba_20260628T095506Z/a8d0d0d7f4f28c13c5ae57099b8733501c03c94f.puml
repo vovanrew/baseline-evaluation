@@ -1,0 +1,74 @@
+```plantuml
+@startuml
+title Fabric Private Chaincode - Enclave registry - Current approach
+
+actor Admin
+participant "ECC" as ECC
+participant "ERCC" as ERCC
+actor "IAS" as IAS
+participant "Orderer" as Orderer
+participant "Peers" as Peers
+
+note right of Peers
+  <b>Drawbacks</b>
+  - Single-endorser policy only + Custom validation at every peer
+  - ERCC must contact IAS (Internet connection and IAS credentials needed)
+  - Current impl: No way to securely pass credentials to ERCC only
+  - for EPID attestation SPID is needed when quote is created (ECC must provide this)
+end note
+
+frame "instantiation" {
+  Admin -> ECC: install
+  Admin -> ECC: instantiate (expected_mrenclave)
+  activate ECC
+  ECC -> ECC: putState(ecc.MRENCLAVE, expected_mrenclave)
+  deactivate ECC
+  ECC --> Admin: success / error
+}
+
+Admin -> Orderer: submit instantiate transaction
+Orderer -> Peers: when next block ready
+Orderer -> Peers: broadcast block
+activate Peers
+Peers -> Peers: Validation
+deactivate Peers
+
+frame "register new enclave" {
+  Admin -> ECC: setup
+  activate ECC
+  ECC -> ECC_Enclave: create
+  activate ECC_Enclave
+  ECC -> ECC_Enclave: getQuote(SPID)
+  ECC_Enclave --> ECC: quote, ECC_s_pk
+  deactivate ECC_Enclave
+  ECC -> ERCC: register(quote, ECC_s_pk)
+  activate ERCC
+  ERCC -> IAS: send quote
+  activate IAS
+  IAS --> ERCC: Attestation
+  deactivate IAS
+  ERCC -> ERCC: putState(ercc.ECC_s_pk, Attestation)
+  deactivate ERCC
+  ERCC --> ECC: success / error
+  deactivate ECC
+  ECC --> Admin: success / error
+}
+
+Admin -> Orderer: submit setup transaction
+Orderer -> Peers: when next block ready
+
+frame "register validation" {
+  Orderer -> Peers: broadcast block
+  activate Peers
+  Peers -> Peers: Normal validation
+  Peers -> ERCC_VSCC: Custom ERCC validation
+  activate ERCC_VSCC
+  ERCC_VSCC -> ERCC_VSCC: expected_mrenclave = getState(ecc.MRENCLAVE)
+  ERCC_VSCC -> ERCC_VSCC: check attestation signature
+  ERCC_VSCC -> ERCC_VSCC: check attestation ECC_s_pk and mrenclave
+  deactivate ERCC_VSCC
+  deactivate Peers
+}
+
+@enduml
+```

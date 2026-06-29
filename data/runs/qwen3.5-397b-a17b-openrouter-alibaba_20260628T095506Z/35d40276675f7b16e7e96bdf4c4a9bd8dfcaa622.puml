@@ -1,0 +1,65 @@
+```plantuml
+@startuml
+title Update Relationship Event Handler UML
+
+participant "SNS" as SNS #FF69B4
+participant "Lambda" as Lambda #FFA500
+participant "DynamoDB" as DynamoDB #4169E1
+
+box "SNS" #FF69B4
+    participant "Event Dispatcher Topic" as EventDispatcherTopic
+end box
+
+box "Lambda" #FFA500
+    participant "Update Relationship Event Handler" as UpdateRelationshipEventHandler
+end box
+
+box "DynamoDB" #4169E1
+    participant "Relationship Owner Table" as RelationshipOwnerTable
+    participant "Relationship Commitment Table" as RelationshipCommitmentTable
+end box
+
+EventDispatcherTopic -> UpdateRelationshipEventHandler: filter on Relationship::Update Event
+activate UpdateRelationshipEventHandler
+UpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: [SessionDecorator.puml]
+UpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: [TrackEventHandlerWrapper.puml]
+UpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: extract Message from Event
+UpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: validate Message
+UpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: validate event-name
+UpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: validate event-version
+UpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: validate stage
+UpdateRelationshipEventHandler -> RelationshipOwnerTable: Get Existing Relationship
+activate RelationshipOwnerTable
+RelationshipOwnerTable --> UpdateRelationshipEventHandler: Generate Relationship Dict
+deactivate RelationshipOwnerTable
+UpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: Combine Existing Relationship Attributes With New Changes
+
+opt if missing required schema key
+    UpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: Error Handling
+end
+
+UpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: Get AdditionalAttributes
+
+alt if Relationship contains description and AdditionalAttributes doesn't contain completed signal
+    UpdateRelationshipEventHandler -> RelationshipOwnerTable: update Relationship
+    activate RelationshipOwnerTable
+    RelationshipOwnerTable --> UpdateRelationshipEventHandler: Error Handling
+    deactivate RelationshipOwnerTable
+end
+
+UpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: Generate commitments to add or delete
+
+alt if Commitment Operations Exist
+    UpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: Generate starting indexes based on AdditionalAttributes
+    UpdateRelationshipEventHandler -> RelationshipCommitmentTable: Batch_Write() RelationshipCommitments
+    activate RelationshipCommitmentTable
+    RelationshipCommitmentTable --> UpdateRelationshipEventHandler: Error Handling
+    deactivate RelationshipCommitmentTable
+end
+
+UpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: Track Event Handler Wrapper
+UpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: Error Handler Wrapper
+deactivate UpdateRelationshipEventHandler
+
+@enduml
+```

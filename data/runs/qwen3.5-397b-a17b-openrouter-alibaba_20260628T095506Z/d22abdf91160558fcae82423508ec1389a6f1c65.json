@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782657554-bBeigG3hr66O2SZogq3h",
+  "object": "chat.completion",
+  "created": 1782657554,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle HashedTimelockERC20 contract: normal flow \u2013 receiver withdraws with preimage before the timelock expires\n\nparticipant \"\u00abAccount\u00bb\\nSender\" as Sender\nparticipant \"\u00abAccount\u00bb\\nReceiver\" as Receiver\nparticipant \"\u00abSmart Contract\u00bb\\nHashedTimelockERC20\" as HTLC\nparticipant \"\u00abSmart Contract\u00bb\\nERC20Contract\" as ERC20\nparticipant \"Events\" as Events\n\nnote right of HTLC\n  State stored for each HTLC:\n  address sender;\n  address receiver;\n  address tokenContract;\n  uint amount;\n  bytes32 hashlock;\n  uint timelock; // UNIX ts\n  bool withdrawn;\n  bool refunded;\n  bytes32 preimage;\nend note\n\nSender -> ERC20: approve(htlc address, amount)\nactivate ERC20\nERC20 --> Sender\ndeactivate ERC20\n\nSender -> HTLC: newContract(\\n  receiver,\\n  hashlock,\\n  timelock,\\n  tokenContract,\\n  amount\\n)\nactivate HTLC\nHTLC -> ERC20: transferFrom(sender, htlc address, amount)\nactivate ERC20\nERC20 --> HTLC\ndeactivate ERC20\nHTLC -> Events: LogHTLCERC20New(contractId, locks, values, etc.)\nHTLC --> Sender: contractId\ndeactivate HTLC\n\nSender -> Receiver: reveals contractId\nactivate Receiver\nReceiver -> Receiver: knows/obtains secret preimage\\n[sha256(secret preimage) == hashlock]\nReceiver -> HTLC: withdraw(contractId, secret preimage)\nactivate HTLC\nHTLC -> ERC20: transfer(receiver, amount)\nactivate ERC20\nERC20 --> HTLC\ndeactivate ERC20\nHTLC -> Events: LogHTLCERC20Withdraw(contractId)\ndeactivate HTLC\ndeactivate Receiver\n\n@enduml",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2251,
+    "completion_tokens": 431,
+    "total_tokens": 2682,
+    "cost": 0.00188643,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00188643,
+      "upstream_inference_prompt_cost": 0.00087789,
+      "upstream_inference_completions_cost": 0.00100854
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

@@ -1,0 +1,33 @@
+@startuml
+title 2. プロフィール編集
+participant "お嬢" as User
+participant "CABABA" as CABABA
+participant "データベース" as DB
+participant "LINE" as LINE
+
+frame "登録" {
+    User -> CABABA: ログイン画面
+    activate CABABA
+    CABABA --> User: LINEへリダイレクト
+    deactivate CABABA
+    User -> LINE: LINEログイン画面
+    activate LINE
+    LINE --> CABABA: リダイレクト (line_user_id)
+    deactivate LINE
+    activate CABABA
+    CABABA -> DB: INSERT User
+    activate DB
+    DB --> CABABA
+    deactivate DB
+    CABABA --> User: プロフィール登録ページ
+    deactivate CABABA
+    User -> CABABA: プロフィール送信
+    activate CABABA
+    CABABA -> DB: INSERT HostessProfile
+    activate DB
+    DB --> CABABA
+    deactivate DB
+    CABABA --> User: 登録完了画面
+    deactivate CABABA
+}
+@enduml

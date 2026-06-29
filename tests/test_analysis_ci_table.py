@@ -12,7 +12,8 @@ from analysis.loader import DEFAULT_DATA_ROOT
 from analysis.registry import load_registry, panel_entries
 
 DATA = DEFAULT_DATA_ROOT
-SCORED = ["gpt-5.2", "claude-opus-4-6", "gemini-3.1-pro", "qwen3.5-2b", "qwen3.5-9b", "qwen3.5-27b"]
+SCORED = ["gpt-5.2", "claude-opus-4-6", "gemini-3.1-pro", "qwen3.5-2b", "qwen3.5-9b",
+          "qwen3.5-27b", "qwen3.5-397b-a17b"]
 _REG = {e.id: e for e in load_registry()}
 
 
@@ -95,12 +96,12 @@ def test_per_relation_cis_are_populated_on_real_data():
             assert cell["ci_low"] <= cell["point"] <= cell["ci_high"] + 1e-9, (mid, rel)
 
 
-def test_meta_counts_6_of_7_with_pending():
+def test_meta_counts_7_of_7_all_scored():
     meta = _result(n=2)["meta"]
-    assert meta["models_included"] == 6
+    assert meta["models_included"] == 7
     assert meta["models_total"] == 7
     assert set(meta["included_ids"]) == set(SCORED)
-    assert set(meta["pending_ids"]) == {"qwen3.5-397b-a17b"}
+    assert set(meta["pending_ids"]) == set()
     assert meta["refused_ids"] == []
 
 

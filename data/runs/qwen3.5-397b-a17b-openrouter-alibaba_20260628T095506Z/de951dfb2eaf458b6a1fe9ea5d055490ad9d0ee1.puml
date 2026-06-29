@@ -1,0 +1,47 @@
+@startuml
+title US004 - As Administrator, I want to search for users
+
+actor Administrator
+participant ": SearchUsersByParamsRoute" as Route
+participant "inDto : SearchUserDto" as InDto
+participant ": UsersController" as Controller
+participant ": SearchUsersByParamsService" as Service
+participant ": ISystemUserRepo" as Repo
+participant ": IUserProfileRepo" as ProfileRepo
+participant "usersFound : List<SystemUser>" as UsersFound
+participant "usersFoundDto : List<UserDto>" as UsersFoundDto
+participant "user : SystemUser" as User
+participant ": SystemUserMapper" as Mapper
+participant "userDto : OutputUserDto" as UserDto
+participant "usersJson : ResponseEntity" as UsersJson
+
+Administrator -> Route: 1 GET /users?name={name}&email={email}&profile={profile}&func={func}
+note right of Administrator: The parameters (name, email, profile and function) will be in the query of the request. At least, one of than must be typed or chosen.
+Route -> Controller: 2 searchUsersByTypedParams(inDto)
+Controller -> Service: 3 searchUsersByTypedParams(inDto)
+
+opt if the request has a profile
+    Service -> ProfileRepo: 4 result : existsByUserProfileId(profile)
+end
+
+alt depending on which params came from inputDto, the service class will invoke the respective method
+    Service -> Repo: 5 findAllBy...()
+    Repo -> UsersFound: 6 create()
+    Service -> Service: 7 usersFound
+end
+
+Service -> UsersFoundDto: 8 create()
+
+loop for which user found at the list
+    Service -> Mapper: 9 model2Dto(user)
+    Mapper -> UserDto: 10 create()
+    Service -> Service: 11 userDto
+    Service -> Service: 12 addUserDto
+end
+
+Service -> Controller: 13 usersFoundDto
+Controller -> Controller: 14 createUsersFoundDto
+Controller -> UsersJson: 15 usersJson
+UsersJson -> Administrator: 16 Show the list of user found by typed/chosen parameters
+
+@enduml

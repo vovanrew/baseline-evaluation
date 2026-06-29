@@ -1,0 +1,79 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontColor black
+skinparam classBackgroundColor #F5F5F5
+skinparam classBorderColor black
+skinparam classHeaderBackgroundColor #E0E0E0
+skinparam classHeaderFontColor black
+skinparam classHeaderBorderColor black
+skinparam classHeaderBorderThickness 1
+skinparam classHeaderPadding 5
+skinparam classPadding 5
+skinparam classMargin 10
+skinparam classStereotypeFontColor #666666
+skinparam classStereotypeFontSize 10
+skinparam classStereotypeFontStyle italic
+skinparam classStereotypeFontName "Arial"
+skinparam classStereotypeFontColor #666666
+skinparam classStereotypeFontSize 10
+skinparam classStereotypeFontStyle italic
+skinparam classStereotypeFontName "Arial"
+skinparam classStereotypeFontColor #666666
+skinparam classStereotypeFontSize 10
+skinparam classStereotypeFontStyle italic
+skinparam classStereotypeFontName "Arial"
+
+class Observer {
+    + notify(event: ManagerEvent)
+}
+
+class EntityManager {
+    - entities: List<Entity>
+    - systems: Set<Observer>
+    + subscribe(system: Observer)
+    + addEntity(entity: Entity)
+    + removeEntity(id: Int)
+    - notifySystems(event: ManagerEvent)
+}
+
+class System {
+    - managedTypes: List<ComponentType>
+    - filteredEntities: List<Entity>
+    + addEntityRef(): Unit
+    + removeEntityRef(): Unit
+    + update(): Unit
+    - checkEntityIsCompatible(): Unit
+}
+
+class Entity {
+    <<Product Type>>
+    + ID : Int
+    + components : Map<ComponentType, Component>
+}
+
+class ComponentType {
+    DIRECTION,
+    POSITION,
+    SPEED,
+    SPAWN,
+    ...
+}
+
+class Component {
+    <<Product Type>>
+    + type: ComponentType
+}
+
+Observer <|-- System
+EntityManager "1" *-- "0..*" Entity
+EntityManager "0..*" o-- "0..*" Observer
+System "1..*" *-- "0..*" ComponentType
+System "0..*" o-- "0..*" Entity
+Entity "1" *-- "0..*" Component
+ComponentType "1" *-- "1" Component
+
+note right of Entity
+    Module + Case Class
+end note
+
+@enduml

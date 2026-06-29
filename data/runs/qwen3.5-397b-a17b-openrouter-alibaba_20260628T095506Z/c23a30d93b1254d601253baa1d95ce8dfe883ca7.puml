@@ -1,0 +1,30 @@
+@startuml
+actor Admin
+actor Customer
+participant "Games Interface" as GI
+participant "Games Input Interface" as GII
+control "Games Controller" as GC
+database "Database" as DB
+
+Admin -> GI: CRUD games
+GI -> GII: Input games info
+GII -> GC: Send CRUD request to server
+GC -> DB: Query request to DB
+DB --> GC: Response
+
+alt [success case]
+    GC --> GI: CRUD successfully
+else [fail case]
+    GC --> GI: CRUD fail
+end
+
+GI --> Admin: Show notification
+
+Customer -> GI: View Game
+GI -> GC: FETCH game from server
+GC -> DB: Query games
+DB --> GC: Games data
+GC --> GI: Games data
+GI --> Customer: Show all games
+
+@enduml

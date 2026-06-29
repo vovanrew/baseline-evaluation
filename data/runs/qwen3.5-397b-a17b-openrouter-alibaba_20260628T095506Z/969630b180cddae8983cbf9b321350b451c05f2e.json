@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782654324-5npgeTwMPJ6r3qhlwvCG",
+  "object": "chat.completion",
+  "created": 1782654324,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Skava Integration - Order Replaced Completed\n\nparticipant \"Skava AWS\" as SkavaAWS {\n    participant \"Skava Event\\nOrchestration\" as SkavaEventOrchestration\n}\n\nparticipant \"Kafka\" as Kafka {\n    participant \"Topics\" as Topics\n}\n\nparticipant \"YL Services\" as YLServices {\n    participant \"Order Sync Service\" as OrderSyncService\n}\n\nparticipant \"Legacy DB\" as LegacyDB\n\nSkavaEventOrchestration -> Topics: 1 Produce OrderReplacedCompleted Message\nactivate Topics\nnote right of Topics: Async\ndeactivate Topics\n\nTopics -> OrderSyncService: 2 Consume OrderReplacedCompleted Message\nactivate OrderSyncService\nOrderSyncService -> LegacyDB: 3 Update order status in legacy db\nactivate LegacyDB\nLegacyDB --> OrderSyncService: 4 Response/Order ID\ndeactivate LegacyDB\n\nOrderSyncService -> Topics: 5 Produce OrderReplacedCompletedProcessed Message\nactivate Topics\nnote right of Topics: Async\ndeactivate Topics\n\nTopics -> SkavaEventOrchestration: 6 Consume OrderReplacedCompletedProcessed Message\nactivate SkavaEventOrchestration\ndeactivate SkavaEventOrchestration\n\n@enduml",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1222,
+    "completion_tokens": 262,
+    "total_tokens": 1484,
+    "cost": 0.00108966,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00108966,
+      "upstream_inference_prompt_cost": 0.00047658,
+      "upstream_inference_completions_cost": 0.00061308
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

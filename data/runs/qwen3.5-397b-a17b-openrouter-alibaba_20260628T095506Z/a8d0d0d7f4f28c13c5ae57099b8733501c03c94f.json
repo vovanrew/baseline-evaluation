@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782656868-wNvgDdEEkcRrG2hOfex6",
+  "object": "chat.completion",
+  "created": 1782656868,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Fabric Private Chaincode - Enclave registry - Current approach\n\nactor Admin\nparticipant \"ECC\" as ECC\nparticipant \"ERCC\" as ERCC\nactor \"IAS\" as IAS\nparticipant \"Orderer\" as Orderer\nparticipant \"Peers\" as Peers\n\nnote right of Peers\n  <b>Drawbacks</b>\n  - Single-endorser policy only + Custom validation at every peer\n  - ERCC must contact IAS (Internet connection and IAS credentials needed)\n  - Current impl: No way to securely pass credentials to ERCC only\n  - for EPID attestation SPID is needed when quote is created (ECC must provide this)\nend note\n\nframe \"instantiation\" {\n  Admin -> ECC: install\n  Admin -> ECC: instantiate (expected_mrenclave)\n  activate ECC\n  ECC -> ECC: putState(ecc.MRENCLAVE, expected_mrenclave)\n  deactivate ECC\n  ECC --> Admin: success / error\n}\n\nAdmin -> Orderer: submit instantiate transaction\nOrderer -> Peers: when next block ready\nOrderer -> Peers: broadcast block\nactivate Peers\nPeers -> Peers: Validation\ndeactivate Peers\n\nframe \"register new enclave\" {\n  Admin -> ECC: setup\n  activate ECC\n  ECC -> ECC_Enclave: create\n  activate ECC_Enclave\n  ECC -> ECC_Enclave: getQuote(SPID)\n  ECC_Enclave --> ECC: quote, ECC_s_pk\n  deactivate ECC_Enclave\n  ECC -> ERCC: register(quote, ECC_s_pk)\n  activate ERCC\n  ERCC -> IAS: send quote\n  activate IAS\n  IAS --> ERCC: Attestation\n  deactivate IAS\n  ERCC -> ERCC: putState(ercc.ECC_s_pk, Attestation)\n  deactivate ERCC\n  ERCC --> ECC: success / error\n  deactivate ECC\n  ECC --> Admin: success / error\n}\n\nAdmin -> Orderer: submit setup transaction\nOrderer -> Peers: when next block ready\n\nframe \"register validation\" {\n  Orderer -> Peers: broadcast block\n  activate Peers\n  Peers -> Peers: Normal validation\n  Peers -> ERCC_VSCC: Custom ERCC validation\n  activate ERCC_VSCC\n  ERCC_VSCC -> ERCC_VSCC: expected_mrenclave = getState(ecc.MRENCLAVE)\n  ERCC_VSCC -> ERCC_VSCC: check attestation signature\n  ERCC_VSCC -> ERCC_VSCC: check attestation ECC_s_pk and mrenclave\n  deactivate ERCC_VSCC\n  deactivate Peers\n}\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2055,
+    "completion_tokens": 607,
+    "total_tokens": 2662,
+    "cost": 0.00222183,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00222183,
+      "upstream_inference_prompt_cost": 0.00080145,
+      "upstream_inference_completions_cost": 0.00142038
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

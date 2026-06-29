@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782655720-hlcnEa4wdBqSf3sVWMar",
+  "object": "chat.completion",
+  "created": 1782655720,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Gestion de la cin\u00e9matique de connexion et de navigation entre les applications\n\nactor User\nparticipant \"Portal\" as Portal\nparticipant \"IAM Cognito\" as Cognito\nparticipant \"SSO\" as SSO\nparticipant \"Manager Backend\" as Manager\nparticipant \"Reality Backend\" as Backend\nparticipant \"Reality Frontend\" as Frontend\n\nbox \"S'inscrire\" #LightBlue\n    User -> Portal : S'enregistrer sur la plateforme\n    activate Portal\n    box \"Cr\u00e9ation de l'utilisateur\" #LightGreen\n        Portal -> SSO : Remplir le formulaire\n        activate SSO\n        note right of SSO\n            email\n            nom, pr\u00e9nom\n        end note\n        SSO -> SSO : Cr\u00e9er l'utilisateur\n        SSO -> Backend : Enregistre l'utilisateur\\n dans la base de donn\u00e9es\n        activate Backend\n        Backend -> Backend : Enregistre l'utilisateur\\n Cognito avec un mot\\n de passe temporaire\n        Backend --> SSO\n        deactivate Backend\n        alt success\n            SSO --> Portal : Retour de l'id de l'utilisateur\n            note right of SSO\n                <b>Suggestion:</b>\n                Email de confirmation ?\n                Changer le mot de passe lors de sa premi\u00e8re connexion\n            end note\n        else failure\n            SSO --> Portal : Retour de l'erreur\\n - utilisateur existe d\u00e9j\u00e0\\n - formulaire non valide\n        end\n        deactivate SSO\n    end box\n    deactivate Portal\nend box\n\nbox \"Login cognito\" #LightBlue\n    User -> Portal : Se connecte\n    activate Portal\n    Portal -> SSO : Est redirig\u00e9 vers le SSO\n    activate SSO\n    SSO -> Cognito : Redirection\n    activate Cognito\n    Cognito -> Portal : est redirig\u00e9 via Passport\n    Portal -> Cognito : Redirection\n    Cognito -> Portal : Page d'authentification\n    Portal -> Cognito : Saisi ses identifiants\n    alt success\n        Cognito -> SSO : Utilisateur authentifi\u00e9\\n avec le token Cognito\n        SSO -> SSO : Demande de d\u00e9coder\n        note right of SSO\n            Decode le token Cognito (Passport.js)\\n pour r\u00e9cup\u00e9rer l'email et l'identifiant\n        end note\n        SSO -> Manager : V\u00e9rification de l'utilisateur gr\u00e2ce\\n \u00e0 son email et son/ses identifiant(s) (identities)\n        activate Manager\n        alt success\n            Manager --> SSO : Utilisateur est autoris\u00e9\n            SSO -> SSO : Cr\u00e9ation du token plateforme\n            note right of SSO\n                email\n                firstname\n                lastname\n                application ?\n            end note\n            note right of SSO\n                Utiliser un token SSO au lieu du JWT ?\n            end note\n            SSO -> SSO : Stocke le token plateforme en session\\n du navigateur\n            SSO -> Backend : Stocke le token plateforme en BDD (PC)\n            activate Backend\n            Backend --> SSO\n            deactivate Backend\n            SSO -> Portal : Redirige vers l'application\\n et transmet le token plateforme au frontend\n            Portal -> Portal : Stocke le token sur sa session\n            Portal -> Frontend : Acc\u00e8de \u00e0 l'application\\n avec son token plateforme\n            activate Frontend\n            note right of Portal\n                <b>Question:</b>\n                Doit-on aussi envoyer le token Cognito ?\n            end note\n            Frontend -> Manager : Appel Manager pour r\u00e9cup\u00e9rer les droits\\n hauts pour l'utilisateur\n            activate Manager\n            alt success\n                Manager --> Frontend : Renvoie les droits hauts (applications disponibles)\n                Frontend --> Portal : Renvoie la page \u00e0 l'utilisateur\n            else failure\n                note right of Portal\n                    <b>Question:</b>\n                    Peut-on avoir un utilisateur sans droits hauts ?\n                end note\n                Frontend --> Portal : Retour vers la page de login du SSO\n            end\n            deactivate Manager\n            note right of Frontend\n                Rien n'est encore affich\u00e9\n                <b>Question:</b>\n                Gestion des droits haut niveau de mani\u00e8re automatique ?\n                Mise \u00e0 disposition les applications\\n auxquelles l'utilisateur a acc\u00e8s\n            end note\n            Frontend --> User : L'utilisateur peut naviguer\\n entre les applications\n            deactivate Frontend\n        else failure\n            Manager --> SSO : Utilisateur non autoris\u00e9\n            SSO -> Portal : Redirige vers la page d'accueil du portail avec un message (non autoris\u00e9, pas de droits suffisant)\n            note right of Portal\n                <b>Question:</b>\n                Doit-on cr\u00e9er son compte sur la plateforme ?\n            end note\n        end\n        deactivate Manager\n    else failure\n        Cognito -> Portal : Utilisateur non authentifi\u00e9\n        Portal -> User : Erreur de connexion sur la page Cognito\n    end\n    deactivate Cognito\n    deactivate SSO\n    deactivate Portal\nend box\n\nbox \"Naviguer entre les applications\" #LightBlue\n    User -> Frontend : Aller vers l'application\n    activate Frontend\n    Frontend -> Backend : Redirection route d'authentification\n    activate Backend\n    Backend -> SSO : Redirection vers le SSO\n    activate SSO\n    SSO -> SSO : Check du token en session (navigateur)\n    alt success\n        SSO -> Frontend : Redirection avec le token en query (pour le r\u00e9cup\u00e9rer avec l'URL)\n        Frontend -> Backend : Redirection sur le callback de login avec\\n le token en query\n        Backend -> Backend : Stocke le token plateforme en local storage\n        Backend -> Manager : Demande de r\u00e9cup\u00e9ration des droits fins\\n de l'utilisateur (appel simple)\n        activate Manager\n        Manager -> Manager : R\u00e9cup\u00e9ration des droits fins\\n dans sa propre BDD\n        Manager --> Backend : Retour des droits utilisateur\n        Backend -> Backend : Stockage des droits utilisateur\\n en session\n        Backend --> Frontend : Redirection vers la page\\n principale de l'application\n        deactivate Manager\n    else failure\n        note right of SSO\n            <b>Question:</b>\n            La dur\u00e9e du token Cognito de l'utilisateur ?\n            30 min pour le token\n            Comment faire la gestion du refresh du token ?\n            - Tous les x temps ?\n            Pas connect\u00e9 (token expir\u00e9 ?) ou pas autoris\u00e9\n        end note\n        SSO -> Backend : Eject de la connexion\n        Backend --> Frontend : Redirection vers la page de connexion du portail\n    end\n    deactivate SSO\n    deactivate Backend\n    deactivate Frontend\nend box\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1516,
+    "completion_tokens": 1438,
+    "total_tokens": 2954,
+    "cost": 0.00395616,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00395616,
+      "upstream_inference_prompt_cost": 0.00059124,
+      "upstream_inference_completions_cost": 0.00336492
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

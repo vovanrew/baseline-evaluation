@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782656318-dtZFYnLxBX1oDgksBO5P",
+  "object": "chat.completion",
+  "created": 1782656318,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nactor \"sdx_downstream\" as sdx_downstream\nactor \"downstream_quarantine\" as downstream_quarantine\nparticipant \"Downstream\" as Downstream\nparticipant \"Store\" as Store\nparticipant \"TransformCS\" as TransformCS\nparticipant \"Sequence\" as Sequence\ndatabase \"Postgres\" as Postgres\nqueue \"FTP\" as FTP\n\nsdx_downstream -> Downstream: Consume tx_id\nactivate Downstream\nDownstream -> Store: GET /responses/{tx_id}\nactivate Store\nStore -> Postgres: \ndeactivate Store\nStore --> Downstream: return response_json\nbreak [error]\n    Downstream --> downstream_quarantine: \nend\nDownstream -> Sequence: GET /sequence\nactivate Sequence\nSequence -> Postgres: \ndeactivate Sequence\nSequence --> Downstream: return number\nbreak [error]\n    Downstream --> downstream_quarantine: \nend\nalt [common-software]\n    Downstream -> TransformCS: POST /common-software/{sequence_no}\n    activate TransformCS\nelse [cora]\n    Downstream -> TransformCS: POST /cora/{sequence_no}\n    activate TransformCS\nelse [cord]\n    Downstream -> TransformCS: POST /cord/{sequence_no}\n    activate TransformCS\nend\nTransformCS -> Sequence: GET /image-sequence?n\nactivate Sequence\nSequence -> Postgres: \ndeactivate Sequence\nSequence --> TransformCS: return list\ndeactivate TransformCS\nTransformCS --> Downstream: Return Zip\nbreak [error]\n    Downstream --> downstream_quarantine: \nend\nDownstream -> Downstream: Unzip\nDownstream -> FTP: Send files\ndeactivate Downstream\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2006,
+    "completion_tokens": 374,
+    "total_tokens": 2380,
+    "cost": 0.0016575,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.0016575,
+      "upstream_inference_prompt_cost": 0.00078234,
+      "upstream_inference_completions_cost": 0.00087516
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

@@ -1,0 +1,69 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam noteFontColor black
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #CCCCCC
+skinparam classFontColor black
+skinparam classBackgroundColor #F0F0F0
+skinparam classBorderColor #CCCCCC
+skinparam interfaceBackgroundColor #E0E0FF
+skinparam interfaceBorderColor #CCCCCC
+skinparam stereotypeCBackgroundColor #E0E0FF
+skinparam stereotypeCBorderColor #CCCCCC
+skinparam stereotypeABackgroundColor #E0FFE0
+skinparam stereotypeABorderColor #CCCCCC
+skinparam stereotypeCBackgroundColor #E0FFE0
+skinparam stereotypeCBorderColor #CCCCCC
+
+interface IBeverage {
+  + string Description
+  + void GetDescription()
+  + double Cost()
+}
+
+class HouseBlend {
+  + HouseBlend()
+}
+
+class DarkRoast {
+  + DarkRoast()
+}
+
+class Espresso {
+  + Espresso()
+}
+
+class CondimentDecorator {
+  + IBeverage _beverage
+  + string Description
+  + string GetDescription()
+  + double Cost()
+}
+
+class Milk {
+  + Milk(IBeverage beverage)
+}
+
+class Mocha {
+  + Mocha(IBeverage beverage)
+}
+
+class Whip {
+  + Whip(IBeverage beverage)
+}
+
+note "全てのオブジェクトはこの抽象インタフェースを起点に操作する\n特定の具象コンポーネントに対する操作がしたい時は設計を見直す必要がある。\n例えば、HouseBlendのみ割引したい時とか、\n装飾により型の情報は破壊されているので。。" as Note1
+note "IBeverageを実装する理由は\nスーパークラスの型を取得するため。\nこれを継承するクラスはBeverageを装飾することができる" as Note2
+
+IBeverage <|-- HouseBlend
+IBeverage <|-- DarkRoast
+IBeverage <|-- Espresso
+IBeverage <|-- CondimentDecorator
+CondimentDecorator <|-- Milk
+CondimentDecorator <|-- Mocha
+CondimentDecorator <|-- Whip
+
+Note1 -right-> IBeverage
+Note2 -right-> CondimentDecorator
+
+@enduml

@@ -1,0 +1,57 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam noteStyle handwritten
+skinparam actorStyle awesome
+
+package "Application Layer" as AppLayer {
+    participant "SubscriptionController" as SC {
+        note top: <<@Controller>>
+        note top: C
+    }
+}
+
+package "Domain Model Layer" as DomainLayer {
+    participant "SubscriptionServiceImpl" as SSI {
+        note top: <<@Bean>>
+        note top: C
+    }
+}
+
+package "Infrastructure Layer" as InfraLayer {
+    participant "JpaSubscriptionRepository" as JSR {
+        note top: <<@Bean>>
+        note top: C
+    }
+    participant "SubscriptionPersistenceJpaRepository" as SPJR {
+        note top: <<@Repository>>
+        note top: C
+    }
+}
+
+actor User
+database Datastore
+
+User -> SC: 
+activate SC
+SC -> SSI: via SubscriptionService
+activate SSI
+SSI -> JSR: via SubscriptionRepository
+activate JSR
+JSR -> SPJR: via Spring data repository
+activate SPJR
+SPJR -> Datastore: 
+activate Datastore
+Datastore --> SPJR: 
+deactivate Datastore
+SPJR --> JSR: 
+deactivate SPJR
+JSR --> SSI: 
+deactivate JSR
+SSI --> SC: 
+deactivate SSI
+SC --> User: 
+deactivate SC
+
+@enduml

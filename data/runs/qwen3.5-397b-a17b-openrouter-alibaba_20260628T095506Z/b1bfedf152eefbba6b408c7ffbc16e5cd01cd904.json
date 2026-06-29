@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782654781-ekZJyZdpkC4Q5rceMCeJ",
+  "object": "chat.completion",
+  "created": 1782654781,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam sequenceMessageAlign center\nskinparam noteBackgroundColor #FFFFCC\nskinparam noteBorderColor #CCCCCC\nskinparam participantBackgroundColor #E6E6FA\nskinparam participantBorderColor #000000\nskinparam participantPadding 5\nskinparam lifelineStrategy solid\nskinparam arrowColor #000000\nskinparam arrowThickness 1\nskinparam messageFontColor #000000\nskinparam messageFontSize 12\nskinparam messageFontStyle plain\nskinparam messageFontName Arial\nskinparam messageTextAlign left\nskinparam messageTextPadding 5\nskinparam messageTextMargin 5\nskinparam messageTextIndent 0\nskinparam messageTextWrap true\nskinparam messageTextMaxWidth 300\nskinparam messageTextMinWidth 100\nskinparam messageTextLineHeight 1.2\nskinparam messageTextSpacing 0.5\nskinparam messageTextLeading 1.2\nskinparam messageTextTrailing 0.5\nskinparam messageTextIndent 0\nskinparam messageTextAlign left\nskinparam messageTextPadding 5\nskinparam messageTextMargin 5\nskinparam messageTextWrap true\nskinparam messageTextMaxWidth 300\nskinparam messageTextMinWidth 100\nskinparam messageTextLineHeight 1.2\nskinparam messageTextSpacing 0.5\nskinparam messageTextLeading 1.2\nskinparam messageTextTrailing 0.5\n\nparticipant \"Resident\" as Resident\nparticipant \"WeResident\" as WeResident\nparticipant \"WeID\" as WeID\nparticipant \"WebService\" as WeService\n\n== Provider Login Into Provider App ==\n\nResident -> WeResident: Send username:password /login\nalt [Provider already exist]\n    WeResident -> WeID: Get Token by username:password /oauth/authorize\n    WeID --> WeResident: Return Token to WeResident\n    WeResident --> Resident: Return {\"token\": \"jwt-token\"}\nend\n\n== Provider Query/Search Service ==\n\nResident -> WeService: Query services including token\\n/weservices/services\\nHeader\\nAuthorization: Bear {jwt-token}\nnote right of Resident\nQuery Service schema\n{\"query\":\"string\",\"status\":12}\nend note\n\nalt [above token is valid]\n    WeService -> WeID: verify token\n    WeID --> WeService: 200\n    WeService --> Resident: Response services data\n    note right of Resident\nService Data Array schema\n[{\"id\":\"string\",\"company\":\"string\",\"name\":\"string\",\"rate\":4.2,\"image\":\"image.png\"},{}],\n{\"total\":10,\"currentPage\":1,\"perPage\":5}\n    end note\nelse [Token is expired/invalid]\n    WeService -> WeID: verify token\n    WeID --> WeService: 400\n    WeService --> Resident: Response 401 status\nend\n\n== Create Order(Request) ==\n\nResident -> WeService: Create Service\\nPOST: /weservices/service/{serviceID}/order\nnote right of Resident\nOrder Request schema\n{\"resident\":\"$userID\",\n\"service\":\"$serviceID\",\n\"pricingModel\":{},\n\"noteDetail\":\"string\",\n\"address\":\"string\",\n\"schedule\":Time}\nend note\n\nWeService -> WeID: verify token\nWeID --> WeService: 200\nWeService --> Resident: Response Service Data(JSON)\n\nResident -> WeService: Comment(chat) in Order\\nPOST: /weservices/order/{orderID}/comment\nnote right of Resident\nComment Data\n{\"content\":\"string\"}\nend note\n\nWeService -> WeID: verify token\nWeID --> WeService: 200\nWeService --> Resident: 200\n\n@enduml",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1418,
+    "completion_tokens": 823,
+    "total_tokens": 2241,
+    "cost": 0.00247884,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00247884,
+      "upstream_inference_prompt_cost": 0.00055302,
+      "upstream_inference_completions_cost": 0.00192582
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

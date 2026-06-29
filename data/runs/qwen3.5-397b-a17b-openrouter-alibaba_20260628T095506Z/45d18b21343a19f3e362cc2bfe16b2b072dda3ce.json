@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782647715-5JpJkfDoIUzJOfFVWA2R",
+  "object": "chat.completion",
+  "created": 1782647715,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam classAttributeIconSize 0\nskinparam linetype ortho\nskinparam shadowing false\nskinparam packageStyle rectangle\nskinparam note {\n  BackgroundColor #FFFFCC\n  BorderColor #CCCCCC\n}\n\n' Interfaces\ninterface \"BeanPostProcessor\" as BPP {\n  Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception;\n  Object postProcessAfterInitialization(Object bean, String beanName) throws Exception;\n}\n\ninterface \"BeanFactoryAware\" as BFA {\n  void setBeanFactory(BeanFactory beanFactory) throws Exception;\n}\n\ninterface \"AopProxy\" as AopProxy {\n}\n\ninterface \"InvocationHandler\" as IH {\n}\n\ninterface \"Advice\" as Advice {\n}\n\ninterface \"Pointcut\" as Pointcut {\n}\n\ninterface \"ClassFilter\" as ClassFilter {\n}\n\ninterface \"MethodMatcher\" as MethodMatcher {\n}\n\ninterface \"MethodInterceptor\" as MethodInterceptor {\n}\n\n' Classes\nclass \"AbstractBeanFactory\" as ABF {\n  public List getBeansForType(Class type) throws Exception {\n}\n\nclass \"AspectJAwareAdvisorAutoProxyCreator\" as AJAAPC {\n}\n\nclass \"JdkDynamicAopProxy\" as JDAP {\n}\n\nclass \"AdvisedSupport\" as AS {\n  MethodInterceptor methodInterceptor;\n  TargetSource targetSource;\n  private MethodMatcher methodMatcher;\n}\n\nclass \"TargetSource\" as TS {\n  Class targetClass;\n  Object target;\n}\n\nclass \"AspectJExpressionPointcut\" as AJEP {\n  private PointcutParser pointcutParser;\n  private String expression;\n  private PointcutExpression pointcutExpression;\n  public boolean matchesClass(Class targetClass)\n  public boolean matchesMethod(Method method, Class targetClass)\n}\n\nclass \"AspectJExpressionPointcutAdvisor\" as AJEPA {\n  private Advice advice;\n  private AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();\n}\n\nclass \"ReflectiveMethodInvocation\" as RMI {\n}\n\n' Notes\nnote top of BPP\n  <b>BeanPostProcessor</b>\nend note\n\nnote top of BFA\n  <b>BeanFactoryAware</b>\nend note\n\nnote left of JDAP\n  <b>@Override</b>\n  public Object getProxy() {\n    return Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] { advised.getTargetSource().getTargetClass() }, this);\n  }\n\n  <b>@Override</b>\n  public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {\n    MethodInterceptor methodInterceptor = advised.getMethodInterceptor();\n    if (advised.getMethodMatcher() == null\n        || advised.getMethodMatcher().matches(method, advised.getTargetSource().getTarget().getClass())) {\n      return methodInterceptor.invoke(new ReflectiveMethodInvocation(advised.getTargetSource().getTarget(),\n          method, args));\n    } else {\n      return method.invoke(advised.getTargetSource().getTarget(), args);\n    }\n  }\nend note\n\nnote top of AJAAPC\n  <b>@Override</b>\n  public Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {\n    if (bean instanceof AspectJExpressionPointcutAdvisor) {\n      return bean;\n    }\n    if (bean instanceof MethodInterceptor) {\n      return bean;\n    }\n    List<AspectJExpressionPointcutAdvisor> advisors = beanFactory\n        .getBeansForType(AspectJExpressionPointcutAdvisor.class);\n    for (AspectJExpressionPointcutAdvisor advisor : advisors) {\n      if (advisor.getPointcut().getClassFilter().matches(bean.getClass())) {\n        AdvisedSupport advisedSupport = new AdvisedSupport();\n        advisedSupport.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());\n        advisedSupport.setMethodMatcher(advisor.getPointcut().getMethodMatcher());\n        TargetSource targetSource = new TargetSource(bean, bean.getClass().getInterfaces());\n        advisedSupport.setTargetSource(targetSource);\n        return new JdkDynamicAopProxy(advisedSupport).getProxy();\n      }\n    }\n    return bean;\n  }\nend note\n\nnote right of AJEPA\n  <b>\u7279\u522b\u6ce8\u610f\u4e0b\u7684\uff1a</b>\n  beanDefinition.setBean(bean);\n\n  <b>@Override</b>\n  public Object getBean(String name) throws Exception {\n    BeanDefinition beanDefinition = beanDefinitionMap.get(name);\n    if (beanDefinition == null) {\n      throw new IllegalArgumentException(\"No bean named \" + name + \" is defined\");\n    }\n    Object bean = beanDefinition.getBean();\n    if (bean == null) {\n      bean = doCreateBean(beanDefinition);\n      bean = initializeBean(bean, name);\n      beanDefinition.setBean(bean);\n    }\n    return bean;\n  }\nend note\n\nnote right of AJAAPC\n  <b>@Test</b>\n  public void test() throws Exception {\n    ApplicationContext applicationContext = new ClassPathXmlApplicationContext(\"tinyioc.xml\");\n    HelloWorldService helloWorldService = (HelloWorldService) applicationContext.getBean(\"helloWorldService\");\n    helloWorldService.helloWorld();\n  }\n\n  <b>tinyioc.xml\u914d\u7f6e</b>\n  &lt;bean id=\"outputService\" class=\"us.codecraft.tinyioc.OutputServiceImpl\"&gt;\n  &lt;/bean&gt;\n  &lt;bean id=\"helloWorldService\" class=\"us.codecraft.tinyioc.HelloWorldServiceImpl\"&gt;\n  &lt;property name=\"text\" value=\"Hello World!\"&gt;&lt;/property&gt;\n  &lt;property name=\"outputService\" ref=\"outputService\"&gt;&lt;/property&gt;\n  &lt;/bean&gt;\n  &lt;bean id=\"timeInterceptor\" class=\"us.codecraft.tinyioc.aop.TimeInterceptor\"&gt;&lt;/bean&gt;\n  &lt;bean id=\"autoProxyCreator\" class=\"us.codecraft.tinyioc.aop.AspectJAwareAdvisorAutoProxyCreator\"&gt;&lt;/bean&gt;\n  &lt;bean id=\"aspectjAdvisor\" class=\"us.codecraft.tinyioc.aop.AspectJExpressionPointcutAdvisor\"&gt;\n  &lt;property name=\"advice\" ref=\"timeInterceptor\"&gt;&lt;/property&gt;\n  &lt;property name=\"expression\" value=\"execution(* us.codecraft.tinyioc.*.*(..))\"&gt;&lt;/property&gt;\n  &lt;/bean&gt;\nend note\n\n' Relationships\nBPP <|-- AJAAPC\nBFA <|-- AJAAPC\nAopProxy <|.. JDAP\nInvocationHandler <|.. JDAP\nAdvice <|.. AJEPA\nPointcut <|.. AJEP\nClassFilter <|.. AJEP\nMethodMatcher <|.. AS\nMethodInterceptor <|.. AS\nABF <|-- AJAAPC\nAJAAPC --> ABF\nAJAAPC --> AS\nAJAAPC --> TS\nAS --> JDAP\nAS --> RMI\nAS --> TS\nAS --> MethodMatcher\nAS --> MethodInterceptor\nTS --> ABF\nAJEP --> Pointcut\nAJEP --> ClassFilter\nAJEPA --> Advice\nAJEPA --> AJEP\nJDAP --> AopProxy\nJDAP --> IH\nJDAP --> AS\nRMI --> AS\nAJAAPC --> AJEPA\nAJEPA --> AJAAPC\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1075,
+    "completion_tokens": 1625,
+    "total_tokens": 2700,
+    "cost": 0.00422175,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00422175,
+      "upstream_inference_prompt_cost": 0.00041925,
+      "upstream_inference_completions_cost": 0.0038025
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

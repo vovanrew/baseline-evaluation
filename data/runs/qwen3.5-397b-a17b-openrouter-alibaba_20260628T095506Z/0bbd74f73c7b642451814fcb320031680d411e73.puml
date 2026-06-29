@@ -1,0 +1,69 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam backgroundColor #FFFFFF
+skinparam sequence {
+  LifeLineBackgroundColor #E0E0E0
+  LifeLineBorderColor #CCCCCC
+  ParticipantBackgroundColor #F0F0F0
+  ParticipantBorderColor #CCCCCC
+  ArrowColor #333333
+  NoteBackgroundColor #FFFFCC
+  NoteBorderColor #CCCCCC
+}
+
+actor "sidetree-core-go" as Actor
+participant "Instance 1" as Instance1
+participant "orb.operation" as OrbOperation
+database "op-queue DB" as DB
+participant "Instance 2" as Instance2
+
+== Initialization ==
+Actor -> Instance1: Add(op1)
+activate Instance1
+Instance1 -> OrbOperation: Publish(op1)
+activate OrbOperation
+OrbOperation --> Instance1: ok
+deactivate OrbOperation
+Instance1 --> Actor: ok
+deactivate Instance1
+
+Actor -> Instance2: Add(op2)
+activate Instance2
+Instance2 -> OrbOperation: Publish(op2)
+activate OrbOperation
+OrbOperation --> Instance2: ok
+deactivate OrbOperation
+Instance2 --> Actor: ok
+deactivate Instance2
+
+== Processing op2 ==
+OrbOperation -> Instance1: op2
+activate Instance1
+Instance1 --> OrbOperation: ok
+Instance1 -> DB: Put(op2,handler1ID,expiry)
+activate DB
+DB --> Instance1: ok
+deactivate DB
+Instance1 -> OrbOperation: Ack(op2)
+activate OrbOperation
+OrbOperation --> Instance1: ok
+deactivate OrbOperation
+deactivate Instance1
+
+== Processing op1 ==
+OrbOperation -> Instance2: op1
+activate Instance2
+Instance2 --> OrbOperation: ok
+Instance2 -> DB: Put(op1,handler2ID,expiry)
+activate DB
+DB --> Instance2: ok
+deactivate DB
+Instance2 -> OrbOperation: Ack(op1)
+activate OrbOperation
+OrbOperation --> Instance2: ok
+deactivate OrbOperation
+deactivate Instance2
+
+@enduml

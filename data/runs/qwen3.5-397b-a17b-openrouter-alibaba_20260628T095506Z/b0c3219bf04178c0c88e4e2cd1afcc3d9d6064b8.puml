@@ -1,0 +1,31 @@
+@startuml
+actor "Crapchat user" as User
+actor "Another Crapchat user" as AnotherUser
+participant "Crapchat REST API" as API
+participant "Crapchat identity provider" as IdentityProvider
+database "Crapchat storage" as Storage
+
+frame "Search user" {
+    User -> API: HTTP POST request with search query
+    API -> IdentityProvider: HTTP request with search query
+    IdentityProvider --> API: HTTP response with list of users
+    API --> User: HTTP response with array of users
+}
+
+frame "Send follow request" {
+    User -> User: Clicks follow button
+    User -> API: HTTP request with ID of the user to follow
+    API -> Storage: SQL insert query
+    Storage --> API: Success response
+    API -> AnotherUser: Notify with follow request
+    API --> User: HTTP OK response
+}
+
+frame "Accept follow request" {
+    AnotherUser -> API: HTTP request to accept
+    API -> Storage: SQL update query
+    Storage --> API: Success response
+    API --> AnotherUser: HTTP OK response
+}
+
+@enduml

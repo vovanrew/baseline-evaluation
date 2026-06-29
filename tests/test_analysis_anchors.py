@@ -11,16 +11,18 @@ from analysis.registry import load_registry, panel_entries
 from analysis.report import write_table
 
 DATA = DEFAULT_DATA_ROOT
-SCORED = ["gpt-5.2", "claude-opus-4-6", "gemini-3.1-pro", "qwen3.5-2b", "qwen3.5-9b", "qwen3.5-27b"]
+SCORED = ["gpt-5.2", "claude-opus-4-6", "gemini-3.1-pro", "qwen3.5-2b", "qwen3.5-9b",
+          "qwen3.5-27b", "qwen3.5-397b-a17b"]
 
 # Human-readable anchor table from analysis_plan.md (micro; zeros / compiled).
 ANCHORS = {
-    "gpt-5.2":         {"csr": 0.935, "el": (0.897, 0.939), "rel": (0.757, 0.799), "chrf": (60.74, 66.01), "ta": 0.941},
-    "claude-opus-4-6": {"csr": 0.941, "el": (0.909, 0.940), "rel": (0.693, 0.720), "chrf": (62.36, 66.57), "ta": 0.950},
-    "gemini-3.1-pro":  {"csr": 0.972, "el": (0.945, 0.961), "rel": (0.875, 0.893), "chrf": (72.19, 74.54), "ta": 0.984},
-    "qwen3.5-2b":      {"csr": 0.201, "el": (0.246, 0.878), "rel": (0.114, 0.481), "chrf": (8.96, 65.12),  "ta": 0.758},
-    "qwen3.5-9b":      {"csr": 0.431, "el": (0.491, 0.844), "rel": (0.201, 0.439), "chrf": (24.40, 61.17), "ta": 0.756},
-    "qwen3.5-27b":     {"csr": 0.601, "el": (0.676, 0.917), "rel": (0.485, 0.722), "chrf": (38.41, 65.65), "ta": 0.886},
+    "gpt-5.2":           {"csr": 0.935, "el": (0.897, 0.939), "rel": (0.757, 0.799), "chrf": (60.74, 66.01), "ta": 0.941},
+    "claude-opus-4-6":   {"csr": 0.941, "el": (0.909, 0.940), "rel": (0.693, 0.720), "chrf": (62.36, 66.57), "ta": 0.950},
+    "gemini-3.1-pro":    {"csr": 0.972, "el": (0.945, 0.961), "rel": (0.875, 0.893), "chrf": (72.19, 74.54), "ta": 0.984},
+    "qwen3.5-2b":        {"csr": 0.201, "el": (0.246, 0.878), "rel": (0.114, 0.481), "chrf": (8.96, 65.12),  "ta": 0.758},
+    "qwen3.5-9b":        {"csr": 0.431, "el": (0.491, 0.844), "rel": (0.201, 0.439), "chrf": (24.40, 61.17), "ta": 0.756},
+    "qwen3.5-27b":       {"csr": 0.601, "el": (0.676, 0.917), "rel": (0.485, 0.722), "chrf": (38.41, 65.65), "ta": 0.886},
+    "qwen3.5-397b-a17b": {"csr": 0.787, "el": (0.771, 0.897), "rel": (0.646, 0.736), "chrf": (47.80, 59.77), "ta": 0.870},
 }
 
 _REG = {e.id: e for e in load_registry()}
@@ -98,14 +100,16 @@ def test_matches_human_anchor_table():
         assert ov["type_accuracy"]["accuracy"] == pytest.approx(a["ta"], abs=1e-3), mid
 
 
-def test_meta_counts_6_of_7_with_pending():
+def test_meta_counts_7_of_7_all_scored():
     meta = _main_table()["meta"]
-    assert meta["models_included"] == 6
+    assert meta["models_included"] == 7
     assert meta["models_total"] == 7
     assert set(meta["included_ids"]) == set(SCORED)
-    # 397B-A17B stays pending: its only runs on disk are the corrupted Featherless
-    # serve (literal \n + truncation) -> registry run_dir left unset until a clean re-run.
-    assert set(meta["pending_ids"]) == {"qwen3.5-397b-a17b"}
+    assert meta["pending_ids"] == []
+    assert meta["refused_ids"] == []
+    # 397B-A17B re-run on first-party serving (OpenRouter->Alibaba) after the Featherless
+    # FP8 serve was found broken; now scored and included.
+    assert set(meta["pending_ids"]) == set()
     assert meta["refused_ids"] == []  # no model leaks <think>
 
 

@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782656981-x3OBEe7G2KyQimBEvXqS",
+  "object": "chat.completion",
+  "created": 1782656981,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor Admin\nactor User\nparticipant \"AccountManagement\" as AccountManagement\nparticipant \"Broker\" as Broker\nparticipant \"Notifications\" as Notifications\nparticipant \"UAA\" as UAA\nparticipant \"EmailSender\" as EmailSender\n\nAdmin -> AccountManagement: WorkspaceInvitation\nnote right of AccountManagement: with email\nAccountManagement -> AccountManagement: save data to db\nAccountManagement --> Admin: 200 response\nAccountManagement -> Broker: create event \"new user invited event\"\nBroker -> Notifications: read event\nnote right of Notifications: with email and senderId\nNotifications -> UAA: read info about sender\nNotifications -> Notifications: generate email\nNotifications -> Broker: create \"new email event\"\nBroker -> EmailSender: read \"new email event\"\nEmailSender -> User: send email\n\nalt user accepts invitation\n    User -> AccountManagement: WorkspaceEmailValidation\n    AccountManagement -> AccountManagement: check email\n    AccountManagement --> User: WorkspaceEmailValidationResult\n    alt email valid\n        AccountManagement -> AccountManagement: generate access code\n        AccountManagement -> Broker: create event \"new access code\"\n        Broker -> Notifications: read event\n        note right of Notifications: with email and access code\n        Notifications -> Notifications: generate email\n        Notifications -> Broker: create \"new email event\"\n        Broker -> EmailSender: read \"new email event\"\n        EmailSender -> User: send email\n    end\n    User -> User: get access code from email\n    User -> AccountManagement: WorkspaceAccessCodeValidation\n    AccountManagement --> User: WorkspaceAccessCodeValidationResult\n    note right of AccountManagement: with email, access code\n    alt access code valid\n        AccountManagement -> AccountManagement: change state\n        User -> UAA: WorkspaceRegistration\n        note right of UAA: with email, username, password and code\n        UAA -> AccountManagement: check state by email\n        note left of Broker: with userId and email\n        UAA -> Broker: create new event \"user created event\"\n        Broker -> Notifications: read event \"user created event\"\n        Notifications -> Notifications: create user with email\n    end\nend\n\n@enduml",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2496,
+    "completion_tokens": 459,
+    "total_tokens": 2955,
+    "cost": 0.0020475,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.0020475,
+      "upstream_inference_prompt_cost": 0.00097344,
+      "upstream_inference_completions_cost": 0.00107406
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

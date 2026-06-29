@@ -1,0 +1,36 @@
+@startuml
+actor "havenarbeider" as H
+actor "douane en voedselinspectie" as D
+actor "scheepsagent" as S
+participant "Api gateway" as A
+participant "kapiteinsdienst" as K
+participant "administratie" as Ad
+participant "containerbeheer en -transport" as C
+
+frame "per schip" {
+    S -> A: registerVessel
+    A -> K: registerVessel
+    K -> Ad: requestOffer
+    Ad --> K: offerCreated
+    Ad -> C: newContainerList
+    opt [deleteOffer]
+        S -> A: offerConfirmation(isConfirmed == false)
+        A -> K: offerConfirmation(isConfirmed == false)
+        K -> Ad: deleteOffer
+    end
+    D -> A: getDocuments
+    A -> Ad: getDocuments
+    Ad --> A
+    A --> D
+}
+
+frame "per havenarbeider" {
+    H -> A: timeBadging
+    A -> Ad: timeBadging
+    H -> A: getPayCheck
+    A -> Ad: getPayCheck
+    Ad --> A
+    A --> H
+}
+
+@enduml

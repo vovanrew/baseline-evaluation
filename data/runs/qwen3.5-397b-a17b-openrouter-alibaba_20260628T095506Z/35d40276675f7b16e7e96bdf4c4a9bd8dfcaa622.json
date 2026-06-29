@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782655807-wWbe8XMDGklJ2cQZtfY8",
+  "object": "chat.completion",
+  "created": 1782655807,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Update Relationship Event Handler UML\n\nparticipant \"SNS\" as SNS #FF69B4\nparticipant \"Lambda\" as Lambda #FFA500\nparticipant \"DynamoDB\" as DynamoDB #4169E1\n\nbox \"SNS\" #FF69B4\n    participant \"Event Dispatcher Topic\" as EventDispatcherTopic\nend box\n\nbox \"Lambda\" #FFA500\n    participant \"Update Relationship Event Handler\" as UpdateRelationshipEventHandler\nend box\n\nbox \"DynamoDB\" #4169E1\n    participant \"Relationship Owner Table\" as RelationshipOwnerTable\n    participant \"Relationship Commitment Table\" as RelationshipCommitmentTable\nend box\n\nEventDispatcherTopic -> UpdateRelationshipEventHandler: filter on Relationship::Update Event\nactivate UpdateRelationshipEventHandler\nUpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: [SessionDecorator.puml]\nUpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: [TrackEventHandlerWrapper.puml]\nUpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: extract Message from Event\nUpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: validate Message\nUpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: validate event-name\nUpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: validate event-version\nUpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: validate stage\nUpdateRelationshipEventHandler -> RelationshipOwnerTable: Get Existing Relationship\nactivate RelationshipOwnerTable\nRelationshipOwnerTable --> UpdateRelationshipEventHandler: Generate Relationship Dict\ndeactivate RelationshipOwnerTable\nUpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: Combine Existing Relationship Attributes With New Changes\n\nopt if missing required schema key\n    UpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: Error Handling\nend\n\nUpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: Get AdditionalAttributes\n\nalt if Relationship contains description and AdditionalAttributes doesn't contain completed signal\n    UpdateRelationshipEventHandler -> RelationshipOwnerTable: update Relationship\n    activate RelationshipOwnerTable\n    RelationshipOwnerTable --> UpdateRelationshipEventHandler: Error Handling\n    deactivate RelationshipOwnerTable\nend\n\nUpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: Generate commitments to add or delete\n\nalt if Commitment Operations Exist\n    UpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: Generate starting indexes based on AdditionalAttributes\n    UpdateRelationshipEventHandler -> RelationshipCommitmentTable: Batch_Write() RelationshipCommitments\n    activate RelationshipCommitmentTable\n    RelationshipCommitmentTable --> UpdateRelationshipEventHandler: Error Handling\n    deactivate RelationshipCommitmentTable\nend\n\nUpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: Track Event Handler Wrapper\nUpdateRelationshipEventHandler -> UpdateRelationshipEventHandler: Error Handler Wrapper\ndeactivate UpdateRelationshipEventHandler\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1565,
+    "completion_tokens": 522,
+    "total_tokens": 2087,
+    "cost": 0.00183183,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00183183,
+      "upstream_inference_prompt_cost": 0.00061035,
+      "upstream_inference_completions_cost": 0.00122148
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

@@ -1,0 +1,36 @@
+@startuml
+actor File
+participant "LexicalAnalysisDriver" as LexicalAnalysisDriver
+participant "LexicalAnalysisJava" as LexicalAnalysisJava
+participant "JavaSyntaxLib" as JavaSyntaxLib
+participant "TypeCheck" as TypeCheck
+participant "ColorCode" as ColorCode
+participant "ErrorCheck" as ErrorCheck
+
+File -> LexicalAnalysisDriver: invokes
+activate LexicalAnalysisDriver
+LexicalAnalysisDriver -> LexicalAnalysisJava: Calls
+activate LexicalAnalysisJava
+LexicalAnalysisJava -> JavaSyntaxLib: Calls
+activate JavaSyntaxLib
+JavaSyntaxLib --> LexicalAnalysisJava
+deactivate JavaSyntaxLib
+LexicalAnalysisJava -> TypeCheck: SyntaxTypeCheck()
+activate TypeCheck
+TypeCheck --> File: Return(TypeCheck)
+deactivate TypeCheck
+LexicalAnalysisJava -> ColorCode: SyntaxColorCheck()
+activate ColorCode
+ColorCode --> File: Return(ColorCode)
+deactivate ColorCode
+LexicalAnalysisJava -> ErrorCheck: SyntaxErrorCheck()
+activate ErrorCheck
+alt successful case
+    ErrorCheck --> File: Error Free
+else Error Case
+    ErrorCheck --> File: Return Error Message
+end
+deactivate ErrorCheck
+deactivate LexicalAnalysisJava
+deactivate LexicalAnalysisDriver
+@enduml

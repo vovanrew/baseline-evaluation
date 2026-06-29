@@ -47,13 +47,13 @@ def test_scored_models_have_run_dirs():
     assert by_id["gemini-3.1-pro"].status == "scored"
 
 
-def test_pending_models_marked_pending():
+def test_moe_scored_on_clean_reserve():
     by_id = {e.id: e for e in load_registry()}
-    # 397B-A17B: pending until a CLEAN re-run — its only runs on disk are the corrupted
-    # Featherless serve, so run_dir is left unset so the pipeline cannot load it.
+    # 397B-A17B: the original Featherless FP8 serve was broken (generation collapse, CSR 0.216);
+    # re-run on first-party serving (OpenRouter pinned to the Alibaba backend) and registered.
     moe = by_id["qwen3.5-397b-a17b"]
-    assert moe.status == "pending"
-    assert not moe.run_dir  # None or empty string
+    assert moe.status == "scored"
+    assert moe.run_dir == "qwen3.5-397b-a17b-openrouter-alibaba_20260628T095506Z"
 
 
 def test_moe_entry_carries_total_and_active_params():

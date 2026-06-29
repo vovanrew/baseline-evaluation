@@ -1,0 +1,75 @@
+```plantuml
+@startuml
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam noteStyle handwritten
+skinparam backgroundColor #F5F5F5
+skinparam sequence {
+    LifeLineBackgroundColor #FFFFFF
+    LifeLineBorderColor #CCCCCC
+    ArrowColor #666666
+    ActorBorderColor #666666
+    ActorBackgroundColor #FFFFFF
+}
+
+title Video Streaming Architecture - Sequence Diagram
+
+participant "VideoSink" as VideoSink
+participant "VideoDecoder" as VideoDecoder
+participant "VideoReceiver" as VideoReceiver
+participant "RTPReceiver" as RTPReceiver
+participant "Transceiver" as Transceiver
+participant "DTLS" as DTLS
+participant "AcmOfPacket" as AcmOfPacket
+
+== Receive RTP ==
+
+DTLS -> AcmOfPacket: OnReadEvent()
+AcmOfPacket -> AcmOfPacket: ParsePacket()
+AcmOfPacket -> AcmOfPacket: OnReadEvent()
+AcmOfPacket -> DTLS: SignalReadEvent
+DTLS -> DTLS: OnReadEvent()
+DTLS -> DTLS: ProcessPacket()
+DTLS -> DTLS: OnReadEvent()
+DTLS -> Transceiver: OnReadEvent()
+Transceiver -> Transceiver: RtpTransport::OnReadPacket()
+Transceiver -> Transceiver: RtpTransport::OnReadPacket()
+Transceiver -> Transceiver: RtpTransport::OnReadPacket()
+Transceiver -> RTPReceiver: OnReadEvent()
+
+== Receive Video ==
+
+RTPReceiver -> RTPReceiver: OnReadEvent()
+RTPReceiver -> RTPReceiver: RtpVideoStreamReceiver::OnReadEvent()
+RTPReceiver -> RTPReceiver: RtpVideoStreamReceiver::OnReadEvent()
+RTPReceiver -> RTPReceiver: RtpVideoStreamReceiver::OnReadEvent()
+RTPReceiver -> RTPReceiver: RtpVideoStreamReceiver::OnReadEvent()
+RTPReceiver -> VideoReceiver: OnReadEvent()
+VideoReceiver -> VideoReceiver: OnReadEvent()
+VideoReceiver -> VideoReceiver: OnReadEvent()
+VideoReceiver -> VideoReceiver: OnReadEvent()
+VideoReceiver -> VideoReceiver: OnReadEvent()
+VideoReceiver -> VideoReceiver: OnReadEvent()
+VideoReceiver -> VideoReceiver: OnReadEvent()
+VideoReceiver -> VideoReceiver: OnReadEvent()
+VideoReceiver -> VideoReceiver: OnReadEvent()
+VideoReceiver -> VideoReceiver: OnReadEvent()
+VideoReceiver -> VideoReceiver: OnReadEvent()
+VideoReceiver -> VideoReceiver......: OnReadEvent()
+VideoReceiver -> VideoDecoder: OnReadEvent()
+VideoDecoder -> VideoDecoder: OnReadEvent()
+VideoDecoder -> VideoDecoder: OnReadEvent()
+VideoDecoder -> VideoDecoder: OnReadEvent()
+VideoDecoder -> VideoDecoder: OnReadEvent()
+VideoDecoder -> VideoDecoder: OnReadEvent()
+VideoDecoder -> VideoDecoder: OnReadEvent()
+VideoDecoder -> VideoDecoder: OnReadEvent()
+VideoDecoder -> VideoDecoder: OnReadEvent()
+VideoDecoder -> VideoDecoder: OnReadEvent()
+VideoDecoder -> VideoDecoder: OnReadEvent()
+VideoDecoder -> VideoDecoder:...... OnReadEvent()
+VideoDecoder -> VideoSink: OnReadEvent()
+
+@enduml
+```

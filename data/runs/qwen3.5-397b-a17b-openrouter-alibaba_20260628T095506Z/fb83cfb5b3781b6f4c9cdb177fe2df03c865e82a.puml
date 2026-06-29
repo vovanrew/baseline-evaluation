@@ -1,0 +1,34 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantFontColor #000000
+skinparam participantPadding 10
+skinparam noteBackgroundColor #FFFFE0
+skinparam noteBorderColor #000000
+skinparam noteFontColor #000000
+skinparam notePadding 5
+skinparam arrowColor #000000
+skinparam arrowThickness 1
+skinparam lifelineColor #000000
+skinparam lifelineThickness 1
+skinparam lifelineStyle dashed
+
+participant "controller" as C
+participant "agent" as A
+participant "STA" as S
+
+C -> A: Perform MAUT setup steps (4.1.1 or 4.1.2)
+C -> S: Trigger STA to join the specified MAUT BSSID
+C -> A: send 1905, 0x8003,Multi-AP\nPolicy Config Request\nAP Metrics Reporting Interval:0\nSTA MetricsReporting RSSI Threshold:0\nSTA Metrics Reporting RSSI Hysteresis Margin Override:0\nAP Metrics Channel Utilization Reporting Threshold:1 (0.4%)\nAssociated STA Traffic Stats Inclusion Policy bit 7: 1\nAssociated STA Link Metrics Inclusion Policy bit 6: 1\nbits 5-0 set to 0\nNo Steering Policy TLV
+A -> A: send_cmdu(MULTI_AP_POLICY_CONFIG_REQUEST_MESSAGE)
+A -> A: handle_multi_ap_policy_config_request()
+A -> C: send_cmdu(ACK_MESSAGE)
+C -> S: Trigger STA to start traffic generation to the controller
+A -> A: on_channel_utilization_measurement_period_elapsed()\nMeasure current channel utilization.\nIf difference with previous value crosses\nconfigured threshold, then send AP metrics.
+A -> C: send_cmdu(AP_METRICS_RESPONSE_MESSAGE)\nwith Associated STA Traffic Stats\nand Associated STA Link Metrics
+C -> C: handle_cmdu_1905_ap_metric_response()
+
+@enduml

@@ -1,0 +1,17 @@
+@startuml
+title SD_getListFromExternalModule(fileName)
+participant "store: SnsUserStore" as store
+participant "«interface»\n:LoadSnsUsersFromExternalSource" as interface
+participant ":List<SnsUserDTO>" as list
+
+store -> store: 1 getListFromExternalModule(fileName)
+activate store
+store -> store: 2 className = getClassName(fileName)
+store -> interface: 3 dtoList = readFileFromExternalSource(fileName)
+activate interface
+interface -> list: 4 create()
+note right of interface: multiple interactions in the externalSource to extract a list of SnsUserDTO
+deactivate interface
+store <- store: 5 return dtoList
+deactivate store
+@enduml

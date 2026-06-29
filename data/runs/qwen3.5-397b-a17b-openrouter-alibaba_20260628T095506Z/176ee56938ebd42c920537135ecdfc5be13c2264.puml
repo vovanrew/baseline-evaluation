@@ -1,0 +1,53 @@
+```plantuml
+@startuml
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #483D8B
+skinparam noteBackgroundColor #FFFACD
+skinparam noteBorderColor #DAA520
+skinparam noteFontColor #000000
+skinparam actorStyle awesome
+
+actor "Пользователь" as User
+participant "СиловойМодуль" as PowerModule
+participant "РелеПитания" as PowerRelay
+participant "МодульСетевогоУправления" as NetworkModule
+
+== Инициализация ==
+PowerModule -> PowerModule: Выключен
+User -> PowerModule: Нажатие кнопки
+activate PowerModule
+PowerModule -> PowerRelay: Включение
+activate PowerRelay
+PowerModule -> User: Светодиод на кнопке моргает
+PowerModule -> PowerModule: Включение
+deactivate PowerRelay
+
+== Модули производят начальную настройку ==
+NetworkModule -> PowerModule: {"action": "found_module", "meta":{...}}
+activate PowerModule
+PowerModule -> NetworkModule: {"status": "ok"}
+deactivate PowerModule
+PowerModule -> User: Светодиод на кнопке включён
+PowerModule -> PowerModule: Включён
+
+== Нормальная работа робота ==
+User -> PowerModule: Нажатие кнопки
+PowerModule -> User: Светодиод на кнопке моргает
+PowerModule -> NetworkModule: {"action": "shutdown"}
+activate NetworkModule
+NetworkModule -> PowerModule: {"timeout": N}
+deactivate NetworkModule
+PowerModule -> PowerModule: Выключение
+
+== Модули производят процедуры по безопасному выключению ==
+== Проходит N секунд ==
+PowerModule -> User: Светодиод на кнопке выключен
+PowerModule -> PowerRelay: Выключение
+activate PowerRelay
+PowerModule -> PowerModule: Выключен
+deactivate PowerRelay
+@enduml
+```

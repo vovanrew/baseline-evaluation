@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782657949-TvnIaidj5Ox5uBcHwGaq",
+  "object": "chat.completion",
+  "created": 1782657949,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Project - Staff - Update\nskinparam sequenceMessageAlign center\nskinparam participantStyle rectangle\nskinparam noteStyle rectangle\nskinparam actorStyle rectangle\nskinparam lifelineStrategy nosolid\nskinparam responseMessageBelowArrow true\nskinparam responseMessageFontColor black\nskinparam responseMessageBorderColor black\nskinparam responseMessageBackgroundColor #98FB98\nskinparam participantFontColor black\nskinparam participantBorderColor black\nskinparam participantBackgroundColor #FF6347\nskinparam participantPadding 5\nskinparam boxPadding 5\nskinparam noteFontColor black\nskinparam noteBorderColor black\nskinparam noteBackgroundColor #98FB98\nskinparam notePadding 5\nskinparam arrowColor black\nskinparam arrowThickness 1\nskinparam arrowFontColor black\nskinparam arrowFontName Arial\nskinparam arrowFontSize 10\nskinparam arrowFontStyle plain\nskinparam arrowTextAlign center\nskinparam arrowTextPadding 5\nskinparam arrowTextBackgroundColor white\nskinparam arrowTextBorderColor black\nskinparam arrowTextBorderThickness 1\nskinparam arrowTextBorderRadius 0\nskinparam arrowTextBorderStyle solid\nskinparam arrowTextBorderDashArray\nskinparam arrowTextBorderDashOffset\nskinparam arrowTextBorderLineCap\nskinparam arrowTextBorderLineJoin\nskinparam arrowTextBorderMiterLimit\nskinparam arrowTextBorderOpacity\nskinparam arrowTextBorderWidth\nskinparam arrowTextBorderHeight\nskinparam arrowTextBorderMargin\nskinparam arrowTextBorderPadding\nskinparam arrowTextBorderSpacing\nskinparam arrowTextBorderCollapse\nskinparam arrowTextBorderVisibility\nskinparam arrowTextBorderDisplay\nskinparam arrowTextBorderPosition\nskinparam arrowTextBorderZIndex\nskinparam arrowTextBorderClip\nskinparam arrowTextBorderOverflow\nskinparam arrowTextBorderWhiteSpace\nskinparam arrowTextBorderWordWrap\nskinparam arrowTextBorderWordBreak\nskinparam arrowTextBorderTextOverflow\nskinparam arrowTextBorderTextAlign\nskinparam arrowTextBorderTextDecoration\nskinparam arrowTextBorderTextTransform\nskinparam arrowTextBorderTextIndent\nskinparam arrowTextBorderTextShadow\nskinparam arrowTextBorderTextStroke\nskinparam arrowTextBorderTextFill\nskinparam arrowTextBorderTextOpacity\nskinparam arrowTextBorderTextVisibility\nskinparam arrowTextBorderTextDisplay\nskinparam arrowTextBorderTextPosition\nskinparam arrowTextBorderTextZIndex\nskinparam arrowTextBorderTextClip\nskinparam arrowTextBorderTextOverflow\nskinparam arrowTextBorderTextWhiteSpace\nskinparam arrowTextBorderTextWordWrap\nskinparam arrowTextBorderTextWordBreak\nskinparam arrowTextBorderTextTextOverflow\nskinparam arrowTextBorderTextTextAlign\nskinparam arrowTextBorderTextTextDecoration\nskinparam arrowTextBorderTextTextTransform\nskinparam arrowTextBorderTextTextIndent\nskinparam arrowTextBorderTextTextShadow\nskinparam arrowTextBorderTextTextStroke\nskinparam arrowTextBorderTextTextFill\nskinparam arrowTextBorderTextTextOpacity\nskinparam arrowTextBorderTextTextVisibility\nskinparam arrowTextBorderTextTextDisplay\nskinparam arrowTextBorderTextTextPosition\nskinparam arrowTextBorderTextTextZIndex\nskinparam arrowTextBorderTextTextClip\nskinparam arrowTextBorderTextTextOverflow\nskinparam arrowTextBorderTextTextWhiteSpace\nskinparam arrowTextBorderTextTextWordWrap\nskinparam arrowTextBorderTextTextWordBreak\nskinparam arrowTextBorderTextTextTextOverflow\n\nactor Client\nparticipant ProjectService\nparticipant RedisCache\nparticipant Kafka\nparticipant PersisterService\nparticipant IndexerService\nparticipant ErrorService\nparticipant ElasticSearch\ndatabase Database\n\nClient -> ProjectService: /project/staff/v1/_update\nactivate ProjectService\nProjectService -> ProjectService: Validate request body\ndeactivate ProjectService\n\nalt request validation fails\n    ProjectService -> ProjectService: Request validation failed\n    ProjectService -> Client: Error Code: REQUEST_VALIDATION_FAILED\n    note right of Client: HttpStatus: 400 with appropriate error code\nelse\n    ProjectService -> ProjectService: Request validation successful\n    alt record doesn't exist\n        ProjectService -> RedisCache: Search record based on serverGeneratedId\n        activate RedisCache\n        RedisCache --> ProjectService: 0 rows\n        deactivate RedisCache\n        ProjectService -> Database: Search record based on serverGeneratedId\n        activate Database\n        Database --> ProjectService: 0 row\n        deactivate Database\n        ProjectService -> Client: Error Code: RECORD_NOT_FOUND\n        note right of Client: HttpStatus: 400 with appropriate error code\n    else\n        alt record doesn't exists in cache\n            ProjectService -> RedisCache: Search record based on serverGeneratedId\n            activate RedisCache\n            RedisCache --> ProjectService: 0 rows\n            deactivate RedisCache\n            ProjectService -> Database: Search record based on serverGeneratedId\n            activate Database\n            Database --> ProjectService: 1 row\n            deactivate Database\n            ProjectService -> RedisCache: 1 record\n            activate RedisCache\n            RedisCache --> ProjectService: 1 row\n            deactivate RedisCache\n        end\n        ProjectService -> RedisCache: Fetch the existing record\n        activate RedisCache\n        RedisCache --> ProjectService: 1 row\n        deactivate RedisCache\n        alt incorrect rowVersion\n            ProjectService -> ProjectService: Compare rowVersion between request and db\n            ProjectService -> ProjectService: Incorrect rowVersion [request: should be +1 only]\n            ProjectService -> Client: Error Code: BAD_REQUEST\n            note right of Client: HttpStatus: 400 with appropriate error code\n        else\n            ProjectService -> ProjectService: Compare rowVersion between request and db\n            ProjectService -> ProjectService: rowVersion in request = rowVersion in db + 1\n            ProjectService -> Kafka: Project Staff Data /update_topic\n            activate Kafka\n            ProjectService -> RedisCache: Update new record in cache against serverGeneratedId\n            activate RedisCache\n            RedisCache --> ProjectService: \n            deactivate RedisCache\n            ProjectService -> Client: HttpStatus: 202 ACCEPTED\n            deactivate ProjectService\n            deactivate Kafka\n            async\n                Kafka -> PersisterService: Consume Project Staff Data\n                activate PersisterService\n                PersisterService -> PersisterService: Store Project Staff Data\n                deactivate PersisterService\n                Kafka -> IndexerService: Consume Project Staff Data\n                activate IndexerService\n                IndexerService -> ElasticSearch: Update Project Staff Data\n                activate ElasticSearch\n                ElasticSearch --> IndexerService: \n                deactivate ElasticSearch\n                deactivate IndexerService\n            end async\n        end\n    end\nend\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2055,
+    "completion_tokens": 1408,
+    "total_tokens": 3463,
+    "cost": 0.00409617,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00409617,
+      "upstream_inference_prompt_cost": 0.00080145,
+      "upstream_inference_completions_cost": 0.00329472
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

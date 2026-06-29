@@ -1,0 +1,39 @@
+@startuml
+skinparam handwritten true
+skinparam backgroundColor #EEEEEE
+skinparam sequenceMessageAlign center
+skinparam participantStyle uml2
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+}
+
+title Please use '!option handwritten true' to enable handwritten
+
+box "NSheets Client" #LightGray
+  participant "User" as User
+  participant "HomeView" as HomeView
+  participant "HomePresenter" as HomePresenter
+end box
+
+box "Server" #LightGray
+  participant "NoteServices" as NoteServices
+  participant "ListNoteController" as ListNoteController
+  participant "NoteService" as NoteService
+  participant "NoteRepository" as NoteRepository
+end box
+
+box "Database" #LightGray
+  participant "Database" as Database
+end box
+
+User -> HomePresenter: onReveal() / navigate to page
+HomePresenter -> NoteServices: getNotes()
+NoteServices -> ListNoteController: listNotes()
+ListNoteController -> NoteService: allNotes()
+NoteService -> NoteRepository: findAll()
+NoteRepository -> Database: fetch
+NoteServices --> HomePresenter: onSuccess()
+HomePresenter --> HomeView: setContents()
+
+@enduml

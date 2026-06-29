@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782656933-MzKmXeG0bpqIoisPXdMa",
+  "object": "chat.completion",
+  "created": 1782656933,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam sequenceMessageAlign center\nskinparam lifelineStrategy solid\nskinparam participantStyle rectangle\nskinparam noteStyle rectangle\nskinparam actorStyle awesome\nskinparam databaseStyle cylinder\nskinparam packageStyle rectangle\nskinparam backgroundColor white\nskinparam sequence {\n    LifeLineBackgroundColor #F0F0F0\n    LifeLineBorderColor #CCCCCC\n    ParticipantBackgroundColor #E0E0E0\n    ParticipantBorderColor #999999\n    ParticipantPadding 10\n    BoxPadding 10\n}\n\nactor \"main\" as main\nparticipant \"bkup.BackupFacade\" as facade\nparticipant \"srcrepo.SourceRepository\" as srcrepo\nparticipant \"dstrepo.DestinationRepository\" as dstrepo\nparticipant \"metarepo.MetadataRepository\" as metarepo\nparticipant \"scanner.AllFileScanner\" as scanner\ndatabase \"FileSystem\" as fs\ndatabase \"SQLite3\" as db\n\nmain -> facade: execute()\n\nframe \"Get all files\" {\n    facade -> scanner: get_all_files()\n    scanner -> fs: \n    fs --> scanner: \n    scanner --> facade: all_files\n}\n\nframe \"Get source files\" {\n    facade -> srcrepo: get_files_matching_criteria(all_files)\n    srcrepo --> facade: src_files\n}\n\nframe \"Cleanup of metadata corresponding to already deleted files\" {\n    facade -> metarepo: get_uncontained_keys(src_files)\n    metarepo -> db: SELECT\n    db --> metarepo: result\n    metarepo --> facade: uncontained_keys\n    facade -> metarepo: remove_metadatas(uncontained_keys)\n    loop \"until the generator finishes\" {\n        metarepo -> db: DELETE\n        metarepo --> facade: yield removed_metadata <return value is discarded>\n    }\n}\n\nframe \"Create backup and update metadata\" {\n    facade -> facade: _get_backup_list(src_files)\n    facade --> facade: backup_list\n    facade -> dstrepo: create_backups(backup_list)\n    loop \"until the generator finishes\" {\n        dstrepo -> fs: shutil.copy2(src_file, dst_file)\n        dstrepo --> facade: yield backed_up_src_file\n        facade -> metarepo: update_metadata(backed_up_src_file)\n        metarepo -> db: REPLACE INTO\n    }\n}\n\nframe \"Discard old backups\" {\n    facade -> dstrepo: get_discard_list(today, all_files)\n    dstrepo --> facade: discard_list\n    facade -> dstrepo: remove_backups(discard_list)\n    loop \"until the generator finishes\" {\n        dstrepo -> fs: os.remove(file_to_be_removed)\n        dstrepo --> facade: yield removed_file <return value is discarded>\n    }\n}\n\nfacade --> main: return\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2349,
+    "completion_tokens": 615,
+    "total_tokens": 2964,
+    "cost": 0.00235521,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00235521,
+      "upstream_inference_prompt_cost": 0.00091611,
+      "upstream_inference_completions_cost": 0.0014391
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

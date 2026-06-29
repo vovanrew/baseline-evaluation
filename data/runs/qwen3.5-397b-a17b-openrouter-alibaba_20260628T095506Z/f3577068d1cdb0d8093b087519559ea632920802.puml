@@ -1,0 +1,38 @@
+@startuml
+skinparam handwritten true
+skinparam sequenceMessageAlign center
+skinparam sequenceArrowFontSize 12
+skinparam sequence {
+  ArrowColor #00BFFF
+  ActorBorderColor #00BFFF
+  LifeLineBorderColor #00BFFF
+  ParticipantBorderColor #00BFFF
+  ParticipantBackgroundColor #E6E6FA
+  ActorBackgroundColor #E0FFFF
+}
+title 借出图书 用例
+actor "图书管理员" as Librarian
+participant "账号判断" as AccountCheck
+participant "业务控制" as BusinessControl
+database "数据库" as DB
+
+== 读者账号合法性验证 ==
+Librarian -> AccountCheck: 1 输入读者账号信息
+activate AccountCheck
+AccountCheck -> BusinessControl: 2 获取账号信息
+activate BusinessControl
+BusinessControl -> DB: 3 比对账号密码合法性
+activate DB
+DB --> BusinessControl: 4 账号合法
+deactivate DB
+
+== 借出图书 ==
+Librarian -> BusinessControl: 5 输入借出图书信息
+BusinessControl -> DB: 6 增加借阅信息
+BusinessControl -> DB: 7 修改图书库存
+DB --> BusinessControl: 8 返回操作结果
+deactivate DB
+BusinessControl --> Librarian: 9 返回借出结果
+deactivate BusinessControl
+deactivate AccountCheck
+@enduml

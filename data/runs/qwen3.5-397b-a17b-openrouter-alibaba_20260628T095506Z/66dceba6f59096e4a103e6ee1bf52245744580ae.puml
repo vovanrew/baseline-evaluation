@@ -1,0 +1,128 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "Bleu" {
+
+    package "queue" {
+        class Queue {
+            + New(int): Queue
+            + Delete(Queue*)
+            + Enqueue(Queue, uint8_t)
+            + Dequeue(Queue): uint8_t
+            + Add(Queue, int, const void* data)
+            + Pop(Queue, int, void*)
+            + Clear(Queue)
+            + UsedSize(Queue)
+            + AvailableSize(Queue)
+        }
+    }
+
+    package "heap" {
+        class HeapUsage {
+            + Add(int)
+            + Subtract(int)
+            + WarnIfNeeded(void)
+            + Get(void): int
+            + Clear(void)
+            + SetWarning(int, WarningDelegate)
+        }
+        class Heap {
+            + New(int): void*
+            + Delete(void**)
+        }
+    }
+
+    package "io_data" {
+        class IoData {
+            + Write(IoAddress, IoData)
+            + Add(IoAddress, IoData)
+            + Remove(IoAddress, IoData)
+            + Read(IoAddress): IoData
+        }
+    }
+
+    package "rng" {
+        package "xorshift" {
+            class Xorshift {
+                + New(int, XorshiftAbstractMethod): Xorshift
+                + Delete(Xorshift*)
+                + Give(Xorshift, const uint32_t*)
+                + Generate(Xorshift): uint32_t
+            }
+            class Xorshift32 {
+                + New(void): Xorshift
+            }
+            class Xorshift64 {
+                + New(void): Xorshift
+            }
+            class Xorshift96 {
+                + New(void): Xorshift
+            }
+            class Xorshift128 {
+                + New(void): Xorshift
+            }
+        }
+        package "xorshift_plus" {
+            class XorshiftPlus {
+                + New(int, XorshiftPlusAbstractMethod): XorshiftPlus
+                + Delete(XorshiftPlus*)
+                + Give(XorshiftPlus, const uint64_t*)
+                + Generate(XorshiftPlus): uint64_t
+            }
+            class Xorshift128Plus {
+                + New(void): XorshiftPlus
+            }
+        }
+    }
+
+    package "list" {
+        class ListNode {
+            + New(const void*): ListNode
+            + Delete(ListNode*)
+            + GetItem(ListNode): void*
+            + SetItem(ListNode, const void*)
+            + GetNext(ListNode): ListNode
+            + SetNext(ListNode, ListNode)
+        }
+        class List {
+            + New(const void*): List
+            + Delete(List*)
+            + Count(List): int
+            + Get(List, int): void*
+            + Add(List, const void*)
+            + Clear(List)
+            + Find(List, const void*): void*
+            + Pop(List, int): void*
+            + SetItemComparer(List, ComparerInterface)
+            + SetItemDeleter(List, DeleterInterface)
+        }
+        interface Comparer {
+            + Compare(const void*, const void*): int
+        }
+        interface Deleter {
+            + Delete(void**)
+        }
+    }
+}
+
+' Relationships
+HeapUsage <|-- Heap
+Heap --> Queue : uses
+Heap --> Xorshift : uses
+Heap --> XorshiftPlus : uses
+Heap --> List : uses
+Heap --> IoData : uses
+Xorshift <|-- Xorshift32
+Xorshift <|-- Xorshift64
+Xorshift <|-- Xorshift96
+Xorshift <|-- Xorshift128
+XorshiftPlus <|-- Xorshift128Plus
+List --> ListNode : uses
+List --> Comparer : uses
+List --> Deleter : uses
+
+@enduml
+```

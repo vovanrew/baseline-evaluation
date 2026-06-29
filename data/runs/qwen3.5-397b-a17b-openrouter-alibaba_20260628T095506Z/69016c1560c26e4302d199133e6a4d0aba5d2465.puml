@@ -1,0 +1,102 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #F5F5F5
+  BorderColor #333333
+  FontName Arial
+  FontSize 12
+}
+skinparam note {
+  BackgroundColor #FFFFCC
+  BorderColor #999999
+  FontName Arial
+  FontSize 11
+}
+skinparam enum {
+  BackgroundColor #F5F5F5
+  BorderColor #333333
+  FontName Arial
+  FontSize 12
+}
+
+class "Airport" as Airport {
+  <<Thread>>
+  list<Runway> lst_runways
+  list<AirportOperation> lst_operations
+  --
+  bool permission_to_take_off(Airplane)
+  bool permission_to_land(Airplane)
+  void start_thread()
+}
+
+class "AirportOperation" as AirportOperation {
+  Runway run_way
+  Airplane airplane
+  uint32_t time_request
+  uint32_t time_last_update
+  EnumAirportOperation operation_state
+  --
+  void free_runway()
+}
+
+class "Airplane" as Airplane {
+  <<Thread>>
+  uint32_t id
+  uint32_t fuel
+  uint32_t fuel_consumption_rate
+  uint32_t airport_answer_timeout
+  AirplaneState state
+  --
+  void start_thread()
+  void take_off_authorized()
+  void take_off_denied()
+  void land_authorized()
+  void land_denied()
+}
+
+class "Runway" as Runway {
+  uint32_t id
+  RunwayState state
+}
+
+enum "RunwayState" as RunwayState {
+  Free
+  InUse
+}
+
+enum "AirplaneState" as AirplaneState {
+  Stopped
+  AskingPermissionToTakeOff
+  TakingOff
+  Flying
+  AskingPermissionToLand
+  Landing
+  Crashed
+}
+
+enum "EnumAirportOperation" as EnumAirportOperation {
+  WaitingToTakeOff
+  AuthorizedToTakeOff
+  WaitingToLand
+  AuthorizedToLand
+}
+
+Airport "1" *-- "0..*" AirportOperation
+Airport "1" *-- "0..*" Runway
+AirportOperation "1" *-- "1" Runway
+AirportOperation "1" *-- "1" Airplane
+AirportOperation "1" *-- "1" EnumAirportOperation
+Runway "1" *-- "1" RunwayState
+Airplane "1" *-- "1" AirplaneState
+
+note right of Airport
+  Iterate through lst_operations
+  if it matches the criteria that airplane is already flying
+  release runway
+  update airplane status and related info
+  order lst_operations to update next events
+end note
+
+@enduml
+```

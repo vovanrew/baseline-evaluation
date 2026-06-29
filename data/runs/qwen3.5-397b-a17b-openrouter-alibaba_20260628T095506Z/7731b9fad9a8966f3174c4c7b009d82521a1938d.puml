@@ -1,0 +1,50 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam actorStyle awesome
+skinparam noteBackgroundColor #FFFFE0
+skinparam noteBorderColor #000000
+skinparam noteFontColor #000000
+skinparam lifelineBackgroundColor #FFFFFF
+skinparam lifelineBorderColor #000000
+skinparam activationBackgroundColor #F0F0F0
+skinparam activationBorderColor #000000
+
+actor User
+participant "JobManager" as JM
+participant "Nodes" as N
+participant "ESDM" as E
+participant "Post Processing Library" as PPL
+participant "Storage" as S
+
+User -> JM: submit job(IN, OUT)
+JM -> N: 
+note over E: Initialization
+N -> S: read IN=x
+S --> N: return
+
+note over E: Loop
+N -> N: compute
+N -> E: write async OUT=y
+activate E
+E -> S: write snapshot (async)
+E -> PPL: trigger post processing if region effected
+note over E: In Situ Post Processing
+PPL -> PPL: perform post processing
+note right of PPL: (could write result directly)
+PPL -> S: 
+PPL --> E: return
+E -> S: write post processing result
+E --> N: return
+N --> User: OUT files become visible
+deactivate E
+
+note over E: multiple iterations
+
+note over E: Finalize
+User <-- S: All OUT files become visible to subsequent users.
+
+@enduml

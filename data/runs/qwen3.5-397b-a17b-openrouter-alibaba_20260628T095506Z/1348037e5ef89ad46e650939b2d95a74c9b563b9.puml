@@ -1,0 +1,176 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor White
+skinparam classBorderColor Black
+skinparam packageBackgroundColor White
+skinparam packageBorderColor Black
+skinparam packageFontStyle bold
+skinparam noteBackgroundColor White
+skinparam noteBorderColor Black
+skinparam noteFontStyle bold
+skinparam linetype ortho
+
+package "flagylbot" {
+    package "time_intervals_adapter" {
+        class "TimeIntervalsAdapter" as TimeIntervalsAdapter {
+            + max_gap
+            + connect_timestamps(df, epsilon=1)
+            + create_time_intervals(symbols, time_series)
+        }
+    }
+
+    package "temporal_abstraction" {
+        class "TemporalAbstraction" as TemporalAbstraction {
+            + discretize_property(prop, df)
+            + discretize_by_time(points, values)
+            + create_symbolic_time_series(states, time_point_series)
+            + extract_supports_from_series(series)
+        }
+
+        class "Gradient" as Gradient {
+            + window_size
+            + states
+            + discretize_property(prop, df)
+            + gradient(df, window_size, states)
+            + dominant_gradient(window_size)
+        }
+
+        class "KnowledgeBased" as KnowledgeBased {
+            + states
+            + discretize_property(prop, df)
+            + knowledge_based(states, prop, df)
+        }
+
+        package "discretization" {
+            class "Discretization" as Discretization {
+                + nb_bins
+                + generate_cutpoints(prop, df)
+                + discretize_property(prop, df)
+                + create_prob_stats(prop, df, cutpoints, scores)
+            }
+
+            class "Unsupervised" as Unsupervised {
+            }
+
+            class "Supervised" as Supervised {
+                + entity_class_relations
+            }
+
+            package "methods" {
+                class "Equal Width" as EqualWidth {
+                    + generate_cutpoints(...) : List[cutpoints]
+                    + equal_width(...)
+                }
+
+                class "Equal Frequency" as EqualFrequency {
+                    + generate_cutpoints(...) : List[cutpoints]
+                    + equal_frequency(...)
+                }
+
+                class "KMeans" as KMeans {
+                    + generate_cutpoints(...) : List[cutpoints]
+                    + kmeans_adapter(...)
+                }
+
+                class "SAX" as SAX {
+                    + generate_cutpoints(...) : List[cutpoints]
+                    + sax(...)
+                }
+
+                package "td4c_persist" {
+                    class "Persist" as Persist {
+                        + persist(...)
+                        + df, states, persistence()
+                        + single_state_persistence()
+                        + calc_state_probabilities()
+                        + calc_marginal_probabilities()
+                    }
+
+                    class "shared functions" as SharedFunctions {
+                        + candidate_selection()
+                        + generate_candidate_cutpoints()
+                        + symmetric_kullback_leibler()
+                    }
+
+                    class "DDM_storing_function(df, cutoffs, entity_class_relations)" as DDMStoringFunction {
+                        + distance_measure(p, q)
+                    }
+
+                    class "TD4C" as TD4C {
+                    }
+
+                    class "TD4C Cosine" as TD4CCosine {
+                        + distance_measure(p, q)
+                    }
+
+                    class "TD4C Kullback-Leibler" as TD4CKullbackLeibler {
+                        + distance_measure(p, q)
+                    }
+
+                    class "TD4C Entropy" as TD4CEntropy {
+                        + distance_measure(p, q)
+                    }
+
+                    class "TD4C Entropy IG" as TD4CEntropyIG {
+                        + distance_measure(p, q)
+                    }
+                }
+            }
+        }
+    }
+
+    package "abstraction_per_property" {
+        class "AbstractionPerProperty" as AbstractionPerProperty {
+            + preprocessing_params_df
+            + temporal_abstraction_params_df
+            + preprocessing_per_property(dataset)
+            + temporal_abstraction_per_property(dataset, entity_class_relations=None, states=None)
+            + internalization_per_property(symbols, time_series)
+            + generate_preprocessing_by_name(params, row)
+            + generate_abstraction_by_name(params, row, entity_class_relations=None, states=None)
+        }
+    }
+
+    package "preprocessing" {
+        class "Transformation" as Transformation {
+            + transform(dataset)
+        }
+
+        class "PAA" as PAA {
+            + window_size
+            + transform(dataset)
+        }
+
+        class "OutliersRemover" as OutliersRemover {
+            + std_coef
+            + transform(dataset)
+        }
+    }
+
+    class "kfold" as KFold {
+        + nb_folds
+        + entity_class_relations
+        + divide_dataset(dataset)
+    }
+
+    ' Relationships
+    TemporalAbstraction <|-- Gradient
+    TemporalAbstraction <|-- KnowledgeBased
+    Discretization <|-- Unsupervised
+    Discretization <|-- Supervised
+    Unsupervised <|-- EqualWidth
+    Unsupervised <|-- EqualFrequency
+    Unsupervised <|-- KMeans
+    Unsupervised <|-- SAX
+    Unsupervised <|-- TD4C
+    TD4C <|-- TD4CCosine
+    TD4C <|-- TD4CKullbackLeibler
+    TD4C <|-- TD4CEntropy
+    TD4C <|-- TD4CEntropyIG
+    Transformation <|-- PAA
+    Transformation <|-- OutliersRemover
+}
+@enduml
+```

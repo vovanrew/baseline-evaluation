@@ -1,0 +1,30 @@
+```plantuml
+@startuml
+actor "Team Member" as TeamMember
+participant ":CreateTaskUI" as CreateTaskUI
+participant ":CreateTaskController" as CreateTaskController
+participant ":DataManagement" as DataManagement
+participant "projectStore : ProjectStore" as ProjectStore
+participant "project : Project" as Project
+
+TeamMember -> CreateTaskUI: 1 Starts the Task creation in User Story
+CreateTaskUI --> TeamMember: 2 request the project code
+TeamMember -> CreateTaskUI: 3 Inserts the project code
+CreateTaskUI --> TeamMember: 4 request sprint id
+TeamMember -> CreateTaskUI: 5 Inserts the sprint id
+CreateTaskUI --> TeamMember: 6 request user story id
+TeamMember -> CreateTaskUI: 7 Inserts the user story id
+CreateTaskUI --> TeamMember: 8 request the task information: name, description, type, startDate, endDate
+TeamMember -> CreateTaskUI: 9 Inserts request the task information: name, description, type, startDate, endDate
+CreateTaskUI -> CreateTaskController: 10 createTaskInUserStory(code, sprintID, userStoryID, name, description, type, startDate, endDate)
+CreateTaskController -> DataManagement: 11 projectStore = getProjectStore()
+DataManagement --> CreateTaskController: 12 projectStore
+CreateTaskController -> ProjectStore: 13 project = getProjectByCode(code)
+ProjectStore --> CreateTaskController: 14 project
+CreateTaskController -> Project: 15 getSprintByID(sprintID)
+ref over Project: TaskCreationInUserStory
+Project --> CreateTaskController: 16 true
+CreateTaskController --> CreateTaskUI: 17 true
+CreateTaskUI --> TeamMember: 18 Task created successfully
+@enduml
+```

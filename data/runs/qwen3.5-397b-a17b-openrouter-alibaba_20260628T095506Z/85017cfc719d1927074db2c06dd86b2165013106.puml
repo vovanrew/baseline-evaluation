@@ -1,0 +1,114 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #F5F5F5
+  BorderColor #333333
+  ArrowColor #333333
+  FontName Arial
+  FontSize 12
+}
+skinparam stereotypeCBackgroundColor #E0E0E0
+skinparam stereotypeCBorderColor #333333
+skinparam stereotypeCFontColor #333333
+skinparam stereotypeCBackgroundColor<<C>> #C8E6C9
+skinparam stereotypeCBorderColor<<C>> #2E7D32
+skinparam stereotypeCFontColor<<C>> #1B5E20
+skinparam stereotypeCBackgroundColor<<I>> #BBDEFB
+skinparam stereotypeCBorderColor<<I>> #1565C0
+skinparam stereotypeCFontColor<<I>> #0D47A1
+skinparam stereotypeCBackgroundColor<<A>> #B2DFDB
+skinparam stereotypeCBorderColor<<A>> #00695C
+skinparam stereotypeCFontColor<<A>> #004D40
+skinparam stereotypeCBackgroundColor<<E>> #FFCCBC
+skinparam stereotypeCBorderColor<<E>> #BF360C
+skinparam stereotypeCFontColor<<E>> #BF360C
+
+class "Comercio" as Comercio <<C>> {
+  + Productos[] productos;
+  + Historial [] operaciones;
+  --
+  + public crearInsumo();
+  + public crearServicioDeArmado();
+  + public crearServicioDeReparacion();
+  + public buscarProductoPorNombre();
+  + public modificarPrecioListaProducto ();
+  + public addOperacion();
+  + public mostrarHistorialDeOperaciones();
+  + public mostrarProductoDisponibleParaVenta();
+}
+
+class "Matematica" as Matematica <<I>> {
+  + Double resultado;
+  + Double delta;
+  --
+  + public default sumarPorcentaje();
+}
+
+class "Insumos" as Insumos <<C>> {
+  + String tipo;
+  + Double procentajeGanancia;
+  --
+  + devolverMontoFacturacion();
+}
+
+class "Tipo" as Tipo <<E>> {
+  PERIFERICO
+  HARDWARE
+  LIMPIEZA
+  --
+  + String descripcionTipo;
+  + int nivelTipo;
+}
+
+class "Operaciones" as Operaciones <<C>> {
+  + String nombre;
+  + String fechaVenta;
+  + double precioLista;
+}
+
+class "Productos" as Productos <<A>> {
+  + String nombre;
+  + double precioLista;
+  --
+  + clonar()
+  + precioDeVenta()
+  + devolverMontoFacturacion()
+}
+
+class "Servicios" as Servicios <<A>> {
+  + Double horasOcupaServicio;
+  --
+  + devolverMontoFacturacion();
+}
+
+class "ServicioReparacion" as ServicioReparacion <<C>> {
+  + Dificultad dificultad;
+}
+
+class "ServicioArmado" as ServicioArmado <<C>> {
+}
+
+class "Dificultad" as Dificultad <<E>> {
+  SIMPLE
+  NORMAL
+  COMPLEJO
+  AVANZADO
+  EXPERTO
+  --
+  + String descripcion;
+  + int nivel;
+}
+
+Comercio "1" -- "1..*" Operaciones
+Comercio "1" -- "1..*" Productos
+Insumos --|> Matematica
+Insumos --|> Productos
+Tipo ..> Insumos
+Servicios --|> Productos
+ServicioReparacion --|> Servicios
+ServicioArmado --|> Servicios
+Dificultad ..> ServicioReparacion
+
+@enduml
+```

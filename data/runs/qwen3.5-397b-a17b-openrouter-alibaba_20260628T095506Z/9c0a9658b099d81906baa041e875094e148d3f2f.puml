@@ -1,0 +1,102 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+}
+skinparam stereotypeCBackgroundColor PaleGreen
+skinparam stereotypeABackgroundColor LightBlue
+
+class "Turno" as Turno <<C>> {
+  + numeroDeRonda: Int
+  + jugador: Jugador
+  + Jugador[] jugadores
+  + atacarAConEjercitos(paisDefensor: String, paisAtacante: String, ejercitos: Int)
+  + posicionarEnRelevos(pais: String, cantidad: Int): Int
+  + siguiente(): Int
+  + esUltimoDeLaRonda(): Boolean
+  + siguienteEnCola(): Jugador
+}
+
+class "Juego" as Juego <<C>> {
+  + atacarAConEjercitos(paisDefensor: String, paisAtacante: String, ejercitos: Int)
+  + agregarJugador(nombreJugador: String, color: String)
+  + iniciarJuego()
+  + reagruparDeAEjercitos(paisInicial: String, paisFinal: String, cantidad: Int)
+  + posicionarEnRelevos(pais: String, cantidad: Int): void
+  + cargarJSONPaisesYContinentes(rutaArchivo: String): void
+  + iniciarRondaDeCarga(cantidadEjercitos: Int)
+  + repartirCartas(): void
+  + esNombreValido(nombreJugador: String): Boolean
+  + agregarALimitrofes(nombrePais: String, limitrofes: String[]): void
+  + agregarPaisesYContinentes(json: JSONArray): void
+  + cargarJSONCartasConSimbolos(): void
+}
+
+class "Jugador" as Jugador <<C>> {
+  + relevos: Int
+  + tirarDados(cantidadDeDados: Int): Int resultado[]
+  + obtenerPais(unNombrePais: String): Pais
+  + prepararCargaEjercitos(cantidadRelevos: Int)
+  + agregarPais(unPais: Pais)
+  + agregarObjetivo(objetivo: Objetivo)
+  + posicionarEnRelevos(pais: String, cantidad: Int): Boolean
+  + quitarPais(unPais: Pais): void
+}
+
+class "Ronda" as Ronda <<A>> {
+  + Jugador[] jugadores
+  + numeroDeRonda: Int
+  + turno: Turno
+  + atacarAConEjercitos(paisDefensor: String, paisAtacante: String, ejercitos: Int)
+  + posicionarEnRelevos(pais: String, cantidad: Int): Ronda
+}
+
+class "RondaDeCarga" as RondaDeCarga <<C>> {
+  + atacarAConEjercitos(paisDefensor: String, paisAtacante: String, ejercitos: Int)
+  + posicionarEnRelevos(pais: String, cantidad: Int): Ronda
+}
+
+class "RondaDeAtaque" as RondaDeAtaque <<C>> {
+  + atacarAConEjercitos(paisDefensor: String, paisAtacante: String, ejercitos: Int)
+  + posicionarEnRelevos(pais: String, cantidad: Int): Ronda
+}
+
+class "Pais" as Pais <<C>> {
+  + cantidad: Int
+  + continente: String
+  + agregarLimitrofe(pais: Pais)
+  + esLimitrofe(unNombrePais: String): Bool
+  + sumarEjercitos(Int cantidad): void
+  + cantidadFichasParaDados(fichasMinimas: Int, fichasMaximas: Int)
+  + quitarFicha(): void
+  + agregarFicha(): void
+  + noTieneFichas(): Boolean
+  + coincideNombre(unNombre: String): Boolean
+}
+
+class "Mapa" as Mapa <<C>> {
+  + buscarPais(nombrePais: String): Pais
+  + agregarALimitrofe(unNombrePais: String, unPaisLimitrofe: String): void
+  + agregarPais(unPais: Pais): void
+  + distribuirPaises(jugadores[] jugadores): void
+}
+
+' Relationships
+Juego --|> Ronda
+Juego --> Mapa
+Juego --> Jugador : 0..6
+Juego --> Turno
+Ronda --> Turno
+RondaDeCarga --|> Ronda
+RondaDeAtaque --|> Ronda
+RondaDeCarga ..> RondaDeCarga
+RondaDeAtaque ..> RondaDeAtaque
+Jugador "1" --> "*" Pais
+Jugador ..> Pais
+Pais "1" --o "1" Pais
+Mapa "50" o-- "1" Pais
+@enduml
+```

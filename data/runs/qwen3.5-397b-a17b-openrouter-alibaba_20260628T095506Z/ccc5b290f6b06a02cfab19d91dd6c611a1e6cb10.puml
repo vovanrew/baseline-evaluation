@@ -1,0 +1,96 @@
+```plantuml
+@startuml
+actor "CenterCoordinator" as CenterCoordinator
+participant "DataFromLegacySystemUI" as DataFromLegacySystemUI
+participant "DataFromLegacySystemController" as DataFromLegacySystemController
+participant ":ReadLegacyDataFile" as ReadLegacyDataFile
+participant ":Company" as Company
+participant ":SNSUserStore" as SNSUserStore
+participant ":App" as App
+participant ":VaccinationCenter" as VaccinationCenter
+participant ":Arrival" as Arrival
+participant ":Departure" as Departure
+participant ":vaccinationCentersStore" as vaccinationCentersStore
+
+== 1 Asks to load a CSV file with legacy data ==
+CenterCoordinator -> DataFromLegacySystemUI: 1 Asks to load a CSV file with legacy data
+DataFromLegacySystemUI -> DataFromLegacySystemController: 2 DataFromLegacySystemController()
+DataFromLegacySystemController -> Company: 3 getVaccinationCentersStore()
+Company -> DataFromLegacySystemController: 4 returns the store
+DataFromLegacySystemController -> vaccinationCentersStore: 5 getVaccinationCenterAssociatedToCoordinator(id)
+vaccinationCentersStore -> DataFromLegacySystemController: 6 returns the vaccination center
+DataFromLegacySystemController -> ReadLegacyDataFile: 7 ReadLegacyDataFile(center)
+ReadLegacyDataFile -> CenterCoordinator: 8 request path of the CSV file
+CenterCoordinator -> DataFromLegacySystemUI: 9 types path
+DataFromLegacySystemUI -> DataFromLegacySystemController: 10 readFile(path)
+DataFromLegacySystemController -> ReadLegacyDataFile: 11 readFile(String path)
+
+loop while csv has new lines
+    ReadLegacyDataFile -> ReadLegacyDataFile: 12 validateFileLegacy(SNSUserNumber, firstDate, secondDate, thirdDate, fourthDate)
+    ReadLegacyDataFile -> ReadLegacyDataFile: 13 Saves data into an ArrayList<String> called legacyDataList
+end
+
+ReadLegacyDataFile -> SNSUserStore: 14 getSNSUserList()
+SNSUserStore -> SNSUserStore: 15 getSNSUserList()
+SNSUserStore -> ReadLegacyDataFile: 16 returns list
+ReadLegacyDataFile -> DataFromLegacySystemController: 17 returns list
+DataFromLegacySystemController -> Company: 18 getVaccineList()
+Company -> DataFromLegacySystemController: 19 returns list
+
+loop while legacyDataList has new lines
+    ReadLegacyDataFile -> ReadLegacyDataFile: 20 findPosOfSNSUserInSNSUserList, values, positionInSNSUserList
+    ReadLegacyDataFile -> ReadLegacyDataFile: 21 findPosOfVaxInVaccineList, values, positionInVaccinesList
+    ReadLegacyDataFile -> ReadLegacyDataFile: 22 checksDuplicates(updatedList, snsUsersList, vaccineList, positionInSNSUserList, positionInVaccinesList, lineOfTheData)
+    ReadLegacyDataFile -> ReadLegacyDataFile: 23 Saves data into an ArrayList<String> called updatedList
+    ReadLegacyDataFile -> App: 24 createArrival()
+    App -> Arrival: 25 createArrival()
+    Arrival -> App: 26 returns Arrival
+    App -> App: 27 Saves arrival into List<Arrival> called arrivalsList
+    App -> App: 28 genericsArrivals.binaryFileWrite(Constants.FILE_PATH_ARRIVALS, arrivalsList)
+    ReadLegacyDataFile -> App: 29 createDeparture()
+    App -> Departure: 30 createDeparture()
+    Departure -> App: 31 returns departure
+    App -> App: 32 Saves departure into List<Departure> called departuresList
+    App -> App: 33 genericsDeparture.binaryFileWrite(Constants.FILE_PATH_DEPARTURES, departuresList)
+end
+
+ReadLegacyDataFile -> DataFromLegacySystemController: 34 returns updatedList
+DataFromLegacySystemController -> DataFromLegacySystemUI: 35 returns updatedList
+DataFromLegacySystemUI -> CenterCoordinator: 36 requests the option to sort
+CenterCoordinator -> DataFromLegacySystemUI: 37 selects option
+DataFromLegacySystemUI -> DataFromLegacySystemController: 38 chooseCriteriaToSort(option)
+DataFromLegacySystemController -> ReadLegacyDataFile: 39 setListOption()
+
+loop while updatedList has new lines
+    ReadLegacyDataFile -> ReadLegacyDataFile: 40 Saves dates to a List<LocalDateTime> called listToSort
+end
+
+ReadLegacyDataFile -> DataFromLegacySystemController: 41 requests the order of the sort
+DataFromLegacySystemController -> DataFromLegacySystemUI: 42 selects order
+DataFromLegacySystemUI -> CenterCoordinator: 43 getAlgorithm()
+CenterCoordinator -> DataFromLegacySystemUI: 44 getSortingAlgorithm()
+DataFromLegacySystemUI -> DataFromLegacySystemController: 45 returns algorithm
+DataFromLegacySystemController -> DataFromLegacySystemUI: 46 returns algorithm
+DataFromLegacySystemUI -> DataFromLegacySystemController: 47 sortListWithAlgorithmAlgorithmToBeUsed(option)
+note right of DataFromLegacySystemController: algorithmToBeUsed can be InsertionSort or HeapSort, both have methods that can sort in ascending/descending order, here we are just representing the InsertionSort algorithm because HeapSort functions in a similar way.
+DataFromLegacySystemController -> DataFromLegacySystemController: 48 insertionSortAscending()
+DataFromLegacySystemController -> DataFromLegacySystemUI: 49 returns sortedList
+DataFromLegacySystemUI -> DataFromLegacySystemController: 50 returns sortedList
+DataFromLegacySystemController -> DataFromLegacySystemUI: 51 prints sortedList
+
+alt algorithmToBeUsed = "InsertionSort", option = "0 - Ascending"
+    DataFromLegacySystemUI -> CenterCoordinator: 52 selects order
+    CenterCoordinator -> DataFromLegacySystemUI: 53 getAlgorithm()
+    DataFromLegacySystemUI -> DataFromLegacySystemController: 54 getSortingAlgorithm()
+    DataFromLegacySystemController -> DataFromLegacySystemUI: 55 returns algorithm
+    DataFromLegacySystemUI -> DataFromLegacySystemController: 56 returns algorithm
+    DataFromLegacySystemController -> DataFromLegacySystemUI: 57 sortListWithAlgorithmAlgorithmToBeUsed(option)
+    DataFromLegacySystemController -> DataFromLegacySystemController: 58 insertionSortDescending()
+    DataFromLegacySystemController -> DataFromLegacySystemUI: 59 returns sortedList
+    DataFromLegacySystemUI -> DataFromLegacySystemController: 60 returns sortedList
+    DataFromLegacySystemController -> DataFromLegacySystemUI: 61 prints sortedList
+else algorithmToBeUsed = "InsertionSort", option = "1 - Descending"
+end
+
+@enduml
+```

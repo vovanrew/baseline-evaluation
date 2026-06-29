@@ -1,0 +1,140 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantFontColor #000000
+skinparam participantPadding 10
+skinparam noteBackgroundColor #FFFFE0
+skinparam noteBorderColor #000000
+skinparam noteFontColor #000000
+skinparam notePadding 10
+skinparam arrowColor #000000
+skinparam arrowThickness 1
+skinparam lifelineColor #000000
+skinparam lifelineThickness 1
+skinparam activationBackgroundColor #F0F0F0
+skinparam activationBorderColor #000000
+skinparam activationFontColor #000000
+skinparam activationPadding 5
+skinparam altBackgroundColor #F5F5F5
+skinparam altBorderColor #000000
+skinparam altFontColor #000000
+skinparam altPadding 5
+skinparam optBackgroundColor #F5F5F5
+skinparam optBorderColor #000000
+skinparam optFontColor #000000
+skinparam optPadding 5
+skinparam loopBackgroundColor #F5F5F5
+skinparam loopBorderColor #000000
+skinparam loopFontColor #000000
+skinparam loopPadding 5
+skinparam groupBackgroundColor #F5F5F5
+skinparam groupBorderColor #000000
+skinparam groupFontColor #000000
+skinparam groupPadding 5
+skinparam refBackgroundColor #F5F5F5
+skinparam refBorderColor #000000
+skinparam refFontColor #000000
+skinparam refPadding 5
+skinparam dividerBackgroundColor #F5F5F5
+skinparam dividerBorderColor #000000
+skinparam dividerFontColor #000000
+skinparam dividerPadding 5
+skinparam participant {
+    BackgroundColor #E6E6FA
+    BorderColor #000000
+    FontColor #000000
+    Padding 10
+}
+skinparam note {
+    BackgroundColor #FFFFE0
+    BorderColor #000000
+    FontColor #000000
+    Padding 10
+}
+skinparam arrow {
+    Color #000000
+    Thickness 1
+}
+skinparam lifeline {
+    Color #000000
+    Thickness 1
+}
+skinparam activation {
+    BackgroundColor #F0F0F0
+    BorderColor #000000
+    FontColor #000000
+    Padding 5
+}
+skinparam alt {
+    BackgroundColor #F5F5F5
+    BorderColor #000000
+    FontColor #000000
+    Padding 5
+}
+skinparam opt {
+    BackgroundColor #F5F5F5
+    BorderColor #000000
+    FontColor #000000
+    Padding 5
+}
+skinparam loop {
+    BackgroundColor #F5F5F5
+    BorderColor #000000
+    FontColor #000000
+    Padding 5
+}
+skinparam group {
+    BackgroundColor #F5F5F5
+    BorderColor #000000
+    FontColor #000000
+    Padding 5
+}
+skinparam ref {
+    BackgroundColor #F5F5F5
+    BorderColor #000000
+    FontColor #000000
+    Padding 5
+}
+skinparam divider {
+    BackgroundColor #F5F5F5
+    BorderColor #000000
+    FontColor #000000
+    Padding 5
+}
+
+participant Application
+participant Node
+participant Composed_VStack
+participant VStack
+participant State
+participant NodeBuilder
+participant Control.Layer
+participant Renderer
+
+== 布局树构建过程 ==
+
+Application -> Node: build
+Node -> Composed_VStack: buildNode
+Composed_VStack -> VStack: setupStateProperties
+Composed_VStack -> VStack: setupEnvironmentProperties
+Composed_VStack -> Node: addNode
+
+alt [LayoutRoot]
+    Node -> VStack: loadData
+end
+
+== 布局更新构建过程 ==
+
+State -> State: set
+State -> Application: invalidateNode
+Application -> Application: scheduleUpdate
+Application -> Application: update
+Application -> Node: update
+Node -> NodeBuilder: updateNode
+NodeBuilder -> Control.Layer: invalidate
+Application -> Renderer: update
+
+@enduml

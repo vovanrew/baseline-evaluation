@@ -1,0 +1,91 @@
+@startuml
+title AU2048 Demo Mode Button Sequence Diagram
+
+actor User
+participant "MainActivity" as MainActivity
+participant "Controller" as Controller
+participant "MainActivityFragment" as MainActivityFragment
+participant "BoardView" as BoardView
+database "Model" as Model
+
+User -> MainActivity: Starts App
+activate MainActivity
+MainActivity -> Controller: onCreate()
+activate Controller
+Controller -> MainActivityFragment: onCreate()
+activate MainActivityFragment
+MainActivityFragment -> BoardView: onCreateView()
+activate BoardView
+BoardView --> MainActivityFragment: BoardView
+deactivate BoardView
+
+loop [wantstoContinue == true]
+    User -> MainActivity: Press Demo Mode
+    activate MainActivity
+    MainActivity -> Controller: ResetClick(View)
+    activate Controller
+    Controller -> Model: reset()
+    Controller -> Model: setArr()
+    Controller -> Model: setScore()
+    Model --> Controller: doesWantToContinue()
+    Controller -> MainActivityFragment: setupArrView()
+    Controller -> MainActivityFragment: setArrView()
+    MainActivityFragment -> BoardView: onCreateView()
+    BoardView --> MainActivityFragment: BoardView
+    deactivate BoardView
+
+    alt [demo == true]
+        alt [button_direction == up]
+            MainActivity -> Controller: UpClick(View)
+            Controller --> MainActivity: 
+        else [button_direction == left]
+            MainActivity -> Controller: LeftClick(View)
+            Controller --> MainActivity: 
+        else [button_direction == down]
+            MainActivity -> Controller: DownClick(View)
+            Controller --> MainActivity: 
+        else [button_direction == right]
+            MainActivity -> Controller: RightClick(View)
+            Controller --> MainActivity: 
+        end
+
+        alt [button_direction == up]
+            Controller -> Controller: shiftUp()
+        else [button_direction == left]
+            Controller -> Controller: shiftLeft()
+        else [button_direction == down]
+            Controller -> Controller: shiftDown()
+        else [button_direction == right]
+            Controller -> Controller: shiftRight()
+        end
+
+        Controller -> Model: setArr()
+        Controller -> Model: setScore()
+        Model --> Controller: doesWantToContinue()
+        Controller -> MainActivityFragment: setupArrView()
+        Controller -> MainActivityFragment: setArrView()
+        MainActivityFragment -> BoardView: onCreateView()
+        BoardView --> MainActivityFragment: BoardView
+        deactivate BoardView
+
+        alt [noMovesPossible == false]
+            Controller --> MainActivity: checkWin()
+            Controller --> MainActivity: win()
+            Controller --> MainActivity: reset()
+        else [noMovesPossible == true]
+            Controller --> MainActivity: noMovesPossible()
+            Controller --> MainActivity: gameover()
+            MainActivity -> Controller: Action.DOWN
+            Controller --> MainActivity: reset()
+        end
+    end
+    deactivate Controller
+    deactivate MainActivity
+end
+
+MainActivity -> MainActivity: onDestroy()
+destroy MainActivity
+MainActivityFragment -> MainActivityFragment: onDestroy()
+destroy MainActivityFragment
+
+@enduml

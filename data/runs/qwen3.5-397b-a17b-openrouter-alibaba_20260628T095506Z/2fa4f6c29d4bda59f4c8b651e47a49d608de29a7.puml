@@ -1,0 +1,60 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontColor #004d66
+skinparam classBackgroundColor #ffffe6
+skinparam classBorderColor #99cc99
+skinparam packageFontColor #000000
+skinparam packageBackgroundColor #ffffff
+skinparam packageBorderColor #000000
+skinparam noteFontColor #000000
+skinparam noteBackgroundColor #ffffcc
+skinparam noteBorderColor #cccccc
+skinparam linetype ortho
+
+package "OpenAI-Baseline" {
+    class "RLImplementation" as RLImpl {
+    }
+}
+
+package "OpenAI-Gym" {
+    class "Env" as Env {
+    }
+    note right of Env
+        Generic interface between RL
+        algorithms and simulation
+        environments
+    end note
+}
+
+package "atc-reinforcement-learning" {
+    class "AtcGym" as AtcGym {
+    }
+    class "Airspace" as Airspace {
+    }
+    class "Runway" as Runway {
+    }
+    class "Airplane" as Airplane {
+    }
+    class "MinimumVectoringAltitude" as MVA {
+    }
+    class "Corridor" as Corridor {
+    }
+    class "SimParameters" as SimParams {
+    }
+}
+
+RLImpl --> Env
+Env <|-- AtcGym
+
+AtcGym *-- "1" Airplane : many
+AtcGym *-- Airspace
+AtcGym *-- SimParameters
+
+Airspace *-- "1" MVA : many
+Airspace *-- Runway
+
+Runway *-- Corridor
+
+Airplane --> SimParams
+
+@enduml

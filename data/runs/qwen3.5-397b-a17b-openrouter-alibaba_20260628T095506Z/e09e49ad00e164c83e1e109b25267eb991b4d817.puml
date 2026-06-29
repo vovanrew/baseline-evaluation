@@ -1,0 +1,143 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor white
+  BorderColor black
+  ArrowColor black
+  StereotypeBackgroundColor #98FB98
+  StereotypeBorderColor black
+}
+skinparam stereotypeCBackgroundColor #98FB98
+skinparam stereotypeCBorderColor black
+
+class "FilingSystem" as FilingSystem {
+  <<FilingSystem>>
+  data_storage: bool
+  storage_limited: bool
+}
+
+class "TechnicalMeasure" as TechnicalMeasure {
+  <<TechnicalMeasure>>
+  stereotype: GENERIC_STEREOTYPE
+  category: TECHNOLOGY_CATEGORY
+}
+
+class "ProcessingSystem" as ProcessingSystem {
+  <<ProcessingSystem>>
+  confidentiality: bool
+  integrity: bool
+  availability: bool
+  resilient: bool
+  pseudonymity: bool
+  data_minimization: bool
+  redundancies: bool
+  tested: bool
+}
+
+class "ProcessingTask" as ProcessingTask {
+  <<ProcessingTask>>
+  logged: bool
+}
+
+class "ProcessingLog" as ProcessingLog {
+  <<Artifact>>
+  name: bool
+  contact_details: bool
+  personal_data_category: bool
+  data_storage_period: bool
+  technical_measures: bool
+  recipients: Array
+}
+
+class "Controller" as Controller {
+  <<Controller>>
+  processor: bool
+}
+
+class "Processor" as Processor {
+  <<Processor>>
+}
+
+class "Recipient" as Recipient {
+  <<Recipient>>
+}
+
+class "ThirdParty" as ThirdParty {
+  <<ThirdParty>>
+}
+
+class "DataHandler" as DataHandler {
+  <<DataHandler>>
+}
+
+class "DataSubject" as DataSubject {
+  <<DataSubject>>
+  minor: false
+}
+
+class "PersonalData" as PersonalData {
+  <<PersonalData>>
+  category: DATA_CATEGORY
+}
+
+class "SpecialPurpose" as SpecialPurpose {
+  <<SpecialPurpose>>
+  consent: CLASS consent
+  employment_purpose: bool
+  social_purpose: bool
+  vital_interest: bool
+  nonprofit_body: bool
+  public_from_subject: bool
+  legal_claim: bool
+  public_interest: bool
+  preventive_medicine: bool
+  occupational_medicine: bool
+  public_health: bool
+  archiving: bool
+  statistical_purposes: bool
+}
+
+class "Purpose" as Purpose {
+  <<Purpose>>
+  consent: CLASS consent
+  contract_performance: bool
+  controller_legal_obligation: bool
+  vital_interest_protection: bool
+  public_interest: bool
+  legitimate_interest: bool
+}
+
+class "Consent" as Consent {
+  <<Consent>>
+}
+
+class "ConsentAgreement" as ConsentAgreement {
+  <<Artifact>>
+  clear_purpose: bool
+  unambiguous: bool
+  affirmative_action: bool
+  distinguishable: bool
+  specific: bool
+  withdrawable: bool
+  freely_given: bool
+}
+
+FilingSystem --|> ProcessingSystem
+TechnicalMeasure --|> ProcessingSystem : secures
+Controller --|> ProcessingSystem : implements
+ProcessingSystem --|> ProcessingTask : performs
+ProcessingTask --|> ProcessingLog : manifests
+Controller --|> DataHandler
+Processor --|> DataHandler
+Recipient --|> DataHandler
+ThirdParty --|> DataHandler
+DataHandler --|> PersonalData : receives
+DataSubject --|> PersonalData : provides
+PersonalData --|> SpecialPurpose
+PersonalData --|> Consent : requires
+Purpose --|> Consent
+Consent --|> ConsentAgreement : manifests
+
+@enduml
+```

@@ -1,0 +1,67 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantFontColor #000000
+skinparam participantPadding 10
+skinparam participantMargin 5
+skinparam participantBorderThickness 1
+skinparam participantCornerRadius 5
+skinparam participantFontName Arial
+skinparam participantFontSize 12
+skinparam participantFontStyle plain
+skinparam participantFontWeight normal
+skinparam participantFontDecoration none
+skinparam participantFontUnderline false
+skinparam participantFontStrike false
+skinparam participantFontItalic false
+skinparam participantFontBold false
+skinparam participantFontColor #000000
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantPadding 10
+skinparam participantMargin 5
+skinparam participantBorderThickness 1
+skinparam participantCornerRadius 5
+skinparam participantFontName Arial
+skinparam participantFontSize 12
+skinparam participantFontStyle plain
+skinparam participantFontWeight normal
+skinparam participantFontDecoration none
+skinparam participantFontUnderline false
+skinparam participantFontStrike false
+skinparam participantFontItalic false
+skinparam participantFontBold false
+
+actor User
+participant "Frontend" as Frontend
+participant "API Gateway" as APIGateway
+participant "Matching Service" as MatchingService {
+    participant "Controller" as Controller
+    participant "Service" as Service
+}
+participant "Matching Database" as MatchingDatabase {
+    participant "Questions" as Questions
+    participant "MatchRequests" as MatchRequests
+}
+
+User -> Frontend: PUT /api/find/match\npayload: {requestId}
+Frontend -> APIGateway: PUT /api/find/match\npayload: {requestId}
+APIGateway -> Controller: checkForMatch(requestId)
+Controller -> Service: find user's MatchRequest with requestId
+Service -> MatchRequests: user's MatchRequest
+MatchRequests -> Service: find another MatchRequest
+Service -> MatchRequests: another MatchRequest
+MatchRequests -> Service: get a random question
+Service -> Questions: Question
+Questions -> Service: create sessionInfo and attach to each MatchRequest
+Service -> MatchRequests: update the 2 MatchRequests
+MatchRequests -> Service: user's MatchRequest
+Service -> Controller: 200 OK\npayload: {user's MatchRequest}
+Controller -> APIGateway: 200 OK\npayload: {user's MatchRequest}
+APIGateway -> Frontend: switch to session page
+Frontend -> User: 
+
+@enduml

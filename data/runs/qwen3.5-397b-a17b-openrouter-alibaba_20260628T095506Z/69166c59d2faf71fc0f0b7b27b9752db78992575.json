@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782652717-Kp3pOHt2pGEoBZaT23V1",
+  "object": "chat.completion",
+  "created": 1782652717,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor Caller\nparticipant \":RoomTransactionService\" as RTS\nparticipant \":RoomTransactionCommand\" as RTC\nparticipant \":Nats Streaming\" as NS\n\nCaller -> RTS: Create(context, payload)\nactivate RTS\nRTS -> RTS: Validate()\nalt \"Data Not Valid\"\n    RTS --> Caller: UnprocessableEntity\nelse\n    loop \"For each shift\"\n        RTS -> RTS: rt := RoomTransactionModel()\n        RTS -> RTC: Create(context, rt)\n        activate RTC\n        RTC --> RTS: uuid\n        deactivate RTC\n    end\n    RTS -> NS: publishTransactionCreated(context, []uuid)\n    activate NS\n    NS --> RTS: published\n    deactivate NS\n    RTS --> Caller: created\nend\ndeactivate RTS\n@enduml",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1712,
+    "completion_tokens": 167,
+    "total_tokens": 1879,
+    "cost": 0.00105846,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00105846,
+      "upstream_inference_prompt_cost": 0.00066768,
+      "upstream_inference_completions_cost": 0.00039078
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

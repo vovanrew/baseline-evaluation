@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782655268-y3jk0IaYD3Hbek0Q3syD",
+  "object": "chat.completion",
+  "created": 1782655268,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle US029 - As Project Manager, I want to start a sprint.\nactor \"Project Manager\" as PM\nparticipant \": StartSprintRoute\" as Route\nparticipant \": StartSprintController\" as Controller\nparticipant \": StartSprintService\" as Service\nparticipant \"dto : SprintDTO\" as DTO\nparticipant \": Project\" as Project\nparticipant \": SprintDomainService\" as DomainService\nparticipant \": SprintStore\" as SprintStore\nparticipant \": ResourceStore\" as ResourceStore\n\nPM -> Route: Asks to start a Sprint\nactivate Route\nRoute -> Controller: startSprint(sprintDTO)\nactivate Controller\nController -> Service: startSprint(sprintDTO)\nactivate Service\nService -> Project: getProjectTeam()\nactivate Project\nProject --> Service: projectTeam\ndeactivate Project\nService -> Project: getSprintDuration()\nactivate Project\nProject --> Service: sprintDuration\ndeactivate Project\nService -> SprintStore: startSprint(dto.projectID, dto.sprintID, dto.startDate, projectTeam, sprintDuration)\nactivate SprintStore\nSprintStore -> SprintStore: findAllSprintByProjectID (projectID)\nSprintStore -> SprintStore: findSprintByID (sprintID)\nSprintStore -> DomainService: validateStartDate(startDate)\nactivate DomainService\nDomainService --> SprintStore: true\ndeactivate DomainService\nSprintStore -> ResourceStore: validateProjectTeam(startDate, sprintDuration)\nactivate ResourceStore\nResourceStore -> ResourceStore: getProductOwnerByStartDate(startDate, sprintDuration)\nResourceStore -> ResourceStore: getScrumMasterByStartDate(startDate, sprintDuration)\nResourceStore --> SprintStore: true\ndeactivate ResourceStore\nSprintStore -> SprintStore: setStartDate(startDate)\ndeactivate SprintStore\nService <-- Controller: true\ndeactivate Service\nController <-- Route: true\ndeactivate Controller\nRoute --> PM: Informs Operation Success\ndeactivate Route\n@enduml",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1614,
+    "completion_tokens": 410,
+    "total_tokens": 2024,
+    "cost": 0.00158886,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00158886,
+      "upstream_inference_prompt_cost": 0.00062946,
+      "upstream_inference_completions_cost": 0.0009594
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

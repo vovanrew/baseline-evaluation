@@ -1,0 +1,49 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam noteStyle handwritten
+skinparam noteBackgroundColor #FFFFE0
+skinparam noteBorderColor #000000
+skinparam noteFontColor #000000
+skinparam participantBackgroundColor #D6EAF8
+skinparam participantBorderColor #000000
+skinparam participantFontColor #000000
+skinparam arrowColor #000000
+skinparam arrowThickness 1
+skinparam sequenceArrowThickness 1
+skinparam sequenceLifeLineBackgroundColor #D6EAF8
+skinparam sequenceLifeLineBorderColor #000000
+
+participant "CNBRPfwPlayCtl" as CNBRPfwPlayCtl {
+    participant "INBRPlayCCSink" as INBRPlayCCSink
+    participant "CNBRPfwPlayCtl" as CNBRPfwPlayCtl2
+}
+
+participant "CNBRPfwUICtl" as CNBRPfwUICtl
+
+participant "CNBRUIMgr" as CNBRUIMgr {
+    participant "INBRCommand" as INBRCommand
+    participant "CNBRUIMgr" as CNBRUIMgr2
+}
+
+participant "CNBRPlayMgr" as CNBRPlayMgr
+participant "CNBRPlayBar" as CNBRPlayBar
+participant "CWbxBmpButton" as CWbxBmpButton
+
+== nmac notify nbr_pfw mute message ==
+
+INBRPlayCCSink -> INBRPlayCCSink: NotifyInfo
+INBRPlayCCSink -> CNBRPfwPlayCtl2: NotifyInfo
+CNBRPfwPlayCtl2 -> CNBRPfwUICtl: OnMixerMuteNotify
+note right of CNBRPfwPlayCtl2: NBR_CC_PFW_INFO_MUTE_STATE
+CNBRPfwUICtl -> INBRCommand: OnHandleCommand
+note right of CNBRPfwUICtl: NBR2_PLAY_UI_MIXER_MUTE_NOTIFY
+INBRCommand -> CNBRUIMgr2: OnHandleCommand
+note right of INBRCommand: NBR2_PLAY_UI_MIXER_MUTE_NOTIFY
+CNBRUIMgr2 -> CNBRPlayMgr: HandleMixerMuteNotify
+CNBRPlayMgr -> CNBRPlayBar: MuteVolume
+CNBRPlayBar -> CWbxBmpButton: SetChecked
+
+@enduml

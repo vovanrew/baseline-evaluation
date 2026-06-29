@@ -1,0 +1,56 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantFontColor #000000
+skinparam noteBackgroundColor #FFFFE0
+skinparam noteBorderColor #000000
+skinparam noteFontColor #000000
+skinparam arrowColor #000000
+skinparam arrowThickness 1
+skinparam lifelineBackgroundColor #FFFFFF
+skinparam lifelineBorderColor #000000
+
+actor "Webブラウザ" as WebBrowser
+participant "CCM GUI\n(Web)" as CCMGUIWeb
+participant "CCM GUI\n(WebSocket)" as CCMGUIWebSocket
+participant "CCM SDK\n(IPC)" as CCMSDK
+
+WebBrowser -> CCMGUIWeb: 
+CCMGUIWeb -> CCMGUIWebSocket: 
+CCMGUIWebSocket -> CCMSDK: 
+
+note right of CCMGUIWeb
+{
+  "command": "NetworkInfo",
+  "type": "notify",
+  "data": {
+    "ID": "xxx",
+    "CellularInfo": [{
+      "SignalStrength": "...",
+      "SignalStrengthUnit": "...",
+      "Operator": "...",
+      "PLMN": "...",
+      "Band": "...",
+      "CellID": "...",
+      "AirInterface": "...",
+      "Manufacture": "...",
+      "ModelName": "...",
+      "IMEI": "..."
+    }],
+    "QosInterfaceType": {
+      "key1": "val1",
+      ...
+    }
+  }
+}
+end note
+
+CCMSDK -> CCMSDK: ネットワーク情報変更通知 受信\n(RegistRecieveNetworkInfoHandler)
+CCMSDK --> CCMGUIWebSocket: ネットワーク情報変更通知 [notify]
+CCMGUIWebSocket --> WebBrowser: 
+WebBrowser -> WebBrowser: 1秒間隔で保持データを画面に表示
+
+@enduml

@@ -1,0 +1,46 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #CCCCCC
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantPadding 10
+skinparam sequenceArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #F0F0F0
+skinparam sequenceLifeLineBorderColor #CCCCCC
+
+participant "Client" as Client
+participant "TEAPServer" as TEAPServer
+participant "MASA" as MASA
+
+Client -> TEAPServer: EAP-Request/\nType=Identity
+TEAPServer --> Client: EAP-Response/\nType=Identity
+
+note left of Client: (1)
+TEAPServer --> Client: EAP-Request/\nType=TEAP,\nTEAP Start,\nAuthority-ID TLV
+Client -> TEAPServer: EAP-Response/\nType=TEAP,\nTLS(ClientHello)
+TEAPServer --> Client: EAP-Request/\nType=TEAP,\nTLS(ServerHello,\nCertificate,\nServerKeyExchange,\nCertificateRequest,\nServerHelloDone)
+Client -> TEAPServer: EAP-Response/\nType=TEAP,\nTLS(Certificate\nClientKeyExchange,\nCertificateVerify,\nChangeCipherSpec,\nFinished)
+TEAPServer --> Client: EAP-Request/\nType=TEAP,\nTLS(ChangeCipherSpec,\nFinished),\n{Crypto-Binding TLV,\nResult TLV=Success}
+Client -> TEAPServer: EAP-Response/\nType=TEAP,\n{Crypto-Binding TLV,\nResult TLV=Success}
+
+note over Client,TEAPServer: At this stage the outer TLS tunnel is established\nThe following message exchanges are for BRSKI
+
+note left of Client: (2)
+TEAPServer --> Client: EAP-Request/\nType=TEAP,\n{Request-Action TLV:\nStatus=Failure,\nAction=Process-TLV,\nTLV=Request-Voucher,\nTLV=Trusted-Server-Root,\nTLV=CSR-Attributes,\nTLV=PKCS#10}
+
+note left of Client: (3)
+Client -> TEAPServer: EAP-Response/\nType=TEAP,\n{Request-Voucher TLV}
+TEAPServer -> MASA: RequestVoucher
+MASA --> TEAPServer: Voucher
+
+note left of Client: (4)
+TEAPServer --> Client: EAP-Request/\nType=TEAP,\n{Voucher TLV}
+Client -> TEAPServer: EAP-Response/\nType=TEAP,{Trusted-Server-Root TLV}
+
+note left of Client: (5)
+TEAPServer --> Client: EAP-Request/\nType=TEAP,\n{Trusted-Server-Root TLV}
+Client -> TEAPServer: EAP-Response/\nType=TEAP,{CSR-Attributes TLV}
+TEAPServer --> Client: EAP-Request/\nType=TEAP,\n{CSR-Attributes TLV}
+
+@enduml

@@ -1,0 +1,48 @@
+@startuml
+actor ElementModel
+participant CardModel
+participant Publish
+participant ElementView
+participant DeckView
+participant IOTech
+participant DeckTechView
+
+ElementModel -> ElementModel: encode
+activate ElementModel
+ElementModel -> CardModel: encode each CardModel
+activate CardModel
+CardModel -> StringCard: create
+activate StringCard
+StringCard --> CardModel
+deactivate StringCard
+CardModel --> ElementModel: return StringCardCollection
+deactivate CardModel
+deactivate ElementModel
+
+ElementModel -> ElementModel: send
+activate ElementModel
+ElementModel -> Publish: send StringCardCollection
+activate Publish
+Publish -> ElementView: send StringCardCollection
+activate ElementView
+ElementView -> ElementView: Store StringCardCollection
+deactivate ElementView
+deactivate Publish
+deactivate ElementModel
+
+ElementModel -> ElementView: Show
+activate ElementView
+ElementView -> DeckView: GetDeckView
+activate DeckView
+DeckView -> IOTech: create
+activate IOTech
+IOTech -> DeckTechView: create
+activate DeckTechView
+DeckTechView --> IOTech
+deactivate DeckTechView
+IOTech --> DeckView: return
+deactivate IOTech
+DeckView -> DeckTechView: Show(StringCardCollection)
+deactivate DeckView
+deactivate ElementView
+@enduml

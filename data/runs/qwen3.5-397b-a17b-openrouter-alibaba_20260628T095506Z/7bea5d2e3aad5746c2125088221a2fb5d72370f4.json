@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782656328-fjOqo0vYJwUNAio6PswE",
+  "object": "chat.completion",
+  "created": 1782656328,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam sequenceMessageAlign center\nskinparam lifelineStrategy solid\nskinparam participantStyle rectangle\nskinparam noteStyle rectangle\nskinparam backgroundColor #F5F5F5\nskinparam sequence {\n    LifeLineBackgroundColor #FFFFFF\n    LifeLineBorderColor #CCCCCC\n    ParticipantBackgroundColor #FFFFFF\n    ParticipantBorderColor #CCCCCC\n    ParticipantPadding 10\n    BoxPadding 10\n}\n\nbox \"RTP\" #LightGray\n    participant \"RtpSenderEgress\" as RtpSenderEgress\n    participant \"ModuleRtpRtcpImpl\" as ModuleRtpRtcpImpl\n    participant \"PacketRouter\" as PacketRouter\n    participant \"ProcessThreadImpl\" as ProcessThreadImpl\n    participant \"PacingController\" as PacingController\n    participant \"PacedSender\" as PacedSender\n    participant \"RTPSender\" as RTPSender\n    participant \"RTPSenderAudio\" as RTPSenderAudio\nend box\n\nbox \"Call\" #LightGray\n    participant \"AudioCodingModuleImpl\" as AudioCodingModuleImpl\n    participant \"ChannelReceive\" as ChannelReceive\n    participant \"ChannelSend\" as ChannelSend\n    participant \"AcmReceiver\" as AcmReceiver\nend box\n\nbox \"NetEq\" #LightGray\n    participant \"AudioSendStream\" as AudioSendStream\n    participant \"AudioMixerImpl\" as AudioMixerImpl\n    participant \"AudioTransportImpl\" as AudioTransportImpl\nend box\n\nbox \"Audio\" #LightGray\n    participant \"AudioDeviceBuffer\" as AudioDeviceBuffer\n    participant \"AudioTrackJni\" as AudioTrackJni\n    participant \"AudioRecordJni\" as AudioRecordJni\nend box\n\n== Audio Recording Flow ==\nAudioRecordJni->>AudioTrackJni: DataIsRecorded()\nAudioTrackJni->>AudioDeviceBuffer: DeliverRecordedData()\nAudioDeviceBuffer->>AudioTransportImpl: RecordedDataIsAvailable()\nAudioTransportImpl->>AudioMixerImpl: SendAudioData()\nAudioMixerImpl->>ChannelSend: ProcessAndEncodeAudio()\n\n== Audio Encoding and Sending Flow ==\nChannelSend->>AudioCodingModuleImpl: Add10MsData()\nactivate AudioCodingModuleImpl\n    AudioCodingModuleImpl->>AudioCodingModuleImpl: Encode()\n    AudioCodingModuleImpl->>ChannelSend: SendData()\ndeactivate AudioCodingModuleImpl\nChannelSend->>ChannelSend: SendRtpAudio()\nChannelSend->>RTPSenderAudio: SendAudio()\nRTPSenderAudio->>RTPSender: SendToNetwork()\nRTPSender->>PacedSender: EnqueuePackets()\n\n== RTP Packet Processing and Sending Flow ==\nPacedSender->>ProcessThreadImpl: Process()\nactivate ProcessThreadImpl\n    ProcessThreadImpl->>PacingController: Process()\n    activate PacingController\n        PacingController->>PacingController: ProcessPackets()\n        PacingController->>RTPSender: SendRtpPacket()\n    deactivate PacingController\ndeactivate ProcessThreadImpl\nRTPSender->>PacketRouter: SendPacket()\nPacketRouter->>ModuleRtpRtcpImpl: TrySendPacket()\nModuleRtpRtcpImpl->>RtpSenderEgress: SendPacket()\nactivate RtpSenderEgress\n    RtpSenderEgress->>RtpSenderEgress: SendPacketToNetwork()\ndeactivate RtpSenderEgress\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 781,
+    "completion_tokens": 746,
+    "total_tokens": 1527,
+    "cost": 0.00205023,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00205023,
+      "upstream_inference_prompt_cost": 0.00030459,
+      "upstream_inference_completions_cost": 0.00174564
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

@@ -1,0 +1,53 @@
+@startuml
+actor nsq
+participant "GuideTaskCrmVisitAssignListener" as Listener
+participant "guideTaskCrmVisitAssignProcessor" as Processor
+participant "GuideTaskAssignDomainService" as DomainService
+participant "ShoppingGuideReadApi" as ReadApi
+participant "GuideTaskDepartmentAssignStrategy" as Strategy
+participant "GuideTaskAssignFactory" as Factory
+participant "GuideTaskAssignRepository" as AssignRepo
+participant "GuideTaskRepository" as TaskRepo
+participant "NsqProducer" as Producer
+
+nsq -> Listener: 1 下发任务
+activate Listener
+Listener -> Processor: 2 开始处理
+activate Processor
+Processor -> DomainService: 3 任务分配
+activate DomainService
+note right of DomainService: 下发给所有部门
+DomainService -> ReadApi: 4 查询下发对象 department
+activate ReadApi
+ReadApi --> DomainService
+deactivate ReadApi
+DomainService -> Strategy: 5 分配任务
+activate Strategy
+Strategy -> Factory: 6 创建分配的任务实体
+note right of Factory: 只有任务下发给导购的时候\n才创建导购的任务明细
+activate Factory
+Factory --> Strategy
+deactivate Factory
+Strategy --> DomainService
+deactivate Strategy
+group Transaction
+    DomainService -> AssignRepo: 7 保存分配状态 status flow 任务流转至 分配完成
+    activate AssignRepo
+    AssignRepo --> DomainService
+    deactivate AssignRepo
+    DomainService -> TaskRepo: 8 保存分配状态 status flow 任务流转至 待启动
+    activate TaskRepo
+    TaskRepo --> DomainService
+    deactivate TaskRepo
+end
+DomainService -> Producer: 9 发送下发完成消息，准备启动任务
+activate Producer
+Producer --> DomainService
+deactivate Producer
+DomainService --> Processor
+deactivate DomainService
+Processor --> Listener
+deactivate Processor
+Listener --> nsq
+deactivate Listener
+@enduml

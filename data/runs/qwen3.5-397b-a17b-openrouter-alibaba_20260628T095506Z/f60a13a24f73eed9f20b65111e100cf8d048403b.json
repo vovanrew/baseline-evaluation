@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782650261-buaG3qJtPiDNrPQcIPDL",
+  "object": "chat.completion",
+  "created": 1782650261,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam classAttributeIconSize 0\nskinparam classFontStyle bold\nskinparam classBackgroundColor #F5F5F5\nskinparam classBorderColor #CCCCCC\nskinparam classHeaderBackgroundColor #E8E8E8\nskinparam classHeaderBorderColor #CCCCCC\nskinparam classHeaderFontStyle bold\nskinparam classHeaderFontSize 14\nskinparam classAttributeFontStyle plain\nskinparam classMethodFontStyle plain\nskinparam classMethodFontSize 12\nskinparam classAttributeFontSize 12\nskinparam classAttributePadding 5\nskinparam classMethodPadding 5\nskinparam classHeaderPadding 5\nskinparam classPadding 5\nskinparam classMargin 10\nskinparam classSpacing 10\nskinparam classAlignment left\nskinparam classTextAlignment left\nskinparam classIconSize 0\nskinparam classIconPadding 0\nskinparam classIconMargin 0\nskinparam classIconSpacing 0\nskinparam classIconAlignment left\nskinparam classIconTextAlignment left\nskinparam classIconFontStyle plain\nskinparam classIconFontSize 12\nskinparam classIconColor black\nskinparam classIconBackgroundColor white\nskinparam classIconBorderColor black\nskinparam classIconBorderThickness 1\nskinparam classIconBorderRadius 0\nskinparam classIconBorderDashArray \nskinparam classIconBorderDashOffset 0\nskinparam classIconBorderLineCap butt\nskinparam classIconBorderLineJoin miter\nskinparam classIconBorderMiterLimit 4\nskinparam classIconBorderOpacity 1\nskinparam classIconBorderStrokeDashArray \nskinparam classIconBorderStrokeDashOffset 0\nskinparam classIconBorderStrokeLineCap butt\nskinparam classIconBorderStrokeLineJoin miter\nskinparam classIconBorderStrokeMiterLimit 4\nskinparam classIconBorderStrokeOpacity 1\nskinparam classIconBorderStrokeWidth 1\nskinparam classIconBorderWidth 1\nskinparam classIconHeight 20\nskinparam classIconWidth 20\nskinparam classIconX 0\nskinparam classIconY 0\nskinparam classIconZIndex 0\nskinparam classIconOpacity 1\nskinparam classIconRotation 0\nskinparam classIconScale 1\nskinparam classIconTransform none\nskinparam classIconTransformOrigin center\nskinparam classIconTransformBox border-box\nskinparam classIconTransformStyle flat\nskinparam classIconBackfaceVisibility visible\nskinparam classIconPerspective none\nskinparam classIconPerspectiveOrigin 50% 50%\nskinparam classIconTransformBox border-box\nskinparam classIconTransformStyle flat\nskinparam classIconBackfaceVisibility visible\nskinparam classIconPerspective none\nskinparam classIconPerspectiveOrigin 50% 50%\n\nclass Game {\n    + clock_t start\n    + clock_t end\n    + int curLevel\n    + {const}int MAX_LEVEL\n    + bool isFinish\n    + bool isQuit\n    + Session* curSession\n    --\n    + handleCmd(char)\n    + handleStartCmd(char)\n    + initSession()\n    + startSession()\n    + endSession()\n    + start()\n    + isFinish()\n    + getDuration()\n}\n\nclass Session {\n    + level\n    + map\n    + step\n    + isFinish\n    --\n    + move(Direction)\n    + getMap()\n    + finish()\n    + isFinish()\n    + getLevel()\n    + backToPreviousPlace()\n    + restart()\n}\n\nclass Map {\n    + width:int\n    + height:int\n    + tiles:TileMap\n    + MovableList:vector\n    + player:Player\n    + Tile:OUT_SIDE_TILE\n    --\n    + getTile()\n    + moveBox()\n    + getWidth()\n    + getHeight()\n    + initMap(const string&)\n    + getStateOf(const Position&)\n    + getBoxs()\n    + getPlayerPosition()\n    + back()\n}\n\nclass Player {\n    --\n    + move(Direction)\n    + getPreviousDirection()\n    + getPreviousPushFlag()\n    + clear()\n}\n\nclass Box {\n    + onTarget:bool\n    --\n    + moveToTile(TileType)\n    + getOnTarget()\n}\n\nclass Moveable {\n    + position:Position\n    + state:\n    --\n    + {virtual}move(Direction)\n    + back(Direction)\n    + getPosition()\n    + setPosition(const Position&)\n}\n\nclass Tile {\n    + position:Position\n    + type:TileType\n    + flag:TileFlag\n    --\n    + setPosition(const Position&)\n    + getPosition()\n    + setFlag(TileFlag)\n    + getType()\n    + getState()\n}\n\nclass Position {\n    + x:int\n    + y:int\n    + DIRS\n    --\n    + operator==(const Position&)\n    + opeartor+=(const Position&)\n    + getX()\n    + getY()\n    + of(int,int)\n}\n\nclass Rule {\n    --\n    + isWin(const Map&)\n    + isRightMove(const Map&,Direction)\n}\n\nclass MapRepository {\n    + MAP_PATH:string\n    + MAP_DIR:string\n    + MAP_ID:enum\n    + MapBuffer:class\n    --\n    + getMap(MAP_ID)\n}\n\nclass FileUtil {\n    --\n    + readFile()\n}\n\nclass Viewer {\n    --\n    + getInput()\n    + getLevel()\n    + display()\n}\n\nclass State {\n    FLOOR_OUT_SIDE,WALL,FLOOR,BOX,TARGET,PLAYER,BOX_ON_TARGET\n}\n\nclass TileType {\n    WALL,FLOOR,TARGET\n}\n\nclass TileFlag {\n    NULL,PLAYER,BOX\n}\n\nclass Diractory {\n    UP,DOWN,LEFT,RIGHT,SITU\n}\n\nGame *-- Session\nSession *-- Map\nMap *-- Player\nMap *-- Box\nMap *-- Tile\nTile *-- Position\nPlayer --|> Moveable\nBox --|> Moveable\nGame *-- MapRepository\nMapRepository *-- FileUtil\nGame *-- Viewer\nSession *-- Rule\n\nnote top of Game as G\n    <b>C</b>\nend note\n\nnote top of Session as S\n    <b>C</b>\nend note\n\nnote top of Map as M\n    <b>C</b>\nend note\n\nnote top of Player as P\n    <b>C</b>\nend note\n\nnote top of Box as B\n    <b>C</b>\nend note\n\nnote top of Moveable as MV\n    <b>C</b>\nend note\n\nnote top of Tile as T\n    <b>C</b>\nend note\n\nnote top of Position as POS\n    <b>C</b>\nend note\n\nnote top of Rule as R\n    <b>C</b>\nend note\n\nnote top of MapRepository as MR\n    <b>C</b>\nend note\n\nnote top of FileUtil as FU\n    <b>C</b>\nend note\n\nnote top of Viewer as V\n    <b>I</b>\nend note\n\nnote top of State as ST\n    <b>E</b>\nend note\n\nnote top of TileType as TT\n    <b>E</b>\nend note\n\nnote top of TileFlag as TF\n    <b>E</b>\nend note\n\nnote top of Diractory as D\n    <b>E</b>\nend note\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1908,
+    "completion_tokens": 1659,
+    "total_tokens": 3567,
+    "cost": 0.00462618,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00462618,
+      "upstream_inference_prompt_cost": 0.00074412,
+      "upstream_inference_completions_cost": 0.00388206
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

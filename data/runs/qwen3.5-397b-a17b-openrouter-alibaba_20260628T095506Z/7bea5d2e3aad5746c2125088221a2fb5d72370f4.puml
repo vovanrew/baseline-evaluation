@@ -1,0 +1,82 @@
+```plantuml
+@startuml
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam noteStyle rectangle
+skinparam backgroundColor #F5F5F5
+skinparam sequence {
+    LifeLineBackgroundColor #FFFFFF
+    LifeLineBorderColor #CCCCCC
+    ParticipantBackgroundColor #FFFFFF
+    ParticipantBorderColor #CCCCCC
+    ParticipantPadding 10
+    BoxPadding 10
+}
+
+box "RTP" #LightGray
+    participant "RtpSenderEgress" as RtpSenderEgress
+    participant "ModuleRtpRtcpImpl" as ModuleRtpRtcpImpl
+    participant "PacketRouter" as PacketRouter
+    participant "ProcessThreadImpl" as ProcessThreadImpl
+    participant "PacingController" as PacingController
+    participant "PacedSender" as PacedSender
+    participant "RTPSender" as RTPSender
+    participant "RTPSenderAudio" as RTPSenderAudio
+end box
+
+box "Call" #LightGray
+    participant "AudioCodingModuleImpl" as AudioCodingModuleImpl
+    participant "ChannelReceive" as ChannelReceive
+    participant "ChannelSend" as ChannelSend
+    participant "AcmReceiver" as AcmReceiver
+end box
+
+box "NetEq" #LightGray
+    participant "AudioSendStream" as AudioSendStream
+    participant "AudioMixerImpl" as AudioMixerImpl
+    participant "AudioTransportImpl" as AudioTransportImpl
+end box
+
+box "Audio" #LightGray
+    participant "AudioDeviceBuffer" as AudioDeviceBuffer
+    participant "AudioTrackJni" as AudioTrackJni
+    participant "AudioRecordJni" as AudioRecordJni
+end box
+
+== Audio Recording Flow ==
+AudioRecordJni->>AudioTrackJni: DataIsRecorded()
+AudioTrackJni->>AudioDeviceBuffer: DeliverRecordedData()
+AudioDeviceBuffer->>AudioTransportImpl: RecordedDataIsAvailable()
+AudioTransportImpl->>AudioMixerImpl: SendAudioData()
+AudioMixerImpl->>ChannelSend: ProcessAndEncodeAudio()
+
+== Audio Encoding and Sending Flow ==
+ChannelSend->>AudioCodingModuleImpl: Add10MsData()
+activate AudioCodingModuleImpl
+    AudioCodingModuleImpl->>AudioCodingModuleImpl: Encode()
+    AudioCodingModuleImpl->>ChannelSend: SendData()
+deactivate AudioCodingModuleImpl
+ChannelSend->>ChannelSend: SendRtpAudio()
+ChannelSend->>RTPSenderAudio: SendAudio()
+RTPSenderAudio->>RTPSender: SendToNetwork()
+RTPSender->>PacedSender: EnqueuePackets()
+
+== RTP Packet Processing and Sending Flow ==
+PacedSender->>ProcessThreadImpl: Process()
+activate ProcessThreadImpl
+    ProcessThreadImpl->>PacingController: Process()
+    activate PacingController
+        PacingController->>PacingController: ProcessPackets()
+        PacingController->>RTPSender: SendRtpPacket()
+    deactivate PacingController
+deactivate ProcessThreadImpl
+RTPSender->>PacketRouter: SendPacket()
+PacketRouter->>ModuleRtpRtcpImpl: TrySendPacket()
+ModuleRtpRtcpImpl->>RtpSenderEgress: SendPacket()
+activate RtpSenderEgress
+    RtpSenderEgress->>RtpSenderEgress: SendPacketToNetwork()
+deactivate RtpSenderEgress
+
+@enduml
+```

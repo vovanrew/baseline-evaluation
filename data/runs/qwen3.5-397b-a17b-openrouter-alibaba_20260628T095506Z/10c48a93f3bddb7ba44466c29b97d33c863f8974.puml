@@ -1,0 +1,119 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantPadding 10
+skinparam lifelinePadding 5
+skinparam notePadding 5
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #000000
+skinparam noteFontColor #000000
+skinparam noteFontStyle plain
+skinparam noteFontSize 12
+skinparam noteTextAlignment center
+skinparam noteBorderThickness 1
+skinparam noteShadowing false
+skinparam noteCornerRadius 0
+skinparam noteMargin 5
+skinparam noteMinWidth 50
+skinparam noteMaxWidth 200
+skinparam noteMinHeight 20
+skinparam noteMaxHeight 100
+skinparam noteMinX 0
+skinparam noteMaxX 1000
+skinparam noteMinY 0
+skinparam noteMaxY 1000
+skinparam noteZIndex 100
+skinparam noteLayer "note"
+skinparam noteVisibility visible
+skinparam noteOpacity 100
+skinparam noteTransparency 0
+skinparam noteBlendMode normal
+skinparam noteMixBlendMode normal
+skinparam noteIsolation isolate
+skinparam noteWillChange auto
+skinparam noteContainment contained
+skinparam noteOverflow hidden
+skinparam noteClipPath none
+skinparam noteMask none
+skinparam noteFilter none
+skinparam noteBackdropFilter none
+skinparam noteTransform none
+skinparam noteTransformOrigin center
+skinparam noteTransformBox border-box
+skinparam noteTransformStyle flat
+skinparam noteTransformPerspective none
+skinparam noteTransformPerspectiveOrigin center
+skinparam noteTransformRotate none
+skinparam noteTransformScale none
+skinparam noteTransformSkew none
+skinparam noteTransformTranslate none
+skinparam noteTransformMatrix none
+skinparam noteTransformOriginX center
+skinparam noteTransformOriginY center
+skinparam noteTransformOriginZ 0
+skinparam noteTransformRotateX 0
+skinparam noteTransformRotateY 0
+skinparam noteTransformRotateZ 0
+skinparam noteTransformScaleX 1
+skinparam noteTransformScaleY 1
+skinparam noteTransformScaleZ 1
+skinparam noteTransformSkewX 0
+skinparam noteTransformSkewY 0
+skinparam noteTransformTranslateX 0
+skinparam noteTransformTranslateY 0
+skinparam noteTransformTranslateZ 0
+skinparam noteTransformMatrixA 1
+skinparam noteTransformMatrixB 0
+skinparam noteTransformMatrixC 0
+skinparam noteTransformMatrixD 1
+skinparam noteTransformMatrixE 0
+skinparam noteTransformMatrixF 0
+
+title drv-ns16550
+
+participant "入出力制御" as IOControl
+participant "転送制御" as TransferControl
+participant "デバイス\nファイル管理" as DeviceFileManagement
+participant "MLib" as MLib
+
+box "drv-ns16550" #LightGray
+  participant "入出力制御" as IOControl
+  participant "転送制御" as TransferControl
+  participant "デバイス\nファイル管理" as DeviceFileManagement
+end box
+
+participant "MLib" as MLib
+
+== 転送要求 ==
+
+DeviceFileManagement -> TransferControl: 転送要求( COM1/2 )
+activate TransferControl
+
+TransferControl -> MLib: スピンロック( COM1/2 )
+activate MLib
+MLib --> TransferControl: 
+deactivate MLib
+
+opt [転送状態 == 転送停止中]
+  TransferControl -> IOControl: IER書込み\n( COM1/2, [1]=1 )
+  activate IOControl
+  note right of TransferControl: THR割込み許可
+  ref over IOControl
+    入出力制御\nデバイス書込み
+  end ref
+  IOControl --> TransferControl: 
+  deactivate IOControl
+  
+  TransferControl -> TransferControl: 転送状態設定( 転送中 )
+end opt
+
+TransferControl -> MLib: スピンアンロック( COM1/2 )
+activate MLib
+MLib --> TransferControl: 
+deactivate MLib
+
+TransferControl --> DeviceFileManagement: 
+deactivate TransferControl
+
+@enduml

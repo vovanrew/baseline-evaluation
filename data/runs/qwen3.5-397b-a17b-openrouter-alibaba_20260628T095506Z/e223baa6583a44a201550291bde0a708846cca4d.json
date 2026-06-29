@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782657693-29NV4qbwymiYv0caCNHX",
+  "object": "chat.completion",
+  "created": 1782657693,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Capture Credit Card Payment\nparticipant \"Client\" as Client\nparticipant \"Shop\" as Shop\nparticipant \"PAYONE\" as PAYONE\n\nClient -> Shop: POST prepare.php\nShop --> Client: 302 capture.php\nClient -> Shop: GET capture.php\n\nalt [No Pseudo Card PAN present]\n    Shop --> Client: 200 Credit Card Form\n    Client -> PAYONE: POST Card PAN\n    PAYONE --> Client: 200 Pseudo Card PAN\n    Client -> Shop: POST capture.php\nend\n\nShop -> PAYONE: POST request=authorization\n\nalt [With 3-D Secure]\n    PAYONE --> Shop: 302 3-D Secure Form\n    Shop --> Client: 302 3-D Secure Form\n    Client -> PAYONE: POST 3-D Secure Password\n    PAYONE -> Shop: POST notify.php txaction=appointed\n    activate Shop\n    Shop -> Shop: Set Payment Status to \"captured\"\n    Shop --> PAYONE: 200 TSOK\n    deactivate Shop\n    Shop --> Client: 302 done.php\nelse [No 3-D Secure]\n    PAYONE --> Shop: 200 status=APPROVED\n    activate Shop\n    Shop -> Shop: Set Payment Status to \"pending\"\n    deactivate Shop\n    Shop --> Client: 302 done.php\nend\n\nClient -> Shop: GET done.php\nShop --> Client: 200 Thanks\n\nalt [No 3-D Secure]\n    note over Shop, PAYONE: some time later\n    PAYONE -> Shop: POST notify.php txaction=appointed transaction_status=completed\n    activate Shop\n    Shop -> Shop: Set Payment Status to \"captured\"\n    Shop --> PAYONE: 200 TSOK\n    deactivate Shop\nend\n\nnote over Shop, PAYONE: some time later\nPAYONE -> Shop: POST notify.php txaction=paid\nactivate Shop\nShop --> PAYONE: 200 TSOK\ndeactivate Shop\n\n@enduml",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1663,
+    "completion_tokens": 443,
+    "total_tokens": 2106,
+    "cost": 0.00168519,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00168519,
+      "upstream_inference_prompt_cost": 0.00064857,
+      "upstream_inference_completions_cost": 0.00103662
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

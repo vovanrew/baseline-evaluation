@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782647022-ETNeJ4FaYH6EIuwjgX1C",
+  "object": "chat.completion",
+  "created": 1782647022,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam classAttributeIconSize 0\nskinparam linetype ortho\nskinparam shadowing false\nskinparam class {\n  BackgroundColor white\n  BorderColor black\n  ArrowColor black\n}\nskinparam note {\n  BackgroundColor white\n  BorderColor black\n}\n\nclass \"TGestionnaireDels\" as TGestionnaireDels {\n  - FDerniereDel : TDel*\n  - FCliqIgnotement : bool\n  + TGestionnaireDels() = delete\n  + beginPeriode(uint32_t, TimerInterrupt &)\n}\nnote right of TGestionnaireDels\n  G\u00e8re l'\u00e9tat d'une liste de DEL en utilisant\n  un Timer pour les faire clignoter\nend note\n\nclass \"TDel\" as TDel {\n  - FBroche : const int\n  - F\u00c9tat : T\u00c9tatDel\n  - FNbR\u00e9f\u00e9rences : uint8_t\n  + TDel(int, TDel*, TDel*)\n  + TDel(int)\n  + ~TDel()\n  + \u00c9tat() : T\u00c9tatDel\n  + Maj(T\u00c9tatDel)\n}\nnote right of TDel\n  DEL g\u00e9r\u00e9e par TGestionnaireDels\nend note\n\nclass \"TRefDel\" as TRefDel {\n  - FDel : TTypeDel*\n  + TRefDel(int)\n  + TRefDel(TRefDel<TTypeDel>&)\n  + ~TRefDel()\n  + Del() : TTypeDel&\n}\nnote right of TRefDel\n  R\u00e9f\u00e9rence vers une TDel\nend note\n\nclass \"TDelClignotteTemp\" as TDelClignotteTemp {\n  - FNbClignotements : uint8_t\n  - FClignotementsRestants : uint16_t\n  - NB_CLIGNOTTEMENTS_DEFAUT : const uint8_t = 5\n  + TDelClignotteTemp(int)\n  + FaireClignoter()\n  + Clignote() : bool\n  + Maj\u00c9tat()\n}\nnote right of TDelClignotteTemp\n  Permet de faire clignoter une DEL\n  un certain nombre de fois \u00e0 chaque\n  fois que la m\u00e9thode FaireClignoter\nend note\n\nclass \"TimerInterrupt\" as TimerInterrupt {\n  + init()\n  + attachInterruptIntervalPeriode(unsigned long, isr: void(*)(void))\n}\nnote right of TimerInterrupt\n  Voir: https://github.com/khoih-prog/TimerInterrupt\nend note\n\nclass \"T\u00c9tatDel\" as T\u00c9tatDel {\n  + edAllume\n  + ed\u00c9teinte\n  + edClignote\n  + edInactive\n  + edPremier\n  + edDernier\n}\nnote right of T\u00c9tatDel\n  Repr\u00e9sente l'\u00e9tat\n  d'une DEL pour TDel\nend note\n\nclass \"TMedicDispo\" as TMedicDispo {\n}\n\nclass \"TGroupeCapteursObstruction\" as TGroupeCapteursObstruction {\n  - FCapteurs : TCapteurObstruction*\n  - FNbCapteurs : const size_t\n  + TGroupeCapteursObstruction(int, const int*, int, uint8_t, uint32_t)\n  + TGroupeCapteursObstruction()\n  + begin()\n  + Lire()\n  + Obstru\u00e9Imm\u00e9diatement() : bool\n  + Obstru\u00e9() : bool\n  + D\u00e9laiSansObstruction() : uint32_t\n  + Capteurs() : TCapteurObstruction*\n  + NbCapteurs() : size_t\n}\nnote right of TGroupeCapteursObstruction\n  Groupe de capteurs d'obstructions.\n  Tant qu'un des capteurs du groupe est obstru\u00e9,\n  le groupe de capteurs est consid\u00e9r\u00e9 comme obstru\u00e9.\nend note\n\nclass \"TCapteurObstruction\" as TCapteurObstruction {\n  - FBroche : int\n  - FNiveauObstruction : uint8_t\n  - FD\u00e9laiSansObstructions : uint32_t\n  - FDebutNonObstrue : uint32_t\n  - FDerniereLecture : bool\n  - OBSTRUE : const bool = true\n  - NON_OBSTRUE : const bool = false\n  + TCapteurObstruction(int, uint8_t, uint32_t)\n  + TCapteurObstruction()\n  + ChangerBroche(int)\n  + ChangerNiveauObstruction(uint8_t)\n  + ChangerD\u00e9laiSansObstructions(uint32_t)\n  + begin()\n  + Lire()\n  + Obstru\u00e9() : bool\n  + Obstru\u00e9Imm\u00e9diatement() : bool\n  + D\u00e9laiSansObstruction() : uint32_t\n}\nnote right of TCapteurObstruction\n  Permet de lire la valeur d'un capteur\n  d'obstruction analogique. Il utilise\n  un d\u00e9lai configurable pour s'assurer\n  que le capteur d'obstruction est bien d\u00e9couvert.\nend note\n\nclass \"TGlissiere\" as TGlissiere {\n  - FDirectionOuvrir : int\n  - FDirectionFermer : int\n  - FCapteurOuvert : int\n  - FCapteurFerme : int\n  - FCommande : bool\n  - FDebutDeplacement : time_t\n  - COMMANDE_OUVRIR : const bool = true\n  - COMMANDE_FERMER : const bool = false\n  + TGlissiere(int, int, int, int)\n  + begin()\n  + TempsD\u00e9placement() : uint32_t\n  + EstEnD\u00e9placement() : bool\n  + \u00c9tat() : T\u00c9tatGlissi\u00e8re\n  + CommanderCommande(bool)\n}\nnote right of TGlissiere\n  Permet de contr\u00f4ler la glissi\u00e8re pour distribuer des m\u00e9dicaments\nend note\n\nclass \"T\u00c9tatGlissiere\" as T\u00c9tatGlissiere {\n  + egOuverte\n  + egOuverture\n  + egFerme\n  + egFermeture\n}\nnote right of T\u00c9tatGlissiere\n  Repr\u00e9sente l'\u00e9tat de la glissi\u00e8re\nend note\n\nclass \"TVerrou\" as TVerrou {\n  - FBroche : int\n  - F\u00c9tat : bool\n  - FDebutVerrouillage : uint32_t\n  + D\u00e9laiD\u00e9verrouillage\n  + VerrouBroche(int, uint32_t)\n  + begin()\n  + loop()\n  + \u00c9tat() : bool\n  + \u00c9tatTrait(bool)\n  + D\u00e9verrouiller()\n}\nnote right of TVerrou\n  Contr\u00f4le un verrou en PWM avec un cycle de travail de 50%. Le verrou est\n  verrouill\u00e9 par d\u00e9faut et ne se verrouille que pendant un interval sp\u00e9cifi\u00e9.\n  S'il est...\n  Le verrou doit \u00eatre verrouill\u00e9 sur un niveau logique bas\nend note\n\nclass \"TGestionnaireDistribution\" as TGestionnaireDistribution {\n  - FM\u00e9dicamentsRestant : uint16_t\n  - FM\u00e9dicamentsADistribuer : uint8_t\n  - FGlissi\u00e8re : TGlissi\u00e8re\n  - FVerrou : TVerrou\n  - FGroupesCapteurs : TGroupeCapteursObstruction\n  - FGlissi\u00e8reObstru\u00e9e : TCapteurObstruction\n  + begin()\n  + M\u00e9dicamentsRestant() : uint16_t\n  + M\u00e9dicamentsRestant(int) : uint16_t\n  + DistribuerM\u00e9dicaments(uint16_t)\n  + M\u00e9dicamentsADistribuer() : uint16_t\n}\nnote right of TGestionnaireDistribution\n  G\u00e8re la distribution de m\u00e9dicaments\nend note\n\nclass \"TCommunication\" as TCommunication {\n  - FAdresseI2C : uint16_t\n  - FCl\u00e9Encryption : uint8_t[TAILLE_CLE_ENCRYPTION]\n  + TCommunication()\n  + begin()\n  + NotifierNiveauM\u00e9dicaments(int) : int\n  + CommunicationRe\u00e7ue() : bool\n}\nnote right of TCommunication\n  G\u00e8re la communication avec le module de contr\u00f4le\nend note\n\nclass \"EEPROM\" as EEPROM {\n}\n\nclass \"Wire\" as Wire {\n}\n\nTGestionnaireDels --> TDel : -TypeDel : TDel\nTDel --> TRefDel : -FDelPr\u00e9c\u00e9dente : TDel*\nTDel --> TRefDel : -FDelSuivante : TDel*\nTDel --> T\u00c9tatDel : -\u00c9tatTrait : T\u00c9tatDel\nTDel --> TMedicDispo : -delMedicDispo\nTDel --> TDelClignotteTemp : -delErreur\nTGestionnaireDels --> TimerInterrupt\nTGestionnaireDels --> TDel\nTGroupeCapteursObstruction --> TCapteurObstruction : -FCapteurs : TCapteurObstruction*\nTGestionnaireDistribution --> TGroupeCapteursObstruction : -FGroupesCapteurs : TGroupeCapteursObstruction\nTGestionnaireDistribution --> TCapteurObstruction : -FGlissi\u00e8reObstru\u00e9e : TCapteurObstruction\nTGestionnaireDistribution --> TGlissiere : -FGlissi\u00e8re : TGlissi\u00e8re\nTGestionnaireDistribution --> TVerrou : -FVerrou : TVerrou\nTGlissiere --> T\u00c9tatGlissiere\nTCommunication --> EEPROM\nTCommunication --> Wire\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1075,
+    "completion_tokens": 2114,
+    "total_tokens": 3189,
+    "cost": 0.00536601,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00536601,
+      "upstream_inference_prompt_cost": 0.00041925,
+      "upstream_inference_completions_cost": 0.00494676
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

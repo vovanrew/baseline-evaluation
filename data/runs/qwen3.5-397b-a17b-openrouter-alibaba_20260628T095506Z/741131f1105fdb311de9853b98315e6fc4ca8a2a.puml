@@ -1,0 +1,42 @@
+@startuml
+actor Client
+participant "RegisterClientUI" as UI
+participant "RegisterClientController" as Controller
+participant "ApplicationPOT" as AppPOT
+participant "app\nApplicationPOT" as App
+participant "clientService\nClientService" as ClientService
+participant "clientDB\nClientDB" as ClientDB
+participant "client\nClient" as ClientObj
+participant "user\nUser" as UserObj
+participant "Address" as AddressObj
+participant "CreditCard" as CreditCardObj
+participant "EncrypPassword" as Encrypt
+participant "EmailSender" as Email
+participant "DataHandler" as Data
+
+Client -> UI: 1 Engages the register feature/button
+UI -> UI: 2 Asks for all the information required\nfor the register (i.e. name,nif,email,password,latitude,longitude,altitude,\nstreetName,doorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+Client -> UI: 3 Fills all the information required
+UI -> Client: 4 Presents the data and asks for a confirmation
+Client -> UI: 5 Confirms
+UI -> Controller: 6 registerNewClient(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+Controller -> ClientService: 7 create()
+ClientService -> ClientDB: 8 create()
+ClientService -> ClientService: 9 validateInput(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+
+alt if all the information given as input has a valid format
+    Controller -> ClientObj: 10 newClient(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+    ClientObj -> ClientObj: 11 create(name,nif,email,password,latitude,longitude,altitude,streetName,\ndoorNumber,postalCode,locality,country,creditCardNr,validityDate,CCV)
+    ClientObj -> UserObj: 12 create(email,password,nif,name)
+    UserObj -> Encrypt: 13 encrypPasswordMD5(password)
+    ClientObj -> AddressObj: 14 create(latitude,longitude,altitude,streetName,doorNumber,postalCode,locality,country)
+    ClientObj -> CreditCardObj: 15 create(creditCardNr,validityDate,CCV)
+    Controller -> ClientService: 16 registerNewClient(client)
+    ClientService -> ClientService: 17 addClientToDB(client)
+    ref over ClientService\nSD_CONNECTIONS
+    ClientService -> Email: 18 sendEmail(email,subject,body)
+    UI -> Client: 19 Validates and informs about the success of the operation
+else if any information does not have a valid format
+    UI -> Client: 20 Informs the User that the operation\nwas not successful
+end
+@enduml

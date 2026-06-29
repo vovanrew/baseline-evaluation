@@ -1,0 +1,36 @@
+@startuml
+actor SalesClerk
+participant "«presentation»\nDefineNewCategoryUI" as UI
+participant "«application»\nDefineNewCategoryController" as Controller
+participant "«builder»\nCategoryBuilder" as Builder
+participant "«domain»\ncategory:Category" as Category
+participant "«repository»\nCategoryRepository" as Repository
+
+SalesClerk -> UI: 1 Define new category
+activate UI
+UI -> Controller: 2 create
+activate Controller
+Controller --> UI: 3 asks user information
+SalesClerk -> UI: 4 Code, Description
+UI -> Controller: 5 addCategory(categoryCode, categoryDescription)
+Controller -> Builder: 6 create
+activate Builder
+Controller -> Builder: 7 withCode(code)
+Controller -> Builder: 8 withDescription(description)
+Builder -> Category: 9 create(categoryCode, categoryDescription)
+activate Category
+Category --> Builder: 10 category
+deactivate Category
+Builder --> Controller: 11 category
+deactivate Builder
+Controller -> Repository: 12 category()
+activate Repository
+Repository --> Controller: 13 categoryRepository
+Controller -> Repository: 14 save(category)
+Repository --> Controller: 15 category
+deactivate Repository
+Controller --> UI: 15 category
+deactivate Controller
+UI --> SalesClerk: 16 displayCategoryInfo
+deactivate UI
+@enduml

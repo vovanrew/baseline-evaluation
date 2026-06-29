@@ -1,0 +1,42 @@
+@startuml
+participant "alg:AlgoritmoGeradorPasswords" as alg1
+participant "ro:RepositorioOrganizacao" as ro
+participant "colab:Colaborador" as colab
+participant ":Plataforma" as plataforma
+participant "aut:AutorizacaoFacade" as aut
+participant "alg:AlgoritmoGeradorPasswords" as alg2
+
+note right of alg1
+É uma instância de qualquer classe
+que implemente esta interface.
+end note
+
+ro -> ro: 1 registaGestorComoUtilizador(colab)
+activate ro
+ro -> colab: 2 nomeG = getNome()
+activate colab
+colab --> ro
+deactivate colab
+ro -> colab: 3 emailG = getEmail()
+activate colab
+colab --> ro
+deactivate colab
+ro -> plataforma: 4 alg=getAlgoritmoGeradorPwd()
+activate plataforma
+plataforma --> ro
+deactivate plataforma
+ro -> alg2: 5 pwd = geraPassword(nomeG, emailG)
+activate alg2
+alg2 --> ro
+deactivate alg2
+ro -> plataforma: 6 aut=getAutorizacaoFacade()
+activate plataforma
+plataforma --> ro
+deactivate plataforma
+ro -> aut: 7 registaUtilizadorComPapeis(nomeG, emailG, pwd, ["GESTOR","COLABORADOR"])
+activate aut
+aut --> ro
+deactivate aut
+ro -> ro: 8 enviaPwd(emailG,pwd)
+deactivate ro
+@enduml

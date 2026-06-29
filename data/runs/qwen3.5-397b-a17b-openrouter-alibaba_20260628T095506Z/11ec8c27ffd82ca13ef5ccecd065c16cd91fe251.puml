@@ -1,0 +1,26 @@
+@startuml
+title 認証のシーケンス
+participant "ブラウザ" as Browser
+participant "ContextProvider" as ContextProvider
+participant "_app" as App
+participant "Login" as Login
+participant "バックエンド" as Backend
+database "DB" as DB
+
+Browser -> Login: ログイン要求(email, password)
+App <- Login: (フレームワークの振る舞い)
+App -> ContextProvider: コンポーネントとして呼び出し
+note right of ContextProvider: ※ログイン時はとくになにもしてない。
+App ..> ContextProvider
+ContextProvider ..> Login
+Login -> Backend: ログイン要求(email, password)
+Backend -> DB: select(email, password)
+DB ..> Backend: ユーザー情報
+note right of Backend: ユーザー ID をもとに\nJWT を生成。\nresponse の cookie に\n{token: JWT} を載せる。
+Backend ..> Login: ログイン結果(結果, cookie, ユーザー情報)
+Login -> ContextProvider: dispatch
+note right of ContextProvider: (必要あれば)\n取得したユーザー情報を\nstate に保持。
+ContextProvider ..> Login
+Login ..> Browser: ログイン結果(結果, cookie)
+note right of Browser: ブラウザの cookie に\n{token: JWT} が保存される。\n今後のリクエストには\nこの情報が付与される。
+@enduml

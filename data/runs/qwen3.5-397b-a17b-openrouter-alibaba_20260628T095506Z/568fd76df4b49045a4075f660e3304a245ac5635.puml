@@ -1,0 +1,47 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantPadding 10
+skinparam noteBackgroundColor #FFFFE0
+skinparam noteBorderColor #000000
+skinparam notePadding 5
+skinparam arrowColor #000000
+skinparam arrowThickness 1
+skinparam lifelineColor #000000
+skinparam lifelineThickness 1
+skinparam lifelineStyle dashed
+
+participant "ConnectInterceptor" as ConnectInterceptor
+participant "StreamAllocation" as StreamAllocation
+participant "RealConnection" as RealConnection
+participant "Http2Connection" as Http2Connection
+participant "CallServerInterceptor" as CallServerInterceptor
+participant "Http2Codec" as Http2Codec
+participant "Http2Writer" as Http2Writer
+participant "Sink" as Sink
+participant "Socket" as Socket
+participant "ReaderRunnable" as ReaderRunnable
+participant "Http2Read" as Http2Read
+participant "Http2Stream" as Http2Stream
+participant "Source" as Source
+
+ConnectInterceptor -> StreamAllocation: newStream
+StreamAllocation -> RealConnection: connect
+RealConnection -> Http2Connection: start()
+CallServerInterceptor -> Http2Codec: writeRequestHeaders
+Http2Codec -> Http2Connection: newStream
+Http2Connection -> Http2Writer: synStream
+Http2Writer -> Sink: write
+Sink -> Socket: 
+CallServerInterceptor -> Sink: write
+Http2Connection -> ReaderRunnable: execute()
+ReaderRunnable -> Http2Read: nextFrame()
+Http2Read -> Http2Connection: handle
+Http2Connection -> Http2Stream: receiveXXX()
+Http2Stream -> Source: read()
+Source -> Socket: 
+
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+actor UserController
+participant ThemeController
+participant CommentController
+
+alt [successful]
+    UserController -> ThemeController: login()
+    ThemeController --> UserController: Success(save session)
+else [no register]
+    UserController -> UserController: register()
+end
+
+ThemeController -> ThemeController: list()
+ThemeController --> CommentController: themeID
+CommentController -> CommentController: list(themeID)
+
+alt [your comments]
+    CommentController -> CommentController: edit()
+else [not your comments]
+    CommentController -> CommentController: can't edit
+end
+
+CommentController -> CommentController: add()
+UserController -> UserController: logOut()
+@enduml

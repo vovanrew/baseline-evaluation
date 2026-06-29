@@ -1,0 +1,35 @@
+@startuml
+title Search for Products by ID (using DB dao)
+
+actor User
+participant "«main»\nAdministration" as Administration
+participant "«frame»\nMainMenu" as MainMenu
+participant "«dialog»\nProductReportDialog" as ProductReportDialog
+participant "«ProductDAO»\nProductDatabaseDAO" as ProductDatabaseDAO
+database Database
+participant "SimpleListModel\n:model" as model
+
+User -> Administration: clicks 'View Products'
+Administration -> MainMenu: «construct»
+MainMenu -> ProductReportDialog: «construct»
+ProductReportDialog -> ProductDatabaseDAO: «construct»
+ProductReportDialog -> ProductDatabaseDAO: getProducts()
+ProductDatabaseDAO -> Database: select * from product
+Database --> ProductDatabaseDAO: ResultSet
+ProductDatabaseDAO -> ProductDatabaseDAO: reconstruct products\nfrom ResultSet
+ProductDatabaseDAO --> ProductReportDialog: products
+ProductReportDialog -> model: «construct»
+ProductReportDialog -> model: updateItems(products)
+ProductReportDialog -> ProductReportDialog: lstProducts.setModel(model)
+note right of ProductReportDialog: products now\nvisible to user
+User -> ProductReportDialog: enters product id into search bar
+ProductReportDialog -> ProductReportDialog: txtId.getText : id
+User -> ProductReportDialog: clicks "Search"
+ProductReportDialog -> ProductDatabaseDAO: search(id)
+ProductDatabaseDAO -> Database: select * from product where product_id = id
+Database --> ProductDatabaseDAO: product
+ProductReportDialog -> model: updateItems(product)
+ProductReportDialog -> ProductReportDialog: lstProducts.getModel(model)
+note right of ProductReportDialog: only searched product\nnow visible to user
+
+@enduml

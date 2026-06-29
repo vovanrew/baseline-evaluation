@@ -1,0 +1,42 @@
+@startuml
+actor Administrator
+participant "SpecifyNewVaccineUI" as SpecifyNewVaccineUI
+participant "SpecifyNewVaccineController" as SpecifyNewVaccineController
+participant "Company" as Company
+participant "VaccineStore" as VaccineStore
+participant "vc:Vaccine" as vc_Vaccine
+participant "admPro:AdministrationProcess" as admPro_AdministrationProcess
+participant "VaccineTypeStore" as VaccineTypeStore
+participant "VaccineType" as VaccineType
+
+Administrator -> SpecifyNewVaccineUI: 1 starts specifying a new vaccine and its administration process
+SpecifyNewVaccineUI -> SpecifyNewVaccineController: 2 createVaccine()
+SpecifyNewVaccineController -> Company: 3 typeList = getVaccineTypeList()
+Company -> Company: 4 getVaccineTypeList()
+Company -> VaccineTypeStore: loop for all known vaccineTypes
+VaccineTypeStore -> VaccineType: 5 VaccineType(code,name)
+VaccineTypeStore --> Company
+Company --> SpecifyNewVaccineController
+SpecifyNewVaccineController -> SpecifyNewVaccineUI: 6 request data (name, manufacturer, type, age groups,doses,elapsing interval, dosage) and show vaccineType list
+SpecifyNewVaccineUI -> Administrator: 7 types requested data
+Administrator -> SpecifyNewVaccineUI: 8 createVaccine(id,name,manufacturer,type,administrationProcess)
+SpecifyNewVaccineUI -> SpecifyNewVaccineController: 9 createVaccine(id,name,manufacturer,type,administrationProcess)
+SpecifyNewVaccineController -> VaccineStore: 10 createVaccine(id,name,manufacturer,type,administrationProcess)
+VaccineStore -> vc_Vaccine: 11 vc = createVaccine(id,name,manufacturer,type,administrationProcess)
+vc_Vaccine -> admPro_AdministrationProcess: loop for all age groups
+admPro_AdministrationProcess -> admPro_AdministrationProcess: 12 administrationProcess(minAge,maxAge,numberOfDoses,dosage,timeElapsed)
+admPro_AdministrationProcess --> vc_Vaccine
+vc_Vaccine -> vc_Vaccine: 13 validate(vaccine)
+vc_Vaccine --> VaccineStore
+VaccineStore -> VaccineStore: 14 update(vaccine)
+VaccineStore --> SpecifyNewVaccineController
+SpecifyNewVaccineController -> SpecifyNewVaccineUI: 15 shows data and request confirmation
+SpecifyNewVaccineUI -> Administrator: 16 confirms data
+Administrator -> SpecifyNewVaccineUI: 17 saveVaccine()
+SpecifyNewVaccineUI -> SpecifyNewVaccineController: 18 saveVaccine()
+SpecifyNewVaccineController -> Company: 19 saveVaccine()
+Company -> VaccineStore: 20 addVaccine()
+VaccineStore --> SpecifyNewVaccineController
+SpecifyNewVaccineController -> SpecifyNewVaccineUI
+SpecifyNewVaccineUI -> Administrator: 21 informs operation (in)success
+@enduml

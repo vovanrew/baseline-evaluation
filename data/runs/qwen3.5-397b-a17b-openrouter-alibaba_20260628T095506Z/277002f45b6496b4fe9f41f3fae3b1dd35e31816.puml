@@ -1,0 +1,95 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #F0F0F0
+skinparam classBorderColor #CCCCCC
+skinparam interfaceBackgroundColor #F0F0F0
+skinparam interfaceBorderColor #CCCCCC
+skinparam packageBackgroundColor #FFFFFF
+skinparam packageBorderColor #CCCCCC
+skinparam packageFontStyle bold
+skinparam packageFontColor #000000
+skinparam packageHeaderBackgroundColor #E0E0E0
+skinparam packageHeaderFontColor #000000
+skinparam packageHeaderFontStyle bold
+skinparam packageHeaderFontSize 14
+skinparam packageHeaderAlignment center
+skinparam packageHeaderPadding 5
+skinparam packageHeaderBorderThickness 2
+skinparam packageHeaderBorderColor #000000
+skinparam packageHeaderBackgroundColor #E0E0E0
+skinparam packageHeaderFontColor #000000
+skinparam packageHeaderFontStyle bold
+skinparam packageHeaderFontSize 14
+skinparam packageHeaderAlignment center
+skinparam packageHeaderPadding 5
+skinparam packageHeaderBorderThickness 2
+skinparam packageHeaderBorderColor #000000
+
+package "Commands" {
+    class Commands {
+        + shape : string
+        + Commands(shape:string)
+        + Execute() : void
+        + Undo() : void
+        + Redo() : void
+        + PrintSVG() : void
+        + CreateSVG() : void
+        + «override» ToString() : string
+    }
+}
+
+interface CommandInt {
+    + Execute() : void
+}
+
+class AddCMD {
+    + shape : string
+    + AddCMD(shape:String, history:List<string>)
+    + Execute() : void
+}
+
+class UndoCMD {
+    + UndoCMD(history:List<string>, redoList:List<string>)
+    + Execute() : void
+}
+
+class RedoCMD {
+    + RedoCMD(history:List<string>, redoList:List<string>)
+    + Execute() : void
+}
+
+class PrintSVGCMD {
+    + PrintSVGCMD(history:List<string>)
+    + Execute() : void
+}
+
+class CreateSVGCMD {
+    + CreateSVGCMD(history:List<string>)
+    + Execute() : void
+}
+
+class "List" as ListClass {
+    + history<String>
+    + redoList<String>
+}
+
+Commands --|> CommandInt
+AddCMD --|> CommandInt
+UndoCMD --|> CommandInt
+RedoCMD --|> CommandInt
+PrintSVGCMD --|> CommandInt
+CreateSVGCMD --|> CommandInt
+
+AddCMD --> ListClass : history<String>
+UndoCMD --> ListClass : history<String>
+RedoCMD --> ListClass : history<String>
+PrintSVGCMD --> ListClass : history<String>
+CreateSVGCMD --> ListClass : history<String>
+
+UndoCMD --> ListClass : redoList<String>
+RedoCMD --> ListClass : redoList<String>
+
+@enduml
+```

@@ -1,0 +1,136 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #F0F0F0
+  BorderColor #000000
+  ArrowColor #000000
+}
+skinparam note {
+  BackgroundColor #FFFFCC
+  BorderColor #000000
+}
+
+package "com" {
+  package "mercedesbenz" {
+    package "sechub" {
+      package "domain" {
+        package "scan" {
+          package "project" {
+            class "FalsePositiveJobDataService" as FalsePositiveJobDataService {
+              - ScanReportRepository : scanReportRepository
+              - ScanProjectConfigService : configService
+              - FalsePositiveJobDataListValidation : falsePositiveJobDataListValidation
+              - FalsePositiveJobDataConfigMerger : merger
+            }
+            class "ScanProjectConfigService" as ScanProjectConfigService {
+              - ScanProjectConfigRepository : repository
+            }
+            class "ScanProjectConfig" as ScanProjectConfig
+            class "ScanProjectConfigRepository" as ScanProjectConfigRepository
+            class "FalsePositiveJobDataList" as FalsePositiveJobDataList {
+              - String : apiVersion
+              - String : type
+              - FalsePositiveJobData : jobData
+            }
+            class "FalsePositiveJobData" as FalsePositiveJobData {
+              - UUID : jobUUID
+              - String : comment
+            }
+            class "FalsePositiveJobDataConfigMerger" as FalsePositiveJobDataConfigMerger
+            class "FalsePositiveJobDataListValidation" as FalsePositiveJobDataListValidation
+            class "FalsePositiveProjectConfiguration" as FalsePositiveProjectConfiguration {
+              - List<FalsePositiveEntry> : falsePositives
+            }
+            class "FalsePositiveEntry" as FalsePositiveEntry {
+              - FalsePositiveJobData : jobData
+              - String : author
+              - FalsePositiveMetaData : metaData
+              - Date : created
+            }
+            class "FalsePositiveMetaData" as FalsePositiveMetaData {
+              - ScanType : scanType
+              - String : name
+              - Severity : severity
+              - FalsePositiveCodeMetaData : code
+              - FalsePositiveWebMetaData : web
+              - Integer : cweId
+              - String : cweId
+              - String : owasp
+            }
+            class "FalsePositiveCodeMetaData" as FalsePositiveCodeMetaData {
+              - FalsePositiveCodePartMetaData : start
+              - FalsePositiveCodePartMetaData : end
+            }
+            class "FalsePositiveCodePartMetaData" as FalsePositiveCodePartMetaData {
+              - String : location
+              - String : relevantPart
+              - String : sourceCode
+            }
+            class "FalsePositiveWebMetaData" as FalsePositiveWebMetaData {
+              - FalsePositiveWebRequestMetaData : request
+              - FalsePositiveWebResponseMetaData : response
+            }
+            class "FalsePositiveWebRequestMetaData" as FalsePositiveWebRequestMetaData {
+              - String : method
+              - String : target
+              - String : protocol
+              - String : version
+              - String : attackVector
+            }
+            class "FalsePositiveWebResponseMetaData" as FalsePositiveWebResponseMetaData {
+              - String : evidence
+              - int : statusCode
+            }
+          }
+          package "report" {
+            class "ScanSecHubReport" as ScanSecHubReport
+            class "ScanReportRepository" as ScanReportRepository
+          }
+        }
+        package "commons" {
+          package "model" {
+            class "Severity" as Severity
+            class "ScanType" as ScanType
+            class "SecHubCodeCallStack" as SecHubCodeCallStack
+            class "SecHubFinding" as SecHubFinding
+          }
+        }
+      }
+    }
+  }
+}
+
+' Relationships
+FalsePositiveJobDataService --> ScanReportRepository
+FalsePositiveJobDataService --> ScanProjectConfigService
+FalsePositiveJobDataService --> FalsePositiveJobDataListValidation
+FalsePositiveJobDataService --> FalsePositiveJobDataConfigMerger
+ScanProjectConfigService --> ScanProjectConfigRepository
+ScanProjectConfigRepository --> ScanProjectConfig
+FalsePositiveJobDataList --> FalsePositiveJobData
+FalsePositiveJobDataConfigMerger ..> FalsePositiveProjectConfiguration
+FalsePositiveJobDataListValidation ..> FalsePositiveEntry
+FalsePositiveProjectConfiguration --> FalsePositiveEntry
+FalsePositiveEntry --> FalsePositiveJobData
+FalsePositiveEntry --> FalsePositiveMetaData
+FalsePositiveMetaData --> ScanType
+FalsePositiveMetaData --> Severity
+FalsePositiveMetaData --> FalsePositiveCodeMetaData
+FalsePositiveMetaData --> FalsePositiveWebMetaData
+FalsePositiveCodeMetaData --> FalsePositiveCodePartMetaData
+FalsePositiveWebMetaData --> FalsePositiveWebRequestMetaData
+FalsePositiveWebMetaData --> FalsePositiveWebResponseMetaData
+FalsePositiveCodePartMetaData ..> FalsePositiveJobDataList
+FalsePositiveWebRequestMetaData ..> FalsePositiveJobDataList
+FalsePositiveWebResponseMetaData ..> FalsePositiveJobDataList
+ScanSecHubReport --> ScanReportRepository
+ScanReportRepository --> FalsePositiveJobDataService
+Severity ..> FalsePositiveMetaData
+ScanType ..> FalsePositiveMetaData
+SecHubCodeCallStack ..> FalsePositiveMetaData
+SecHubFinding ..> FalsePositiveMetaData
+
+@enduml
+```

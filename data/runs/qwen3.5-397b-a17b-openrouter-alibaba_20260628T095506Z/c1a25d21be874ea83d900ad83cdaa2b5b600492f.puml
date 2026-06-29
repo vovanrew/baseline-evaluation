@@ -1,0 +1,32 @@
+@startuml
+actor A
+participant CircuitBreaker
+actor B
+
+alt [no errors]
+    A -> CircuitBreaker: call()
+    activate CircuitBreaker
+    CircuitBreaker -> B: call()
+    activate B
+    B --> CircuitBreaker: response
+    deactivate B
+    CircuitBreaker --> A: response
+    deactivate CircuitBreaker
+else [errors]
+    A -> CircuitBreaker: call()
+    activate CircuitBreaker
+    loop [while err_count < max_errors]
+        CircuitBreaker -> B: call()
+        destroy B
+        CircuitBreaker -> CircuitBreaker: err_count ++
+    end
+    CircuitBreaker -> CircuitBreaker: sleep(timeout)
+    CircuitBreaker -> B: call()
+    destroy B
+    CircuitBreaker -> CircuitBreaker: sleep(timeout*2)
+    CircuitBreaker -> B: call()
+    destroy B
+    CircuitBreaker --> A: error
+    deactivate CircuitBreaker
+end
+@enduml

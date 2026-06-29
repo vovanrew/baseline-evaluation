@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782656618-RjBRd12PppR8JosMb618",
+  "object": "chat.completion",
+  "created": 1782656618,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle PB-428 UC12 View fund details\n\nactor \"Next Customer\" as Customer\nparticipant \"Core Next\" as CoreNext\ndatabase \"Next Database\" as NextDB\nparticipant \"Core Bradesco\" as CoreBradesco\n\nbox \"Next Platform\" #LightGray\n  participant \"Core Next\" as CoreNext\n  database \"Next Database\" as NextDB\nend box\n\nnote over Customer,CoreNext: \n<b>Abstract:</b>\nThis use case will return fund details for a single fund. This is an existing endpoint and we will add additional response fields to this endpoint. They include:\n1. FundCategory (new)\n2. RequireFundTC (new)\n3. RiskScore (existing field in table, but needs to be added in response)\n4. IncomeValue (new)\n5. IncomeDescription (new)\n6. isNextSimples (new)\nend note\n\nCustomer -> CoreNext: 1 HTTP\\nGET /investments/funds/completeDetails\nnote right of Customer\nThe App will make a call to Core Next to get all the details for a fund. It will pass required input:\n- Fund ID\nend note\n\nnote right of Customer\n<b>Note to Dev</b>\nPlease check if the input parameter Fund ID is the Product ID or the External_Core_Product_ID. From what I can see, there are two product records with the same External_Core_Product_ID (Next Simples) and this may create issues.\nend note\n\nref over CoreNext\nUse existing methodology to get complete details for a fund.\nend ref\n\nCoreNext -> NextDB: 2 GET additional fields from Product table\nNextDB --> CoreNext: 3 Response\nnote right of CoreNext\nCore Next will retrieve additional data from the PRODUCT table and return them to the App:\n1. FundCategory (new)\n2. RequireFundTC (new)\n3. RiskScore (existing field in table, but needs to be added in response)\n4. IncomeValue (new)\n5. IncomeDescription (new)\n6. isNextSimples (new)\nend note\n\nCoreNext --> Customer: 4 Response\nnote right of Customer\nCore Next will return all existing fields in the response + the following new response fields:\n1. FundCategory (new)\n2. RequireFundTC (new)\n3. RiskScore (existing field in table, but needs to be added in response)\n4. IncomeValue (new)\n5. IncomeDescription (new)\n6. isNextSimples (new)\n\nAll of these fields will come from the PRODUCT table.\nend note\n\n@enduml",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1663,
+    "completion_tokens": 570,
+    "total_tokens": 2233,
+    "cost": 0.00198237,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00198237,
+      "upstream_inference_prompt_cost": 0.00064857,
+      "upstream_inference_completions_cost": 0.0013338
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

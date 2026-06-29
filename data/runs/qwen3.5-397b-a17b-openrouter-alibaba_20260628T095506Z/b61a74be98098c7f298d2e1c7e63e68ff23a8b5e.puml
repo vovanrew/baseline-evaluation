@@ -1,0 +1,53 @@
+@startuml
+actor Admin
+actor User
+participant "AccountManagement" as AccountManagement
+participant "Broker" as Broker
+participant "Notifications" as Notifications
+participant "UAA" as UAA
+participant "EmailSender" as EmailSender
+
+Admin -> AccountManagement: WorkspaceInvitation
+note right of AccountManagement: with email
+AccountManagement -> AccountManagement: save data to db
+AccountManagement --> Admin: 200 response
+AccountManagement -> Broker: create event "new user invited event"
+Broker -> Notifications: read event
+note right of Notifications: with email and senderId
+Notifications -> UAA: read info about sender
+Notifications -> Notifications: generate email
+Notifications -> Broker: create "new email event"
+Broker -> EmailSender: read "new email event"
+EmailSender -> User: send email
+
+alt user accepts invitation
+    User -> AccountManagement: WorkspaceEmailValidation
+    AccountManagement -> AccountManagement: check email
+    AccountManagement --> User: WorkspaceEmailValidationResult
+    alt email valid
+        AccountManagement -> AccountManagement: generate access code
+        AccountManagement -> Broker: create event "new access code"
+        Broker -> Notifications: read event
+        note right of Notifications: with email and access code
+        Notifications -> Notifications: generate email
+        Notifications -> Broker: create "new email event"
+        Broker -> EmailSender: read "new email event"
+        EmailSender -> User: send email
+    end
+    User -> User: get access code from email
+    User -> AccountManagement: WorkspaceAccessCodeValidation
+    AccountManagement --> User: WorkspaceAccessCodeValidationResult
+    note right of AccountManagement: with email, access code
+    alt access code valid
+        AccountManagement -> AccountManagement: change state
+        User -> UAA: WorkspaceRegistration
+        note right of UAA: with email, username, password and code
+        UAA -> AccountManagement: check state by email
+        note left of Broker: with userId and email
+        UAA -> Broker: create new event "user created event"
+        Broker -> Notifications: read event "user created event"
+        Notifications -> Notifications: create user with email
+    end
+end
+
+@enduml

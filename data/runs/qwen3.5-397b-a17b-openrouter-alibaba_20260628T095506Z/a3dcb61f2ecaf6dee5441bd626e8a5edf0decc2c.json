@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782656787-GaqoL0lqcXOib6a7hrQh",
+  "object": "chat.completion",
+  "created": 1782656787,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle Interactions between the Control Plane (master node) and the Worker Node\n\nskinparam sequenceMessageAlign center\nskinparam participantStyle rectangle\nskinparam noteStyle rectangle\nskinparam legendStyle rectangle\nskinparam backgroundColor white\nskinparam sequence {\n    LifeLineBackgroundColor #F0F0F0\n    LifeLineBorderColor #CCCCCC\n    ArrowColor #333333\n    ArrowThickness 1\n}\n\n' Define colors based on legend\nskinparam participant {\n    BackgroundColor<<ControlPlane>> #D6EAF8\n    BorderColor<<ControlPlane>> #2E86C1\n    BackgroundColor<<WorkerNode>> #D5F5E3\n    BorderColor<<WorkerNode>> #27AE60\n    BackgroundColor<<PowerManagerSetup>> #FADBD8\n    BorderColor<<PowerManagerSetup>> #C0392B\n    BackgroundColor<<PowerManagerConfig>> #FDEBD0\n    BorderColor<<PowerManagerConfig>> #D35400\n    BackgroundColor<<PowerManagerDeploy>> #F9E79F\n    BorderColor<<PowerManagerDeploy>> #F1C40F\n}\n\nlegend right\n|<back:#D6EAF8> Control Plane - Master Node</back>|\n|<back:#D5F5E3> Worker Node</back>|\n|<back:#FADBD8> Power Manager System Setup</back>|\n|<back:#FDEBD0> Power Manager Configuration</back>|\n|<back:#F9E79F> Power Manager Deployment</back>|\nendlegend\n\nactor \"Georgina\" as Georgina\nparticipant \"API-Server\" as APIServer <<ControlPlane>>\nparticipant \"etcd\" as etcd <<ControlPlane>>\nparticipant \"Controller Manager\" as CM <<ControlPlane>>\nparticipant \"Scheduler\" as Scheduler <<ControlPlane>>\nparticipant \"Power Operator\" as PowerOp <<ControlPlane>>\nparticipant \"Kubelet\" as Kubelet <<WorkerNode>>\nparticipant \"Power Node Agent\" as PNA <<WorkerNode>>\nparticipant \"Power Optimization Library\" as POL <<WorkerNode>>\nparticipant \"K8s Objects\" as K8s <<WorkerNode>>\nparticipant \"Kube-Proxy\" as KubeProxy <<WorkerNode>>\n\n== Kubernetes Initialization ==\nGeorgina -> APIServer: 1 kubectl create -f pod.yaml\nAPIServer ->> etcd: 2 save new state\netcd --> APIServer: 3 check for changes\nAPIServer ->> CM: 4 watch for unassigned pods(s)\nAPIServer ->> Scheduler: 5 notify about pod w nodename=\"\"\nScheduler ->> APIServer: 6 assign pod to node\nAPIServer ->> etcd: 7 save new state\netcd --> APIServer: 8 look for newly assigned pod(s)\nAPIServer ->> Kubelet: 9 bind pod to node\nKubelet ->> PNA: 10 start container\nKubelet ->> APIServer: 11 update pod status\nAPIServer ->> etcd: 12 save new state\n\n== Power Manager Initialization ==\nGeorgina -> KubeProxy: 1 Ensure correct proxy configuration\nGeorgina -> Kubelet: 2 Confirm CPU Manager policy\nnote right of Kubelet: cpuManagerPolicy = \"static\"\nGeorgina -> Kubelet: 3 Reserve System CPUs\nnote right of Kubelet: reservedSystemCPUs = \"0\"\nGeorgina -> K8s: 4 Create Namespace\nnote right of K8s: apply config/rbac/namespace.yaml\nGeorgina -> K8s: 5 Create RBAC and Service Accounts\nnote right of K8s: apply config/rbac/rbac.yaml\nGeorgina -> K8s: 6 Create CRDs\nnote right of K8s: make\nGeorgina -> K8s: 7 Label nodes\nnote right of K8s: label node <NODE_NAME> feature.node.kubernetes.io/power-node=\"true\"\n\n== Power Manager Deployment ==\nGeorgina -> K8s: 1 Deploy Controller Manager\nnote right of K8s: apply config/manager/manager.yaml\nGeorgina -> POL: 2 Deploy the config\nnote right of POL: examples/example-powerconfig.yaml\nGeorgina -> POL: 3 Set Shared Profile\nnote right of POL: examples/example-shared-profile.yaml\nGeorgina -> POL: 4 Deploy th Workload\nnote right of POL: examples/example-shared-workload.yaml\nGeorgina -> POL: 5 Deploy Pod\nnote right of POL: examples/example-pod.yaml\n\n== Power Manager additional functionality ==\n\ngroup Uncore\n    Georgina -> Kubelet: 1 Confirm Kernel version\n    note right of Kubelet: kernel 5.6+ required for uncore\n    Georgina -> POL: 2 Set Freq in Die and Pkg\n    note right of POL: examples/example-uncore\n    Georgina -> K8s: 3 Deploy Controller Manager\n    note right of K8s: apply config/manager/manager.yaml\n    Georgina -> POL: 4 Deploy the config\n    note right of POL: examples/example-powerconfig.yaml\n    Georgina -> POL: 5 Set Shared Profile\n    note right of POL: examples/example-shared-profile.yaml\n    Georgina -> POL: 6 Deploy th Workload\n    note right of POL: examples/example-shared-workload.yaml\n    Georgina -> POL: 7 Deploy Pod\n    note right of POL: examples/example-pod.yaml\n    Georgina -> POL: 8 Set Time of Day functionality\n    note right of POL: examples/example-timeofday\nend\n\ngroup P-State\n    Georgina -> K8s: 1 Deploy Controller Manager\n    note right of K8s: apply config/manager/manager.yaml\n    Georgina -> POL: 2 Deploy the config\n    note right of POL: examples/example-powerconfig.yaml\n    Georgina -> POL: 3 Set Shared Profile\\nand configure the P-State governor\n    note right of POL: examples/example-shared-profile.yaml\n    Georgina -> POL: 4 Deploy th Workload\n    note right of POL: examples/example-shared-workload.yaml\n    Georgina -> POL: 5 Deploy Pod\n    note right of POL: examples/example-pod.yaml\nend\n\ngroup C-State\n    Georgina -> K8s: Deploy Controller Manager\n    note right of K8s: apply config/manager/manager.yaml\n    Georgina -> POL: Deploy the config\n    note right of POL: examples/example-powerconfig.yaml\n    Georgina -> POL: Set Shared Profile\n    note right of POL: examples/example-shared-profile.yaml\n    Georgina -> POL: Deploy th Workload\n    note right of POL: examples/example-shared-workload.yaml\n    Georgina -> POL: Deploy Pod\n    note right of POL: examples/example-pod.yaml\n    Georgina -> POL: Set C-State functionality\n    note right of POL: examples/example-cstates\nend\n\ngroup Time of Day\n    Georgina -> K8s: Deploy Controller Manager\n    note right of K8s: apply config/manager/manager.yaml\n    Georgina -> POL: Deploy the config\n    note right of POL: examples/example-powerconfig.yaml\n    Georgina -> POL: Set Shared Profile\n    note right of POL: examples/example-shared-profile.yaml\n    Georgina -> POL: Deploy th Workload\n    note right of POL: examples/example-shared-workload.yaml\n    Georgina -> POL: Deploy Pod\n    note right of POL: examples/example-pod.yaml\n    Georgina -> POL: Set Time of Day functionality\n    note right of POL: examples/example-timeofday\nend\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1859,
+    "completion_tokens": 1685,
+    "total_tokens": 3544,
+    "cost": 0.00466791,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00466791,
+      "upstream_inference_prompt_cost": 0.00072501,
+      "upstream_inference_completions_cost": 0.0039429
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

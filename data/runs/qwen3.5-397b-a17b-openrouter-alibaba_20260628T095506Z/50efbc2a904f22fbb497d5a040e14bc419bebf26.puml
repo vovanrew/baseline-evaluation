@@ -1,0 +1,81 @@
+@startuml
+skinparam packageStyle folder
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #f0f0f0
+  BorderColor #333333
+  ArrowColor #333333
+}
+skinparam interface {
+  BackgroundColor #e0e0e0
+  BorderColor #333333
+  ArrowColor #333333
+}
+skinparam actor {
+  BackgroundColor #d0d0d0
+  BorderColor #333333
+}
+skinparam database {
+  BackgroundColor #c0c0c0
+  BorderColor #333333
+}
+
+package "controller" {
+  package "model" {
+    class "User" as User {
+      <<C>>
+    }
+  }
+
+  interface "Controller" as Controller {
+    <<I>>
+    + execute(args : json) : json
+  }
+
+  class "Amount" as Amount {
+    <<C>>
+  }
+
+  class "TransferSend" as TransferSend {
+    <<C>>
+  }
+
+  class "Transfer" as Transfer {
+    <<C>>
+  }
+
+  package "view" {
+    class "Amount" as ViewAmount {
+      <<C>>
+    }
+  }
+
+  class "Factory" as Factory {
+    <<C>>
+    + create(name : string) : Controller
+  }
+}
+
+package "view" {
+  class "Amount" as ViewAmount2 {
+    <<C>>
+  }
+}
+
+package "model" {
+  class "User" as UserModel {
+    <<C>>
+  }
+}
+
+Controller <|-- Amount
+Controller <|-- TransferSend
+Controller <|-- Transfer
+
+Amount ..> User : <<inherit>>
+Amount ..> ViewAmount : <<use>>
+TransferSend ..> Factory : create
+Transfer ..> Factory : create
+Amount ..> Factory : create
+
+@enduml

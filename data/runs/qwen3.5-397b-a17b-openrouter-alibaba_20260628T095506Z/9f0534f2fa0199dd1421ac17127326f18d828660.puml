@@ -1,0 +1,116 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontColor black
+skinparam classBackgroundColor #FFFFE0
+skinparam classBorderColor black
+skinparam classHeaderBackgroundColor #FFFFE0
+skinparam classHeaderFontColor black
+skinparam classHeaderBorderColor black
+skinparam stereotypeCBackgroundColor #FFA500
+skinparam stereotypeCFontColor black
+skinparam stereotypeCBorderColor black
+skinparam stereotypeEBackgroundColor #90EE90
+skinparam stereotypeEFontColor black
+skinparam stereotypeEBorderColor black
+skinparam stereotypeVBackgroundColor #FFA500
+skinparam stereotypeVFontColor black
+skinparam stereotypeVBorderColor black
+skinparam linetype ortho
+
+package "«aggregate» ProductOrder" as PO {
+    class "TotalPriceWithoutVAT" as TPWV <<C>>
+    class "TotalVolume" as TV <<C>>
+    class "BillingAddress" as BA <<C>>
+    class "OrderItem" as OI <<E>>
+    class "Status" as S <<C>>
+    class "DeliveryAddress" as DA <<C>>
+    class "ProductOrder" as POE <<E>>
+    class "TotalPriceWithVAT" as TPW <<C>>
+    class "TotalWeight" as TW <<C>>
+}
+
+package "«aggregate» AGV" as AGV {
+    class "AGVStatus" as AGVS <<C>>
+    class "AGVPosition" as AGVP <<C>>
+    class "Model" as M <<C>>
+    class "MaxVolumeCapacity" as MVC <<C>>
+    class "BriefDescription" as BD <<C>>
+    class "MaxWeightCapacity" as MWC <<C>>
+    class "Range" as R <<C>>
+    class "AGV" as AGVE <<E>>
+    class "AGVTask" as AGVT <<E>>
+    class "AGVId" as AGVI <<C>>
+}
+
+class "BriefDescription" as BD_VO <<value object>> {
+    -briefDescription
+}
+class "Model" as M_VO <<value object>> {
+    -model
+}
+class "AGVPosition" as AGVP_VO <<value object>> {
+    -agvPosition
+}
+class "AGVStatus" as AGVS_VO <<value object>> {
+    -taskState
+}
+class "AGVTask" as AGVT_E <<entity>> {
+    -id
+    -agvTaskDescription
+}
+class "AGVId" as AGVI_VO <<value object>> {
+    -id
+}
+class "Range" as R_VO <<value object>> {
+    -range
+}
+class "MaxWeightCapacity" as MWC_VO <<value object>> {
+    -maxWeightCapacity
+}
+class "MaxVolumeCapacity" as MVC_VO <<value object>> {
+    -volume
+}
+class "AGV" as AGV_E <<entity>> <<root>> {
+    -state
+}
+class "OrderItem" as OI_E <<entity>> {
+    -itemQuantity
+}
+class "TotalPriceWithVAT" as TPW_VO <<value object>>
+class "DeliveryAddress" as DA_VO <<value object>>
+class "BillingAddress" as BA_VO <<value object>>
+class "Status" as S_VO <<value object>>
+class "TotalVolume" as TV_VO <<value object>>
+class "TotalWeight" as TW_VO <<value object>>
+class "ProductOrder" as PO_E <<entity>> <<root>> {
+    -numericIdentifier
+    -dateOfOrder
+    -shipmentMethod
+    -paymentMethod
+}
+class "TotalPriceWithoutVAT" as TPWV_VO <<value object>>
+
+AGV_E --> "1" BD_VO : characterized by
+AGV_E --> "1" M_VO : has
+AGV_E --> "1" AGVP_VO : located in
+AGV_E --> "1..*" AGVS_VO : collects
+AGV_E --> "1" AGVT_E : associated
+AGV_E --> "1" AGVI_VO : respects
+AGV_E --> "1" R_VO : respects
+AGV_E --> "1" MWC_VO : respects
+AGV_E --> "1" MVC_VO : respects
+
+AGVT_E --> "1..*" PO_E : composed by
+
+PO_E --> "1..*" OI_E : composed by
+PO_E --> "1" TPW_VO : is marked
+PO_E --> "1" DA_VO : associated with
+PO_E --> "1" BA_VO : associated with
+PO_E --> "1" S_VO : is in
+PO_E --> "1" TV_VO : associated with
+PO_E --> "1" TW_VO : associated with
+PO_E --> "1" TPWV_VO : is marked
+
+@enduml
+```

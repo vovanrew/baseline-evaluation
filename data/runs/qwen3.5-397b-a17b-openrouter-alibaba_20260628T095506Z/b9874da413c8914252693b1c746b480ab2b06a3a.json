@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782656997-WBGVv72r4IKPAk9dZg5T",
+  "object": "chat.completion",
+  "created": 1782656997,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nactor User\nparticipant \"executor:AnalysisExecutor\" as executor\nparticipant \":Analysis\" as analysis\nparticipant \":CountryCaseAPIGetter\" as caseAPI\nparticipant \":CountryDeathAPIGetter\" as deathAPI\nparticipant \":CountryPopulationAPIGetter\" as popAPI\nparticipant \":APIInformationGetter\" as infoAPI\nactor \"Covid API\" as covidAPI\n\nUser -> executor: runAnalysis()\nactivate executor\nexecutor -> analysis: analyze()\nactivate analysis\n\nopt At least one country selected for analysis\n    alt CasesPerCapitaAnalysis\n        par\n            analysis -> caseAPI: getCases()\n            activate caseAPI\n            caseAPI -> caseAPI: getDataURL()\n            caseAPI -> caseAPI: API Endpoint URL\n            caseAPI -> covidAPI: API Call\n            activate covidAPI\n            covidAPI --> caseAPI: API Information\n            deactivate covidAPI\n            caseAPI --> analysis: Cases in target Countries\n            deactivate caseAPI\n            \n            analysis -> popAPI: getPopulation()\n            activate popAPI\n            popAPI -> popAPI: getDataURL()\n            popAPI -> popAPI: API Endpoint URL\n            popAPI -> covidAPI: API Call\n            activate covidAPI\n            covidAPI --> popAPI: API Information\n            deactivate covidAPI\n            popAPI --> analysis: Population of target Countries\n            deactivate popAPI\n        end\n    else TotalCaseAnalysis\n        analysis -> caseAPI: getCases()\n        activate caseAPI\n        caseAPI -> caseAPI: getDataURL()\n        caseAPI -> caseAPI: API Endpoint URL\n        caseAPI -> covidAPI: API Call\n        activate covidAPI\n        covidAPI --> caseAPI: API Information\n        deactivate covidAPI\n        caseAPI --> analysis: Cases in target Countries\n        deactivate caseAPI\n    else MajorityCasesSexPerCapitaAnalysis\n        par\n            analysis -> caseAPI: getMaleCases()\n            activate caseAPI\n            caseAPI -> caseAPI: getDataURL()\n            caseAPI -> caseAPI: API Endpoint URL\n            caseAPI -> covidAPI: API Call\n            activate covidAPI\n            covidAPI --> caseAPI: API Information\n            deactivate covidAPI\n            caseAPI --> analysis: Male cases in target Countries\n            deactivate caseAPI\n            \n            analysis -> caseAPI: getFemaleCases()\n            note right: A call to the endpoint has\\nalready been made so\\nanother is not necessary\n            caseAPI --> analysis: Female cases in target Countries\n            \n            analysis -> popAPI: getMalePopulation()\n            activate popAPI\n            popAPI -> popAPI: getDataURL()\n            popAPI -> popAPI: API Endpoint URL\n            popAPI -> covidAPI: API Call\n            activate covidAPI\n            covidAPI --> popAPI: API Information\n            deactivate covidAPI\n            popAPI --> analysis: Male population in target Countries\n            deactivate popAPI\n            \n            analysis -> popAPI: getFemalePopulation()\n            note right: A call to the endpoint has\\nalready been made so\\nanother is not necessary\n            popAPI --> analysis: Female population in target Countries\n        end\n    else DeathsPerCapitaAnalysis\n        par\n            analysis -> deathAPI: getDeaths()\n            activate deathAPI\n            deathAPI -> deathAPI: getDataURL()\n            deathAPI -> deathAPI: API Endpoint URL\n            deathAPI -> covidAPI: API Call\n            activate covidAPI\n            covidAPI --> deathAPI: API Information\n            deactivate covidAPI\n            deathAPI --> analysis: Deaths in target Countries\n            deactivate deathAPI\n            \n            analysis -> popAPI: getPopulation()\n            activate popAPI\n            popAPI -> popAPI: getDataURL()\n            popAPI -> popAPI: API Endpoint URL\n            popAPI -> covidAPI: API Call\n            activate covidAPI\n            covidAPI --> popAPI: API Information\n            deactivate covidAPI\n            popAPI --> analysis: Population of target Countries\n            deactivate popAPI\n        end\n    end\nend\n\nanalysis --> executor: Analysis Result\ndeactivate analysis\nexecutor --> User: Finish (void)\ndeactivate executor\n\nnote right of User: Per country analysis results\\nare stored for later rendering\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1516,
+    "completion_tokens": 883,
+    "total_tokens": 2399,
+    "cost": 0.00265746,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00265746,
+      "upstream_inference_prompt_cost": 0.00059124,
+      "upstream_inference_completions_cost": 0.00206622
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

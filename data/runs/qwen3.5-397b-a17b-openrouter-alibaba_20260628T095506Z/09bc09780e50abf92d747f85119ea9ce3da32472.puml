@@ -1,0 +1,165 @@
+```plantuml
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantPadding 10
+skinparam boxPadding 10
+skinparam noteFontColor black
+skinparam noteBackgroundColor #FFFFE0
+skinparam noteBorderColor #CCCC00
+skinparam lifelineStrategy nosolid
+skinparam activationStyle rectangle
+skinparam arrowColor black
+skinparam arrowThickness 1
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantFontColor #000000
+skinparam participantFontStyle normal
+skinparam participantFontSize 12
+skinparam participantFontName Arial
+skinparam participantFontWeight normal
+skinparam participantFontDecoration none
+skinparam participantFontUnderline false
+skinparam participantFontStrike false
+skinparam participantFontItalic false
+skinparam participantFontBold false
+skinparam participantFontShadow false
+skinparam participantFontOutline false
+skinparam participantFontShadowColor #000000
+skinparam participantFontShadowX 0
+skinparam participantFontShadowY 0
+skinparam participantFontShadowBlur 0
+skinparam participantFontShadowOpacity 0
+skinparam participantFontShadowSpread 0
+skinparam participantFontShadowAngle 0
+skinparam participantFontShadowDistance 0
+skinparam participantFontShadowIntensity 0
+skinparam participantFontShadowHardness 0
+skinparam participantFontShadowSoftness 0
+skinparam participantFontShadowSharpness 0
+skinparam participantFontShadowSmoothness 0
+skinparam participantFontShadowRoughness 0
+skinparam participantFontShadowGrain 0
+skinparam participantFontShadowNoise 0
+skinparam participantFontShadowTexture 0
+skinparam participantFontShadowPattern 0
+skinparam participantFontShadowGradient 0
+skinparam participantFontShadowRadial 0
+skinparam participantFontShadowLinear 0
+skinparam participantFontShadowConic 0
+skinparam participantFontShadowRepeating 0
+skinparam participantFontShadowNonRepeating 0
+skinparam participantFontShadowFixed 0
+skinparam participantFontShadowScroll 0
+skinparam participantFontShadowLocal 0
+skinparam participantFontShadowGlobal 0
+skinparam participantFontShadowInherit 0
+skinparam participantFontShadowInitial 0
+skinparam participantFontShadowUnset 0
+skinparam participantFontShadowCurrent 0
+skinparam participantFontShadowTransparent 0
+skinparam participantFontShadowOpaque 0
+skinparam participantFontShadowSemiTransparent 0
+skinparam participantFontShadowSemiOpaque 0
+skinparam participantFontShadowLight 0
+skinparam participantFontShadowDark 0
+skinparam participantFontShadowMedium 0
+skinparam participantFontShadowHeavy 0
+skinparam participantFontShadowThin 0
+skinparam participantFontShadowThick 0
+skinparam participantFontShadowNarrow 0
+skinparam participantFontShadowWide 0
+skinparam participantFontShadowSmall 0
+skinparam participantFontShadowLarge 0
+skinparam participantFontShadowTiny 0
+skinparam participantFontShadowHuge 0
+skinparam participantFontShadowMini 0
+skinparam participantFontShadowMaxi 0
+skinparam participantFontShadowMicro 0
+skinparam participantFontShadowMega 0
+skinparam participantFontShadowNano 0
+skinparam participantFontShadowPico 0
+skinparam participantFontShadowFemto 0
+skinparam participantFontShadowAtto 0
+skinparam participantFontShadowZepto 0
+skinparam participantFontShadowYocto 0
+skinparam participantFontShadowRonto 0
+skinparam participantFontShadowQuecto 0
+skinparam participantFontShadowKilo 0
+skinparam participantFontShadowMega 0
+skinparam participantFontShadowGiga 0
+skinparam participantFontShadowTera 0
+skinparam participantFontShadowPeta 0
+skinparam participantFontShadowExa 0
+skinparam participantFontShadowZetta 0
+skinparam participantFontShadowYotta 0
+skinparam participantFontShadowRonna 0
+skinparam participantFontShadowQuetta 0
+
+participant JCallGraph as JCallGraph
+participant CliManager as CliManager
+participant MethodCallsList as MethodCallsList
+participant CalledFromList as CalledFromList
+participant File as File
+participant JarFile as JarFile
+participant ZipEntry as ZipEntry
+participant ClassParser as ClassParser
+participant ClassVisitor as ClassVisitor
+participant Runner as Runner
+
+JCallGraph -> CliManager: new CliManager()
+activate CliManager
+JCallGraph -> CliManager: main(args)
+deactivate CliManager
+
+JCallGraph -> MethodCallsList: getMethodCallsList()
+activate MethodCallsList
+MethodCallsList --> JCallGraph: MethodCallsList
+deactivate MethodCallsList
+
+JCallGraph -> File: new File
+activate File
+File --> JCallGraph: File
+deactivate File
+
+JCallGraph -> JarFile: new JarFile(File)
+activate JarFile
+JarFile --> JCallGraph: JarFile
+deactivate JarFile
+
+JCallGraph -> JCallGraph: enumerationAsStream(Enumeration<T> e)
+note right of JCallGraph: Jar en formato stream
+
+loop forEach
+    alt isDirectory() and getName().endsWith(".class")
+        JCallGraph -> ClassParser: new ClassParser(String, String)
+        activate ClassParser
+        ClassParser --> JCallGraph: cp = ClassParser
+        deactivate ClassParser
+        
+        JCallGraph -> JCallGraph: getClassVisitor()
+        JCallGraph -> ClassVisitor: apply(ClassParser)
+        activate ClassVisitor
+        ClassVisitor --> JCallGraph: start()
+        deactivate ClassVisitor
+        
+        JCallGraph -> JCallGraph: HashMap<MethodReport, List<MethodReport>>
+        
+        alt != null
+            JCallGraph -> CalledFromList: add(HashMap<MethodReport, List<MethodReport>>)
+        end
+    end
+end
+
+JCallGraph -> Runner: main(String[])
+activate Runner
+JCallGraph -> JCallGraph: exportFiles();
+deactivate Runner
+
+catch
+    JCallGraph -> JCallGraph: printStackTrace()
+end
+
+@enduml
+```

@@ -1,0 +1,74 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam rectangle {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam class {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam interface {
+  BackgroundColor white
+  BorderColor black
+}
+
+package "javafx" {
+  class Stage {
+  }
+  class Scene {
+  }
+  class BorderPane {
+  }
+  class MenuBar {
+  }
+  class MenuItem {
+  }
+  class TabPane {
+  }
+}
+
+package "diagram" {
+  package "visitor" {
+    interface IDiagramVisitor {
+      +visit(ClassDiagram visitor) : void
+      +visit(SequenceDiagram visitor) : void
+      +visit(UseCaseDiagram visitor) : void
+      +visit(DiagramManager visitor) : void
+    }
+    class ToViewVisitor {
+      +getDiagramMenu() : IDiagramMenu
+      +getDiagramEditor() : IDiagramEditor
+    }
+  }
+}
+
+class UmlReverseApp {
+}
+class MainController {
+}
+class TreeFileManagerView {
+}
+interface IDiagramMenu {
+}
+interface IDiagramEditor {
+}
+
+UmlReverseApp "1" *-- "1" MainController : controller
+UmlReverseApp "1" *-- "1" Stage : stage
+MainController ..> UmlReverseApp
+Stage "1" *-- "1" Scene : scene
+Scene "1" *-- "1" BorderPane : borderpane
+BorderPane "1" *-- "1" MenuBar : north
+BorderPane "1" *-- "1" TabPane : center
+BorderPane "1" *-- "1" TreeFileManagerView : fileManagerView
+BorderPane "1" *-- "1" IDiagramMenu : est
+MenuBar "1..n" *-- "0..n" MenuItem : items
+TabPane "1" *-- "0..*" IDiagramEditor : editors
+ToViewVisitor ..|> IDiagramVisitor
+UmlReverseApp ..> IDiagramVisitor
+
+@enduml
+```

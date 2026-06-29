@@ -1,0 +1,58 @@
+```plantuml
+@startuml
+skinparam backgroundColor #F5F5DC
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam noteFontColor black
+skinparam noteBackgroundColor #FFFFE0
+skinparam noteBorderColor #808080
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #483D8B
+skinparam participantFontColor #000000
+skinparam activationBackgroundColor #A9A9A9
+skinparam activationBorderColor #696969
+skinparam arrowColor #000000
+skinparam arrowThickness 2
+skinparam conditionFontColor #0000FF
+skinparam conditionBackgroundColor #FFFFFF
+skinparam conditionBorderColor #000000
+skinparam loopFontColor #0000FF
+skinparam loopBackgroundColor #FFFFFF
+skinparam loopBorderColor #000000
+skinparam altFontColor #0000FF
+skinparam altBackgroundColor #FFFFFF
+skinparam altBorderColor #000000
+
+participant "ebiz-salesman" as E
+participant "guide-event" as G
+participant "retail-sales" as R
+participant "tsp" as T
+
+E -> E: 1 监听账号合并消息，执行合并
+E <- E: 2 返回
+E -> E: 3 定时器扫表[扫描过滤出还未执行完成的明细任务], 并调用相应 processor 执行
+
+alt [ 未完成 ]
+    loop [ tsp 回调执行 ]
+        E <- E: 4 返回，等待其他 processor 任务执行
+        E -> E: 5
+    end
+else [ 完成 ]
+    E -> G: 6 发送账号合并完成消息[一个导购可能在 N 多家店有身份，那么将发送出 N 条消息]
+    G -> E: 7 ebiz-salesman 所有流程结束
+    G -> G: 8 开始消息处理流程
+    G -> G: 9 检查 apollo 是否开启帐号合并开关
+    G <- G: 10
+    G -> G: 11 检查 shopping_guide_event_task 表是否已经存在此任务
+    note right of G: 以 task_id 作为幂等键, task_id = SG:AM-rootKdtId-fromUid-toUid
+    G <- G: 12
+    G -> G: 13 创建帐号合并任务，将任务写入表
+    note right of G: 1.shopping_guide_event_task\n2.shopping_guide_event_detail_task\n3.shopping_guide_event_exec_task
+    G <- G: 14
+    G -> T: 15 创建 30 分钟延时任务，30分钟后检查并执行该任务
+    T -> G: 16
+    G <- G: 17 结束
+end
+
+@enduml
+```

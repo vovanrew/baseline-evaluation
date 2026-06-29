@@ -1,0 +1,41 @@
+@startuml
+title Initialize cloud connection info.
+header Cloud-Barista
+
+actor User
+participant "Tumblebug" as TB
+database "tumblebug db" as TDB
+participant "Spider" as SP
+database "spider db" as SDB
+
+User -> SP: POST/driver\n{name,csp,driver}
+activate SP
+SP <-> SDB: {driver}
+deactivate SP
+SP --> User: {driver}
+
+User -> SP: POST/region\n{name,csp,reigin,zone}
+activate SP
+SP <-> SDB: {region}
+deactivate SP
+SP --> User: {region}
+
+User -> SP: POST/credential\n{name,csp,credentials}
+activate SP
+SP <-> SDB: {credential}
+deactivate SP
+SP --> User: {credential}
+
+User -> SP: POST/connectionconfig]\n{name,csp,driver,credential,region}
+activate SP
+SP <-> SDB: {config}
+deactivate SP
+SP --> User: {config}
+
+User -> TB: POST/ns\n{name}
+activate TB
+TB <-> TDB: {ns}
+deactivate TB
+TB --> User: {ns}
+
+@enduml

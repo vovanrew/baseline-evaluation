@@ -1,0 +1,139 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam noteStyle rectangle
+skinparam actorStyle awesome
+skinparam lifelineStrategy solid
+skinparam arrowColor #000000
+skinparam arrowThickness 2
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantFontColor #000000
+skinparam participantFontSize 14
+skinparam participantFontStyle plain
+skinparam participantFontName Arial
+skinparam participantPadding 10
+skinparam participantMargin 10
+skinparam participantBorderThickness 2
+skinparam participantCornerRadius 5
+skinparam participantShadowing false
+skinparam participantAlignment left
+skinparam participantVerticalAlignment top
+skinparam participantHorizontalAlignment left
+skinparam participantVerticalSpacing 20
+skinparam participantHorizontalSpacing 20
+skinparam participantMinWidth 100
+skinparam participantMaxWidth 300
+skinparam participantMinHeight 50
+skinparam participantMaxHeight 200
+skinparam participantMinPadding 5
+skinparam participantMaxPadding 20
+skinparam participantMinMargin 5
+skinparam participantMaxMargin 20
+skinparam participantMinBorderThickness 1
+skinparam participantMaxBorderThickness 5
+skinparam participantMinCornerRadius 0
+skinparam participantMaxCornerRadius 10
+skinparam participantMinShadowing false
+skinparam participantMaxShadowing true
+skinparam participantMinAlignment left
+skinparam participantMaxAlignment right
+skinparam participantMinVerticalAlignment top
+skinparam participantMaxVerticalAlignment bottom
+skinparam participantMinHorizontalAlignment left
+skinparam participantMaxHorizontalAlignment right
+skinparam participantMinVerticalSpacing 10
+skinparam participantMaxVerticalSpacing 30
+skinparam participantMinHorizontalSpacing 10
+skinparam participantMaxHorizontalSpacing 30
+skinparam participantMinMinWidth 50
+skinparam participantMaxMinWidth 150
+skinparam participantMinMaxWidth 200
+skinparam participantMaxMaxWidth 400
+skinparam participantMinMinHeight 30
+skinparam participantMaxMinHeight 70
+skinparam participantMinMaxHeight 100
+skinparam participantMaxMaxHeight 300
+skinparam participantMinMinPadding 2
+skinparam participantMaxMinPadding 8
+skinparam participantMinMaxPadding 10
+skinparam participantMaxMaxPadding 30
+skinparam participantMinMinMargin 2
+skinparam participantMaxMinMargin 8
+skinparam participantMinMaxMargin 10
+skinparam participantMaxMaxMargin 30
+skinparam participantMinMinBorderThickness 0
+skinparam participantMaxMinBorderThickness 2
+skinparam participantMinMaxBorderThickness 3
+skinparam participantMaxMaxBorderThickness 6
+skinparam participantMinMinCornerRadius 0
+skinparam participantMaxMinCornerRadius 3
+skinparam participantMinMaxCornerRadius 5
+skinparam participantMaxMaxCornerRadius 15
+skinparam participantMinMinShadowing false
+skinparam participantMaxMinShadowing false
+skinparam participantMinMaxShadowing true
+skinparam participantMaxMaxShadowing true
+skinparam participantMinMinAlignment left
+skinparam participantMaxMinAlignment left
+skinparam participantMinMaxAlignment center
+skinparam participantMaxMaxAlignment right
+skinparam participantMinMinVerticalAlignment top
+skinparam participantMaxMinVerticalAlignment top
+skinparam participantMinMaxVerticalAlignment middle
+skinparam participantMaxMaxVerticalAlignment bottom
+skinparam participantMinMinHorizontalAlignment left
+skinparam participantMaxMinHorizontalAlignment left
+skinparam participantMinMaxHorizontalAlignment center
+skinparam participantMaxMaxHorizontalAlignment right
+skinparam participantMinMinVerticalSpacing 5
+skinparam participantMaxMinVerticalSpacing 15
+skinparam participantMinMaxVerticalSpacing 20
+skinparam participantMaxMaxVerticalSpacing 40
+skinparam participantMinMinHorizontalSpacing 5
+skinparam participantMaxMinHorizontalSpacing 15
+skinparam participantMinMaxHorizontalSpacing 20
+skinparam participantMaxMaxHorizontalSpacing 40
+
+actor "Service" as Service
+participant "Access token guard" as Guard
+box "Auth microservice" #9ACD32
+    participant "Session module" as Session
+    participant "Auth module" as Auth
+end box
+
+Service -> Guard: request
+activate Guard
+Guard -> Guard: get headers
+Guard -> Guard: check authentication header existence
+
+alt [Authentication header is undefined]
+    Guard --> Service: 401
+else
+    Guard -> Guard: get access token from header
+    Guard -> Auth: validate access token
+    activate Auth
+    Auth --> Guard: result of validation
+    deactivate Auth
+
+    alt [Access token is Invalid]
+        Guard --> Service: 401
+    else
+        Guard -> Auth: get embedded client id from access token
+        activate Auth
+        Auth -> Auth: extract id
+        alt [Client id is missing]
+            Auth --> Guard: error
+            Guard --> Service: 401
+        else
+            Auth --> Guard: client id
+            deactivate Auth
+            Guard -> Guard: modify request with client id
+            Guard --> Service: modified request
+        end
+    end
+end
+deactivate Guard
+
+@enduml

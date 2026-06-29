@@ -1,0 +1,41 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle uml2
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #000000
+skinparam lifelineBackgroundColor #E6E6E6
+skinparam lifelineBorderColor #000000
+skinparam actorBackgroundColor #E6E6FF
+skinparam actorBorderColor #000000
+skinparam rectangleBackgroundColor #E6E6E6
+skinparam rectangleBorderColor #000000
+
+actor User
+participant Server
+participant SuperHeroApi
+
+box "Backend Environment" #E6E6E6
+  participant Server
+  participant SuperHeroApi
+end box
+
+alt [user search]
+  User -> Server: GET /search?q=<queryValue>
+  activate Server
+  Server -> Server: getFromCache (queryValue) ?
+  note over Server: binarySearch (query)
+  alt [has in cache]
+    Server --> User: 200: queryValue
+  else [not has in cache: request to API]
+    Server -> SuperHeroApi: GET queryValue
+    activate SuperHeroApi
+    SuperHeroApi --> Server: 200: queryValue
+    deactivate SuperHeroApi
+    Server -> Server: updateCache (queryValue)
+    Server --> User: 200: queryValue
+  end
+  deactivate Server
+end
+
+@enduml

@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782656210-bIXR1eKTExGjyKUBrVjn",
+  "object": "chat.completion",
+  "created": 1782656210,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam sequenceMessageAlign center\nskinparam noteBackgroundColor #FFFFCC\nskinparam noteBorderColor #CCCCCC\nskinparam participantBackgroundColor #E6E6FA\nskinparam participantBorderColor #000000\nskinparam participantPadding 10\nskinparam lifelineStrategy solid\nskinparam activationStyle rectangle\n\npackage \"Central-Settlement\" {\n    participant \"API\" as API\n    participant \"api / Handler\" as Handler\n    participant \"Application Layer\\n(domain / service / facade)\" as AppLayer\n}\n\npackage \"Storage\" {\n    participant \"TigerBeetle Client\" as TBClient\n    participant \"TigerBeetle Cluster\" as TBCluster\n    database \"MySQL\" as MySQL\n}\n\nparticipant \"Mojaloop Adapter\" as Mojaloop\n\nnote right of Mojaloop: Hub operator or\\nDFSP interactions\n\nnote right of API: NodeJS interface\\ninvokes REST API\nnote right of Handler: JSON request decoded &\\nprocessed via handler\nnote right of AppLayer: Expose service functions &\\nhandle database interactions\n\nframe \"Update Settlement\" {\n    Mojaloop -> API: 1 JSON\\n(settlement data)\n    API -> Handler: 2 Invoke handler\n    Handler -> AppLayer: 3 Invoke application layer\n    AppLayer -> MySQL: 4 Retrieve settlement data\\n(excluding accounts)\n    AppLayer -> TBCluster: 5 Retrieve accounts for all\\nfor a settlement window Transfers\n    AppLayer -> MySQL: 6 Update settlement data\\n(excluding accounts)\n    activate AppLayer\n    AppLayer -> AppLayer: 7 Settlement state\\nprocessing\n    AppLayer -> TBClient: 8 Invoke account creation based on\\nsettlement state of each Transfer\n    TBClient -> TBCluster: 9 Create settlement accounts\\n& return result\n    TBClient --> AppLayer: 10 Return settlement result\n    AppLayer -> MySQL: 11 Update final settlement state\\n& return result\n    deactivate AppLayer\n    AppLayer --> Handler: 12 Return result\n    Handler --> API: 13 Return result\n    API --> Mojaloop: 14 Return result with\\nsettlementData\n}\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2104,
+    "completion_tokens": 486,
+    "total_tokens": 2590,
+    "cost": 0.0019578,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.0019578,
+      "upstream_inference_prompt_cost": 0.00082056,
+      "upstream_inference_completions_cost": 0.00113724
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

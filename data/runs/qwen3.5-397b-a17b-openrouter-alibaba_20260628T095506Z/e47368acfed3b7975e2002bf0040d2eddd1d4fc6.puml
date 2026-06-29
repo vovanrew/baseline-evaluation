@@ -1,0 +1,44 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam note {
+  BackgroundColor #FFFFCC
+  BorderColor #000000
+}
+skinparam actor {
+  BackgroundColor #E6E6FA
+  BorderColor #000000
+}
+skinparam database {
+  BackgroundColor #E6E6FA
+  BorderColor #000000
+}
+
+title IP Layer and IPv4 Interface Interaction
+
+participant "tuple" as tuple <<database>>
+participant "Upper layer" as upper <<actor>>
+participant "IPv4 layer" as ipv4layer
+participant "Routing table" as routing <<database>>
+participant "IPv4 interface" as ipv4interface
+participant "ARP" as arp <<database>>
+participant "Lower layer" as lower <<actor>>
+
+note over tuple: IPv4.dst=192.0.2.1
+upper -> ipv4layer: IPdata
+note right of ipv4layer: Allocate\nIPv4\nheader
+ipv4layer -> routing: dst=192.0.2.1
+routing --> ipv4layer
+ipv4layer --> tuple
+note over tuple: IPv4.oif=ifp1\nIPv4.gw=198.51.100.1
+ipv4layer --> tuple
+note over tuple: IPv4.src=198.51.100.2
+ipv4layer -> ipv4interface
+ipv4interface -> arp: gw=198.51.100.1
+arp --> ipv4interface: mac=00:00:0e:00:00:01
+ipv4interface --> tuple
+note over tuple: Ether.dst = 00:00:0e:00:00:01
+ipv4interface -> lower
+
+@enduml

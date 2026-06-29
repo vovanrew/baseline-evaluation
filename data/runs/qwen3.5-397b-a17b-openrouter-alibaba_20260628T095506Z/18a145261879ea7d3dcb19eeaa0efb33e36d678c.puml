@@ -1,0 +1,25 @@
+@startuml
+actor Administrator
+participant ":Main UI" as MainUI
+participant ":ImportReadingsFromFileUI" as ImportReadingsFromFileUI
+participant ":ImportReadingsFromFileController" as ImportReadingsFromFileController
+participant ":ListOfGeographicArea" as ListOfGeographicArea
+participant "reader:XmlReader" as XmlReader
+
+Administrator -> ImportReadingsFromFileUI: Request file path
+ImportReadingsFromFileUI --> Administrator: file path
+ImportReadingsFromFileUI -> ImportReadingsFromFileController: addReadingsToSensors(reader,path)
+activate ImportReadingsFromFileController
+ImportReadingsFromFileController -> XmlReader: importReadingsOfSensor(path)
+activate XmlReader
+XmlReader --> ImportReadingsFromFileController: listOfReadingsDto
+deactivate XmlReader
+ImportReadingsFromFileController -> ListOfGeographicArea: getAllSensors()
+activate ListOfGeographicArea
+ListOfGeographicArea --> ImportReadingsFromFileController: listOfAreaSensors
+deactivate ListOfGeographicArea
+ImportReadingsFromFileController -> ImportReadingsFromFileController: setReadingsBySensorIDescription()
+ImportReadingsFromFileController --> ImportReadingsFromFileUI: number of lines added
+deactivate ImportReadingsFromFileController
+ImportReadingsFromFileUI --> Administrator: number of lines added
+@enduml

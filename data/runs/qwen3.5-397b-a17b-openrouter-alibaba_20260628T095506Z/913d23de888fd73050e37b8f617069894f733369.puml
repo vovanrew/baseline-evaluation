@@ -1,0 +1,55 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #000000
+skinparam class {
+  BackgroundColor #F5F5F5
+  BorderColor #000000
+  ArrowColor #000000
+}
+
+class "CreditAccount" as CreditAccount {
+  ...someAttribute
+  applyMonthlyInterest()
+  applyMonthlyChange()
+  ...someOtherMethod()
+}
+
+class "DebitAccount" as DebitAccount {
+  ...someAttribute
+  applyMonthlyInterest()
+  deactivateIfUnderBalanced()
+  applyMonthlyChange()
+  ...someOtherMethod()
+}
+
+class "PayrollAccount" as PayrollAccount {
+  ...someAttribute
+  applyMonthlyChange()
+  ...someMethod()
+}
+
+class "Account" as Account <<I>> {
+  applyMonthlyChange()
+}
+
+class "Bank" as Bank {
+  accounts:[Account]
+  applyAllMonthlyChanges()
+}
+
+note right of Bank
+applyAllMonthlyChanges(){
+...
+for every account a in accounts{
+a.applyMonthlyChange
+}
+}
+end note
+
+CreditAccount ..|> Account
+DebitAccount ..|> Account
+PayrollAccount ..|> Account
+Bank --> Account : aggregation
+
+@enduml

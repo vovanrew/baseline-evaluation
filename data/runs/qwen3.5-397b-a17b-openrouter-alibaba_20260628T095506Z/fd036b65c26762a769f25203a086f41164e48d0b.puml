@@ -1,0 +1,18 @@
+@startuml
+actor client
+participant gateway
+participant developer-service
+database devs-db
+control broker
+participant planning-service
+database planning-db
+
+client -> gateway: POST dev
+gateway -> developer-service: POST dev
+developer-service -> devs-db: persist
+developer-service --> gateway: response 201
+gateway --> client: 201
+developer-service -> broker: emit DevCreated Event
+broker -> planning-service: consume Event
+planning-service -> planning-db: persist Dev
+@enduml

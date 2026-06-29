@@ -1,0 +1,102 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #CCCCCC
+skinparam noteFontColor #000000
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantFontColor #000000
+skinparam actorBackgroundColor #E6E6FA
+skinparam actorBorderColor #000000
+skinparam actorFontColor #000000
+
+actor user
+participant "Gstreamer Pipeline" as GP
+participant "realsensesrc" as RS
+participant "librealsense2" as LR
+participant "GStreamer" as GS
+
+user -> GP: load GSt pipeline with realsensesrc
+GP -> RS: realsensesrc serial=728...
+activate RS
+RS -> RS: pipeline goto GST_STATE_READY
+deactivate RS
+
+GP -> RS: create
+activate RS
+RS -> LR: rs2::context.query_devices()
+activate LR
+LR --> RS: rs2::device_list
+deactivate LR
+RS -> LR: select device by serial
+activate LR
+LR --> RS: rs2::sensor
+deactivate LR
+note right of LR: Select device
+
+loop for (info: rs2::rs2_camera_info)
+    RS -> LR: rs2::device.supports(info)
+    activate LR
+    LR --> RS: bool
+    deactivate LR
+    RS -> LR: rs2::device.get_info(info)
+    activate LR
+    LR --> RS: const char* info_string
+    deactivate LR
+    RS -> RS: store info
+end
+
+RS -> GS: gst_tag_setter_add_tag_valist_values(...,infos, NULL)
+activate GS
+note right of GS: Register per-stream metadata as Gst tags
+deactivate GS
+
+RS -> LR: rs2::sensor.get_stream_profiles()
+activate LR
+LR --> RS: std::vector<rs2::stream_profile>
+deactivate LR
+
+loop for (profile: std::vector<rs2::stream_profile>)
+    RS -> RS: Create profile_list of supported profiles
+end
+
+RS -> GS: g_object_class_install_properties(...,...,options)
+activate GS
+note right of GS: Install all supported video profiles as an option
+deactivate GS
+
+loop for (option: rs2::rs2_option)
+    RS -> LR: rs2::sensor.supports(option)
+    activate LR
+    LR --> RS: bool
+    deactivate LR
+    RS -> LR: rs2::sensor.get_option_range
+    activate LR
+    LR --> RS: rs2::option_range
+    deactivate LR
+    RS -> RS: store option
+end
+
+RS -> GS: g_object_class_install_properties(...,...,options)
+activate GS
+note right of GS: Install all supported RS camera options as properties/options
+deactivate GS
+
+RS -> GS: gst_bus_add_watch(bus, bus_call...);
+activate GS
+note right of GS: Register callback for parameter changes
+deactivate GS
+
+GP -> RS: caps negotiation (CAPS)
+note right of RS: - pixel_format\n- width\n- height\n- framerate
+
+RS -> RS: pipeline goto GST_STATE_PLAYING
+GP -> RS: state=playing
+RS -> LR: rs2::sensor.start()
+activate LR
+RS -> RS: pipeline goto GST_STATE_READY
+RS -> LR: rs2::sensor.stop()
+deactivate LR
+
+@enduml

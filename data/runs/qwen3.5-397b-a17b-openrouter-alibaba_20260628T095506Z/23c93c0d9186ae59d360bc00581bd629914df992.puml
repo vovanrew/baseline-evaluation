@@ -1,0 +1,56 @@
+```plantuml
+@startuml
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam noteStyle rectangle
+skinparam actorStyle awesome
+skinparam backgroundColor #FFFFFF
+skinparam sequence {
+    LifeLineBackgroundColor #F0F0F0
+    LifeLineBorderColor #CCCCCC
+    ParticipantBackgroundColor #E6E6FA
+    ParticipantBorderColor #666699
+    ParticipantFontColor #000000
+    ArrowColor #666699
+    ArrowThickness 2
+    NoteBackgroundColor #FFFFCC
+    NoteBorderColor #CCCCCC
+    NoteFontColor #000000
+}
+
+actor "Nurse" as Nurse
+participant ": RecordAdverseReactionUI" as UI
+participant ": RecordAdverseReactionController" as Controller
+participant ": Company" as Company
+participant ": AdverseReactionStore" as Store
+participant ": AdverseReactionDTO" as DTO
+participant ": AdverseReactionMapper" as Mapper
+participant ": WaitingRoomStore" as WaitingRoom
+participant ": AdverseReaction" as AR
+
+Nurse -> UI: 1 Starts recording adverse reaction
+UI --> Nurse: 2 asks for data(SNS Number, Adverse Reaction Text)
+Nurse -> UI: 3 types requested data
+UI -> Controller: 4 createAdverseReaction(SNSNumber, advReact)
+Controller -> Company: 5 wstore = getWaitingRoomStore()
+Controller -> Company: 6 store = getRecordAdverseReactionStore()
+Controller -> WaitingRoom: 7 snsu = getSNSUserInTheWaitingRoomByItsSNSNumber(snsuserNumber)
+Controller -> WaitingRoom: 8 vc = getVaccinationCenterBySNSNumber(snsuserNumber)
+Controller -> Store: 9 ar = createAdverseReaction(snsu, advReact, vc)
+Store -> AR: 10 create(snsu,advReact,vc)
+Controller -> Store: 11 validateAdverseReaction(ar)
+Controller -> Mapper: 12 toDTO(ar)
+note right of Mapper: ref\nSD_AdverseReactionMapper_toDTO
+Mapper --> Controller: 13 arDTO
+Controller --> UI: 14 arDTO
+UI --> Nurse: 15 shows SNS User correspondent to the SNS Number\nand adverse reaction waiting for approval
+Nurse -> UI: 16 confirms action
+UI -> Controller: 17 saveAdverseReaction()
+Controller -> Store: 18 saveAdverseReaction(ar)
+Store -> Store: 19 validateAdverseReaction(ar)
+Store -> Store: 20 addAdverseReaction(ar)
+UI --> Nurse: 21 informs oppertion success
+
+@enduml
+```

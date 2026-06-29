@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782654301-ZpLyZy9YTMGICzaTzPrg",
+  "object": "chat.completion",
+  "created": 1782654301,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam sequenceMessageAlign center\nskinparam noteBackgroundColor #FFFFCC\nskinparam noteBorderColor #CCCCCC\nskinparam participantBackgroundColor #E6E6FA\nskinparam participantBorderColor #000000\nskinparam participantPadding 5\nskinparam sequenceArrowThickness 2\nskinparam roundcorner 5\n\nparticipant \"Node\" as Node\nparticipant \"RF\" as RF\nparticipant \"Link\" as Link\nparticipant \"Hub\" as Hub\nparticipant \"testdomain.com\" as TestDomain\n\n== Broadcast Phase ==\nLink -> RF: BROADCAST: 256LW,R,F,KI7EST-0\nnote right of RF: Repeated every 5 minutes while link is idle\n...\n\n== Link Request Phase ==\nNode -> RF: CONTROL: Request Link KI7EST-1,KI7EST-0\nRF -> Link: CONTROL: Request Link KI7EST-1,KI7EST-0\nLink -> RF: CONTROL: Grant Link KI7EST-0,KI7EST-1\nRF -> Node: CONTROL: Grant Link KI7EST-0,KI7EST-1\n\n== Data Transfer Phase ==\nnote right of RF: First frame has Start Flag set\nNode -> RF: DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>\nRF -> Link: DATA: 0x0001 256B,4F,S,_E <FEC> <payload> <FEC>\nLink -> RF: ACK: 0x0001 0x0000, _N, _R, 0C, <FEC>\nRF -> Node: ACK: 0x0001 0x0000, _N, _R, 0C, <FEC>\n\nnote right of Node: Repeat until all data frames are sent.\\nNote that last frame has end flag set\\n\\nIf Link as response for command/packet then\\nResponse Flag will be set and second data transfer happens in reverse.\n\nNode -> RF: DATA: 0x0020 256B,4F,_S,E <FEC> <payload> <FEC>\nRF -> Link: DATA: 0x0020 256B,4F,_S,E <FEC> <payload> <FEC>\n\n== HTTP Request Phase ==\nactivate Link\nLink -> Link: Final packet, assembled sequence\nLink -> Link: <sig> 0001 REST KI7EST@rfnethub.net\\nPOST testdomain.com/ping\nLink -> Hub: /user/KI7EST/keys\nHub -> Link: \"MTIzNDU2NzgxMjM0NTY3ODEyMzQ1Njc4MTIzNDU2Nzg=\"\nLink -> Link: Verify signature\nLink -> TestDomain: /ping\nTestDomain -> Link: 200\ndeactivate Link\n\n== Response Phase ==\nLink -> RF: ACK: 0x0001 0x0000, _N, R, 0C, <FEC>\nRF -> Node: ACK: 0x0001 0x0000, _N, R, 0C, <FEC>\n\nLink -> RF: DATA: 0x0001 256B,4F,S,E <FEC>\\nKI7EST@rfnethub.net 0001 REST\\n200\nRF -> Node: DATA: 0x0001 256B,4F,S,E <FEC>\\nKI7EST@rfnethub.net 0001 REST\\n200\n\nNode -> RF: ACK: 0x0001 0x0000,_N,_R,0C <FEC>\nRF -> Link: ACK: 0x0001 0x0000,_N,_R,0C <FEC>\n\n== Link Close Phase ==\nNode -> RF: CONTROL: Close Link KI7EST-1,KI7EST-0\nRF -> Link: CONTROL: Close Link KI7EST-1,KI7EST-0\nLink -> RF: CONTROL: Closed Link KI7EST-0,KI7EST-1\nRF -> Node: CONTROL: Closed Link KI7EST-0,KI7EST-1\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2349,
+    "completion_tokens": 983,
+    "total_tokens": 3332,
+    "cost": 0.00321633,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00321633,
+      "upstream_inference_prompt_cost": 0.00091611,
+      "upstream_inference_completions_cost": 0.00230022
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

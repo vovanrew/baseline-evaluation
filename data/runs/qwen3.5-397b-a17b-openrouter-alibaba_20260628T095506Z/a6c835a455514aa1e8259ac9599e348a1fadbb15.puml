@@ -1,0 +1,143 @@
+```plantuml
+@startuml
+title End Screen Action Sequences
+
+actor User
+participant "Game" as Game
+participant "End" as End
+participant "HighScore" as HighScore
+participant "Start" as Start
+participant "Navigation" as Navigation
+participant "Settings" as Settings
+participant "JoggleCube" as JoggleCube
+participant "HighScores" as HighScores
+participant "Score" as Score
+participant "Cube" as Cube
+participant "Block" as Block
+
+box "Views" #LightBlue
+  participant Game
+  participant End
+  participant HighScore
+  participant Start
+end box
+
+box "User Interface Control" #LightBlue
+  participant Navigation
+end box
+
+box "Back End" #LightPurple
+  participant Settings
+  participant JoggleCube
+  participant HighScores
+  participant Score
+  participant Cube
+  participant Block
+end box
+
+== High Score button clicked ==
+User -> Game: btnHighScoreClicked()
+activate Game
+Game -> Navigation: show(ScreenType.HighScore)
+activate Navigation
+Navigation -> HighScore: prepView()
+activate HighScore
+HighScore -> JoggleCube: getOverallHighScores()
+activate JoggleCube
+JoggleCube -> HighScores: getScores()
+activate HighScores
+HighScores --> JoggleCube: scores
+deactivate HighScores
+JoggleCube --> HighScore: scores
+deactivate JoggleCube
+HighScore -> JoggleCube: getCurrentCubeHighScores()
+activate JoggleCube
+JoggleCube -> HighScores: getScores()
+activate HighScores
+HighScores --> JoggleCube: scores
+deactivate HighScores
+JoggleCube --> HighScore: scores
+deactivate JoggleCube
+HighScore --> Navigation: 
+deactivate HighScore
+Navigation --> Game: 
+deactivate Navigation
+Game -> Navigation: hideOverlay(ScreenType.End)
+activate Navigation
+Navigation --> Game: 
+deactivate Navigation
+deactivate Game
+
+== Menu Clicked ==
+User -> Game: btnMenuClicked()
+activate Game
+Game -> Navigation: show(ScreenType.Start)
+activate Navigation
+Navigation -> Start: prepView()
+activate Start
+Start -> Settings: getCurrLang()
+activate Settings
+Settings --> Start: English
+deactivate Settings
+Start --> Navigation: 
+deactivate Start
+Navigation --> Game: 
+deactivate Navigation
+Game -> Navigation: hideOverlay(ScreenType.End)
+activate Navigation
+Navigation --> Game: 
+deactivate Navigation
+deactivate Game
+
+== Replay clicked ==
+User -> Game: replayGrid()
+activate Game
+Game -> Navigation: show(ScreenType.GAME)
+activate Navigation
+Navigation -> Game: prepView()
+activate Game
+Game -> JoggleCube: getCubeData()
+activate JoggleCube
+JoggleCube -> Cube: getCube()
+activate Cube
+Cube --> JoggleCube: cube[3][3][3]
+deactivate Cube
+JoggleCube --> Game: cube[3][3][3]
+deactivate JoggleCube
+deactivate Game
+Game --> Navigation: 
+deactivate Navigation
+Game -> Navigation: hideOverlay(ScreenType.End)
+activate Navigation
+Navigation --> Game: 
+deactivate Navigation
+deactivate Game
+
+== Save Clicked ==
+User -> Game: btnSaveClicked()
+activate Game
+Game -> JoggleCube: savGrid(filename)
+activate JoggleCube
+JoggleCube -> Cube: saveCube(outfile)
+activate Cube
+loop foreach Block
+    Cube -> Block: getLetter()
+    activate Block
+    Block --> Cube: 
+    deactivate Block
+end
+Cube --> JoggleCube: 
+deactivate Cube
+JoggleCube -> Score: saveScore(outfile)
+activate Score
+loop foreach score
+    Score -> Score: save(outfile)
+end
+Score --> JoggleCube: 
+deactivate Score
+JoggleCube --> Game: 
+deactivate JoggleCube
+deactivate Game
+
+@enduml
+```

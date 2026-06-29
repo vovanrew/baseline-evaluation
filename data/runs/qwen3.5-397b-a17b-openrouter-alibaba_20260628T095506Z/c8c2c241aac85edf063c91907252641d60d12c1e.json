@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782657405-3JCTsYcQ07yB8cdwQ406",
+  "object": "chat.completion",
+  "created": 1782657405,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle PD parse detail\nskinparam sequenceMessageAlign center\nskinparam noteFontColor black\nskinparam noteBackgroundColor #FFFFCC\nskinparam participantBackgroundColor #E6E6FA\nskinparam participantBorderColor black\nskinparam participantPadding 5\nskinparam lifelineStrategy nosolid\nskinparam activationBorderColor black\nskinparam activationBackgroundColor #FFCCCB\nskinparam arrowColor black\nskinparam arrowThickness 1\nskinparam boxPadding 5\nskinparam boxBorderColor black\nskinparam boxBackgroundColor #F0F8FF\n\nbox \"Chi\" #LightBlue\nparticipant Chi\nend box\n\nbox \"pipeline\" #LightBlue\nparticipant pipeline\nend box\n\nbox \"pdlibwrapper\\ncamxpdlibwrapper.cpp\" #LightBlue\nparticipant pdlibwrapper\nend box\n\nbox \"pdlibinterface\\ncamxpdlibinterface.cpp\" #LightBlue\nparticipant pdlibinterface\nend box\n\nbox \"camxsensornode.cpp\" #LightBlue\nparticipant camxsensornode\nend box\n\nbox \"camxpdlibraryhandler.cpp\" #LightBlue\nparticipant camxpdlibraryhandler\nend box\n\n== chi stats algo ==\n\nnote over Chi\nChiPDEntry[] = \"ChiPDLibraryEntry\"\nChiASEntry[] = \"ChiASDAlgorithmEntry\"\nChiAFDEntry[] = \"ChiAFDAlgorithmEntry\"\nChiAWBEntry[] = \"ChiAWBAlgorithmEntry\"\nChiAFEntry[] = \"ChiAFAlgorithmEntry\"\nfrom this text, can get Algorithm Entry\nend note\n\n== PD lib create ==\n\nactivate Chi\nChi -> Chi: ProbeChiComponents\nChi -> Chi: GetAECAlgorithmCallback\nChi -> Chi: GetAFDAlgorithmCallback\nChi -> Chi: GetAFAlgorithmCallback\nChi -> Chi: GetAWBAlgorithmCallback\nChi -> Chi: GetASDAlgorithmCallback\nChi -> Chi: GetPDLibraryCallback\nChi -> Chi: GetHVXAlgorithmCallback\nChi -> Chi: return\ndeactivate Chi\n\nnote over Chi\nThese Callback used in camxpipeline.cpp\nwhen call pipeline:CreateNodes\nend note\n\nnote over Chi\nfor m_pStatscallback.pPDCallback\ncontain these interface\npCallbacks->pfnGetCapabilities = PDWrapperGetCapabilities;\npCallbacks->pfnCreate = CreatePDLibWrapper;\npCallbacks->pfnQueryVendorTag = NULL;\npCallbacks->pfnSetAlgoInterface = PDWrapperSetNodeInterface;\nend note\n\n== CreatePDLibWrapper ==\n\npipeline -> pdlibwrapper: CamX::LoadPDLib\nactivate pdlibwrapper\nnote right of pdlibwrapper\n\"%s%s%s.%s\"\n\"VendorLibPath\"\n\"PathSeparator\"\n\"pLibName\"\n\"SharedLibraryExtension\"\nend note\npdlibwrapper -> pdlibwrapper: return Addr\npdlibwrapper -> pdlibwrapper: pfnCreate\npdlibwrapper -> pipeline: return\ndeactivate pdlibwrapper\n\n== call PD lib ==\n\nnote over pdlibwrapper\nin dir:\n1. camx-lib-3a/system/statsalgo/pdlib\n2. camx-lib/system/statsalgo/pdlibsony\nboth have camxpdlibinterface.cpp\nend note\n\n== Init PDLib ==\n\nnote over pipeline\nfor pipeline create, will create every node\nand pdlib is init in sensor node\nend note\n\npipeline -> camxsensornode: ProcessingNodeFinalizeInitialization\nactivate camxsensornode\nnote right of camxsensornode\n1. ReadEEPROMData\n2. GetCSIInfo\n3. GetOTPData\n4. PopulatePDAFInformation\n5. PublishPDAFInformation\nwhy we need publish this info?\nactually for PropertyIDSensorPDAFInfo, in IFE PDPCv1.1 and BPS PDPC2.0 will use it.\nsince type 3 sensor will not do pdpc\nend note\ncamxsensornode -> camxpdlibraryhandler: LoadPDLibrary\nactivate camxpdlibraryhandler\ncamxpdlibraryhandler -> camxpdlibraryhandler: CPDLibHandler::CreateLib\ndeactivate camxpdlibraryhandler\ndeactivate camxsensornode\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2104,
+    "completion_tokens": 905,
+    "total_tokens": 3009,
+    "cost": 0.00293826,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00293826,
+      "upstream_inference_prompt_cost": 0.00082056,
+      "upstream_inference_completions_cost": 0.0021177
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

@@ -1,0 +1,25 @@
+@startuml
+actor "Admin\nSAV Manager\nSAV Technician\nScooter Owner" as Admin
+participant "verifyEmail" as verifyEmail
+control "VerificationController" as VerificationController
+entity "User" as User
+
+Admin -> verifyEmail: FillVerifyEmailForm(email,token)
+verifyEmail --> Admin: FormFilled
+activate verifyEmail
+verifyEmail -> verifyEmail: VerifyVerifyEmailForm(email,token)
+verifyEmail --> verifyEmail: FormVerified
+deactivate verifyEmail
+
+alt [FormVerified is true]
+    verifyEmail -> VerificationController: verifyUser(email,code)
+    activate VerificationController
+    VerificationController -> User: verifyUser(email,code)
+    User --> VerificationController: user enabled
+    deactivate VerificationController
+    VerificationController --> verifyEmail: user enabled
+    verifyEmail --> Admin: user enabled
+else [FormVerified is false]
+    verifyEmail --> Admin: showErrorMessage
+end
+@enduml

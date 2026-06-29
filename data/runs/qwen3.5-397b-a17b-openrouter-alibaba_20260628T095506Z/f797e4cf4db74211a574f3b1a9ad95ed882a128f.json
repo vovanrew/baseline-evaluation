@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782657885-WVVtXn4yWoFlYqviP3CN",
+  "object": "chat.completion",
+  "created": 1782657885,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle PB-749 UC4 - Update a Banner on System Management\n\nactor \"System Management\" as SM\nparticipant \"Core Next\" as CN\ndatabase \"Next Database\" as DB\nparticipant \"Core Bradesco\" as CB\n\nbox \"Next Platform\" #LightGray\n    participant CN\n    database DB\nend box\n\nnote over CN: Abstract:\\nThis use case will be responsible to update an existing banner on Next.\\nThis endpoint is not responsible for deleting a record. To do this, it\\nmust use the use case 5 - Delete a Banner on System Management.\\nHowever, in this use case, SM may enable or disable Banner.\n\nSM -> CN: 1 PUT /v1/notification/banner/{bannerID}\nnote right of SM: System Management will call this new endpoint\\npassing all the fields necessary to update an\\nexisting Banner. The fields are:\\n1. BANNER_ID\\n2. BUSINESS_EVENT_TYPE_ID\\n3. TEMPLATE_HEADER\\n4. TEMPLATE_BODY\\n5. ENABLE_IND\n\nactivate CN\nCN -> DB: 2 check if this Banner exists on BANNER table\nnote right of CN: Core Next will check if this Banner exists on BANNER table\nactivate DB\nDB --> CN: 3 response\ndeactivate DB\n\nalt if the Banner exists\n    CN -> DB: 4 check if exists an enabled Banner associated with that BUSINESS_EVENT_TYPE received on requisition on BANNER table\n    activate DB\n    note right of CN: <b>Note to developers</b>\\nCore Next will check if exists any Banner linked to a BUSINESS_EVENT_TYPE on BANNER\\ntable. We can only have one enabled Banner linked to a BUSINESS_EVENT_TYPE. For this\\nrule, we should disregard the records that are with DELETE_FLG enabled and the Card itself.\n    DB --> CN: 5 response\n    deactivate DB\n\n    alt if exists an enabled Banner associated with that BUSINESS_EVENT_TYPE\n        note right of CN: If exists any Banner linked to a BUSINESS_EVENT_TYPE passed by App,\\nwe will throw back an error to App side.\n        CN --> SM: 6 error\n        note right of SM: HTTP code: 422 #Pink\n    else if don't exists an enabled Banner associated with that BUSINESS_EVENT_TYPE\n        note right of CN: If the defensive checks pass, then we will update the register on BANNER table.\n        CN -> DB: 7 update the register on BANNER table\n        activate DB\n        DB --> CN: 8 success\n        deactivate DB\n        CN --> SM: 9 success\n        note right of SM: HTTP code: 200 #LightBlue\n    end\nelse if the Banner don't exists\n    CN --> SM: 10 error\n    note right of SM: If the Banner don't exists on\\nBANNER table, then we will\\nthrow back an error to SM.\\nHTTP code: 404 #Pink\nend\n\ndeactivate CN\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2251,
+    "completion_tokens": 640,
+    "total_tokens": 2891,
+    "cost": 0.00237549,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00237549,
+      "upstream_inference_prompt_cost": 0.00087789,
+      "upstream_inference_completions_cost": 0.0014976
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

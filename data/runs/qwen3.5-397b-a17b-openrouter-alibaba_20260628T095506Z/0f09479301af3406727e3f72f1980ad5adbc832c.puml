@@ -1,0 +1,58 @@
+```plantuml
+@startuml
+skinparam sequenceMessageAlign center
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #CCCC99
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #9370DB
+skinparam participantPadding 5
+skinparam lifelineBackgroundColor #F0F8FF
+skinparam lifelineBorderColor #4682B4
+
+actor "참가자" as participant
+participant "깃헙 리포지토리" as repo
+participant "깃헙 액션" as action
+actor "운영자" as operator
+participant "파워 오토메이트" as powerautomate
+database "데이터베이스" as db
+
+== PR ==
+participant -> repo: PR 생성
+note right of participant: GHA 챌린지 완료 인증샷
+repo -> action: 이벤트 생성
+action -> repo: 라벨 추가: review-required
+
+== REVIEW ==
+operator -> operator: 리뷰
+operator -> repo: 라벨 추가: review-completed
+operator -> repo: 라벨 삭제: review-required
+operator -> repo: 코멘트: /ghasignoff
+repo -> action: 이벤트 생성
+note left of repo: 지정된 사용자만\n이벤트 생성 가능
+
+action -> powerautomate: 호출
+note right of action: GitHub ID\nPR 본문\n제출시간
+powerautomate -> db: 레코드 조회
+note left of db: GitHub ID
+
+alt 레코드 있음
+    powerautomate -> db: 레코드 업데이트
+    note right of db: PR ID
+    powerautomate -> action: 호출
+    action -> repo: 라벨 추가: record-updated
+    action -> repo: 라벨 추가: completed-gha
+    action -> repo: 라벨 삭제: review-completed
+    action -> repo: PR 머지
+    note right of db: 업데이트 완료
+    powerautomate -> participant: 확인 이메일
+else 레코드 없음
+    powerautomate -> action: 호출
+    note right of db: PR ID
+    action -> repo: 라벨 추가: review-required
+    action -> repo: 라벨 삭제: review-completed
+    note right of db: 레코드 없음
+    powerautomate -> participant: 확인 이메일
+end
+
+@enduml
+```

@@ -1,0 +1,56 @@
+```plantuml
+@startuml
+title 解析处理@EnableTransactionManagement注解
+
+participant "ConfigurationClassPostProcessor" as ConfigurationClassPostProcessor
+participant "ConfigurationClassParser" as ConfigurationClassParser
+participant "ComponentScanAnnotationParser" as ComponentScanAnnotationParser
+participant "AdviceModeImportSelector" as AdviceModeImportSelector
+participant "TransactionManagementConfigurationSelector" as TransactionManagementConfigurationSelector
+participant "ConfigurationClass" as ConfigurationClass
+participant "ConfigurationClassBeanDefinitionReader" as ConfigurationClassBeanDefinitionReader
+participant "AutoProxyRegistrar" as AutoProxyRegistrar
+participant "AopConfigUtils" as AopConfigUtils
+
+ConfigurationClassPostProcessor -> ConfigurationClassParser: postProcessBeanDefinitionRegistry
+ConfigurationClassParser -> ConfigurationClassParser: parse(AnnotationMetadata metadata, String beanName)
+ConfigurationClassParser -> ConfigurationClassParser: processConfigurationClass(ConfigurationClass configClass)
+ConfigurationClassParser -> ConfigurationClassParser: doProcessConfigurationClass(ConfigurationClass configClass, SourceClass sourceClass)
+
+alt 当前被解析的Class被@ComponentScan标注，进行扫描
+    ConfigurationClassParser -> ComponentScanAnnotationParser: @ComponentScan扫描
+    ComponentScanAnnotationParser -> ComponentScanAnnotationParser: parse(AnnotationAttributes componentScan, final String declaringClass)
+    ComponentScanAnnotationParser -> ConfigurationClassParser: parse(String className, String beanName)
+    ConfigurationClassParser -> ConfigurationClassParser: processConfigurationClass(ConfigurationClass configClass)进行解析扫描到的类
+    ConfigurationClassParser -> ConfigurationClassParser: processImports(configClass, sourceClass, getImports(sourceClass), true)
+else 不进行扫描,处理带@EnableTransactionManagement的importbean配置类
+    ConfigurationClassParser -> ConfigurationClassParser: 获取到AutoProxyRegistrar、ProxyTransactionManagementConfiguration
+    ConfigurationClassParser -> TransactionManagementConfigurationSelector: selectImports(AnnotationMetadata)
+    TransactionManagementConfigurationSelector -> AdviceModeImportSelector: selectImports(AdviceMode)
+    ConfigurationClassParser -> ConfigurationClassBeanDefinitionReader: 进行处理AutoProxyRegistrar、ProxyTransactionManagementConfiguration
+    ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: 添加AutoProxyRegistrar、AspectJAutoProxyRegistrar到关联配置类\n(即标记@EnableTransactionManagement的类)\n的importBeanDefinitionRegistrars属性中
+    ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: addImportBeanDefinitionRegistrar
+    ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: processConfigurationClass
+    ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: 按照普通配置类处理ProxyTransactionManagementConfiguration
+end
+
+ConfigurationClassParser -> ConfigurationClassBeanDefinitionReader: 解析完配置类
+ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: 加载配置类的配置信息
+ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: loadBeanDefinitions
+ConfigurationClassBeanDefinitionReader -> ConfigurationClass: loadBeanDefinitionsForConfigurationClass
+ConfigurationClass -> ConfigurationClassBeanDefinitionReader: 如果是由配置类导入的，直接注册到beanfactory
+ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: registerBeanDefinitionForImportedConfigurationClass
+ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: 处理ProxyTransactionManagementConfiguration，导入了InfrastructureAdvisorAutoProxyCreator
+ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: 加载@Bean标记的注册方法
+ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: loadBeanDefinitionsForBeanMethod
+ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: 处理@ImportResource
+ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: loadBeanDefinitionsFromImportedResources
+ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: 处理AutoProxyRegistrar，注册了InfrastructureAdvisorAutoProxyCreator
+ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: 处理@Import，导入的ImportBeanDefinitionRegistrar类
+ConfigurationClassBeanDefinitionReader -> ConfigurationClassBeanDefinitionReader: loadBeanDefinitionsFromRegistrars
+ConfigurationClassBeanDefinitionReader -> AutoProxyRegistrar: registerBeanDefinitions
+AutoProxyRegistrar -> AopConfigUtils: 注册InfrastructureAdvisorAutoProxyCreator
+AopConfigUtils -> AopConfigUtils: registerAutoProxyCreatorIfNecessary
+
+@enduml
+```

@@ -1,0 +1,54 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantPadding 10
+skinparam notePadding 10
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #CCCCCC
+skinparam noteFontColor #000000
+skinparam noteFontStyle plain
+skinparam noteFontSize 12
+skinparam arrowColor #000000
+skinparam arrowThickness 1
+skinparam lifelineColor #000000
+skinparam lifelineBackgroundColor #FFFFFF
+skinparam lifelineBorderColor #000000
+skinparam lifelineBorderThickness 1
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantBorderThickness 1
+skinparam participantFontColor #000000
+skinparam participantFontStyle plain
+skinparam participantFontSize 12
+
+participant "CShareMoreDlg" as CShareMoreDlg
+participant "CSharingMoreWrapper" as CSharingMoreWrapper
+participant "CPfwMainFrame" as CPfwMainFrame
+participant "CPfwChainMessageMapT" as CPfwChainMessageMapT
+participant "CMCUIMgr" as CMCUIMgr
+participant "CSmDefUIMgr" as CSmDefUIMgr
+participant "CPfwMessageCenterAgent" as CPfwMessageCenterAgent
+participant "CSmFITUIMgr" as CSmFITUIMgr
+participant "CMCFITUIMgr" as CMCFITUIMgr
+participant "CSmAppShareSessionMgr" as CSmAppShareSessionMgr
+participant "CPcmAppShareMgr" as CPcmAppShareMgr
+
+CShareMoreDlg -> CShareMoreDlg: OnBtnShareOtherApp
+note right of CShareMoreDlg: User Click "Other Application"
+CShareMoreDlg -> CSharingMoreWrapper: ShareOtherApp
+CSharingMoreWrapper -> CPfwMainFrame: SendMessage
+note right of CPfwMainFrame: PFW_QS_MENU_SHARE_OTHER_APP_ID
+CPfwMainFrame -> CPfwChainMessageMapT: PfwChainProcessWindowMessage
+CPfwChainMessageMapT -> CPfwMainFrame: ProcessWindowMessage
+CPfwMainFrame -> CMCUIMgr: OnWindowMsg
+CMCUIMgr -> CSmDefUIMgr: OnWindowMsg
+CSmDefUIMgr -> CSmDefUIMgr: ChainToMsgCenter
+CSmDefUIMgr -> CPfwMessageCenterAgent: SendMessage
+CPfwMessageCenterAgent -> CSmFITUIMgr: ProcessWindowMessage
+CSmFITUIMgr -> CMCFITUIMgr: OnCommand
+CMCFITUIMgr -> CSmFITUIMgr: OnCommand
+CSmFITUIMgr -> CSmAppShareSessionMgr: SelectANewApplication
+CSmAppShareSessionMgr -> CPcmAppShareMgr: ShowInstalledAppDialog
+
+@enduml

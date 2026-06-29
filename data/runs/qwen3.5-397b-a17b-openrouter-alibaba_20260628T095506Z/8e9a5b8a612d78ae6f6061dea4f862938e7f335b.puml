@@ -1,0 +1,57 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #F5F5F5
+  BorderColor Black
+  ArrowColor Black
+}
+skinparam stereotypeCBackgroundColor #C8E6C9
+skinparam stereotypeIBackgroundColor #D1C4E9
+
+package "billing" {
+  class "TotalFee" as TotalFee <<C>>
+  
+  package "discount" {
+    class "DiscountFee" as DiscountFee <<C>>
+    class "DiscountService" as DiscountService <<C>>
+    class "ContractForDiscount" as ContractForDiscount <<C>>
+  }
+  
+  package "contract" {
+    class "ContractFee" as ContractFee <<C>>
+    class "ContractForCharge" as ContractForCharge <<C>>
+    note right of ContractForCharge: DataMax5GPlan
+  }
+}
+
+package "otherservice" {
+  class "SmartValueTargetServiceContracts" as SmartValueTargetServiceContracts <<C>>
+}
+
+package "contractmanage" {
+  class "FamilyContracts" as FamilyContracts <<C>>
+  class "Contract" as Contract <<C>>
+  class "ContractRepository" as ContractRepository <<I>>
+}
+
+package "plan" {
+  class "Plan" as Plan <<C>>
+}
+
+' Relationships
+TotalFee --> DiscountFee
+TotalFee --> ContractFee
+DiscountService --> DiscountFee
+DiscountService --> ContractForDiscount
+DiscountService --> FamilyContracts
+ContractForDiscount --> Contract
+ContractForCharge --> ContractFee
+ContractForCharge --> Contract
+ContractForCharge --> Plan
+SmartValueTargetServiceContracts --> DiscountService
+ContractRepository --> FamilyContracts
+ContractRepository --> Contract
+Contract --> Plan
+
+@enduml

@@ -57,6 +57,17 @@ def load_artifacts(out_dir: str | Path, *, master_basename: str = "master_table"
     return master, ci
 
 
+def load_crowding(out_dir: str | Path) -> dict | None:
+    """Read ``crowding.json``'s ``lines_per_mp_by_tier`` (the Task-5 per-tier
+    image-crowding descriptor) for the figure annotations, or ``None`` when the
+    artifact is absent (figures render without the crowding annotation)."""
+    path = Path(out_dir) / "crowding.json"
+    if not path.exists():
+        return None
+    with open(path, encoding="utf-8") as f:
+        return json.load(f).get("lines_per_mp_by_tier")
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Render the benchmark's Task-3 figures.")
     ap.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
@@ -75,8 +86,12 @@ def main(argv=None) -> int:
     plots_dir = args.out_dir / args.plots_subdir
 
     master, ci = load_artifacts(args.out_dir)
+    crowding = load_crowding(args.out_dir)
+    if crowding is None:
+        log.warning("crowding.json not found in %s -- figures rendered without the "
+                    "crowding annotation (run build_run_level.py to produce it)", args.out_dir)
     entries = panel_entries(registry)  # full inventory minus supplementary
-    produced = render_all(entries, master, ci, plots_dir)
+    produced = render_all(entries, master, ci, plots_dir, crowding=crowding)
     log.info("rendered %d figures (%d/%d models) into %s",
              len(produced), master["meta"]["models_included"],
              master["meta"]["models_total"], plots_dir)
@@ -94,7 +109,7 @@ def main(argv=None) -> int:
         else:
             s_entries = [e for e in registry if e.supplementary]
             s_dir = plots_dir / "supplementary"
-            s_produced = render_all(s_entries, s_master, s_ci, s_dir)
+            s_produced = render_all(s_entries, s_master, s_ci, s_dir, crowding=crowding)
             print(f"Supplementary included: "
                   f"{s_master['meta']['models_included']}/{s_master['meta']['models_total']}")
             for name, paths in s_produced.items():

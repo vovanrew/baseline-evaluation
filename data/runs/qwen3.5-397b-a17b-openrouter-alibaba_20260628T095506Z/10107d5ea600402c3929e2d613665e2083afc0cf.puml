@@ -1,0 +1,70 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantPadding 10
+skinparam notePadding 10
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #CCCCCC
+skinparam noteFontColor #000000
+skinparam noteFontSize 12
+skinparam noteFontStyle plain
+skinparam noteFontName Arial
+skinparam noteTextAlignment center
+skinparam noteShadowing false
+skinparam noteBorderThickness 1
+skinparam noteCornerRadius 5
+skinparam noteMargin 5
+skinparam notePadding 10
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #CCCCCC
+skinparam noteFontColor #000000
+skinparam noteFontSize 12
+skinparam noteFontStyle plain
+skinparam noteFontName Arial
+skinparam noteTextAlignment center
+skinparam noteShadowing false
+skinparam noteBorderThickness 1
+skinparam noteCornerRadius 5
+skinparam noteMargin 5
+
+participant "client" as client
+participant "fastAPI" as fastAPI
+participant "JobsCollection" as JobsCollection
+participant "Poller" as Poller
+participant "IngestService" as IngestService
+participant "MappingIngestor" as MappingIngestor
+participant "MongoSerializer" as MongoSerializer
+participant "DatabrokerCollections" as DatabrokerCollections
+participant "SciCatIngestor" as SciCatIngestor
+participant "Catamel" as Catamel
+
+client -> fastAPI: file ready to ingest
+activate fastAPI
+fastAPI -> JobsCollection: create Job
+activate JobsCollection
+JobsCollection --> Poller: poll for job
+activate Poller
+Poller -> IngestService: ingest
+activate IngestService
+IngestService -> MappingIngestor: ingest
+activate MappingIngestor
+MappingIngestor -> MongoSerializer: send docs
+activate MongoSerializer
+MongoSerializer -> DatabrokerCollections: Persist docstream
+activate DatabrokerCollections
+IngestService -> SciCatIngestor: ingest
+activate SciCatIngestor
+SciCatIngestor -> Catamel: many messages
+activate Catamel
+deactivate Catamel
+deactivate SciCatIngestor
+deactivate DatabrokerCollections
+deactivate MongoSerializer
+deactivate MappingIngestor
+deactivate IngestService
+deactivate Poller
+deactivate JobsCollection
+deactivate fastAPI
+
+@enduml

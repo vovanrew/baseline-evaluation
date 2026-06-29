@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782654432-LBsitcsT4aaSmstqwgC2",
+  "object": "chat.completion",
+  "created": 1782654432,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Sequence Diagram: Internal state synchronization\nright header\nAuthors: pw@zoi.de\nVersion: 0.1\nend header\n\nbox \"Internal Service\" #LightGray\nparticipant \"Sender\" as Sender\nparticipant \"IoTClient\" as IoTClient\nparticipant \"ShadowCallback\" as ShadowCallback\nend box\n\nbox \"AWS Cloud\" #LightGreen\nparticipant \"ShadowService\" as ShadowService\nend box\n\n== client connection ==\nSender -> IoTClient: connect()\nIoTClient -> ShadowCallback: on_conncet_wrapper()\nShadowCallback -> IoTClient: subscribe(\"AWS Shadow Topics\")\nIoTClient -> ShadowService: subscribe()\nIoTClient -> ShadowCallback: on_subscribe_wrapper()\nactivate ShadowCallback\nShadowCallback -> ShadowCallback: request_desired_state()\ndeactivate ShadowCallback\n\n== state retrival ==\nactivate IoTClient\nactivate ShadowCallback\nIoTClient -> ShadowService: publish(\"myClient/shadow/get\")\nShadowService -> IoTClient: on_message(\"myClient/shadow/get/accepted\", state)\nIoTClient -> ShadowCallback: on_message_wrapper(rawState)\nShadowCallback -> ShadowCallback: on_desired_state_change(rawState)\ndeactivate IoTClient\ndeactivate ShadowCallback\n\n== state synchronization ==\nShadowCallback -> Sender: set_state(desiredState)\nSender -> ShadowCallback: on_set_state_wrapper()\nactivate ShadowCallback\nShadowCallback -> ShadowCallback: publish_new_state()\nShadowCallback -> IoTClient: publish(\"myClient/shadow/update\", reportedState)\nactivate IoTClient\nIoTClient -> ShadowService: publish(\"myClient/shadow/update\", state)\ndeactivate IoTClient\ndeactivate ShadowCallback\n\n@enduml",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2202,
+    "completion_tokens": 353,
+    "total_tokens": 2555,
+    "cost": 0.0016848,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.0016848,
+      "upstream_inference_prompt_cost": 0.00085878,
+      "upstream_inference_completions_cost": 0.00082602
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

@@ -1,0 +1,109 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontStyle italic
+skinparam classBackgroundColor #F5F5F5
+skinparam classBorderColor #CCCCCC
+skinparam interfaceBackgroundColor #E6E6FA
+skinparam interfaceBorderColor #9370DB
+skinparam classStereotypeStyle none
+skinparam interfaceStereotypeStyle none
+skinparam classFontColor #000000
+skinparam interfaceFontColor #000000
+skinparam classFontName "Arial"
+skinparam interfaceFontName "Arial"
+skinparam classFontSize 12
+skinparam interfaceFontSize 12
+skinparam classPadding 5
+skinparam interfacePadding 5
+skinparam classMargin 10
+skinparam interfaceMargin 10
+skinparam classBorderThickness 1
+skinparam interfaceBorderThickness 1
+skinparam classAttributeFontStyle plain
+skinparam interfaceAttributeFontStyle plain
+skinparam classAttributeFontColor #000000
+skinparam interfaceAttributeFontColor #000000
+skinparam classAttributeFontName "Arial"
+skinparam interfaceAttributeFontName "Arial"
+skinparam classAttributeFontSize 11
+skinparam interfaceAttributeFontSize 11
+skinparam classAttributePadding 3
+skinparam interfaceAttributePadding 3
+skinparam classAttributeMargin 5
+skinparam interfaceAttributeMargin 5
+skinparam classAttributeBorderThickness 0
+skinparam interfaceAttributeBorderThickness 0
+skinparam classAttributeBackgroundColor #FFFFFF
+skinparam interfaceAttributeBackgroundColor #FFFFFF
+skinparam classAttributeBorderColor #CCCCCC
+skinparam interfaceAttributeBorderColor #CCCCCC
+skinparam classAttributeFontStyle plain
+skinparam interfaceAttributeFontStyle plain
+skinparam classAttributeFontColor #000000
+skinparam interfaceAttributeFontColor #000000
+skinparam classAttributeFontName "Arial"
+skinparam interfaceAttributeFontName "Arial"
+skinparam classAttributeFontSize 11
+skinparam interfaceAttributeFontSize 11
+skinparam classAttributePadding 3
+skinparam interfaceAttributePadding 3
+skinparam classAttributeMargin 5
+skinparam interfaceAttributeMargin 5
+skinparam classAttributeBorderThickness 0
+skinparam interfaceAttributeBorderThickness 0
+skinparam classAttributeBackgroundColor #FFFFFF
+skinparam interfaceAttributeBackgroundColor #FFFFFF
+skinparam classAttributeBorderColor #CCCCCC
+skinparam interfaceAttributeBorderColor #CCCCCC
+
+interface SessionRepository {
+    + S createSession()
+    + void save(S session)
+    + S getSession(String id)
+    + void delete(String id)
+}
+
+interface Session {
+}
+
+interface ExpiringSession {
+}
+
+interface FindByIndexNameSessionRepository {
+    + Map<String, S> findByIndexNameAndIndexValue(String indexName, String indexValue)
+}
+
+class MapSessionRepository {
+}
+
+class JdbcOperationsSessionRepository {
+}
+
+class MongoOperationsSessionRepository {
+}
+
+class RedisSession {
+}
+
+class RedisOperationsSessionRepository {
+}
+
+SessionRepository <|-- Session
+SessionRepository <|-- ExpiringSession
+SessionRepository <|-- FindByIndexNameSessionRepository
+SessionRepository <|.. MapSessionRepository
+FindByIndexNameSessionRepository <|.. JdbcOperationsSessionRepository
+FindByIndexNameSessionRepository <|.. MongoOperationsSessionRepository
+FindByIndexNameSessionRepository <|.. RedisOperationsSessionRepository
+ExpiringSession <|-- RedisSession
+RedisSession --> RedisOperationsSessionRepository
+
+note top of SessionRepository
+    S extends Session
+end note
+
+note right of RedisOperationsSessionRepository
+    RedisSession
+end note
+
+@enduml

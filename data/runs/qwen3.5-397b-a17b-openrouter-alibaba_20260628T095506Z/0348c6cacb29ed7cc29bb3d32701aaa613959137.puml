@@ -1,0 +1,31 @@
+@startuml
+actor Guest
+participant "Mobile" as Mobile
+participant "Server" as Server
+participant "TokenService" as TokenService
+participant "MailService" as MailService
+database "Mongo" as Mongo
+
+Guest -> Mobile: Nhập Thông tin đăng ký
+alt [Kiểm tra input (true)]
+    Mobile -> Server: Send Api Register
+    alt [valdateDataApi (false)]
+        Server --> Mobile: Data Không hợp lệ
+    else
+        Server -> Mongo: Kiểm tra tồn tại userName
+        Mongo --> Server: thông tin user
+        alt [user tồn tại (true)]
+            Server --> Mobile: UserName tồn tại
+        else
+            Server -> Mongo: new User
+            Mongo --> Server: user
+            Server -> Server: Tạo otp
+            Server -> MailService: mail otp
+            Server --> Mobile: Tạo user success
+            Mobile --> Guest: Hiển thị cho guest
+        end
+    end
+else [validateDateFail]
+    Mobile --> Guest: Thông báo Nhập sai format
+end
+@enduml

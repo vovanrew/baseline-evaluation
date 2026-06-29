@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782657423-um6yy8iXtqA3zqI4F2vz",
+  "object": "chat.completion",
+  "created": 1782657423,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nactor \"CenterCoordinator\" as CenterCoordinator\nparticipant \"DataFromLegacySystemUI\" as DataFromLegacySystemUI\nparticipant \"DataFromLegacySystemController\" as DataFromLegacySystemController\nparticipant \":ReadLegacyDataFile\" as ReadLegacyDataFile\nparticipant \":Company\" as Company\nparticipant \":SNSUserStore\" as SNSUserStore\nparticipant \":App\" as App\nparticipant \":VaccinationCenter\" as VaccinationCenter\nparticipant \":Arrival\" as Arrival\nparticipant \":Departure\" as Departure\nparticipant \":vaccinationCentersStore\" as vaccinationCentersStore\n\n== 1 Asks to load a CSV file with legacy data ==\nCenterCoordinator -> DataFromLegacySystemUI: 1 Asks to load a CSV file with legacy data\nDataFromLegacySystemUI -> DataFromLegacySystemController: 2 DataFromLegacySystemController()\nDataFromLegacySystemController -> Company: 3 getVaccinationCentersStore()\nCompany -> DataFromLegacySystemController: 4 returns the store\nDataFromLegacySystemController -> vaccinationCentersStore: 5 getVaccinationCenterAssociatedToCoordinator(id)\nvaccinationCentersStore -> DataFromLegacySystemController: 6 returns the vaccination center\nDataFromLegacySystemController -> ReadLegacyDataFile: 7 ReadLegacyDataFile(center)\nReadLegacyDataFile -> CenterCoordinator: 8 request path of the CSV file\nCenterCoordinator -> DataFromLegacySystemUI: 9 types path\nDataFromLegacySystemUI -> DataFromLegacySystemController: 10 readFile(path)\nDataFromLegacySystemController -> ReadLegacyDataFile: 11 readFile(String path)\n\nloop while csv has new lines\n    ReadLegacyDataFile -> ReadLegacyDataFile: 12 validateFileLegacy(SNSUserNumber, firstDate, secondDate, thirdDate, fourthDate)\n    ReadLegacyDataFile -> ReadLegacyDataFile: 13 Saves data into an ArrayList<String> called legacyDataList\nend\n\nReadLegacyDataFile -> SNSUserStore: 14 getSNSUserList()\nSNSUserStore -> SNSUserStore: 15 getSNSUserList()\nSNSUserStore -> ReadLegacyDataFile: 16 returns list\nReadLegacyDataFile -> DataFromLegacySystemController: 17 returns list\nDataFromLegacySystemController -> Company: 18 getVaccineList()\nCompany -> DataFromLegacySystemController: 19 returns list\n\nloop while legacyDataList has new lines\n    ReadLegacyDataFile -> ReadLegacyDataFile: 20 findPosOfSNSUserInSNSUserList, values, positionInSNSUserList\n    ReadLegacyDataFile -> ReadLegacyDataFile: 21 findPosOfVaxInVaccineList, values, positionInVaccinesList\n    ReadLegacyDataFile -> ReadLegacyDataFile: 22 checksDuplicates(updatedList, snsUsersList, vaccineList, positionInSNSUserList, positionInVaccinesList, lineOfTheData)\n    ReadLegacyDataFile -> ReadLegacyDataFile: 23 Saves data into an ArrayList<String> called updatedList\n    ReadLegacyDataFile -> App: 24 createArrival()\n    App -> Arrival: 25 createArrival()\n    Arrival -> App: 26 returns Arrival\n    App -> App: 27 Saves arrival into List<Arrival> called arrivalsList\n    App -> App: 28 genericsArrivals.binaryFileWrite(Constants.FILE_PATH_ARRIVALS, arrivalsList)\n    ReadLegacyDataFile -> App: 29 createDeparture()\n    App -> Departure: 30 createDeparture()\n    Departure -> App: 31 returns departure\n    App -> App: 32 Saves departure into List<Departure> called departuresList\n    App -> App: 33 genericsDeparture.binaryFileWrite(Constants.FILE_PATH_DEPARTURES, departuresList)\nend\n\nReadLegacyDataFile -> DataFromLegacySystemController: 34 returns updatedList\nDataFromLegacySystemController -> DataFromLegacySystemUI: 35 returns updatedList\nDataFromLegacySystemUI -> CenterCoordinator: 36 requests the option to sort\nCenterCoordinator -> DataFromLegacySystemUI: 37 selects option\nDataFromLegacySystemUI -> DataFromLegacySystemController: 38 chooseCriteriaToSort(option)\nDataFromLegacySystemController -> ReadLegacyDataFile: 39 setListOption()\n\nloop while updatedList has new lines\n    ReadLegacyDataFile -> ReadLegacyDataFile: 40 Saves dates to a List<LocalDateTime> called listToSort\nend\n\nReadLegacyDataFile -> DataFromLegacySystemController: 41 requests the order of the sort\nDataFromLegacySystemController -> DataFromLegacySystemUI: 42 selects order\nDataFromLegacySystemUI -> CenterCoordinator: 43 getAlgorithm()\nCenterCoordinator -> DataFromLegacySystemUI: 44 getSortingAlgorithm()\nDataFromLegacySystemUI -> DataFromLegacySystemController: 45 returns algorithm\nDataFromLegacySystemController -> DataFromLegacySystemUI: 46 returns algorithm\nDataFromLegacySystemUI -> DataFromLegacySystemController: 47 sortListWithAlgorithmAlgorithmToBeUsed(option)\nnote right of DataFromLegacySystemController: algorithmToBeUsed can be InsertionSort or HeapSort, both have methods that can sort in ascending/descending order, here we are just representing the InsertionSort algorithm because HeapSort functions in a similar way.\nDataFromLegacySystemController -> DataFromLegacySystemController: 48 insertionSortAscending()\nDataFromLegacySystemController -> DataFromLegacySystemUI: 49 returns sortedList\nDataFromLegacySystemUI -> DataFromLegacySystemController: 50 returns sortedList\nDataFromLegacySystemController -> DataFromLegacySystemUI: 51 prints sortedList\n\nalt algorithmToBeUsed = \"InsertionSort\", option = \"0 - Ascending\"\n    DataFromLegacySystemUI -> CenterCoordinator: 52 selects order\n    CenterCoordinator -> DataFromLegacySystemUI: 53 getAlgorithm()\n    DataFromLegacySystemUI -> DataFromLegacySystemController: 54 getSortingAlgorithm()\n    DataFromLegacySystemController -> DataFromLegacySystemUI: 55 returns algorithm\n    DataFromLegacySystemUI -> DataFromLegacySystemController: 56 returns algorithm\n    DataFromLegacySystemController -> DataFromLegacySystemUI: 57 sortListWithAlgorithmAlgorithmToBeUsed(option)\n    DataFromLegacySystemController -> DataFromLegacySystemController: 58 insertionSortDescending()\n    DataFromLegacySystemController -> DataFromLegacySystemUI: 59 returns sortedList\n    DataFromLegacySystemUI -> DataFromLegacySystemController: 60 returns sortedList\n    DataFromLegacySystemController -> DataFromLegacySystemUI: 61 prints sortedList\nelse algorithmToBeUsed = \"InsertionSort\", option = \"1 - Descending\"\nend\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1957,
+    "completion_tokens": 1503,
+    "total_tokens": 3460,
+    "cost": 0.00428025,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00428025,
+      "upstream_inference_prompt_cost": 0.00076323,
+      "upstream_inference_completions_cost": 0.00351702
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

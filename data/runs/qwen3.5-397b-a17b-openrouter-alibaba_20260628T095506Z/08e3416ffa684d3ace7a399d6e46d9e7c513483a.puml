@@ -1,0 +1,65 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontStyle italic
+skinparam classBackgroundColor #F5F5F5
+skinparam classBorderColor black
+skinparam classFontColor black
+skinparam interfaceBackgroundColor #E6E6FA
+skinparam interfaceBorderColor black
+skinparam interfaceFontColor black
+skinparam stereotypeCBackgroundColor #ADD8E6
+skinparam stereotypeCBorderColor black
+skinparam stereotypeCFontColor black
+skinparam stereotypeIBackgroundColor #D8BFD8
+skinparam stereotypeIBorderColor black
+skinparam stereotypeIFontColor black
+skinparam stereotypeCBackgroundColor #90EE90
+skinparam stereotypeCBorderColor black
+skinparam stereotypeCFontColor black
+
+class "Publisher" as Publisher {
+    void subscribe(Subscriber<? super T> s)
+}
+class "Flowable" as Flowable {
+    void subscribeActual(Subscriber<? super T> s)
+}
+class "FlowableFilter" as FlowableFilter
+class "FlowableMap" as FlowableMap
+class "Subscription" as Subscription {
+    void request(long n)
+    void cancel()
+}
+class "FilterSubscriber" as FilterSubscriber
+class "MapSubscriber" as MapSubscriber
+
+Publisher <|-- Flowable : implements
+Flowable <|-- FlowableFilter : extends
+Flowable <|-- FlowableMap : extends
+FlowableFilter o-- FilterSubscriber : creates
+FlowableMap o-- MapSubscriber : creates
+FilterSubscriber ..|> Subscription : implements
+MapSubscriber ..|> Subscription : implements
+
+note right of Publisher
+    T
+end note
+note right of Flowable
+    T
+end note
+note right of FlowableFilter
+    T
+end note
+note right of FlowableMap
+    T, U
+end note
+note right of Subscription
+    T
+end note
+note right of FilterSubscriber
+    T
+end note
+note right of MapSubscriber
+    T, U
+end note
+
+@enduml

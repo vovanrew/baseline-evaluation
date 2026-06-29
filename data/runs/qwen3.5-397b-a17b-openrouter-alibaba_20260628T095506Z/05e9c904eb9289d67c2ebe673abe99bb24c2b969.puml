@@ -1,0 +1,29 @@
+@startuml
+actor Cache
+participant DiskLruCache
+participant JournalFile
+participant DiskLruCache.Entry
+participant LinkedHashMap
+participant Snapshot
+participant Cache.Entry
+participant Response
+participant CacheResponseBody
+
+Cache -> DiskLruCache: get()
+activate DiskLruCache
+DiskLruCache -> DiskLruCache: initialize
+DiskLruCache -> JournalFile: read
+JournalFile -> DiskLruCache.Entry
+DiskLruCache.Entry --> DiskLruCache
+DiskLruCache -> LinkedHashMap: put()
+DiskLruCache -> LinkedHashMap: get()
+LinkedHashMap -> DiskLruCache.Entry
+DiskLruCache.Entry --> DiskLruCache
+DiskLruCache -> Snapshot
+Snapshot --> Cache
+Cache -> Cache.Entry: response()
+Cache.Entry -> Response
+Response -> CacheResponseBody
+CacheResponseBody --> Cache
+deactivate DiskLruCache
+@enduml

@@ -1,0 +1,86 @@
+```plantuml
+@startuml
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam noteStyle rectangle
+skinparam actorStyle awesome
+skinparam databaseStyle cylinder
+skinparam interfaceStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #483D8B
+skinparam participantFontColor #000000
+skinparam participantFontName Arial
+skinparam participantFontSize 12
+skinparam participantFontStyle plain
+skinparam participantPadding 10
+skinparam participantMargin 5
+skinparam participantBorderThickness 1
+skinparam participantBorderRadius 5
+skinparam participantBorderDashed false
+skinparam participantBorderDotted false
+skinparam participantBorderDouble false
+skinparam participantBorderGroove false
+skinparam participantBorderInset false
+skinparam participantBorderOutset false
+skinparam participantBorderRidge false
+skinparam participantBorderSolid true
+skinparam participantBorderWidth 1
+skinparam participantBorderColor #483D8B
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantFontColor #000000
+skinparam participantFontName Arial
+skinparam participantFontSize 12
+skinparam participantFontStyle plain
+skinparam participantPadding 10
+skinparam participantMargin 5
+skinparam participantBorderThickness 1
+skinparam participantBorderRadius 5
+skinparam participantBorderDashed false
+skinparam participantBorderDotted false
+skinparam participantBorderDouble false
+skinparam participantBorderGroove false
+skinparam participantBorderInset false
+skinparam participantBorderOutset false
+skinparam participantBorderRidge false
+skinparam participantBorderSolid true
+skinparam participantBorderWidth 1
+
+actor Database as db
+participant "ManageLogDemo" as demo
+participant "ManageLogReceiveFacade" as receiveFacade
+participant "ManageLogReceiveProvider" as receiveProvider
+participant "ManageLogCommon" as common
+participant "AnotherJavaProject" as anotherJava
+participant "ManageLogUploadFacade" as uploadFacade
+participant "AnotherProject" as anotherProject
+participant "ManageLogQueryProvider" as queryProvider
+participant "ManageLogQueryFacade" as queryFacade
+
+== rpc 上传日志 ==
+demo -> receiveFacade: aspect 获取数据
+receiveFacade -> receiveProvider: rpc/http/kafka, 数据为业务数据, configName
+receiveProvider -> common: 使用工具类
+receiveProvider -> receiveProvider: 抓取配置
+receiveProvider -> db: 落地数据
+
+== 自主使用 facade 上传日志 ==
+anotherJava -> receiveFacade: 自己组装数据, 使用 facade 提供的策略上传
+receiveFacade -> receiveProvider: rpc/http/kafka, 数据为业务数据, configName
+receiveProvider -> common: 使用工具类
+receiveProvider -> receiveProvider: 抓取配置
+receiveProvider -> db: 落地数据
+
+== 自主上传日志 ==
+anotherProject -> receiveProvider: http/kafka, 数据为业务数据, configName
+receiveProvider -> common: 使用工具类
+receiveProvider -> receiveProvider: 抓取配置
+receiveProvider -> db: 落地数据
+
+== 日志查询 ==
+demo -> queryProvider: 获取数据
+queryProvider -> queryFacade: rpc 提供
+queryFacade -> anotherProject: http 提供 (默认)
+
+@enduml
+```

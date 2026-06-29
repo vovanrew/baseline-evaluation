@@ -1,0 +1,66 @@
+@startuml
+title <u>Subscribe & Save Debugging Classroom Activity</u>
+
+class App {
+  +getAmazonProductService() : AmazonProductService
+  +getAmazonIdentityService() : AmazonIdentityService
+  +getSubscriptionDAO() : SubscriptionDAO
+  +getSubscriptionFileStorage() : SubscriptionFileStorage
+  +getSubscriptionService() : SubscriptionService
+}
+
+class Subscription {
+  -String id
+  -String customerId
+  -String asin
+  -int frequency
+  +getId() : String
+  +setId(id : String) : void
+  +getCustomerId() : String
+  +getAsin() : String
+  +getFrequency() : int
+  +toString() : String
+}
+
+class SubscriptionDebugUtil {
+  +main(String[] args) : void
+}
+
+class SubscriptionService {
+  +subscribe(customerId : String, asin : String, frequency : int) : Subscription
+  +getSubscription(subscriptionId : String) : Subscription
+}
+
+class SubscriptionDAO {
+  +createSubscription(customerId : String, asin : String, frequency : int) : Subscription
+  +getSubscription(subscriptionId : String) : Subscription
+}
+
+class SubscriptionFileStorage {
+  +getSubscriptionById(subscriptionId : String) : Subscription
+  +writeSubscription(subscription : Subscription) : Subscription
+}
+
+class AmazonProductService {
+  +getProductByAsin(asin : String) : Product
+}
+
+class AmazonIdentityService {
+  +validateCustomer(customerId : String) : boolean
+}
+
+App --> SubscriptionService
+App --> SubscriptionDAO
+App --> SubscriptionFileStorage
+App --> AmazonProductService
+App --> AmazonIdentityService
+
+SubscriptionService --> SubscriptionDAO
+SubscriptionService --> AmazonProductService
+SubscriptionService --> AmazonIdentityService
+
+SubscriptionDAO --> SubscriptionFileStorage
+
+SubscriptionDebugUtil --> SubscriptionService
+
+@enduml

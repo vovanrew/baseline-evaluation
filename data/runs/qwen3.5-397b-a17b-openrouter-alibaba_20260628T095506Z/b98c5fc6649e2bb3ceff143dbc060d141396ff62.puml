@@ -1,0 +1,440 @@
+```plantuml
+@startuml
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam noteStyle rectangle
+skinparam maxMessageSize 250
+skinparam lifelinestrategy solid
+skinparam responseMessageBelowArrow true
+skinparam sequence {
+    ArrowColor #333333
+    ArrowThickness 1
+    LifeLineBorderColor #CCCCCC
+    LifeLineBackgroundColor #FFFFFF
+    ParticipantBorderColor #CCCCCC
+    ParticipantBackgroundColor #FFFFFF
+    ParticipantPadding 20
+    BoxPadding 10
+}
+
+box "app" #LightGray
+    participant "app\nPurchase 应用服务" as app
+end box
+
+box "ms-trade" #LightGray
+    participant "purchaseDly 交易服务" as purchaseDly
+end box
+
+box "subscribe-service" #LightGray
+    participant "purchaseDly 交易服务" as purchaseDly2
+end box
+
+box "ctu" #LightGray
+    participant "ctu" as ctu
+end box
+
+box "payment-service" #LightGray
+    participant "payment-service" as paymentService
+end box
+
+box "cpw" #LightGray
+    participant "cpw" as cpw
+end box
+
+box "payment" #LightGray
+    participant "payment" as payment
+end box
+
+box "upm" #LightGray
+    participant "upm" as upm
+end box
+
+box "public-service" #LightGray
+    participant "public-service" as publicService
+end box
+
+box "product" #LightGray
+    participant "product" as product
+end box
+
+box "subscribe" #LightGray
+    participant "subscribe" as subscribe
+end box
+
+box "charging" #LightGray
+    participant "charging" as charging
+end box
+
+box "order" #LightGray
+    participant "order" as order
+end box
+
+box "proxy" #LightGray
+    participant "proxy" as proxy
+end box
+
+box "campaign" #LightGray
+    participant "campaign" as campaign
+end box
+
+== 连续购买 ==
+group 连续购买
+    activate app
+    app -> purchaseDly: queryContinuousTokenMemCache 查询连续订阅token
+    activate purchaseDly
+    purchaseDly -> purchaseDly: 返回查询连续订阅token的响应
+    deactivate purchaseDly
+    
+    alt token不存在或者失效
+        app -> purchaseDly: updateContinuousTokenMemCache 保存连续订阅token
+        activate purchaseDly
+        purchaseDly -> purchaseDly: 返回保存连续订阅token的响应
+        deactivate purchaseDly
+    end
+    
+    app -> paymentService: getPaymentAccountInfo 查询支付账号
+    activate paymentService
+    paymentService -> payment: getPaymentAccountInfo 查询支付账号
+    activate payment
+    payment -> payment: 返回查询支付账号的响应
+    deactivate payment
+    paymentService -> paymentService: 返回查询支付账号的响应
+    deactivate paymentService
+    
+    app -> paymentService: getPaymentAccountInfo 返回查询支付账号的响应
+    activate paymentService
+    paymentService -> payment: getPaymentAccountInfo 返回查询支付账号的响应
+    activate payment
+    payment -> payment: 返回查询支付账号的响应
+    deactivate payment
+    paymentService -> paymentService: 返回查询支付账号的响应
+    deactivate paymentService
+    
+    app -> paymentService: getPaymentAccountInfo 返回查询支付账号的响应
+    activate paymentService
+    paymentService -> payment: getPaymentAccountInfo 返回查询支付账号的响应
+    activate payment
+    payment -> payment: 返回查询支付账号的响应
+    deactivate payment
+    paymentService -> paymentService: 返回查询支付账号的响应
+    deactivate paymentService
+    
+    app -> paymentService: paymentAccountManagement 注册支付账号
+    activate paymentService
+    paymentService -> payment: createPaymentAccount 创建支付账号
+    activate payment
+    payment -> payment: 返回创建支付账号的响应
+    deactivate payment
+    paymentService -> paymentService: 返回创建支付账号的响应
+    deactivate paymentService
+    
+    app -> paymentService: paymentAccountManagement 返回注册支付账号的响应
+    activate paymentService
+    paymentService -> payment: createPaymentAccount 创建支付账号
+    activate payment
+    payment -> payment: 返回创建支付账号的响应
+    deactivate payment
+    paymentService -> paymentService: 返回创建支付账号的响应
+    deactivate paymentService
+    
+    app -> ctu: isUserWhiteList 查询用户是否是白名单用户
+    activate ctu
+    ctu -> ctu: 返回查询用户是否是白名单用户的响应
+    deactivate ctu
+end group
+
+== 用户是否连续购买 ==
+group 用户是否连续购买
+    alt purchaseDly 连续购买返回null
+        app -> purchaseDly: purchaseDly 连续购买返回null
+        activate purchaseDly
+        purchaseDly -> purchaseDly: 返回连续购买返回null的响应
+        deactivate purchaseDly
+        
+        app -> mainNumberSegment: 查询手机号号段和归属地
+        activate mainNumberSegment
+        mainNumberSegment -> mainNumberSegment: 返回查询手机号号段和归属地的响应
+        deactivate mainNumberSegment
+        
+        app -> mainNumberService: fetchIdentity 查询产品目录
+        activate mainNumberService
+        mainNumberService -> mainNumberService: 返回查询产品目录的响应
+        deactivate mainNumberService
+        
+        app -> mainNumberQueryService: fetchIdentity 返回查询产品目录的响应
+        activate mainNumberQueryService
+        mainNumberQueryService -> mainNumberQueryService: 返回查询产品目录的响应
+        deactivate mainNumberQueryService
+    end
+end group
+
+== 用户连续购买可能没有连续购买的交易号 ==
+group 用户连续购买可能没有连续购买的交易号
+    alt purchaseDly 连续购买返回交易号
+        app -> purchaseDly: purchaseDly 连续购买返回交易号
+        activate purchaseDly
+        purchaseDly -> purchaseDly: 返回连续购买返回交易号的响应
+        deactivate purchaseDly
+    end
+end group
+
+== 连续订阅 ==
+group 连续订阅
+    alt 新购
+        app -> itemService: fetchItemSubscription 查询订购订购信息
+        activate itemService
+        itemService -> itemService: 返回订购订购信息
+        deactivate itemService
+        
+        alt 上一个连续购买的续购
+            app -> itemService: subscribe 更新订购/取消连续续购时间
+            activate itemService
+            itemService -> itemService: 返回续购
+            deactivate itemService
+            
+            alt purchaseDly 连续购买返回null
+                app -> purchaseDly: purchaseDly 连续购买返回null
+                activate purchaseDly
+                purchaseDly -> purchaseDly: 返回连续购买返回null的响应
+                deactivate purchaseDly
+            end
+            
+            app -> itemService: authenticate 内容签约(资本签约)
+            activate itemService
+            itemService -> itemService: 返回签约信息
+            deactivate itemService
+        end
+        
+        alt 资本签约接口
+            alt purchaseDly 连续购买返回交易号
+                app -> purchaseDly: purchaseDly 连续购买返回交易号
+                activate purchaseDly
+                purchaseDly -> purchaseDly: 返回连续购买返回交易号的响应
+                deactivate purchaseDly
+                
+                app -> eventCalculatorService: calculatePrice 按照卡进行报价
+                activate eventCalculatorService
+                eventCalculatorService -> eventCalculatorService: 返回报价结果
+                deactivate eventCalculatorService
+                
+                group 按年通道资本订购
+                    app -> paymentServices: autoAdaptedPayChannels 适配支付方式
+                    activate paymentServices
+                    paymentServices -> paymentServices: 返回适配支付方式的响应
+                    deactivate paymentServices
+                end group
+                
+                group 按年通道非资本订购
+                    app -> paymentServices: autoAdaptedPayChannels 适配支付方式
+                    activate paymentServices
+                    paymentServices -> paymentServices: 返回适配支付方式的响应
+                    deactivate paymentServices
+                    
+                    alt 根据系统配置该与支付方式是支付宝,微信,微信商户号,微信Paypal的支付,
+                        app -> orderManagementService: createOrder 创建订单
+                        activate orderManagementService
+                        orderManagementService -> orderManagementService: 返回创建订单的响应
+                        deactivate orderManagementService
+                    end
+                end group
+            end
+        end
+    end
+end group
+
+== 非新购 ==
+group 非新购
+    alt 资本签约接口
+        app -> itemService: authenticate 内容签约(资本签约)
+        activate itemService
+        itemService -> itemService: 返回签约信息
+        deactivate itemService
+        
+        alt purchaseDly 连续购买返回交易号
+            app -> purchaseDly: purchaseDly 连续购买返回交易号
+            activate purchaseDly
+            purchaseDly -> purchaseDly: 返回连续购买返回交易号的响应
+            deactivate purchaseDly
+            
+            app -> eventCalculatorService: calculatePrice 按照卡进行报价
+            activate eventCalculatorService
+            eventCalculatorService -> eventCalculatorService: 返回报价结果
+            deactivate eventCalculatorService
+            
+            group 按年通道资本订购
+                app -> paymentServices: autoAdaptedPayChannels 适配支付方式
+                activate paymentServices
+                paymentServices -> paymentServices: 返回适配支付方式的响应
+                deactivate paymentServices
+            end group
+            
+            group 按年通道非资本订购
+                app -> paymentServices: autoAdaptedPayChannels 适配支付方式
+                activate paymentServices
+                paymentServices -> paymentServices: 返回适配支付方式的响应
+                deactivate paymentServices
+                
+                alt 根据系统配置该与支付方式是支付宝,微信,微信商户号,微信Paypal的支付,
+                    app -> orderManagementService: createOrder 创建订单
+                    activate orderManagementService
+                    orderManagementService -> orderManagementService: 返回创建订单的响应
+                    deactivate orderManagementService
+                end
+            end group
+        end
+    end
+end group
+
+== 支付订单 ==
+group 支付订单
+    app -> orderPaymentService: payOrder 支付订单
+    activate orderPaymentService
+    orderPaymentService -> orderPaymentService: 返回支付订单的响应
+    deactivate orderPaymentService
+    
+    group 支付方式是连续支付
+        app -> itemService: batchSubscribe 批量订购
+        activate itemService
+        itemService -> itemService: 返回批量订购的响应
+        deactivate itemService
+        
+        app -> paymentServices: directPayment 付费
+        activate paymentServices
+        paymentServices -> paymentServices: 返回付费的响应
+        deactivate paymentServices
+        
+        group 支付成功
+            app -> paymentServices: directPayment 付费
+            activate paymentServices
+            paymentServices -> paymentServices: 返回付费的响应
+            deactivate paymentServices
+            
+            group 支付成功回调
+                app -> orderPaymentService: payOrder 返回支付订单的响应
+                activate orderPaymentService
+                orderPaymentService -> orderPaymentService: 返回支付订单的响应
+                deactivate orderPaymentService
+            end group
+        end group
+        
+        group 支付失败回调
+            app -> paymentServices: directPayment 付费
+            activate paymentServices
+            paymentServices -> paymentServices: 返回付费的响应
+            deactivate paymentServices
+        end group
+    end group
+end group
+
+== 异步支付结果异步回调,支付成功异步回调支付成功,支付失败异步回调支付失败 ==
+group 异步支付结果异步回调,支付成功异步回调支付成功,支付失败异步回调支付失败
+    alt payNotify notifyStatus 支付成功异步回调支付成功
+        app -> payNotify: notifyStatus 支付成功异步回调支付成功
+        activate payNotify
+        payNotify -> payNotify: 返回支付成功异步回调支付成功的响应
+        deactivate payNotify
+        
+        app -> itemService: batchSubscribe 批量订购
+        activate itemService
+        itemService -> itemService: 返回批量订购的响应
+        deactivate itemService
+        
+        group 按年通道资本订购
+            app -> paymentServices: autoAdaptedPayChannels 适配支付方式
+            activate paymentServices
+            paymentServices -> paymentServices: 返回适配支付方式的响应
+            deactivate paymentServices
+        end group
+        
+        group 按年通道非资本订购
+            app -> paymentServices: autoAdaptedPayChannels 适配支付方式
+            activate paymentServices
+            paymentServices -> paymentServices: 返回适配支付方式的响应
+            deactivate paymentServices
+            
+            alt 根据系统配置该与支付方式是支付宝,微信,微信商户号,微信Paypal的支付,
+                app -> orderManagementService: createOrder 创建订单
+                activate orderManagementService
+                orderManagementService -> orderManagementService: 返回创建订单的响应
+                deactivate orderManagementService
+            end
+        end group
+    end
+    
+    alt payNotify notifyStatus 返回支付成功回调结果的响应
+        app -> payNotify: notifyStatus 返回支付成功回调结果的响应
+        activate payNotify
+        payNotify -> payNotify: 返回支付成功回调结果的响应
+        deactivate payNotify
+        
+        app -> historyOrderManagementService: batchFetchHistoryOrders 查询历史订单
+        activate historyOrderManagementService
+        historyOrderManagementService -> historyOrderManagementService: 返回查询历史订单的响应
+        deactivate historyOrderManagementService
+        
+        alt 购买支付成功的次数上限没有超过5次
+            app -> purchaseDly: purchaseDly 连续购买返回交易号
+            activate purchaseDly
+            purchaseDly -> purchaseDly: 返回连续购买返回交易号的响应
+            deactivate purchaseDly
+        end
+    end
+end group
+
+== 订单支付成功 ==
+group 订单支付成功
+    group 订单支付成功
+        app -> order: 订单支付成功结果查询
+        activate order
+        order -> order: 返回订单支付成功结果查询的响应
+        deactivate order
+    end group
+    
+    group 连续购买查询成功
+        app -> order: 连续购买查询成功结果
+        activate order
+        order -> order: 返回连续购买查询成功结果的响应
+        deactivate order
+    end group
+    
+    group 订单查询成功
+        app -> order: 返回订单查询成功结果，修改会员状态
+        activate order
+        order -> order: 返回订单查询成功结果，修改会员状态的响应
+        deactivate order
+    end group
+end group
+
+== 连续购买成功异步回调，修改为连续付费中 ==
+group 连续购买成功异步回调，修改为连续付费中
+    app -> historyCampaignService: setLotteryInfo 更新中奖信息为已生成
+    activate historyCampaignService
+    historyCampaignService -> historyCampaignService: 返回更新中奖信息为已生成的响应
+    deactivate historyCampaignService
+end group
+
+== 连续订阅 ==
+group 连续订阅
+    alt 支付成功连续扣款周期到达(24小时)订单从连续购买周期到达(24小时)从连续购买状态修改为支付成功
+        app -> continuousBilling: isatContinuousCharging 更新支付
+        activate continuousBilling
+        continuousBilling -> continuousBilling: 返回更新支付的响应
+        deactivate continuousBilling
+    end
+end group
+
+== 连续购买 ==
+group 连续购买
+    app -> purchaseDly: 连续购买
+    activate purchaseDly
+    purchaseDly -> purchaseDly: 返回连续购买的响应
+    deactivate purchaseDly
+    
+    app -> app: stopPurchase 返回连续购买的响应
+    activate app
+    app -> app: 返回连续购买的响应
+    deactivate app
+end group
+
+@enduml
+```

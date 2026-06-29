@@ -1,0 +1,88 @@
+```plantuml
+@startuml
+entity "app_translation ((Translations))" as app_translation {
+    *label : string
+    description : longText
+    privacyPolicyExtensions : longText
+    *createdAt : createdAt
+    updatedAt : updatedAt
+    *appId : foreignKey
+    *languageId : foreignKey
+}
+
+entity "app_action_button_translation ((Translations))" as app_action_button_translation {
+    *label : string
+    *createdAt : createdAt
+    updatedAt : updatedAt
+    *appActionButtonId : foreignKey
+    *languageId : foreignKey
+}
+
+entity "app_action_button (App action buttons)" as app_action_button {
+    *id : id
+    entity : string
+    *view : string
+    url : string
+    *action : string
+    openNewTab : bool
+    label : translated
+    appId : foreignKey
+    *createdAt : createdAt
+    updatedAt : updatedAt
+    translated : json
+}
+
+entity "app_template (App templates)" as app_template {
+    *id : id
+    template : longText
+    *path : string
+    active : bool
+    appId : foreignKey
+    *createdAt : createdAt
+    updatedAt : updatedAt
+}
+
+entity "app (Apps)" as app {
+    *id : id
+    *name : string
+    *path : string
+    author : string
+    copyright : string
+    license : string
+    *active : bool
+    *configurable : bool
+    privacy : string
+    version : string
+    iconRaw : blob
+    icon : string
+    appSecret : string
+    modules : list
+    cookies : list
+    label : translated
+    description : translated
+    privacyPolicyExtensions : translated
+    integrationId : foreignKey
+    aclRoleId : foreignKey
+    *createdAt : createdAt
+    updatedAt : updatedAt
+    translated : json
+}
+
+entity "language" as language
+entity "integration" as integration
+entity "acl_role" as acl_role
+entity "custom_field_set" as custom_field_set
+entity "webhook" as webhook
+
+app_translation --> language
+app_action_button_translation --> language
+app_action_button_translation --> app_action_button
+app_action_button --> app
+app_template --> app
+app_translation --> app
+app --> integration
+app --> acl_role
+app --> custom_field_set
+app --> webhook
+@enduml
+```

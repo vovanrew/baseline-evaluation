@@ -1,0 +1,25 @@
+@startuml
+actor TaskControl
+participant Reins_Agent
+control ExecCommands
+entity HostRegistry
+
+loop [all_clients]
+    TaskControl -> Reins_Agent: [01] identified_key
+    note over ExecCommands, HostRegistry: connection check
+    Reins_Agent -> ExecCommands: [02] check(identified_key)
+    activate ExecCommands
+    ExecCommands -> ExecCommands: [03] varid?(identified_key)
+    Reins_Agent <-- ExecCommands: [04] status
+    deactivate ExecCommands
+    destroy ExecCommands
+    TaskControl <-- Reins_Agent: [05] status
+    note over ExecCommands, HostRegistry: logging status
+    TaskControl -> HostRegistry: [06] rewrite_status(identified_key, status)
+    activate HostRegistry
+    HostRegistry -> HostRegistry: [07] set_status(identified_key, IPAddress, status)
+    HostRegistry -> HostRegistry: [08] store()
+    TaskControl <-- HostRegistry: [09] true or false
+    deactivate HostRegistry
+end
+@enduml

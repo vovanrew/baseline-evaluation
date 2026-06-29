@@ -1,0 +1,50 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam noteBackgroundColor #FFFFE0
+skinparam noteBorderColor #000000
+skinparam noteFontColor #000000
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantFontColor #000000
+skinparam arrowColor #000000
+skinparam arrowThickness 1
+skinparam lifelineColor #000000
+skinparam lifelineThickness 1
+
+box "sw-explorer" #D3D3D3
+    participant WebApp
+    participant SWData
+end box
+
+box "Example background processing module" #D3D3D3
+    participant Manager
+    participant MessageQueue
+    participant Worker
+    participant Memcache
+end box
+
+WebApp -> WebApp: fetch new collection
+WebApp -> SWData: fetch new collection
+SWData -> Manager: schedule a job
+
+note over Manager, Memcache
+This is just an example.
+We could got wi go with Celery, but sometimes it's good
+to hide the concrete engine behind the abstraction layer.
+end note
+
+Manager -> MessageQueue: schedule a job
+MessageQueue -> Worker: execute a job
+Worker -> Manager: update job status
+Manager -> Memcache: update job status
+Worker -> Manager: job result
+Manager -> Memcache: job result
+
+WebApp -> WebApp: view pending collection
+WebApp -> SWData: get job status
+SWData -> Manager: get job status
+Manager -> Memcache: get job status
+
+@enduml

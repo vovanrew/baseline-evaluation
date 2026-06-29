@@ -1,0 +1,57 @@
+@startuml
+actor "Project Manager" as PM
+participant ":ProjectManagerUI" as UI
+participant "AGVServer" as AGVS
+participant "AGVServerThread" as AGVST
+participant "AVGManagerController" as AM
+participant "AGVDigitalTwinServer" as ADTS
+participant "AGVDigitalTwinThread" as ADTT
+participant "AGVDigitalTwinController" as ADTC
+participant "CodingAndDecoding2" as CD
+
+note over PM, UI: Wants to assign ready to go Orders to an AGV
+
+PM -> UI: message
+activate UI
+UI -> AGVS: accept
+activate AGVS
+AGVS -> AGVST: start
+activate AGVST
+AGVST -> CD: Decoding(r)
+activate CD
+CD --> AGVST: Message
+deactivate CD
+AGVST -> AM: FifoAGV()
+activate AM
+AM -> AM: findavailableOrder()
+loop until orderList is empty
+    AM -> AM: findavailableAGV(weight,volume)
+    AM -> AM: createTaskandSave(description,order,agv)
+    AM -> AM: doTask()
+    AM -> ADTS: message
+    activate ADTS
+    ADTS -> ADTS: accept
+    ADTS -> ADTT: start
+    activate ADTT
+    ADTT -> CD: Decoding(r)
+    activate CD
+    CD --> ADTT: message
+    deactivate CD
+    ADTT -> ADTC: doTask(taskPerform)
+    activate ADTC
+    ADTC --> ADTT: TaskReportMessage
+    deactivate ADTC
+    ADTT -> ADTS: TaskReportMessage
+    deactivate ADTT
+    deactivate ADTS
+    ADTS --> AM: TaskReportMessage
+    deactivate AM
+end
+AM --> AGVST: ResponseMessage
+deactivate AGVST
+AGVST --> AGVS: ResponseMessage
+deactivate AGVS
+AGVS --> UI: ResponseMessage
+deactivate UI
+UI --> PM: Informs operation success
+@enduml

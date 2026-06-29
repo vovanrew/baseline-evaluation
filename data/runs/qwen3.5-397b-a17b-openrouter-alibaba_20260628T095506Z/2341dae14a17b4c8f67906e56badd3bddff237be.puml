@@ -1,0 +1,136 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam actorStyle awesome
+skinparam actorBackgroundColor #E6E6FA
+skinparam actorBorderColor #000000
+skinparam databaseStyle cylinder
+skinparam databaseBackgroundColor #E6E6FA
+skinparam databaseBorderColor #000000
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #000000
+skinparam noteFontColor #000000
+skinparam noteFontSize 12
+skinparam noteFontStyle plain
+skinparam noteFontName Arial
+skinparam noteTextAlignment center
+skinparam notePadding 5
+skinparam noteMargin 5
+skinparam noteBorderThickness 1
+skinparam noteBorderRadius 5
+skinparam noteShadowing false
+skinparam noteTransparency 0.8
+skinparam noteOpacity 0.8
+skinparam noteZIndex 100
+skinparam noteLayer 100
+skinparam notePosition top
+skinparam noteAlignment center
+skinparam noteDirection horizontal
+skinparam noteOrientation horizontal
+skinparam noteRotation 0
+skinparam noteScale 1
+skinparam noteWidth 100
+skinparam noteHeight 50
+skinparam noteMinWidth 50
+skinparam noteMinHeight 25
+skinparam noteMaxWidth 200
+skinparam noteMaxHeight 100
+skinparam noteWrap true
+skinparam noteEllipsis true
+skinparam noteTruncate true
+skinparam noteOverflow hidden
+skinparam noteTextOverflow ellipsis
+skinparam noteTextWrap wrap
+skinparam noteTextAlign center
+skinparam noteTextVAlign middle
+skinparam noteTextHAlign center
+skinparam noteTextJustify false
+skinparam noteTextIndent 0
+skinparam noteTextSpacing 0
+skinparam noteTextLineHeight 1.2
+skinparam noteTextLetterSpacing 0
+skinparam noteTextWordSpacing 0
+skinparam noteTextDecoration none
+skinparam noteTextTransform none
+skinparam noteTextShadow none
+skinparam noteTextOutline none
+skinparam noteTextStroke none
+skinparam noteTextFill none
+skinparam noteTextBackground none
+skinparam noteTextBorder none
+skinparam noteTextPadding 0
+skinparam noteTextMargin 0
+skinparam noteTextBorderRadius 0
+skinparam noteTextBorderWidth 0
+skinparam noteTextBorderStyle solid
+skinparam noteTextBorderColor #000000
+skinparam noteTextBackgroundColor #FFFFFF
+skinparam noteTextColor #000000
+skinparam noteTextFontFamily Arial
+skinparam noteTextFontSize 12
+skinparam noteTextFontWeight normal
+skinparam noteTextFontStyle normal
+skinparam noteTextFontVariant normal
+skinparam noteTextLineHeight 1.2
+skinparam noteTextLetterSpacing 0
+skinparam noteTextWordSpacing 0
+skinparam noteTextDecoration none
+skinparam noteTextTransform none
+skinparam noteTextShadow none
+skinparam noteTextOutline none
+skinparam noteTextStroke none
+skinparam noteTextFill none
+skinparam noteTextBackground none
+skinparam noteTextBorder none
+skinparam noteTextPadding 0
+skinparam noteTextMargin 0
+skinparam noteTextBorderRadius 0
+skinparam noteTextBorderWidth 0
+skinparam noteTextBorderStyle solid
+skinparam noteTextBorderColor #000000
+skinparam noteTextBackgroundColor #FFFFFF
+skinparam noteTextColor #000000
+skinparam noteTextFontFamily Arial
+skinparam noteTextFontSize 12
+skinparam noteTextFontWeight normal
+skinparam noteTextFontStyle normal
+skinparam noteTextFontVariant normal
+
+title カレンダー表示機能
+
+actor "ユーザー" as User
+participant "カレンダー表示機能" as CalendarDisplay
+database "画像DB" as ImageDB
+
+== 画像取得 from Locix ==
+
+User -> CalendarDisplay: カレンダー表示
+activate CalendarDisplay
+
+box "画像取得" #LightGray
+CalendarDisplay -> ImageDB: 日付単位で画像取得
+activate ImageDB
+ImageDB --> CalendarDisplay: レスポンス
+deactivate ImageDB
+end box
+
+box "カレンダー表示" #LightGray
+alt [画像取得中]
+    CalendarDisplay --> User: ローディングインジケーター表示
+else [画像取得完了]
+    CalendarDisplay --> User: カレンダーを表示
+end alt
+deactivate CalendarDisplay
+end box
+
+== 一覧表示 ==
+
+User -> CalendarDisplay: 撮影日付選択
+activate CalendarDisplay
+CalendarDisplay --> User: 画像一覧を撮影時間の降順で表示
+deactivate CalendarDisplay
+
+@enduml

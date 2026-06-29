@@ -1,0 +1,55 @@
+```plantuml
+@startuml
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam noteBackgroundColor #FFFFE0
+skinparam noteBorderColor #000000
+skinparam frameBackgroundColor #F5F5F5
+skinparam frameBorderColor #000000
+
+participant "halon" as halon
+participant "ios1" as ios1
+participant "ios2" as ios2
+participant "client" as client
+
+frame "SNS operation start" {
+    note over halon,client: notification [(pool, repair), (disk, repair)]
+    
+    loop "until all ios are ready"
+        halon -> ios2: repair status request
+        ios2 --> halon: repair status reply
+    end
+    
+    halon -> ios2: spiel_repair_start
+    activate ios2
+    note over ios2: repair process
+}
+
+alt "sucessful case"
+    ios2 --> halon: notify [(pool, repaired), (disk, repaired)]
+    deactivate ios2
+    
+    frame "SNS status query" {
+        loop "unil all ios are in IDLE"
+            halon -> ios2: repair status request
+            ios2 --> halon: repair status reply [IDLE, IDLE]
+        end
+        
+        halon -> client: notify [(pool, REPAIRED), (disk, REPAIRED)]
+    end
+else "partial repair"
+    ios2 --> halon: notify [(pool, repair), (disk, repair)]
+    note over halon,client: Abort SNS operation
+else "transient disk"
+    ios2 --> halon: notify [(disk, transient)]
+    note over halon,client: Pause SNS operation
+else "failed disk"
+    ios2 --> halon: notify [(disk, failed)]
+    note over halon,client: Abort SNS operation
+end
+
+@enduml
+```

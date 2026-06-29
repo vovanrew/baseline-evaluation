@@ -1,0 +1,112 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam backgroundColor #F0F0F0
+skinparam sequence {
+  LifeLineBackgroundColor #E0E0E0
+  LifeLineBorderColor #CCCCCC
+  ArrowColor #333333
+  NoteBackgroundColor #FFFFCC
+  NoteBorderColor #CCCCCC
+}
+
+title 画面
+
+actor "アクター" as Actor
+participant "ユーザ" as User
+participant "ホーム画面" as Home
+participant "ログイン画面" as Login
+participant "タスク一覧画面" as TaskList
+participant "メンテナンス作業画面" as Maintenance
+participant "タスク情報画面" as TaskInfo
+participant "作業内容登録画面" as WorkContent
+participant "交換部品登録画面" as Parts
+participant "システム" as System
+
+== 起動する ==
+Actor -> User : アイコンを押下する
+User -> Home : 生成
+Home --> User : ログイン画面に遷移する
+
+== ログインする ==
+Actor -> User : IDを入力する(id)
+User -> Login : パスワードを入力する(パスワード)
+User -> Login : ログインボタンを押下する
+Login -> System : 認証情報を送信する(id,パスワード)
+System --> Login : 認証OK
+Login -> TaskList : 生成
+TaskList --> User : タスク一覧画面に遷移する
+TaskList -> System : 顧客名一覧を取得する(id)
+System --> TaskList : 顧客名一覧
+
+== タスクを選択する ==
+Actor -> User : 該当する項目を押下する
+User -> TaskList : 生成
+TaskList --> User : メンテナンス作業画面に遷移する
+
+== タスク情報を取得する ==
+Actor -> User : タスク情報ボタンを押下する
+User -> Maintenance : 生成
+Maintenance --> User : タスク情報画面に遷移する
+Maintenance -> System : タスク情報を取得する(タスクID)
+System --> Maintenance : タスク情報
+Maintenance --> User : タスク情報を取得する
+User --> Actor : タスク情報
+Actor -> User : 戻るボタンを押下する
+User -> Maintenance : 生成
+Maintenance --> User : メンテナンス作業画面に遷移する
+
+== 作業内容を登録する ==
+Actor -> User : 作業内容登録ボタンを押下する
+User -> Maintenance : 生成
+Maintenance --> User : 作業内容登録画面に遷移する
+Maintenance -> System : タスク情報を取得する(タスクID)
+System --> Maintenance : タスク情報
+Actor -> User : 作業内容を入力する
+User -> WorkContent : 戻るボタンを押下する
+WorkContent -> System : タスク情報を更新する(タスクID)
+System --> WorkContent : 生成
+WorkContent --> User : メンテナンス作業画面に遷移する
+
+== 交換部品を登録する ==
+Actor -> User : 交換部品登録ボタンを押下する
+User -> Maintenance : 生成
+Maintenance --> User : 交換部品登録画面に遷移する
+Maintenance -> System : タスク情報を取得する(タスクID)
+System --> Maintenance : タスク情報
+Actor -> User : 交換部品を登録する
+User -> Parts : 戻るボタンを押下する
+Parts -> System : タスク情報を更新する(タスクID)
+System --> Parts : 生成
+Parts --> User : メンテナンス作業画面に遷移する
+
+== 作業内容を取得する ==
+Actor -> User : 作業内容登録ボタンを押下する
+User -> Maintenance : 生成
+Maintenance --> User : 作業内容登録画面に遷移する
+Maintenance -> System : タスク情報を取得する(タスクID)
+System --> Maintenance : タスク情報
+Actor -> User : 作業内容を取得する
+User -> WorkContent : 戻るボタンを押下する
+WorkContent --> User : 生成
+User --> Actor : メンテナンス作業画面に遷移する
+
+== 交換部品を取得する ==
+Actor -> User : 交換部品登録ボタンを押下する
+User -> Maintenance : 生成
+Maintenance --> User : 交換部品登録画面に遷移する
+Maintenance -> System : タスク情報を取得する(タスクID)
+System --> Maintenance : タスク情報
+Actor -> User : 登録済み交換部品集合を取得する
+User -> Parts : 戻るボタンを押下する
+Parts --> User : 生成
+User --> Actor : メンテナンス作業画面に遷移する
+
+== 作業結果を送信する ==
+Actor -> User : 作業結果送信ボタンを押下する
+User -> Maintenance : タスク情報を送信する(タスクID)
+Maintenance -> TaskList : 生成
+TaskList --> User : タスク一覧画面に遷移する
+
+@enduml

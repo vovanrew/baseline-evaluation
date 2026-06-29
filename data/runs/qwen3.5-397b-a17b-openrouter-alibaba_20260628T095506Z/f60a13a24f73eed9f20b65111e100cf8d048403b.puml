@@ -1,0 +1,294 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #F5F5F5
+skinparam classBorderColor #CCCCCC
+skinparam classHeaderBackgroundColor #E8E8E8
+skinparam classHeaderBorderColor #CCCCCC
+skinparam classHeaderFontStyle bold
+skinparam classHeaderFontSize 14
+skinparam classAttributeFontStyle plain
+skinparam classMethodFontStyle plain
+skinparam classMethodFontSize 12
+skinparam classAttributeFontSize 12
+skinparam classAttributePadding 5
+skinparam classMethodPadding 5
+skinparam classHeaderPadding 5
+skinparam classPadding 5
+skinparam classMargin 10
+skinparam classSpacing 10
+skinparam classAlignment left
+skinparam classTextAlignment left
+skinparam classIconSize 0
+skinparam classIconPadding 0
+skinparam classIconMargin 0
+skinparam classIconSpacing 0
+skinparam classIconAlignment left
+skinparam classIconTextAlignment left
+skinparam classIconFontStyle plain
+skinparam classIconFontSize 12
+skinparam classIconColor black
+skinparam classIconBackgroundColor white
+skinparam classIconBorderColor black
+skinparam classIconBorderThickness 1
+skinparam classIconBorderRadius 0
+skinparam classIconBorderDashArray 
+skinparam classIconBorderDashOffset 0
+skinparam classIconBorderLineCap butt
+skinparam classIconBorderLineJoin miter
+skinparam classIconBorderMiterLimit 4
+skinparam classIconBorderOpacity 1
+skinparam classIconBorderStrokeDashArray 
+skinparam classIconBorderStrokeDashOffset 0
+skinparam classIconBorderStrokeLineCap butt
+skinparam classIconBorderStrokeLineJoin miter
+skinparam classIconBorderStrokeMiterLimit 4
+skinparam classIconBorderStrokeOpacity 1
+skinparam classIconBorderStrokeWidth 1
+skinparam classIconBorderWidth 1
+skinparam classIconHeight 20
+skinparam classIconWidth 20
+skinparam classIconX 0
+skinparam classIconY 0
+skinparam classIconZIndex 0
+skinparam classIconOpacity 1
+skinparam classIconRotation 0
+skinparam classIconScale 1
+skinparam classIconTransform none
+skinparam classIconTransformOrigin center
+skinparam classIconTransformBox border-box
+skinparam classIconTransformStyle flat
+skinparam classIconBackfaceVisibility visible
+skinparam classIconPerspective none
+skinparam classIconPerspectiveOrigin 50% 50%
+skinparam classIconTransformBox border-box
+skinparam classIconTransformStyle flat
+skinparam classIconBackfaceVisibility visible
+skinparam classIconPerspective none
+skinparam classIconPerspectiveOrigin 50% 50%
+
+class Game {
+    + clock_t start
+    + clock_t end
+    + int curLevel
+    + {const}int MAX_LEVEL
+    + bool isFinish
+    + bool isQuit
+    + Session* curSession
+    --
+    + handleCmd(char)
+    + handleStartCmd(char)
+    + initSession()
+    + startSession()
+    + endSession()
+    + start()
+    + isFinish()
+    + getDuration()
+}
+
+class Session {
+    + level
+    + map
+    + step
+    + isFinish
+    --
+    + move(Direction)
+    + getMap()
+    + finish()
+    + isFinish()
+    + getLevel()
+    + backToPreviousPlace()
+    + restart()
+}
+
+class Map {
+    + width:int
+    + height:int
+    + tiles:TileMap
+    + MovableList:vector
+    + player:Player
+    + Tile:OUT_SIDE_TILE
+    --
+    + getTile()
+    + moveBox()
+    + getWidth()
+    + getHeight()
+    + initMap(const string&)
+    + getStateOf(const Position&)
+    + getBoxs()
+    + getPlayerPosition()
+    + back()
+}
+
+class Player {
+    --
+    + move(Direction)
+    + getPreviousDirection()
+    + getPreviousPushFlag()
+    + clear()
+}
+
+class Box {
+    + onTarget:bool
+    --
+    + moveToTile(TileType)
+    + getOnTarget()
+}
+
+class Moveable {
+    + position:Position
+    + state:
+    --
+    + {virtual}move(Direction)
+    + back(Direction)
+    + getPosition()
+    + setPosition(const Position&)
+}
+
+class Tile {
+    + position:Position
+    + type:TileType
+    + flag:TileFlag
+    --
+    + setPosition(const Position&)
+    + getPosition()
+    + setFlag(TileFlag)
+    + getType()
+    + getState()
+}
+
+class Position {
+    + x:int
+    + y:int
+    + DIRS
+    --
+    + operator==(const Position&)
+    + opeartor+=(const Position&)
+    + getX()
+    + getY()
+    + of(int,int)
+}
+
+class Rule {
+    --
+    + isWin(const Map&)
+    + isRightMove(const Map&,Direction)
+}
+
+class MapRepository {
+    + MAP_PATH:string
+    + MAP_DIR:string
+    + MAP_ID:enum
+    + MapBuffer:class
+    --
+    + getMap(MAP_ID)
+}
+
+class FileUtil {
+    --
+    + readFile()
+}
+
+class Viewer {
+    --
+    + getInput()
+    + getLevel()
+    + display()
+}
+
+class State {
+    FLOOR_OUT_SIDE,WALL,FLOOR,BOX,TARGET,PLAYER,BOX_ON_TARGET
+}
+
+class TileType {
+    WALL,FLOOR,TARGET
+}
+
+class TileFlag {
+    NULL,PLAYER,BOX
+}
+
+class Diractory {
+    UP,DOWN,LEFT,RIGHT,SITU
+}
+
+Game *-- Session
+Session *-- Map
+Map *-- Player
+Map *-- Box
+Map *-- Tile
+Tile *-- Position
+Player --|> Moveable
+Box --|> Moveable
+Game *-- MapRepository
+MapRepository *-- FileUtil
+Game *-- Viewer
+Session *-- Rule
+
+note top of Game as G
+    <b>C</b>
+end note
+
+note top of Session as S
+    <b>C</b>
+end note
+
+note top of Map as M
+    <b>C</b>
+end note
+
+note top of Player as P
+    <b>C</b>
+end note
+
+note top of Box as B
+    <b>C</b>
+end note
+
+note top of Moveable as MV
+    <b>C</b>
+end note
+
+note top of Tile as T
+    <b>C</b>
+end note
+
+note top of Position as POS
+    <b>C</b>
+end note
+
+note top of Rule as R
+    <b>C</b>
+end note
+
+note top of MapRepository as MR
+    <b>C</b>
+end note
+
+note top of FileUtil as FU
+    <b>C</b>
+end note
+
+note top of Viewer as V
+    <b>I</b>
+end note
+
+note top of State as ST
+    <b>E</b>
+end note
+
+note top of TileType as TT
+    <b>E</b>
+end note
+
+note top of TileFlag as TF
+    <b>E</b>
+end note
+
+note top of Diractory as D
+    <b>E</b>
+end note
+
+@enduml
+```

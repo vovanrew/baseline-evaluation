@@ -1,0 +1,33 @@
+@startuml
+title 通行证二维码
+participant "巡查app" as 巡查app
+participant "小程序或app或管理平台" as 小程序或app或管理平台
+participant "lgm_community" as lgm_community
+participant "用户中心" as 用户中心
+participant "lgm_auth_apps" as lgm_auth_apps
+participant "lgm_certauth" as lgm_certauth
+
+== 产生二维码 ==
+小程序或app或管理平台->lgm_community: 1 获取通行证二维码
+activate lgm_community
+lgm_community->lgm_community: 2 根据用户找到实名信息，根据实名信息找到卡号
+lgm_community->lgm_auth_apps: 3 获取二维码（实名信息，卡号）
+activate lgm_auth_apps
+lgm_auth_apps-->lgm_community: 4 返回（二维码）
+deactivate lgm_auth_apps
+lgm_community-->小程序或app或管理平台: 5 返回
+deactivate lgm_community
+
+== 校验二维码 ==
+巡查app->lgm_community: 6 扫一扫
+activate lgm_community
+lgm_community->lgm_community: 7 参考北京通二维码认证流程
+lgm_community->lgm_certauth: 8 校验二维码（二维码）
+activate lgm_certauth
+lgm_certauth-->lgm_community: 9 校验结果
+deactivate lgm_certauth
+lgm_community->lgm_community: 10 查询客户信息
+lgm_community->lgm_community: 11 查询登记信息，按照业主动优先级排序后取一条
+lgm_community-->巡查app: 12 返回（登记信息）
+deactivate lgm_community
+@enduml

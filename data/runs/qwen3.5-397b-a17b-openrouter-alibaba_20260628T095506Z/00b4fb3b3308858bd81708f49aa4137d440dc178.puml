@@ -1,0 +1,70 @@
+```plantuml
+@startuml
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantPadding 5
+skinparam boxPadding 5
+skinparam notePadding 5
+skinparam backgroundColor white
+skinparam sequence {
+    LifeLineBackgroundColor #F0F0F0
+    LifeLineBorderColor #CCCCCC
+    ActorBackgroundColor #F0F0F0
+    ActorBorderColor #CCCCCC
+    ParticipantBackgroundColor #E0E0F0
+    ParticipantBorderColor #A0A0C0
+    ArrowColor #666666
+    ArrowThickness 1
+    NoteBackgroundColor #FFFFE0
+    NoteBorderColor #CCCC99
+}
+
+participant "InstallInstalling" as InstallInstalling
+participant "PackageInstaller" as PackageInstaller
+participant "PackageInstallerService" as PackageInstallerService
+participant "InstallingAsyncTask" as InstallingAsyncTask
+participant "PackageInstallerSession" as PackageInstallerSession
+participant "Handler" as Handler
+participant "mHandlerCallback" as mHandlerCallback
+participant "PkMS" as PkMS
+participant "PkMS.PackageHandler" as PkMS_PackageHandler
+participant "PkMS.HandlerParams" as PkMS_HandlerParams
+participant "PkMS.InstallParams" as PkMS_InstallParams
+
+== Initialization ==
+InstallInstalling -> InstallInstalling: onCreate()
+InstallInstalling -> PackageInstaller: createSession()
+PackageInstaller -> PackageInstallerService: createSession()
+PackageInstallerService --> PackageInstaller: sessionId
+PackageInstaller --> InstallInstalling: sessionId
+
+== Execution Flow ==
+InstallInstalling -> InstallInstalling: onResume()
+InstallInstalling -> InstallingAsyncTask: execute()
+InstallingAsyncTask -> InstallingAsyncTask: doInBackground()
+InstallingAsyncTask -> PackageInstaller: openSession(sessionId)
+PackageInstaller --> InstallingAsyncTask: Session
+InstallingAsyncTask -> PackageInstallerSession: openWrite()
+InstallingAsyncTask -> InstallingAsyncTask: doPostExecute()
+InstallingAsyncTask -> PackageInstallerSession: commit()
+PackageInstallerSession -> Handler: sendToTarget(MSG_COMMIT)
+Handler -> mHandlerCallback: handleMessage(MSG_COMMIT)
+mHandlerCallback -> PackageInstallerSession: handleCommit()
+PackageInstallerSession -> PackageInstallerSession: commitNonStagedLocked()
+PackageInstallerSession -> PkMS: installStage()
+PkMS -> PkMS_PackageHandler: sendMessage(INIT_COPY)
+PkMS_PackageHandler -> PkMS_HandlerParams: startCopy()
+PkMS_HandlerParams -> PkMS_InstallParams: handleStartCopy()
+PkMS_InstallParams -> PkMS_InstallParams: handleReturnCode()
+PkMS_InstallParams -> PkMS: processPendingInstall()
+PkMS -> PkMS: processInstallRequestsAsync()
+PkMS -> PkMS: installPackagesTracedLI()
+PkMS -> PkMS: installPackagesLI()
+PkMS -> PkMS: preparePackageLI()
+PkMS -> PkMS: scanPackageTracedLI()
+PkMS -> PkMS: commitPackagesLocked()
+PkMS -> PkMS: commitReconciledScanResultLocked()
+PkMS -> PkMS: commitPackageSettings()
+
+@enduml
+```

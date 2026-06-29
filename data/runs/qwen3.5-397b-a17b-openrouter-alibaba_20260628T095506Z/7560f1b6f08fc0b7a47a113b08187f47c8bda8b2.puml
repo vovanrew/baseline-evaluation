@@ -1,0 +1,58 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantFontColor #000000
+skinparam actorStyle awesome
+skinparam actorBackgroundColor #E6E6FA
+skinparam actorBorderColor #000000
+skinparam actorFontColor #000000
+skinparam noteBackgroundColor #FFFFE0
+skinparam noteBorderColor #000000
+skinparam noteFontColor #000000
+skinparam frameBackgroundColor #F5F5F5
+skinparam frameBorderColor #000000
+skinparam frameFontColor #000000
+
+actor "record" as record
+participant "configuration" as config
+participant "ekf" as ekf
+participant "pathgenerator" as pathgen
+participant "display" as display
+participant "diagnostics" as diag
+
+record -> config: 1 Get initial configuration
+activate config
+config --> record: 
+deactivate config
+
+frame "initialize" {
+    record -> ekf: 2 Create Object
+    record -> pathgen: 3 Create Object
+}
+
+frame "iterate" {
+    record -> ekf: 4 Get current location
+    activate ekf
+    ekf --> record: 
+    deactivate ekf
+    
+    record -> pathgen: 5 Send current location
+    activate pathgen
+    pathgen --> record: 6 Return path
+    deactivate pathgen
+    
+    record -> display: 7 Path addition and walker location
+    activate display
+    display --> record: 
+    deactivate display
+    
+    record -> diag: 8 Walker location and path status
+    activate diag
+    diag --> record: 
+    deactivate diag
+}
+
+@enduml

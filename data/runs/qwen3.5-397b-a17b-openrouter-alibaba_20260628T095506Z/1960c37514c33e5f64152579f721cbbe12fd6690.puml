@@ -1,0 +1,109 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor White
+skinparam classBorderColor Black
+skinparam classArrowColor Black
+skinparam noteBackgroundColor LightYellow
+skinparam noteBorderColor Black
+skinparam packageBackgroundColor White
+skinparam packageBorderColor Black
+skinparam packageFontStyle bold
+skinparam packageHeaderAlignment left
+skinparam rectangleBackgroundColor White
+skinparam rectangleBorderColor Black
+skinparam rectangleFontStyle bold
+skinparam rectangleHeaderAlignment left
+
+package "Client" {
+    interface "IInfoPraiaData" {
+        [key: String]: number
+    }
+
+    interface "IInfoPonto" {
+        alturaOnda: IInfoPraiaData
+        direçãoOnda: IInfoPraiaData
+        alturaOndulação: IInfoPraiaData
+        direçãoOndulação: IInfoPraiaData
+        períodoOndulação: IInfoPraiaData
+        velocidadeVento: IInfoPraiaData
+        direçãoVento: IInfoPraiaData
+    }
+
+    class "ApiInfoPraia" {
+        parameters: []
+        request: Class Request
+        buscarPonto(lat, lng): <IPrevisãoPonto>
+    }
+
+    interface "IPrevisãoPonto" {
+        alturaOnda: Number
+        direçãoOnda: Number
+        alturaOndulação: Number
+        direçãoOndulação: Number
+        períodoOndulação: Number
+        velocidadeVento: Number
+        direçãoVento: Number
+    }
+
+    note "parameters: [alturaOnda, direçãoOnda, alturaOndulação,\ndireçãoOndulação, períodoOndulação,\nvelocidadeVento, direçãoVento]" as Note1
+}
+
+package "Models" {
+    interface "IPraia" {
+        id: Integer
+        name: String
+        position[1]: Position
+        lat: Integer
+        lng: Integer
+        user: String
+    }
+
+    enum "Position" {
+        N
+        S
+        L
+        O
+    }
+
+    interface "IUser" {
+        id: String
+        name: String
+        email: String
+        password: String
+    }
+
+    class "PraiaModel" {
+    }
+
+    class "ModelUser" {
+    }
+
+    class "Praia" {
+    }
+}
+
+package "Controllers" {
+}
+
+package "Middlewares" {
+}
+
+package "Services" {
+}
+
+package "Util" {
+    class "Request" {
+        request: {}
+        get(url)
+    }
+}
+
+ApiInfoPraia --> Request
+ApiInfoPraia --> IPrevisãoPonto
+IPraia --> Position
+PraiaModel --|> IPraia
+ModelUser --|> IUser
+Praia ..> PraiaModel
+
+@enduml

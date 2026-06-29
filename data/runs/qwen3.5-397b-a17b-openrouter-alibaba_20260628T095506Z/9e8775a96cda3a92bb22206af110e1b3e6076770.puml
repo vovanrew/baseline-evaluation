@@ -1,0 +1,51 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #F5F5F5
+skinparam classBorderColor #000000
+skinparam interfaceBackgroundColor #F5F5F5
+skinparam interfaceBorderColor #000000
+skinparam packageBackgroundColor #FFFFFF
+skinparam packageBorderColor #000000
+
+package "Modulo-matrícula/Informática" {
+    class "Matrícula" as M {
+        -id: Int
+        -cliente: Client
+        -tempo: Int
+        -quadra: Turma
+        +registraMatrícula(): Int
+    }
+
+    class "Aluno" as A {
+        -id: Int
+        -nome: String
+        -locação: List<Matrícula>
+    }
+
+    class "Curso" as C {
+        -nome: String
+        -profe
+        -quadra: List<Turma>
+    }
+
+    class "Turma" as T {
+        -numero: Int
+        -aluguel: Matrícula
+        -ginasio: Curso
+        +getcontroleNúmeroMatrícula()
+    }
+
+    interface "ControleNúmeroMatrícula" as CNM {
+        #quantidadeDeMatrícula: Int
+        +registraMatrícula(): Int
+    }
+
+    M "0..*" *-- "1" A : composição
+    M "1..*" *-- "1" T : composição
+    C "1" *-- "1..*" T : composição
+    T ..> CNM : dependência
+    M ..|> CNM : realização
+}
+
+@enduml

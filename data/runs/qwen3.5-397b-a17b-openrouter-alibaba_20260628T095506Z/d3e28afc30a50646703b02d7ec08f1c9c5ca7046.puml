@@ -1,0 +1,69 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+class CollectingEvent {
+    -dwcVerbatimLatitude
+    -dwcVerbatimLongitude
+    -dwcVerbatimLocality
+    -verbatimEventDateTime
+    -geographicPlaceNameSource
+    -collectors
+    -attachments
+}
+
+class GeographicPlaceNameSourceDetail {
+    -sourceUrl
+    -country
+    -stateProvince
+    -higherGeographicPlaces
+    -recordedOn
+}
+
+class GeoreferenceAssertion {
+    -dwcDecimalLatitude
+    -dwcDecimalLongitude
+    -dwcCoordinateUncertaintyInMeters
+    -georeferencedBy
+    -dwcGeoreferenceVerificationStatus
+}
+
+class MaterialSample {
+    -materialSampleName
+    -dwcCatalogueNumber{not unique}
+    -dwcOtherCatalogNumbers
+    -preparedBy
+    -preparationDate
+}
+
+class Determination {
+    -scientificName
+    -determinationDate
+}
+
+class PreparationType {
+    -name
+    -description
+}
+
+class MaterialSampleType {
+    -name
+    -description
+}
+
+class StorageUnit {
+    -name
+    -type
+}
+
+CollectingEvent "1" -- "1" GeographicPlaceNameSourceDetail
+CollectingEvent "1" -- "0..*" GeoreferenceAssertion
+CollectingEvent "0..1" -- "0..*" MaterialSample
+MaterialSample "0..*" -- "0..*" Determination
+MaterialSample "0..*" -- "0..1" PreparationType
+MaterialSample "0..*" -- "0..1" MaterialSampleType
+MaterialSample "0..*" -- "0..1" StorageUnit
+MaterialSample <.. MaterialSample : self-reference
+@enduml
+```

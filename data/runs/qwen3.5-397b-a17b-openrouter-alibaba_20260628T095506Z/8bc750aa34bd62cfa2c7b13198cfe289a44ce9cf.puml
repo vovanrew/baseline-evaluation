@@ -1,0 +1,67 @@
+```plantuml
+@startuml
+skinparam sequenceMessageAlign center
+skinparam lifelinestrategy solid
+skinparam noteFontColor black
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #CCCC99
+skinparam participantFontColor black
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #CCCCFF
+skinparam participantPadding 5
+skinparam sequenceArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #F0F0F0
+skinparam sequenceLifeLineBorderColor #CCCCCC
+skinparam sequenceBoxBackgroundColor #F8F8F8
+skinparam sequenceBoxBorderColor #CCCCCC
+skinparam sequenceBoxFontStyle bold
+
+actor "mobile" as mobile
+participant "www" as www
+participant "endpoint" as endpoint
+participant "haproxy" as haproxy
+participant "ipfs" as ipfs
+participant "postgraphile" as postgraphile
+participant "CITY Custom Net" as citynet
+participant "logstash" as logstash
+participant "dApp" as dapp
+database "postgres" as postgres
+database "elastic" as elastic
+participant "prometheus" as prometheus
+participant "kibana" as kibana
+
+== webUI ==
+mobile -> www: sign & send events
+note right of mobile: browser ext or mobile wallet
+www -> haproxy: HTTPS gateway & peer tcp/4001
+haproxy -> ipfs: /ipfs/{CID}
+haproxy -> citynet: HTTPS (oauth by EC Address)
+note right of www: User makes deposit / signs entry to trigger events.
+
+== api - Admin/Write api ==
+www -> citynet: /v2 - read/write factom api
+www -> ipfs: /ipfs/{CID} - readonly gateway
+www -> postgraphile: /graphql - readonly graphql queries
+citynet -> logstash: livefeed log
+logstash -> elastic: index event logs
+citynet -> dapp: dApp specific events
+dapp -> citynet: Query/Sign
+dapp -> citynet: sign and dispatch requests
+citynet -> dapp: read/write signed factom entries
+
+== dashboard ==
+kibana -> prometheus: dashboard query
+prometheus -> prometheus: poll()
+citynet -> prometheus: Monitor(FA2XXXXXXXXX) Balance changes
+citynet -> prometheus: HTTP GET /metrics
+www -> prometheus: HTTP GET /metrics
+prometheus -> kibana: metrics query
+elastic -> kibana: dApp specific rollup
+
+== dApp - controller ==
+citynet -> dapp: dispatch on-chain event
+dapp -> logstash: dApp specific logging
+dapp -> ipfs: pin entry content on IPFS
+
+@enduml
+```

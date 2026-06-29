@@ -1,0 +1,74 @@
+```plantuml
+@startuml
+skinparam handwritten true
+skinparam note {
+  BackgroundColor LightYellow
+  BorderColor LightGray
+  FontSize 12
+}
+skinparam participant {
+  BackgroundColor Lavender
+  BorderColor Black
+  FontSize 14
+}
+skinparam sequence {
+  LifeLineBorderColor Black
+  ArrowColor Black
+}
+
+title シーケンス：コンテンツフォルダ編集
+
+participant "ContentFolder" as CF
+participant "BcContentsBehavior" as BCB
+participant "Content" as C
+
+CF -> CF: edit
+activate CF
+CF -> BCB: setup
+activate BCB
+note right of BCB: hasOneでコンテンツをフォルダに繋ぎこむ
+CF -> BCB: beforeValidate
+note right of BCB
+  ・コンテンツの初期化
+  ・コンテンツのバリデーション
+  ・バリデーション結果のマージ
+  ・バリデーション後のコンテンツのマージ
+end note
+BCB --> CF
+CF -> BCB: beforeSave
+note right of BCB
+  ・コンテンツのバリデーションチェック
+  ・エラーが出ていれば終了
+end note
+BCB --> CF
+CF -> BCB: afterSave
+note right of BCB: コンテンツの生成
+BCB -> C: save
+activate C
+C -> C: beforeValidate
+note right of C
+  ・タイトル整形
+  ・更新日のセット
+  ・URLの整形
+  ・トップフォルダの場合にURLバリデーションを除外
+  ・URLの重複チェック（重複していた場合は自動生成）
+end note
+C -> C: beforeSave
+note right of C: 変更前の親コンテンツIDを取得
+C -> C: afterSave
+note right of C
+  ・関連するキャッシュを削除
+  ・システムデータを更新
+  ・子コンテンツの更新
+  ・別サイトの関連するコンテンツを更新
+  ・親コンテンツが変更となった場合は、最終並び替え日時を更新
+end note
+C --> BCB
+note right of BCB: 生成後のContent をマージ
+BCB --> CF
+deactivate BCB
+deactivate C
+deactivate CF
+
+@enduml
+```

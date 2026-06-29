@@ -63,8 +63,8 @@ reasoning configuration (§3) and the usage fields the harness validates
   `max_completion_tokens` (`max_tokens` is rejected for this model;
   `--token-field`, recorded in `run_meta.json`) and returns HTTP 400 rather
   than a truncated completion when generation reaches the cap, so a
-  cap-exhausting generation is stored as an `http_error` failure record. Featherless serves Qwen3.5-2B in FP16
-  and Qwen3.5-9B/27B/397B-A17B in FP8 (provider listings); all four
+  cap-exhausting generation is stored as an `http_error` failure record. Featherless serves all four
+  Qwen3.5 sizes at FP8 (quantized to FP8 before loading; FP16 is the upload format only); all four
   sizes ingest the 1,568 px image standard without downscaling
   (`util/probe_image_tokens.py`; test-set-construction.md §7).
 - **Anthropic (`claude-opus-4-6`)** — Anthropic's OpenAI-compatible

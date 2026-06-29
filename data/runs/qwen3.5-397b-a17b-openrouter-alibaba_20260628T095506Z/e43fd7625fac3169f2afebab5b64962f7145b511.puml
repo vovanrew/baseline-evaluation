@@ -1,0 +1,78 @@
+```plantuml
+@startuml
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam note {
+  BackgroundColor White
+  BorderColor Black
+  FontSize 10
+}
+skinparam participant {
+  BackgroundColor White
+  BorderColor Black
+  FontSize 10
+}
+
+participant "ClassPathXmlApplicationContext" as C
+participant "AbstractApplicationContext" as A
+participant "DefaultListableBeanFactory" as D
+participant "AbstractBeanFactory" as AB
+participant "DefaultSingletonBeanRegistry" as DS
+participant "AbstractAutowireCapableBeanFactory" as AA
+participant "BeanDefinitionValueResolver" as B
+
+C -> A: refresh(),Spring加载的入口
+A -> A: finishBeanFactoryInitialization() : spring bean 实例化入口
+A -> D: preInstantiateSingletons
+D -> AB: getBean()真正获取bean的开始doXXX,是Spring通用的实现方法命名方式
+AB -> AB: doGetBean 真正获取bean的开始doXXX,是Spring通用的实现方法命名方式
+AB -> DS: getSingleton 从缓存中获取Springbean对象
+DS -> DS: getSingleton(beanName,ealyReference)，第一次运行接受提交暴露的bean对象
+DS --> AB: 第一次返回为空
+AB -> AB: markBeanAsCreated bean创建过程比较长，标记bean正在创建 markBeanAsCreated
+AB -> DS: getSingleton(beanName, 对象工厂类)，此处是一个lamada表达式；
+DS -> DS: beforeSingletonCreation
+AB -> AA: createBean lambda中执行方法
+AA -> AA: doCreateBean
+AA -> AA: createBeanInstance,构造函数
+AA -> DS: earlySingletonExposure（是否运行单例对象提交暴露）addSingletonFactory :将数据放在三级缓存
+DS -> AA: addSingletonFactory缓存对象放好之后
+AA -> AA: populateBean(bean 属性填充,循环依赖解决单例的bean之间的属性填充)；
+AA -> AA: applyPropertyValues
+AA -> B: resolveValueIfNecessary:处理bean里面的依赖
+B -> B: resolveReference
+AB -> AB: getBean：获取bean属性中依赖的bean对象
+AB -> AB: doGetBean
+AB -> DS: getSingleton 从缓存中获取Springbean对象
+DS -> DS: getSingleton(beanName,ealyReference)，第一次运行接受提交暴露的bean对象
+DS --> AB: 第一次返回为空
+AB -> AB: markBeanAsCreated bean创建过程比较长，标记bean正在创建 markBeanAsCreated
+AB -> DS: getSingleton(beanName, 对象工厂类)，此处是一个lamada表达式；
+DS -> DS: beforeSingletonCreation
+AB -> AA: createBean lambda中执行方法
+AA -> AA: doCreateBean
+AA -> AA: createBeanInstance,构造函数
+AA -> DS: earlySingletonExposure（是否运行单例对象提交暴露）addSingletonFactory :将数据放在三级缓存
+DS -> AA: addSingletonFactory缓存对象放好之后(此处特别注意：singletonFactories)
+AA -> AA: populateBean(bean 属性填充,循环依赖解决单例的bean之间的属性填充)；
+AA -> AA: applyPropertyValues
+AA -> B: resolveValueIfNecessary:处理bean里面的依赖
+B -> B: resolveReference
+AB -> AB: getBean：获取bean属性中依赖的bean对象
+AB -> AB: doGetBean
+AB -> DS: getSingleton 从缓存中获取Springbean对象
+DS -> DS: ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);<br/>从三级缓存中获取，因为对象已经缓存了，所以可以获取到暴露的对象
+DS --> AB: 返回提前暴露的对象，不在是返回的空对象，并且将在三级缓存中的数据 对象放在二级缓存中earlySingletonObjects
+AB --> AB: 返回提前的bean
+AA -> AA: 依赖的bean获取到bean
+AA -> AA: applyPropertyValues的方法返回
+AA -> AA: populateBean方法返回
+AA -> AA: initializeBean spring中的init方法，实现aware操作，
+AB --> AB: 返回bean
+AB --> AB: 返回bean
+AA -> AA: populateBean (返回bean的情况)
+DS -> DS: createBean
+DS -> DS: addSingleton(beanName, singletonObject); 对象创建好之后，移除三级和二级缓存中对象的值
+note right of DS: 依次返回，最终将对象都加载singletonObjects缓存池当中
+@enduml
+```

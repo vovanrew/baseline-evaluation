@@ -1,0 +1,232 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #F0F0F0
+skinparam classBorderColor #CCCCCC
+skinparam classHeaderBackgroundColor #E0E0E0
+skinparam classHeaderFontColor #333333
+skinparam classHeaderBorderSize 1
+skinparam classHeaderBorderBottomSize 1
+skinparam classHeaderBorderTopSize 1
+skinparam classHeaderBorderLeftSize 1
+skinparam classHeaderBorderRightSize 1
+skinparam classHeaderBorderRadius 0
+skinparam classHeaderBorderBottomRadius 0
+skinparam classHeaderBorderTopRadius 0
+skinparam classHeaderBorderLeftRadius 0
+skinparam classHeaderBorderRightRadius 0
+skinparam classHeaderBorderBottomColor #CCCCCC
+skinparam classHeaderBorderTopColor #CCCCCC
+skinparam classHeaderBorderLeftColor #CCCCCC
+skinparam classHeaderBorderRightColor #CCCCCC
+skinparam classHeaderBorderBottomStyle solid
+skinparam classHeaderBorderTopStyle solid
+skinparam classHeaderBorderLeftStyle solid
+skinparam classHeaderBorderRightStyle solid
+skinparam classHeaderBorderBottomWidth 1
+skinparam classHeaderBorderTopWidth 1
+skinparam classHeaderBorderLeftWidth 1
+skinparam classHeaderBorderRightWidth 1
+skinparam classHeaderBorderBottomPadding 0
+skinparam classHeaderBorderTopPadding 0
+skinparam classHeaderBorderLeftPadding 0
+skinparam classHeaderBorderRightPadding 0
+skinparam classHeaderBorderBottomMargin 0
+skinparam classHeaderBorderTopMargin 0
+skinparam classHeaderBorderLeftMargin 0
+skinparam classHeaderBorderRightMargin 0
+skinparam classHeaderBorderBottomSpacing 0
+skinparam classHeaderBorderTopSpacing 0
+skinparam classHeaderBorderLeftSpacing 0
+skinparam classHeaderBorderRightSpacing 0
+skinparam classHeaderBorderBottomOffset 0
+skinparam classHeaderBorderTopOffset 0
+skinparam classHeaderBorderLeftOffset 0
+skinparam classHeaderBorderRightOffset 0
+skinparam classHeaderBorderBottomAlign center
+skinparam classHeaderBorderTopAlign center
+skinparam classHeaderBorderLeftAlign center
+skinparam classHeaderBorderRightAlign center
+skinparam classHeaderBorderBottomVAlign middle
+skinparam classHeaderBorderTopVAlign middle
+skinparam classHeaderBorderLeftVAlign middle
+skinparam classHeaderBorderRightVAlign middle
+skinparam classHeaderBorderBottomTextAlign center
+skinparam classHeaderBorderTopTextAlign center
+skinparam classHeaderBorderLeftTextAlign center
+skinparam classHeaderBorderRightTextAlign center
+skinparam classHeaderBorderBottomTextVAlign middle
+skinparam classHeaderBorderTopTextVAlign middle
+skinparam classHeaderBorderLeftTextVAlign middle
+skinparam classHeaderBorderRightTextVAlign middle
+skinparam classHeaderBorderBottomTextPadding 0
+skinparam classHeaderBorderTopTextPadding 0
+skinparam classHeaderBorderLeftTextPadding 0
+skinparam classHeaderBorderRightTextPadding 0
+skinparam classHeaderBorderBottomTextMargin 0
+skinparam classHeaderBorderTopTextMargin 0
+skinparam classHeaderBorderLeftTextMargin 0
+skinparam classHeaderBorderRightTextMargin 0
+skinparam classHeaderBorderBottomTextSpacing 0
+skinparam classHeaderBorderTopTextSpacing 0
+skinparam classHeaderBorderLeftTextSpacing 0
+skinparam classHeaderBorderRightTextSpacing 0
+skinparam classHeaderBorderBottomTextOffset 0
+skinparam classHeaderBorderTopTextOffset 0
+skinparam classHeaderBorderLeftTextOffset 0
+skinparam classHeaderBorderRightTextOffset 0
+skinparam classHeaderBorderBottomTextAlign center
+skinparam classHeaderBorderTopTextAlign center
+skinparam classHeaderBorderLeftTextAlign center
+skinparam classHeaderBorderRightTextAlign center
+skinparam classHeaderBorderBottomTextVAlign middle
+skinparam classHeaderBorderTopTextVAlign middle
+skinparam classHeaderBorderLeftTextVAlign middle
+skinparam classHeaderBorderRightTextVAlign middle
+skinparam classHeaderBorderBottomTextPadding 0
+skinparam classHeaderBorderTopTextPadding 0
+skinparam classHeaderBorderLeftTextPadding 0
+skinparam classHeaderBorderRightTextPadding 0
+skinparam classHeaderBorderBottomTextMargin 0
+skinparam classHeaderBorderTopTextMargin 0
+skinparam classHeaderBorderLeftTextMargin 0
+skinparam classHeaderBorderRightTextMargin 0
+skinparam classHeaderBorderBottomTextSpacing 0
+skinparam classHeaderBorderTopTextSpacing 0
+skinparam classHeaderBorderLeftTextSpacing 0
+skinparam classHeaderBorderRightTextSpacing 0
+skinparam classHeaderBorderBottomTextOffset 0
+skinparam classHeaderBorderTopTextOffset 0
+skinparam classHeaderBorderLeftTextOffset 0
+skinparam classHeaderBorderRightTextOffset 0
+
+package "domain" {
+    interface "INodeVisitor" as INodeVisitor {
+        + visit(node: Probe)
+        + visit(node: Input)
+        + visit(node: AndGate)
+        + visit(node: NAndGate)
+        + visit(node: NORGate)
+        + visit(node: ORGate)
+        + visit(node: XORGate)
+    }
+
+    class "Circuit" as Circuit {
+        + Circuit()
+        + addNode(node: Node)
+        + addInput(node: Input)
+        + addProbe(node: Probe)
+        + getNodes(): Set<Node>
+        + getInputs(): Set<Input>
+        + getInput(name: String)
+        + getProbes(): Set<Probe>
+        + getProbe(name: String)
+        + simulate()
+        + addSimulationListener(simulationListener: ISimulationListener)
+        + addSimulationListeners(simulationListeners: Collection<ISimulationListener>)
+    }
+
+    class "Node" as Node {
+        + value: boolean
+        + name: String
+        + Node(name: String)
+        + getValue(): boolean
+        + getName(): String
+        + addToCircuit(circuit: Circuit)
+        + addSimulationListener(simulationListener: ISimulationListener)
+        + notifyStartCalculation()
+        + notifyStopCalculation(calculatedValue: boolean)
+        + calculate(): boolean
+        + accept(nodeVisitor: INodeVisitor)
+    }
+
+    class "NodeComposite" as NodeComposite {
+        + parents: List<Node>
+        + NodeComposite(parents: List<Node>, name: String)
+        + addParent(node: Node)
+        + removeParent(node: Node)
+        + getParents(): List<Node>
+        + calculate(): boolean
+    }
+
+    class "ISimulationListener" as ISimulationListener {
+    }
+
+    class "Input" as Input {
+        + Input(value: boolean, name: String)
+        + setValue(value: boolean)
+        + calculate(): boolean
+        + accept(nodeVisitor: INodeVisitor)
+        + addToCircuit(circuit: Circuit)
+    }
+
+    class "AndGate" as AndGate {
+        + AndGate(name: String)
+        + AndGate(parents: List<Node>, name: String)
+        + calculate(): boolean
+        + accept(nodeVisitor: INodeVisitor)
+    }
+
+    class "NAndGate" as NAndGate {
+        + NAndGate(name: String)
+        + NAndGate(parents: List<Node>, name: String)
+        + calculate(): boolean
+        + accept(nodeVisitor: INodeVisitor)
+    }
+
+    class "NORGate" as NORGate {
+        + NORGate(name: String)
+        + NORGate(parents: List<Node>, name: String)
+        + calculate(): boolean
+        + accept(nodeVisitor: INodeVisitor)
+    }
+
+    class "NotGate" as NotGate {
+        + NotGate(name: String)
+        + NotGate(parents: List<Node>, name: String)
+        + calculate(): boolean
+        + accept(nodeVisitor: INodeVisitor)
+    }
+
+    class "ORGate" as ORGate {
+        + ORGate(name: String)
+        + ORGate(parents: List<Node>, name: String)
+        + calculate(): boolean
+        + accept(nodeVisitor: INodeVisitor)
+    }
+
+    class "XORGate" as XORGate {
+        + XORGate(name: String)
+        + XORGate(parents: List<Node>, name: String)
+        + calculate(): boolean
+        + accept(nodeVisitor: INodeVisitor)
+    }
+
+    class "Probe" as Probe {
+        + Probe(name: String)
+        + Probe(parents: List<Node>, name: String)
+        + calculate(): boolean
+        + accept(nodeVisitor: INodeVisitor)
+        + addToCircuit(circuit: Circuit)
+    }
+
+    Node <|-- NodeComposite
+    NodeComposite <|-- AndGate
+    NodeComposite <|-- NAndGate
+    NodeComposite <|-- NORGate
+    NodeComposite <|-- NotGate
+    NodeComposite <|-- ORGate
+    NodeComposite <|-- XORGate
+    NodeComposite <|-- Probe
+    Node <|-- Input
+
+    Circuit "0..*" -- "nodes" Node
+    Circuit "0..*" -- "inputs" Input
+    Circuit "0..*" -- "probes" Probe
+    Circuit "0..*" -- "simulationListeners" ISimulationListener
+    Node "0..*" -- "parents" NodeComposite
+    Node "0..*" -- "simulationListeners" ISimulationListener
+    Input "0..*" -- "simulationListeners" ISimulationListener
+    Probe "0..*" -- "simulationListeners" ISimulationListener
+}
+@enduml

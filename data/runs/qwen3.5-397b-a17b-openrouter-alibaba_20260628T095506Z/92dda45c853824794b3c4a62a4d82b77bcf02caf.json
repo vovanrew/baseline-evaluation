@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782654278-so4rzdBurLJ0Nxlqs4Xx",
+  "object": "chat.completion",
+  "created": 1782654278,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor \"User Agent\" as UA\nparticipant \"Content Upload API\" as API\ndatabase \"Content database\" as DB\nparticipant \"CAFF Parser\" as Parser\n\nUA -> API: Upload request (HTTP POST),\\ncontains a single CAFF file in its body.\nnote right of API: **MUST** also include a CSRF token to prevent users of other,\\npotentially XSS vulnerable sites to take part in a massive distributed spam or DoS operation.\nactivate API\nAPI -> Parser: Validate upload request\nactivate Parser\nParser --> API: Return result\ndeactivate Parser\n\nalt [Failed to validate uploaded content]\n    API --> UA: Return an HTTP status code that signals validation failure.\\nExact value depends on how the validation failed.\nelse [Request is deemed valid]\n    note right of Parser: Uploads should be validated by at **LEAST**:\\n* Content-Size header against max file size.\\n* All size fields against their respective supported bounds.\\n* Structure of all fields match expectations from the spec.\\n* Number of bytes from the upload matches number of bytes expected from in-file metadata.\n    API -> DB: Store content in database\n    activate DB\n    DB --> API: Return result of request\n    deactivate DB\n    alt [Upload succeeded]\n        API --> UA: Return HTTP 201 Created\n    else\n        API --> UA: Return HTTP status code signaling the reason for failure.\n    end\nend\ndeactivate API\n@enduml",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1026,
+    "completion_tokens": 319,
+    "total_tokens": 1345,
+    "cost": 0.0011466,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.0011466,
+      "upstream_inference_prompt_cost": 0.00040014,
+      "upstream_inference_completions_cost": 0.00074646
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

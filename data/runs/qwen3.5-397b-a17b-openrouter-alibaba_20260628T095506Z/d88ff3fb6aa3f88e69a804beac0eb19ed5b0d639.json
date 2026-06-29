@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782657630-ZS8CHhfCizsWlhMsVmXf",
+  "object": "chat.completion",
+  "created": 1782657630,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam sequenceMessageAlign center\nskinparam responseMessageBelowArrow true\nskinparam maxMessageSize 250\nskinparam lifelineStrategy solid\nskinparam linetype ortho\n\nactor \"Admin\" as Admin\nparticipant \"AddEventPage\" as AddEventPage\nparticipant \"AddEventFormContainer\" as AddEventFormContainer\nparticipant \"AddClassPopupContainer\" as AddClassPopupContainer\nparticipant \"ClassForm\" as ClassForm\nparticipant \"ClassService (Frontend)\" as ClassServiceFrontend\nparticipant \"ShiftService (Frontend)\" as ShiftServiceFrontend\nparticipant \"Router\" as Router\nparticipant \"ClassHTTPTransport\" as ClassHTTPTransport\nparticipant \"ClassEndpoint\" as ClassEndpoint\nparticipant \"ClassService\" as ClassService\nparticipant \"ClassCommand\" as ClassCommand\nparticipant \"ClassQuery\" as ClassQuery\nparticipant \"TransactionGRPC Transport\" as TransactionGRPCTransport\nparticipant \"StorageGRPC Transport\" as StorageGRPCTransport\nparticipant \"MaterialService\" as MaterialService\nparticipant \"NatsStreaming\" as NatsStreaming\n\nAdmin -> AddEventPage: Click \"Attach New Class\" Button\nAddEventPage -> AddEventFormContainer: attach(Class)\nAddEventFormContainer -> AddEventPage: attach\nAddEventPage -> Admin: attach\nAddEventPage -> AddClassPopupContainer: Render \"Add Class Popup\" Container\nAddClassPopupContainer -> ClassForm: render\nClassForm -> AddClassPopupContainer: rendered\nAddClassPopupContainer -> Admin: Rendered\nAdmin -> AddClassPopupContainer: choose date\nAddClassPopupContainer -> ClassForm: handleDateChange(value)\nClassForm -> ClassServiceFrontend: fetchAvailableShifts(date)\nClassServiceFrontend -> ShiftServiceFrontend: shifts\nShiftServiceFrontend -> ClassForm: form data\nClassForm -> AddClassPopupContainer: form data\nAddClassPopupContainer -> Admin: form data\nAdmin -> AddClassPopupContainer: choose shift\nAddClassPopupContainer -> ClassForm: handleShiftChange()\nClassForm -> ShiftServiceFrontend: fetchAvailableShifts(date, [shift])\nShiftServiceFrontend -> ClassForm: rooms\nClassForm -> AddClassPopupContainer: form data\nAddClassPopupContainer -> Admin: form data\nAdmin -> AddClassPopupContainer: fill form\nAddClassPopupContainer -> ClassForm: form data\nClassForm -> Admin: form data\nAdmin -> AddClassPopupContainer: Click \"Create Class\" Button\nAddClassPopupContainer -> ClassForm: handleClassFormSubmitted()\nactivate ClassForm\nClassForm -> ClassForm: bookingClass(payload)\ndeactivate ClassForm\nClassForm -> Router: route(\"GET\", \"/v2/booking\")\nRouter -> ClassHTTPTransport: BookingClass(ClassService, []ServerOption)\nClassHTTPTransport -> ClassEndpoint: Booking(ClassService, withPaginated)\nClassEndpoint -> ClassService: Create(context, params)\nClassService -> ClassCommand: Validate()\nClassCommand -> ClassService: \nalt \"Data Valid\"\n    ClassService -> TransactionGRPCTransport: IsValidTransaction(ProtoBuffer)\n    TransactionGRPCTransport -> ClassService: ProtoResponse\n    alt \"Is Valid Transaction\"\n        ClassService -> ClassCommand: class := ClassModel()\n        ClassCommand -> ClassService: \n        ClassService -> ClassCommand: Create(context, class)\n        ClassCommand -> ClassService: uuid\n        opt \"has materials\"\n            ClassService -> StorageGRPCTransport: CommitFile(context, ProtoBuffer)\n            StorageGRPCTransport -> ClassService: link\n            ClassService -> ClassCommand: Create(context, payload)\n            ClassCommand -> ClassService: isCreated\n        end\n        ClassService -> ClassQuery: Find(context, []SliceConditions)\n        ClassQuery -> ClassService: classes\n        ClassService -> NatsStreaming: publishClassCreated(context, data)\n        NatsStreaming -> ClassService: published\n    else\n        ClassService -> ClassEndpoint: BadRequest\n        ClassEndpoint -> ClassHTTPTransport: BadRequest\n        ClassHTTPTransport -> Router: BadRequest\n        Router -> ClassServiceFrontend: BadRequest\n        ClassServiceFrontend -> ClassForm: BadRequest\n        ClassForm -> AddClassPopupContainer: BadRequest\n        AddClassPopupContainer -> Admin: BadRequest\n    end\nelse\n    ClassService -> ClassEndpoint: UnprocessableEntity\n    ClassEndpoint -> ClassHTTPTransport: UnprocessableEntity\n    ClassHTTPTransport -> Router: UnprocessableEntity\n    Router -> ClassServiceFrontend: UnprocessableEntity\n    ClassServiceFrontend -> ClassForm: UnprocessableEntity\n    ClassForm -> AddClassPopupContainer: UnprocessableEntity\n    AddClassPopupContainer -> Admin: UnprocessableEntity\nend\nClassService -> ClassEndpoint: class\nClassEndpoint -> ClassEndpoint: response := Response(class, nil)\nClassEndpoint -> ClassHTTPTransport: response\nClassHTTPTransport -> Router: response\nRouter -> ClassServiceFrontend: response\nClassServiceFrontend -> ClassForm: response\nClassForm -> AddClassPopupContainer: response\nAddClassPopupContainer -> Admin: response\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1712,
+    "completion_tokens": 1077,
+    "total_tokens": 2789,
+    "cost": 0.00318786,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00318786,
+      "upstream_inference_prompt_cost": 0.00066768,
+      "upstream_inference_completions_cost": 0.00252018
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

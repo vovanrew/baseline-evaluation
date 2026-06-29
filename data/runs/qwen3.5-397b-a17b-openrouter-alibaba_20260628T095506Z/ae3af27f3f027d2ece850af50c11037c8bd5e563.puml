@@ -1,0 +1,80 @@
+```plantuml
+@startuml
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam noteStyle rectangle
+skinparam actorStyle awesome
+skinparam databaseStyle cylinder
+skinparam packageStyle rectangle
+skinparam backgroundColor white
+skinparam sequence {
+    LifeLineBackgroundColor #F0F0F0
+    LifeLineBorderColor #CCCCCC
+    ParticipantBackgroundColor #E0E0E0
+    ParticipantBorderColor #999999
+    ParticipantPadding 10
+    BoxPadding 10
+}
+
+actor "main" as main
+participant "bkup.BackupFacade" as facade
+participant "srcrepo.SourceRepository" as srcrepo
+participant "dstrepo.DestinationRepository" as dstrepo
+participant "metarepo.MetadataRepository" as metarepo
+participant "scanner.AllFileScanner" as scanner
+database "FileSystem" as fs
+database "SQLite3" as db
+
+main -> facade: execute()
+
+frame "Get all files" {
+    facade -> scanner: get_all_files()
+    scanner -> fs: 
+    fs --> scanner: 
+    scanner --> facade: all_files
+}
+
+frame "Get source files" {
+    facade -> srcrepo: get_files_matching_criteria(all_files)
+    srcrepo --> facade: src_files
+}
+
+frame "Cleanup of metadata corresponding to already deleted files" {
+    facade -> metarepo: get_uncontained_keys(src_files)
+    metarepo -> db: SELECT
+    db --> metarepo: result
+    metarepo --> facade: uncontained_keys
+    facade -> metarepo: remove_metadatas(uncontained_keys)
+    loop "until the generator finishes" {
+        metarepo -> db: DELETE
+        metarepo --> facade: yield removed_metadata <return value is discarded>
+    }
+}
+
+frame "Create backup and update metadata" {
+    facade -> facade: _get_backup_list(src_files)
+    facade --> facade: backup_list
+    facade -> dstrepo: create_backups(backup_list)
+    loop "until the generator finishes" {
+        dstrepo -> fs: shutil.copy2(src_file, dst_file)
+        dstrepo --> facade: yield backed_up_src_file
+        facade -> metarepo: update_metadata(backed_up_src_file)
+        metarepo -> db: REPLACE INTO
+    }
+}
+
+frame "Discard old backups" {
+    facade -> dstrepo: get_discard_list(today, all_files)
+    dstrepo --> facade: discard_list
+    facade -> dstrepo: remove_backups(discard_list)
+    loop "until the generator finishes" {
+        dstrepo -> fs: os.remove(file_to_be_removed)
+        dstrepo --> facade: yield removed_file <return value is discarded>
+    }
+}
+
+facade --> main: return
+
+@enduml
+```

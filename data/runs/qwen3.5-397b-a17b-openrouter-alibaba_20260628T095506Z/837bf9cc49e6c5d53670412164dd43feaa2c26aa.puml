@@ -1,0 +1,66 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam noteFontColor black
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #000000
+skinparam actorStyle awesome
+skinparam databaseStyle cylinder
+
+actor "Upper layer" as UpperLayer
+actor "Lower layer" as LowerLayer
+
+participant "tuple" as Tuple <<database>>
+participant "IPv4 layer" as IPv4Layer
+participant "Routing table" as RoutingTable <<database>>
+participant "IPv4 interface" as IPv4Interface
+participant "ARP" as ARP <<database>>
+
+note over Tuple, UpperLayer
+IPv4.dst=192.0.2.1
+IPv4.src=198.51.100.2
+end note
+
+UpperLayer -> IPv4Layer: IPdata
+
+note right of IPv4Layer
+Allocate
+IPv4
+header
+end note
+
+IPv4Layer -> RoutingTable: dst=192.0.2.1
+RoutingTable --> IPv4Layer
+
+note left of Tuple
+IPv4.oif=ifp1
+IPv4.gw=198.51.100.1
+end note
+
+IPv4Layer -> IPv4Interface
+
+IPv4Interface -> ARP: gw=198.51.100.1
+
+note right of ARP
+enqueue
+packet
+end note
+
+ARP --> IPv4Interface: ARP request
+IPv4Interface -> LowerLayer
+LowerLayer --> IPv4Interface: ARP response
+IPv4Interface -> ARP
+
+ARP --> IPv4Interface: resolved\npackets
+
+note right of IPv4Interface
+send as
+send
+thread
+end note
+
+IPv4Interface -> IPv4Interface
+IPv4Interface -> LowerLayer
+
+@enduml

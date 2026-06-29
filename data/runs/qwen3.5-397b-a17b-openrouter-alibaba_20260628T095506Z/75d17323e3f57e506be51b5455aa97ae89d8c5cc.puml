@@ -1,0 +1,55 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantFontColor #000000
+skinparam participantFontSize 14
+skinparam participantFontStyle bold
+skinparam participantPadding 10
+skinparam participantMargin 10
+skinparam participantBorderThickness 1
+skinparam participantBorderRadius 5
+skinparam participantBorderDashed false
+skinparam participantBorderDotted false
+skinparam participantBorderSolid true
+skinparam participantBorderWidth 1
+skinparam participantBorderColor #000000
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantFontColor #000000
+skinparam participantFontSize 14
+skinparam participantFontStyle bold
+skinparam participantPadding 10
+skinparam participantMargin 10
+skinparam participantBorderThickness 1
+skinparam participantBorderRadius 5
+skinparam participantBorderDashed false
+skinparam participantBorderDotted false
+skinparam participantBorderSolid true
+skinparam participantBorderWidth 1
+
+participant "Patient Demographics Consumer" as PDC1
+participant "Patient Demographics Supplier" as PDS1
+participant "Patient Demographics Consumer" as PDC2
+participant "Patient Demographics Supplier" as PDS2
+
+box "PDQm Implementation grouped as a façade" #DDDDDD
+    participant "Patient Demographics Supplier" as PDS1
+    participant "Patient Demographics Consumer" as PDC2
+end box
+
+PDC1 -> PDS1: Mobile Patient Demographics Query [ITI-78]
+activate PDS1
+PDS1 -> PDC2: Internal processing
+activate PDC2
+PDC2 -> PDS2: Patient Demographics Query [ITI-21] or Patient Demographics Query for HL7v3 [ITI-47]
+activate PDS2
+PDS2 --> PDC2: [ITI-21] or [ITI-47] Response
+deactivate PDS2
+PDC2 --> PDS1: Internal processing
+deactivate PDC2
+PDS1 --> PDC1: [ITI-78] Response
+deactivate PDS1
+
+@enduml

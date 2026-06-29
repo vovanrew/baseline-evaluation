@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782657364-Gwe5tzd71ZPq0tYq3aL6",
+  "object": "chat.completion",
+  "created": 1782657364,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nskinparam backgroundColor #FFFFFF\nskinparam sequenceMessageAlign center\nskinparam participantStyle rectangle\nskinparam participantBackgroundColor #E6E6FA\nskinparam participantBorderColor #000000\nskinparam noteBackgroundColor #FFFFE0\nskinparam noteBorderColor #000000\nskinparam frameBackgroundColor #F5F5F5\nskinparam frameBorderColor #000000\n\nparticipant \"arm_io_storage\" as arm_io_storage\nparticipant \"io_storage\" as io_storage\nparticipant \"io_fip\" as io_fip\nparticipant \"io_memmap\" as io_memmap\n\narm_io_storage -> arm_io_storage: arm_io_setup()\n\nframe \"io dev registration\" {\n    arm_io_storage -> io_fip: register_io_dev_fip(&fip_dev_con)\n    io_fip -> io_storage: io_register_device(&dev_info_pool[])\n    note right of io_storage\n        devices[dev_count] = (fip_)dev_info_pool\n        dev_count++\n    end note\n\n    arm_io_storage -> io_memmap: register_io_dev_memmap(&memmap_dev_con)\n    io_memmap -> io_storage: io_register_device(&memmap_dev_info)\n    note right of io_storage\n        devices[dev_count] = memmap_dev_info\n        dev_count++\n    end note\n\n    arm_io_storage -> io_storage: io_dev_open(fip_dev_con, NULL, fip_dev_handle)\n    activate io_storage\n    io_storage -> io_storage: dev_open(dev_con, dev_spec, handle)\n    opt [dev_open() on fip device]\n        io_storage -> io_fip: fip_dev_open(dev_spec, dev_info)\n        note right of io_fip\n            dev_info = one of the\n            \"fip_dev_info\" from\n            dev_info_pool[]\n        end note\n    end\n    deactivate io_storage\n\n    arm_io_storage -> io_storage: io_dev_open(memmap_dev_con, NULL, memmap_dev_handle)\n    activate io_storage\n    io_storage -> io_storage: dev_open(dev_con, dev_spec, handle)\n    opt [dev_open() on memmap device]\n        io_storage -> io_memmap: memmap_dev_open(dev_spec, dev_info)\n        note right of io_memmap\n            dev_info = memmap_dev_info\n        end note\n    end\n    deactivate io_storage\n}\n\n@enduml",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1859,
+    "completion_tokens": 523,
+    "total_tokens": 2382,
+    "cost": 0.00194883,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00194883,
+      "upstream_inference_prompt_cost": 0.00072501,
+      "upstream_inference_completions_cost": 0.00122382
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

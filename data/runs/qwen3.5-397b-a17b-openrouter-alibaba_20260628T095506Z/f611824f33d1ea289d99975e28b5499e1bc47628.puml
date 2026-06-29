@@ -1,0 +1,109 @@
+@startuml
+title Retrieve Part value
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam noteStyle rectangle
+skinparam actorStyle awesome
+skinparam lifelineStrategy solid
+skinparam arrowStyle filled
+skinparam arrowColor #000000
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantFontColor #000000
+skinparam participantFontName Arial
+skinparam participantFontSize 12
+skinparam participantFontStyle plain
+skinparam participantPadding 10
+skinparam participantMargin 10
+skinparam participantBorderThickness 1
+skinparam participantBorderRadius 5
+skinparam participantShadowing false
+skinparam participantAlignment center
+skinparam participantTextAlignment center
+skinparam participantVerticalAlignment middle
+skinparam participantHorizontalAlignment center
+skinparam participantVerticalPadding 5
+skinparam participantHorizontalPadding 5
+skinparam participantVerticalMargin 5
+skinparam participantHorizontalMargin 5
+skinparam participantVerticalSpacing 5
+skinparam participantHorizontalSpacing 5
+skinparam participantVerticalOffset 0
+skinparam participantHorizontalOffset 0
+skinparam participantVerticalShift 0
+skinparam participantHorizontalShift 0
+skinparam participantVerticalScale 1
+skinparam participantHorizontalScale 1
+skinparam participantVerticalRotation 0
+skinparam participantHorizontalRotation 0
+skinparam participantVerticalSkew 0
+skinparam participantHorizontalSkew 0
+skinparam participantVerticalFlip false
+skinparam participantHorizontalFlip false
+skinparam participantVerticalMirror false
+skinparam participantHorizontalMirror false
+skinparam participantVerticalInvert false
+skinparam participantHorizontalInvert false
+skinparam participantVerticalReverse false
+skinparam participantHorizontalReverse false
+skinparam participantVerticalTranspose false
+skinparam participantHorizontalTranspose false
+skinparam participantVerticalRotate false
+skinparam participantHorizontalRotate false
+skinparam participantVerticalReflect false
+skinparam participantHorizontalReflect false
+skinparam participantVerticalShear false
+skinparam participantHorizontalShear false
+skinparam participantVerticalStretch false
+skinparam participantHorizontalStretch false
+skinparam participantVerticalCompress false
+skinparam participantHorizontalCompress false
+skinparam participantVerticalExpand false
+skinparam participantHorizontalExpand false
+skinparam participantVerticalContract false
+skinparam participantHorizontalContract false
+skinparam participantVerticalDilate false
+skinparam participantHorizontalDilate false
+skinparam participantVerticalErode false
+skinparam participantHorizontalErode false
+skinparam participantVerticalDilate false
+skinparam participantHorizontalDilate false
+skinparam participantVerticalErode false
+skinparam participantHorizontalErode false
+skinparam participantVerticalDilate false
+skinparam participantHorizontalDilate false
+skinparam participantVerticalErode false
+skinparam participantHorizontalErode false
+
+actor User
+participant "libdrift" as libdrift
+participant "Advertisement channel" as ad_channel
+participant "Control channel" as control_channel
+participant "driftd" as driftd
+database "Neo4j" as neo4j
+database "MongoDB" as mongodb
+
+User -> libdrift: get Part value
+note right of User: Retrieval message contains\nindex specifier\nindex value
+libdrift -> control_channel: send retrieval message
+libdrift --> User: ACK
+control_channel -> driftd: get Part value
+activate driftd
+driftd -> driftd: Lookup Part UUID in index
+driftd -> neo4j: Get Part info
+alt Composite Part
+    loop foreach Part
+        driftd -> neo4j: Get Part metadata with UUID
+        driftd -> mongodb: Get Part values
+    end
+else Simple Part
+    driftd -> neo4j: Get Part metadata with UUID
+    driftd -> mongodb: Get Part values
+end
+driftd -> driftd: build update message
+driftd -> ad_channel: Update messages for Part values
+ad_channel --> User: receive update message
+deactivate driftd
+
+@enduml

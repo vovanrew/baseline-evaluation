@@ -1,0 +1,33 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam backgroundColor white
+skinparam sequence {
+  LifeLineBackgroundColor #E6E6FA
+  LifeLineBorderColor black
+  ArrowColor black
+  MessageFontColor black
+}
+
+participant "host" as host
+participant "MultiDisplayService" as MultiDisplayService
+participant "rcv" as rcv
+participant "IMultipleDisplaysUiController" as IMultipleDisplaysUiController
+participant "IMultipleDisplaysDelegate" as IMultipleDisplaysDelegate
+participant "controller" as controller
+participant "DisplaysSwapViewController" as DisplaysSwapViewController
+participant "DisplaysSwapPresenter" as DisplaysSwapPresenter
+
+MultiDisplayService -> MultiDisplayService: onDisplayAdded
+MultiDisplayService -> IMultipleDisplaysUiController: updateDisplayInfos
+MultiDisplayService -> MultiDisplayService: onDisplayRemoved
+MultiDisplayService -> IMultipleDisplaysUiController: updateDisplayInfos
+DisplaysSwapViewController -> DisplaysSwapPresenter: swap()
+IMultipleDisplaysUiController -> DisplaysSwapPresenter: swap()
+DisplaysSwapPresenter -> DisplaysSwapPresenter: onUpdateDisplayInfo(MultipleDisplaysUiController var1, EMultipleDisplaysAction var2)
+DisplaysSwapPresenter -> DisplaysSwapPresenter: loadMonitorsIndicator()
+IMultipleDisplaysDelegate -> MultiDisplayService: onUpdateDisplayInfo(MultipleDisplaysUiController var1, EMultipleDisplaysAction var2)
+MultiDisplayService -> MultiDisplayService: notifyMultiDisplayChanged(type: MultiDisplayChangeType, displayId: Int)
+
+@enduml

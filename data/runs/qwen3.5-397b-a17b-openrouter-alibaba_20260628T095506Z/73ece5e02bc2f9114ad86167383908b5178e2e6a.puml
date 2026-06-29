@@ -1,0 +1,60 @@
+@startuml
+skinparam backgroundColor black
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #ADD8E6
+skinparam participantBorderColor #ADD8E6
+skinparam participantFontColor black
+skinparam controlBackgroundColor #D3D3D3
+skinparam controlBorderColor #D3D3D3
+skinparam controlFontColor black
+skinparam entityBackgroundColor #FFFFE0
+skinparam entityBorderColor #FFFFE0
+skinparam entityFontColor black
+skinparam noteBackgroundColor #FFFFE0
+skinparam noteBorderColor #FFFFE0
+skinparam noteFontColor black
+skinparam arrowColor white
+skinparam activationBackgroundColor white
+skinparam activationBorderColor white
+
+actor "User" as User
+participant "«boundary»\nZMDomačaStran" as ZMDomačaStran
+control "«control»\nKrmilnikNovica" as KrmilnikNovica
+control "«control»\nKrmilnikPredloga" as KrmilnikPredloga
+control "«control»\nKrmilnikDogodek" as KrmilnikDogodek
+entity "«entity»\nPredlogProjekta" as PredlogProjekta
+entity "«entity»\nNovica" as Novica
+participant "«boundary»\nSVGoogleCalendar\nAPI" as SVGoogleCalendarAPI
+
+User -> ZMDomačaStran: Prikaz domače strani
+activate ZMDomačaStran
+ZMDomačaStran -> KrmilnikNovica: Pridobi novice
+activate KrmilnikNovica
+KrmilnikNovica -> KrmilnikPredloga: Pridobi predloge
+activate KrmilnikPredloga
+KrmilnikPredloga -> PredlogProjekta: Pridobi podatke
+activate PredlogProjekta
+PredlogProjekta --> KrmilnikPredloga: Vrne podatke
+deactivate PredlogProjekta
+KrmilnikPredloga --> KrmilnikNovica: Vrne predloge
+deactivate KrmilnikPredloga
+KrmilnikNovica -> Novica: Pridobi novice
+activate Novica
+Novica --> KrmilnikNovica: Vrne novice
+deactivate Novica
+KrmilnikNovica --> ZMDomačaStran: Vrne novice
+deactivate KrmilnikNovica
+ZMDomačaStran -> KrmilnikDogodek: Pridobi dogodke
+activate KrmilnikDogodek
+KrmilnikDogodek -> SVGoogleCalendarAPI: Pridobi dogodke
+activate SVGoogleCalendarAPI
+SVGoogleCalendarAPI --> KrmilnikDogodek: Vrne dogodke
+deactivate SVGoogleCalendarAPI
+KrmilnikDogodek --> ZMDomačaStran: Vrne dogodke
+deactivate KrmilnikDogodek
+ZMDomačaStran --> User: Prikaz domače strani z novicami in dogodki
+deactivate ZMDomačaStran
+
+@enduml

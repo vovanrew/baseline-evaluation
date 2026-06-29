@@ -1,0 +1,81 @@
+```plantuml
+@startuml
+actor AntFacadeController
+participant "Soldat" as Soldat
+participant "Ouvriere" as Ouvriere
+participant "Fourmi" as Fourmi
+participant "Noeud" as Noeud
+participant "Fourmilière" as Fourmilière
+participant "Grille" as Grille
+participant "Random" as Random
+
+AntFacadeController -> AntFacadeController: 1 play
+loop Fourmilière f in listeFourmilières
+    loop Fourmi f in listeFourmis
+        alt Fourmi instanceof Soldat
+            AntFacadeController -> Soldat: 2 deplacer(Random)
+            activate Soldat
+            Soldat -> Grille: 3 noeudsLibres
+            activate Grille
+            Grille --> Soldat: 4 ArrayList<Noeud>
+            deactivate Grille
+            Soldat -> Random: 5 nextInt()
+            activate Random
+            Random --> Soldat: 6 int
+            deactivate Random
+            Soldat -> Fourmi: 7 setPosition:Noeud
+            activate Fourmi
+            Fourmi --> Soldat: 8 void
+            deactivate Fourmi
+            deactivate Soldat
+            Soldat --> AntFacadeController: 9 void
+        else Fourmi instanceof Ouvriere
+            AntFacadeController -> Ouvriere: 10 deplacer(Random)
+            activate Ouvriere
+            Ouvriere -> Grille: 11 noeudsLibres
+            activate Grille
+            Grille --> Ouvriere: 12 ArrayList<Noeud>
+            deactivate Grille
+            Ouvriere -> Fourmi: 13 getNourriture()
+            activate Fourmi
+            Fourmi --> Ouvriere: 14 nourriture
+            deactivate Fourmi
+            Ouvriere -> Fourmi: 15 getPheromones()
+            activate Fourmi
+            Fourmi --> Ouvriere: 16 pheromones
+            deactivate Fourmi
+            Ouvriere -> Random: 17 nextInt()
+            activate Random
+            Random --> Ouvriere: 18 int
+            deactivate Random
+            Ouvriere -> Fourmi: 19 setPosition:Noeud
+            activate Fourmi
+            Fourmi --> Ouvriere: 20 void
+            deactivate Fourmi
+            Ouvriere -> Fourmi: 21 getNourriture
+            activate Fourmi
+            Fourmi --> Ouvriere: 22 nourriture
+            deactivate Fourmi
+            Ouvriere -> Fourmi: 23 setNourriture(int)
+            activate Fourmi
+            Fourmi --> Ouvriere: 24 void
+            deactivate Fourmi
+            else transporte nourriture
+            Ouvriere -> Fourmi: 25 ajouterPheromones(int)
+            activate Fourmi
+            Fourmi --> Ouvriere: 26 void
+            deactivate Fourmi
+        end
+        deactivate Ouvriere
+        Ouvriere --> AntFacadeController: 27 void
+    end
+    loop Noeud n in Grille
+        AntFacadeController -> Fourmi: 28 evaporer(int)
+        activate Fourmi
+        Fourmi --> AntFacadeController: 29 void
+        deactivate Fourmi
+    end
+end
+AntFacadeController --> AntFacadeController: 30 void
+@enduml
+```

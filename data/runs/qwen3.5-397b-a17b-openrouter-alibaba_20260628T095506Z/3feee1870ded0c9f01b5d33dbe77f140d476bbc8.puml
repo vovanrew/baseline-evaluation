@@ -1,0 +1,34 @@
+@startuml
+actor User
+participant "BileMo API" as API
+database "BileMo Database" as DB
+
+User -> API: 1 Authentication Request (email, plain password)
+API -> DB: 2 Find user with matching email & password combination
+
+alt [invalid credentials]
+    DB --> API: 3 null
+    API --> User: 4 JSON Authentication response: 401 Invalid credentials
+else [valid credentials]
+    DB --> API: 5 User object
+    API --> User: 6 JSON Authentication Response: 200 JWT token
+    User -> API: 7 Show products list (JWT token)
+    API -> API: 8 Check route & query parameters are valid
+    alt [Route does not exist]
+        API --> User: 9 404 Route not found
+    else [Route found]
+        API -> API: 10 Security firewall: check token is valid & user permissions
+        alt [Access denied]
+            API --> User: 11 403 Forbidden
+        else [Token expired]
+            API --> User: 12 401 Unauthorized
+        else [Token valid & permission granted]
+            API -> DB: 13 Get products results
+            DB --> API: 14 Results query response (Products object)
+            API -> API: 15 Serialize(normalize+encode) results object to JSON
+            API --> User: 16 Response 200 Serialized JSON results
+        end
+    end
+end
+
+@enduml

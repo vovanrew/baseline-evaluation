@@ -1,0 +1,38 @@
+@startuml
+skinparam handwritten true
+skinparam sequenceMessageAlign center
+skinparam sequenceArrowFontSize 12
+skinparam sequence {
+  ArrowColor #3498db
+  ActorBorderColor #3498db
+  LifeLineBorderColor #3498db
+  ParticipantBorderColor #3498db
+  ParticipantBackgroundColor #3498db
+  ParticipantFontColor #ffffff
+}
+
+actor "developer" as dev
+participant "DEV" as dev_branch
+participant "TEST" as test_branch
+participant "MASTER" as master_branch
+participant "HOTFIX" as hotfix_branch
+
+dev -> dev_branch: 1 增量换包到TEST
+activate test_branch
+test_branch -> master_branch: 2 测试通过后，基于TEST打tag
+test_branch -> master_branch: 3 check release分支
+test_branch -> master_branch: 4 将release分支合并到MASTER
+activate master_branch
+master_branch -> hotfix_branch: 5，线上紧急问题，基于MASTER check HOTFIX分支
+activate hotfix_branch
+hotfix_branch -> hotfix_branch: 6，开发基于HOTFIX分支check本地分支修复问题
+hotfix_branch -> hotfix_branch: 7 修复完成后合回HOTFIX分支
+hotfix_branch -> master_branch: 8 用CMP工具基于HOTFIX打包换到测试环境进行验证
+master_branch -> hotfix_branch: 9 测试通过后，HOTFIX合回MASTER
+hotfix_branch -> test_branch: 10 测试通过后，HOTFIX合回TEST
+test_branch -> dev_branch: 11 测试通过后，HOTFIX合回DEV
+deactivate test_branch
+deactivate master_branch
+deactivate hotfix_branch
+
+@enduml

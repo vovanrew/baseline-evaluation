@@ -1,0 +1,119 @@
+```plantuml
+@startuml
+actor User
+participant "executor:AnalysisExecutor" as executor
+participant ":Analysis" as analysis
+participant ":CountryCaseAPIGetter" as caseAPI
+participant ":CountryDeathAPIGetter" as deathAPI
+participant ":CountryPopulationAPIGetter" as popAPI
+participant ":APIInformationGetter" as infoAPI
+actor "Covid API" as covidAPI
+
+User -> executor: runAnalysis()
+activate executor
+executor -> analysis: analyze()
+activate analysis
+
+opt At least one country selected for analysis
+    alt CasesPerCapitaAnalysis
+        par
+            analysis -> caseAPI: getCases()
+            activate caseAPI
+            caseAPI -> caseAPI: getDataURL()
+            caseAPI -> caseAPI: API Endpoint URL
+            caseAPI -> covidAPI: API Call
+            activate covidAPI
+            covidAPI --> caseAPI: API Information
+            deactivate covidAPI
+            caseAPI --> analysis: Cases in target Countries
+            deactivate caseAPI
+            
+            analysis -> popAPI: getPopulation()
+            activate popAPI
+            popAPI -> popAPI: getDataURL()
+            popAPI -> popAPI: API Endpoint URL
+            popAPI -> covidAPI: API Call
+            activate covidAPI
+            covidAPI --> popAPI: API Information
+            deactivate covidAPI
+            popAPI --> analysis: Population of target Countries
+            deactivate popAPI
+        end
+    else TotalCaseAnalysis
+        analysis -> caseAPI: getCases()
+        activate caseAPI
+        caseAPI -> caseAPI: getDataURL()
+        caseAPI -> caseAPI: API Endpoint URL
+        caseAPI -> covidAPI: API Call
+        activate covidAPI
+        covidAPI --> caseAPI: API Information
+        deactivate covidAPI
+        caseAPI --> analysis: Cases in target Countries
+        deactivate caseAPI
+    else MajorityCasesSexPerCapitaAnalysis
+        par
+            analysis -> caseAPI: getMaleCases()
+            activate caseAPI
+            caseAPI -> caseAPI: getDataURL()
+            caseAPI -> caseAPI: API Endpoint URL
+            caseAPI -> covidAPI: API Call
+            activate covidAPI
+            covidAPI --> caseAPI: API Information
+            deactivate covidAPI
+            caseAPI --> analysis: Male cases in target Countries
+            deactivate caseAPI
+            
+            analysis -> caseAPI: getFemaleCases()
+            note right: A call to the endpoint has\nalready been made so\nanother is not necessary
+            caseAPI --> analysis: Female cases in target Countries
+            
+            analysis -> popAPI: getMalePopulation()
+            activate popAPI
+            popAPI -> popAPI: getDataURL()
+            popAPI -> popAPI: API Endpoint URL
+            popAPI -> covidAPI: API Call
+            activate covidAPI
+            covidAPI --> popAPI: API Information
+            deactivate covidAPI
+            popAPI --> analysis: Male population in target Countries
+            deactivate popAPI
+            
+            analysis -> popAPI: getFemalePopulation()
+            note right: A call to the endpoint has\nalready been made so\nanother is not necessary
+            popAPI --> analysis: Female population in target Countries
+        end
+    else DeathsPerCapitaAnalysis
+        par
+            analysis -> deathAPI: getDeaths()
+            activate deathAPI
+            deathAPI -> deathAPI: getDataURL()
+            deathAPI -> deathAPI: API Endpoint URL
+            deathAPI -> covidAPI: API Call
+            activate covidAPI
+            covidAPI --> deathAPI: API Information
+            deactivate covidAPI
+            deathAPI --> analysis: Deaths in target Countries
+            deactivate deathAPI
+            
+            analysis -> popAPI: getPopulation()
+            activate popAPI
+            popAPI -> popAPI: getDataURL()
+            popAPI -> popAPI: API Endpoint URL
+            popAPI -> covidAPI: API Call
+            activate covidAPI
+            covidAPI --> popAPI: API Information
+            deactivate covidAPI
+            popAPI --> analysis: Population of target Countries
+            deactivate popAPI
+        end
+    end
+end
+
+analysis --> executor: Analysis Result
+deactivate analysis
+executor --> User: Finish (void)
+deactivate executor
+
+note right of User: Per country analysis results\nare stored for later rendering
+@enduml
+```

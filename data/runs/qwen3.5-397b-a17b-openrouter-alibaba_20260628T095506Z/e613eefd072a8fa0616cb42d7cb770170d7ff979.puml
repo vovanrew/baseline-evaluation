@@ -1,0 +1,61 @@
+```plantuml
+@startuml
+skinparam sequenceMessageAlign center
+skinparam lifelinestrategy solid
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #CCCC99
+skinparam participantBackgroundColor #E6E6E6
+skinparam participantBorderColor #CCCCCC
+skinparam participantPadding 5
+skinparam boxPadding 10
+skinparam boxBackgroundColor #F0F0F0
+skinparam boxBorderColor #CCCCCC
+
+box "BL1 common code" #LightGrey
+    participant bl1_main
+    participant bl_common
+end box
+
+box "arm platform code" #LightBlue
+    participant fvp_bl1_setup
+    participant arm_bl1_setup
+    participant arm_io_storage
+end box
+
+box "platform common code" #LightGrey
+    participant plat_bl1_common
+    participant fconf
+end box
+
+bl1_main -> fvp_bl1_setup: bl1_platform_setup()
+activate fvp_bl1_setup
+fvp_bl1_setup -> arm_bl1_setup: arm_bl1_platform_setup()
+activate arm_bl1_setup
+arm_bl1_setup -> arm_io_storage: plat_arm_io_setup()
+activate arm_io_storage
+note right of arm_io_storage: register and setup fip
+arm_bl1_setup -> fconf: fconf_load_config()
+activate fconf
+note right of fconf: create and populate an\nimage_desc_t for FW_CONFIG
+fconf --> bl_common: load_auth_image(FW_CONFIG_ID, &image_info)
+activate bl_common
+note left of bl_common: load and auth image from fip\nwith info from plat_io_policy
+bl_common -> fconf: FCONF_GET_PROPERTY(arm, arm_io_policies, tb_fw_cfg)
+note right of fconf: use statically defined policies in bl1
+fconf --> bl_common: image_info
+note right of fconf: get tb_fw_config_dtb from image_info
+bl_common -> plat_bl1_common: bl1_plat_get_image_desc(BL2_IMAGE_ID)
+activate plat_bl1_common
+plat_bl1_common --> bl_common: BL2_IMAGE_DESC
+note right of plat_bl1_common: set ep_info.args.arg0 of BL2_IMAGE_DESC\nto FW_CONFIG base address
+deactivate plat_bl1_common
+deactivate fconf
+deactivate arm_io_storage
+deactivate arm_bl1_setup
+deactivate fvp_bl1_setup
+deactivate bl_common
+
+== load & auth, prepare and jump to BL2 ==
+
+@enduml
+```

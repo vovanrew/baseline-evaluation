@@ -1,0 +1,59 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam noteBackgroundColor #FFFFE0
+skinparam noteBorderColor #000000
+skinparam frameBackgroundColor #F5F5F5
+skinparam frameBorderColor #000000
+
+participant "arm_io_storage" as arm_io_storage
+participant "io_storage" as io_storage
+participant "io_fip" as io_fip
+participant "io_memmap" as io_memmap
+
+arm_io_storage -> arm_io_storage: arm_io_setup()
+
+frame "io dev registration" {
+    arm_io_storage -> io_fip: register_io_dev_fip(&fip_dev_con)
+    io_fip -> io_storage: io_register_device(&dev_info_pool[])
+    note right of io_storage
+        devices[dev_count] = (fip_)dev_info_pool
+        dev_count++
+    end note
+
+    arm_io_storage -> io_memmap: register_io_dev_memmap(&memmap_dev_con)
+    io_memmap -> io_storage: io_register_device(&memmap_dev_info)
+    note right of io_storage
+        devices[dev_count] = memmap_dev_info
+        dev_count++
+    end note
+
+    arm_io_storage -> io_storage: io_dev_open(fip_dev_con, NULL, fip_dev_handle)
+    activate io_storage
+    io_storage -> io_storage: dev_open(dev_con, dev_spec, handle)
+    opt [dev_open() on fip device]
+        io_storage -> io_fip: fip_dev_open(dev_spec, dev_info)
+        note right of io_fip
+            dev_info = one of the
+            "fip_dev_info" from
+            dev_info_pool[]
+        end note
+    end
+    deactivate io_storage
+
+    arm_io_storage -> io_storage: io_dev_open(memmap_dev_con, NULL, memmap_dev_handle)
+    activate io_storage
+    io_storage -> io_storage: dev_open(dev_con, dev_spec, handle)
+    opt [dev_open() on memmap device]
+        io_storage -> io_memmap: memmap_dev_open(dev_spec, dev_info)
+        note right of io_memmap
+            dev_info = memmap_dev_info
+        end note
+    end
+    deactivate io_storage
+}
+
+@enduml

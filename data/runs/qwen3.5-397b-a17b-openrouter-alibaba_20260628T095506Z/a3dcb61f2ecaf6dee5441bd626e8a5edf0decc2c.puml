@@ -1,0 +1,157 @@
+```plantuml
+@startuml
+title Interactions between the Control Plane (master node) and the Worker Node
+
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam noteStyle rectangle
+skinparam legendStyle rectangle
+skinparam backgroundColor white
+skinparam sequence {
+    LifeLineBackgroundColor #F0F0F0
+    LifeLineBorderColor #CCCCCC
+    ArrowColor #333333
+    ArrowThickness 1
+}
+
+' Define colors based on legend
+skinparam participant {
+    BackgroundColor<<ControlPlane>> #D6EAF8
+    BorderColor<<ControlPlane>> #2E86C1
+    BackgroundColor<<WorkerNode>> #D5F5E3
+    BorderColor<<WorkerNode>> #27AE60
+    BackgroundColor<<PowerManagerSetup>> #FADBD8
+    BorderColor<<PowerManagerSetup>> #C0392B
+    BackgroundColor<<PowerManagerConfig>> #FDEBD0
+    BorderColor<<PowerManagerConfig>> #D35400
+    BackgroundColor<<PowerManagerDeploy>> #F9E79F
+    BorderColor<<PowerManagerDeploy>> #F1C40F
+}
+
+legend right
+|<back:#D6EAF8> Control Plane - Master Node</back>|
+|<back:#D5F5E3> Worker Node</back>|
+|<back:#FADBD8> Power Manager System Setup</back>|
+|<back:#FDEBD0> Power Manager Configuration</back>|
+|<back:#F9E79F> Power Manager Deployment</back>|
+endlegend
+
+actor "Georgina" as Georgina
+participant "API-Server" as APIServer <<ControlPlane>>
+participant "etcd" as etcd <<ControlPlane>>
+participant "Controller Manager" as CM <<ControlPlane>>
+participant "Scheduler" as Scheduler <<ControlPlane>>
+participant "Power Operator" as PowerOp <<ControlPlane>>
+participant "Kubelet" as Kubelet <<WorkerNode>>
+participant "Power Node Agent" as PNA <<WorkerNode>>
+participant "Power Optimization Library" as POL <<WorkerNode>>
+participant "K8s Objects" as K8s <<WorkerNode>>
+participant "Kube-Proxy" as KubeProxy <<WorkerNode>>
+
+== Kubernetes Initialization ==
+Georgina -> APIServer: 1 kubectl create -f pod.yaml
+APIServer ->> etcd: 2 save new state
+etcd --> APIServer: 3 check for changes
+APIServer ->> CM: 4 watch for unassigned pods(s)
+APIServer ->> Scheduler: 5 notify about pod w nodename=""
+Scheduler ->> APIServer: 6 assign pod to node
+APIServer ->> etcd: 7 save new state
+etcd --> APIServer: 8 look for newly assigned pod(s)
+APIServer ->> Kubelet: 9 bind pod to node
+Kubelet ->> PNA: 10 start container
+Kubelet ->> APIServer: 11 update pod status
+APIServer ->> etcd: 12 save new state
+
+== Power Manager Initialization ==
+Georgina -> KubeProxy: 1 Ensure correct proxy configuration
+Georgina -> Kubelet: 2 Confirm CPU Manager policy
+note right of Kubelet: cpuManagerPolicy = "static"
+Georgina -> Kubelet: 3 Reserve System CPUs
+note right of Kubelet: reservedSystemCPUs = "0"
+Georgina -> K8s: 4 Create Namespace
+note right of K8s: apply config/rbac/namespace.yaml
+Georgina -> K8s: 5 Create RBAC and Service Accounts
+note right of K8s: apply config/rbac/rbac.yaml
+Georgina -> K8s: 6 Create CRDs
+note right of K8s: make
+Georgina -> K8s: 7 Label nodes
+note right of K8s: label node <NODE_NAME> feature.node.kubernetes.io/power-node="true"
+
+== Power Manager Deployment ==
+Georgina -> K8s: 1 Deploy Controller Manager
+note right of K8s: apply config/manager/manager.yaml
+Georgina -> POL: 2 Deploy the config
+note right of POL: examples/example-powerconfig.yaml
+Georgina -> POL: 3 Set Shared Profile
+note right of POL: examples/example-shared-profile.yaml
+Georgina -> POL: 4 Deploy th Workload
+note right of POL: examples/example-shared-workload.yaml
+Georgina -> POL: 5 Deploy Pod
+note right of POL: examples/example-pod.yaml
+
+== Power Manager additional functionality ==
+
+group Uncore
+    Georgina -> Kubelet: 1 Confirm Kernel version
+    note right of Kubelet: kernel 5.6+ required for uncore
+    Georgina -> POL: 2 Set Freq in Die and Pkg
+    note right of POL: examples/example-uncore
+    Georgina -> K8s: 3 Deploy Controller Manager
+    note right of K8s: apply config/manager/manager.yaml
+    Georgina -> POL: 4 Deploy the config
+    note right of POL: examples/example-powerconfig.yaml
+    Georgina -> POL: 5 Set Shared Profile
+    note right of POL: examples/example-shared-profile.yaml
+    Georgina -> POL: 6 Deploy th Workload
+    note right of POL: examples/example-shared-workload.yaml
+    Georgina -> POL: 7 Deploy Pod
+    note right of POL: examples/example-pod.yaml
+    Georgina -> POL: 8 Set Time of Day functionality
+    note right of POL: examples/example-timeofday
+end
+
+group P-State
+    Georgina -> K8s: 1 Deploy Controller Manager
+    note right of K8s: apply config/manager/manager.yaml
+    Georgina -> POL: 2 Deploy the config
+    note right of POL: examples/example-powerconfig.yaml
+    Georgina -> POL: 3 Set Shared Profile\nand configure the P-State governor
+    note right of POL: examples/example-shared-profile.yaml
+    Georgina -> POL: 4 Deploy th Workload
+    note right of POL: examples/example-shared-workload.yaml
+    Georgina -> POL: 5 Deploy Pod
+    note right of POL: examples/example-pod.yaml
+end
+
+group C-State
+    Georgina -> K8s: Deploy Controller Manager
+    note right of K8s: apply config/manager/manager.yaml
+    Georgina -> POL: Deploy the config
+    note right of POL: examples/example-powerconfig.yaml
+    Georgina -> POL: Set Shared Profile
+    note right of POL: examples/example-shared-profile.yaml
+    Georgina -> POL: Deploy th Workload
+    note right of POL: examples/example-shared-workload.yaml
+    Georgina -> POL: Deploy Pod
+    note right of POL: examples/example-pod.yaml
+    Georgina -> POL: Set C-State functionality
+    note right of POL: examples/example-cstates
+end
+
+group Time of Day
+    Georgina -> K8s: Deploy Controller Manager
+    note right of K8s: apply config/manager/manager.yaml
+    Georgina -> POL: Deploy the config
+    note right of POL: examples/example-powerconfig.yaml
+    Georgina -> POL: Set Shared Profile
+    note right of POL: examples/example-shared-profile.yaml
+    Georgina -> POL: Deploy th Workload
+    note right of POL: examples/example-shared-workload.yaml
+    Georgina -> POL: Deploy Pod
+    note right of POL: examples/example-pod.yaml
+    Georgina -> POL: Set Time of Day functionality
+    note right of POL: examples/example-timeofday
+end
+
+@enduml
+```

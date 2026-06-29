@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782655891-HchJztzTHu2RB4S6zNsz",
+  "object": "chat.completion",
+  "created": 1782655891,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nactor Member\nparticipant \":TicketDetailPage\" as TicketDetailPage\nparticipant \":TicketDetailContainer\" as TicketDetailContainer\nparticipant \":AttendanceService (Frontend)\" as AttendanceServiceFrontend\nparticipant \":Router\" as Router\nparticipant \":AttendanceHTTPTransport\" as AttendanceHTTPTransport\nparticipant \":AttendanceEndpoint\" as AttendanceEndpoint\nparticipant \":AttendanceService\" as AttendanceService\nparticipant \":RequesterService\" as RequesterService\nparticipant \":AttendanceCommand\" as AttendanceCommand\nparticipant \":AttendanceQuery\" as AttendanceQuery\n\nMember -> TicketDetailPage: Click \"Yes\" Button\nTicketDetailPage -> TicketDetailContainer: handleConfirmation(input)\nTicketDetailContainer -> AttendanceServiceFrontend: confirmAttendance(classId, payload)\nAttendanceServiceFrontend -> Router: route(\"PATCH\", \"v2/class/{class_id}/attendance/confirmation\")\nRouter -> AttendanceHTTPTransport: Confirmation\\\\AttendanceService, [IServerOption]\nAttendanceHTTPTransport -> AttendanceEndpoint: Confirmation\\\\AttendanceService\\\\\nAttendanceEndpoint -> AttendanceService: Confirmation\\\\(context, payload)\nactivate AttendanceService\nAttendanceService -> AttendanceService: Validate()\nalt \"Data Valid\"\n    AttendanceService -> AttendanceQuery: GetPureModel\\\\(context, [ISliceCondition]\n    AttendanceQuery --> AttendanceService: ticket\n    alt \"Ticket Status is Accepted\"\n        AttendanceService -> AttendanceCommand: Register\\\\(context, [Ipayload)\n        activate AttendanceCommand\n        AttendanceCommand -> RequesterService: UpdateRequestStatus\\\\(context, ticket)\n        RequesterService --> AttendanceCommand: is updated\n        deactivate AttendanceCommand\n        AttendanceCommand --> AttendanceService: is updated\n    end\n    AttendanceService --> AttendanceEndpoint: response := Response\\\\(is updated, nil)\n    deactivate AttendanceService\n    AttendanceEndpoint --> AttendanceHTTPTransport: response\n    AttendanceHTTPTransport --> Router: response\n    Router --> AttendanceServiceFrontend: response\n    AttendanceServiceFrontend --> TicketDetailContainer: response\n    TicketDetailContainer --> TicketDetailPage: response\n    TicketDetailPage --> Member: response\nelse\n    AttendanceService --> AttendanceEndpoint: UnprocessableEntity\n    deactivate AttendanceService\n    AttendanceEndpoint --> AttendanceHTTPTransport: UnprocessableEntity\n    AttendanceHTTPTransport --> Router: UnprocessableEntity\n    Router --> AttendanceServiceFrontend: UnprocessableEntity\n    AttendanceServiceFrontend --> TicketDetailContainer: UnprocessableEntity\n    TicketDetailContainer --> TicketDetailPage: UnprocessableEntity\n    TicketDetailPage --> Member: UnprocessableEntity\nend\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1075,
+    "completion_tokens": 530,
+    "total_tokens": 1605,
+    "cost": 0.00165945,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00165945,
+      "upstream_inference_prompt_cost": 0.00041925,
+      "upstream_inference_completions_cost": 0.0012402
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

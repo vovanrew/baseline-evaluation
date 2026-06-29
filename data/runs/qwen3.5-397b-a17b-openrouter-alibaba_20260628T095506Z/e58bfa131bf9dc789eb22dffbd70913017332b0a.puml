@@ -1,0 +1,65 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor white
+  BorderColor black
+  ArrowColor black
+}
+skinparam actor {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam interface {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam database {
+  BackgroundColor white
+  BorderColor black
+}
+
+package "UI" as ui {
+  class LoginUI {
+  }
+}
+
+package "Controller" as controller {
+  class LoginController {
+    +login(email,password)
+  }
+  class ApplicationPOT {
+    +static getInstance()
+    +clearCurrentSession()
+  }
+}
+
+package "Model" as model {
+  package "Service" as service {
+    class UserService {
+      +UserService()
+      +newUserSession()
+    }
+  }
+  class UserSession {
+    -String email
+    +UserSession()
+  }
+  class User {
+    -Integer id
+    -String email
+    -String password
+    -Integer nif
+    -String name
+    +User(email,password,nif,name)
+  }
+}
+
+LoginUI ..> LoginController
+LoginController ..> UserService
+LoginController ..> ApplicationPOT
+ApplicationPOT "1" -- "1" UserSession : has
+UserService "1" -- "*" UserSession : creates
+UserSession "1" -- "1" User : allocates
+
+@enduml

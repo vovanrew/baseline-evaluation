@@ -1,0 +1,71 @@
+@startuml
+skinparam backgroundColor #F5F5DC
+skinparam packageStyle folder
+skinparam class {
+  BackgroundColor #E8F5E9
+  BorderColor #2E7D32
+  ArrowColor #5D4037
+}
+skinparam interface {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  ArrowColor #5D4037
+}
+skinparam stereotypeCBackgroundColor #BBDEFB
+skinparam stereotypeCBorderColor #1565C0
+skinparam stereotypeIBackgroundColor #E3F2FD
+skinparam stereotypeIBorderColor #1565C0
+
+package "rugged" {
+  package "raster" {
+    interface Tile {
+      + interpolateElevation(φ, λ)
+      + pixelIntersection(NormalizedGeodeticPoint, los, φ index, λ index)
+    }
+  }
+
+  package "intersection" {
+    interface IntersectionAlgorithm {
+      + intersection(ellipsoid, position, los)
+      + refineIntersection(ellipsoid, position, los, closeGuess)
+    }
+  }
+
+  package "utils" {
+    class ExtendedEllipsoid {
+      + pointAtLatitude(position, los, φ, closereference)
+      + pointAtLongitude(position, los, λ)
+      + pointAtAltitude(position, los, h)
+      + pointOnGround(position, los)
+    }
+    class SpacecraftToObservedBody
+  }
+
+  package "api" {
+    class Rugged {
+      + directLocation(sensorName, line)
+    }
+  }
+
+  package "linesensor" {
+    class LineSensor
+  }
+}
+
+package "mission" {
+  package "specific" {
+    class UserMain
+  }
+}
+
+' Relationships
+Tile <|-- IntersectionAlgorithm : evaluate DEM
+IntersectionAlgorithm --> ExtendedEllipsoid : compute grid points crossings
+Rugged --> IntersectionAlgorithm : delegate DEM intersection
+Rugged --> ExtendedEllipsoid : convert geodetic points
+Rugged --> SpacecraftToObservedBody : convert positions/directions
+Rugged --> LineSensor : getLOS(date, pixel)
+Rugged --> LineSensor : getDate(line)
+UserMain --> Rugged
+
+@enduml

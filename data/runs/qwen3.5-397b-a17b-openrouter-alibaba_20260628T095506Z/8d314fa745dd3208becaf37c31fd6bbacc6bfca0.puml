@@ -1,0 +1,49 @@
+@startuml
+actor Teams
+participant "API" as API
+participant "BuildService" as BuildService
+participant "CommandParser" as CommandParser
+participant "BuildCommand" as BuildCommand
+participant "BuildSystem" as BuildSystem
+participant "BuildFactory" as BuildFactory
+database "BuildDb" as BuildDb
+participant "BuildMonitor" as BuildMonitor
+participant "NotificationService" as NotificationService
+database "NotificationDb" as NotificationDb
+
+Teams -> API: /api/messages
+activate API
+API -> BuildService: ProcessCommandAsync
+activate BuildService
+BuildService -> CommandParser: ParseCommand
+activate CommandParser
+CommandParser --> BuildService: BuildCommand
+deactivate CommandParser
+BuildService -> BuildCommand: Execute
+activate BuildCommand
+BuildCommand -> BuildSystem: CreateBuildAsync
+activate BuildSystem
+frame "BuildSystem Library" {
+    BuildSystem -> BuildFactory: CreateBuildAsync
+    activate BuildFactory
+    BuildFactory -> BuildDb: Save build
+    BuildFactory --> BuildSystem: Build
+    deactivate BuildFactory
+    BuildSystem -> BuildMonitor: AddBuildAsync
+    activate BuildMonitor
+    BuildMonitor --> BuildSystem: 
+    deactivate BuildMonitor
+}
+BuildSystem --> BuildCommand: Build
+deactivate BuildSystem
+BuildCommand -> NotificationService: AddNotificationAsync
+activate NotificationService
+NotificationService -> NotificationDb: Save notification
+NotificationService --> BuildCommand: 
+deactivate NotificationService
+deactivate BuildCommand
+BuildService --> API: 
+deactivate BuildService
+API --> Teams: 
+deactivate API
+@enduml

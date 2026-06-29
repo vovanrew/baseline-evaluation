@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782656881-HTRv8zKQ0ze5lIejQ7hY",
+  "object": "chat.completion",
+  "created": 1782656881,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle SignUp Flow\nactor Client\nparticipant \"Mobile\" as Mobile\nparticipant \"SMS Gateway\" as SMS\nparticipant \"Push Gateway\" as Push\nparticipant \"DigitalDB\" as DB\nparticipant \"Keycloak + Extension\" as Keycloak\n\nClient -> Mobile: 1 Enter PhoneNumber, Birthday\nClient -> Mobile: 2 Enter Password\nMobile -> Keycloak: 3 POST /auth/signup (PhoneNumber, Birthday)\nKeycloak -> DB: 4 findClientRecord(PhoneNumber, Birthday): ClientRecord\nDB --> Keycloak: 5 ClientRecord\nalt [ClientRecord is NOT found]\n    Keycloak --> Mobile: 6 HTTP 202\n    Keycloak -> Keycloak: 7 saveInOTPContext(ClientRecord.id)\n    Keycloak -> Keycloak: 8 generateAndSaveOTP(): OTP\n    Keycloak --> Mobile: 9 HTTP 202\n    Keycloak -> SMS: 10 sendSMS(phone=PhoneNumber, data=OTP)\n    SMS --> Mobile: 11 SMS with OTP\n    Mobile -> Push: 12 getPushToken(): Push Token\n    Push --> Mobile: 13 Push Token\n    Mobile -> Mobile: 14 generateKeys(): [PublicKey, PrivateKey]\n    Client -> Mobile: 15 Enter OTP\n    Mobile -> Keycloak: 16 POST /auth/signup/complete (OTP, Password, Push Token, PublicKey)\n    Keycloak -> Keycloak: 17 validateOTP(OTP)\n    Keycloak -> DB: 18 updateUser(ClientId, KeycloakUserId)\n    DB --> Keycloak: 19\n    Keycloak -> DB: 20 createMobileDevice(ClientId, Push Token, PublicKey)\n    DB --> Keycloak: 21\n    Keycloak -> Keycloak: 22 generateJWT(scope=\"regular_user\"): JWT\n    Keycloak --> Mobile: 23 HTTP 200 {jwt: JWT}\nend\n@enduml",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1712,
+    "completion_tokens": 421,
+    "total_tokens": 2133,
+    "cost": 0.00165282,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00165282,
+      "upstream_inference_prompt_cost": 0.00066768,
+      "upstream_inference_completions_cost": 0.00098514
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

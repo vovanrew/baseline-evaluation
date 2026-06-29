@@ -1,0 +1,84 @@
+```plantuml
+@startuml
+skinparam sequenceMessageAlign center
+skinparam note {
+  BackgroundColor #FFFFE0
+  BorderColor #CCCCCC
+  FontColor #333333
+  FontSize 12
+}
+skinparam participant {
+  BackgroundColor #E6E6FA
+  BorderColor #9370DB
+  FontColor #000000
+  FontSize 14
+}
+skinparam lifeline {
+  BorderColor #9370DB
+}
+skinparam arrow {
+  Color #000000
+  Thickness 1
+}
+
+participant "AbstractApplicationContext" as A
+participant "GenericApplicationContext" as G
+participant "ApplicationContextAwareProcessor" as P
+participant "AbstractAutowireCapableBeanFactory" as B
+participant "DefaultListableBeanFactory" as D
+
+note over A: 以下流程都在refresh()方法内部
+
+note over A: 第1步
+A->A: 1 prepareRefresh
+A->A: initPropertySources()
+note left of A: 空方法,留给子类重写
+A->A: getEnvironment()
+A->A: validateRequiredProperties()
+A->A: new LinkedHashSet<>()
+note left of A: 泛型ApplicationEvent
+
+note over A: 第2步
+A->A: 2 obtainFreshBeanFactory()
+A->G: refreshBeanFactory()
+G->D: new DefaultListableBeanFactory()
+D->D: setSerializationId(getId())
+G-->A: 未定义变量接收返回值
+A->G: getBeanFactory
+G-->A: 返回 DefaultListableBeanFactory
+
+note over A: 第3步
+A->A: 3 prepareBeanFactory
+note over A: 设置BeanFactory的类加载器、支持表达式解析器
+
+note over A: 添加Bean后置处理器 例如
+A->P: addBeanPostProcessor(new ApplicationContextAwareProcessor(this))
+P->P: 构造器
+P-->A: 返回 ApplicationContextAwareProcessor
+
+note over A: 设置忽略的自动装配的接口 例如
+A->B: ignoreDependencyInterface(ApplicationEventPublisherAware.class)
+B->B: ignoredDependencyInterfaces.add(ifo)
+B-->A: 未定义变量接收返回值
+
+note over A: 注册可以解析的自动装配 例如
+A->D: registerResolvableDependency(BeanFactory.class, beanFactory)
+D->D: resolvableDependencies.put();
+note left of D: params { dependencyType, autowiredValue }
+D-->A: 未定义变量接收返回值
+
+note over A: 添加ApplicationListenerDetector的Bean后置处理器
+note over A: 添加编译时的AspectJ
+note over A: 给BeanFactory中注册一些能用的组件
+A->D: registerSingleton(ENVIRONMENT_BEAN_NAME / SYSTEM_PROPERTIES_BEAN_NAME / SYSTEM_ENVIRONMENT_BEAN_NAME)
+D->D: addSingleton();
+note left of D: params{beanName, singletonObject}
+D-->A: 未定义变量接收返回值
+
+note over A: 第4步
+note over A: 在应用程序上下文的标准初始化之后修改其内部bean工厂
+A->A: postProcessBeanFactory(beanFactory);
+note left of A: 空方法 留给子类重写
+
+@enduml
+```

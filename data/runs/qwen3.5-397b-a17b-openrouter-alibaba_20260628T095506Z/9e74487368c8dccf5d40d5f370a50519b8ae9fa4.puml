@@ -1,0 +1,55 @@
+@startuml
+actor "laboratory coordinator" as LC
+participant ":LabCoordinatorUI" as LCU
+participant ":ValidateTestReportController" as VTRC
+participant ":Company" as C
+participant "rp : TestStore" as TS
+participant "rp : Test" as T
+participant "rp : TestReportStore" as TRS
+participant "rp : TestReport" as TR
+participant ":TestDiagnosis" as TD
+
+LC -> LCU: 1 asks to validate report and diagnosis
+activate LCU
+LCU -> VTRC: 2 createTestList()
+activate VTRC
+VTRC -> C: 3 get = testReportsToValidate()
+activate C
+C -> TS: 4 get = testReportsToValidate()
+activate TS
+TS -> T: 5 get = getTestList()
+deactivate TS
+C -> TRS: 6 get = testReportsToValidate()
+activate TRS
+TRS -> TR: 7 get = getTestReportList()
+activate TR
+TR -> TD: 8 get = getTestDiagnosis()
+deactivate TD
+deactivate TR
+deactivate TRS
+deactivate C
+deactivate VTRC
+ref over LCU,VTRC: US15_SD_testReportsDTO.puml
+VTRC --> LCU: 9
+deactivate LCU
+LCU --> LC: 10 shows the available test reports and diagnosis and requests selection
+LC -> LCU: 11 chooses all tests
+activate LCU
+LCU --> LC: 12 asks for confirmation
+LC -> LCU: 13 confirms selection
+LCU -> VTRC: 14 validateAllTestReport()
+activate VTRC
+loop
+    VTRC -> TS: 15 validateTestReport(testId)
+    activate TS
+    TS -> T: 16 setState(VALIDATED)
+    deactivate T
+    VTRC -> TS: 17 registerValidationDate(date)
+    TS -> T: 18 setValidationDate(date)
+    deactivate T
+    deactivate TS
+end
+deactivate VTRC
+LCU --> LC: 19 informs operation success
+deactivate LCU
+@enduml

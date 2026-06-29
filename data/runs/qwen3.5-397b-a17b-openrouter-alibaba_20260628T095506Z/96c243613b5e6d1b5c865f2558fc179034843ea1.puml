@@ -1,0 +1,29 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam noteStyle rectangle
+skinparam actorStyle awesome
+
+actor User
+participant "Application" as App
+participant "<<engine>>\nAuto SDK Engine" as Engine
+participant "<<avs>>\nAlexa" as Alexa
+
+User -> Alexa: "Turn off AC"
+activate Alexa
+Alexa -> Engine: PowerController.TurnOff directive
+activate Engine
+Engine -> App: Receive SetPowerControllerValue message
+activate App
+App -> App: Turn off AC
+App -> Engine: Publish SetControllerValueMessage Reply
+deactivate App
+Engine -> Alexa: Alexa.Response event
+deactivate Engine
+deactivate Alexa
+note right of Engine: SpeechSynthesizer.Speak directive\n<<Alexa speech response>>
+Alexa -> App: 
+deactivate Alexa
+
+@enduml

@@ -1,0 +1,64 @@
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #F5F5F5
+  BorderColor Black
+  ArrowColor Black
+}
+skinparam interface {
+  BackgroundColor #F5F5F5
+  BorderColor Black
+  ArrowColor Black
+}
+skinparam note {
+  BackgroundColor #F5F5F5
+  BorderColor Black
+}
+
+package "common" {
+  package "domain" {
+    package "repository" {
+      interface "FeatureConfigRepository" {
+        + Future<FeatureConfig> fetch()
+      }
+    }
+    package "entities" {
+      class "FeatureConfig" {
+        + isPasswordSignInOptionEnabled : bool
+        + isDebugMenuEnabled : bool
+      }
+    }
+    package "usecases" {
+      class "FetchFeatureConfigUseCase" {
+        + Future<FeatureConfig> call(FeatureConfigParam params)
+      }
+      package "parameters" {
+        class "FeatureConfigParam" {
+          + isPasswordSignInOptionEnabled : bool
+          + isDebugMenuEnabled : bool
+        }
+      }
+    }
+  }
+}
+
+package "base" {
+  package "domain" {
+    package "usecases" {
+      interface "UseCase<Type, Params>" {
+        + call: Type
+      }
+    }
+  }
+}
+
+' Relationships
+FetchFeatureConfigUseCase --|> UseCase
+FetchFeatureConfigUseCase --> FeatureConfigParam : uses
+FetchFeatureConfigUseCase --> FeatureConfigRepository : uses
+FeatureConfigRepository --> FeatureConfig : uses
+
+@enduml
+```

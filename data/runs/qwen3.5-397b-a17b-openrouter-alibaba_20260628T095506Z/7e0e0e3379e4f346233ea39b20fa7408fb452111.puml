@@ -1,0 +1,21 @@
+@startuml
+title Initialization
+participant "service process" as SP {
+    participant "ConcreteImpl" as CI
+    participant "DBusAdapter" as DA
+}
+participant "DBus" as DB
+participant "client process" as CP {
+    participant "DBusProxy" as DP
+}
+
+DA -> DA: Init(ConcreteImpl)
+DA -> DB: Export
+DP -> DP: Init
+DP -> DB: ConnectToRemoteObject
+note right of DP: Tries to fetch all properties\nincluding "ready" property
+DP -> DB: GetAllProperties
+DB -> DA: GetAllProperties
+DA --> DB: return properties
+DB --> DP: return properties
+@enduml

@@ -1,0 +1,96 @@
+```plantuml
+@startuml
+title RqP – Request Resource
+
+actor "Requesting Party\n(RqP)" as RqP
+participant "Client Application (CA)\n«Custom Application»" as CA
+participant "Resource Server (RS)\n«Custom Application»" as RS
+participant "Authorization Server (AS)\nForgeRock Access Manager" as AS
+participant "Content Server (CS)\n«Custom Application»" as CS
+
+box "Client Application (CA)" #LightGreen
+    participant "User Interface" as UI
+end box
+
+box "Resource Server (RS)" #LightOrange
+    participant "REST API" as RS_API
+    database "Resource" as RS_DB
+    database "Credential" as RS_Cred
+end box
+
+box "Authorization Server (AS)" #LightYellow
+    participant "AM API" as AM_API
+    participant "UMA API" as UMA_API
+    participant "OAuth API" as OAuth_API
+end box
+
+box "Content Server (CS)" #LightCyan
+    participant "REST API" as CS_API
+    database "Data" as CS_DB
+end box
+
+RqP -> UI: Authenticate
+activate UI
+UI -> AM_API: Authenticate
+activate AM_API
+AM_API --> UI: Authenticated
+deactivate AM_API
+deactivate UI
+
+RqP -> UI: Access Interface
+activate UI
+UI -> UI: Obtain Resource Id\n(maybe from Discover Resources)
+UI -> RS_API: GET /share/resources/{resourceId}\nscopes (no valid RPT)
+activate RS_API
+RS_API -> RS_DB: Get_id
+activate RS_DB
+RS_DB --> RS_API: meta data
+deactivate RS_DB
+RS_API -> RS_Cred: Get PAT
+activate RS_Cred
+RS_Cred --> RS_API: PAT
+deactivate RS_Cred
+deactivate RS_API
+
+note right of UI
+Get permission ticket for the\nresource and scope
+end note
+
+RS_API -> UMA_API: POST /am/uma/permission_request\nresource_id + scopes
+activate UMA_API
+UMA_API --> RS_API: permission ticket
+deactivate UMA_API
+RS_API --> UI: permission ticket + AS URI
+deactivate UI
+
+activate UI
+UI -> UI: Get client auth basic
+note left of UI
+Get claim token for the\nRequesting Party (RqP)
+end note
+UI -> OAuth_API: POST /am/oauth2/access_token\nscope=openid\nSSO session
+activate OAuth_API
+OAuth_API -> OAuth_API: Validate SSO session
+OAuth_API --> UI: claim token
+deactivate OAuth_API
+deactivate UI
+
+note left of UI
+Get Requesting Party Token (RPT)\nusing the permission ticket\nand claim token
+end note
+
+activate UI
+UI -> OAuth_API: POST /am/oauth2/access_token\ngrant_type=urn:ietf:params:oauth:grant-type:uma-ticket\nscope=..., ticket=..., claim_token=..., claim_token_format=...
+activate OAuth_API
+OAuth_API -> UMA_API: Check Access
+activate UMA_API
+UMA_API -> UMA_API: No Policy for RqP + Resource + scopes\nCreate Access Request for Resource Owner
+UMA_API --> OAuth_API: No Access, request Submitted
+deactivate UMA_API
+deactivate OAuth_API
+OAuth_API --> UI: Error: Request Submitted
+deactivate UI
+deactivate UI
+
+@enduml
+```

@@ -1,0 +1,209 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam note {
+  BackgroundColor #FFFFCC
+  BorderColor #CCCCCC
+}
+
+' Interfaces
+interface "BeanPostProcessor" as BPP {
+  Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception;
+  Object postProcessAfterInitialization(Object bean, String beanName) throws Exception;
+}
+
+interface "BeanFactoryAware" as BFA {
+  void setBeanFactory(BeanFactory beanFactory) throws Exception;
+}
+
+interface "AopProxy" as AopProxy {
+}
+
+interface "InvocationHandler" as IH {
+}
+
+interface "Advice" as Advice {
+}
+
+interface "Pointcut" as Pointcut {
+}
+
+interface "ClassFilter" as ClassFilter {
+}
+
+interface "MethodMatcher" as MethodMatcher {
+}
+
+interface "MethodInterceptor" as MethodInterceptor {
+}
+
+' Classes
+class "AbstractBeanFactory" as ABF {
+  public List getBeansForType(Class type) throws Exception {
+}
+
+class "AspectJAwareAdvisorAutoProxyCreator" as AJAAPC {
+}
+
+class "JdkDynamicAopProxy" as JDAP {
+}
+
+class "AdvisedSupport" as AS {
+  MethodInterceptor methodInterceptor;
+  TargetSource targetSource;
+  private MethodMatcher methodMatcher;
+}
+
+class "TargetSource" as TS {
+  Class targetClass;
+  Object target;
+}
+
+class "AspectJExpressionPointcut" as AJEP {
+  private PointcutParser pointcutParser;
+  private String expression;
+  private PointcutExpression pointcutExpression;
+  public boolean matchesClass(Class targetClass)
+  public boolean matchesMethod(Method method, Class targetClass)
+}
+
+class "AspectJExpressionPointcutAdvisor" as AJEPA {
+  private Advice advice;
+  private AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+}
+
+class "ReflectiveMethodInvocation" as RMI {
+}
+
+' Notes
+note top of BPP
+  <b>BeanPostProcessor</b>
+end note
+
+note top of BFA
+  <b>BeanFactoryAware</b>
+end note
+
+note left of JDAP
+  <b>@Override</b>
+  public Object getProxy() {
+    return Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] { advised.getTargetSource().getTargetClass() }, this);
+  }
+
+  <b>@Override</b>
+  public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+    MethodInterceptor methodInterceptor = advised.getMethodInterceptor();
+    if (advised.getMethodMatcher() == null
+        || advised.getMethodMatcher().matches(method, advised.getTargetSource().getTarget().getClass())) {
+      return methodInterceptor.invoke(new ReflectiveMethodInvocation(advised.getTargetSource().getTarget(),
+          method, args));
+    } else {
+      return method.invoke(advised.getTargetSource().getTarget(), args);
+    }
+  }
+end note
+
+note top of AJAAPC
+  <b>@Override</b>
+  public Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
+    if (bean instanceof AspectJExpressionPointcutAdvisor) {
+      return bean;
+    }
+    if (bean instanceof MethodInterceptor) {
+      return bean;
+    }
+    List<AspectJExpressionPointcutAdvisor> advisors = beanFactory
+        .getBeansForType(AspectJExpressionPointcutAdvisor.class);
+    for (AspectJExpressionPointcutAdvisor advisor : advisors) {
+      if (advisor.getPointcut().getClassFilter().matches(bean.getClass())) {
+        AdvisedSupport advisedSupport = new AdvisedSupport();
+        advisedSupport.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());
+        advisedSupport.setMethodMatcher(advisor.getPointcut().getMethodMatcher());
+        TargetSource targetSource = new TargetSource(bean, bean.getClass().getInterfaces());
+        advisedSupport.setTargetSource(targetSource);
+        return new JdkDynamicAopProxy(advisedSupport).getProxy();
+      }
+    }
+    return bean;
+  }
+end note
+
+note right of AJEPA
+  <b>特别注意下的：</b>
+  beanDefinition.setBean(bean);
+
+  <b>@Override</b>
+  public Object getBean(String name) throws Exception {
+    BeanDefinition beanDefinition = beanDefinitionMap.get(name);
+    if (beanDefinition == null) {
+      throw new IllegalArgumentException("No bean named " + name + " is defined");
+    }
+    Object bean = beanDefinition.getBean();
+    if (bean == null) {
+      bean = doCreateBean(beanDefinition);
+      bean = initializeBean(bean, name);
+      beanDefinition.setBean(bean);
+    }
+    return bean;
+  }
+end note
+
+note right of AJAAPC
+  <b>@Test</b>
+  public void test() throws Exception {
+    ApplicationContext applicationContext = new ClassPathXmlApplicationContext("tinyioc.xml");
+    HelloWorldService helloWorldService = (HelloWorldService) applicationContext.getBean("helloWorldService");
+    helloWorldService.helloWorld();
+  }
+
+  <b>tinyioc.xml配置</b>
+  &lt;bean id="outputService" class="us.codecraft.tinyioc.OutputServiceImpl"&gt;
+  &lt;/bean&gt;
+  &lt;bean id="helloWorldService" class="us.codecraft.tinyioc.HelloWorldServiceImpl"&gt;
+  &lt;property name="text" value="Hello World!"&gt;&lt;/property&gt;
+  &lt;property name="outputService" ref="outputService"&gt;&lt;/property&gt;
+  &lt;/bean&gt;
+  &lt;bean id="timeInterceptor" class="us.codecraft.tinyioc.aop.TimeInterceptor"&gt;&lt;/bean&gt;
+  &lt;bean id="autoProxyCreator" class="us.codecraft.tinyioc.aop.AspectJAwareAdvisorAutoProxyCreator"&gt;&lt;/bean&gt;
+  &lt;bean id="aspectjAdvisor" class="us.codecraft.tinyioc.aop.AspectJExpressionPointcutAdvisor"&gt;
+  &lt;property name="advice" ref="timeInterceptor"&gt;&lt;/property&gt;
+  &lt;property name="expression" value="execution(* us.codecraft.tinyioc.*.*(..))"&gt;&lt;/property&gt;
+  &lt;/bean&gt;
+end note
+
+' Relationships
+BPP <|-- AJAAPC
+BFA <|-- AJAAPC
+AopProxy <|.. JDAP
+InvocationHandler <|.. JDAP
+Advice <|.. AJEPA
+Pointcut <|.. AJEP
+ClassFilter <|.. AJEP
+MethodMatcher <|.. AS
+MethodInterceptor <|.. AS
+ABF <|-- AJAAPC
+AJAAPC --> ABF
+AJAAPC --> AS
+AJAAPC --> TS
+AS --> JDAP
+AS --> RMI
+AS --> TS
+AS --> MethodMatcher
+AS --> MethodInterceptor
+TS --> ABF
+AJEP --> Pointcut
+AJEP --> ClassFilter
+AJEPA --> Advice
+AJEPA --> AJEP
+JDAP --> AopProxy
+JDAP --> IH
+JDAP --> AS
+RMI --> AS
+AJAAPC --> AJEPA
+AJEPA --> AJAAPC
+
+@enduml
+```

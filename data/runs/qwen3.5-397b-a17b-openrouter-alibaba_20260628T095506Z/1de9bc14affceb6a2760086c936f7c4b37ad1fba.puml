@@ -1,0 +1,60 @@
+@startuml
+title Update States
+participant "Simulator" as Simulator
+box "Wayside Controller" #LightGray
+    participant "TrackControllers" as TrackControllers
+    participant "WaysideController" as WaysideController
+    participant "PLC" as PLC
+    participant "WaysideControllerGUI" as WaysideControllerGUI
+end box
+participant "TrackModel" as TrackModel
+
+Simulator -> TrackControllers: timeUpdate(SimTime)
+activate TrackControllers
+
+loop waysideControllers
+    TrackControllers -> WaysideController: updateStates()
+    activate WaysideController
+    
+    loop associatedBlocks
+        WaysideController -> TrackControllers: receiveBlockInfo(line, blockId)
+        TrackControllers -> TrackModel: getBlockInfo(line, blockId)
+        activate TrackModel
+        TrackModel --> TrackControllers: Block
+        deactivate TrackModel
+        TrackControllers --> WaysideController: Block
+        
+        WaysideController -> WaysideController: runPLC(occupancy)
+        WaysideController -> PLC: getLogic()
+        activate PLC
+        PLC --> WaysideController: String logic
+        deactivate PLC
+        
+        alt if(newState != currentState)
+            WaysideController -> TrackControllers: transmitState(line, blockId, state)
+            TrackControllers -> TrackModel: setState(line, blockId, state)
+            activate TrackModel
+            TrackModel --> TrackControllers: Success
+            deactivate TrackModel
+        end
+    end
+    
+    alt if(Wayside Controller Selected)
+        WaysideController -> WaysideControllerGUI: displayInfo()
+        activate WaysideControllerGUI
+        WaysideControllerGUI -> WaysideController: receiveBlockInfo(line, blockId)
+        WaysideController -> TrackControllers: receiveBlockInfo(line, blockId)
+        TrackControllers -> TrackModel: getBlockInfo(line, blockId)
+        activate TrackModel
+        TrackModel --> TrackControllers: Block
+        deactivate TrackModel
+        TrackControllers --> WaysideController: Block
+        WaysideController --> WaysideControllerGUI: Block
+        deactivate WaysideControllerGUI
+    end
+    
+    deactivate WaysideController
+end
+
+deactivate TrackControllers
+@enduml

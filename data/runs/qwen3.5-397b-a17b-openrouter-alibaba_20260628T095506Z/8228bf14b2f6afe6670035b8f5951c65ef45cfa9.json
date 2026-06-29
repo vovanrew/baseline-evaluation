@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782656426-vTw5FAVMJQybqSSC0Ira",
+  "object": "chat.completion",
+  "created": 1782656426,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam sequenceMessageAlign center\nskinparam lifelineStrategy solid\nskinparam participantStyle rectangle\nskinparam noteStyle rectangle\nskinparam linetype ortho\n\nparticipant \"FragmentVideoChat\" as FragmentVideoChat\nparticipant \"LicodeConnector\" as LicodeConnector\nparticipant \"PeerConnectionFactory\" as PeerConnectionFactory\nparticipant \"RoomObserver\" as RoomObserver\nparticipant \"MediaStream\" as MediaStream\nparticipant \"PeerConnection\" as PeerConnection\nparticipant \"StreamDescription\" as StreamDescription\nparticipant \"LicodeSdpObserver\" as LicodeSdpObserver\nparticipant \"LicodeServer\" as LicodeServer\nparticipant \"SocketIOClient\" as SocketIOClient\n\n== Init ==\nFragmentVideoChat -> LicodeConnector: configureConnector\nLicodeConnector -> FragmentVideoChat: init\nFragmentVideoChat -> PeerConnectionFactory: initializeAndroidGlobals\nFragmentVideoChat -> LicodeConnector: addObserverer(RoomObserver)\n\n== Publish ==\nFragmentVideoChat -> FragmentVideoChat: startCastView.onClick\nFragmentVideoChat -> LicodeConnector: requestPublish\nLicodeConnector -> LicodeConnector: triggerPublishAllowed\nLicodeConnector -> FragmentVideoChat: onPublishAllowed\nFragmentVideoChat -> RoomObserver: startPublish\nRoomObserver -> FragmentVideoChat: makeVideoView\nFragmentVideoChat -> FragmentVideoChat: publishVideoStreamsView\nFragmentVideoChat -> LicodeConnector: doPublish\n\n== Publish-create media ==\nLicodeConnector -> PeerConnectionFactory: createLocalMediaStream\nPeerConnectionFactory -> LicodeConnector: createMediaConstraints\nLicodeConnector -> PeerConnectionFactory: getVideoCapturer\nPeerConnectionFactory -> LicodeConnector: createVideoSource(VideoCapturer, MediaConstraints)\nLicodeConnector -> MediaStream: createVideoTrack(String, VideoSource)\nMediaStream -> LicodeConnector: addTrack\nLicodeConnector -> PeerConnectionFactory: createAudioSource(MediaConstraints)\nPeerConnectionFactory -> LicodeConnector: createAudioTrack(String, AudioSource)\nLicodeConnector -> MediaStream: addTrack\n\n== Publish-create offer ==\nLicodeConnector -> LicodeConnector: makePcConstraints\nLicodeConnector -> LicodeConnector: create MyPcObserver\nLicodeConnector -> PeerConnectionFactory: createPeerConnection(List<IceServer>, MediaConstraints, Observer)\nLicodeConnector -> MediaStream: addStream(MediaStream, MediaConstraints)\nLicodeConnector -> PeerConnection: setMedia\nLicodeConnector -> PeerConnection: attachRenderer\nLicodeConnector -> PeerConnection: initLocal(PeerConnection, SdpObserver)\nPeerConnection -> LicodeSdpObserver: createOffer\nLicodeSdpObserver -> LicodeConnector: onCreateSuccess\nLicodeConnector -> PeerConnection: setLocalDescription\nPeerConnection -> LicodeSdpObserver: onSetSuccess\nLicodeSdpObserver -> LicodeServer: sendLocalDescription\nLicodeServer -> LicodeSdpObserver: sendSDPSocket(\"publish\")\nLicodeSdpObserver -> LicodeServer: publish\nLicodeServer -> LicodeSdpObserver: publish success\nLicodeServer -> LicodeConnector: setRemoteDescription\n\n== Subscribe ==\n== Subscribe-token ==\nFragmentVideoChat -> FragmentVideoChat: startVideoChat\nFragmentVideoChat -> LicodeConnector: createToken\nLicodeConnector -> LicodeServer: http\\nLoad Balance\nLicodeServer -> FragmentVideoChat: createToken success\nFragmentVideoChat -> LicodeConnector: connect\nLicodeConnector -> LicodeConnector: createToken\nLicodeConnector -> LicodeConnector: decodeToken\nLicodeConnector -> SocketIOClient: connect to server\\nsocket\nSocketIOClient -> LicodeConnector: onConnectCompleted\n\n== Subscribe-listen socket events ==\nFragmentVideoChat -> FragmentVideoChat: listen events\\nonAddStream\\nonSubscribeP2P\\nonPublishP2P\\nonDataStream\\nonRemoveStream\\ndisconnect\nFragmentVideoChat -> SocketIOClient: sendMessageSocket(\"token\")\nSocketIOClient -> FragmentVideoChat: token success\nFragmentVideoChat -> RoomObserver: onRoomConnected\nRoomObserver -> FragmentVideoChat: setBandwidthLimits\n\nalt [has streams]\n    RoomObserver -> FragmentVideoChat: triggerStreamAdded\n    FragmentVideoChat -> FragmentVideoChat: mOnAddStream\n    FragmentVideoChat -> FragmentVideoChat: triggerStreamAdded\nend\n\nFragmentVideoChat -> LicodeConnector: onStreamAdded\nFragmentVideoChat -> LicodeConnector: subscribe\nLicodeConnector -> LicodeConnector: doSubscribe\nLicodeConnector -> FragmentVideoChat: triggerMediaAvailable\nFragmentVideoChat -> FragmentVideoChat: onStreamMediaAvailable\nFragmentVideoChat -> FragmentVideoChat: makeVideoView\nFragmentVideoChat -> PeerConnection: attachRenderer\nPeerConnection -> PeerConnection: create MyPcObserver\nPeerConnection -> PeerConnectionFactory: createPeerConnection\nPeerConnectionFactory -> PeerConnection: initRemote(PeerConnection, SdpObserver)\nPeerConnection -> LicodeSdpObserver: createOffer\nLicodeSdpObserver -> LicodeConnector: onCreateSuccess\nLicodeConnector -> PeerConnection: setLocalDescription\nPeerConnection -> LicodeSdpObserver: onSetSuccess\nLicodeSdpObserver -> LicodeServer: sendLocalDescription\nLicodeServer -> LicodeSdpObserver: sendSDPSocket(\"subscribe\")\nLicodeSdpObserver -> LicodeServer: subscribe success\nLicodeServer -> LicodeConnector: setRemoteDescription\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1565,
+    "completion_tokens": 1129,
+    "total_tokens": 2694,
+    "cost": 0.00325221,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00325221,
+      "upstream_inference_prompt_cost": 0.00061035,
+      "upstream_inference_completions_cost": 0.00264186
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

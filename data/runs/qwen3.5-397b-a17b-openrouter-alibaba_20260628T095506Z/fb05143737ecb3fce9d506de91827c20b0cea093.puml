@@ -1,0 +1,80 @@
+```plantuml
+@startuml
+title Traffic influencing flows between OpenNESS controller and 5G Core
+header Intel Corporation
+footer Proprietary and Confidential
+
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam note {
+  BackgroundColor LightYellow
+  BorderColor black
+}
+skinparam actorStyle awesome
+
+actor "User/Admin" as User
+participant "UI/CLI" as UI
+participant "AF Microservice" as AF
+participant "NEF" as NEF
+participant "NGC\nCP Functions" as NGC
+
+box "OpenNESS Controller components" #LightBlue
+  participant UI
+  participant AF
+end box
+
+box "5G Core components" #LightGreen
+  participant NEF
+  participant NGC
+end box
+
+note right of NEF
+  OpenNESS provided
+  Core component with
+  limited functionality
+end note
+
+== Get all subscribed traffic influence info ==
+User -> UI: Request all traffic influence\nsubscribed
+activate UI
+UI -> AF: /af/v1/subscriptions : GET
+activate AF
+AF -> NEF: /3gpp-traffic-Influence/v1/{afId}/subscriptions\n: GET
+activate NEF
+NEF -> NEF: NGC_STUB(PCF,UDR,BSF)
+activate NEF
+NEF -> NGC: {Open: 3rd party NGC\nintegration with\nOpenNESS(NEF)}
+activate NGC
+NGC --> NEF
+deactivate NGC
+deactivate NEF
+NEF --> AF: OK: traffic influence info\nERROR: {400/500}
+deactivate NEF
+AF --> UI: OK: traffic influence info\nERROR: {400/500}
+deactivate AF
+UI --> User: Traffic influence details
+deactivate UI
+
+== Get subscribed traffic influence info by subscriptionId ==
+User -> UI: Request traffic influence using\nsubscriptionId
+activate UI
+UI -> AF: /af/v1/subscriptions/{subscriptionId}\n: GET
+activate AF
+AF -> NEF: /3gpp-traffic-Influence/v1/{afId}/subscriptions/{subscriptionId}\n: GET
+activate NEF
+NEF -> NEF: NGC_STUB(PCF,UDR,BSF)
+activate NEF
+NEF -> NGC: {Open: 3rd party NGC\nintegration with\nOpenNESS(NEF)}
+activate NGC
+NGC --> NEF
+deactivate NGC
+deactivate NEF
+NEF --> AF: OK: traffic influence info\nERROR: {400/500}
+deactivate NEF
+AF --> UI: OK: traffic influence info\nERROR: {400/500}
+deactivate AF
+UI --> User: Traffic influence details
+deactivate UI
+
+@enduml
+```

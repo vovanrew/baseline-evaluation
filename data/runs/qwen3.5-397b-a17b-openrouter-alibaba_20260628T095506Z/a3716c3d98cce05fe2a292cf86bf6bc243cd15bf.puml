@@ -1,0 +1,88 @@
+```plantuml
+@startuml
+skinparam sequence {
+    LifeLineBackgroundColor #E6E6FA
+    LifeLineBorderColor #666666
+    ActorBackgroundColor #E6E6FA
+    ActorBorderColor #666666
+    ParticipantBackgroundColor #E6E6FA
+    ParticipantBorderColor #666666
+    ArrowColor #000000
+    ArrowThickness 1
+    NoteBackgroundColor #FFFFE0
+    NoteBorderColor #CCCCCC
+    BoxBackgroundColor #F0F0F0
+    BoxBorderColor #CCCCCC
+}
+
+box "Client" #F0F0F0
+    participant "client" as client
+    participant "tcpclient" as tcpclient
+end box
+
+box "Server" #F0F0F0
+    participant "tcpserver" as tcpserver
+    participant "server" as server
+end box
+
+== Initialization ==
+server -> tcpserver: listen
+activate tcpserver
+note right of tcpserver: LISTEN
+deactivate tcpserver
+
+== Connection Establishment ==
+client -> tcpclient: connect
+activate tcpclient
+tcpclient -> tcpserver: SYN
+activate tcpserver
+note right of tcpclient: SYN-SENT
+note right of tcpserver: SYN-RECEIVED
+tcpserver -> tcpclient: SYN, ACK
+tcpclient -> tcpserver: ACK
+note right of tcpclient: ESTABLISHED
+note right of tcpserver: ESTABLISHED
+deactivate tcpclient
+deactivate tcpserver
+
+== Data Transfer ==
+server -> tcpserver: EPOLLIN
+activate tcpserver
+tcpserver -> server: write
+tcpserver -> tcpclient: PSH, ACK
+activate tcpclient
+tcpclient -> tcpserver: ACK
+deactivate tcpserver
+tcpclient -> client: EPOLLIN
+activate client
+client -> tcpclient: read
+deactivate client
+deactivate tcpclient
+
+== Connection Termination (Server Side) ==
+server -> tcpserver: close
+activate tcpserver
+note right of tcpserver: FIN_WAIT1
+tcpserver -> tcpclient: FIN, ACK
+activate tcpclient
+note right of tcpclient: CLOSE_WAIT
+tcpclient -> tcpserver: ACK
+deactivate tcpserver
+note right of tcpserver: FIN_WAIT2
+tcpclient -> client: EPOLLRDHUP
+activate client
+client -> tcpclient: close
+deactivate client
+note right of tcpclient: LAST_ACK
+tcpclient -> tcpserver: FIN
+activate tcpserver
+tcpserver -> tcpclient: ACK
+deactivate tcpclient
+note right of tcpclient: CLOSE
+deactivate tcpserver
+note right of tcpserver: TIMEWAIT
+tcpserver -> tcpserver: timer 60s
+note right of tcpserver: CLOSE
+
+@enduml
+```

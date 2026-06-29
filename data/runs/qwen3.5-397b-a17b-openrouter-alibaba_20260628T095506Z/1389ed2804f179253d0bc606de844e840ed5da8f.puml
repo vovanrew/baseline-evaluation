@@ -1,0 +1,53 @@
+@startuml
+actor User
+participant "«main»\nAdministration" as Admin
+participant "«JFrame»\nMain Menu" as MainMenu
+participant "«dialog»\nView Products" as ViewProducts
+participant "«DAO»\nProductManagerdao" as ProductManagerdao
+participant "«DAO»\nDbConnection" as DbConnection
+
+User -> Admin: 
+activate Admin
+Admin -> MainMenu: construct
+activate MainMenu
+User -> MainMenu: click "view products" button
+activate MainMenu
+MainMenu -> ViewProducts: construct
+activate ViewProducts
+ViewProducts -> ProductManagerdao: construct
+activate ProductManagerdao
+ViewProducts -> ProductManagerdao: getProducts()
+activate ProductManagerdao
+ProductManagerdao -> DbConnection: getConnection(uri);
+activate DbConnection
+DbConnection --> ProductManagerdao: connection
+deactivate DbConnection
+ProductManagerdao -> ProductManagerdao: prepareStatement(sql)
+ProductManagerdao -> ProductManagerdao: executeQuery()
+ProductManagerdao -> ProductManagerdao: getters retrieve product details
+ProductManagerdao -> ProductManagerdao: setters set product details
+ProductManagerdao --> ViewProducts: product
+deactivate ProductManagerdao
+ViewProducts -> ViewProducts: setModel(displayProducts)
+deactivate ViewProducts
+User -> ViewProducts: enter a product ID in search bar
+activate ViewProducts
+User -> ViewProducts: user clicks 'search' button
+ViewProducts -> ViewProducts: searchbyIDTxt.getText()
+ViewProducts -> ProductManagerdao: searchProduct(searchID)
+activate ProductManagerdao
+ProductManagerdao -> DbConnection: getConnection(uri);
+activate DbConnection
+DbConnection --> ProductManagerdao: connection
+deactivate DbConnection
+ProductManagerdao -> ProductManagerdao: perpareStatement(sql)
+ProductManagerdao -> ProductManagerdao: setString(1, searchProdID)
+ProductManagerdao -> ProductManagerdao: executeQuery()
+ProductManagerdao -> ProductManagerdao: getters retrieve product details
+ProductManagerdao -> ProductManagerdao: setters set product details
+ProductManagerdao --> ViewProducts: product searched for (p)
+deactivate ProductManagerdao
+ViewProducts -> ViewProducts: updateItems(returnedProduct)
+deactivate ViewProducts
+User -> User: waiting for further user action
+@enduml

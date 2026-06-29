@@ -1,0 +1,45 @@
+@startuml
+title Scheduled Events
+autonumber
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam actorStyle awesome
+
+actor "Recording Staff" as RS
+actor "Coach" as C
+participant "IP/Mobile Cams" as IPC
+participant "Consumer Apps" as CA
+participant "Security Gateway" as SG
+participant "Control Domain\n(win10/linux)" as CD
+participant "Streaming Service\n(encoder)" as SS
+entity "Media\n(mediaID)" as M
+participant "Transfer Service" as TS
+
+RS -> CD : createEvent(configuration{description, sources, consumers{priorities}})
+CA -> SG : authenticate(ID)
+SG --> CA : return(token)
+IPC -> CD : register(endpoint)
+CA -> CD : register(token, priority)
+CD -> SS : host(sources{endpoints})
+CD -> CD : create(newEvent)
+RS -> CD : start(newEvent)
+CD -> SS : encode()
+CD --> CA : notify(recording)
+RS -> CD : stop(newEvent)
+CD -> SS : saveAs(mediaID)
+SS -> M : save(mediaID)
+CD -> TS : host(mediaID, consumers{token, priority})
+CD --> CA : notify(newMediaAvailable, mediaID, transferServiceEndpoint)
+
+alt auto-download enabled
+    CA -> TS : fetchMedia(token, mediaID)
+    TS --> CA : returnByPriority(mediaStream)
+else manual-download enabled
+    C -> CA : showMedia(token)
+    CA -> TS : fetchMedia(token, mediaID)
+    TS --> CA : returnByPriority(mediaStream)
+end
+
+footer Recording Staff | Coach | IP/Mobile Cams | Consumer Apps | Security Gateway | Control Domain (win10/linux) | Streaming Service (encoder) | Media (mediaID) | Transfer Service
+@enduml

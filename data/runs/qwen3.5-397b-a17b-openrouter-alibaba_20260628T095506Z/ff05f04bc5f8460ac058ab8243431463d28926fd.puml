@@ -1,0 +1,61 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantFontColor #000000
+skinparam participantFontSize 12
+skinparam participantFontStyle normal
+skinparam participantFontName Arial
+skinparam participantPadding 10
+skinparam participantMargin 10
+skinparam participantBorderThickness 1
+skinparam participantBorderRadius 5
+skinparam participantShadowing false
+skinparam participantAlignment left
+skinparam participantTextAlignment left
+skinparam participantTextPadding 5
+skinparam participantTextMargin 5
+skinparam participantTextBorderThickness 0
+skinparam participantTextBorderRadius 0
+skinparam participantTextShadowing false
+skinparam participantTextAlignment left
+skinparam participantTextPadding 5
+skinparam participantTextMargin 5
+skinparam participantTextBorderThickness 0
+skinparam participantTextBorderRadius 0
+skinparam participantTextShadowing false
+
+participant "beerocks_cli" as beerocks_cli
+participant "bml_internal" as bml_internal
+participant "controller" as controller
+participant "controller_db" as controller_db
+
+beerocks_cli -> beerocks_cli: beerocks_cli -c "bml_clear_wifi_credentials <al-mac>"
+activate beerocks_cli
+beerocks_cli -> beerocks_cli: cli_bml::clear_wifi_credentials_caller(args)
+deactivate beerocks_cli
+activate beerocks_cli
+beerocks_cli -> beerocks_cli: cli_bml::clear_wifi_credentials(args.stringArgs[0])
+deactivate beerocks_cli
+activate beerocks_cli
+beerocks_cli -> beerocks_cli: bml_clear_wifi_credentials(ctx, al-mac.c_str())
+deactivate beerocks_cli
+activate beerocks_cli
+beerocks_cli -> bml_internal: clear_wifi_credentials(const sMacAddr &al_mac)
+deactivate beerocks_cli
+activate bml_internal
+bml_internal -> controller: message_com::send_cmdu(m_sockMaster, ACTION_BML_WIFI_CREDENTIALS_CLEAR_REQUEST)
+deactivate bml_internal
+activate controller
+controller -> controller_db: clear_bss_info_configuration(const sMacAddr &al_mac)
+deactivate controller
+activate controller_db
+controller_db -> controller: message_com::send_cmdu(m_sockMaster, ACTION_BML_WIFI_CREDENTIALS_CLEAR_RESPONSE)
+deactivate controller_db
+activate controller
+controller -> bml_internal: message_com::send_cmdu(m_sockMaster, ACTION_BML_WIFI_CREDENTIALS_CLEAR_RESPONSE)
+deactivate controller
+activate bml_internal
+@enduml

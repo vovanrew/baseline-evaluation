@@ -1,0 +1,71 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam noteStyle handwritten
+skinparam participantStyle rectangle
+skinparam participantPadding 20
+skinparam boxPadding 10
+skinparam sequence {
+  LifeLineBackgroundColor White
+  LifeLineBorderColor Black
+  ActivationBackgroundColor #F0F0F0
+  ActivationBorderColor Black
+  ArrowColor Black
+  ArrowThickness 1
+}
+
+title Add Member to Group Sequence Diagram
+
+participant "IntegrationTest" as IT
+participant "Spring Application" as SA
+participant "De /nSerializer" as DS
+participant "info:AddMember\nRequestInfoDTO" as InfoDTO
+participant "ctrl:AddMember\nToGroupController" as Ctrl
+participant "AddMember\nRequestAssembler" as ReqAsm
+participant "requestDTO:\nAddMemberRequestDTO" as ReqDTO
+participant "srv:AddMember\nToGroupService" as Srv
+participant "AddMemberResponse\nDTOAssembler" as RespAsm
+participant "groupRespDTO:\nGroupResponseDTO" as RespDTO
+
+IT -> SA: POST\n1 /groups/"Family"/\nmembers/"ana@gmail.com"
+activate SA
+SA -> DS: 1.1 deserialize("groupDesc":"Family",\n"personEmail":"ana@gmail.com")
+activate DS
+DS -> InfoDTO: 1.1.1 create (groupDesc,\npersonEmail)
+activate InfoDTO
+DS --> SA: 
+deactivate DS
+SA -> Ctrl: 1.2 addMember(info)
+activate Ctrl
+Ctrl -> ReqAsm: addMemberMapToDTO\n1.2.1 (info.getGroupDescription(),\ninfo.getPersonEmail())
+activate ReqAsm
+ReqAsm -> ReqDTO: 1.2.1.1 create
+activate ReqDTO
+ReqAsm --> Ctrl: 
+deactivate ReqAsm
+Ctrl -> Srv: 1.2.2 addMemeber(requestDTO)
+activate Srv
+Srv --> Ctrl: 1.2.3 groupDTO
+deactivate Srv
+Ctrl -> RespAsm: 1.2.4 mapToGroupResponseDTO(GroupDTO)
+activate RespAsm
+RespAsm -> RespDTO: 1.2.4.1 create
+activate RespDTO
+RespAsm --> Ctrl: 
+deactivate RespAsm
+Ctrl --> SA: 1.2.5 groupRespDTO
+deactivate Ctrl
+SA --> IT: 1.2.6 ResponseEntity(groupRespDTO,\nHttpStatus.OK)
+SA -> DS: 1.3 serialize(ResponseEntity(groupRespDTO,\nHttpStatus.OK))
+activate DS
+DS --> SA: 
+deactivate DS
+SA --> IT: 1.4 HttpResponse
+deactivate SA
+IT --> IT: 1.5 HttpResponse
+
+note right of Srv
+Continues through\nnext Diagram
+end note
+
+@enduml

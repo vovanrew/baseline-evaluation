@@ -1,0 +1,37 @@
+@startuml
+actor CommandLine
+participant AppSolver
+participant DataReader
+participant PreVerification
+participant Model
+participant Solver
+participant PostVerification
+participant Solution
+participant Exception
+participant Terminate
+
+CommandLine -> AppSolver: Launch App
+AppSolver --> CommandLine: Arguments valid
+AppSolver -> DataReader: Read data
+DataReader --> AppSolver: Read successfully
+AppSolver -> PreVerification: Verify the data
+PreVerification -> Model: Generate the model
+Model --> PreVerification: Construct successfully
+PreVerification --> AppSolver: Data is ok
+AppSolver -> Solver: Solve the problem
+Solver --> AppSolver: Solve successfully
+AppSolver -> PostVerification: Verify the solution
+PostVerification --> AppSolver: Solution is accepted
+AppSolver -> Solution: Export
+Solution --> AppSolver: Export successfully
+Solution -> Terminate: Finish, exit normally
+
+AppSolver -> Exception: Invalid Arguments, then display Usage
+AppSolver -> Exception: Read failed, show the fatal error
+AppSolver -> Exception: Data isn't valid
+AppSolver -> Exception: Construct failed, show the fatal error
+AppSolver -> Exception: Solve failed, show the reason
+AppSolver -> Exception: Solution is rejected
+Exception -> Terminate: Exit with error
+Solution -> Exception: Export failed, show the fatal error
+@enduml

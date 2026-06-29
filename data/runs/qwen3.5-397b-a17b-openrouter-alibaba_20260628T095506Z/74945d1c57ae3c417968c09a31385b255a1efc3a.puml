@@ -1,0 +1,49 @@
+@startuml
+skinparam handwritten true
+skinparam sequenceMessageAlign center
+skinparam sequence {
+  LifeLineBackgroundColor #9FE2BF
+  LifeLineBorderColor #000000
+  ActorBackgroundColor #9FE2BF
+  ActorBorderColor #000000
+  ParticipantBackgroundColor #1E90FF
+  ParticipantBorderColor #000000
+  ParticipantFontColor #FFFFFF
+  ParticipantFontStyle bold
+  ArrowColor #00BFFF
+  ArrowThickness 2
+}
+
+actor User
+participant "BaseExecutor" as BaseExecutor
+participant "JdbcTransaction" as JdbcTransaction
+participant "PooledDataSource" as PooledDataSource
+participant "PooledConnection" as PooledConnection
+participant "Proxy" as Proxy
+participant "Connection" as Connection
+
+User -> BaseExecutor: getConnection
+BaseExecutor -> JdbcTransaction: getConnection
+JdbcTransaction -> JdbcTransaction: openConnection
+JdbcTransaction -> PooledDataSource: getConnection
+PooledDataSource -> PooledDataSource: popConnection
+PooledDataSource -> PooledConnection: <create>
+PooledConnection -> Proxy: newProxyInstance
+Proxy -> PooledConnection: 创建Connection代理类对象
+PooledConnection --> PooledDataSource: 返回PooledConnection实例
+PooledDataSource -> PooledConnection: isValid
+PooledConnection -> PooledConnection: pingConnection
+PooledConnection --> PooledConnection: 检测连接是否有效
+PooledConnection --> PooledDataSource: 连接是否有效标识
+PooledDataSource -> PooledConnection: getProxyConnection
+PooledConnection --> PooledDataSource: 返回代理连接
+PooledDataSource --> JdbcTransaction: 返回代理连接
+JdbcTransaction -> Connection: setTransactionIsolation
+Connection --> JdbcTransaction: 设置隔离级别
+JdbcTransaction -> JdbcTransaction: setDesiredAutoCommit
+JdbcTransaction --> JdbcTransaction: 设置提交模式
+JdbcTransaction --> JdbcTransaction: 获取连接
+JdbcTransaction --> BaseExecutor: 通过jdbc获取数据库连接
+BaseExecutor --> User: 返回数据库连接
+
+@enduml

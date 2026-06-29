@@ -1,0 +1,20 @@
+@startuml
+actor "uic : UIController" as uic
+participant "ExtensionManager" as em
+participant "extension : NetworkWorkbookSearchExtension" as ext
+participant "uiExtension : UIExtensionNetworkWorkbookSearch" as uiExt
+participant "NetworkWorkbookSearchPanel : JPanel" as panel
+
+uic -> em: extensions=getExtensions();
+loop [for Extension ext : extensions]
+    uic -> ext: uiExtension=getUIExtension(this);
+    activate ext
+    ext -> uiExt: new(extension, uic)
+    activate uiExt
+    uiExt -> uiExt: getSideBar();
+    uiExt -> panel: new (uic)
+    deactivate uiExt
+    deactivate ext
+    uic -> uic: uiExtensions.add(uiExtension);
+end
+@enduml

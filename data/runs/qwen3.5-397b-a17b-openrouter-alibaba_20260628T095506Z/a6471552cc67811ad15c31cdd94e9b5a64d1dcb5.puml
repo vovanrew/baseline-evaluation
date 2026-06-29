@@ -1,0 +1,123 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #F0F0F0
+skinparam classBorderColor #CCCCCC
+skinparam packageBackgroundColor #FFFFFF
+skinparam packageBorderColor #000000
+skinparam packageFontStyle bold
+skinparam interfaceBackgroundColor #E0E0E0
+skinparam interfaceBorderColor #888888
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #CCCCCC
+skinparam shadowing false
+
+package "javax" {
+    package "swing" {
+        class JFrame {
+            +JFrame()
+            +setTitle(String title): void
+            +setSize(int width, int height): void
+            +setVisible(boolean b): void
+            +setDefaultCloseOperation(int operation): void
+            +getContentPane(): Container
+            +add(Component comp): Component
+            +setJMenuBar(JMenuBar menubar): void
+        }
+        
+        class JMenuBar {
+            +JMenuBar()
+            +add(JMenu menu): JMenu
+        }
+    }
+}
+
+package "java" {
+    package "awt" {
+        class AWTEvent {
+            +AWTEvent(Object source, int id)
+            +getSource(): Object
+            +getID(): int
+        }
+        
+        class Component {
+            +Component()
+            +paint(Graphics g): void
+            +repaint(): void
+            +setSize(int width, int height): void
+            +getLocation(): Point
+            +getGraphics(): Graphics
+        }
+    }
+}
+
+package "classes" {
+    class "classes" as Classes {
+        * CustomPaintComponent
+    }
+}
+
+class MenuDemo {
+    - JFrame frame
+    - CustomPaintComponent CPC
+    + MenuDemo(MenuItem[] JMI_Arr, JFrame frame)
+    + DrawGraph(DirectedWeightedGraphAlgorithms DWGA): void
+}
+
+class CustomPaintComponent {
+    - DirectedWeightedGraphAlgorithms DWGA
+    - ScreenSize: int[]
+    - double min_x = Double.MAX_VALUE
+    - double min_y = Double.MAX_VALUE
+    - double max_x = 0
+    - double max_y = 0
+    - final int nodeSize = 7
+    - final int margin = 50
+    - final int indexOffset = 8
+    - final int arrowTipSize = 12
+    + paint(Graphics g): void
+    + SetGraph(DirectedWeightedGraphAlgorithms DWG): void
+    + GetGraph(): DirectedWeightedGraphAlgorithms
+    + SetScreenSize(int[] ScreenSize): void
+    + GetScreenSize(): int[]
+    + SetGraphics2D(Graphics2D g2d): void
+    + GetGraphics2D(): Graphics2D
+    + drawNodes(Graphics2D g2d): void
+    + drawEdges(Graphics2D g2d): void
+    + algoX(double x): double
+    + algoY(double y): double
+    + updatePrivateValues(DirectedWeightedGraph DWG): void
+    + drawArrow(Graphics2D g2d, int x1, int y1, int x2, int y2): void
+    + highLightNode(NodeData node): void
+    + highLightPath(LinkedList<NodeData> nodes): void
+}
+
+class Gui {
+    + main(String[] args): void
+    + makeMenuBar(JFrame frame): JMenuBar
+}
+
+interface ActionListener {
+    + actionPerformed(ActionEvent e): void
+}
+
+interface ItemListener {
+    + itemStateChanged(ItemEvent e): void
+}
+
+' Relationships
+MenuDemo --> ActionListener
+MenuDemo --> ItemListener
+MenuDemo --> Gui
+Gui --> JFrame
+Gui --> JMenuBar
+Gui --> CustomPaintComponent
+CustomPaintComponent --> AWTEvent
+CustomPaintComponent --> Component
+JFrame --|> Component
+JMenuBar --|> Component
+AWTEvent --|> Component
+
+@enduml
+```

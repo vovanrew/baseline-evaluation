@@ -1,0 +1,17 @@
+@startuml
+title Validation Tocken
+participant "RemoteServiceServlet" as RemoteServiceServlet
+participant "HttpSessionCollector" as HttpSessionCollector
+participant "SysLog" as SysLog
+participant "Validation_User" as Validation_User
+
+RemoteServiceServlet <- RemoteServiceServlet: Data Request
+RemoteServiceServlet -> RemoteServiceServlet: Get Session ID_client
+RemoteServiceServlet -> HttpSessionCollector: Get Session by ID_client
+HttpSessionCollector --> RemoteServiceServlet: Session
+RemoteServiceServlet -> RemoteServiceServlet: Validation Tocken\nTrue
+RemoteServiceServlet -> Validation_User: Access success
+RemoteServiceServlet -> RemoteServiceServlet: Validation Tocken\nFalse
+RemoteServiceServlet -> SysLog: Tocken Failure (Name, Time)
+RemoteServiceServlet <- RemoteServiceServlet: Access denied
+@enduml

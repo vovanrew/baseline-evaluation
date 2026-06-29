@@ -1,0 +1,43 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam noteStyle rectangle
+skinparam actorStyle awesome
+
+actor "DefaultMQProducerImpl" as DefaultMQProducerImpl
+participant "Validators" as Validators
+participant "MQClientManager" as MQClientManager
+participant "MQClientInstance" as MQClientInstance
+participant "MQClientAPIImpl" as MQClientAPIImpl
+participant "PullMessageService" as PullMessageService
+participant "RebalanceService" as RebalanceService
+
+note right of DefaultMQProducerImpl: start
+
+DefaultMQProducerImpl -> Validators: checkConfig
+Validators --> DefaultMQProducerImpl: result
+
+DefaultMQProducerImpl -> MQClientManager: getInstance
+activate MQClientManager
+MQClientManager -> MQClientManager: getAndCreateMQClientInstance
+MQClientManager -> MQClientInstance: new
+activate MQClientInstance
+MQClientManager --> DefaultMQProducerImpl: mQClientFactory: MQClientInstance
+deactivate MQClientManager
+
+DefaultMQProducerImpl -> MQClientInstance: registerProducer
+DefaultMQProducerImpl -> MQClientInstance: start
+activate MQClientInstance
+MQClientInstance -> MQClientAPIImpl: start
+MQClientInstance -> MQClientInstance: startScheduledTask
+MQClientInstance -> PullMessageService: start
+MQClientInstance -> RebalanceService: start
+MQClientInstance --> DefaultMQProducerImpl: start
+deactivate MQClientInstance
+
+DefaultMQProducerImpl -> MQClientInstance: sendHeartbeatToAllBrokerWithLock
+
+== start 结束 ==
+
+@enduml

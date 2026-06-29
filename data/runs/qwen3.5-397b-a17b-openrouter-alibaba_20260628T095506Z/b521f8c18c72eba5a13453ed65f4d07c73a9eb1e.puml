@@ -1,0 +1,51 @@
+```plantuml
+@startuml
+title PFD flow between Openness and 5G core
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam note {
+  BackgroundColor LightYellow
+  BorderColor LightGray
+}
+skinparam actorStyle awesome
+
+actor "Admin" as admin
+participant "UI/CLI" as ui
+participant "Af Microservice" as af
+participant "NEF" as nef
+participant "NGC CP Function" as ngc
+
+note right of nef: OpenNESS provided\nCore component with\nlimited functionality
+
+== Get all transactions with PFD ==
+admin -> ui: Request all PFD transactions
+ui -> af: af/v1/pfd/transaction GET
+af -> nef: 3gpp-pfd-management/v1/{scsAsId}/transactions/ GET
+nef -> ngc: NGC_STUB (UDR SMF)
+ngc --> nef: OK: PFD information \\ ERROR
+nef --> af: OK: PFD information \\ ERROR
+af --> ui: OK: PFD information \\ ERROR
+ui --> admin: PFD details
+
+== Get transactions with transactionId ==
+admin -> ui: Request transaction with transactionId
+ui -> af: af/v1/pfd/transactions/{transactionId} GET
+af -> nef: 3gpp-pfd-management/v1/{scsAsId}/transactions/{transactionId} GET
+nef -> ngc: NGC_STUB (UDR SMF)
+ngc --> nef: OK: PFD information \\ ERROR
+nef --> af: OK: PFD information \\ ERROR
+af --> ui: OK: PFD information \\ ERROR
+ui --> admin: PFD details
+
+== Get transactions with applicationId ==
+admin -> ui: Request transactions with applicationId
+ui -> af: af/v1/pfd/transactions/{transactionId}/applications/{appId} GET
+af -> nef: 3gpp-pfd-management/v1/{scsAsId}/transactions/{transactionId}/applications/{appId} GET
+nef -> ngc: NGC_STUB (UDR SMF)
+ngc --> nef: OK: PFD information \\ ERROR
+nef --> af: OK: PFD information \\ ERROR
+af --> ui: OK: PFD information \\ ERROR
+ui --> admin: PFD details
+
+@enduml
+```

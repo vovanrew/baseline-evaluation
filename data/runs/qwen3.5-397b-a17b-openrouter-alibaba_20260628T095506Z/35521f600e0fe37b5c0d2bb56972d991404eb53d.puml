@@ -1,0 +1,27 @@
+@startuml
+actor User
+participant server
+database "user" as db
+
+User -> server: 1 POST /sign-up with body: email and password
+activate server
+server -> db: 2 Check email existence
+activate db
+
+alt [Email existed]
+    db --> server: 3 Error code
+    deactivate db
+    server --> User: 4 Error message
+else [Email is new]
+    db --> server: 5 Email is available
+    deactivate db
+    server -> server: 6 Hash password
+    server -> db: 7 Store email and hashed password
+    activate db
+    db --> server: 8 Store complete
+    deactivate db
+    server --> User: 9 Success message
+end
+
+deactivate server
+@enduml

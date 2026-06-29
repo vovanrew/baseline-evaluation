@@ -1,0 +1,19 @@
+@startuml
+actor User
+participant "backend" as backend
+database "MySQL" as mysql
+
+User -> backend: seenNotification(Notification_id, token)
+activate backend
+backend -> backend: confirm JWT token
+alt (token is invalid)
+    backend -> User: Unauthorized
+else (token is valid)
+    backend -> mysql: clearUnreadNotification (Notification_id)
+    activate mysql
+    mysql --> backend: OK
+    deactivate mysql
+    backend -> User: OK
+end
+deactivate backend
+@enduml

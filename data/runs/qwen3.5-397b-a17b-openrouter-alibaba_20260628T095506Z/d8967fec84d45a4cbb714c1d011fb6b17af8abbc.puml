@@ -1,0 +1,152 @@
+@startuml
+title US016 – As Director/PM/PO/SM, I want to view status of activities in a project
+
+skinparam classAttributeIconSize 0
+skinparam classFontColor black
+skinparam classBackgroundColor white
+skinparam classBorderColor black
+skinparam classHeaderBackgroundColor #f0f0f0
+skinparam classHeaderFontColor black
+skinparam classHeaderFontSize 12
+skinparam classHeaderAlignment center
+skinparam classAttributeFontColor black
+skinparam classMethodFontColor black
+skinparam classAttributeIconSize 0
+skinparam classMethodIconSize 0
+skinparam classAttributeAlignment left
+skinparam classMethodAlignment left
+skinparam classAttributePadding 5
+skinparam classMethodPadding 5
+skinparam classAttributeMargin 0
+skinparam classMethodMargin 0
+skinparam classAttributeSeparator false
+skinparam classMethodSeparator false
+skinparam classAttributeUnderline false
+skinparam classMethodUnderline false
+skinparam classAttributeBold false
+skinparam classMethodBold false
+skinparam classAttributeItalic false
+skinparam classMethodItalic false
+skinparam classAttributeStrikeThrough false
+skinparam classMethodStrikeThrough false
+skinparam classAttributeFontName Arial
+skinparam classMethodFontName Arial
+skinparam classAttributeFontSize 10
+skinparam classMethodFontSize 10
+skinparam classAttributeFontStyle plain
+skinparam classMethodFontStyle plain
+skinparam classAttributeFontColor #000000
+skinparam classMethodFontColor #000000
+skinparam classAttributeBackgroundColor #ffffff
+skinparam classMethodBackgroundColor #ffffff
+skinparam classAttributeBorderColor #000000
+skinparam classMethodBorderColor #000000
+skinparam classAttributeBorderThickness 1
+skinparam classMethodBorderThickness 1
+skinparam classAttributePadding 5
+skinparam classMethodPadding 5
+skinparam classAttributeMargin 0
+skinparam classMethodMargin 0
+skinparam classAttributeSeparator false
+skinparam classMethodSeparator false
+skinparam classAttributeUnderline false
+skinparam classMethodUnderline false
+skinparam classAttributeBold false
+skinparam classMethodBold false
+skinparam classAttributeItalic false
+skinparam classMethodItalic false
+skinparam classAttributeStrikeThrough false
+skinparam classMethodStrikeThrough false
+skinparam classAttributeFontName Arial
+skinparam classMethodFontName Arial
+skinparam classAttributeFontSize 10
+skinparam classMethodFontSize 10
+skinparam classAttributeFontStyle plain
+skinparam classMethodFontStyle plain
+
+package "Controller" {
+    class TaskUI <<C>> {
+    }
+    class TaskController <<C>> {
+        + getStatusOfActivitiesInProject(String projectID)
+    }
+}
+
+package "Service" {
+    class TaskService <<C>> {
+        + getStatusOfActivities(String projectID)
+        - getCurrentSprintID(projectID)
+        - getSbiIDs(projectID, sprintID)
+        - getTasks(sbiIDs)
+    }
+}
+
+package "Repository" {
+    class SprintRepository <<C>> {
+        + findCurrentSprintInProject(String projectID)
+    }
+    class SprintBacklogItemRepository <<C>> {
+        + findSprintBacklogItemsInSprint(String projID, String sprintID)
+    }
+    class TaskRepository <<C>> {
+        + findAllByContainerID(SprintBacklogItemID sbiID)
+    }
+}
+
+package "Mapper" {
+    class TaskMapper <<C>> {
+        + statusListToDTO(List<Task> tasks)
+        - statusToDTO(Task task)
+    }
+}
+
+package "Domain" {
+    class Task <<C>> {
+        - taskID : TaskID
+        - taskContainerID : TaskContainerID
+        - status : TaskStatus
+        - percentageOfExecution : Percentage
+        - taskDescription : TaskDescription
+        + getTaskID()
+        + getTaskContID()
+        + getStatus()
+        + getPercentageOfExecution()
+    }
+    class SprintBacklogItemID <<C>> {
+        - sbiID : UUID
+        + getID()
+    }
+    class TaskContainerID <<I>> {
+        - taskContainerID : UUID
+        + getID()
+    }
+}
+
+package "DTO" {
+    class TaskDTO <<C>> {
+        - taskID : String
+        - taskContainerID : String
+        - status : String
+        - percentageOfExecution : int
+        + getTaskID()
+        + setTaskContainerID()
+        + setStatus()
+        + setPercentageOfExecution()
+    }
+}
+
+TaskUI --> TaskController
+TaskController --> TaskService
+TaskService --> SprintRepository
+TaskService --> SprintBacklogItemRepository
+TaskService --> TaskRepository
+TaskService --> TaskMapper
+TaskMapper --> TaskDTO
+TaskRepository ..> Task
+TaskRepository ..> SprintBacklogItemID
+SprintBacklogItemID ..> TaskContainerID : uses
+TaskController ..> TaskDTO
+TaskService ..> TaskDTO
+Task ..> TaskContainerID
+
+@enduml

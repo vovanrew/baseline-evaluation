@@ -1,0 +1,45 @@
+@startuml
+actor "Sales Clerk" as SalesClerk
+participant "OrderDeliveredUI" as OrderDeliveredUI
+participant "OrderDeliveredController" as OrderDeliveredController
+participant "OrderDeliveredService" as OrderDeliveredService
+participant "PersistenceContext" as PersistenceContext
+participant "RepositoryFactory" as RepositoryFactory
+participant "orderRepository : Repository" as orderRepository
+participant "orderList : List<Order>" as orderList
+participant "orderDTOList : List<OrderDTO>" as orderDTOList
+participant "OrderMapper" as OrderMapper
+participant "orderDTO : OrderDTO" as orderDTO
+participant "selectedOrderDTOList : List<OrderDTO>" as selectedOrderDTOList
+participant "order : Order" as order
+
+SalesClerk -> OrderDeliveredUI : The Sales Clerk initializes\nthe process of updating the status of the order
+OrderDeliveredUI -> OrderDeliveredController : create
+OrderDeliveredController -> OrderDeliveredService : create
+OrderDeliveredService -> PersistenceContext : repositories()
+PersistenceContext -> RepositoryFactory : create
+OrderDeliveredService -> RepositoryFactory : factory
+OrderDeliveredService -> orderRepository : orderRepository()
+orderRepository -> orderRepository : create
+OrderDeliveredService -> OrderDeliveredController : orderRepository
+OrderDeliveredController -> OrderDeliveredService : listAllDispatchedOrders()
+OrderDeliveredService -> orderRepository : getAllDispatchedOrders()
+orderRepository -> orderList : create
+OrderDeliveredService -> OrderDeliveredController : orderList
+OrderDeliveredController -> OrderDeliveredUI : orderDTOList
+OrderDeliveredUI -> SalesClerk : The System presents a list of Orders to the\nSales Clerk whose Status are "Preparation"\nand asks the Sales Clerk to choose Orders\nwhose Status will be updated to "Delivered".
+SalesClerk -> OrderDeliveredUI : The Sales Clerk selects the Orders whose\nStatus are to be updated.
+OrderDeliveredUI -> OrderDeliveredController : updateStatus(selectedOrderDTOList)
+OrderDeliveredController -> OrderDeliveredService : updateStatusAndPersist(selectedOrderDTOList)
+loop foreach
+    OrderDeliveredService -> selectedOrderDTOList : getNext()
+    selectedOrderDTOList -> OrderDeliveredService : orderDTO
+    OrderDeliveredService -> OrderMapper : toOrder(orderDTO)
+    OrderMapper -> OrderDeliveredService : order
+    OrderDeliveredService -> order : changeStatusToDelivered()
+    OrderDeliveredService -> orderRepository : update(order)
+end
+OrderDeliveredService -> OrderDeliveredController : 
+OrderDeliveredController -> OrderDeliveredUI : 
+OrderDeliveredUI -> SalesClerk : The System updates the Status of the selected Orders\nand informs the Sales Clerk of the operation success.
+@enduml

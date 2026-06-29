@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782656744-Bz5cHqnH0J7p1CuuWDxU",
+  "object": "chat.completion",
+  "created": 1782656744,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\ntitle PB-158 UC8 SQD: Get campaigns customer is eligible for\n\nactor \"Next Customer\" as User\nparticipant \"P&O\\n(Core Next)\" as PnO\ndatabase \"P&O DB\" as DB\nparticipant \"Core Bradesco\" as Core\n\nbox \"Next Platform\" #LightGray\n    participant PnO\n    database DB\nend box\n\nnote right of User\n  <b>Endpoint:</b>\n  GET /campaigns\n  \n  <b>Current implementation:</b>\n  Currently only called by system management, returns a list of all campaigns\n  with the option to specify:\n  \u2022 NAME\n  \u2022 PARTNER_ID\n  \u2022 OFFER_ID\n  \n  <b>Required implementation:</b>\n  <i>Either through extension of existing API or new</i>, enable the user\n  to call the endpoint. When a user calls the endpoint return a list of campaigns\n  that that the user is eligible for. As part of the request, include an optional\n  field for whether or not to return the offer logo.\n  \n  As part of the CAMPAIGN_RETRIEVAL response include:\n  \u2022 Campaign logo version number\n  \u2022 Campaign logo (optional)\n  \n  <b>ENSURE BACKWARDS COMPATIBILITY IS MAINTAINED</b>\nend note\n\nnote over PnO, Core\n  <b>Abstract:</b>\n  This use cases describes the changes being made to an existing endpoint.\n  The endpoint will be modified so that it can be called by the user and\n  will return a list of campaigns that the customer is eligible for. A campaign\n  logo version number will be returned, as well as a campaign logo\n  image (if requested).\nend note\n\nUser -> PnO: 1 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})\nactivate PnO\n\nframe \"filter on {NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}\" as FilterFrame {\n    PnO -> DB: 2 Get campaigns user is eligible for ({NAME}, {PARTNER_ID}, {ACTIVE}, {OFFER_ID}, {INCLUDE_LOGO})\n    activate DB\n    \n    note right of DB\n      <b>Note:</b>\n      Read P&O tables:\n      \u2022 ELLIGIBLE_USER\n      \u2022 CAMPAIGN\n    end note\n    \n    DB -> DB: 3 Read campaigns user is eligible for\n    deactivate DB\n    \n    DB --> PnO: 4 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)\n}\n\nalt \"if user has been or is eligible for at least one campaign\"\n    PnO --> User: 5 Return campaigns user is eligible for (CAMPAIGN_RETRIEVAL)\nelse \"if user is not eligible for any active campaigns\"\n    PnO --> User: 6 Return error (MESSAGE)\nend\n\ndeactivate PnO\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1614,
+    "completion_tokens": 658,
+    "total_tokens": 2272,
+    "cost": 0.00216918,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00216918,
+      "upstream_inference_prompt_cost": 0.00062946,
+      "upstream_inference_completions_cost": 0.00153972
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

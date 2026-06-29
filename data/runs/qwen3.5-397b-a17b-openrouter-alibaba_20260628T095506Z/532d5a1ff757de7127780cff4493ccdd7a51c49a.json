@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782655987-u5aRQ42C625d8FTrEPbY",
+  "object": "chat.completion",
+  "created": 1782655987,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor \"Sales Clerk\" as SalesClerk\nparticipant \"OrderDeliveredUI\" as OrderDeliveredUI\nparticipant \"OrderDeliveredController\" as OrderDeliveredController\nparticipant \"OrderDeliveredService\" as OrderDeliveredService\nparticipant \"PersistenceContext\" as PersistenceContext\nparticipant \"RepositoryFactory\" as RepositoryFactory\nparticipant \"orderRepository : Repository\" as orderRepository\nparticipant \"orderList : List<Order>\" as orderList\nparticipant \"orderDTOList : List<OrderDTO>\" as orderDTOList\nparticipant \"OrderMapper\" as OrderMapper\nparticipant \"orderDTO : OrderDTO\" as orderDTO\nparticipant \"selectedOrderDTOList : List<OrderDTO>\" as selectedOrderDTOList\nparticipant \"order : Order\" as order\n\nSalesClerk -> OrderDeliveredUI : The Sales Clerk initializes\\nthe process of updating the status of the order\nOrderDeliveredUI -> OrderDeliveredController : create\nOrderDeliveredController -> OrderDeliveredService : create\nOrderDeliveredService -> PersistenceContext : repositories()\nPersistenceContext -> RepositoryFactory : create\nOrderDeliveredService -> RepositoryFactory : factory\nOrderDeliveredService -> orderRepository : orderRepository()\norderRepository -> orderRepository : create\nOrderDeliveredService -> OrderDeliveredController : orderRepository\nOrderDeliveredController -> OrderDeliveredService : listAllDispatchedOrders()\nOrderDeliveredService -> orderRepository : getAllDispatchedOrders()\norderRepository -> orderList : create\nOrderDeliveredService -> OrderDeliveredController : orderList\nOrderDeliveredController -> OrderDeliveredUI : orderDTOList\nOrderDeliveredUI -> SalesClerk : The System presents a list of Orders to the\\nSales Clerk whose Status are \"Preparation\"\\nand asks the Sales Clerk to choose Orders\\nwhose Status will be updated to \"Delivered\".\nSalesClerk -> OrderDeliveredUI : The Sales Clerk selects the Orders whose\\nStatus are to be updated.\nOrderDeliveredUI -> OrderDeliveredController : updateStatus(selectedOrderDTOList)\nOrderDeliveredController -> OrderDeliveredService : updateStatusAndPersist(selectedOrderDTOList)\nloop foreach\n    OrderDeliveredService -> selectedOrderDTOList : getNext()\n    selectedOrderDTOList -> OrderDeliveredService : orderDTO\n    OrderDeliveredService -> OrderMapper : toOrder(orderDTO)\n    OrderMapper -> OrderDeliveredService : order\n    OrderDeliveredService -> order : changeStatusToDelivered()\n    OrderDeliveredService -> orderRepository : update(order)\nend\nOrderDeliveredService -> OrderDeliveredController : \nOrderDeliveredController -> OrderDeliveredUI : \nOrderDeliveredUI -> SalesClerk : The System updates the Status of the selected Orders\\nand informs the Sales Clerk of the operation success.\n@enduml",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1320,
+    "completion_tokens": 590,
+    "total_tokens": 1910,
+    "cost": 0.0018954,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.0018954,
+      "upstream_inference_prompt_cost": 0.0005148,
+      "upstream_inference_completions_cost": 0.0013806
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

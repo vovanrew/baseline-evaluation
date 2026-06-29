@@ -1,0 +1,104 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #F5F5F5
+  BorderColor #000000
+  ArrowColor #000000
+  FontColor #000000
+  FontSize 12
+}
+skinparam note {
+  BackgroundColor #FFFFCC
+  BorderColor #000000
+  FontColor #000000
+  FontSize 12
+}
+skinparam stereotypeCBackgroundColor #C8E6C9
+skinparam stereotypeCBorderColor #000000
+skinparam stereotypeCFontColor #000000
+
+package "Bean" {
+  class "lable" as lable {
+    + int ID
+    + String info
+  }
+  note right of lable: 图书分类,用来控制添加或修改图书时\n控制器选项范围,不与book建立直接联系
+
+  class "borrowHis" as borrowHis {
+    + Date returnDate
+    + Boolean flag
+  }
+
+  class "user" as user {
+    + String ID
+    + String pwd
+    + Date createTime
+    + byte status
+  }
+
+  class "ticket" as ticket {
+    + String title
+    + String info
+    + String adminID
+  }
+
+  class "bookDetList" as bookDetList {
+    + String ID
+    + Date borrowDate
+    + short deadline
+    + byte status
+  }
+
+  class "root" as root {
+  }
+
+  class "borrower" as borrower {
+    + String firstName
+    + String lastName
+    + String IDCardNo
+    + String email
+    + String m_phoneNumber
+    + String creditRating
+  }
+
+  class "admin" as admin {
+    + String firstName
+    + String lastName
+    + String email
+    + Boolean root
+  }
+
+  class "bookDetListInfo" as bookDetListInfo {
+    + byte number
+  }
+
+  class "book" as book {
+    + String ISBN
+    + String name
+    + String Label
+    + String logo
+    + String info
+    + float price
+    + String publisher
+    + String author
+    + Date publishDate
+    + short stock
+    + short Number
+  }
+
+  ' Relationships
+  user --|> root : 继承
+  borrower --|> user : 继承
+  admin --|> user : 继承
+
+  user "1" -- "N" bookDetList : 拥有或管理
+  borrowHis --|> bookDetList : 继承
+  borrowHis -- diamond -- ticket : 包含
+
+  ticket "N" -- "1" admin : 管理
+  bookDetList -- diamond -- bookDetListInfo : 拥有
+  bookDetListInfo "1" -- "1" book : 记录
+}
+
+@enduml

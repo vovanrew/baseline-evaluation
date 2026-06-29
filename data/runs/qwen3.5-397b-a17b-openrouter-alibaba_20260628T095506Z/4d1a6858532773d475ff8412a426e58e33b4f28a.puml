@@ -1,0 +1,106 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #F0F0F0
+  BorderColor #333333
+  ArrowColor #333333
+  FontColor #333333
+  FontName Arial
+  FontSize 12
+}
+skinparam note {
+  BackgroundColor #FFFFCC
+  BorderColor #999999
+  FontColor #333333
+  FontName Arial
+  FontSize 11
+}
+skinparam linetype ortho
+
+class "Leistungspaket" as Leistungspaket {
+  + bezeichnung: String
+  + preis: BigDecimal
+}
+
+class "LeistungspaketBetreuer" as LeistungspaketBetreuer {
+  + leistungspaket: Leistungspaket
+  + betreuer: Betreuer
+}
+
+class "Luxuspaketpaket" as Luxuspaketpaket {
+  + bezeichnung: String
+  + leistungspaket: Leistungspaket
+}
+
+class "LeistungspaketBuchung" as LeistungspaketBuchung {
+  + leistungspaket: Leistungspaket
+  + buchung: Buchung
+  + anzahl: int
+}
+
+class "Buchung" as Buchung {
+  + hotelZimmer: Hotelzimmer
+  + gast: Gast
+  + anreiseDatum: LocalDate
+  + abreiseDatum: LocalDate
+}
+
+class "Gast" as Gast {
+  + kundenNr: int
+  + name: String
+  + adresse: Adresse
+}
+
+class "Hotelzimmer" as Hotelzimmer {
+  + nummer: int
+  + personen: int
+}
+
+class "HotelzimmerKategorie" as HotelzimmerKategorie {
+  + hotelZimmer: Hotelzimmer
+  + kategorie: Kategorie
+}
+
+class "Kategorie" as Kategorie {
+  + id: int
+  + bezeichnung: String
+}
+
+class "HotelzimmerMitarbeiter" as HotelzimmerMitarbeiter {
+  + hotelZimmer: Hotelzimmer
+  + mitarbeiter: Mitarbeiter
+  + hotelZimmer: Hotelzimmer
+  + mitarbeiter: Mitarbeiter
+  + datum: LocalDate
+}
+
+class "Mitarbeiter" as Mitarbeiter {
+  + svnr: String
+  + name: String
+  + adresse: String
+}
+
+class "Betreuer" as Betreuer {
+  + mitarbeiter: Mitarbeiter
+  + fach: String
+}
+
+Leistungspaket "1" -- "*" Luxuspaketpaket
+Leistungspaket "1" -- "*" LeistungspaketBetreuer
+Leistungspaket "1" -- "*" LeistungspaketBuchung
+LeistungspaketBuchung "1" -- "1" Buchung
+Buchung "1" -- "1" Hotelzimmer
+Buchung "1" -- "1" Gast
+Hotelzimmer "1" -- "*" HotelzimmerKategorie
+HotelzimmerKategorie "1" -- "1" Kategorie
+Hotelzimmer "1" -- "*" HotelzimmerMitarbeiter
+HotelzimmerMitarbeiter "1" -- "1" Mitarbeiter
+Mitarbeiter <|-- Betreuer
+
+note right of Luxuspaketpaket
+  ein Luxuspaketpaket hat mehrere Einträge mit der gleichen Bezeichnung
+end note
+
+@enduml
+```

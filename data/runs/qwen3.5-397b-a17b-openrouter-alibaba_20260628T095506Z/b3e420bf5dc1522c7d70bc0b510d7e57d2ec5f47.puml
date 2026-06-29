@@ -1,0 +1,92 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #F5F5F5
+skinparam classBorderColor #333333
+skinparam classHeaderBackgroundColor #E8E8E8
+skinparam classHeaderBorderColor #333333
+skinparam classHeaderFontStyle bold
+skinparam classHeaderFontSize 14
+skinparam classAttributeFontStyle normal
+skinparam classAttributeFontSize 12
+skinparam classMethodFontStyle normal
+skinparam classMethodFontSize 12
+skinparam classMethodColor #006600
+skinparam classAttributeColor #CC0000
+skinparam classInterfaceBackgroundColor #E6E6FA
+skinparam classInterfaceBorderColor #333333
+skinparam classInterfaceFontStyle italic
+skinparam classInterfaceHeaderBackgroundColor #D8D8F0
+skinparam classInterfaceHeaderBorderColor #333333
+skinparam classInterfaceHeaderFontStyle bold
+skinparam classInterfaceHeaderFontSize 14
+skinparam classInterfaceAttributeFontStyle normal
+skinparam classInterfaceAttributeFontSize 12
+skinparam classInterfaceAttributeColor #CC0000
+skinparam classInterfaceMethodFontStyle normal
+skinparam classInterfaceMethodFontSize 12
+skinparam classInterfaceMethodColor #006600
+skinparam classIconSize 20
+skinparam classIconColor #006600
+skinparam classInterfaceIconColor #6600CC
+
+class DataAnalysisCLI {
+    + data: DataFrame
+    + reader: KeyboardReader
+    + DataAnalysisCLI()
+    + run(): void
+    + main(args: String[]): void
+}
+
+class DataFrame {
+    + fileName: String
+    + headerNames: String[]
+    + numOfRows: int
+    + numOfCols: int
+    + csvData: double[][]
+    + DataFrame(fileName: String)
+    + toString(): String
+    + getColumnByIndex(index: int): DataSeries
+    + getHeaderNames(): String[]
+    + getNumOfRows(): int
+    + getNumOfCols(): int
+}
+
+class KeyboardReader {
+    + reader: BufferedReader
+    + KeyboardReader()
+    + getKeyboardInput(): String
+    + getKeyboardInteger(): int
+    + getKeyboardDouble(): double
+    + prompt(s: String): void
+    + display(s: String): void
+    - readKeyboard(): String
+}
+
+class DataSeries {
+    + label: String
+    + data: double[]
+    + count: int
+    + DataSeries(label: String)
+    + size(): int
+    + add(val: double): void
+    + getMin(): double
+    + getMax(): double
+    + getSum(): double
+    + getMean(): double
+    + toString(): String
+}
+
+interface IBasicStats {
+    + getMin(): double
+    + getMax(): double
+    + getSum(): double
+    + getMean(): double
+}
+
+DataAnalysisCLI "1" *-- "1" DataFrame
+DataAnalysisCLI "1" *-- "1" KeyboardReader
+DataFrame "1" *-- "1" DataSeries
+DataSeries ..|> IBasicStats
+
+@enduml

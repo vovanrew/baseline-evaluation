@@ -1,0 +1,83 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontColor black
+skinparam classBackgroundColor white
+skinparam classBorderColor black
+skinparam classHeaderBackgroundColor #f0f0f0
+skinparam classHeaderFontColor black
+skinparam classHeaderBorderColor black
+skinparam classHeaderBorderThickness 1
+skinparam classHeaderAlignment left
+skinparam classAttributeFontColor black
+skinparam classMethodFontColor black
+skinparam classAttributeIconSize 0
+skinparam classMethodIconSize 0
+skinparam classAttributeIconSize 0
+skinparam classMethodIconSize 0
+skinparam classAttributeIconSize 0
+skinparam classMethodIconSize 0
+
+class CheckTestUI {
+}
+
+class CheckTestController {
+  + TestStore testStore
+  + ClientStore clientStore
+  + AuthFacade authFacade
+  + List<Test> clientTestList
+  + Client client
+  + getClientTests()
+  + getTestReport(String idTest)
+}
+
+class Company {
+  + TestStore testStore
+  + ClientStore clientStore
+  + getTestStore()
+  + getClientStore()
+}
+
+class ClientStore {
+  + List<Client> clientList
+  + getClientFromEmail(String email)
+}
+
+class TestStore {
+  + List<Test> testList
+  + getTestList()
+}
+
+class TestMapper {
+  + toDto(testList, client)
+}
+
+class TestDTO {
+  + toDto(testList, client)
+}
+
+class Client {
+  + String tin
+  + getTin()
+}
+
+class Test {
+  + String idTest
+  + TestReport testReport
+  + getTestReport()
+}
+
+CheckTestUI ..> CheckTestController
+CheckTestController ..> Company
+CheckTestController ..> ClientStore
+CheckTestController ..> TestStore
+CheckTestController ..> TestMapper
+CheckTestController ..> TestDTO
+CheckTestController ..> Test
+Company "1" -- "*" ClientStore : uses
+Company "1" -- "*" TestStore : uses
+ClientStore "1" -- "*" Client : knows
+TestStore "1" -- "*" Test : knows
+TestMapper ..> TestDTO
+CheckTestUI ..> TestDTO
+
+@enduml

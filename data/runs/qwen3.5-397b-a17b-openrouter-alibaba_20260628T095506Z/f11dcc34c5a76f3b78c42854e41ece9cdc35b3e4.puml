@@ -1,0 +1,98 @@
+```plantuml
+@startuml
+title Zhinahan Classes
+
+package "Zhinahan" {
+    package "Parser" {
+        class "Parser" as Parser {
+            - matchers : Array<AbstractLineMatcher>
+            - appendix_detector : AppendixDetector
+            - context : Context
+            + parse(file : string) : Dictionary
+            - per_line(line : string, index : int)
+            - parse_line(line : string, index : int)
+        }
+
+        class "AppendixDetector" as AppendixDetector {
+            + starts_appendix_section?(line : string) : bool
+            + has_leaved_appendix_section?(line : string) : bool
+        }
+
+        class "Context" as Context {
+            - while_appendix : bool
+            - line : string?
+            - index : int?
+            + within_appendix?() : bool
+            + enter_appendix() : void
+            + leave_appendix() : void
+            + update_position(line : string, index : int) : void
+        }
+
+        class "LineParser" as LineParser {
+            + parse(context : Context)
+        }
+
+        package "LineMatchers" {
+            class "AbstractLineMatcher" as AbstractLineMatcher {
+                + match(context : Context) : MatchResult?
+                + pattern(context : Context) : RegExp
+                + type() : Symbol
+            }
+
+            class "RadicalLineMatcher" as RadicalLineMatcher
+            class "ExplanationLineMatcher" as ExplanationLineMatcher
+            class "PronunciationLineMatcher" as PronunciationLineMatcher
+            class "CharacterLineMatcher" as CharacterLineMatcher
+
+            class "MatchResult" as MatchResult {
+                - matched : MatchData
+                + type : String
+                + matched() : Hash<String, String>
+            }
+        }
+    }
+
+    package "Core" {
+        class "Dictionary" as Dictionary {
+            - characters : Array<Character>
+            + find(character : string) : Character?
+        }
+
+        class "Character" as Character {
+            - radical : Radical
+            - char : string
+            + is?(character : string) : bool
+        }
+
+        class "Radical" as Radical
+        class "Description" as Description
+        class "Explanation" as Explanation
+        class "Pronunciation" as Pronunciation
+    }
+}
+
+' Relationships
+Parser *-- AppendixDetector
+Parser *-- Context
+Parser *-- LineParser
+LineParser *-- Context
+LineParser *-- AbstractLineMatcher
+LineParser *-- MatchResult
+
+AbstractLineMatcher <|-- RadicalLineMatcher
+AbstractLineMatcher <|-- ExplanationLineMatcher
+AbstractLineMatcher <|-- PronunciationLineMatcher
+AbstractLineMatcher <|-- CharacterLineMatcher
+
+AbstractLineMatcher --> Context
+AbstractLineMatcher --> MatchResult
+
+Parser --> Dictionary
+Dictionary "1" o-- "*" Character
+Character "1" *-- "1" Radical
+Character "1" *-- "1..*" Description
+Description "1" *-- "0..*" Explanation
+Description "1" *-- "0..1" Pronunciation
+
+@enduml
+```

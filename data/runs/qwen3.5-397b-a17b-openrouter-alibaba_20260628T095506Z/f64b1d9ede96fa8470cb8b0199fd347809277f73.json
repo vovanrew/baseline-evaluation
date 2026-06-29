@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782655259-OFOAHq7WejdwAI7JTSaF",
+  "object": "chat.completion",
+  "created": 1782655259,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor Client\nparticipant \"Service1\" as Service1\nparticipant \"Service2\" as Service2\n\nnote right of Service1: SessionFactory\\none per node\nnote right of Service2: Session\\none per request\n\nframe \"model check\" {\n    Client -> Service1: register(Class<Pojo>)\n    activate Service1\n    Service1 -> Service1: checkModel\n    Service1 -> Service1: createModelForPojo\n    \n    alt [mode=\"create\"]\n        alt [model exists]\n            Service1 <- - Service1: throw exception\n        else\n            Service1 -> Service1: createModelInDB\n        end\n    else [mode=\"drop-create\"]\n        Service1 -> Service1: dropModelInDB\n        Service1 -> Service1: createModelInDB\n    else [mode=\"update\"]\n        Service1 -> Service1: getModelDeltaInDB\n        Service1 -> Service1: updateModelInDB\n    else [mode=\"none\"]\n        Service1 -> Service1: checkModelInDB\n        alt [model differs]\n            Service1 <- - Service1: throw exception\n        end\n    end\n    deactivate Service1\n}\n\nClient -> Service2: store(pojo)\nactivate Service2\nService2 -> Service2: getDelta(pojo)\ndeactivate Service2\n\n@enduml",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1320,
+    "completion_tokens": 292,
+    "total_tokens": 1612,
+    "cost": 0.00119808,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00119808,
+      "upstream_inference_prompt_cost": 0.0005148,
+      "upstream_inference_completions_cost": 0.00068328
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

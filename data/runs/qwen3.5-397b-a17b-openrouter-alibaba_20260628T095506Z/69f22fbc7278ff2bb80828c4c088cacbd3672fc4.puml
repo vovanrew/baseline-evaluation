@@ -1,0 +1,52 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam lifelineStrategy solid
+skinparam participantStyle rectangle
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam noteBackgroundColor #FFFFE0
+skinparam noteBorderColor #000000
+skinparam noteFontColor #000000
+skinparam actorBackgroundColor #E6E6FA
+skinparam actorBorderColor #000000
+skinparam databaseBackgroundColor #E6E6FA
+skinparam databaseBorderColor #000000
+
+participant "NavBar" as NavBar
+participant "ReduxStore" as ReduxStore
+participant "UserActions" as UserActions
+participant "UserReducer" as UserReducer
+participant "ProfileMiddleware" as ProfileMiddleware
+participant "Solid.js" as SolidJs
+database "POD" as POD
+
+NavBar -> ReduxStore: loadEmailRequest()
+ReduxStore -> UserActions: dispatch(loadEmailRequest())
+UserActions -> ProfileMiddleware: loadEmailRequest()
+ProfileMiddleware -> SolidJs: getEmail()
+SolidJs -> POD: getEmail()
+POD --> SolidJs: email
+SolidJs --> ProfileMiddleware: email
+
+alt [email successfully loaded]
+    ReduxStore -> UserActions: dispatch(loadEmailSuccess(email))
+    UserActions -> UserReducer: loadEmailSuccess(email)
+    UserReducer -> UserReducer: updateState(email)
+    UserReducer --> ReduxStore: updated state with email
+else [error at loading email]
+    SolidJs --> ProfileMiddleware: error
+    ReduxStore -> UserActions: dispatch(loadEmailError(error))
+    UserActions -> UserReducer: loadEmailError(error)
+    UserReducer -> UserReducer: updateState(error)
+    UserReducer --> ReduxStore: updated state
+end
+
+ReduxStore --> NavBar: state
+
+note right of POD
+line = method
+dash line = data
+end note
+
+@enduml

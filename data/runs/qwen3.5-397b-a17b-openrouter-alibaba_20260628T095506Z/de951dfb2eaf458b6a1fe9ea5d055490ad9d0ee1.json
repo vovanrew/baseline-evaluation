@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782657656-j6l6rR1FgAP2QNMDePoe",
+  "object": "chat.completion",
+  "created": 1782657656,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle US004 - As Administrator, I want to search for users\n\nactor Administrator\nparticipant \": SearchUsersByParamsRoute\" as Route\nparticipant \"inDto : SearchUserDto\" as InDto\nparticipant \": UsersController\" as Controller\nparticipant \": SearchUsersByParamsService\" as Service\nparticipant \": ISystemUserRepo\" as Repo\nparticipant \": IUserProfileRepo\" as ProfileRepo\nparticipant \"usersFound : List<SystemUser>\" as UsersFound\nparticipant \"usersFoundDto : List<UserDto>\" as UsersFoundDto\nparticipant \"user : SystemUser\" as User\nparticipant \": SystemUserMapper\" as Mapper\nparticipant \"userDto : OutputUserDto\" as UserDto\nparticipant \"usersJson : ResponseEntity\" as UsersJson\n\nAdministrator -> Route: 1 GET /users?name={name}&email={email}&profile={profile}&func={func}\nnote right of Administrator: The parameters (name, email, profile and function) will be in the query of the request. At least, one of than must be typed or chosen.\nRoute -> Controller: 2 searchUsersByTypedParams(inDto)\nController -> Service: 3 searchUsersByTypedParams(inDto)\n\nopt if the request has a profile\n    Service -> ProfileRepo: 4 result : existsByUserProfileId(profile)\nend\n\nalt depending on which params came from inputDto, the service class will invoke the respective method\n    Service -> Repo: 5 findAllBy...()\n    Repo -> UsersFound: 6 create()\n    Service -> Service: 7 usersFound\nend\n\nService -> UsersFoundDto: 8 create()\n\nloop for which user found at the list\n    Service -> Mapper: 9 model2Dto(user)\n    Mapper -> UserDto: 10 create()\n    Service -> Service: 11 userDto\n    Service -> Service: 12 addUserDto\nend\n\nService -> Controller: 13 usersFoundDto\nController -> Controller: 14 createUsersFoundDto\nController -> UsersJson: 15 usersJson\nUsersJson -> Administrator: 16 Show the list of user found by typed/chosen parameters\n\n@enduml",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 879,
+    "completion_tokens": 458,
+    "total_tokens": 1337,
+    "cost": 0.00141453,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00141453,
+      "upstream_inference_prompt_cost": 0.00034281,
+      "upstream_inference_completions_cost": 0.00107172
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

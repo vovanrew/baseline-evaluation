@@ -1,0 +1,103 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontColor black
+skinparam classBackgroundColor white
+skinparam classBorderColor black
+skinparam enumFontColor black
+skinparam enumBackgroundColor white
+skinparam enumBorderColor black
+skinparam stereotypeCBackgroundColor #98FB98
+skinparam stereotypeEBackgroundColor #FFA07A
+
+class "Team" as Team {
+    + name: string
+    + description: string
+    + ownerId: User
+    + participants: Participant[]
+    + topics: Topic[]
+}
+
+class "Topic" as Topic {
+    + name: string
+    + icon: string
+    + isSequential: boolean
+    + subtopics: Subtopic[]
+}
+
+class "Subtopic" as Subtopic {
+    + name: string
+    + description: string
+    + challenges: Challenge[]
+}
+
+class "Challenge" as Challenge {
+    + name: string
+    + body: string
+    + type: ChallengeType
+    + selection: string[]
+    + correct: string[]
+    + points: number
+    + feedback: string
+}
+
+class "ChallengeReport" as ChallengeReport {
+    + userId: User
+    + challengeId: Challenge
+    + answer: string[]
+    + answeredCorrectly: boolean
+}
+
+class "User" as User {
+    + name: string
+    + email: string
+    + educationalInstitution: string
+    + educationalBackground: EducationalBackground
+    + birthDate: Date
+    + points: number
+}
+
+class "Participant" as Participant {
+    + userId: User
+    + points: number
+    + status: ParticipantStatus
+}
+
+enum "ParticipantStatus" as ParticipantStatus {
+    PENDING
+    ACCEPTED
+    DISABLED
+}
+
+enum "EducationalBackground" as EducationalBackground {
+    MIDDLE_INCOMPLETE
+    MIDDLE_ONGOING
+    MIDDLE_COMPLETE
+    HIGH_INCOMPLETE
+    HIGH_ONGOING
+    HIGH_COMPLETE
+    GRADUATION_INCOMPLETE
+    GRADUATION_ONGOING
+    GRADUATION_COMPLETE
+}
+
+enum "ChallengeType" as ChallengeType {
+    INPUT
+    RADIO
+    CHECKBOX
+}
+
+Team "1" *-- "0..n" Topic : 
+Team "1" *-- "0..n" Participant : 
+Team "1" *-- "1" User : 
+Topic "1" *-- "0..n" Subtopic : 
+Subtopic "1" *-- "0..n" Challenge : 
+Challenge "1" *-- "1" ChallengeReport : 
+User "1" *-- "1" ChallengeReport : 
+User "1" *-- "1" Participant : 
+Participant "1" --> "status" ParticipantStatus : 
+User "1" --> "educationalBackground" EducationalBackground : 
+Challenge "1" --> "type" ChallengeType : 
+
+@enduml
+```

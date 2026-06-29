@@ -1,0 +1,49 @@
+@startuml
+title US029 - As Project Manager, I want to start a sprint.
+actor "Project Manager" as PM
+participant ": StartSprintRoute" as Route
+participant ": StartSprintController" as Controller
+participant ": StartSprintService" as Service
+participant "dto : SprintDTO" as DTO
+participant ": Project" as Project
+participant ": SprintDomainService" as DomainService
+participant ": SprintStore" as SprintStore
+participant ": ResourceStore" as ResourceStore
+
+PM -> Route: Asks to start a Sprint
+activate Route
+Route -> Controller: startSprint(sprintDTO)
+activate Controller
+Controller -> Service: startSprint(sprintDTO)
+activate Service
+Service -> Project: getProjectTeam()
+activate Project
+Project --> Service: projectTeam
+deactivate Project
+Service -> Project: getSprintDuration()
+activate Project
+Project --> Service: sprintDuration
+deactivate Project
+Service -> SprintStore: startSprint(dto.projectID, dto.sprintID, dto.startDate, projectTeam, sprintDuration)
+activate SprintStore
+SprintStore -> SprintStore: findAllSprintByProjectID (projectID)
+SprintStore -> SprintStore: findSprintByID (sprintID)
+SprintStore -> DomainService: validateStartDate(startDate)
+activate DomainService
+DomainService --> SprintStore: true
+deactivate DomainService
+SprintStore -> ResourceStore: validateProjectTeam(startDate, sprintDuration)
+activate ResourceStore
+ResourceStore -> ResourceStore: getProductOwnerByStartDate(startDate, sprintDuration)
+ResourceStore -> ResourceStore: getScrumMasterByStartDate(startDate, sprintDuration)
+ResourceStore --> SprintStore: true
+deactivate ResourceStore
+SprintStore -> SprintStore: setStartDate(startDate)
+deactivate SprintStore
+Service <-- Controller: true
+deactivate Service
+Controller <-- Route: true
+deactivate Controller
+Route --> PM: Informs Operation Success
+deactivate Route
+@enduml

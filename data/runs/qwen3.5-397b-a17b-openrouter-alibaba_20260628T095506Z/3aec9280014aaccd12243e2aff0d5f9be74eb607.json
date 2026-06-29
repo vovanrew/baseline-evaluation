@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782655828-WeWMZeuryzRTrGrkTkDu",
+  "object": "chat.completion",
+  "created": 1782655828,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "```plantuml\n@startuml\nskinparam sequenceMessageAlign center\nskinparam lifelineStrategy solid\nskinparam participantStyle rectangle\nskinparam noteStyle rectangle\nskinparam noteBackgroundColor #FFFFCC\nskinparam noteBorderColor #CCCCCC\nskinparam noteFontColor #000000\nskinparam noteFontStyle plain\nskinparam noteFontSize 10\nskinparam participantBackgroundColor #E6E6FA\nskinparam participantBorderColor #000000\nskinparam participantFontColor #000000\nskinparam participantFontStyle plain\nskinparam participantFontSize 10\nskinparam arrowColor #000000\nskinparam arrowThickness 1\nskinparam sequenceArrowThickness 1\nskinparam sequenceLifeLineBackgroundColor #F0F0F0\nskinparam sequenceLifeLineBorderColor #CCCCCC\nskinparam sequenceGroupBackgroundColor #F5F5F5\nskinparam sequenceGroupBorderColor #CCCCCC\nskinparam sequenceGroupFontColor #000000\nskinparam sequenceGroupFontStyle plain\nskinparam sequenceGroupFontSize 10\nskinparam sequenceGroupHeaderBackgroundColor #E0E0E0\nskinparam sequenceGroupHeaderBorderColor #CCCCCC\nskinparam sequenceGroupHeaderFontColor #000000\nskinparam sequenceGroupHeaderFontStyle bold\nskinparam sequenceGroupHeaderFontSize 10\n\ntitle band301\n\nparticipant \"BTManager\" as BTManager\nparticipant \"BTCallback\" as BTCallback\nparticipant \"BleController\" as BleController\nparticipant \"ScannerPresenter\" as ScannerPresenter\nparticipant \"LeScannerV21\" as LeScannerV21\nparticipant \"WristbandManager\" as WristbandManager\nparticipant \"L2Layer\" as L2Layer\nparticipant \"L2KeyPacket\" as L2KeyPacket\nparticipant \"L2CMDPacket\" as L2CMDPacket\nparticipant \"L1Layer\" as L1Layer\nparticipant \"L1Packet\" as L1Packet\nparticipant \"GattLayer\" as GattLayer\nparticipant \"BluetoothGatt\" as BluetoothGatt\n\n== onCreate ==\nBTManager -> BTManager: initial\nBTManager -> WristbandManager: new\nWristbandManager -> L2Layer: new\nL2Layer -> L1Layer: new\nL1Layer -> L1Packet: new\nL1Packet -> GattLayer: new\nGattLayer -> BluetoothGatt: new\n\nBTManager -> BleController: initial\nBleController -> ScannerPresenter: new\nScannerPresenter -> LeScannerV21: new\n\n== \u641c\u7d22\u8bbe\u5907 ==\nBTManager -> BTManager: forceLeScan\nBTManager -> BTManager: scanLeDevice\nBTManager -> BTManager: scanDevice\nnote right of BTManager: \u641c\u7d22\u84dd\u7259\u8bbe\u5907\nBTManager -> LeScannerV21: scanLe\nLeScannerV21 -> LeScannerV21: scanLeDevice\nLeScannerV21 -> LeScannerV21: startScan\nLeScannerV21 -> LeScannerV21: onScanResult\nLeScannerV21 -> LeScannerV21: notifyLeScan\nLeScannerV21 -> BTManager: onLeScan\nBTManager -> BTManager: onNewDevice\nBTManager -> BTManager: mHandler.handleMessage\nnote right of BTManager: MSG_FIND_BONDED_DEVICE\n\n== \u5efa\u7acbGATT\u8fde\u63a5 ==\nBTManager -> WristbandManager: Connect: \u627e\u5230\u5408\u9002\u7684\u5730\u5740\u540e\uff0c\u4f7f\u7528\u8be5\u5730\u5740\u8fdb\u884c\u84dd\u7259\u8fde\u63a5\nWristbandManager -> L2Layer: connect\nL2Layer -> L1Layer: connect\nL1Layer -> BluetoothGatt: startTxSchedule\nL1Layer -> L1Layer: startTxSchedule\nnote right of L1Layer: \u5f00\u542f\u4e24\u4e2a\u7ebf\u7a0b\uff0cTx\u53d1\u9001\uff0cRx\u63a5\u6536\nL1Layer -> BluetoothGatt: connect\nBluetoothGatt -> BluetoothGatt: onConnectionStateChange\nBluetoothGatt -> L1Layer: requestMtu\nnote right of L1Layer: \u8bbe\u7f6eMTU\uff1a240\nL1Layer -> L1Layer: onMtuChanged\nL1Layer -> BluetoothGatt: discoverServices\nBluetoothGatt -> BluetoothGatt: onServicesDiscovered\nnote right of BluetoothGatt: \u901a\u8fc7UUID\uff0c\u53d1\u73b0\u6211\u4eec\u8bbe\u7f6e\u7684Services\u548c\u6570\u636e\u8f7d\u4f53Characteristic\nBluetoothGatt -> BluetoothGatt: onDescriptorWrite\nBluetoothGatt -> L1Layer: mGattCallback.onConnectionStateChange\nL1Layer -> L2Layer: mTransportCallback.onConnectionStateChange\nL2Layer -> WristbandManager: mApplicationCallback.onConnectionStateChange\nnote right of WristbandManager: MSG_STATE_CONNECTED\nWristbandManager -> BTManager: mHandler.handleMessage\nBTManager -> WristbandManager: StartLoginProcess\nWristbandManager -> WristbandManager: RequestLogin\nWristbandManager -> WristbandManager: RequestSetNeedInfo\nWristbandManager -> WristbandManager: SetUserProFile\n\n== \u5c01\u88c5\u5e76\u53d1\u9001\u6570\u636e-Tx ==\nWristbandManager -> L2Layer: SettingCmdUserSetting\nL2Layer -> L2Layer: preparePacket: key(1B):data.len(2B):data\nnote right of L2Layer: \u5c01\u5305L2\nL2Layer -> L2Layer: preparePacket: cmd(1B):version(1B)\nL2Layer -> L1Layer: sendData\nL1Layer -> L1Layer: prepareDataPacket\nnote right of L1Layer: \u5c01\u5305L1\nL1Layer -> L1Layer: magic:AB; er-ack-version:00; len(2B);crc(2B);seq(2B)\nL1Layer -> L1Layer: addToTxPacketList\nL1Layer -> L1Layer: ThreadTX.run\nnote right of L1Layer: \u6bcf\u96941\u79d2\u67e5\u8be2\u4e00\u6b21\u662f\u5426\u6709\u65b0\u6570\u636e\uff0c\u6709\u5c31\u53d1\u9001\uff0c\u91cd\u8bd53\u6b21\nL1Layer -> L1Layer: getFromTxPacketList\nL1Layer -> L1Layer: UnpackSendPacket\nnote right of L1Layer: \u8981\u53d1\u9001\u7684\u6570\u636e\u62c6\u4e3a\u6bcf20\u4e2a\u5b57\u8282\u53d1\u9001\u4e00\u6b21\uff0c\u76f4\u5230\u53d1\u9001\u5b8c\u6bd5\nL1Layer -> L1Layer: sendGattLayerData\nL1Layer -> GattLayer: sendData\nGattLayer -> GattLayer: tellUnpackPacketSend\nnote right of GattLayer: \u53cd\u9988\u53d1\u9001\u6210\u529f\uff0cSequenceId++\nGattLayer -> L1Layer: onDataSend\n\n== \u63a5\u6536\u6570\u636e-Rx ==\nBluetoothGatt -> BluetoothGatt: onCharacteristicChanged\nBluetoothGatt -> L1Layer: mGattCallback.onDataReceive\nL1Layer -> L1Layer: receiveData\nL1Layer -> L1Layer: decodeReceiveData\nnote right of L1Layer: \u62c6\u5305L1\nL1Layer -> L1Layer: parseHeader:\u89e3\u6790\u51famagic_ack\u603b\u957f\u5ea6crcsequenid\nL1Layer -> L1Layer: parseData\nnote right of L1Layer: \u5982\u679c\u63a5\u6536\u7684\u6570\u636e\u957f\u5ea6\u7b49\u4e8eL1\u4e2d\u8bb0\u5f55\u7684\u603b\u957f\u5ea6\u5219\u8fd4\u56deLT_FULL_PACKET\\n\u5426\u5219\uff0c\u628a\u6570\u636e\u6682\u5b58\u8d77\u6765\uff08\u5b58504B\uff09\uff0c\u8fd4\u56deLT_SUCCESS\uff0c\u7b49\u5f85\u5269\u4f59\u6570\u636e\u4f20\u8fc7\u6765\nL1Layer -> L1Layer: sendAckPacket\nnote right of L1Layer: \u5411\u624b\u73af\u53d1\u9001\u6210\u529f\u7684ack\nL1Layer -> L1Layer: addToRxPacketList\nL1Layer -> L1Layer: ThreadRX.run\nnote right of L1Layer: \u6bcf\u96941\u79d2\u67e5\u8be2\u4e00\u6b21\u662f\u5426\u6709\u65b0\u6570\u636e\uff0c\u6709\u5c31\u62c6\u5305\nL1Layer -> L1Layer: getFromRxPacketList\nL1Layer -> L2Layer: onDataReceive\nnote right of L2Layer: \u62c6\u5305L2\nL2Layer -> L2Layer: parseData:\u62c6\u5305L2:cmd(1B):version(1B)\nL2Layer -> L2Layer: parseData:\u62c6\u51fakey(1B):len(2B):data\n\n== handshake ==\nBTManager -> WristbandManager: handshake\nWristbandManager -> L2Layer: handshake\nL2Layer -> L1Layer: handshake\nL1Layer -> GattLayer: sendData\nGattLayer -> L1Layer: onDataReceive\nL1Layer -> WristbandManager: onHandshakeCallback\nWristbandManager -> BTManager: onHandshakeCallback\n\n@enduml\n```",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1761,
+    "completion_tokens": 1748,
+    "total_tokens": 3509,
+    "cost": 0.00477711,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00477711,
+      "upstream_inference_prompt_cost": 0.00068679,
+      "upstream_inference_completions_cost": 0.00409032
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

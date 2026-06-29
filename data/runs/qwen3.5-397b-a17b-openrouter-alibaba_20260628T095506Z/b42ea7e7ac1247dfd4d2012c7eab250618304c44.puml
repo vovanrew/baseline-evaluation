@@ -1,0 +1,73 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam noteStyle rectangle
+skinparam arrowColor #000000
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantBorderColor #000000
+skinparam participantFontColor #000000
+skinparam participantFontSize 12
+skinparam participantFontStyle plain
+skinparam participantFontName Arial
+skinparam participantPadding 10
+skinparam participantMargin 10
+skinparam participantBorderThickness 1
+skinparam participantBorderRadius 5
+skinparam participantBorderDashed false
+skinparam participantBorderDotted false
+skinparam participantBorderDouble false
+skinparam participantBorderGroove false
+skinparam participantBorderInset false
+skinparam participantBorderOutset false
+skinparam participantBorderRidge false
+skinparam participantBorderSolid true
+skinparam participantBorderWidth 1
+skinparam participantBorderColor #000000
+skinparam participantBackgroundColor #E6E6FA
+skinparam participantFontColor #000000
+skinparam participantFontSize 12
+skinparam participantFontStyle plain
+skinparam participantFontName Arial
+skinparam participantPadding 10
+skinparam participantMargin 10
+skinparam participantBorderThickness 1
+skinparam participantBorderRadius 5
+skinparam participantBorderDashed false
+skinparam participantBorderDotted false
+skinparam participantBorderDouble false
+skinparam participantBorderGroove false
+skinparam participantBorderInset false
+skinparam participantBorderOutset false
+skinparam participantBorderRidge false
+skinparam participantBorderSolid true
+skinparam participantBorderWidth 1
+
+participant "generate_delta_main.cc" as GDM
+participant "delta_diff_generator.cc" as DDG
+participant "payload_file.cc" as PF
+participant "payload_generation_config.cc" as PGC
+
+GDM -> GDM: brillo::KeyValueStore.Load(file)
+GDM -> PGC: payload_config.target.LoadDynamicPartitionMetadata(store)
+PGC --> GDM
+GDM -> PGC: payload_config.target.ValidateDynamicPartitionMetadata()
+PGC --> GDM
+GDM -> DDG: GenerateUpdatePayloadFile()
+activate DDG
+DDG -> PF: payload.Init(config)
+activate PF
+PF -> PF: manifest_.dynamic_partition_metadata
+PF --> DDG
+deactivate PF
+note right of DDG: generate payload data
+DDG -> PF: payload.WritePayload()
+activate PF
+PF -> PF: manifest_.SerializeToString()
+PF -> PF: Write(serialized_manifest.data())
+PF --> DDG
+deactivate PF
+deactivate DDG
+GDM --> GDM: done
+
+@enduml

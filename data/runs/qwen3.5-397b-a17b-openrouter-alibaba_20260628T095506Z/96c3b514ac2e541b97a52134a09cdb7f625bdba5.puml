@@ -1,0 +1,72 @@
+@startuml
+actor User
+participant "CellEditor" as CellEditor
+participant "Address" as Address
+participant "Controller" as Controller
+participant "Cell" as Cell
+participant "CellImpl" as CellImpl
+participant "FormulaCompiler" as FormulaCompiler
+participant "ExcelExpressionCompiler" as ExcelExpressionCompiler
+participant "ANTLRStringStream" as ANTLRStringStream
+participant "FormulaLexer" as FormulaLexer
+participant "CommonTokenStream" as CommonTokenStream
+participant "FormulaParser" as FormulaParser
+participant "Expression" as Expression
+participant "Formula" as Formula
+
+User -> CellEditor: Inputs block of instructions
+activate CellEditor
+CellEditor -> Address: address = getAddress()
+activate Address
+Address --> CellEditor: 
+deactivate Address
+CellEditor -> Controller: cell = getCell(address)
+activate Controller
+Controller --> CellEditor: 
+deactivate Controller
+CellEditor -> Cell: setContent(content)
+activate Cell
+Cell -> CellImpl: setContent(content)
+activate CellImpl
+CellImpl -> CellImpl: storeContent(content)
+CellImpl -> FormulaCompiler: compile(cell, content)
+activate FormulaCompiler
+FormulaCompiler -> ExcelExpressionCompiler: compile(cell, content)
+activate ExcelExpressionCompiler
+ExcelExpressionCompiler -> ANTLRStringStream: input = create(source)
+activate ANTLRStringStream
+ANTLRStringStream --> ExcelExpressionCompiler: 
+deactivate ANTLRStringStream
+ExcelExpressionCompiler -> FormulaLexer: lexer = create(input)
+activate FormulaLexer
+FormulaLexer --> ExcelExpressionCompiler: 
+deactivate FormulaLexer
+ExcelExpressionCompiler -> CommonTokenStream: tokens = create(lexer)
+activate CommonTokenStream
+CommonTokenStream --> ExcelExpressionCompiler: 
+deactivate CommonTokenStream
+ExcelExpressionCompiler -> FormulaParser: parser = create(tokens)
+activate FormulaParser
+FormulaParser --> ExcelExpressionCompiler: 
+deactivate FormulaParser
+ExcelExpressionCompiler -> FormulaParser: tree = parser.expression()
+FormulaParser --> ExcelExpressionCompiler: 
+ExcelExpressionCompiler -> Expression: create()
+activate Expression
+Expression --> ExcelExpressionCompiler: 
+deactivate Expression
+ExcelExpressionCompiler -> ExcelExpressionCompiler: expression = convert(cell, tree)
+ExcelExpressionCompiler --> FormulaCompiler: expression
+deactivate ExcelExpressionCompiler
+FormulaCompiler -> Formula: formula = create(cell, expression)
+activate Formula
+Formula --> FormulaCompiler: formula
+deactivate Formula
+FormulaCompiler --> CellImpl: 
+deactivate FormulaCompiler
+CellImpl --> Cell: 
+deactivate CellImpl
+Cell -> User: show()
+deactivate Cell
+User <-- User: Result
+@enduml

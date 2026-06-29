@@ -1,0 +1,23 @@
+@startuml
+actor Client
+participant "RMB" as RMB
+participant "Node" as Node
+
+Client -> RMB: Create an RMB message\n(cmd: zos.deployment.deploy, dat: base64(json(deployment)))
+RMB -> Node: Decode payload(dat).\nSo node receive a deployment object
+activate Node
+Node -> Node: Verify hash against contract hash\nVerify signature of the twin
+Node -> RMB: Accepted Or Error
+deactivate Node
+RMB --> Client: Response from the node
+
+frame "If valid" {
+    Node -> Node: Deploy
+}
+
+Client -> RMB: Get Deployment (cmd: zos.deployment.get)
+RMB -> Node: Call get method
+Node -> RMB: Get Response
+RMB --> Client: Response
+
+@enduml

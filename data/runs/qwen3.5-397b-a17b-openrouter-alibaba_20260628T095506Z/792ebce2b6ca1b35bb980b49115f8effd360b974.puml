@@ -1,0 +1,55 @@
+```plantuml
+@startuml
+actor "sdx_downstream" as sdx_downstream
+actor "downstream_quarantine" as downstream_quarantine
+participant "Downstream" as Downstream
+participant "Store" as Store
+participant "TransformCS" as TransformCS
+participant "Sequence" as Sequence
+database "Postgres" as Postgres
+queue "FTP" as FTP
+
+sdx_downstream -> Downstream: Consume tx_id
+activate Downstream
+Downstream -> Store: GET /responses/{tx_id}
+activate Store
+Store -> Postgres: 
+deactivate Store
+Store --> Downstream: return response_json
+break [error]
+    Downstream --> downstream_quarantine: 
+end
+Downstream -> Sequence: GET /sequence
+activate Sequence
+Sequence -> Postgres: 
+deactivate Sequence
+Sequence --> Downstream: return number
+break [error]
+    Downstream --> downstream_quarantine: 
+end
+alt [common-software]
+    Downstream -> TransformCS: POST /common-software/{sequence_no}
+    activate TransformCS
+else [cora]
+    Downstream -> TransformCS: POST /cora/{sequence_no}
+    activate TransformCS
+else [cord]
+    Downstream -> TransformCS: POST /cord/{sequence_no}
+    activate TransformCS
+end
+TransformCS -> Sequence: GET /image-sequence?n
+activate Sequence
+Sequence -> Postgres: 
+deactivate Sequence
+Sequence --> TransformCS: return list
+deactivate TransformCS
+TransformCS --> Downstream: Return Zip
+break [error]
+    Downstream --> downstream_quarantine: 
+end
+Downstream -> Downstream: Unzip
+Downstream -> FTP: Send files
+deactivate Downstream
+
+@enduml
+```

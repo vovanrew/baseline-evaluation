@@ -1,0 +1,46 @@
+{
+  "id": "gen-1782656412-EPTS5YFZLf0LzqnjUUDY",
+  "object": "chat.completion",
+  "created": 1782656412,
+  "model": "qwen/qwen3.5-397b-a17b-20260216",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\ntitle Authorization token with auth_code\nskinparam sequenceMessageAlign center\nskinparam participantStyle rectangle\nskinparam noteStyle rectangle\nskinparam backgroundColor #EEEEEE\nskinparam sequence {\n  LifeLineBackgroundColor #FFFFFF\n  LifeLineBorderColor #CCCCCC\n  ArrowColor #333333\n  ArrowThickness 1\n}\n\nparticipant \"web\" as web\nparticipant \"bff_web_api\" as bff\nparticipant \"authorization_api\" as auth\nparticipant \"k8s_redis\" as redis\n\nbox \"K8S_ZONE\" #DDDDDD\n  participant bff\n  participant auth\n  participant redis\nend box\n\nweb -> bff: /api/v1/auth/token\nnote left of web\n  Request header\n  Content-Type: application/json\n  Request body\n  - auth_code: xxxxxx\nend note\n\nactivate bff\nbff -> bff: validate request\nbff -> auth: /api/v1/oauth/token\nnote left of bff\n  Request header\n  Content-Type: application/x-www-form-urlencoded\n  Request body\n  - auth_code\n  note:\n  - handler late limit (brute force attack)\nend note\n\nactivate auth\nauth -> auth: validate request\nauth -> redis: check auth_code from k8s_redis\nactivate redis\nnote right of redis\n  Key:\n  - auth_code\n  Redis object\n  - user_id\n  - scope\nend note\nredis --> auth: return redis object\ndeactivate redis\n\nauth -> auth: generate JWT Token with private key\nnote left of auth\n  Access token:\n  {\n    header\n    - alg: rsa256\n    - typ: JWT\n    payload\n    - iss\n    - jti\n    - user_id\n    - iat\n    - exp\n    - roles\n    signature\n  }\nend note\n\nauth -> redis: put user session into k8s_redis\nactivate redis\nnote left of redis\n  ttl: 300000 milliseconds (5 min)\n  Key: user_id:xxxxx\n  Redis object value:\n  - access_token\n  - refrech_token\nend note\nredis -> redis: save data\nredis --> auth\ndeactivate redis\n\nauth --> bff: return\ndeactivate auth\n\nbff --> web: return\nnote right of bff\n  Response header\n  Content-Type: application/json\n  Response body\n  - accessToken\n  - RefreshToken\nend note\ndeactivate bff\n\n@enduml",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2251,
+    "completion_tokens": 540,
+    "total_tokens": 2791,
+    "cost": 0.00214149,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00214149,
+      "upstream_inference_prompt_cost": 0.00087789,
+      "upstream_inference_completions_cost": 0.0012636
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

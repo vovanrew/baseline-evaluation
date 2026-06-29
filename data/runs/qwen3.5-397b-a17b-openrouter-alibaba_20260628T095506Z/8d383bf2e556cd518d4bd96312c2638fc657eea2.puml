@@ -1,0 +1,83 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+skinparam participantStyle rectangle
+skinparam participantPadding 10
+skinparam notePadding 10
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #CCCCCC
+skinparam noteFontColor #000000
+skinparam noteFontSize 12
+skinparam noteFontStyle plain
+skinparam noteTextAlignment left
+skinparam noteShadowing false
+skinparam noteBorderThickness 1
+skinparam noteCornerRadius 0
+skinparam noteMargin 5
+skinparam notePadding 10
+skinparam noteBackgroundColor #FFFFCC
+skinparam noteBorderColor #CCCCCC
+skinparam noteFontColor #000000
+skinparam noteFontSize 12
+skinparam noteFontStyle plain
+skinparam noteTextAlignment left
+skinparam noteShadowing false
+skinparam noteBorderThickness 1
+skinparam noteCornerRadius 0
+skinparam noteMargin 5
+
+participant "browser" as browser
+participant "proxy" as proxy
+participant "backend" as backend
+participant "component_config" as component_config
+participant "subscription_map" as subscription_map
+participant "normalized_object_map" as normalized_object_map
+participant "normalized_object" as normalized_object
+
+browser -> proxy: 1 get_state(\nconfiguration_name,\ngeo_bounding_box\n)
+activate browser
+activate proxy
+
+proxy -> backend: 2 +TENANT_HEADER
+activate backend
+
+backend -> component_config: 3 component_config[configuration_name]\n.subscription_usages
+activate component_config
+
+component_config --> backend: 4 [ subscription_usage_config ]
+deactivate component_config
+
+backend -> subscription_map: 5 forEach subscription_usage_config.subscription_id
+activate subscription_map
+
+subscription_map --> backend: 6 subscription_map[subscription_id] (= normalized_object_map)
+deactivate subscription_map
+
+backend -> normalized_object_map: 7 forEach key
+activate normalized_object_map
+
+normalized_object_map --> backend: 8 normalized_object
+deactivate normalized_object_map
+
+note right of backend
+forEach normalized_object:
+if object.in(geo_bounding_box):
+object.to_dto(
+subscription_usage_config
+)
+end note
+
+backend -> normalized_object: 9
+activate normalized_object
+
+normalized_object --> backend: 10 object_dto
+deactivate normalized_object
+
+backend --> proxy: 11 [ object_dto ]
+deactivate backend
+
+proxy --> browser: 12
+deactivate proxy
+deactivate browser
+
+@enduml
