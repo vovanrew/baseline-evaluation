@@ -37,7 +37,7 @@ Every `build_*.py` has one sibling logic module.
 | 3 — plots | `plots.py` | `build_plots.py` | `plots/*` |
 | 4 — failure sampler | `failure_sampler.py` | `build_failure_index.py` | `failure_index.*` |
 | 5 — run-level | `run_level.py` | `build_run_level.py` | `run_level.*`, `crowding.*` |
-| 6 — paper exhibits | `exhibits.py` | `build_exhibits.py` | `exhibits.md`, `exhibit_*.tex` |
+| 6 — paper exhibits | `exhibits.py` | `build_exhibits.py` | `exhibits.md`, `exhibits.html` |
 
 ## Run order
 
@@ -49,7 +49,7 @@ python3 analysis/build_ci_table.py            # → ci_table.*
 python3 analysis/build_run_level.py           # → run_level.*, crowding.*
 python3 analysis/build_plots.py               # reads master + ci + crowding → plots/*
 python3 analysis/build_failure_index.py       # → failure_index.*
-python3 analysis/build_exhibits.py            # reads everything → exhibits.md + exhibit_*.tex
+python3 analysis/build_exhibits.py            # reads everything → exhibits.md + exhibits.html
 ```
 
 Re-running is idempotent: fixed seeds, sorted iteration, no timestamps → byte-identical
@@ -75,11 +75,11 @@ So `master_table.{md,json,csv}` is one result, three ways. Same for `ci_table`,
 | `crowding.*` | Per-tier image crowding (content_lines per megapixel after the 1568px resize). |
 | `failure_index.*` | The stratified failure cases that feed the qualitative error write-up. |
 | `plots/` | Figures as `.png` (viewing) + `.pdf` (paper): `scaling_curve`, `frontier_bars_*`, `per_relation_f1_*`, `breakdown_by_tier`, `breakdown_by_type`. |
-| `exhibits.md` + `exhibit_*.tex` | The paper-ready synthesis (two-arms layout) and `\input`-able LaTeX tables. |
+| `exhibits.md` + `exhibits.html` | The paper-ready synthesis (two-arms layout). The `.html` is Word-importable — open it in Word, or copy a table in, to get editable Word tables. |
 
 All of `out/` is **gitignored** (regenerable from the metric JSONs, which are themselves
 regenerable from `data/runs/`). Reproduce it with the run order above; force-add finals at
-release time (`git add -f analysis/out/exhibits.md analysis/out/plots/*.pdf`).
+release time (`git add -f analysis/out/exhibits.md analysis/out/exhibits.html analysis/out/plots/*.pdf`).
 
 ## Hand-written docs (in `analysis/`, tracked, safe to edit)
 

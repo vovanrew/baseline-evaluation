@@ -2,9 +2,10 @@
 the paper's exhibits. **Pure assembly over the emitted artifacts** -- it reads
 ``master_table.json`` (points + population_gap), ``ci_table.json`` (95% CIs),
 ``run_level.json`` (tokens + provenance) and ``crowding.json`` (per-tier image
-crowding), and emits a consolidated results document plus LaTeX-ready tables. It
-NEVER re-pools a metric or computes a new one: every number is read straight from
-an artifact a prior validated task produced.
+crowding), and emits a consolidated results document as markdown plus a
+Word-importable HTML rendering whose tables paste into Microsoft Word. It NEVER
+re-pools a metric or computes a new one: every number is read straight from an
+artifact a prior validated task produced.
 
 Two-arms framing (plan invariant): the frontier models (GPT-5.2, Claude Opus 4.6,
 Gemini 3.1 Pro) are fixed *reference points*; the Qwen open ladder (dense
@@ -21,6 +22,8 @@ Determinism: model order follows the artifact (registry) order, no timestamps, s
 a re-run reproduces byte-identical files.
 """
 from __future__ import annotations
+
+import re
 
 from analysis.aggregate import RELATIONS, TYPES
 from analysis.plots import per_relation_stat_id, scaling_stat_id
@@ -401,9 +404,9 @@ def render_exhibits_md(master: dict, ci: dict, run_level: dict | None,
             "(`master_table.json`, `ci_table.json`, `run_level.json`, `crowding.json`"
             + (", `failure_index.json`" if failure else "") +
             "). No metric is re-pooled or recomputed here. Companion figures live in "
-            "`analysis/out/plots/`; LaTeX-ready versions of the headline, per-relation, "
-            "population-gap and run-level tables are emitted alongside this document as "
-            "`exhibit_*.tex`.", ""]
+            "`analysis/out/plots/`; a Word-importable rendering of this document (tables "
+            "paste straight into Microsoft Word) is emitted alongside it as "
+            "`exhibits.html`.", ""]
     out += exhibit_headline(master, ci)
     out += exhibit_populations(master, ci)
     out += exhibit_population_gap(master)
@@ -442,127 +445,90 @@ def _failure_coverage(failure: dict) -> list[str]:
 
 
 # --------------------------------------------------------------------------- #
-# LaTeX assembly (booktabs) -- \input-ready tables
+# HTML rendering -- Word-importable (open in Word, or copy a table in)
 # --------------------------------------------------------------------------- #
+# Microsoft Word reads HTML <table> markup natively: opening the emitted
+# exhibits.html in Word, or copy-pasting a table from a browser, yields a real,
+# editable Word table with the header styling preserved. This is the Word analog
+# of an \input-able LaTeX table. The renderer handles only the markdown THIS
+# module emits (#/##/### headings, pipe tables, **bold**, _italic_, `code`); it is
+# not a general markdown parser.
 
-def latex_escape(s: str) -> str:
-    for a, b in (("\\", r"\textbackslash{}"), ("&", r"\&"), ("%", r"\%"),
-                 ("_", r"\_"), ("#", r"\#"), ("$", r"\$")):
-        s = s.replace(a, b)
-    return s
-
-
-def _ltx(entry, fmt) -> str:
-    """``point {\\scriptsize[lo, hi]}`` for a LaTeX cell, or ``--``."""
-    if entry is None or entry.get("point") is None:
-        return "--"
-    pt = entry["point"]
-    lo, hi = entry.get("ci_low"), entry.get("ci_high")
-    if lo is None or hi is None:
-        return fmt(pt)
-    return f"{fmt(pt)} {{\\scriptsize[{fmt(lo)}, {fmt(hi)}]}}"
+_HTML_STYLE = (
+    "body{font-family:Calibri,Arial,sans-serif;font-size:11pt;line-height:1.4;}"
+    "table{border-collapse:collapse;margin:8px 0;}"
+    "th,td{border:1px solid #999;padding:3px 8px;text-align:left;vertical-align:top;}"
+    "th{background:#eee;}"
+    "code{font-family:Consolas,monospace;}"
+)
 
 
-def _f3(x):
-    return "--" if x is None else f"{x:.3f}"
+def _html_inline(text: str) -> str:
+    """Escape one line and apply inline markdown (**bold**, `code`, _italic_),
+    preserving an intentional literal ``<br>`` (used in table headers)."""
+    text = text.replace("<br>", "\x00BR\x00")
+    text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    text = text.replace("\x00BR\x00", "<br/>")
+    text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
+    text = re.sub(r"`([^`]+?)`", r"<code>\1</code>", text)
+    # underscores only count as italic at word boundaries, so identifiers like
+    # zeros_for_failed (always inside backticks anyway) are never touched.
+    text = re.sub(r"(?<![\w*])_(.+?)_(?![\w*])", r"<em>\1</em>", text)
+    return text
 
 
-def _fp1(x):
-    return "--" if x is None else f"{x * 100:.1f}"
+def _split_row(row: str) -> list[str]:
+    """``| a | b |`` -> ``["a", "b"]``."""
+    return [c.strip() for c in row.strip().strip("|").split("|")]
 
 
-def _fc2(x):
-    return "--" if x is None else f"{x:.2f}"
+def _is_separator(row: str) -> bool:
+    cells = _split_row(row)
+    return bool(cells) and all(set(c) <= set("-: ") and "-" in c for c in cells)
 
 
-def _latex_table(caption: str, label: str, colspec: str, header: str,
-                 body: list[str], note: str | None = None) -> str:
-    lines = ["% requires \\usepackage{booktabs}", "\\begin{table}[t]",
-             "\\centering", f"\\caption{{{caption}}}", f"\\label{{{label}}}",
-             f"\\begin{{tabular}}{{{colspec}}}", "\\toprule", header, "\\midrule"]
-    lines += body
-    lines += ["\\bottomrule", "\\end{tabular}"]
-    if note:
-        lines.append(f"\\\\[2pt]\n{{\\footnotesize {note}}}")
-    lines += ["\\end{table}", ""]
-    return "\n".join(lines)
+def _html_table(block: list[str]) -> str:
+    """A markdown pipe-table block (header, separator, rows) -> an HTML table."""
+    if not block:
+        return ""
+    header = _split_row(block[0])
+    body = block[1:]
+    if body and _is_separator(body[0]):
+        body = body[1:]
+    out = ["<table>",
+           "<thead><tr>" + "".join(f"<th>{_html_inline(c)}</th>" for c in header)
+           + "</tr></thead>", "<tbody>"]
+    for r in body:
+        cells = _split_row(r)
+        out.append("<tr>" + "".join(f"<td>{_html_inline(c)}</td>" for c in cells)
+                   + "</tr>")
+    out.append("</tbody></table>")
+    return "\n".join(out)
 
 
-def latex_headline(master: dict, ci: dict) -> str:
-    """The two-arms headline (zeros_for_failed population, the honest headline) with
-    95% CIs; arms separated by a \\midrule with a multicolumn arm label."""
-    g = arm_groups(master)
-    body: list[str] = []
-
-    def row(mid, label):
-        csr = ci_entry(ci, mid, "csr|csr")
-        return " & ".join([
-            label,
-            _fp1(csr["point"]) if csr else "--",
-            _ltx(ci_entry(ci, mid, scaling_stat_id("element_f1", "micro", "zeros_for_failed")), _f3),
-            _ltx(ci_entry(ci, mid, scaling_stat_id("relationship_f1", "micro", "zeros_for_failed")), _f3),
-            _ltx(ci_entry(ci, mid, scaling_stat_id("chrf", "macro", "zeros_for_failed")), _fc2),
-            _ltx(ci_entry(ci, mid, scaling_stat_id("type_accuracy")), _f3),
-        ]) + r" \\"
-
-    body.append(r"\multicolumn{6}{l}{\textit{Arm A --- frontier reference points}} \\")
-    for mid, b in g["frontier"]:
-        body.append(row(mid, latex_escape(b["display"])))
-    body.append(r"\midrule")
-    body.append(r"\multicolumn{6}{l}{\textit{Arm B --- Qwen open ladder + MoE ceiling}} \\")
-    for mid, b in g["ladder"] + g["moe"]:
-        label = f"{latex_escape(b['display'])} ({latex_escape(param_label(b))})"
-        body.append(row(mid, label))
-    header = (r"Model & CSR & Element F1 & Rel.\ F1 & chrF++ & Type acc \\")
-    note = ("Population: \\texttt{zeros\\_for\\_failed} (all 1000, non-compiled scored 0). "
-            "Cells: point [95\\% CI] (paired bootstrap, "
-            f"$n={ci['meta']['n_resamples']}$). CSR \\%; F1/type acc on 0--1; chrF++ macro "
-            "(0--100). The MoE ceiling reports total/active parameters and is not a dense rung.")
-    return _latex_table(
-        "Headline results, two arms (honest all-1000 population).",
-        "tab:headline", "lccccc", header, body, note)
-
-
-def latex_per_relation(master: dict, ci: dict, population: str = "zeros_for_failed") -> str:
-    head = "Model & " + " & ".join(rel[:4].capitalize() for rel in RELATIONS) + r" \\"
-    body = []
-    for mid, b in master["models"].items():
-        cells = [latex_escape(b["display"])]
-        for rel in RELATIONS:
-            cells.append(_ltx(ci_entry(ci, mid, per_relation_stat_id(rel, population)), _f3))
-        body.append(" & ".join(cells) + r" \\")
-    note = (f"Relationship F1 (micro) per relation, population \\texttt{{{population}}}; "
-            "point [95\\% CI]. Columns: inheritance, composition, aggregation, dependency, "
-            "association, message.")
-    return _latex_table(
-        "Relationship F1 by relation type.", "tab:per_relation",
-        "l" + "c" * len(RELATIONS), head, body, note)
-
-
-def latex_population_gap(master: dict) -> str:
-    head = r"Model & CSR & $\Delta$Element & $\Delta$Rel.\ & $\Delta$chrF++ \\"
-    body = []
-    for _mid, b in master["models"].items():
-        pg = b["overall"]["population_gap"]
-        body.append("{m} & {csr} & {el:+.3f} & {rel:+.3f} & {chrf:+.2f} \\\\".format(
-            m=latex_escape(b["display"]), csr=_fp1(b["overall"]["csr"]["csr"]),
-            el=pg["element_f1"]["micro"]["gap"], rel=pg["relationship_f1"]["micro"]["gap"],
-            chrf=pg["chrf"]["micro"]["gap"]))
-    note = ("Selective-failure bias: \\texttt{compiled\\_only} $-$ \\texttt{zeros\\_for\\_failed} "
-            "(overall micro). Near 0 at the frontier, large for the weak rungs.")
-    return _latex_table("Population gap (selective-failure bias).", "tab:popgap",
-                        "lcccc", head, body, note)
-
-
-def latex_run_level(run_level: dict) -> str:
-    head = r"Model & Snapshot & In (M) & Out (M) & Leak \\"
-    body = []
-    for m in run_level["models"]:
-        t, p = m["tokens"], m["provenance"]
-        body.append("{d} & \\texttt{{{snap}}} & {i:.3f} & {o:.3f} & {leak} \\\\".format(
-            d=latex_escape(m["display"]), snap=latex_escape(p["model"]),
-            i=t["input"] / 1e6, o=t["output"] / 1e6, leak=p["reasoning_leak"]))
-    note = ("Token totals over all 1000 cells (incl. failures). " +
-            latex_escape(run_level["meta"].get("token_note", "")))
-    return _latex_table("Run-level token footprint and provenance.", "tab:runlevel",
-                        "llccc", head, body, note)
+def md_to_html(md_text: str, *, title: str = "Paper exhibits") -> str:
+    """Render the generated exhibits markdown as a standalone HTML document whose
+    tables paste cleanly into Microsoft Word. Deterministic (no timestamps)."""
+    lines = md_text.split("\n")
+    out = ["<!DOCTYPE html>", "<html><head><meta charset=\"utf-8\">",
+           f"<title>{_html_inline(title)}</title>",
+           f"<style>{_HTML_STYLE}</style></head><body>"]
+    i, n = 0, len(lines)
+    while i < n:
+        line = lines[i]
+        if line.startswith("### "):
+            out.append(f"<h3>{_html_inline(line[4:])}</h3>"); i += 1; continue
+        if line.startswith("## "):
+            out.append(f"<h2>{_html_inline(line[3:])}</h2>"); i += 1; continue
+        if line.startswith("# "):
+            out.append(f"<h1>{_html_inline(line[2:])}</h1>"); i += 1; continue
+        if line.startswith("|"):
+            block = []
+            while i < n and lines[i].startswith("|"):
+                block.append(lines[i]); i += 1
+            out.append(_html_table(block)); continue
+        if line.strip() == "":
+            i += 1; continue
+        out.append(f"<p>{_html_inline(line)}</p>"); i += 1
+    out.append("</body></html>")
+    return "\n".join(out) + "\n"

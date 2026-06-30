@@ -1,7 +1,7 @@
 """CLI: assemble the validated Task-1..5 artifacts into the paper's exhibits.
 
 Reads (read-only) the artifacts in ``analysis/out/`` and emits a consolidated
-paper-facing results document plus LaTeX-ready tables::
+paper-facing results document in two formats::
 
     python3 analysis/build_master_table.py
     python3 analysis/build_ci_table.py
@@ -10,11 +10,9 @@ paper-facing results document plus LaTeX-ready tables::
     python3 analysis/build_exhibits.py      # this step
 
 Outputs under ``--out-dir`` (default ``analysis/out/``):
-  * ``exhibits.md``            -- the consolidated results document + narrative skeleton
-  * ``exhibit_headline.tex``   -- two-arms headline table (booktabs)
-  * ``exhibit_per_relation.tex``
-  * ``exhibit_population_gap.tex``
-  * ``exhibit_run_level.tex``  (only when run_level.json is present)
+  * ``exhibits.md``   -- the consolidated results document + narrative skeleton
+  * ``exhibits.html`` -- the same document, Word-importable (its tables paste
+    straight into Microsoft Word as editable tables)
 
 master_table.json and ci_table.json are required (STOP-and-report if absent);
 run_level.json / crowding.json / failure_index.json are optional enrichments — a
@@ -65,8 +63,6 @@ def main(argv=None) -> int:
     ap.add_argument("--ci-basename", default="ci_table")
     ap.add_argument("--run-level-basename", default="run_level")
     ap.add_argument("--failure-basename", default="failure_index")
-    ap.add_argument("--prefix", default="exhibit",
-                    help="filename prefix for the emitted .tex tables")
     ap.add_argument("--log-level", default="INFO")
     args = ap.parse_args(argv)
 
@@ -95,20 +91,10 @@ def main(argv=None) -> int:
     md_path = out_dir / "exhibits.md"
     md_path.write_text(md, encoding="utf-8")
 
-    tex = {
-        f"{args.prefix}_headline.tex": exhibits.latex_headline(master, ci),
-        f"{args.prefix}_per_relation.tex": exhibits.latex_per_relation(master, ci),
-        f"{args.prefix}_population_gap.tex": exhibits.latex_population_gap(master),
-    }
-    if run_level:
-        tex[f"{args.prefix}_run_level.tex"] = exhibits.latex_run_level(run_level)
+    html_path = out_dir / "exhibits.html"
+    html_path.write_text(exhibits.md_to_html(md), encoding="utf-8")
 
-    written = [md_path]
-    for fname, content in tex.items():
-        p = out_dir / fname
-        p.write_text(content + "\n", encoding="utf-8")
-        written.append(p)
-
+    written = [md_path, html_path]
     meta = master["meta"]
     print(f"Models included: {meta['models_included']}/{meta['models_total']}")
     for p in written:
