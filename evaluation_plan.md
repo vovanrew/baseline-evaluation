@@ -166,7 +166,8 @@ into `generationConfig`.
 | `gpt-5.2-2025-12-11` | `--base-url https://api.openai.com/v1 --key-env OPENAI_API_KEY --token-field max_completion_tokens --extra-body '{"reasoning_effort": "none"}'` (GPT-5.x rejects `max_tokens`; it also returns HTTP 400 — not a truncated 200 — when output hits the cap, which surfaces as `http_error` cells) |
 | `claude-opus-4-6` | `--base-url https://api.anthropic.com/v1 --key-env ANTHROPIC_API_KEY --extra-body '{"thinking": {"type": "disabled"}}'` (Anthropic flagship) |
 | `gemini-3.1-pro-preview` | `--provider gemini --base-url https://generativelanguage.googleapis.com/v1beta --key-env GEMINI_API_KEY --extra-body '{"thinkingConfig": {"thinkingLevel": "low"}}'` (thinking not disableable on Pro tier; per-call `thoughtsTokenCount` preserved in the stored raw responses; `maxOutputTokens` covers thinking + answer jointly — size the run's `--max-tokens` from pilot-observed thinking volume on top of 5376) |
-| Qwen3.5-2B / 9B / 27B / 397B-A17B | `--base-url https://api.featherless.ai/v1 --key-env FEATHERLESS_API_KEY --extra-body '{"chat_template_kwargs": {"enable_thinking": false}}'` (run the 397B-A17B solo on the key — concurrency cost 4; size its `--timeout` from pilot throughput) |
+| Qwen3.5-2B / 9B / 27B | `--base-url https://api.featherless.ai/v1 --key-env FEATHERLESS_API_KEY --extra-body '{"chat_template_kwargs": {"enable_thinking": false}}'` (dense sizes; size `--timeout` from pilot throughput) |
+| Qwen3.5-397B-A17B | `--base-url https://openrouter.ai/api/v1 --key-env OPENROUTER_API_KEY --extra-body '{"provider": {"only": ["alibaba"], "allow_fallbacks": false}, "reasoning": {"enabled": false}}'` (measured on first-party serving, reached through OpenRouter pinned to the Alibaba backend) |
 
 ```bash
 # per model: 1.1 infer → data/runs/<run>; 1.2 CSR → data/csr/<run>;

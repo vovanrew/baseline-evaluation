@@ -57,16 +57,20 @@ reasoning configuration (§3) and the usage fields the harness validates
 (endpoint documentation verified against provider primary sources
 2026-06-12):
 
-- **OpenAI (`gpt-5.2-2025-12-11`) and Featherless (Qwen3.5)** — the native
+- **OpenAI (`gpt-5.2-2025-12-11`) and Featherless (dense Qwen3.5)** — the native
   OpenAI chat-completions shape (`https://api.openai.com/v1`,
   `https://api.featherless.ai/v1`). GPT-5.2 takes the output cap as
   `max_completion_tokens` (`max_tokens` is rejected for this model;
   `--token-field`, recorded in `run_meta.json`) and returns HTTP 400 rather
   than a truncated completion when generation reaches the cap, so a
-  cap-exhausting generation is stored as an `http_error` failure record. Featherless serves all four
-  Qwen3.5 sizes at FP8 (quantized to FP8 before loading; FP16 is the upload format only); all four
-  sizes ingest the 1,568 px image standard without downscaling
-  (`util/probe_image_tokens.py`; test-set-construction.md §7).
+  cap-exhausting generation is stored as an `http_error` failure record. Featherless serves the
+  dense Qwen3.5 sizes (2B/9B/27B) at FP8; all three ingest the 1,568 px image standard without
+  downscaling (`util/probe_image_tokens.py`; test-set-construction.md §7).
+- **First-party Qwen (`Qwen3.5-397B-A17B`)** — the same OpenAI-compatible shape
+  reached through OpenRouter (`https://openrouter.ai/api/v1`) pinned to the model's
+  first-party (Alibaba) backend with fallbacks disabled. The 397B-A17B is measured on
+  first-party serving rather than the shared Featherless host used for the dense sizes,
+  because the shared host's serving of this model did not faithfully reflect its capability.
 - **Anthropic (`claude-opus-4-6`)** — Anthropic's OpenAI-compatible
   endpoint (`https://api.anthropic.com/v1/chat/completions`), which
   documents passthrough of the native `thinking` request parameter and
@@ -120,18 +124,18 @@ run's `run_meta.json`:
 | `gpt-5.2-2025-12-11` | `reasoning_effort: "none"` | off (also the model default; "does not perform reasoning") |
 | `claude-opus-4-6` | `thinking: {"type": "disabled"}` | off |
 | `gemini-3.1-pro-preview` | `thinking_level: "low"` | minimum available — thinking cannot be disabled on the Pro tier (`minimal` is unsupported there); `low` is the floor, below the dynamic `high` default |
-| Qwen3.5-2B / 9B / 27B / 397B-A17B | `chat_template_kwargs: {"enable_thinking": false}` | off |
+| Qwen3.5-2B / 9B / 27B | `chat_template_kwargs: {"enable_thinking": false}` | off |
+| Qwen3.5-397B-A17B | `reasoning: {"enabled": false}` | off |
 
 Qwen3.5 is a hybrid thinking family whose default differs by size: 2B
 defaults to non-thinking while 9B, 27B, and the 397B-A17B mixture-of-experts
-default to thinking, so the non-thinking flag is sent explicitly and uniformly
-to all four sizes
-(the 2B chat template enables thinking only on an explicit `true`, so the
-uniform flag is a no-op there). The flag follows the official model-card
-usage; Featherless passes `chat_template_kwargs` through as a documented
-request-body field. Non-thinking is realized in the chat template as an empty
-`<think>\n\n</think>` block prefilled into the prompt, so the completion
-itself contains no reasoning content.
+default to thinking, so non-thinking is requested explicitly for every size.
+The dense sizes take the official model-card form `chat_template_kwargs:
+{"enable_thinking": false}` (a no-op on 2B, whose chat template enables
+thinking only on an explicit `true`); the 397B-A17B, served through its
+first-party provider (§2), takes the equivalent top-level `reasoning:
+{"enabled": false}`. Across all runs the stored completions carry no reasoning
+content — the `reasoning_leak` tally is 0 for every model.
 
 The Gemini setting is an asymmetry of the comparison rather than a silent
 confound: thinking tokens generated at `thinking_level: "low"` are billed and
