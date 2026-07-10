@@ -65,8 +65,8 @@ offending token. Each classification was then **independently re-derived** by a 
 re-read the same files and the recorded `tp/fp/fn` deltas and checked for any case that contradicts
 its own metrics (the analysis-protocol STOP condition). Outcome: **38/40 independently verified
 (37 with evidence confirmed exact; 1 corrected — `0b04c29e`, see §3.6; 38/38 category agreement;
-0 metric-contradictions).** Two cases (the shared key `013f262f` on qwen-27b and qwen-397b) lost
-their second pass to a session limit, but each carries extractor-reproduced deltas and the two
+0 metric-contradictions).** Two cases (the shared key `013f262f` on qwen-27b and qwen-397b) did not receive the
+independent second pass, but each carries extractor-reproduced deltas and the two
 corroborate one another (§3.5). Every claim below cites a real `model + key`; no example is
 invented.
 
@@ -92,7 +92,7 @@ context is the "Concentrates in" column (from Exhibit 8 / §1.1).
 |---|---|---|---|---|---|
 | R | **Provider drop / non-response** | 5 | — | all (absence → 0) | qwen-2b (25 avail.); trace on gpt-5.2, qwen-27b; one gemini safety-filter case |
 | C1 | **Syntax / compile error** | 9 | 1 | CSR | every model; near-misses on frontier, gross on weak Qwen |
-| C2 | **Runaway / truncation** (no `@enduml`) | 5 | — | CSR | qwen-2b/9b; also qwen-27b & 397B (FP8 serve) at tier 4 |
+| C2 | **Runaway / truncation** (no `@enduml`) | 5 | — | CSR | qwen-2b/9b; also qwen-27b and 397B at tier 4 |
 | C3 | **Diagram-type / family confusion** | 4 | 3 | CSR + Relationship F1 + type acc | qwen-2b/9b on **sequence** (lifelines→rectangles) |
 | S1 | **Wrong relation type** | 4 | 5 | Relationship F1 | all models; the composition/aggregation/dependency tail |
 | S2 | **Missed relations** (incl. messages-as-notes) | 3 | 12 | Relationship F1 | tier-4 class (frontier) + Qwen note-substitution |
@@ -183,8 +183,8 @@ The `no PNG produced` cases are dominated by non-terminating repetition that nev
   before `@enduml`. A rendering-cosmetic trigger, not a content failure.
 - `qwen3.5-27b b2fe8e9f55ef` (class, T4) and `qwen3.5-397b-a17b 2830a2eabd8a` (sequence, T4): both
   collapse into repetition (a hex string and an alphabet-cycling `skinparam participant<<X>>` block,
-  respectively) with no body. These two are consistent with the documented **FP8 serving
-  generation-collapse** on the larger Qwen sizes, surfacing here at tier 4.
+  respectively) with no body. These are the same no-`@enduml` runaway failure the small rungs
+  show, surfacing here at tier 4 on the larger Qwen sizes.
 
 This category is the case-level face of the §8 token-footprint result (the 2B/9B emit 3–5× the
 frontier's output): the excess output *is* these loops, and they are the proximate cause of the weak
@@ -419,7 +419,7 @@ Consistent with Exhibit 5: the **diagram-family confusion (C3)** is the sequence
 small/mid Qwen and is the mechanism behind the 9B sequence collapse (20.6% CSR). Class diagrams fail
 more through relation-type substitution (S1) and hallucinated elements (S3). The 397B's relative
 *strength* on sequence (Exhibit 5: 84.0% vs 73.4% class) is visible too — its sequence failures here
-are serving-collapse runaways (`2830a2ea`) rather than comprehension errors, whereas its class
+are non-termination runaways (`2830a2ea`) rather than comprehension errors, whereas its class
 failures are genuine relation-type collapses (`013f262f`).
 
 ## 5. Implications for fine-tuning (Qwen target)
@@ -465,7 +465,7 @@ predictions across the panel — most visibly for the frontier, whose true compr
 The 40 cases are drawn from the 233-case index whose per-model availability is Exhibit 8; the sample
 touches every model × outcome cell that has available cases, both diagram types, and all four tiers
 (§1.2). Category assignments are consistent with the index aggregates: provider drops concentrate in
-qwen-2b; `no PNG produced` (C2) concentrates in the small/mid rungs and the FP8-served large rungs at
+qwen-2b; `no PNG produced` (C2) concentrates in the small/mid rungs and the larger rungs at
 tier 4; and the `low_structural` class is relationship-driven (107/112 in the index), which the
 per-category review attributes to S1 (wrong type), C3 (family confusion), S4 (name cascade), S2
 (missed/notes), and M (measurement) rather than to pure missed structure.
